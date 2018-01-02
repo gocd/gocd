@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
@@ -116,16 +117,49 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
+    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans, agentWorkingDirectory);
             }
 
             @Override
             public PublishArtifactResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).publishArtifactResponse(responseBody);
+            }
+        });
+    }
+
+
+    public List<PluginConfiguration> getFetchArtifactMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+            @Override
+            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getMetadataResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    public String getFetchArtifactView(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_VIEW, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Fetch artifact view");
+            }
+        });
+    }
+
+    public ValidationResult validateFetchArtifactConfig(final String pluginId, final Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_VALIDATE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).validateConfigurationRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
     }
@@ -137,5 +171,14 @@ public class ArtifactExtension extends AbstractExtension {
     @Override
     protected List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
+    }
+
+    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
+            }
+        });
     }
 }

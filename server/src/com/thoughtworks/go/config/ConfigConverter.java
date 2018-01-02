@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -167,9 +168,20 @@ public class ConfigConverter {
             return toExecTask((CRExecTask) crTask);
         } else if (crTask instanceof CRFetchArtifactTask) {
             return toFetchTask((CRFetchArtifactTask) crTask);
+        } else if (crTask instanceof CRFetchPluggableArtifactTask) {
+            return toFetchPluggableArtifactTask((CRFetchPluggableArtifactTask) crTask);
         } else
             throw new RuntimeException(
                     String.format("unknown type of task '%s'", crTask));
+    }
+
+    public FetchPluggableArtifactTask toFetchPluggableArtifactTask(CRFetchPluggableArtifactTask crTask) {
+        Configuration configuration = toConfiguration(crTask.getConfiguration());
+        FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(crTask.getPipelineName() == null ? "" : crTask.getPipelineName()),
+                new CaseInsensitiveString(crTask.getStage()),
+                new CaseInsensitiveString(crTask.getJob()), crTask.getStoreId(), configuration);
+        setCommonTaskMembers(fetchPluggableArtifactTask, crTask);
+        return fetchPluggableArtifactTask;
     }
 
     public FetchTask toFetchTask(CRFetchArtifactTask crTask) {
@@ -237,11 +249,13 @@ public class ConfigConverter {
 
     private Configuration toConfiguration(Collection<CRConfigurationProperty> properties) {
         Configuration configuration = new Configuration();
-        for (CRConfigurationProperty p : properties) {
-            if (p.getValue() != null)
-                configuration.addNewConfigurationWithValue(p.getKey(), p.getValue(), false);
-            else
-                configuration.addNewConfigurationWithValue(p.getKey(), p.getEncryptedValue(), true);
+        if (properties != null) {
+            for (CRConfigurationProperty p : properties) {
+                if (p.getValue() != null)
+                    configuration.addNewConfigurationWithValue(p.getKey(), p.getValue(), false);
+                else
+                    configuration.addNewConfigurationWithValue(p.getKey(), p.getEncryptedValue(), true);
+            }
         }
         return configuration;
     }
@@ -461,10 +475,17 @@ public class ConfigConverter {
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
         ArtifactConfigs artifactConfigs = jobConfig.artifactConfigs();
-        if (crJob.getArtifacts() != null)
+        if (crJob.getArtifacts() != null) {
             for (CRArtifact crArtifact : crJob.getArtifacts()) {
                 artifactConfigs.add(toArtifactConfig(crArtifact));
             }
+        }
+
+        if(crJob.getPluggableArtifacts() != null) {
+            for (CRPluggableArtifact crPluggableArtifact: crJob.getPluggableArtifacts()) {
+                artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
+            }
+        }
 
         ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
         if (crJob.getArtifactPropertiesGenerators() != null)
@@ -494,6 +515,12 @@ public class ConfigConverter {
             return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
         }
         return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+    }
+
+    public PluggableArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
+        Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
+        ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
+        return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
     }
 
     private Tab toTab(CRTab crTab) {

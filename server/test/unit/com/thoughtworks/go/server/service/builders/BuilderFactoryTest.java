@@ -16,23 +16,16 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.BuildTask;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
@@ -44,6 +37,9 @@ import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -67,7 +63,7 @@ public class BuilderFactoryTest {
     @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<>(new ExecTask(), execTaskBuilder);
     @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<>(new NantTask(), nantTaskBuilder);
     @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<>(new RakeTask(), rakeTaskBuilder);
-    @DataPoint public static TaskDataPoint<FetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
+    @DataPoint public static TaskDataPoint<AbstractFetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
     @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<>(new NullTask(), nullTaskBuilder);
     @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<>(new PluggableTask(), pluggableTaskBuilderCreator);
     @DataPoint public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
@@ -79,12 +75,12 @@ public class BuilderFactoryTest {
     }
 
     @Theory
-    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(TaskDataPoint taskDataPoint) throws Exception {
+    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(TaskDataPoint taskDataPoint)  {
         assertBuilderForTask(taskDataPoint.task, taskDataPoint.taskBuilder);
     }
 
     @Test
-    public void shouldFailIfCalledWithSomeRandomTypeOfTask() throws Exception {
+    public void shouldFailIfCalledWithSomeRandomTypeOfTask()  {
         Task task = someRandomNonStandardTask();
 
         try {
@@ -96,7 +92,7 @@ public class BuilderFactoryTest {
     }
 
     @Test
-    public void shouldCreateABuilderForEachTypeOfTaskWhichExists() throws Exception {
+    public void shouldCreateABuilderForEachTypeOfTaskWhichExists()  {
         Pipeline pipeline = PipelineMother.pipeline("pipeline1", StageMother.custom("stage1"));
         AntTask antTask = new AntTask();
         NantTask nantTask = new NantTask();
@@ -136,7 +132,7 @@ public class BuilderFactoryTest {
     private Builder myFakeBuilder() {
         return new Builder(null, null, null) {
             @Override
-            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
             }
 
             public String toString() {

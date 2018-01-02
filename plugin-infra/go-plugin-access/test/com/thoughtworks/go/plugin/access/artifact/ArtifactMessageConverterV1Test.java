@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -30,6 +31,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.CoreMatchers.is;
@@ -47,32 +49,35 @@ public class ArtifactMessageConverterV1Test {
                 new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3-store", create("junit", false, "junit.xml")))
         );
 
-        final String publishArtifactMessage = converter.publishArtifactMessage(Collections.singletonMap(artifactStore, artifactPlans));
+        final String publishArtifactMessage = converter.publishArtifactMessage(Collections.singletonMap(artifactStore, artifactPlans), "/temp");
 
-        final String expectedStr = "[\n" +
-                "  {\n" +
-                "    \"configuration\": {\n" +
-                "      \"Foo\": \"Bar\"\n" +
-                "    },\n" +
-                "    \"id\": \"s3-store\",\n" +
-                "    \"artifact_plans\": [\n" +
-                "      {\n" +
-                "        \"configuration\": {\n" +
-                "          \"Baz\": \"Car\"\n" +
-                "        },\n" +
-                "        \"id\": \"installers\",\n" +
-                "        \"storeId\": \"s3-store\"\n" +
+        final String expectedStr = "{\n" +
+                "  \"artifact_infos\": [\n" +
+                "    {\n" +
+                "      \"configuration\": {\n" +
+                "        \"Foo\": \"Bar\"\n" +
                 "      },\n" +
-                "      {\n" +
-                "        \"configuration\": {\n" +
-                "          \"junit\": \"junit.xml\"\n" +
+                "      \"id\": \"s3-store\",\n" +
+                "      \"artifact_plans\": [\n" +
+                "        {\n" +
+                "          \"configuration\": {\n" +
+                "            \"Baz\": \"Car\"\n" +
+                "          },\n" +
+                "          \"id\": \"installers\",\n" +
+                "          \"storeId\": \"s3-store\"\n" +
                 "        },\n" +
-                "        \"id\": \"test-reports\",\n" +
-                "        \"storeId\": \"s3-store\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "]";
+                "        {\n" +
+                "          \"configuration\": {\n" +
+                "            \"junit\": \"junit.xml\"\n" +
+                "          },\n" +
+                "          \"id\": \"test-reports\",\n" +
+                "          \"storeId\": \"s3-store\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"agent_working_directory\": \"/temp\"\n" +
+                "}";
 
         JSONAssert.assertEquals(expectedStr, publishArtifactMessage, true);
     }
@@ -117,5 +122,30 @@ public class ArtifactMessageConverterV1Test {
                 new ValidationError("Url", "Url must not be blank."),
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
         ));
+    }
+
+    @Test
+    public void fetchArtifactMessage_shouldSerializeToJson() throws JSONException {
+        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
+        final Configuration configuration = new Configuration(create("Filename", false, "build/libs/foo.jar"));
+        final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+
+        final String fetchArtifactMessage = converter.fetchArtifactMessage(artifactStore, configuration, metadata, "/temp");
+
+        final String expectedStr = "{\n" +
+                "  \"fetch_artifact_configuration\": {\n" +
+                "    \"Filename\": \"build/libs/foo.jar\"\n" +
+                "  },\n" +
+                "  \"artifact_metadata\": {\n" +
+                "    \"Version\": \"10.12.0\"\n" +
+                "  },\n" +
+                "  \"store_configuration\": {\n" +
+                "    \"Foo\": \"Bar\"\n" +
+                "  },\n" +
+                "  \"agent_working_directory\": \"/temp\"\n" +
+                "}";
+
+        JSONAssert.assertEquals(expectedStr, fetchArtifactMessage, true);
     }
 }

@@ -798,7 +798,7 @@ public class MagicalGoConfigXmlWriterTest {
             fail("should not fail as workspace name is not mandatory anymore " + e);
         }
 
-        assertThat(new String(output.toByteArray()), containsString("<fetchartifact pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" srcfile=\"src\" dest=\"dest\" />"));
+        assertThat(new String(output.toByteArray()), containsString("<fetchartifact srcfile=\"src\" dest=\"dest\" pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" />"));
     }
 
     @Test

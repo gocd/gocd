@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -39,7 +40,7 @@ public abstract class BaseCommandBuilder extends Builder {
         this.workingDir = workingDir;
     }
 
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension)
             throws CruiseControlException {
         final long startTime = System.currentTimeMillis();
 

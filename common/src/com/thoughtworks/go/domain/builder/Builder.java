@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.builder;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -52,7 +53,7 @@ public abstract class Builder implements Serializable {
     }
 
     public abstract void build(DefaultGoPublisher publisher,
-                               EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
+                               EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension)
             throws CruiseControlException;
 
     public String getDescription() {
@@ -98,10 +99,10 @@ public abstract class Builder implements Serializable {
         return result;
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
         publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
-            cancelBuilder.build(publisher, environmentVariableContext, taskExtension);
+            cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension);
             // As this message will output before the running task outputs its task status, do not use the same
             // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
             publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");

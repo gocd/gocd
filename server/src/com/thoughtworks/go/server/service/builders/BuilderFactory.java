@@ -16,33 +16,30 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class BuilderFactory {
     private final Map<Class, TaskBuilder> taskBuilderMap = new HashMap<>();
 
     @Autowired
-    public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder, RakeTaskBuilder rakeTaskBuilder,
-                          PluggableTaskBuilderCreator pluggableTaskBuilderCreator, KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder, FetchTaskBuilder fetchTaskBuilder,
+    public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder,
+                          RakeTaskBuilder rakeTaskBuilder, PluggableTaskBuilderCreator pluggableTaskBuilderCreator,
+                          KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder, FetchTaskBuilder fetchTaskBuilder,
                           NullTaskBuilder nullTaskBuilder) {
         taskBuilderMap.put(AntTask.class, antTaskBuilder);
         taskBuilderMap.put(ExecTask.class, execTaskBuilder);
@@ -51,6 +48,7 @@ public class BuilderFactory {
         taskBuilderMap.put(PluggableTask.class, pluggableTaskBuilderCreator);
         taskBuilderMap.put(KillAllChildProcessTask.class, killAllChildProcessTaskBuilder);
         taskBuilderMap.put(FetchTask.class, fetchTaskBuilder);
+        taskBuilderMap.put(FetchPluggableArtifactTask.class, fetchTaskBuilder);
         taskBuilderMap.put(NullTask.class, nullTaskBuilder);
     }
 
@@ -67,7 +65,7 @@ public class BuilderFactory {
     }
 
     private TaskBuilder getBuilderImplementation(Task task) {
-        if(!taskBuilderMap.containsKey(task.getClass()))
+        if (!taskBuilderMap.containsKey(task.getClass()))
             throw new RuntimeException("Unexpected type of task: " + task.getClass());
 
         return taskBuilderMap.get(task.getClass());

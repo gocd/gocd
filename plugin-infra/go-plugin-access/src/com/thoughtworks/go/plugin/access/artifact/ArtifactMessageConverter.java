@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ArtifactMessageConverter {
-    String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans);
+    String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory);
 
     PublishArtifactResponse publishArtifactResponse(String responseBody);
 
@@ -37,4 +38,6 @@ public interface ArtifactMessageConverter {
     String validateConfigurationRequestBody(Map<String, String> configuration);
 
     ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody);
+
+    String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory);
 }

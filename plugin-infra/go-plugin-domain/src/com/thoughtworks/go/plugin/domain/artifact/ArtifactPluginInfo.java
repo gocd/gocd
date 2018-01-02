@@ -24,12 +24,14 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings storeConfigSettings;
     private final PluggableInstanceSettings artifactConfigSettings;
+    private final PluggableInstanceSettings fetchArtifactSettings;
     private final PluggableInstanceSettings pluginSettingsAndView;
 
-    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings artifactConfigSettings, PluggableInstanceSettings pluginSettingsAndView) {
+    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, PluggableInstanceSettings pluginSettingsAndView) {
         super(descriptor, PluginConstants.ARTIFACT_EXTENSION, pluginSettingsAndView);
         this.storeConfigSettings = storeConfigSettings;
-        this.artifactConfigSettings = artifactConfigSettings;
+        this.artifactConfigSettings = publishArtifactSettings;
+        this.fetchArtifactSettings = fetchArtifactSettings;
         this.pluginSettingsAndView = pluginSettingsAndView;
     }
 
@@ -45,10 +47,15 @@ public class ArtifactPluginInfo extends PluginInfo {
         return pluginSettingsAndView;
     }
 
+    public PluggableInstanceSettings getFetchArtifactSettings() {
+        return fetchArtifactSettings;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ArtifactPluginInfo)) return false;
+        if (!super.equals(o)) return false;
 
         ArtifactPluginInfo that = (ArtifactPluginInfo) o;
 
@@ -56,13 +63,17 @@ public class ArtifactPluginInfo extends PluginInfo {
             return false;
         if (artifactConfigSettings != null ? !artifactConfigSettings.equals(that.artifactConfigSettings) : that.artifactConfigSettings != null)
             return false;
+        if (fetchArtifactSettings != null ? !fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings != null)
+            return false;
         return pluginSettingsAndView != null ? pluginSettingsAndView.equals(that.pluginSettingsAndView) : that.pluginSettingsAndView == null;
     }
 
     @Override
     public int hashCode() {
-        int result = storeConfigSettings != null ? storeConfigSettings.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (storeConfigSettings != null ? storeConfigSettings.hashCode() : 0);
         result = 31 * result + (artifactConfigSettings != null ? artifactConfigSettings.hashCode() : 0);
+        result = 31 * result + (fetchArtifactSettings != null ? fetchArtifactSettings.hashCode() : 0);
         result = 31 * result + (pluginSettingsAndView != null ? pluginSettingsAndView.hashCode() : 0);
         return result;
     }

@@ -36,4 +36,5 @@ public interface ArtifactExtensionConstants {
     String REQUEST_FETCH_ARTIFACT_VALIDATE = String.join(".", REQUEST_PREFIX, "fetch", "validate");
 
     String REQUEST_PUBLISH_ARTIFACT = String.join(".", REQUEST_PREFIX, "publish-artifact");
+    String REQUEST_FETCH_ARTIFACT = String.join(".", REQUEST_PREFIX, "fetch-artifact");
 }

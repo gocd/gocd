@@ -27,10 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class ArtifactPluginInfoBuilderTest {
 
@@ -42,7 +41,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithStoreSettings() throws Exception {
+    public void shouldBuildPluginInfoWithStoreSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("S3_BUCKET", new Metadata(true, false)),
@@ -58,7 +57,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithArtifactConfigSettings() throws Exception {
+    public void shouldBuildPluginInfoWithPublishArtifactConfigSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("FILENAME", new Metadata(true, false))
@@ -73,7 +72,22 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() throws Exception {
+    public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+                new PluginConfiguration("FILENAME", new Metadata(true, false))
+        );
+
+        when(extension.getFetchArtifactMetadata(descriptor.id())).thenReturn(pluginConfigurations);
+        when(extension.getFetchArtifactView(descriptor.id())).thenReturn("fetch_artifact_view");
+
+        ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getFetchArtifactSettings(), Is.is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("fetch_artifact_view"))));
+    }
+
+    @Test
+    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
 

@@ -165,7 +165,7 @@ describe ApiV4::Admin::PluginInfosController do
                         com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, nil, nil),
                         com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, nil, nil, nil)]
+                        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, nil, nil, nil, nil)]
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).and_return(allPluginInfos)
 

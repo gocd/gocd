@@ -45,6 +45,8 @@ public class TaskTypeAdapter implements JsonDeserializer<CRTask>, JsonSerializer
             return CRPluggableTask.class;
         if(typeName.equals(CRFetchArtifactTask.TYPE_NAME))
             return CRFetchArtifactTask.class;
+        if(typeName.equals(CRFetchPluggableArtifactTask.TYPE_NAME))
+            return CRFetchPluggableArtifactTask.class;
         else
             throw new JsonParseException(
                     String.format("Invalid or unknown task type '%s'",typeName));

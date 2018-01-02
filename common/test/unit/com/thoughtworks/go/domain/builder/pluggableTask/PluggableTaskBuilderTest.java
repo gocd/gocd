@@ -54,13 +54,20 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PluggableTaskBuilderTest {
 
     public static final String TEST_PLUGIN_ID = "test-plugin-id";
-    @Mock private RunIfConfigs runIfConfigs;
-    @Mock private Builder cancelBuilder;
-    @Mock private PluggableTask pluggableTask;
-    @Mock private PluginManager pluginManager;
-    @Mock private EnvironmentVariableContext variableContext;
-    @Mock private DefaultGoPublisher goPublisher;
-    @Mock private GoPluginDescriptor pluginDescriptor;
+    @Mock
+    private RunIfConfigs runIfConfigs;
+    @Mock
+    private Builder cancelBuilder;
+    @Mock
+    private PluggableTask pluggableTask;
+    @Mock
+    private PluginManager pluginManager;
+    @Mock
+    private EnvironmentVariableContext variableContext;
+    @Mock
+    private DefaultGoPublisher goPublisher;
+    @Mock
+    private GoPluginDescriptor pluginDescriptor;
     private TaskExtension taskExtension;
 
     @Before
@@ -76,7 +83,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @After
-    public void teardown(){
+    public void teardown() {
         JobConsoleLoggerInternal.unsetContext();
     }
 
@@ -91,7 +98,7 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-        taskBuilder.build(goPublisher, variableContext, taskExtension);
+        taskBuilder.build(goPublisher, variableContext, taskExtension, null);
 
         assertThat(executeTaskCalled[0], is(1));
     }
@@ -250,7 +257,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension);
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -280,7 +287,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension);
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -296,7 +303,7 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
 
-        builder.build(goPublisher, variableContext, taskExtension);
+        builder.build(goPublisher, variableContext, taskExtension, null);
         assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
     }
 
@@ -308,7 +315,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
 
         try {
-            builder.build(goPublisher, variableContext, taskExtension);
+            builder.build(goPublisher, variableContext, taskExtension, null);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
@@ -323,7 +330,7 @@ public class PluggableTaskBuilderTest {
 
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
         try {
-            builder.build(goPublisher, variableContext, taskExtension);
+            builder.build(goPublisher, variableContext, taskExtension, null);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));

@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
@@ -36,11 +37,17 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     private static final Gson GSON = new Gson();
 
     @Override
-    public String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
-        final ArrayList<Map> messageObject = new ArrayList<>();
+    public String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
+        final Map<String, Object> messageObject = new HashMap<>();
+        final List<Map> artifactInfos = new ArrayList<>();
+
         for (Map.Entry<ArtifactStore, List<ArtifactPlan>> entry : artifactStoreToArtifactPlans.entrySet()) {
-            messageObject.add(getArtifactStore(entry.getKey(), entry.getValue()));
+            artifactInfos.add(getArtifactStore(entry.getKey(), entry.getValue()));
         }
+
+        messageObject.put("agent_working_directory", agentWorkingDirectory);
+        messageObject.put("artifact_infos", artifactInfos);
+
         return GSON.toJson(messageObject);
     }
 
@@ -83,6 +90,16 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     @Override
     public ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
+    }
+
+    @Override
+    public String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("store_configuration", artifactStore.getConfigurationAsMap(true));
+        map.put("fetch_artifact_configuration", configuration.getConfigurationAsMap(true));
+        map.put("artifact_metadata", metadata);
+        map.put("agent_working_directory", agentWorkingDirectory);
+        return GSON.toJson(map);
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

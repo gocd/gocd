@@ -59,7 +59,7 @@ public class BuilderTest {
         CommandBuilder builder = new CommandBuilder("echo", "normal task", new File("."), new RunIfConfigs(FAILED),
                 cancelBuilder,
                 "");
-        builder.cancel(goPublisher, new EnvironmentVariableContext(), null);
+        builder.cancel(goPublisher, new EnvironmentVariableContext(), null, null);
 
         assertThat(goPublisher.getMessage(),
                 containsString("Error happened while attempting to execute 'echo2 cancel task'"));
@@ -70,7 +70,7 @@ public class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null);
+        builder.cancel(goPublisher, environmentVariableContext, null, null);
         assertThat(stubBuilder.wasCalled, is(true));
     }
 
@@ -79,7 +79,7 @@ public class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null);
+        builder.cancel(goPublisher, environmentVariableContext, null, null);
 
         assertThat(goPublisher.getMessage(), containsString("On Cancel Task"));
         assertThat(goPublisher.getMessage(), containsString("On Cancel Task completed"));

@@ -40,6 +40,7 @@ import static java.lang.String.join;
 
 public class ArtifactsPublisher implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsPublisher.class);
+    public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
     private ArtifactPlanFilter artifactPlanFilter;
     private ArtifactExtension artifactExtension;
     private ArtifactStores artifactStores;
@@ -58,8 +59,10 @@ public class ArtifactsPublisher implements Serializable {
         final File pluggableArtifactFolder = publishPluggableArtifact(goPublisher, workingDirectory, artifactPlans);
         final List<ArtifactPlan> mergedPlans = artifactPlanFilter.getBuiltInMergedArtifactPlans(artifactPlans);
 
-        if (pluggableArtifactFolder != null) {
-            mergedPlans.add(0, new ArtifactPlan(ArtifactType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), "pluggable-artifact-metadata"));
+        if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
+            LOGGER.info("Pluggable metadata folder is empty.");
+        } else if (pluggableArtifactFolder != null) {
+            mergedPlans.add(0, new ArtifactPlan(ArtifactType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
         }
 
         List<ArtifactPlan> failedArtifact = new ArrayList<>();
@@ -80,6 +83,10 @@ public class ArtifactsPublisher implements Serializable {
         }
     }
 
+    private boolean isMetadataFolderEmpty(File pluggableArtifactFolder) {
+        return pluggableArtifactFolder != null && pluggableArtifactFolder.list().length == 0;
+    }
+
     private File publishPluggableArtifact(GoPublisher goPublisher, File workingDirectory, List<ArtifactPlan> artifactPlans) {
         final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
         final Map<String, Map<ArtifactStore, List<ArtifactPlan>>> artifactStoresToPlugin = artifactStoresToPlugin(pluggableArtifactPlans);
@@ -92,7 +99,7 @@ public class ArtifactsPublisher implements Serializable {
                 goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, message);
                 LOGGER.info(message);
 
-                final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactStoreAndPlansForAPlugin.getValue());
+                final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactStoreAndPlansForAPlugin.getValue(), workingDirectory.getAbsolutePath());
                 publishArtifactResponses.put(pluginId, publishArtifactResponse);
 
                 writeErrorToConsoleLog(goPublisher, publishArtifactResponse.getErrors());
@@ -133,6 +140,7 @@ public class ArtifactsPublisher implements Serializable {
 
     private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, PublishArtifactResponse response) {
         if (response.getMetadata() == null || response.getMetadata().isEmpty()) {
+            LOGGER.info(String.format("No metadata to write for plugin `%s`.", pluginId));
             return;
         }
 

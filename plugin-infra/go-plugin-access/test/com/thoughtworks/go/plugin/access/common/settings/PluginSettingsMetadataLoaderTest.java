@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -51,8 +50,6 @@ public class PluginSettingsMetadataLoaderTest {
     @Mock
     private NotificationExtension notificationExtension;
     @Mock
-    private AuthenticationExtension authenticationExtension;
-    @Mock
     private ConfigRepoExtension configRepoExtension;
     @Mock
     private PluginManager pluginManager;
@@ -65,7 +62,7 @@ public class PluginSettingsMetadataLoaderTest {
         initMocks(this);
         pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
 
-        extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension,configRepoExtension);
+        extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
         metadataLoader = new PluginSettingsMetadataLoader(extensions, pluginManager);
 
         PluginSettingsMetadataStore.getInstance().clear();

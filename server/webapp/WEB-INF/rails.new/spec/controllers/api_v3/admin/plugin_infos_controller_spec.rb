@@ -158,7 +158,6 @@ describe ApiV3::Admin::PluginInfosController do
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
       allPluginInfos = [com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo.new(descriptor, nil, nil, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, @plugin_settings),
                         com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, nil, nil, nil, nil),
@@ -171,11 +170,11 @@ describe ApiV3::Admin::PluginInfosController do
 
       get_with_api_header :index
 
-      expected_response = %w(authentication authorization configrepo elastic-agent notification package-repository scm task)
+      expected_response = %w(authorization configrepo elastic-agent notification package-repository scm task)
 
       expect(response).to be_ok
-      expect(actual_response[:_embedded][:plugin_info].length).to eq(8);
-      expect(actual_response[:_embedded][:plugin_info].map {|pi| pi['type']}.sort).to eq(expected_response);
+      expect(actual_response[:_embedded][:plugin_info].length).to eq(7)
+      expect(actual_response[:_embedded][:plugin_info].map {|pi| pi['type']}.sort).to eq(expected_response)
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do

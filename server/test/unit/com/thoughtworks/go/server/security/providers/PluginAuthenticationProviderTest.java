@@ -22,12 +22,10 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
@@ -53,7 +51,6 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -66,10 +63,6 @@ public class PluginAuthenticationProviderTest {
 
     @Mock
     private AuthorizationExtension authorizationExtension;
-    @Mock
-    private AuthenticationExtension authenticationExtension;
-    @Mock
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
     @Mock
     private AuthorityGranter authorityGranter;
     @Mock
@@ -96,7 +89,7 @@ public class PluginAuthenticationProviderTest {
         userAuthority = GoAuthority.ROLE_USER.asAuthority();
         when(authorityGranter.authorities("username")).thenReturn(new GrantedAuthority[]{userAuthority});
 
-        provider = new PluginAuthenticationProvider(authenticationPluginRegistry, authenticationExtension, authorizationExtension, authorityGranter,
+        provider = new PluginAuthenticationProvider(authorizationExtension, authorityGranter,
                 goConfigService, pluginRoleService, userService);
 
         securityConfig = new SecurityConfig();
@@ -132,26 +125,6 @@ public class PluginAuthenticationProviderTest {
         assertThat(goUserPrincipal.getAuthorities().length, is(1));
         assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
         assertTrue(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
-    }
-
-    @Test
-    public void shouldBeAbleToAuthenticateUserUsingAnyOfTheAuthenticationPluginsInAbsenceOfAuthorizationPlugins() {
-        String pluginId1 = "plugin-id-1";
-        String pluginId2 = "plugin-id-2";
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
-        when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(null);
-
-        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
-
-        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
-
-        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
-        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
-        assertThat(goUserPrincipal.getUsername(), is("username"));
-        assertThat(goUserPrincipal.getDisplayName(), is("username"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
-        assertFalse(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
     }
 
     @Test(expected = BadCredentialsException.class)
@@ -231,85 +204,18 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void shouldTryAuthenticatingAgainstEachAuthenticationPluginInCaseOfErrors() {
-        String pluginId1 = "plugin-id-1";
-        String pluginId2 = "plugin-id-2";
-
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
-        when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenThrow(new RuntimeException());
-
-        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
-
-        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
-
-        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
-        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
-        assertThat(goUserPrincipal.getUsername(), is("username"));
-    }
-
-    @Test
     public void shouldThrowUpWhenNoPluginCouldAuthenticateUser() throws Exception {
         exception.expect(UsernameNotFoundException.class);
         exception.expectMessage("Unable to authenticate user: bob");
 
         addPluginSupportingPasswordBasedAuthentication("ldap");
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("password")));
         when(authorizationExtension.authenticateUser("ldap", "bob", "password", securityConfig.securityAuthConfigs().findByPluginId(null), null)).thenReturn(NULL_AUTH_RESPONSE);
-        when(authenticationExtension.authenticateUser("password", "bob", "password")).thenReturn(null);
 
         provider.retrieveUser("bob", authenticationToken);
     }
 
-
-    @Test
-    public void shouldAskAuthenticationPluginsWhenAuthorizationPluginIsUnableToAuthenticateUser() {
-        String pluginId = "plugin-id-1";
-
-        addPluginSupportingPasswordBasedAuthentication(pluginId);
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-        when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId), null)).thenReturn(NULL_AUTH_RESPONSE);
-
-        try {
-            provider.retrieveUser("username", authenticationToken);
-            fail("should have thrown up");
-        } catch (Exception e) {
-            assertThat(e, is(instanceOf(UsernameNotFoundException.class)));
-            assertThat(e.getMessage(), is("Unable to authenticate user: username"));
-        }
-    }
-
-    @Test
-    public void shouldAddUserIfDoesNotExistOnSuccessfulAuthenticationUsingTheAuthorizationPlugin() {
-        String pluginId = "plugin-id-1";
-
-        addPluginSupportingPasswordBasedAuthentication(pluginId);
-        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
-
-        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "username@example.com"), Collections.emptyList());
-        when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId), securityConfig.getPluginRoles(pluginId))).thenReturn(response);
-
-        provider.retrieveUser("username", authenticationToken);
-
-        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
-    }
-
-    @Test
-    public void shouldAddUserIfDoesNotExistOnSuccessfulAuthenticationUsingTheAuthenticationPlugin() {
-        String pluginId = "plugin-id-1";
-        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-        when(authenticationExtension.authenticateUser(pluginId, "username", "password")).thenReturn(new User("username", "display-name", "username@example.com"));
-
-        provider.retrieveUser("username", authenticationToken);
-
-        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
-    }
-
     @Test(expected = UsernameNotFoundException.class)
     public void shouldErrorOutIfUnableToAuthenticateUsingAnyOfThePlugins() {
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
-
         try {
             provider.retrieveUser("username", authenticationToken);
             fail("should have thrown up");
@@ -320,20 +226,15 @@ public class PluginAuthenticationProviderTest {
 
     @Test
     public void shouldAnswerSupportsBasedOnPluginAvailability() {
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
-        assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
-
         addPluginSupportingPasswordBasedAuthentication("plugin-id-1");
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(true));
 
         AuthorizationMetadataStore.instance().clear();
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("plugin-id-1")));
-        assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(true));
+        assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }
 
     @Test
-    public void shouldUpdatePluginRolesForAUserPostAuthentication() throws Exception {
+    public void shouldUpdatePluginRolesForAUserPostAuthentication() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
 

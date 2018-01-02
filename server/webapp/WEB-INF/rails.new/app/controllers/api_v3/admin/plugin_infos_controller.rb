@@ -19,14 +19,13 @@ module ApiV3
     class PluginInfosController < BaseController
 
       PLUGIN_TYPES_FOR_VERSION = [
-        'authentication',
-        'notification',
-        'package-repository',
-        'task',
-        'scm',
-        'elastic-agent',
-        'configrepo',
-        'authorization',
+        PluginConstants.AUTHORIZATION_EXTENSION,
+        PluginConstants.ELASTIC_AGENT_EXTENSION,
+        PluginConstants.NOTIFICATION_EXTENSION,
+        PluginConstants.SCM_EXTENSION,
+        PluginConstants.PLUGGABLE_TASK_EXTENSION,
+        PluginConstants.PACKAGE_MATERIAL_EXTENSION,
+        PluginConstants.CONFIG_REPO_EXTENSION
       ]
 
       java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo

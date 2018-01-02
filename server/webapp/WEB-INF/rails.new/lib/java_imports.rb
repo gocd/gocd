@@ -274,4 +274,5 @@ module JavaImports
   java_import com.thoughtworks.go.config.security.users.Everyone unless defined? Everyone
   java_import com.thoughtworks.go.config.security.users.NoOne unless defined? NoOne
   java_import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension unless defined? AnalyticsExtension
+  java_import com.thoughtworks.go.plugin.domain.common.PluginConstants
 end

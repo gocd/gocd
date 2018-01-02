@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.helper.MetadataStoreHelper;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -55,15 +54,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginInfoBuilderTest {
     @Mock
-    AuthenticationPluginRegistry authenticationPluginRegistry;
-
-    @Mock
     NotificationPluginRegistry notificationPluginRegistry;
 
     @Mock
     PluginManager manager;
 
-    private GoPluginDescriptor githubDescriptor;
     private GoPluginDescriptor emailNotifier;
     private GoPluginDescriptor yumPoller;
     private GoPluginDescriptor xunitConvertor;
@@ -75,9 +70,6 @@ public class PluginInfoBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
-        githubDescriptor = new GoPluginDescriptor("github.oauth", "version1",
-                new GoPluginDescriptor.About("GitHub OAuth Plugin", "1.0", null, null, null, null),
-                null, null, false);
         emailNotifier = new GoPluginDescriptor("email.notifier", "version1",
                 new GoPluginDescriptor.About("Email Notifier", "1.0", null, null, null, null),
                 null, null, false);
@@ -112,12 +104,9 @@ public class PluginInfoBuilderTest {
             }
         };
 
-
-        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(Arrays.asList("github.oauth")));
         when(notificationPluginRegistry.getNotificationPlugins()).thenReturn(new HashSet<>(Arrays.asList("email.notifier")));
         when(jsonBasedPluggableTask.view()).thenReturn(taskView);
 
-        when(manager.getPluginDescriptorFor("github.oauth")).thenReturn(githubDescriptor);
         when(manager.getPluginDescriptorFor("email.notifier")).thenReturn(emailNotifier);
         when(manager.getPluginDescriptorFor("yum.poller")).thenReturn(yumPoller);
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
@@ -131,12 +120,11 @@ public class PluginInfoBuilderTest {
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
-        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, manager);
+        pluginViewModelBuilder = new PluginInfoBuilder(notificationPluginRegistry, manager);
     }
 
     @After
     public void tearDown() throws Exception {
-        githubDescriptor = null;
         emailNotifier = null;
         yumPoller = null;
         xunitConvertor = null;
@@ -151,12 +139,11 @@ public class PluginInfoBuilderTest {
     public void shouldBeAbleToFetchAllPluginInfos() {
         List<PluginInfo> pluginInfos = pluginViewModelBuilder.allPluginInfos(null);
 
-        assertThat(pluginInfos.size(), is(7));
+        assertThat(pluginInfos.size(), is(6));
         List<String> expectedPlugins = new ArrayList<>();
         for (PluginInfo pluginInfo : pluginInfos) {
             expectedPlugins.add(pluginInfo.getId());
         }
-        assertTrue(expectedPlugins.contains(githubDescriptor.id()));
         assertTrue(expectedPlugins.contains(emailNotifier.id()));
         assertTrue(expectedPlugins.contains(yumPoller.id()));
         assertTrue(expectedPlugins.contains(xunitConvertor.id()));

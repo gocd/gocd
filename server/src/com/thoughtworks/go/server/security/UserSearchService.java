@@ -19,8 +19,6 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -33,9 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @understands searching for users(from authentication sources)
@@ -45,20 +41,15 @@ public class UserSearchService {
     private final AuthorizationMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
-    private AuthenticationExtension authenticationExtension;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSearchService.class);
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
 
     @Autowired
-    public UserSearchService(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
-                             AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
+    public UserSearchService(AuthorizationExtension authorizationExtension, GoConfigService goConfigService) {
         this.store = AuthorizationMetadataStore.instance();
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
-        this.authenticationPluginRegistry = authenticationPluginRegistry;
-        this.authenticationExtension = authenticationExtension;
     }
 
     public List<UserSearchModel> search(String searchText, HttpLocalizedOperationResult result) {
@@ -77,11 +68,11 @@ public class UserSearchService {
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
         List<User> searchResults = new ArrayList<>();
-        for (final String pluginId : getAuthorizationAndAuthenticationPlugins()) {
+        for (final String pluginId : store.getPluginsThatSupportsUserSearch()) {
             try {
-                List<com.thoughtworks.go.plugin.access.authentication.models.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
+                List<com.thoughtworks.go.plugin.access.authorization.models.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
                 if (users != null && !users.isEmpty()) {
-                    for (com.thoughtworks.go.plugin.access.authentication.models.User user : users) {
+                    for (com.thoughtworks.go.plugin.access.authorization.models.User user : users) {
                         String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
                         String emailId = user.getEmailId() == null ? "" : user.getEmailId();
                         searchResults.add(new User(user.getUsername(), displayName, emailId));
@@ -94,25 +85,13 @@ public class UserSearchService {
         userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));
     }
 
-    private List<com.thoughtworks.go.plugin.access.authentication.models.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
-        List<com.thoughtworks.go.plugin.access.authentication.models.User> users = new ArrayList<>();
+    private List<com.thoughtworks.go.plugin.access.authorization.models.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
+        List<com.thoughtworks.go.plugin.access.authorization.models.User> users = new ArrayList<>();
         if (authorizationExtension.canHandlePlugin(pluginId)) {
             List<SecurityAuthConfig> authConfigs = goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
             users.addAll(authorizationExtension.searchUsers(pluginId, searchTerm, authConfigs));
         }
-        if (authenticationExtension.canHandlePlugin(pluginId)) {
-            users.addAll(authenticationExtension.searchUser(pluginId, searchTerm));
-        }
         return users;
-    }
-
-    private Set<String> getAuthorizationAndAuthenticationPlugins() {
-        Set<String> authPlugins = new HashSet<>();
-        Set<String> pluginsThatSupportsUserSearch = store.getPluginsThatSupportsUserSearch();
-        Set<String> authenticationPlugins = authenticationPluginRegistry.getAuthenticationPlugins();
-        authPlugins.addAll(pluginsThatSupportsUserSearch);
-        authPlugins.addAll(authenticationPlugins);
-        return authPlugins;
     }
 
     private boolean isInputValid(String searchText, HttpLocalizedOperationResult result) {

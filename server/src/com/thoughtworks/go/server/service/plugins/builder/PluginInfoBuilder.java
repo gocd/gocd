@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -40,10 +39,8 @@ public class PluginInfoBuilder {
     private Map<String, ViewModelBuilder> pluginExtensionToBuilder = new LinkedHashMap<>();
 
     @Autowired
-    public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
-                             NotificationPluginRegistry notificationPluginRegistry,
+    public PluginInfoBuilder(NotificationPluginRegistry notificationPluginRegistry,
                              PluginManager pluginManager) {
-        pluginExtensionToBuilder.put(AUTHENTICATION_EXTENSION, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NOTIFICATION_EXTENSION, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
         pluginExtensionToBuilder.put(PACKAGE_MATERIAL_EXTENSION, new PackageViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(PLUGGABLE_TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));

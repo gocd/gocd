@@ -88,20 +88,6 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
   this.suportsPluginSettings = () => !!this.pluginSettings;
 };
 
-PluginInfos.PluginInfo.Authentication = function (data) {
-  PluginInfos.PluginInfo.call(this, "authentication", data);
-};
-
-PluginInfos.PluginInfo.Authentication.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authentication({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  imageUrl:           _.get(data, '_links.image.href')
-});
-
 PluginInfos.PluginInfo.ConfigRepo = function (data) {
   PluginInfos.PluginInfo.call(this, "configrepo", data);
 };
@@ -265,7 +251,6 @@ PluginInfos.PluginInfo.createByType = ({type}) => new PluginInfos.Types[type]({}
 PluginInfos.PluginInfo.fromJSON = (data = {}) => (data.status && data.status.state === 'active') ? PluginInfos.Types[data.type].fromJSON(data) : PluginInfos.PluginInfo.Bad.fromJSON(data);
 
 PluginInfos.Types = {
-  'authentication':     PluginInfos.PluginInfo.Authentication,
   'artifact':           PluginInfos.PluginInfo.Artifact,
   'authorization':      PluginInfos.PluginInfo.Authorization,
   'notification':       PluginInfos.PluginInfo.Notification,

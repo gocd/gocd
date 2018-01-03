@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class ConfigRepoPluginInfo extends PluginInfo {
 
     public ConfigRepoPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings);
+        super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings, null);
     }
 
 }

@@ -52,7 +52,7 @@ public class PluginInfoProviderTest {
         when(pluginManager.plugins())
                 .thenReturn(Arrays.asList(passwordFilePluginDescriptor(), ldapPluginDescriptor()));
         when(pluginInfoFinder.pluginInfoFor("cd.go.authentication.passwordfile"))
-                .thenReturn(new PluginInfo(passwordFilePluginDescriptor(), "authorization", null));
+                .thenReturn(new PluginInfo(passwordFilePluginDescriptor(), "authorization", null, null));
         Map<String, Object> json = pluginInfoProvider.asJson();
 
         Map<String, Object> expectedJson = new LinkedHashMap<>();

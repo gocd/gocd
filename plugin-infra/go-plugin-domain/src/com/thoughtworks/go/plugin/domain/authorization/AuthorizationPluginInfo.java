@@ -25,15 +25,13 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class AuthorizationPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings authConfigSettings;
     private final PluggableInstanceSettings roleSettings;
-    private final Image image;
     private final Capabilities capabilities;
 
     public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings,
                                    PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.AUTHORIZATION_EXTENSION, pluginSettings);
+        super(descriptor, PluginConstants.AUTHORIZATION_EXTENSION, pluginSettings, image);
         this.authConfigSettings = authConfigSettings;
         this.roleSettings = roleSettings;
-        this.image = image;
         this.capabilities = capabilities;
     }
 
@@ -43,10 +41,6 @@ public class AuthorizationPluginInfo extends PluginInfo {
 
     public PluggableInstanceSettings getRoleSettings() {
         return roleSettings;
-    }
-
-    public Image getImage() {
-        return image;
     }
 
     public Capabilities getCapabilities() {

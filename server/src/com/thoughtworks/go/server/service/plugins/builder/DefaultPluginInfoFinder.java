@@ -28,7 +28,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStor
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
-import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,12 +111,6 @@ public class DefaultPluginInfoFinder {
     }
 
     private Image findImage(PluginInfo pluginInfo) {
-        if (pluginInfo instanceof com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo) {
-            return ((com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo) pluginInfo).getImage();
-        } else if (pluginInfo instanceof ElasticAgentPluginInfo) {
-            return ((ElasticAgentPluginInfo) pluginInfo).getImage();
-        }
-        return null;
+        return pluginInfo.getImage();
     }
-
 }

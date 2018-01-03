@@ -27,7 +27,7 @@ public class SCMPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings scmSettings;
 
     public SCMPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings scmSettings, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.SCM_EXTENSION, pluginSettings);
+        super(descriptor, PluginConstants.SCM_EXTENSION, pluginSettings, null);
         this.displayName = displayName;
         this.scmSettings = scmSettings;
     }

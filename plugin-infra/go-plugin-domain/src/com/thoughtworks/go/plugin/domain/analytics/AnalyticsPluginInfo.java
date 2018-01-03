@@ -24,19 +24,13 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class AnalyticsPluginInfo extends PluginInfo {
-    private final Image image;
     private final Capabilities capabilities;
     private String staticAssetsPath;
 
     public AnalyticsPluginInfo(PluginDescriptor descriptor, Image image, Capabilities capabilities,
                                PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.ANALYTICS_EXTENSION, pluginSettings);
-        this.image = image;
+        super(descriptor, PluginConstants.ANALYTICS_EXTENSION, pluginSettings, image);
         this.capabilities = capabilities;
-    }
-
-    public Image getImage() {
-        return image;
     }
 
     public Capabilities getCapabilities() {

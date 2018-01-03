@@ -27,7 +27,7 @@ public class PackageMaterialPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings packageSettings;
 
     public PackageMaterialPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings repositorySettings, PluggableInstanceSettings packageSettings, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.PACKAGE_MATERIAL_EXTENSION, pluginSettings);
+        super(descriptor, PluginConstants.PACKAGE_MATERIAL_EXTENSION, pluginSettings, null);
         this.repositorySettings = repositorySettings;
         this.packageSettings = packageSettings;
     }

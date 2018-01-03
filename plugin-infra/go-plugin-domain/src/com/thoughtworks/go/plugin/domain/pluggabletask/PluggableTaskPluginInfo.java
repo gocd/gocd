@@ -27,7 +27,7 @@ public class PluggableTaskPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings taskSettings;
 
     public PluggableTaskPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings taskSettings) {
-        super(descriptor, PluginConstants.PLUGGABLE_TASK_EXTENSION, null);
+        super(descriptor, PluginConstants.PLUGGABLE_TASK_EXTENSION, null, null);
         this.displayName = displayName;
         this.taskSettings = taskSettings;
     }

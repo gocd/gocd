@@ -29,7 +29,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.common.PluginInfo.new(descriptor, 'plugin-type', plugin_settings)
+      plugin_info = com.thoughtworks.go.plugin.domain.common.PluginInfo.new(descriptor, 'plugin-type', plugin_settings, nil)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :doc, :find)

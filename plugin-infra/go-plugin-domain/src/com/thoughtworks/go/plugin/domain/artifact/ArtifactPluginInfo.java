@@ -28,7 +28,7 @@ public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings pluginSettingsAndView;
 
     public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, PluggableInstanceSettings pluginSettingsAndView) {
-        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, pluginSettingsAndView);
+        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, pluginSettingsAndView, null);
         this.storeConfigSettings = storeConfigSettings;
         this.artifactConfigSettings = publishArtifactSettings;
         this.fetchArtifactSettings = fetchArtifactSettings;

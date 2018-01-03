@@ -22,11 +22,13 @@ public class PluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;
     public PluggableInstanceSettings pluginSettings;
+    protected Image image;
 
-    public PluginInfo(PluginDescriptor descriptor, String extensionName, PluggableInstanceSettings pluginSettings) {
+    public PluginInfo(PluginDescriptor descriptor, String extensionName, PluggableInstanceSettings pluginSettings, Image image) {
         this.descriptor = descriptor;
         this.extensionName = extensionName;
         this.pluginSettings = pluginSettings;
+        this.image = image;
     }
 
     public PluginDescriptor getDescriptor() {
@@ -39,6 +41,10 @@ public class PluginInfo {
 
     public PluggableInstanceSettings getPluginSettings() {
         return pluginSettings;
+    }
+
+    public Image getImage() {
+        return image;
     }
 
     @Override

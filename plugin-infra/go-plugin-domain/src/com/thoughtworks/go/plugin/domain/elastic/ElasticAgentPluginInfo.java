@@ -24,23 +24,17 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class ElasticAgentPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings profileSettings;
-    private final Image image;
     private final Capabilities capabilities;
 
     public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image,
                                   PluggableInstanceSettings pluginSettings, Capabilities capabilities) {
-            super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION, pluginSettings);
+            super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION, pluginSettings, image);
         this.profileSettings = profileSettings;
-        this.image = image;
         this.capabilities = capabilities;
     }
 
     public PluggableInstanceSettings getProfileSettings() {
         return profileSettings;
-    }
-
-    public Image getImage() {
-        return image;
     }
 
     public Capabilities getCapabilities() {

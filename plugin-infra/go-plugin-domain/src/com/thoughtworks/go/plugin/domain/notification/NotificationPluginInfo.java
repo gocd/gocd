@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class NotificationPluginInfo extends PluginInfo {
 
     public NotificationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.NOTIFICATION_EXTENSION, pluginSettings);
+        super(descriptor, PluginConstants.NOTIFICATION_EXTENSION, pluginSettings, null);
     }
 
 }

@@ -67,4 +67,8 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
     public void unprocessableEntity(Localizable localizable) {
 
     }
+
+    @Override
+    public void preconditionFailed(Localizable localizable) {
+    }
 }

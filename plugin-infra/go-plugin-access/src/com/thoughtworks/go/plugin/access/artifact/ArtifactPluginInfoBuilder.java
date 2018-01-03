@@ -41,11 +41,10 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
 
     @Override
     public ArtifactPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, artifactExtension);
         PluggableInstanceSettings storeConfigSettings = storeConfigMetadata(descriptor.id());
         PluggableInstanceSettings publishArtifactConfigSettings = publishArtifactMetadata(descriptor.id());
         PluggableInstanceSettings fetchArtifactConfigSettings = fetchArtifactMetadata(descriptor.id());
-        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings, pluginSettingsAndView);
+        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings);
     }
 
     private PluggableInstanceSettings storeConfigMetadata(String pluginId) {

@@ -95,6 +95,5 @@ public class ArtifactPluginInfoBuilderTest {
 
         assertThat(artifactPluginInfo.getDescriptor(), is(descriptor));
         assertThat(artifactPluginInfo.getExtensionName(), is(PluginConstants.ARTIFACT_EXTENSION));
-        assertNull(artifactPluginInfo.getPluginSettingsAndView());
     }
 }

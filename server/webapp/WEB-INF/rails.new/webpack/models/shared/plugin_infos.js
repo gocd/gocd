@@ -22,6 +22,7 @@ const CrudMixins                      = require('models/mixins/crud_mixins');
 const PluggableInstanceSettings       = require('models/shared/plugin_infos/pluggable_instance_settings');
 const AuthorizationPluginCapabilities = require('models/shared/plugin_infos/authorization_plugin_capabilities');
 const ElasticPluginCapabilities       = require('models/shared/plugin_infos/elastic_plugin_capabilities');
+const AnalyticsPluginCapabilities     = require('models/shared/plugin_infos/analytics_plugin_capabilities');
 const About                           = require('models/shared/plugin_infos/about');
 
 const PluginInfos = function (data) {
@@ -223,6 +224,22 @@ PluginInfos.PluginInfo.Artifact.fromJSON = (data = {}) => new PluginInfos.Plugin
   imageUrl:               _.get(data, '_links.image.href'),
 });
 
+PluginInfos.PluginInfo.Analytics = function (data) {
+  PluginInfos.PluginInfo.call(this, "analytics", data);
+  this.capabilities    = Stream(data.capabilities);
+};
+
+PluginInfos.PluginInfo.Analytics.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Analytics({
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
+  capabilities:       AnalyticsPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
+  imageUrl:           _.get(data, '_links.image.href')
+});
+
 PluginInfos.PluginInfo.Bad = function (data) {
   PluginInfos.PluginInfo.call(this, null, data);
 };
@@ -259,6 +276,7 @@ PluginInfos.Types = {
   'task':               PluginInfos.PluginInfo.Task,
   'scm':                PluginInfos.PluginInfo.SCM,
   'configrepo':         PluginInfos.PluginInfo.ConfigRepo,
+  'analytics' :         PluginInfos.PluginInfo.Analytics,
 };
 
 Mixins.fromJSONCollection({

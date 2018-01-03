@@ -97,4 +97,14 @@ module PipelinesHelper
   def url_for_dmr(dmr)
     stage_detail_tab_path({:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter(), :action => "pipeline"})
   end
+
+  def with_pipeline_analytics_support(&block)
+    return unless block_given?
+
+    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |plugin|
+      if plugin.getCapabilities().supportsPipelineAnalytics()
+        yield plugin.getDescriptor().id()
+      end
+    end
+  end
 end

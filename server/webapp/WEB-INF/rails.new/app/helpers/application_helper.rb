@@ -20,7 +20,6 @@ module ApplicationHelper
   include RailsLocalizer
   include JavaImports
   include PrototypeHelper
-  include AnalyticsSupport
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 

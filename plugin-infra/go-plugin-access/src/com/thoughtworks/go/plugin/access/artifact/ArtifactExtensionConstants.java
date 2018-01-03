@@ -37,4 +37,5 @@ public interface ArtifactExtensionConstants {
 
     String REQUEST_PUBLISH_ARTIFACT = String.join(".", REQUEST_PREFIX, "publish-artifact");
     String REQUEST_FETCH_ARTIFACT = String.join(".", REQUEST_PREFIX, "fetch-artifact");
+    String REQUEST_GET_PLUGIN_ICON = String.join(".", REQUEST_PREFIX, "get-icon");
 }

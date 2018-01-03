@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.domain.artifact;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
@@ -25,14 +26,12 @@ public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings storeConfigSettings;
     private final PluggableInstanceSettings artifactConfigSettings;
     private final PluggableInstanceSettings fetchArtifactSettings;
-    private final PluggableInstanceSettings pluginSettingsAndView;
 
-    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, PluggableInstanceSettings pluginSettingsAndView) {
-        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, pluginSettingsAndView, null);
+    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, Image image) {
+        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, null, image);
         this.storeConfigSettings = storeConfigSettings;
         this.artifactConfigSettings = publishArtifactSettings;
         this.fetchArtifactSettings = fetchArtifactSettings;
-        this.pluginSettingsAndView = pluginSettingsAndView;
     }
 
     public PluggableInstanceSettings getStoreConfigSettings() {
@@ -41,10 +40,6 @@ public class ArtifactPluginInfo extends PluginInfo {
 
     public PluggableInstanceSettings getArtifactConfigSettings() {
         return artifactConfigSettings;
-    }
-
-    public PluggableInstanceSettings getPluginSettingsAndView() {
-        return pluginSettingsAndView;
     }
 
     public PluggableInstanceSettings getFetchArtifactSettings() {
@@ -63,9 +58,7 @@ public class ArtifactPluginInfo extends PluginInfo {
             return false;
         if (artifactConfigSettings != null ? !artifactConfigSettings.equals(that.artifactConfigSettings) : that.artifactConfigSettings != null)
             return false;
-        if (fetchArtifactSettings != null ? !fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings != null)
-            return false;
-        return pluginSettingsAndView != null ? pluginSettingsAndView.equals(that.pluginSettingsAndView) : that.pluginSettingsAndView == null;
+        return fetchArtifactSettings != null ? fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings == null;
     }
 
     @Override
@@ -74,7 +67,6 @@ public class ArtifactPluginInfo extends PluginInfo {
         result = 31 * result + (storeConfigSettings != null ? storeConfigSettings.hashCode() : 0);
         result = 31 * result + (artifactConfigSettings != null ? artifactConfigSettings.hashCode() : 0);
         result = 31 * result + (fetchArtifactSettings != null ? fetchArtifactSettings.hashCode() : 0);
-        result = 31 * result + (pluginSettingsAndView != null ? pluginSettingsAndView.hashCode() : 0);
         return result;
     }
 }

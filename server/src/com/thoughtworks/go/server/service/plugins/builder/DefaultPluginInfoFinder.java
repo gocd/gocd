@@ -103,14 +103,10 @@ public class DefaultPluginInfoFinder {
     public Image getImage(String pluginId, String hash) {
         PluginInfo pluginInfo = pluginInfoFor(pluginId);
 
-        Image image = findImage(pluginInfo);
+        Image image = pluginInfo.getImage();
         if (image != null && image.getHash().equals(hash)) {
             return image;
         }
         return null;
-    }
-
-    private Image findImage(PluginInfo pluginInfo) {
-        return pluginInfo.getImage();
     }
 }

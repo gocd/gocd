@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -104,9 +105,10 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     }
 
     private Set<Material> materialsWithUpdateIntervalElapsed() {
-        Set<Material> materialsForUpdate = new HashSet<>();
+        Set<Material> materialsForUpdate = new LinkedHashSet<>();
         for (Material material : schedulableMaterials) {
             if (hasUpdateIntervalElapsedForScmMaterial(material)) {
+                LOGGER.trace("shedule update for material: " + material);
                 materialsForUpdate.add(material);
             }
         }

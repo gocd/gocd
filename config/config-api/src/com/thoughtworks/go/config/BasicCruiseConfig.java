@@ -47,12 +47,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import org.apache.log4j.Logger;
 
 /**
  * @understands the configuration for cruise
  */
 @ConfigTag("cruise")
 public class BasicCruiseConfig implements CruiseConfig {
+    private static final Logger LOGGER = Logger.getLogger(BasicCruiseConfig.class);
     @ConfigSubtag
     @SkipParameterResolution
     private ServerConfig serverConfig = new ServerConfig();
@@ -123,6 +125,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             return;
         }
         partList = removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(partList);
+        LOGGER.trace("[ Config Merge ] corresponded list of partials: " + partList);
 
         if (this.strategy instanceof MergeStrategy)
             throw new RuntimeException("cannot merge partials to already merged configuration");
@@ -1033,8 +1036,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines, boolean ignoreConfigRepos) {
-        Set<MaterialConfig> materialConfigs = new HashSet<>();
-        Set<Map> uniqueMaterials = new HashSet<>();
+        Set<MaterialConfig> materialConfigs = new LinkedHashSet<>();
+        Set<Map> uniqueMaterials = new LinkedHashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
@@ -1050,6 +1053,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         if (!ignoreConfigRepos) {
             for (ConfigRepoConfig configRepo : this.configRepos) {
+                LOGGER.trace("[ Config Merge ] check for unique material: " + configRepo);
                 MaterialConfig materialConfig = configRepo.getMaterialConfig();
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
                     materialConfigs.add(materialConfig);

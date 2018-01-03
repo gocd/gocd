@@ -60,7 +60,7 @@ public class P4Fixture {
 
     private boolean isKnownWindowsError(CommandLineException expected) {
         // Stopping p4d on windows returns the following failure:
-        return expected.getResult().errorAsString().contains("WSAECONNRESET");
+        return expected.getResult().errorAsString().contains("WSAECONNRESET") || expected.getResult().errorAsString().contains("WSAECONNREFUSED");
     }
 
     public String port() {

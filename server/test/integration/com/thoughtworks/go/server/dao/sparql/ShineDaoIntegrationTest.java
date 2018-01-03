@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,7 @@ public class ShineDaoIntegrationTest {
 
     @After public void tearDown() throws Exception {
         stagesQueryCache.clear();
+        configHelper.onTearDown();
         dbHelper.onTearDown();
     }
 

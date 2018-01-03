@@ -18,10 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
-import com.thoughtworks.go.plugin.domain.common.Metadata;
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import com.thoughtworks.go.plugin.domain.common.PluginView;
+import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +41,8 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
         PluggableInstanceSettings storeConfigSettings = storeConfigMetadata(descriptor.id());
         PluggableInstanceSettings publishArtifactConfigSettings = publishArtifactMetadata(descriptor.id());
         PluggableInstanceSettings fetchArtifactConfigSettings = fetchArtifactMetadata(descriptor.id());
-        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings);
+        Image image = image(descriptor.id());
+        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings, image);
     }
 
     private PluggableInstanceSettings storeConfigMetadata(String pluginId) {
@@ -68,6 +66,10 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
 
         return new PluggableInstanceSettings(pluginConfigurations,
                 new PluginView(artifactExtension.getFetchArtifactView(pluginId)));
+    }
+
+    private Image image(String pluginId) {
+        return artifactExtension.getIcon(pluginId);
     }
 }
 

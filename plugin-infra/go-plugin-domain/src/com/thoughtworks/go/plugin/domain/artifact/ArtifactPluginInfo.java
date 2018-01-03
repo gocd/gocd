@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.domain.artifact;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
@@ -26,8 +27,8 @@ public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings artifactConfigSettings;
     private final PluggableInstanceSettings fetchArtifactSettings;
 
-    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings) {
-        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, null, null);
+    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, Image image) {
+        super(descriptor, PluginConstants.ARTIFACT_EXTENSION, null, image);
         this.storeConfigSettings = storeConfigSettings;
         this.artifactConfigSettings = publishArtifactSettings;
         this.fetchArtifactSettings = fetchArtifactSettings;

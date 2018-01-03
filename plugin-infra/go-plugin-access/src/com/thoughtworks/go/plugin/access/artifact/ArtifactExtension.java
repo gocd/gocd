@@ -164,6 +164,15 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
+    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+            @Override
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
+            }
+        });
+    }
+
     protected ArtifactMessageConverter getMessageHandler(String version) {
         return messageHandlerMap.get(version);
     }

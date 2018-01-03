@@ -22,8 +22,10 @@ import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
+import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang.StringUtils;
 
@@ -100,6 +102,11 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
         map.put("artifact_metadata", metadata);
         map.put("agent_working_directory", agentWorkingDirectory);
         return GSON.toJson(map);
+    }
+
+    @Override
+    public Image getImageResponseFromBody(String responseBody) {
+        return new ImageDeserializer().fromJSON(responseBody);
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

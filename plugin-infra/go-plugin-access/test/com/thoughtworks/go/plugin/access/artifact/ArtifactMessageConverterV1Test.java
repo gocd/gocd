@@ -148,4 +148,11 @@ public class ArtifactMessageConverterV1Test {
 
         JSONAssert.assertEquals(expectedStr, fetchArtifactMessage, true);
     }
+
+    @Test
+    public void shouldDeserializeImageFromJson() throws Exception {
+        com.thoughtworks.go.plugin.domain.common.Image image = new ArtifactMessageConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
+        assertThat(image.getContentType(), is("foo"));
+        assertThat(image.getData(), is("bar"));
+    }
 }

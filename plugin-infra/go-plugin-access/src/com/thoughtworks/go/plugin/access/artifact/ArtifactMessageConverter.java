@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.List;
@@ -40,4 +41,6 @@ public interface ArtifactMessageConverter {
     ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody);
 
     String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory);
+
+    Image getImageResponseFromBody(String responseBody);
 }

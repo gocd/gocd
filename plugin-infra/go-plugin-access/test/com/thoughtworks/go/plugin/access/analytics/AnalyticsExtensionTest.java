@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.core.Is;
 import org.json.JSONException;
 import org.junit.After;
@@ -42,8 +42,8 @@ import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AnalyticsExtensionTest {
@@ -90,11 +90,10 @@ public class AnalyticsExtensionTest {
     public void shouldTalkToPlugin_To_GetPipelineAnalytics() throws Exception {
         String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
-        AnalyticsPluginInfo pluginInfo = mock(AnalyticsPluginInfo.class);
-        PluginDescriptor desc = mock(PluginDescriptor.class);
-        when(desc.id()).thenReturn(PLUGIN_ID);
-        when(pluginInfo.getDescriptor()).thenReturn(desc);
-        when(pluginInfo.getStaticAssetsPath()).thenReturn("/assets/root");
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
+                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
+                null, null, null);
+        pluginInfo.setStaticAssetsPath("/assets/root");
         metadataStore.setPluginInfo(pluginInfo);
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");

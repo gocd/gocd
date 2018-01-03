@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.domain.analytics;
 
+import org.apache.commons.lang.StringUtils;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class AnalyticsData {
     }
 
     public String getFullViewPath() {
-        if (null == assetRoot || "".equals(assetRoot)) {
+        if (StringUtils.isBlank(assetRoot)) {
             return viewPath;
         }
         return URI.create(assetRoot + "/" + viewPath).normalize().toString();

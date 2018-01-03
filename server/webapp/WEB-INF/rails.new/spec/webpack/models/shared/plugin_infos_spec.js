@@ -738,6 +738,60 @@ describe('PluginInfos', () => {
     });
   });
 
+  describe("Analytics", () => {
+    it("should deserialize", () => {
+      const json = {
+        "id":      "gocd.analytics.plugin",
+        "type":    "analytics",
+        "status":  {
+          "state": "active"
+        },
+        "about":   {
+          "name":                     "GoCD Analytics Plugin",
+          "version":                  "1.0",
+          "target_go_version":        "18.1.0",
+          "description":              "Provides metrics",
+          "target_operating_systems": [],
+          "vendor":                   {
+            "name": "TW",
+            "url":  "https://thoughtworks.com/go"
+          }
+        },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "username",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "notification plugin view"
+            }
+          },
+          "capabilities":     {
+            "supports_pipeline_analytics": true
+          }
+        }
+      };
+
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['username']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+      expect(pluginInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
+    });
+  });
+
   describe("Reading images", () => {
     const json = {
       "_links":  {

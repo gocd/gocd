@@ -1,7 +1,7 @@
 var Analytics = {
   modal: function(data){
     jQuery.ajax({
-                  url: origin + "/go/analytics/" + data.plugin_id + "/" + data.pipeline_name,
+                  url: data.url,
                   params: {
                     pipeline_counter: data.pipeline_counter
                   },
@@ -9,7 +9,7 @@ var Analytics = {
                     var div = document.createElement("div");
                     var frame = document.createElement("iframe");
                     frame.setAttribute("id", "analytics-frame");
-                    frame.setAttribute("src", r.viewPath);
+                    frame.setAttribute("src", r.view_path);
                     frame.width="100%";
                     frame.height="100%";
                     frame.setAttribute("scrolling", "no");
@@ -22,7 +22,7 @@ var Analytics = {
                       "onShow": function() {
                           var frame = document.getElementById("analytics-frame");
                           frame.onload = function() {
-                            var x = { data: JSON.parse(r.data), counter: data.pipeline_counter, pipeline_name: data.pipeline_name, plugin_id: data.plugin_id  };
+                            var x = { data: JSON.parse(r.data)};
                             frame.contentWindow.postMessage(x, "*");
                           }
                       }

@@ -48,19 +48,15 @@ public class P4Fixture {
                 }
             }
         } catch (CommandLineException expected) {
-            if (isKnownWindowsError(expected)) {
+            // Stopping p4d on windows returns the following failure:
+            if (expected.getResult().errorAsString().contains("WSAECONNRESET") || expected.getResult().errorAsString().contains("WSAECONNREFUSED")) {
                 return;
             }
-            if (expected.getResult().errorAsString().contains("Connection refused")) {
+            if (expected.getResult().errorAsString().contains("Connection refused") || expected.getResult().errorAsString().contains("Connection reset")) {
                 return;
             }
             throw expected;
         }
-    }
-
-    private boolean isKnownWindowsError(CommandLineException expected) {
-        // Stopping p4d on windows returns the following failure:
-        return expected.getResult().errorAsString().contains("WSAECONNRESET") || expected.getResult().errorAsString().contains("WSAECONNREFUSED");
     }
 
     public String port() {

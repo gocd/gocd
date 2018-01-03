@@ -20,19 +20,19 @@ import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 @Component
 public class TimeStampBasedCounter implements Counter {
-    private final long seed;
-    private static long counter = 0;
+    private final AtomicLong counter;
 
     @Autowired
     public TimeStampBasedCounter(Clock clock) {
-        this.seed = clock.currentTimeMillis();
+        this.counter = new AtomicLong(clock.currentTimeMillis());
     }
 
     @Override
-    public synchronized long getNext() {
-        counter++;
-        return seed + counter;
+    public long getNext() {
+        return counter.incrementAndGet();
     }
 }

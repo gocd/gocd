@@ -89,7 +89,7 @@ def partitionFiles(Collection originalFiles) {
   allPartitions[currentWorkerIndex - 1]
 }
 
-def COPYRIGHT_YEAR = '2017'
+def COPYRIGHT_YEAR = '2018'
 def GO_VERSION_SEGMENTS = [
   year         : 18,
   releaseInYear: 1,

@@ -28,7 +28,7 @@
         frame.sandbox = "allow-scripts";
 
         frame.onload = function(e) {
-          ExtensionIFrameEndpoint.send(frame.contentWindow, "analytics.pipeline-chart", JSON.parse(r.data));
+          ExtensionIFrameEndpoint.send(frame.contentWindow, data.key, JSON.parse(r.data));
         };
 
         div.appendChild(frame);

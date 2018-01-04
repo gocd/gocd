@@ -1,4 +1,4 @@
-(function($, _) {
+(function(_) {
   "use strict";
 
   // these are intentionally private variables, hidden via closure
@@ -60,4 +60,4 @@
     send: send
   };
 
-})(jQuery, _);
+})(_);

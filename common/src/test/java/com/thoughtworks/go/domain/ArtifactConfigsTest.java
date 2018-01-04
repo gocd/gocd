@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import org.hamcrest.Matchers;
@@ -29,9 +30,10 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.ArtifactConfig.DEST;
 import static com.thoughtworks.go.config.ArtifactConfig.SRC;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ArtifactConfigsTest {
     @Test
@@ -135,16 +137,69 @@ public class ArtifactConfigsTest {
         artifactConfigs.validate(null);
 
         assertFalse(artifactConfigs.get(0).errors().isEmpty());
-        assertThat( artifactConfigs.get(0).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat( artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
 
         assertFalse(artifactConfigs.get(1).errors().isEmpty());
-        assertThat( artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat( artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
 
         assertFalse(artifactConfigs.get(2).errors().isEmpty());
-        assertThat( artifactConfigs.get(2).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat( artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+    }
 
+    @Test
+    public void getArtifactConfigs_shouldReturnBuiltinArtifactConfigs() {
+        ArtifactConfigs allConfigs = new ArtifactConfigs();
+        allConfigs.add(new ArtifactConfig("src", "dest"));
+        allConfigs.add(new ArtifactConfig("java", null));
+        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+
+        final List<ArtifactConfig> artifactConfigs = allConfigs.getArtifactConfigs();
+
+        assertThat(artifactConfigs, hasSize(2));
+        assertThat(artifactConfigs, containsInAnyOrder(
+                new ArtifactConfig("src", "dest"),
+                new ArtifactConfig("java", null)
+        ));
+    }
+
+    @Test
+    public void getPluggableArtifactConfigs_shouldReturnPluggableArtifactConfigs() {
+        ArtifactConfigs allConfigs = new ArtifactConfigs();
+        allConfigs.add(new ArtifactConfig("src", "dest"));
+        allConfigs.add(new ArtifactConfig("java", null));
+        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+
+        final List<PluggableArtifactConfig> artifactConfigs = allConfigs.getPluggableArtifactConfigs();
+
+        assertThat(artifactConfigs, hasSize(2));
+        assertThat(artifactConfigs, containsInAnyOrder(
+                new PluggableArtifactConfig("s3", "cd.go.s3"),
+                new PluggableArtifactConfig("docker", "cd.go.docker")
+        ));
+    }
+
+    @Test
+    public void findByArtifactId_shouldReturnPluggableArtifactConfigs() {
+        ArtifactConfigs allConfigs = new ArtifactConfigs();
+        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+
+        final PluggableArtifactConfig s3 = allConfigs.findByArtifactId("s3");
+        assertThat(s3, is(new PluggableArtifactConfig("s3", "cd.go.s3")));
+    }
+
+    @Test
+    public void findByArtifactId_shouldReturnNullWhenPluggableArtifactConfigNotExistWithGivenId() {
+        ArtifactConfigs allConfigs = new ArtifactConfigs();
+        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+
+        final PluggableArtifactConfig s3 = allConfigs.findByArtifactId("foo");
+        assertNull(s3);
     }
 }

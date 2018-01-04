@@ -49,7 +49,7 @@ public class FetchTaskBuilderTest {
 
     @Before
     public void setUp() {
-        CruiseConfig config = GoConfigMother.configWithPipelines("random_pipeline", "uppest_lookalike", "uppest_stream", "upstreams_peer", "upstream", "downstream", "dummy");
+        CruiseConfig config = GoConfigMother.configWithPipelines("random_pipeline", "uppest_lookalike", "uppest_stream", "upstreams_peer", "upstream", "downstream", "dummy", "cruise");
 
         PipelineConfig randomPipeline = config.pipelineConfigByName(new CaseInsensitiveString("random_pipeline"));
         randomPipeline.add(StageConfigMother.stageConfig("random-stage1", new JobConfigs(new JobConfig("random-job1"))));
@@ -61,6 +61,10 @@ public class FetchTaskBuilderTest {
         uppestStream.add(StageConfigMother.stageConfig("uppest-stage1", new JobConfigs(new JobConfig("uppest-job1"))));
         uppestStream.add(StageConfigMother.stageConfig("uppest-stage2", new JobConfigs(new JobConfig("uppest-job2"))));
         uppestStream.add(StageConfigMother.stageConfig("uppest-stage3", new JobConfigs(new JobConfig("uppest-job3"))));
+        uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
+                .add(new PluggableArtifactConfig("installer", "s3"));
+        uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
+                .add(new PluggableArtifactConfig("installer", "s3"));
 
         PipelineConfig upstream = config.pipelineConfigByName(new CaseInsensitiveString("upstream"));
         upstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("uppest_stream", "uppest-stage2")));
@@ -71,7 +75,7 @@ public class FetchTaskBuilderTest {
         downstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("upstream", "up-stage1")));
         downstream.get(0).getJobs().get(0).addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
 
-        config.getArtifactStores().add(new ArtifactStore("storeId", "cd.go.s3"));
+        config.getArtifactStores().add(new ArtifactStore("s3", "cd.go.s3"));
 
         resolver = mock(UpstreamPipelineResolver.class);
         builderFactory = mock(BuilderFactory.class);
@@ -79,6 +83,7 @@ public class FetchTaskBuilderTest {
         fetchTaskBuilder = new FetchTaskBuilder(goConfigService);
 
         when(goConfigService.artifactStores()).thenReturn(config.getArtifactStores());
+        when(goConfigService.getCurrentConfig()).thenReturn(config);
     }
 
     @After
@@ -278,7 +283,10 @@ public class FetchTaskBuilderTest {
 
     @Test
     public void FetchPluggableArtifactTask_shouldUseNameAndLabelFromPipelineWhenPipelineNameOfTaskIsEmpty() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(null, new CaseInsensitiveString("dev"), new CaseInsensitiveString("linux-firefox"), "storeId");
+        final PipelineConfig cruise = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("cruise"));
+        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new PluggableArtifactConfig("installer", "s3"));
+
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(null, new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "installer");
         Pipeline pipeline = pipeline(LABEL);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
@@ -289,37 +297,38 @@ public class FetchTaskBuilderTest {
 
     @Test
     public void FetchPluggableArtifactTask_shouldUseCorrectStageCounterWhenFetchingFromSamePipelineAndStageThatHasBeenRun() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("linux-firefox"), "storeId");
-        Pipeline pipeline = pipelineWithStage("mingle", 1, "label-1", "dev", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
+        Pipeline pipeline = pipelineWithStage("uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), Matchers.is(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier(), Matchers.is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldUseCorrectStageCounterWhenFetchingFromDependencyStage() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("linux-firefox"), "storeId");
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "label-1", "dev", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldUseLatestStageWhenFetchingFromDifferentStageInDependencyPipeline() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("ft"), new CaseInsensitiveString("linux-firefox"), "storeId");
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "label-1", "dev", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "installer");
+
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("mingle", 1, "label-1", "ft", "latest", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage2", "latest", "uppest-job2", 0L)));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldNotSupportFetchingArtifactsFromPipelineWhichIsNotADependentMaterial() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("any-pipeline"), new CaseInsensitiveString("ft"), new CaseInsensitiveString("linux-firefox"), "storeId");
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("any-pipeline"), new CaseInsensitiveString("ft"), new CaseInsensitiveString("linux-firefox"), "s3");
         Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "10", "dev", 2);
 
         try {
@@ -334,8 +343,9 @@ public class FetchTaskBuilderTest {
 
     @Test
     public void FetchPluggableArtifactTask_shouldFindStageCounterFromDependenciesWhenPipelineNameIsDifferent() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString(""), "storeId");
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "10", "dev", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
+
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
@@ -344,56 +354,60 @@ public class FetchTaskBuilderTest {
 
     @Test
     public void FetchPluggableArtifactTask_shouldFetchFromCorrectAncestorStageInstance_InCaseOfLinerDependency() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest/up/down"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("uppest-job"), "storeId");
-        Pipeline pipeline = pipelineWithDepencencyMaterial("downest", "down", 1, "down-1", "down-stage", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream/downstream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
+        Pipeline pipeline = pipelineWithDepencencyMaterial("downest", "downstream", 1, "down-1", "stage", 2);
 
-        DependencyMaterialRevision revisionOfDown = DependencyMaterialRevision.create("down/1/down-stage/2", "down-1");
-        when(resolver.buildCauseFor(revisionOfDown.getPipelineName(), revisionOfDown.getPipelineCounter())).thenReturn(pipelineWithDepencencyMaterial("down", "up", 5, "up-5", "up-stage", 3).getBuildCause());
+        DependencyMaterialRevision revisionOfDown = DependencyMaterialRevision.create("downstream/1/stage/2", "down-1");
+        when(resolver.buildCauseFor(revisionOfDown.getPipelineName(), revisionOfDown.getPipelineCounter())).thenReturn(pipelineWithDepencencyMaterial("downstream", "upstream", 5, "up-5", "stage", 3).getBuildCause());
 
-        DependencyMaterialRevision revisionOfUp = DependencyMaterialRevision.create("up/5/up-stage/3", "up-5");
-        when(resolver.buildCauseFor(revisionOfUp.getPipelineName(), revisionOfUp.getPipelineCounter())).thenReturn(pipelineWithDepencencyMaterial("up", "uppest", 3, "uppest-3", "uppest-stage", 4).getBuildCause());
+        DependencyMaterialRevision revisionOfUp = DependencyMaterialRevision.create("upstream/5/stage/3", "up-5");
+        when(resolver.buildCauseFor(revisionOfUp.getPipelineName(), revisionOfUp.getPipelineCounter())).thenReturn(pipelineWithDepencencyMaterial("upstream", "uppest_stream", 3, "uppest-3", "uppest-stage1", 4).getBuildCause());
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
         verify(resolver).buildCauseFor(revisionOfDown.getPipelineName(), revisionOfDown.getPipelineCounter());
         verify(resolver).buildCauseFor(revisionOfUp.getPipelineName(), revisionOfUp.getPipelineCounter());
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest", 3, "uppest-3", "uppest-stage", "4", "uppest-job", 0l)));
+        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 3, "uppest-3", "uppest-stage1", "4", "uppest-job1", 0l)));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldGetTheRightDestAndJobLocatorOnAgent() {
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "label-1", "dev", 2);
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "storeId");
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "10", "uppest_stage1", 2);
+
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().buildLocatorForDisplay(), is("mingle/label-1/dev/2/one"));
+        assertThat(builder.getJobIdentifier().buildLocatorForDisplay(), is("uppest_stream/10/uppest-stage1/latest/uppest-job1"));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldUsePipelineCounterWhenFetchingArtifactFromDependentPipeline() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("linux-firefox"), "storeId");
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
 
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "label-1", "dev", 2);
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.metadataFileLocator(), is("mingle/1/dev/2/linux-firefox/cd.go.s3.json"));
+        assertThat(builder.metadataFileLocator(), is("uppest_stream/1/uppest-stage1/2/uppest-job1/cd.go.s3.json"));
     }
 
     @Test
     public void FetchPluggableArtifactTask_describeForSamePipeline() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(""), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "storeId");
+        final PipelineConfig cruise = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("cruise"));
+        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new PluggableArtifactConfig("installer", "s3"));
+
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(""), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "installer");
         fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline(LABEL), resolver);
         assertThat(fetchTask.describe(),
-                is("fetch pluggable artifact using [storeId] from [cruise/dev/windows-3]"));
+                is("fetch pluggable artifact using [installer] from [cruise/stage/job]"));
     }
 
     @Test
     public void FetchPluggableArtifactTask_shouldNormalizeDestOnAgent() {
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "storeId");
-        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "mingle", 1, "label-1", "dev", 2);
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "installer");
+        Pipeline pipeline = pipelineWithDepencencyMaterial("cruise", "uppest_stream", 1, "label-1", "uppest-stage1", 2);
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
@@ -411,7 +425,7 @@ public class FetchTaskBuilderTest {
         when(resolver.buildCauseFor("up3", 1)).thenReturn(up3Instance.getBuildCause());
         when(resolver.buildCauseFor("up2", 1)).thenReturn(up2Instance.getBuildCause());
 
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "storeId");
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "s3");
         try {
 
             fetchTaskBuilder.createBuilder(builderFactory, fetchTask, downInstance, resolver);
@@ -431,7 +445,7 @@ public class FetchTaskBuilderTest {
 
         when(resolver.buildCauseFor("up3", 1)).thenReturn(up3Instance.getBuildCause());
 
-        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "storeId");
+        FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "s3");
         try {
 
             fetchTaskBuilder.createBuilder(builderFactory, fetchTask, downInstance, resolver);
@@ -485,7 +499,7 @@ public class FetchTaskBuilderTest {
     }
 
     private Pipeline pipeline(String label) {
-        Pipeline pipeline = PipelineMother.pipeline("cruise", new NullStage("Stage"));
+        Pipeline pipeline = PipelineMother.pipeline("cruise", new NullStage("stage"));
         pipeline.setLabel(label);
         return pipeline;
     }

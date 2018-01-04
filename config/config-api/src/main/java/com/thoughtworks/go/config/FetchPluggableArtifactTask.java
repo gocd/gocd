@@ -31,34 +31,34 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @ConfigTag(value = "fetchPluggableArtifact")
 public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
     public static final String FETCH_PLUGGABLE_ARTIFACT = "Fetch Pluggable Artifact";
-    @ConfigAttribute(value = "storeId", optional = false)
-    private String storeId;
+    @ConfigAttribute(value = "artifactId", optional = false)
+    private String artifactId;
     @ConfigSubtag
     private Configuration configuration = new Configuration();
 
     public FetchPluggableArtifactTask() {
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String storeId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
         super(pipelineName, stage, job);
-        this.storeId = storeId;
+        this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString stage, CaseInsensitiveString job, String storeId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
         super(stage, job);
-        this.storeId = storeId;
+        this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String storeId, Configuration configuration) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, Configuration configuration) {
         super(pipelineName, stage, job);
-        this.storeId = storeId;
+        this.artifactId = artifactId;
         this.configuration = configuration;
     }
 
-    public String getStoreId() {
-        return storeId;
+    public String getArtifactId() {
+        return artifactId;
     }
 
     public Configuration getConfiguration() {
@@ -67,15 +67,18 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
 
     @Override
     protected void validateAttributes(ValidationContext validationContext) {
-        if (!new NameTypeValidator().isNameValid(storeId)) {
-            errors.add("storeId", NameTypeValidator.errorMessage("fetch artifact storeId", storeId));
+        if (!new NameTypeValidator().isNameValid(artifactId)) {
+            errors.add("artifactId", NameTypeValidator.errorMessage("fetch artifact artifactId", artifactId));
         }
 
-        if (isNotBlank(storeId)) {
-            final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
+        if (isNotBlank(artifactId) && validationContext.isWithinPipelines()) {
+            final PathFromAncestor pipelineNamePathFromAncestor = getPipelineNamePathFromAncestor();
+            final PipelineConfig pipelineConfig = validationContext.getPipelineConfigByName(pipelineNamePathFromAncestor.getAncestorName());
+            final JobConfig jobConfig = pipelineConfig.getStage(getStage()).jobConfigByConfigName(getJob());
+            final PluggableArtifactConfig pluggableArtifactConfig = jobConfig.artifactConfigs().findByArtifactId(artifactId);
 
-            if (artifactStore == null) {
-                addError("storeId", format("Artifact store with id `%s` does not exist.", storeId));
+            if (pluggableArtifactConfig == null) {
+                addError("artifactId", format("Pluggable artifact with id `%s` does not exist in [%s/%s/%s].", artifactId, pipelineNamePathFromAncestor.getAncestorName(), getStage(), getJob()));
             }
         }
 
@@ -110,6 +113,6 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
 
     @Override
     public String describe() {
-        return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getStoreId(), getPipelineName(), getStage(), getJob());
+        return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getArtifactId(), getPipelineName(), getStage(), getJob());
     }
 }

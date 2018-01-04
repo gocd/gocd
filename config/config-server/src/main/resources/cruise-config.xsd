@@ -670,7 +670,7 @@
         <xsd:attribute name="pipeline" type="xsd:string" use="optional"/>
         <xsd:attribute name="stage" type="xsd:string" use="required"/>
         <xsd:attribute name="job" type="xsd:string" use="required"/>
-        <xsd:attribute name="storeId" type="xsd:string" use="required"/>
+        <xsd:attribute name="artifactId" type="xsd:string" use="required"/>
         <xsd:attributeGroup ref="taskAttributes"/>
       </xsd:extension>
     </xsd:complexContent>

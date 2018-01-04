@@ -16,9 +16,9 @@
 
 class EnvironmentsController < ApplicationController
   before_filter :load_new_environment, :only => [:new, :create]
-  before_filter :load_existing_environment, :only => [:edit, :update, :show, :edit_pipelines, :edit_agents, :edit_variables]
+  before_filter :load_existing_environment, :only => [:update, :edit_pipelines, :edit_agents, :edit_variables]
 
-  before_filter :load_pipelines_and_agents, :only => [:new, :edit, :create, :update, :edit_pipelines, :edit_agents]
+  before_filter :load_pipelines_and_agents, :only => [:new, :create, :update, :edit_pipelines, :edit_agents]
 
   prepend_before_filter :default_as_empty_list, :only => [:update]
   skip_before_filter :verify_authenticity_token
@@ -27,7 +27,8 @@ class EnvironmentsController < ApplicationController
   prepend_before_filter :set_tab_name
 
   def index
-    @environments = environment_service.getEnvironments(current_user)
+    @environments = environment_config_service.listAllMergedEnvironments()
+    set_agent_details
     @show_add_environments = security_service.isUserAdmin(current_user)
   end
 
@@ -43,7 +44,7 @@ class EnvironmentsController < ApplicationController
 
     environment_config_service.createEnvironment(@environment, current_user, @result = HttpLocalizedOperationResult.new)
     render_environment_create_error_result(@environment)
-    redirect_with_flash(l.string("ADD_ENVIRONMENT_SUCCESS", [@environment.name()]), :action => :show, :name => @environment.name().to_s, :class => 'success') if @result.isSuccessful()
+    redirect_with_flash(l.string("ADD_ENVIRONMENT_SUCCESS", [@environment.name()]), :action => :index, :class => 'success') if @result.isSuccessful()
   end
 
   def update
@@ -59,14 +60,10 @@ class EnvironmentsController < ApplicationController
 
     message = result.message(Spring.bean('localizer'))
     if result.isSuccessful()
-      render :text => message, :location => url_options_with_flash(message, {:action => :show, :name => @environment.name(), :class => 'success', :only_path => true})
+      render :text => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
     else
       render_error_response message, 400, true
     end
-  end
-
-  def show
-    @agent_details = agent_service.filter(@environment.getLocalAgents().map(&:uuid))
   end
 
   def edit_pipelines
@@ -82,6 +79,12 @@ class EnvironmentsController < ApplicationController
   end
 
   private
+
+  def set_agent_details
+    @environments.each do |env_view_model|
+      env_view_model.setAgentViewModels(agent_service)
+    end
+  end
 
   def load_new_environment
     @environment = BasicEnvironmentConfig.new

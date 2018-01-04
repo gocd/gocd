@@ -16,24 +16,20 @@
 
 require 'rails_helper'
 
-require_relative '../auto_refresh_examples'
-
 describe 'environments/index.html.erb' do
   before do
-    @foo = Environment.new("foo", [])
-    @bar = Environment.new("bar", [])
+    @foo = EnvironmentViewModel.new(BasicEnvironmentConfig.new(CaseInsensitiveString.new('foo')))
   end
 
-  it "should render partial 'environment' for each environment" do
-    assign(:environments, [@foo, @bar])
+  it "should render partial 'show_env' for each environment" do
+    assign(:environments, [@foo])
     assign(:show_add_environments, true)
 
-    stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
+    stub_template "_show_env.html.erb" => "Content for: <%= scope[:environment_view_model].getEnvironmentConfig().name().to_s %>"
 
     render
 
     expect(response).to have_selector("div.environments div#environment_foo_panel", :text => "Content for: foo")
-    expect(response).to have_selector("div.environments div#environment_bar_panel", :text => "Content for: bar")
   end
 
   it "should display 'no environments configured' message with link to configuration when there are no environments and using enterprise license" do
@@ -42,18 +38,5 @@ describe 'environments/index.html.erb' do
     render
 
     expect(response).to have_selector("div.unused_feature a[href='https://docs.gocd.org/current/configuration/managing_environments.html']", :text => "More Information")
-  end
-
-  describe "auto_refresh" do
-    before do
-      @partial = 'environments/index.html.erb'
-      @ajax_refresher = /DashboardAjaxRefresher/
-      assign(:environments, [@foo, @bar])
-      assign(:show_add_environments, true)
-
-      stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
-    end
-
-    it_should_behave_like :auto_refresh
   end
 end

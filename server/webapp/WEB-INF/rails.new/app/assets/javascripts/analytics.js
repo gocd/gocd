@@ -1,36 +1,41 @@
-var Analytics = {
-  modal: function(data){
-    jQuery.ajax({
-                  url: data.url,
-                  params: {
-                    pipeline_counter: data.pipeline_counter
-                  },
-                  success: function(r) {
-                    var div = document.createElement("div");
-                    var frame = document.createElement("iframe");
-                    frame.setAttribute("id", "analytics-frame");
-                    frame.setAttribute("src", r.view_path);
-                    frame.width="100%";
-                    frame.height="100%";
-                    frame.setAttribute("scrolling", "no");
-                    frame.setStyle("position: absolute; border: none; margin: 0; padding: 0;");
-                    frame.sandbox = "allow-scripts";
-                    div.appendChild(frame);
-                    var options = {
-                      title: data.title,
-                      autoFocusing: false,
-                      height: 495,
-                      onShow: function() {
-                          var frame = document.getElementById("analytics-frame");
-                          frame.onload = function() {
-                            var x = { data: JSON.parse(r.data)};
-                            frame.contentWindow.postMessage(x, "*");
-                          }
-                      }
-                    };
-                    Modalbox.show(div, options);
-                  }
-    });
+(function($) {
+  "use strict";
+
+  if (!window.Analytics) {
+
+    window.Analytics = {
+      modal: function(data) {
+        var div = document.createElement("div");
+
+        $(div).addClass("analytics-plugin").dialog({
+          title: data.title || "Analytics",
+          width: 760,
+          height: 495,
+          close: function(e, ui) {
+            $(div).remove();
+          }
+        });
+
+        $.ajax({
+          url: data.url,
+          params: {
+            pipeline_counter: data.pipeline_counter
+          },
+          dataType: "json",
+          type: "GET"
+        }).done(function(r) {
+          var frame = document.createElement("iframe");
+          frame.sandbox = "allow-scripts";
+          frame.onload = function(e) {
+            frame.contentWindow.postMessage({ data: JSON.parse(r.data) }, "*");
+          };
+
+          div.appendChild(frame);
+          frame.setAttribute("src", r.view_path);
+        });
+      }
+    };
 
   }
-}
+
+})(jQuery);

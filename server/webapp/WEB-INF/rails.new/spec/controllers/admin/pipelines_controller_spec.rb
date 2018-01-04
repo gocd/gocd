@@ -32,8 +32,10 @@ describe Admin::PipelinesController do
     allow(controller).to receive(:template_config_service).and_return(@template_config_service)
     allow(controller).to receive(:security_service).and_return(@security_service = double('Security Service'))
     @pluggable_task_service = double('Pluggable_task_service')
+    @pluggable_scm_service = double('Pluggable_scm_service')
 
     allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
+    allow(controller).to receive(:pluggable_scm_service).and_return(@pluggable_scm_service)
     allow(controller).to receive(:task_view_service).and_return(@task_view_service = double('Task View Service'))
     allow(controller).to receive(:package_definition_service).with(no_args).and_return(@package_definition_service = StubPackageDefinitionService.new)
     allow(controller).to receive(:pipeline_selections_service).and_return(@pipeline_selections_service = double('pipeline selections service'))
@@ -667,6 +669,43 @@ describe Admin::PipelinesController do
 
       expect(assigns[:group_name]).to eq("defaultGroup")
       expect(assigns[:package_configuration].name).to eq("package3-name")
+    end
+
+    it "should create new pluggable scm material with submitted value if it is present" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
+      @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+
+      stub_save_for_success
+      @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
+      @pluggable_scm_service.should_receive(:validate)
+
+      @meta_data_store = SCMMetadataStore.getInstance
+      scm_view = double('SCMView')
+      scm_view.stub(:displayValue).and_return('SCM Plugin')
+      scm_configurations = SCMConfigurations.new
+      scm_configurations.add(SCMConfiguration.new('url'))
+      scm_configurations.add(SCMConfiguration.new('username'))
+      @meta_data_store.addMetadataFor('com.plugin.id', scm_configurations, scm_view)
+
+      plugin_id = "com.plugin.id"
+      material_type = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), nil).getSCMType()
+      scm_params = {:pluginId => plugin_id, :name => "material name", :url => "http://material.url", :username => "user"}
+      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :materials =>
+        {:materialType => material_type, material_type.to_sym => scm_params}}}
+
+      expect(assigns[:group_name]).to eq("new-group")
+      new_pipeline = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new("new-pip"))
+
+      material = new_pipeline.material_configs.get(0)
+      expect(material.type).to eq(PluggableSCMMaterialConfig::TYPE)
+      scm = material.getSCMConfig()
+      expect(scm.getPluginConfiguration().getId()).to eq(scm_params[:pluginId])
+      scm.getName == scm_params[:name]
+
+      configuration = scm.getConfiguration().getConfigurationAsMap(true)
+      expect(configuration.size()).to eq(2)
+      expect(configuration['url']).to eq(scm_params[:url])
+      expect(configuration['username']).to eq(scm_params[:username])
     end
 
     it "should be able to create a pipeline with a pluggable task" do

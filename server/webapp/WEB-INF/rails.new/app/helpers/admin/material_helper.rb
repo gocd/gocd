@@ -18,7 +18,7 @@ module Admin
   module MaterialHelper
     include JavaImports
 
-    def material_options
+    def builtin_material_options
       {l.string("SUBVERSION") => SvnMaterialConfig::TYPE,
        l.string("GIT") => GitMaterialConfig::TYPE,
        l.string("MERCURIAL") => HgMaterialConfig::TYPE,
@@ -27,6 +27,28 @@ module Admin
        l.string("PIPELINE") => DependencyMaterialConfig::TYPE,
        l.string("PACKAGE") => PackageMaterialConfig::TYPE
       }
+    end
+
+    def scm_material_options
+      options = {}
+      scm_plugin_ids = SCMMetadataStore.getInstance().getPlugins()
+      if (!scm_plugin_ids.isEmpty())
+        scm_plugin_ids.each_with_index do |plugin_id, index|
+          display_value = SCMMetadataStore.getInstance().displayValue(plugin_id)
+          scm = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), nil);
+          options[display_value] = scm.getSCMType()
+        end
+      end
+      options
+    end
+
+    def material_options
+      builtin_material_options().merge(scm_material_options())
+    end
+
+    def scm_material_config_keys(plugin_id)
+      configuration = SCMMetadataStore.getInstance().getConfigurationMetadata(plugin_id).list()
+      com.google.gson.Gson.new.toJson(configuration.map { |x| x.getKey() })
     end
 
     def repository_packages_map_from_config

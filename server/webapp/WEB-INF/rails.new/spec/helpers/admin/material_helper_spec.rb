@@ -22,8 +22,11 @@ describe Admin::MaterialHelper do
 
   describe "material options in new pipeline wizard" do
     it "should populate options correctly" do
+      SCMMetadataStore.getInstance().clear()
+      setup_metadata
+
       material_options_map = material_options
-      expect(material_options_map.size).to eq(7)
+      expect(material_options_map.size).to eq(9)
       expect(material_options_map["Subversion"]).to eq(SvnMaterialConfig::TYPE)
       expect(material_options_map["Git"]).to eq(GitMaterialConfig::TYPE)
       expect(material_options_map["Mercurial"]).to eq(HgMaterialConfig::TYPE)
@@ -31,6 +34,8 @@ describe Admin::MaterialHelper do
       expect(material_options_map["Team Foundation Server"]).to eq(TfsMaterialConfig::TYPE)
       expect(material_options_map["Pipeline"]).to eq(DependencyMaterialConfig::TYPE)
       expect(material_options_map["Package"]).to eq(PackageMaterialConfig::TYPE)
+      expect(material_options_map["Plugin 1"]).to eq(SCM.new(nil, PluginConfiguration.new("com.plugin.id1", "1"), nil).getSCMType())
+      expect(material_options_map["Plugin 2"]).to eq(SCM.new(nil, PluginConfiguration.new("com.plugin.id2", "1"), nil).getSCMType())
     end
   end
 
@@ -74,4 +79,32 @@ describe Admin::MaterialHelper do
       expect(package_material_plugins).to include(["[Select]", ""],"P1", "P2")
     end
   end
+
+  describe "Pluggable SCM materials" do
+    it "should get all configuration keys for a material as JSON array" do
+      SCMMetadataStore.getInstance().clear()
+      setup_metadata
+      keys = JSON.parse(scm_material_config_keys('com.plugin.id1'))
+      expect(keys.sort).to eq(['password', 'url', 'username'])
+    end
+  end
+
+  def setup_metadata
+    @meta_data_store = SCMMetadataStore.getInstance
+
+    scm_configurations = SCMConfigurations.new
+    scm_configurations.add(SCMConfiguration.new('url'))
+    scm_configurations.add(SCMConfiguration.new('username'))
+    scm_configurations.add(SCMConfiguration.new('password'))
+
+    scm_view = double('SCMView')
+    scm_view.stub(:displayValue).and_return('Plugin 1')
+    @meta_data_store.addMetadataFor('com.plugin.id1', scm_configurations, scm_view)
+
+    scm_configurations = SCMConfigurations.new
+    scm_view = double('SCMView')
+    scm_view.stub(:displayValue).and_return('Plugin 2')
+    @meta_data_store.addMetadataFor('com.plugin.id2', scm_configurations, scm_view)
+  end
+
 end

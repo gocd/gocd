@@ -23,6 +23,15 @@ describe "admin/pipelines/new.html.erb" do
   include Admin::ConfigContextHelper
   include MockRegistryModule
 
+  PLUGGABLE_SCM_TEMPLATE = %Q{
+    <label>URL:<span class="asterisk">*</span></label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]" ng-model="url" ng-required="true" tabindex="1"/>
+    <label>Username:</label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][username]" ng-model="username" ng-required="true" tabindex="2"/>
+    <label>Password:</label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][password]" ng-model="password" ng-required="true" tabindex="3"/>
+  }
+
   before(:each) do
     allow(view).to receive(:pipeline_create_path).and_return("create_path")
 
@@ -33,6 +42,19 @@ describe "admin/pipelines/new.html.erb" do
     @pipeline.addMaterialConfig(@material_config)
     @pipeline_group = BasicPipelineConfigs.new
     @pipeline_group.add(@pipeline)
+
+    @selected_scm_id = nil
+    @scm_materials = Hash.new
+    @meta_data_store = SCMMetadataStore.getInstance()
+    @meta_data_store.clear()
+    scm_view = double('SCMView')
+    scm_view.stub(:displayValue).and_return('SCM Material')
+    scm_view.stub(:template).and_return(PLUGGABLE_SCM_TEMPLATE)
+    scm_configurations = SCMConfigurations.new
+    scm_configurations.add(SCMConfiguration.new('url'))
+    scm_configurations.add(SCMConfiguration.new('username'))
+    scm_configurations.add(SCMConfiguration.new('password'))
+    @meta_data_store.addMetadataFor('com.plugin.id', scm_configurations, scm_view)
 
     assign(:pipeline, @pipeline)
     assign(:pipeline_group, @pipeline_group)
@@ -68,12 +90,14 @@ describe "admin/pipelines/new.html.erb" do
       Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-materials').tap do |tab|
         expect(tab).to have_selector("h2.section_title", :text => "Step 2: Materials")
         expect(tab).to have_selector("label", :text => "Material Type*")
-        tab.find("select[name='pipeline_group[pipeline][materials][materialType]']") do |select|
+        tab.find("select[name='pipeline_group[pipeline][materials][materialType]']").tap do |select|
           expect(select).to have_selector("option[value='SvnMaterial']", :text => "Subversion")
           expect(select).to have_selector("option[value='GitMaterial']", :text => "Git")
           expect(select).to have_selector("option[value='HgMaterial']", :text => "Mercurial")
           expect(select).to have_selector("option[value='P4Material']", :text => "Perforce")
+          expect(select).to have_selector("option[value='TfsMaterial']", :text => "Team Foundation Server")
           expect(select).to have_selector("option[value='DependencyMaterial']", :text => "Pipeline")
+          expect(select).to have_selector("option[value='pluggable_material_com_plugin_id']", :text => "SCM Material")
         end
         expect(tab).to have_selector("button.cancel_button", :text => "Cancel")
         expect(tab).to have_selector("button#next_to_materials", :text => "Next")
@@ -371,6 +395,68 @@ describe "admin/pipelines/new.html.erb" do
                 expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
               end
           end
+        end
+      end
+    end
+
+    describe "Pluggable SCM Material" do
+      before :each do
+        plugin_id = "com.plugin.id"
+        configurations = [ConfigurationPropertyMother.create("url", false, "//bad_url"),
+                          ConfigurationPropertyMother.create("username", false, "wally"),
+                          ConfigurationPropertyMother.create("password", false, "hunter12")]
+        configurations.first.addError("url", "Wrong format")
+        scm = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), Configuration.new(configurations.to_java(ConfigurationProperty)))
+        scm.setPluginConfiguration(com.thoughtworks.go.domain.config.PluginConfiguration.new(plugin_id, "1"))
+        material_id = scm.getSCMType()
+        material = PluggableSCMMaterialConfig.new
+        material.setSCMConfig(scm)
+
+        @scm_materials[material_id] = material
+      end
+
+      it "should render all scm material attributes" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          expect(div).to have_selector("label", :text => "Material Name*")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
+
+          expect(div).to have_selector("label", :text => "URL:*")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]']")
+          expect(div).to have_selector("label", :text => "Username:")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][username]']")
+          expect(div).to have_selector("label", :text => "Password:")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][password]']")
+        end
+      end
+
+      it "should render material data and errors" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          data_for_template = JSON.parse(div.find("span.plugged_material_data", :visible => false).text)
+          expect(data_for_template.keys.sort).to eq(["password", "url", "username"])
+          expect(data_for_template["url"]).to eq({"errors" => "Wrong format", "value" => "//bad_url"})
+          expect(data_for_template["username"]).to eq({"value" => "wally"})
+          expect(data_for_template["password"]).to eq({"value" => "hunter12"})
+        end
+      end
+
+      it "should render material configuration keys" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          configuration = JSON.parse(div.find("span.plugged_material_configuration_keys", :visible => false).text)
+          expect(configuration.sort).to eq(["password", "url", "username"])
+        end
+      end
+
+      it "should render 'check connection' button" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          expect(div).to have_selector("button.check_connection span", :text => "CHECK CONNECTION")
         end
       end
     end

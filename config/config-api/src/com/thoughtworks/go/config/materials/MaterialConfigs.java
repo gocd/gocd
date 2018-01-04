@@ -322,7 +322,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return getExistingOrDefaultMaterial(new PackageMaterialConfig());
     }
 
-    public PluggableSCMMaterialConfig getSCMMaterial() {
+    public PluggableSCMMaterialConfig getPluggableSCMMaterial() {
         return getExistingOrDefaultMaterial(new PluggableSCMMaterialConfig());
     }
 
@@ -361,7 +361,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         } else if (PackageMaterialConfig.TYPE.equals(materialType)) {
             addMaterialConfig(getPackageMaterial(), (Map) attributeMap.get(PackageMaterialConfig.TYPE));
         } else if (PluggableSCMMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getSCMMaterial(), (Map) attributeMap.get(PluggableSCMMaterialConfig.TYPE));
+            addMaterialConfig(getPluggableSCMMaterial(), (Map) attributeMap.get(PluggableSCMMaterialConfig.TYPE));
         }
     }
 

@@ -35,7 +35,7 @@
             </div>
             <!-- Materials tab -->
             <div id="tab-content-of-materials">
-                <%= render :partial => "material_form.html", :locals => {:scope => {:pipeline => @pipeline, :form => f, :step => 2, :title => l.string("MATERIALS")}} %>
+                <%= render :partial => "material_form.html", :locals => {:scope => {:pipeline => @pipeline, :scm_materials => @scm_materials, :selected_scm_id => @selected_scm_id, :form => f, :step => 2, :title => l.string("MATERIALS")}} %>
                 <%= render :partial => "wizard_finish_buttons.html", :locals => {:scope => {:current_tab_name => "materials", :needs_next => true, :needs_prev => true}} %>
             </div>
             <!-- Stage/Job tab -->

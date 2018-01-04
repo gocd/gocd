@@ -1,7 +1,7 @@
 var Analytics = {
   modal: function(data){
     jQuery.ajax({
-                  url: origin + "/go/analytics/" + data.plugin_id + "/" + data.pipeline_name,
+                  url: data.url,
                   params: {
                     pipeline_counter: data.pipeline_counter
                   },

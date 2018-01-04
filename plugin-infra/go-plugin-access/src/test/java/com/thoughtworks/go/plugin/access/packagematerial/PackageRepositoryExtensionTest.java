@@ -32,8 +32,11 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.Is;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -65,6 +68,8 @@ public class PackageRepositoryExtensionTest {
     private RepositoryConfiguration repositoryConfiguration;
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -350,6 +355,14 @@ public class PackageRepositoryExtensionTest {
         String pluginSettingsJSON = extension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, is("{\"key1\":\"value1\",\"key2\":\"value2\"}"));
+    }
+
+    @Test
+    public void shouldNotExposeServerInfoToJSON() throws Exception {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Fetch Server Info is not supported by PackageRepository endpoint.");
+
+        extension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
     }
 
     private void assertPropertyConfiguration(PackageMaterialProperty property, String key, String value, boolean partOfIdentity, boolean required, boolean secure, String displayName, int displayOrder) {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -63,5 +64,18 @@ public class NotificationExtensionTestForV1 extends NotificationExtensionTestBas
         String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, is("{\"k1\":\"value1\",\"k2\":\"value2\"}"));
+    }
+
+    @Test
+    public void shouldSerializeServerInfoToJSON() throws Exception {
+        String pluginId = "plugin_id";
+
+        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
+
+        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn("1.0");
+
+        String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
+
+        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
     }
 }

@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
@@ -70,12 +70,17 @@ public class TaskExtension extends AbstractExtension {
     }
 
     @Override
-    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
         throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Task Endpoint.");
     }
 
     @Override
     protected List<String> goSupportedVersions() {
         return supportedVersions;
+    }
+
+    @Override
+    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
+        throw new UnsupportedOperationException("Fetch Server Info is not supported by Task endpoint.");
     }
 }

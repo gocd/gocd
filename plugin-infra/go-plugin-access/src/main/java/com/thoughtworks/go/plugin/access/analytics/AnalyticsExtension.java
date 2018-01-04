@@ -19,8 +19,8 @@ package com.thoughtworks.go.plugin.access.analytics;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor1_0;
+import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
@@ -43,13 +43,15 @@ public class AnalyticsExtension extends AbstractExtension {
     @Autowired
     public AnalyticsExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, EXTENSION_NAME), EXTENSION_NAME);
-        addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AnalyticsMessageConverterV1(), new JsonMessageHandlerForRequestProcessor1_0());
+        addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AnalyticsMessageConverterV1(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverterV1 extensionHandler, JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverterV1 extensionHandler,
+                            MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(AnalyticsMessageConverterV1.VERSION, extensionHandler);
-        registerJsonMessageHandlerForRequestProcessor(version, jsonMessageHandlerForRequestProcessor);
+        registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
     }
 
     public Capabilities getCapabilities(String pluginId) {
@@ -104,7 +106,13 @@ public class AnalyticsExtension extends AbstractExtension {
         return SUPPORTED_VERSIONS;
     }
 
+
     private String getCurrentStaticAssetsPath(String pluginId) {
         return AnalyticsMetadataStore.instance().getPluginInfo(pluginId).getStaticAssetsPath();
+    }
+
+    @Override
+    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
+        throw new UnsupportedOperationException("Fetch Server Info is not supported by Analytics endpoint.");
     }
 }

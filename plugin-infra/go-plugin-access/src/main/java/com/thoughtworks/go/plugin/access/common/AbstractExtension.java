@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor;
 import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -31,7 +32,8 @@ public abstract class AbstractExtension implements GoPluginExtension {
     protected final PluginRequestHelper pluginRequestHelper;
     private final String extensionName;
     protected Map<String, PluginSettingsJsonMessageHandler> pluginSettingsMessageHandlerMap = new HashMap<>();
-    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
+    private Map<String, MessageHandlerForPluginSettingsRequestProcessor> messageHandlersForPluginSettingsRequestProcessor = new HashMap<>();
+    private Map<String, MessageHandlerForServerInfoRequestProcessor> messageHandlersForServerInfoRequestProcessor = new HashMap<>();
 
     protected AbstractExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
         this.pluginManager = pluginManager;
@@ -85,15 +87,30 @@ public abstract class AbstractExtension implements GoPluginExtension {
     @Override
     public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
         String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
-        return jsonMessageHandlerForRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
+        return messageHandlerForPluginSettingsRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
     }
 
-    protected void registerJsonMessageHandlerForRequestProcessor(String apiVersion, JsonMessageHandlerForRequestProcessor handler) {
-        jsonMessageHandlersForRequestProcessor.put(apiVersion, handler);
+    @Override
+    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+
+        return messageHandlerForServerInfoRequestProcessor(resolvedExtensionVersion).serverInfoToJSON(serverId, siteUrl, secureSiteUrl);
     }
 
-    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
-        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
+    protected void registerMessageHandlerForPluginSettingsRequestProcessor(String apiVersion, MessageHandlerForPluginSettingsRequestProcessor handler) {
+        messageHandlersForPluginSettingsRequestProcessor.put(apiVersion, handler);
+    }
+
+    protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
+        return messageHandlersForPluginSettingsRequestProcessor.get(pluginVersion);
+    }
+
+    protected void registerMessageHandlerForServerInfoRequestProcessor(String apiVersion, MessageHandlerForServerInfoRequestProcessor handler) {
+        messageHandlersForServerInfoRequestProcessor.put(apiVersion, handler);
+    }
+
+    protected MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
+        return messageHandlersForServerInfoRequestProcessor.get(pluginVersion);
     }
 
     protected abstract List<String> goSupportedVersions();

@@ -182,6 +182,7 @@ public class ArtifactExtension extends AbstractExtension {
         return SUPPORTED_VERSIONS;
     }
 
+
     public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
             @Override
@@ -189,5 +190,15 @@ public class ArtifactExtension extends AbstractExtension {
                 return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
             }
         });
+    }
+    
+    @Override
+    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
+        throw new UnsupportedOperationException("Fetch Plugin Settings is not supported by Artifact endpoint.");
+    }
+
+    @Override
+    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
+        throw new UnsupportedOperationException("Fetch Server Info is not supported by Artifact endpoint.");
     }
 }

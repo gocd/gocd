@@ -22,7 +22,9 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -50,6 +52,8 @@ public class ConfigRepoExtensionTest {
     private String responseBody = "expected-response";
 
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -94,6 +98,14 @@ public class ConfigRepoExtensionTest {
         String pluginSettingsJSON = configRepoExtension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, CoreMatchers.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
+    }
+
+    @Test
+    public void shouldNotExposeServerInfo() throws Exception {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Fetch Server Info is not supported by ConfigRepo endpoint.");
+
+        extension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

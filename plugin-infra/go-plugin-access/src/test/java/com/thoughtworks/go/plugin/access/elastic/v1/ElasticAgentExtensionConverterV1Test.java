@@ -107,22 +107,6 @@ public class ElasticAgentExtensionConverterV1Test {
         assertThat(image.getData(), is("bar"));
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "val1");
-        pluginSettings.put("key2", "val2");
-        PluginManager pluginManager = mock(PluginManager.class);
-
-        ElasticAgentExtension elasticAgentExtension = new ElasticAgentExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0", "2.0"))).thenReturn("1.0");
-        String pluginSettingsJSON = elasticAgentExtension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
-    }
-
     private AgentMetadata elasticAgent() {
         return new AgentMetadata("42", "Idle", "Idle", "Enabled");
     }

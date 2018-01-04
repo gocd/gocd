@@ -16,41 +16,62 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo;
 
+import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.List;
+
+import static java.lang.String.format;
 
 @Component
 public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerInfoRequestProcessor.class);
     public static final String GET_SERVER_ID = "go.processor.server-info.get";
 
-    private final HashMap<String, ServerInfoMessageConverter> messageHandlerMap = new HashMap<>();
-
     private final GoConfigService configService;
+    private final List<GoPluginExtension> extensions;
 
     @Autowired
-    public ServerInfoRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService configService) {
+    public ServerInfoRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService configService, List<GoPluginExtension> extensions) {
         this.configService = configService;
+        this.extensions = extensions;
         registry.registerProcessorFor(GET_SERVER_ID, this);
-        messageHandlerMap.put("1.0", new ServerInfoMessageConverterV1());
     }
 
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        String version = goPluginApiRequest.apiVersion();
+        try {
+            GoPluginExtension extension = extensionFor(pluginDescriptor.id());
 
-        if (!messageHandlerMap.containsKey(version)) {
-            throw new RuntimeException(String.format("Unsupported '%s' API version: %s. Supported versions: %s", goPluginApiRequest.api(), version, messageHandlerMap.keySet()));
+            ServerConfig serverConfig = configService.serverConfig();
+            String serverInfoJSON = extension.serverInfoJSON(pluginDescriptor.id(), serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl());
+
+            return DefaultGoApiResponse.success(serverInfoJSON);
+        } catch (Exception e) {
+            LOGGER.error(format("Error processing ServerInfo request from plugin: %s.", pluginDescriptor.id()), e);
+            return DefaultGoApiResponse.badRequest(format("Error while processing get ServerInfo request - %s", e.getMessage()));
+        }
+    }
+
+    private GoPluginExtension extensionFor(String pluginId) {
+        for(GoPluginExtension extension : extensions) {
+            if(extension.canHandlePlugin(pluginId)){
+                return extension;
+            }
         }
 
-        return messageHandlerMap.get(version).getServerInfo(configService.serverConfig());
+        throw new IllegalArgumentException(format(
+                "Plugin '%s' is not supported by any extension point", pluginId));
     }
 }

@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.common;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
-import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -58,11 +58,6 @@ public class AbstractExtensionTest {
 
         protected TestExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
             super(pluginManager, pluginRequestHelper, extensionName);
-        }
-
-        @Override
-        protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
-            return null;
         }
 
         @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,4 +35,6 @@ public interface GoPluginExtension {
     void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings);
 
     String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings);
+
+    String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl);
 }

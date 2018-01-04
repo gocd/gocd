@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +39,8 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     @Override
     public String getPipelineAnalyticsRequestBody(String pipelineName) {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("pipeline_name", pipelineName );
+        requestMap.put("type", "pipeline");
+        requestMap.put("data", Collections.singletonMap("pipeline_name", pipelineName));
 
         return GSON.toJson(requestMap);
     }

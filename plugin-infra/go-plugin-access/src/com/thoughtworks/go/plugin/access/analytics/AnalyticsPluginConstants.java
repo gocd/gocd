@@ -27,6 +27,6 @@ public interface AnalyticsPluginConstants {
     String REQUEST_PREFIX = "go.cd.analytics";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
-    String REQUEST_GET_PIPELINE_ANALYTICS = REQUEST_PREFIX + ".get-pipeline-analytics";
+    String REQUEST_GET_ANALYTICS = REQUEST_PREFIX + ".get-analytics";
     String REQUEST_GET_STATIC_ASSETS = REQUEST_PREFIX + ".get-static-assets";
 }

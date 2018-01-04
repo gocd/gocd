@@ -386,7 +386,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       allow(validation_context).to receive(:getPipeline).and_return(pipeline)
       allow(validation_context).to receive(:getStage).and_return(pipeline.first)
       allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
-      fetch_task.validateTree(validation_context)
+      fetch_task.validateAttributes(validation_context)
 
       presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(fetch_task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -399,8 +399,6 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
         type:       'fetch',
         attributes: {pipeline: "this_pipeline", stage: "", job: "", is_source_a_file: true, source: "../src", destination: "../dest", run_if: [], on_cancel: nil},
         errors:     {
-          job:   ['Job is a required field.'],
-          stage: ['Stage is a required field.'],
           destination: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has dest path '../dest' which is outside the working directory."],
           source: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has src path '../src' which is outside the working directory."]
         }

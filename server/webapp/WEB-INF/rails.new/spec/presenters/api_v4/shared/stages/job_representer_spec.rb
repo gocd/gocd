@@ -304,7 +304,6 @@ describe ApiV4::Shared::Stages::JobRepresenter do
                                  attributes: {pipeline: '', stage: '', job: '', is_source_a_file: false, source: nil, destination: '', run_if: [], on_cancel: nil},
                                  errors:     {
                                    job:    ['Job is a required field.'],
-                                   source: ['Should provide either srcdir or srcfile'],
                                    stage:  ['Stage is a required field.']
                                  }
                                }

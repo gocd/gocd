@@ -199,10 +199,9 @@ public class FetchTaskTest {
     @Test
     public void validate_shouldPopulateErrorOnSrcFileOrSrcDirOrDestIfIsNotAValidFilePathPattern() {
         FetchTask task = new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString(""), new CaseInsensitiveString(""), "", "");
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(
+        task.validateAttributes(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(
                 new CaseInsensitiveString("stage")).getJobs().get(0)));
         assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.STAGE), is("Stage is a required field."));
         assertThat(task.errors().on(FetchTask.SRC), is("Should provide either srcdir or srcfile"));
     }
 

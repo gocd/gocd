@@ -64,7 +64,7 @@ public class ElasticAgentExtensionTest {
                 "\"view\": \"foo\"\n" +
                 "}"));
 
-        final String statusReport = new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin");
+        final String statusReport = new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin", null);
 
         assertThat(statusReport, is("foo"));
         assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));

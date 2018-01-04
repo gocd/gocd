@@ -25,7 +25,11 @@ module Admin
     def show
       @view_title = 'Plugin Status Report'
       @page_header = 'Plugin Status Report'
-      @status_report = elastic_agent_extension.getStatusReport(params[:plugin_id])
+      job_identifier = nil
+      if !params[:job_id].nil?
+        job_identifier = job_instance_service.buildById(params[:job_id].to_i).getIdentifier()
+      end
+      @status_report = elastic_agent_extension.getStatusReport(params[:plugin_id], job_identifier)
     rescue java.lang.UnsupportedOperationException => e
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} is not found.", 404
     rescue java.lang.Exception => e

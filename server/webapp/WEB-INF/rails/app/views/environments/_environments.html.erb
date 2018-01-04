@@ -1,7 +1,0 @@
-<%= render :partial=>'no_environments.html.erb', :locals=>{:scope => {}} %>
-
-<% @environments.each do |env_in_environments| %>
-    <div id="<%= env_dom_id(env_in_environments) %>">
-        <%= render :partial => 'environment.html.erb', :locals=>{:scope => {:environment => env_in_environments, :show_edit_environments => scope[:show_edit_environments]}} %>
-    </div>
-<% end %>

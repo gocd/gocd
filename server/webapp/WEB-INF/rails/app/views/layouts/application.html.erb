@@ -3,40 +3,28 @@
 
 
 <head>
-    <%= render :partial => "shared/head" %>
+  <%= render :partial => "shared/head" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
 <div class="page-wrap">
-<div id="body_bg">
+  <div id="body_bg">
     <div id="header">
-        <%= render :partial => "shared/header" %>
+      <%= render :partial => "shared/header" %>
     </div>
 
     <div id='body_content'>
-        <div class="messaging_wrapper" id="messaging_wrapper">
-            <%= render :partial => "shared/flash_message" %>
-            <%= render :partial => "shared/config_save_actions", :locals => { :scope => {}}-%>
-        </div>
-        <%= render :partial => "shared/subheader" %>
-        <% if @show_environment_breadcrumb %>
-            <div id="pipeline_header">
-                <div class="entity_status_wrapper page_header ">
-                  <div class="row">
-                    <ul class="entity_title">
-                        <!--<li><%= link_to 'Environments', environments_path %></li>-->
-                        <li class="last"><h1 class="name"><%= @environment.name() -%></h1></li>
-                    </ul>
-                  </div>
-                </div>
-            </div>
-        <% end %>
-        <%= yield %>
+      <div class="messaging_wrapper" id="messaging_wrapper">
+        <%= render :partial => "shared/flash_message" %>
+        <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
+      </div>
+      <%= render :partial => "shared/subheader" %>
+      <%= yield %>
     </div>
   </div>
 </div>
-    <div id='footer-new-foundation'>
-        <%= render :partial => 'navigation_elements/footer' %>
-    </div>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
 
 </body>
 </html>

@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -101,29 +100,5 @@ public class ElasticAgentExtensionTest {
         new ElasticAgentExtension(pluginManager).getCapabilities("ecs.plugin");
 
         verify(pluginManager, times(0)).submitTo(any(), any());
-    }
-
-    @Test
-    public void shouldSerializeServerInfoToJSONFor_V1() throws Exception {
-        String pluginId = "plugin_id";
-        ElasticAgentExtension extension = new ElasticAgentExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, extension.goSupportedVersions())).thenReturn("1.0");
-
-        String serverInfoJSON = extension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
-
-        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
-    }
-
-    @Test
-    public void shouldSerializeServerInfoToJSONFor_V2() throws Exception {
-        String pluginId = "plugin_id";
-        ElasticAgentExtension extension = new ElasticAgentExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, extension.goSupportedVersions())).thenReturn("2.0");
-
-        String serverInfoJSON = extension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
-
-        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
     }
 }

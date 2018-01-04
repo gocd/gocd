@@ -61,7 +61,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler,
                             MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor,
                             MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor) {
-        pluginSettingsMessageHandlerMap.put(version, messageHandler);
+        registerHandler(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
         registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
         registerMessageHandlerForServerInfoRequestProcessor(version, messageHandlerForServerInfoRequestProcessor);

@@ -358,7 +358,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldSerializeServerInfoToJSON() throws Exception {
+    public void shouldNotExposeServerInfoToJSON() throws Exception {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch Server Info is not supported by PackageRepository endpoint.");
 

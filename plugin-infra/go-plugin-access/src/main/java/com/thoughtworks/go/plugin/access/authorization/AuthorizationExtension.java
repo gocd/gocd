@@ -55,7 +55,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverterV1 extensionHandler,
                             MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor) {
-        pluginSettingsMessageHandlerMap.put(version, messageHandler);
+        registerHandler(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
         registerMessageHandlerForServerInfoRequestProcessor(version, messageHandlerForServerInfoRequestProcessor);
     }

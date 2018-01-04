@@ -388,7 +388,7 @@ fastUnitTest { thisTask ->
 }
 
 integrationTest { thisTask ->
-  forkEvery 1
+  forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
 
   doFirst {
     def excludes = [

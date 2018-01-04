@@ -24,8 +24,11 @@
 
   /** main function to delegate messages to appropriate handlers */
   function dispatch(ev) {
-    // also does not need origin check because iframe sandbox security forbids access
-    // to other window origin
+    if ("null" !== ev.origin && ev.origin !== window.location.origin) {
+      err("Disregarding message", ev.data, "because origin", ev.origin, "does not match", window.location.origin);
+      return;
+    }
+
     if (!(ev.data && ev.data.key)) {
       err("Message is missing key; debug:", JSON.stringify(ev.data));
       return;
@@ -41,7 +44,7 @@
     handlers[ev.data.key](ev.data.body, function reply(key, message) { send(ev.source, key, message); });
   }
 
-  window.ExtensionIFrameEndpoint = {
+  window.PluginEndpoint = {
     ensure: function ensure() {
       if (!attached) {
         window.addEventListener("message", dispatch, false);

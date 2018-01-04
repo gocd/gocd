@@ -2,13 +2,13 @@
   "use strict";
 
   window.Analytics = {
-    modal: function(data) {
+    modal: function(options) {
       var div = document.createElement("div");
 
-      ExtensionIFrameEndpoint.ensure();
+      PluginEndpoint.ensure();
 
       $(div).addClass("analytics-plugin").dialog({
-        title: data.title || "Analytics",
+        title: options.title || "Analytics",
         width: 760,
         height: 495,
         close: function(e, ui) {
@@ -17,9 +17,9 @@
       });
 
       $.ajax({
-        url: data.url,
+        url: options.url,
         params: {
-          pipeline_counter: data.pipeline_counter
+          pipeline_counter: options.pipeline_counter
         },
         dataType: "json",
         type: "GET"
@@ -28,7 +28,7 @@
         frame.sandbox = "allow-scripts";
 
         frame.onload = function(e) {
-          ExtensionIFrameEndpoint.send(frame.contentWindow, data.key, JSON.parse(r.data));
+          PluginEndpoint.send(frame.contentWindow, options.key, JSON.parse(r.data));
         };
 
         div.appendChild(frame);

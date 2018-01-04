@@ -10,6 +10,12 @@
         end
     %>
     <div class="pipeline_actions">
+      <% with_pipeline_analytics_support do |plugin_id| %>
+        <%- analytics_label = "Analytics for Pipeline: #{scope[:pipeline_name]}" -%>
+        <span class="analytics-link-wrapper">
+          <a onclick='Analytics.modal(<%== {url: pipeline_analytics_path(plugin_id: plugin_id, pipeline_name: scope[:pipeline_name]), title: analytics_label}.to_json %>); return false;' title="<%= analytics_label %>"><i class="fa fa-bar-chart pipeline-analytics-icon"></i></a>
+        </span>
+      <% end %>
         <%= render :partial => "pipelines/pipeline_locking_blurb.html.erb", :locals => {:scope => {:pipeline_model => scope[:pipeline_model]}} %>
         <%- if scope[:pipeline_model].canAdminister() -%>
           <% if is_pipeline_config_spa_enabled? && is_quick_edit_page_default? %>

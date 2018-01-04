@@ -1287,6 +1287,16 @@ ul#pipeline_config_tree {
   }
 }
 
+
+
+.pipeline_header .analytics-link-wrapper .pipeline-analytics-icon {
+    margin-right: 12px;
+    padding: 0;
+    font-size: 16px;
+    color: $btn-hover;
+    cursor: pointer;
+  }
+
 .page_header a.agents-toggle-new-view {
   margin-top: 6px;
 }

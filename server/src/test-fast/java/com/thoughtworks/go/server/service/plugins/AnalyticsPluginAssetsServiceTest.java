@@ -41,12 +41,14 @@ import java.util.Base64;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AnalyticsPluginAssetsServiceTest {
+    public static final String PLUGIN_ID = "plugin_id";
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Mock
@@ -56,12 +58,8 @@ public class AnalyticsPluginAssetsServiceTest {
     @Mock
     AnalyticsMetadataLoader analyticsMetadataLoader;
     AnalyticsPluginAssetsService assetsService;
-
     private File railsRoot;
-    public static final String PLUGIN_ID = "plugin_id";
     private AnalyticsMetadataStore metadataStore;
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() throws Exception {
@@ -152,6 +150,28 @@ public class AnalyticsPluginAssetsServiceTest {
         assertFalse(dirtyPath.toFile().exists());
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "test.txt").toFile().exists());
+    }
+
+    @Test
+    public void onPluginMetadataLoad_shouldCopyPluginEndpointJsWhenCachingPluginStaticAssets() throws Exception {
+        railsRoot = temporaryFolder.newFolder();
+        Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
+
+        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
+        when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
+        when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
+        when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
+
+
+        assetsService.onPluginMetadataCreate(PLUGIN_ID);
+
+        Path actualPath = Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "plugin-endpoint.js");
+
+        assertTrue(pluginDirPath.toFile().exists());
+        assertTrue(actualPath.toFile().exists());
+        byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/plugin-endpoint.js"));
+        assertArrayEquals("Content of plugin-endpoint.js should be preserved", expected, Files.readAllBytes(actualPath));
     }
 
     @Test

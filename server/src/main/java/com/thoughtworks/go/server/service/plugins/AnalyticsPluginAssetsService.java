@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ import javax.servlet.ServletContext;
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -43,8 +46,8 @@ import java.util.zip.ZipInputStream;
 
 @Service
 public class AnalyticsPluginAssetsService implements ServletContextAware, PluginMetadataChangeListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsPluginAssetsService.class);
     public static final String HASH_ALGORITHM = "SHA-256";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsPluginAssetsService.class);
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
     private ZipUtil zipUtil;
@@ -114,6 +117,11 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             String pluginAssetsRoot = currentAssetPath(pluginId, assetsHash);
 
             zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
+
+            try (FileOutputStream out = new FileOutputStream(Paths.get(pluginAssetsRoot, "plugin-endpoint.js").toFile())) {
+                InputStream pluginEndpointJsContent = getClass().getResourceAsStream("/plugin-endpoint.js");
+                IOUtils.copy(pluginEndpointJsContent, out);
+            }
 
             pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
         } catch (Exception e) {

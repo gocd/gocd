@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ describe("PluginsWidget", () => {
 
   const configRepoPluginInfoJSON = {
     "id":                   "json.config.plugin",
-    "type":                 "configrepo",
     "status":               {
       "state": "active"
     },
@@ -51,22 +50,25 @@ describe("PluginsWidget", () => {
         "url":  "https://github.com/tomzo/json-config-plugin"
       }
     },
-    "extension_info":       {
-      "plugin_settings": {
-        "configurations": [
-          {
-            "key":      "pattern",
-            "metadata": {
-              "secure":   false,
-              "required": false
+    "extensions": [
+      {
+        "type": "configrepo",
+        "plugin_settings": {
+          "configurations": [
+            {
+              "key":      "pattern",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
             }
+          ],
+          "view":           {
+            "template": "plugin settings view"
           }
-        ],
-        "view":           {
-          "template": "plugin settings view"
         }
       }
-    }
+    ]
   };
 
   describe('functionality', () => {
@@ -86,7 +88,6 @@ describe("PluginsWidget", () => {
 
     const elasticAgentPluginInfoJSON = {
       "id":             "cd.go.contrib.elastic-agent.docker",
-      "type":           "elastic-agent",
       "status":         {
         "state": "active"
       },
@@ -101,44 +102,46 @@ describe("PluginsWidget", () => {
           "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
         }
       },
-      "extension_info": {
-        "plugin_settings":  {
-          "configurations": [
-            {
-              "key":      "instance_type",
-              "metadata": {
-                "secure":   false,
-                "required": true
+      "extensions": [
+        {
+          "type": "elastic-agent",
+          "plugin_settings":  {
+            "configurations": [
+              {
+                "key":      "instance_type",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
               }
+            ],
+            "view":           {
+              "template": "elastic agent plugin settings view"
             }
-          ],
-          "view":           {
-            "template": "elastic agent plugin settings view"
-          }
-        },
-        "profile_settings": {
-          "configurations": [
-            {
-              "key":      "Image",
-              "metadata": {
-                "secure":   false,
-                "required": true
+          },
+          "profile_settings": {
+            "configurations": [
+              {
+                "key":      "Image",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
               }
+            ],
+            "view":           {
+              "template": 'elastic-profile-view'
             }
-          ],
-          "view":           {
-            "template": 'elastic-profile-view'
+          },
+          "capabilities":     {
+            "supports_status_report": true
           }
-        },
-        "capabilities":     {
-          "supports_status_report": true
         }
-      }
+      ]
     };
 
     const githubAuthPluginInfoJSON = {
       "id":                   "github.oauth.login",
-      "type":                 "authorization",
       "status":               {
         "state": "active"
       },
@@ -155,33 +158,35 @@ describe("PluginsWidget", () => {
           "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
         }
       },
-      "extension_info":       {
-        "plugin_settings": {
-          "configurations": [
-            {
-              "key":      "server_base_url",
-              "metadata": {
-                "secure":   false,
-                "required": true
+      "extensions": [
+        {
+          "type": "authorization",
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key":      "server_base_url",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
+              },
+              {
+                "key":      "consumer_key",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
               }
-            },
-            {
-              "key":      "consumer_key",
-              "metadata": {
-                "secure":   false,
-                "required": true
-              }
+            ],
+            "view":           {
+              "template": "plugin settings view"
             }
-          ],
-          "view":           {
-            "template": "plugin settings view"
           }
         }
-      }
+      ]
     };
     const githubScmPluginInfoJSON  = {
       "id":                   "github.pr",
-      "type":                 "scm",
       "status":               {
         "state": "active"
       },
@@ -198,24 +203,27 @@ describe("PluginsWidget", () => {
           "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
         }
       },
-      "extension_info":       {
-        "display_name": "GitHub",
-        "scm_settings": {
-          "configurations": [
-            {
-              "key":      "url",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
+      "extensions": [
+        {
+          "type": "scm",
+          "display_name": "GitHub",
+          "scm_settings": {
+            "configurations": [
+              {
+                "key":      "url",
+                "metadata": {
+                  "secure":           false,
+                  "required":         true,
+                  "part_of_identity": true
+                }
               }
+            ],
+            "view":           {
+              "template": "scm settings view"
             }
-          ],
-          "view":           {
-            "template": "scm settings view"
           }
         }
-      }
+      ]
     };
 
     const yumPluginInfoJSON = {

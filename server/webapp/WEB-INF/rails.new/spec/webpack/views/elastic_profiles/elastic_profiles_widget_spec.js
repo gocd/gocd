@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,40 +75,42 @@ describe("ElasticProfilesWidget", () => {
       "name":    "Docker Elastic Agent Plugin",
       "version": "0.5"
     },
-    "type":             "elastic-agent",
     "status": {
       "state": "active"
     },
-    "extension_info": {
-      "profile_settings": {
-        "configurations": [
-          {
-            "key":      "Image",
-            "metadata": {
-              "secure":   false,
-              "required": true
+    "extensions": [
+      {
+        "type": "elastic-agent",
+        "profile_settings": {
+          "configurations": [
+            {
+              "key":      "Image",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Command",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            },
+            {
+              "key":      "Environment",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
             }
-          },
-          {
-            "key":      "Command",
-            "metadata": {
-              "secure":   false,
-              "required": false
-            }
-          },
-          {
-            "key":      "Environment",
-            "metadata": {
-              "secure":   false,
-              "required": false
-            }
+          ],
+          "view":           {
+            "template": '<div><label class="docker-image">Docker image</label></div>'
           }
-        ],
-        "view":           {
-          "template": '<div><label class="docker-image">Docker image</label></div>'
         }
       }
-    },
+    ],
     "_links":         {
       "image": {
         "href": "http://docker-plugin-image-url"
@@ -122,21 +124,23 @@ describe("ElasticProfilesWidget", () => {
       "name":    "ECS Elastic Agent Plugin",
       "version": "0.5"
     },
-    "type":             "elastic-agent",
     "status": {
       "state": "active"
     },
-    "extension_info": {
-      "profile_settings": {
-        "configurations": [],
-        "view":           {
-          "template": '<div><label class="ecs-ami">AMI</label></div>'
+    "extensions": [
+      {
+        "type": "elastic-agent",
+        "profile_settings": {
+          "configurations": [],
+          "view":           {
+            "template": '<div><label class="ecs-ami">AMI</label></div>'
+          }
+        },
+        "capabilities":     {
+          "supports_status_report": true
         }
-      },
-      "capabilities":     {
-        "supports_status_report": true
       }
-    },
+    ],
     "_links":         {
       "image": {
         "href": "http://ecs-plugin-image-url"

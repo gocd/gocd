@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -641,7 +641,6 @@ describe("Task Model", () => {
       it('should be created from a plugin', () => {
         const json = {
           "id":            "script-executor",
-          "type":          "task",
           "status":        {
             "state": "active"
           },
@@ -659,23 +658,26 @@ describe("Task Model", () => {
               "url":  "http://foo"
             }
           },
-          "extension_info": {
-            "display_name":  "Script Executor",
-            "task_settings": {
-              "configurations": [
-                {
-                  "key":      "script",
-                  "metadata": {
-                    "secure":   false,
-                    "required": true
+          "extensions": [
+            {
+              "type": "task",
+              "display_name":  "Script Executor",
+              "task_settings": {
+                "configurations": [
+                  {
+                    "key":      "script",
+                    "metadata": {
+                      "secure":   false,
+                      "required": true
+                    }
                   }
+                ],
+                "view":           {
+                  "template": "Script executor task view"
                 }
-              ],
-              "view":           {
-                "template": "Script executor task view"
               }
             }
-          }
+          ]
         };
 
         const plugin = PluginInfos.PluginInfo.fromJSON(json);

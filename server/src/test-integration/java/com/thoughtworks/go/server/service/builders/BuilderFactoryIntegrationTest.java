@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.FetchPluggableArtifactTask;
-import com.thoughtworks.go.config.FetchTask;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -66,11 +63,15 @@ public class BuilderFactoryIntegrationTest {
 
     @Test
     public void shouldCreateBuilderForFetchPluggableArtifactTask() {
+        final PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("up42"));
         goConfigService.artifactStores().add(new ArtifactStore("storeId", "PluginId"));
+        pipelineConfig.getStage("up42_stage").jobConfigByConfigName("up42_job").artifactConfigs()
+                .add(new PluggableArtifactConfig("artifactId", "storeId"));
+
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(
                 new CaseInsensitiveString("up42"),
                 new CaseInsensitiveString("up42_stage"),
-                new CaseInsensitiveString("up42_job"), "storeId");
+                new CaseInsensitiveString("up42_job"), "artifactId");
 
         final Pipeline pipeline = new Pipeline("up42", BuildCause.createExternal());
 

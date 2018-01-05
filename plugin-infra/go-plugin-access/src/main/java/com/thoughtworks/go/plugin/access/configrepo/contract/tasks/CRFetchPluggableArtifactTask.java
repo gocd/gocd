@@ -22,38 +22,37 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProp
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 
 public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
 
     public static final String TYPE_NAME = "fetch_pluggable_artifact";
 
-    private String store_id;
+    private String artifact_id;
     private Collection<CRConfigurationProperty> configuration;
 
     public CRFetchPluggableArtifactTask() {
         super(TYPE_NAME);
     }
 
-    public CRFetchPluggableArtifactTask(String stage, String job, String storeId, CRConfigurationProperty... crConfigurationProperties) {
+    public CRFetchPluggableArtifactTask(String stage, String job, String artifactId, CRConfigurationProperty... crConfigurationProperties) {
         super(stage, job, TYPE_NAME);
-        this.store_id = storeId;
+        this.artifact_id = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
     }
 
     public CRFetchPluggableArtifactTask(CRRunIf runIf, CRTask onCancel,
                                         String pipelineName, String stage, String job,
-                                        String storeId, CRConfigurationProperty... crConfigurationProperties) {
+                                        String artifactId, CRConfigurationProperty... crConfigurationProperties) {
         super(runIf, onCancel);
         this.pipeline = pipelineName;
         this.stage = stage;
         this.job = job;
-        this.store_id = storeId;
+        this.artifact_id = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
     }
 
-    public String getStoreId() {
-        return store_id;
+    public String getArtifactId() {
+        return artifact_id;
     }
 
     public Collection<CRConfigurationProperty> getConfiguration() {
@@ -63,7 +62,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location, "store_id", store_id);
+        errors.checkMissing(location, "artifact_id", artifact_id);
         errors.checkMissing(location, "stage", stage);
         errors.checkMissing(location, "job", job);
 
@@ -98,7 +97,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
 
         CRFetchPluggableArtifactTask that = (CRFetchPluggableArtifactTask) o;
 
-        if (store_id != null ? !store_id.equals(that.store_id) : that.store_id != null) {
+        if (artifact_id != null ? !artifact_id.equals(that.artifact_id) : that.artifact_id != null) {
             return false;
         }
         return configuration != null ? configuration.equals(that.configuration) : that.configuration == null;
@@ -107,7 +106,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (store_id != null ? store_id.hashCode() : 0);
+        result = 31 * result + (artifact_id != null ? artifact_id.hashCode() : 0);
         result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }

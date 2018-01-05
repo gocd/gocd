@@ -65,17 +65,30 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
     }
 
     private Builder createPluggableFetchTaskBuilder(FetchPluggableArtifactTask task, Pipeline pipeline, JobIdentifier fetchFrom, Builder cancelBuilder, ChecksumFileHandler checksumHandler) {
-        final ArtifactStore artifactStore = goConfigService.artifactStores().find(task.getStoreId());
-        if (artifactStore == null) {
-            throw new RuntimeException(format("Artifact store with id `%s` does not exist.", task.getStoreId()));
-        }
-
+        
+        final ArtifactStore artifactStore = getArtifactStoreFor(task, fetchFrom);
         final String fileName = format("%s.json", artifactStore.getPluginId());
         final String metadataFileLocationOnServer = format("%s/%s", PLUGGABLE_ARTIFACT_METADATA_FOLDER, fileName);
         final File metadataFileDest = task.artifactDest(pipeline.getName(), fileName);
 
         return new FetchPluggableArtifactBuilder(task.getConditions(), cancelBuilder, task.describe(), fetchFrom, artifactStore,
                 task.getConfiguration(), metadataFileLocationOnServer, metadataFileDest, checksumHandler);
+    }
+
+    private ArtifactStore getArtifactStoreFor(FetchPluggableArtifactTask task, JobIdentifier fetchFrom) {
+        final JobConfig job = goConfigService.getCurrentConfig().findJob(fetchFrom.getPipelineName(), fetchFrom.getStageName(), fetchFrom.getBuildName());
+        final PluggableArtifactConfig artifactConfig = job.artifactConfigs().findByArtifactId(task.getArtifactId());
+
+        if (artifactConfig == null) {
+            throw new RuntimeException(format("Pluggable artifact with id `%s` does not exist.", task.getArtifactId()));
+        }
+
+        final ArtifactStore artifactStore = goConfigService.artifactStores().find(artifactConfig.getStoreId());
+
+        if (artifactStore == null) {
+            throw new RuntimeException(format("Artifact store with id `%s` does not exist.", task.getArtifactId()));
+        }
+        return artifactStore;
     }
 
     private ChecksumFileHandler getChecksumHandler(AbstractFetchTask task, String pipelineName) {

@@ -49,6 +49,15 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
         return isValid;
     }
 
+    public PluggableArtifactConfig findByArtifactId(String artifactId) {
+        for (PluggableArtifactConfig artifact : getPluggableArtifactConfigs()) {
+            if (artifact.getId().equals(artifactId)) {
+                return artifact;
+            }
+        }
+        return null;
+    }
+
     public void validate(ValidationContext validationContext) {
         List<Artifact> plans = new ArrayList<>();
         for (Artifact artifact : this) {
@@ -91,6 +100,16 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
         for (Artifact artifact : this) {
             if (artifact instanceof ArtifactConfig) {
                 artifactConfigs.add((ArtifactConfig) artifact);
+            }
+        }
+        return artifactConfigs;
+    }
+
+    public List<PluggableArtifactConfig> getPluggableArtifactConfigs() {
+        final List<PluggableArtifactConfig> artifactConfigs = new ArrayList<>();
+        for (Artifact artifact : this) {
+            if (artifact instanceof PluggableArtifactConfig) {
+                artifactConfigs.add((PluggableArtifactConfig) artifact);
             }
         }
         return artifactConfigs;

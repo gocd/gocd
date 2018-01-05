@@ -71,7 +71,7 @@ public class CRFetchPluggableArtifactTaskTest extends CRBaseTest<CRFetchPluggabl
                 "              \"pipeline\" : \"pip\",\n" +
                 "              \"stage\" : \"build1\",\n" +
                 "              \"job\" : \"build\",\n" +
-                "              \"store_id\" : \"s3\",\n" +
+                "              \"artifact_id\" : \"s3\",\n" +
                 "              \"run_if\" : \"passed\"\n" +
                 "            }";
         CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask)gson.fromJson(json,CRTask.class);
@@ -79,10 +79,8 @@ public class CRFetchPluggableArtifactTaskTest extends CRBaseTest<CRFetchPluggabl
         assertThat(deserializedValue.getPipelineName(),is("pip"));
         assertThat(deserializedValue.getJob(),is("build"));
         assertThat(deserializedValue.getStage(),is("build1"));
-        assertThat(deserializedValue.getStoreId(),is("s3"));
+        assertThat(deserializedValue.getArtifactId(),is("s3"));
         assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
         assertNull(deserializedValue.getConfiguration());
     }
-
-
 }

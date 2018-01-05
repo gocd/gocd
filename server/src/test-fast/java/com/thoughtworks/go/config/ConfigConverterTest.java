@@ -327,28 +327,28 @@ public class ConfigConverterTest {
     public void shouldConvertFetchPluggableArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
-                null, "stage", "job", "storeId", crConfigurationProperty);
+                null, "stage", "job", "artifactId", crConfigurationProperty);
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
         assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
         assertThat(result.getJob().toLower(), is("job"));
         assertThat(result.getPipelineName().toLower(), is(""));
-        assertThat(result.getStoreId(), is("storeId"));
+        assertThat(result.getArtifactId(), is("artifactId"));
         assertThat(result.getConfiguration().getProperty("k1").getValue(), is("v1"));
     }
 
     @Test
     public void shouldConvertFetchPluggableArtifactTaskWhenConfigurationIsNotSet() {
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
-                null, "stage", "job", "storeId");
+                null, "stage", "job", "artifactId");
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
         assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
         assertThat(result.getJob().toLower(), is("job"));
         assertThat(result.getPipelineName().toLower(), is(""));
-        assertThat(result.getStoreId(), is("storeId"));
+        assertThat(result.getArtifactId(), is("artifactId"));
         assertThat(result.getConfiguration().isEmpty(), is(true));
     }
 

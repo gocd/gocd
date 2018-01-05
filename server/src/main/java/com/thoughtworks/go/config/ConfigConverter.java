@@ -178,7 +178,7 @@ public class ConfigConverter {
         Configuration configuration = toConfiguration(crTask.getConfiguration());
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(crTask.getPipelineName() == null ? "" : crTask.getPipelineName()),
                 new CaseInsensitiveString(crTask.getStage()),
-                new CaseInsensitiveString(crTask.getJob()), crTask.getStoreId(), configuration);
+                new CaseInsensitiveString(crTask.getJob()), crTask.getArtifactId(), configuration);
         setCommonTaskMembers(fetchPluggableArtifactTask, crTask);
         return fetchPluggableArtifactTask;
     }

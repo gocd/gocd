@@ -112,7 +112,6 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
     protected abstract File destOnAgent(String pipelineName);
 
     protected void validateTask(ValidationContext validationContext) {
-        validateAttributes(validationContext);
         if (stageAndOrJobIsBlank()) {
             return;
         }
@@ -132,6 +131,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
                 validateDependencies(validationContext, currentPipeline);
             }
         }
+        validateAttributes(validationContext);
     }
 
     protected abstract void validateAttributes(ValidationContext validationContext);

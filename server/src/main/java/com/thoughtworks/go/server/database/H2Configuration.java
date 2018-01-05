@@ -16,24 +16,17 @@
 
 package com.thoughtworks.go.server.database;
 
-import com.thoughtworks.go.configuration.DatabaseConfiguration;
 import com.thoughtworks.go.util.SystemEnvironment;
-
-import java.util.Properties;
 
 /*
     Responsible for loading H2 Configuration.
  */
-public class H2Configuration extends DatabaseConfiguration {
+public class H2Configuration  {
+
+    private SystemEnvironment systemEnvironment;
 
     public H2Configuration(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment);
-    }
-
-    @Override
-    public Properties loadConfiguration() {
-        // Nothing to load as configuration is fetched by system environment
-        return null;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public String getHost() {

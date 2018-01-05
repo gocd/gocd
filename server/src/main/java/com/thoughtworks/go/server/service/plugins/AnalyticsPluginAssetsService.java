@@ -35,8 +35,7 @@ import javax.servlet.ServletContext;
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -46,8 +45,10 @@ import java.util.zip.ZipInputStream;
 
 @Service
 public class AnalyticsPluginAssetsService implements ServletContextAware, PluginMetadataChangeListener {
-    public static final String HASH_ALGORITHM = "SHA-256";
+    private static final String HASH_ALGORITHM = "SHA-256";
     private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsPluginAssetsService.class);
+    private static final String PLUGIN_ENDPOINT_JS = "plugin-endpoint.js";
+
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
     private ZipUtil zipUtil;
@@ -111,17 +112,16 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
 
         try {
             byte[] payload = Base64.getDecoder().decode(data.getBytes());
+            byte[] pluginEndpointJsContent = IOUtils.toByteArray(getClass().getResourceAsStream("/" + PLUGIN_ENDPOINT_JS));
+
             ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload));
 
-            String assetsHash = calculateHash(payload);
+            String assetsHash = calculateHash(payload, pluginEndpointJsContent);
             String pluginAssetsRoot = currentAssetPath(pluginId, assetsHash);
 
             zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
 
-            try (FileOutputStream out = new FileOutputStream(Paths.get(pluginAssetsRoot, "plugin-endpoint.js").toFile())) {
-                InputStream pluginEndpointJsContent = getClass().getResourceAsStream("/plugin-endpoint.js");
-                IOUtils.copy(pluginEndpointJsContent, out);
-            }
+            Files.write(Paths.get(pluginAssetsRoot, PLUGIN_ENDPOINT_JS), pluginEndpointJsContent);
 
             pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
         } catch (Exception e) {
@@ -130,14 +130,19 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
         }
     }
 
-    private String calculateHash(byte[] data) {
+    private String calculateHash(byte[]... data) {
         return sha2Digest(data);
     }
 
-    private String sha2Digest(byte[] bytes) {
+    private String sha2Digest(byte[]... bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
-            return DatatypeConverter.printHexBinary(md.digest(bytes));
+
+            for (byte[] data : bytes) {
+                md.update(data);
+            }
+
+            return DatatypeConverter.printHexBinary(md.digest());
         } catch (Exception e) {
             LOGGER.error("Error generating {} hash", HASH_ALGORITHM, e);
             ExceptionUtils.bomb(e);

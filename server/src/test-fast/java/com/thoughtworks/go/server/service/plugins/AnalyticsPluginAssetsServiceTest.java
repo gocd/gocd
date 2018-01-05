@@ -46,18 +46,21 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AnalyticsPluginAssetsServiceTest {
-    public static final String PLUGIN_ID = "plugin_id";
+    private static final String PLUGIN_ID = "plugin_id";
+
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Mock
-    ServletContext servletContext;
+    private ServletContext servletContext;
     @Mock
-    AnalyticsExtension extension;
+    private AnalyticsExtension extension;
     @Mock
-    AnalyticsMetadataLoader analyticsMetadataLoader;
-    AnalyticsPluginAssetsService assetsService;
+    private AnalyticsMetadataLoader analyticsMetadataLoader;
+
+    private AnalyticsPluginAssetsService assetsService;
     private File railsRoot;
     private AnalyticsMetadataStore metadataStore;
 
@@ -219,8 +222,8 @@ public class AnalyticsPluginAssetsServiceTest {
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
-        String shaHashOfZipFile = "6BECE2006E5F4BC8A9FCB5BD53C1E87BEE63B7DA4F3A6E24EF1AD122D47C23D3";
-        assertEquals(Paths.get("assets", "plugins", PLUGIN_ID, shaHashOfZipFile).toString(), assetsService.assetPathFor(PLUGIN_ID));
+        String shaHashOfZipAndPluginScript = "CFBB9309FAF81A2B61277ABC3B5C31486797D62B24DDFD83A2F871FC56D61EA2";
+        assertEquals(Paths.get("assets", "plugins", PLUGIN_ID, shaHashOfZipAndPluginScript).toString(), assetsService.assetPathFor(PLUGIN_ID));
     }
 
     private String testDataZipArchive() throws IOException {

@@ -26,6 +26,8 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import java.util.Collections;
+
 abstract class ClassWithPublicLoadUnLoadAnnotationMethod {
     @Load
     public void setupData() {
@@ -68,6 +70,6 @@ public class GoExtensionWithInheritedPublicLoadUnloadAnnotationMethod extends Cl
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return null;
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

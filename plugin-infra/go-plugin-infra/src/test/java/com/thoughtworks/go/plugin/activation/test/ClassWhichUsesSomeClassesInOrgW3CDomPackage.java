@@ -26,6 +26,8 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Text;
 
+import java.util.Collections;
+
 @Extension
 public class ClassWhichUsesSomeClassesInOrgW3CDomPackage implements GoPlugin {
     public ClassWhichUsesSomeClassesInOrgW3CDomPackage() {
@@ -46,6 +48,6 @@ public class ClassWhichUsesSomeClassesInOrgW3CDomPackage implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        throw new UnsupportedOperationException();
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

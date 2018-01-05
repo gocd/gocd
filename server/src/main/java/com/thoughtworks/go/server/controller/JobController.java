@@ -208,7 +208,6 @@ public class JobController {
     }
 
     private List createBuildInfo(JobStatusJsonPresentationModel presenter) {
-        // TODO: Hucking Fack alert. We shouldn't need "building_info"
         Map<String, Object> info = new LinkedHashMap<>();
         info.put("building_info", presenter.toJsonHash());
         List jsonList = new ArrayList();

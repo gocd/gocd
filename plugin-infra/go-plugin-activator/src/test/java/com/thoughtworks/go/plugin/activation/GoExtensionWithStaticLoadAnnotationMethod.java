@@ -27,6 +27,8 @@ import com.thoughtworks.go.plugin.api.info.PluginContext;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import java.util.Collections;
+
 @Extension
 public class GoExtensionWithStaticLoadAnnotationMethod implements GoPlugin {
     public static int loadInvoked = 0;
@@ -53,6 +55,6 @@ public class GoExtensionWithStaticLoadAnnotationMethod implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return null;
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

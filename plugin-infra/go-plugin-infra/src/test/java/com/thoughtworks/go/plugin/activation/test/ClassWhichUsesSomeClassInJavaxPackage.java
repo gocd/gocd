@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.Collections;
 
 @Extension
 public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
@@ -47,6 +48,6 @@ public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        throw new UnsupportedOperationException();
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.activation;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.annotation.Load;
@@ -114,9 +115,13 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             for (Map.Entry<Class, List<Object>> entry : classListHashMap.entrySet()) {
                 Class serviceInterface = entry.getKey();
                 for (Object serviceImplementation : entry.getValue()) {
-                    Hashtable<String, String> serviceProperties = new Hashtable<>();
-                    serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, pluginId);
-                    bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
+                    String extensionType = findTypeOfExtensionOrAddErrorIfNotFound(serviceImplementation);
+                    if (extensionType != null) {
+                        Hashtable<String, String> serviceProperties = new Hashtable<>();
+                        serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, pluginId);
+                        serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
+                        bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
+                    }
                 }
             }
         }
@@ -366,6 +371,20 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         boolean hasGoPluginApiMarkerAnnotation = anInterface.getAnnotation(GoPluginApiMarker.class) != null;
         boolean isAnInterfaceWhichHasBeenLeakedFromGoSystemBundle = GoPluginApiMarker.class.getClassLoader() == anInterface.getClassLoader();
         return isAnInterfaceWhichHasBeenLeakedFromGoSystemBundle && hasGoPluginApiMarkerAnnotation;
+    }
+
+    private String findTypeOfExtensionOrAddErrorIfNotFound(Object serviceImplementation) {
+        try {
+            GoPlugin plugin = (GoPlugin) serviceImplementation;
+            return plugin.pluginIdentifier().getExtension();
+        } catch (Throwable e) {
+            errors.add("Unable to find extension type from plugin identifier in class " + serviceImplementation.getClass().getSimpleName() + ".\nError: " + e.getMessage() + ".\nA valid plugin identifier looks like this:\n" +
+                    "  @Override\n" +
+                    "  public GoPluginIdentifier pluginIdentifier() {\n" +
+                    "      return new GoPluginIdentifier(\"extension-type\", Collections.singletonList(\"1.0\"));\n" +
+                    "  }\n");
+        }
+        return null;
     }
 
     private static class UnloadMethodInvoker {

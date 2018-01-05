@@ -99,6 +99,7 @@ plugin-infra/go-plugin-api-internal/target/
 plugin-infra/go-plugin-api/target/
 plugin-infra/go-plugin-infra/logs/
 plugin-infra/go-plugin-infra/target/
+plugin-infra/go-plugin-infra/felix-cache/
 rack_hack/target/
 release/target/
 server-launcher/target/

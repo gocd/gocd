@@ -24,6 +24,8 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import java.util.Collections;
+
 @Extension
 public class TestPluginOuterClass implements GoPlugin {
     @Override
@@ -38,7 +40,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        throw new UnsupportedOperationException();
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 
     @Extension
@@ -55,7 +57,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            throw new UnsupportedOperationException();
+            return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
         }
     }
 
@@ -73,7 +75,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            throw new UnsupportedOperationException();
+            return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
         }
 
         public class SecondLevelInnerClass {
@@ -92,7 +94,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    throw new UnsupportedOperationException();
+                    return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
                 }
             }
         }
@@ -115,7 +117,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    throw new UnsupportedOperationException();
+                    return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
                 }
             }
 

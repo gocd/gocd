@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Extension
 public class GoExtensionWithLoadAnnotationMethodThrowingException implements GoPlugin {
@@ -47,6 +48,6 @@ public class GoExtensionWithLoadAnnotationMethodThrowingException implements GoP
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return null;
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

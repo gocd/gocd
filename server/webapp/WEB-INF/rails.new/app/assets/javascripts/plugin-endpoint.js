@@ -1,4 +1,4 @@
-(function(_) {
+(function() {
   "use strict";
 
   // these are intentionally private variables, hidden via closure
@@ -58,9 +58,13 @@
     },
     /** define an api, i.e. a set of handlers for one or more keys */
     define: function addMany(api) {
-      _.assign(handlers, api); // or use _.extend() ?
+      for (var i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) {
+        if ("function" === typeof api[keys[i]]) {
+          handlers[keys[i]] = api[keys[i]];
+        }
+      }
     },
     send: send
   };
 
-})(_);
+})();

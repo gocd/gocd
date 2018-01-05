@@ -131,7 +131,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public GoPluginApiResponse submitTo(final String pluginId, String extensionType, final GoPluginApiRequest apiRequest) {
-        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
+        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 ensureInitializerInvoked(pluginDescriptor, plugin);
@@ -164,7 +164,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public String resolveExtensionVersion(String pluginId, String extensionType, final List<String> goSupportedExtensionVersions) {
-        String resolvedExtensionVersion = goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
+        String resolvedExtensionVersion = goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, new ActionWithReturn<GoPlugin, String>() {
             @Override
             public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
                 List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();

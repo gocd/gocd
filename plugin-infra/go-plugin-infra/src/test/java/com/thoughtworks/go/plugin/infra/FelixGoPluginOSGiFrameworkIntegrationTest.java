@@ -155,7 +155,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         };
 
         try {
-            pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", action);
+            pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", "CANNOT_FIND_EXTENSION_TYPE", action);
             fail("Should Throw An Exception");
         } catch (Exception ex) {
             assertThat(ex.getCause() instanceof AbstractMethodError, is(true));
@@ -177,7 +177,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
                 return null;
             }
         };
-        pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", action);
+        pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", "notification", action);
     }
 
     @Test

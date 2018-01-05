@@ -194,14 +194,14 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     @Override
-    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action) {
+    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return null;
         }
 
         BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
+        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
         ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
         T service = bundleContext.getService(serviceReference);
         return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
@@ -225,18 +225,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         } catch (Throwable t) {
             throw new RuntimeException(t.getMessage(), t);
         }
-    }
-
-    private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginId(Class<T> serviceReferenceClass, String pluginId, BundleContext bundleContext) {
-        String filterBySymbolicName = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, pluginId);
-        Collection<ServiceReference<T>> matchingServiceReferences;
-        try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filterBySymbolicName);
-        } catch (InvalidSyntaxException e) {
-            String message = String.format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, filterBySymbolicName);
-            throw new GoPluginFrameworkException(message, e);
-        }
-        return matchingServiceReferences;
     }
 
     private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginIdAndExtensionType(Class<T> serviceReferenceClass, String pluginId, String extensionType, BundleContext bundleContext) {

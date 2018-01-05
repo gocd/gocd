@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class JsonBasedTaskExecutorTest {
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION);
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, PLUGGABLE_TASK_EXTENSION, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class AbstractExtensionTest {
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler2_0());
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions)).thenReturn(supportedVersion);
         when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
         extension.notifyPluginSettingsChange(pluginId, settings);
@@ -101,7 +101,7 @@ public class AbstractExtensionTest {
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler1_0());
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions)).thenReturn(supportedVersion);
 
         extension.notifyPluginSettingsChange(pluginId, settings);
 

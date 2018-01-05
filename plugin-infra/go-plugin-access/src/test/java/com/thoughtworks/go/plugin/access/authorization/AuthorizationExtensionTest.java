@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class AuthorizationExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AUTHORIZATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         authorizationExtension = new AuthorizationExtension(pluginManager);
@@ -340,7 +340,7 @@ public class AuthorizationExtensionTest {
     public void shouldSerializeServerInfoToJSON() throws Exception {
         String pluginId = "plugin_id";
 
-        when(pluginManager.resolveExtensionVersion(pluginId, authorizationExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, AUTHORIZATION_EXTENSION, authorizationExtension.goSupportedVersions())).thenReturn("1.0");
 
         String serverInfoJSON = authorizationExtension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
 

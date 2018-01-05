@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class ArtifactExtensionTest {
 
 
         when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, artifactExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ARTIFACT_EXTENSION, artifactExtension.goSupportedVersions())).thenReturn("1.0");
     }
 
     @Test

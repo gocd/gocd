@@ -168,7 +168,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public String resolveExtensionVersion(String pluginId, final List<String> goSupportedExtensionVersions) {
+    public String resolveExtensionVersion(String pluginId, String extensionType, final List<String> goSupportedExtensionVersions) {
         String resolvedExtensionVersion = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
             @Override
             public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {

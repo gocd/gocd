@@ -39,5 +39,5 @@ public interface PluginManager {
 
     boolean isPluginOfType(String extension, String pluginId);
 
-    String resolveExtensionVersion(String pluginId, List<String> goSupportedExtensionVersions);
+    String resolveExtensionVersion(String pluginId, String extensionType, List<String> goSupportedExtensionVersions);
 }

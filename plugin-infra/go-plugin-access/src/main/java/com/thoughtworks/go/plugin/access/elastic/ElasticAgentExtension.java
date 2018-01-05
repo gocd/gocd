@@ -120,7 +120,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     protected VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
-        final String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+        final String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, ELASTIC_AGENT_EXTENSION, goSupportedVersions());
         return elasticAgentExtensionMap.get(resolvedExtensionVersion);
     }
 }

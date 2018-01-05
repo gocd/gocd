@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import org.hamcrest.core.Is;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -60,7 +61,7 @@ public class NotificationExtensionTestForV1 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
+        when(pluginManager.resolveExtensionVersion(pluginId, PluginConstants.NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
         String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, is("{\"k1\":\"value1\",\"k2\":\"value2\"}"));
@@ -72,7 +73,7 @@ public class NotificationExtensionTestForV1 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, PluginConstants.NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn("1.0");
 
         String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
 

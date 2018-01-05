@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
@@ -31,8 +30,6 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,7 +84,7 @@ public class PackageRepositoryExtensionTest {
         packageConfiguration.add(new PackageMaterialProperty("key-four", "value-four"));
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, PACKAGE_MATERIAL_EXTENSION, asList("1.0"))).thenReturn("1.0");
     }
 
     @Test
@@ -350,7 +347,7 @@ public class PackageRepositoryExtensionTest {
         pluginSettings.put("key1", "value1");
         pluginSettings.put("key2", "value2");
 
-        when(pluginManager.resolveExtensionVersion(pluginId, extension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, PACKAGE_MATERIAL_EXTENSION, extension.goSupportedVersions())).thenReturn("1.0");
 
         String pluginSettingsJSON = extension.pluginSettingsJSON(pluginId, pluginSettings);
 

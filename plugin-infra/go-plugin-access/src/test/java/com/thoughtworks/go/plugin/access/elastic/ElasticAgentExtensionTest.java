@@ -81,7 +81,7 @@ public class ElasticAgentExtensionTest {
         when(pluginManager.getPluginDescriptorFor(PLUGIN_ID)).thenReturn(descriptor);
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SUPPORTED_VERSIONS)).thenReturn("3.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("3.0");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ElasticAgentExtensionTest {
         for (String supportedVersion : SUPPORTED_VERSIONS) {
             final String message = String.format("Must define versioned extension class for %s extension with version %s", ELASTIC_AGENT_EXTENSION, supportedVersion);
 
-            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SUPPORTED_VERSIONS)).thenReturn(supportedVersion);
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(supportedVersion);
 
             final VersionedElasticAgentExtension extension = this.extension.getVersionedElasticAgentExtension(PLUGIN_ID);
 

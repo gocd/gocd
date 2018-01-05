@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion("pluginId", Arrays.asList("1.0", "2.0","3.0"))).thenReturn(supportedVersion);
+        when(pluginManager.resolveExtensionVersion("pluginId", NOTIFICATION_EXTENSION, Arrays.asList("1.0", "2.0","3.0"))).thenReturn(supportedVersion);
         when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, "pluginId")).thenReturn(true);
         when(pluginManager.submitTo(eq("pluginId"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
@@ -90,7 +90,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
+        when(pluginManager.resolveExtensionVersion(pluginId, NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
         String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
@@ -102,7 +102,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn("1.0");
 
         String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12ad", "http://build.com", "https://build.com");
 

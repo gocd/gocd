@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.core.Is;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -62,8 +64,8 @@ public class AnalyticsExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.isPluginOfType(AnalyticsPluginConstants.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         analyticsExtension = new AnalyticsExtension(pluginManager);
         metadataStore = AnalyticsMetadataStore.instance();
@@ -87,7 +89,7 @@ public class AnalyticsExtensionTest {
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
+        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "1.0", REQUEST_GET_CAPABILITIES, null);
 
         assertThat(capabilities.supportedDashboardAnalytics(), containsInAnyOrder(new SupportedAnalytics("dashboard", "abc", "Title 1")));
         assertThat(capabilities.supportedPipelineAnalytics(), containsInAnyOrder(new SupportedAnalytics("pipeline", "abc", "Title 1")));
@@ -112,7 +114,7 @@ public class AnalyticsExtensionTest {
                 "\"id\": \"pipeline_with_highest_wait_time\"," +
                 " \"params\": {\"pipeline_name\": \"test_pipeline\"}}";
 
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "1.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
 
         assertThat(pipelineAnalytics.getData(), is("{}"));
         assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
@@ -125,7 +127,7 @@ public class AnalyticsExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
         String assets = analyticsExtension.getStaticAssets(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_STATIC_ASSETS, null);
+        assertRequest(requestArgumentCaptor.getValue(), ANALYTICS_EXTENSION, "1.0", REQUEST_GET_STATIC_ASSETS, null);
 
         assertThat(assets, is("assets payload"));
     }
@@ -147,7 +149,7 @@ public class AnalyticsExtensionTest {
         pluginSettings.put("key1", "val1");
         pluginSettings.put("key2", "val2");
 
-        when(pluginManager.resolveExtensionVersion(pluginId, analyticsExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, ANALYTICS_EXTENSION, analyticsExtension.goSupportedVersions())).thenReturn("1.0");
 
         String pluginSettingsJSON = analyticsExtension.pluginSettingsJSON(pluginId, pluginSettings);
 

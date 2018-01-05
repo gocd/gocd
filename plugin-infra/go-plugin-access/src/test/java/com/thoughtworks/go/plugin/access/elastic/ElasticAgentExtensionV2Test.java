@@ -80,7 +80,7 @@ public class ElasticAgentExtensionV2Test {
 
         when(pluginManager.getPluginDescriptorFor(PLUGIN_ID)).thenReturn(descriptor);
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, goSupportedVersions)).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, goSupportedVersions)).thenReturn("2.0");
 
         final PluginRequestHelper pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, ELASTIC_AGENT_EXTENSION);
         extensionV2 = new ElasticAgentExtensionV2(pluginRequestHelper);

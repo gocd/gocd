@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -59,7 +60,7 @@ public class NotificationExtensionTestForV2 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
+        when(pluginManager.resolveExtensionVersion(pluginId, PluginConstants.NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
         String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
 
         assertThat(pluginSettingsJSON, is("{\"key1\":\"value1\",\"key2\":\"value2\"}"));
@@ -71,7 +72,7 @@ public class NotificationExtensionTestForV2 extends NotificationExtensionTestBas
 
         NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
 
-        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(pluginId, PluginConstants.NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn("1.0");
 
         String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12adf", "http://build.com", "https://build.com");
 

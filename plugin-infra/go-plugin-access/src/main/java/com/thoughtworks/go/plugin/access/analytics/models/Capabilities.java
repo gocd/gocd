@@ -28,9 +28,17 @@ public class Capabilities {
     @SerializedName("supports_pipeline_analytics")
     private final boolean supportsPipelineAnalytics;
 
-    public Capabilities(boolean supportsPipelineAnalytics) {
+    @Expose
+    @SerializedName("supports_analytics_dashboard")
+    private final boolean supportsAnalyticsDashboard;
 
+    public Capabilities(boolean supportsPipelineAnalytics, boolean supportsAnalyticsDashboard) {
         this.supportsPipelineAnalytics = supportsPipelineAnalytics;
+        this.supportsAnalyticsDashboard = supportsAnalyticsDashboard;
+    }
+
+    public boolean supportsAnalyticsDashboard() {
+        return supportsAnalyticsDashboard;
     }
 
     public boolean supportsPipelineAnalytics() {
@@ -46,6 +54,6 @@ public class Capabilities {
     }
 
     public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilites() {
-        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics);
+        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics, supportsAnalyticsDashboard);
     }
 }

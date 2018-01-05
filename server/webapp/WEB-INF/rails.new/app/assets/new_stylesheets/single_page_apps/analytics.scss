@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import '../shared/mixins';
+@import '../shared/common';
+@import '../shared/header';
+@import '../shared/alert';
 
-const Stream = require('mithril/stream');
-
-const Capabilities = function (data) {
-  this.supportsAnalyticsDashboard  = Stream(data.supportsAnalyticsDashboard);
-  this.supportsPipelineAnalytics   = Stream(data.supportsPipelineAnalytics);
-};
-
-Capabilities.fromJSON = (data = {}) => new Capabilities({
-  supportsPipelineAnalytics: data.supports_pipeline_analytics,
-  supportsAnalyticsDashboard: data.supports_analytics_dashboard
-});
-
-module.exports = Capabilities;
+@import "font-awesome-sprockets";
+@import "font-awesome";

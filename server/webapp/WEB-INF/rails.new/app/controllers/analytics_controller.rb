@@ -17,7 +17,14 @@
 class AnalyticsController < ApplicationController
   include AuthenticationHelper
 
-  before_action :check_user_can_see_pipeline
+  layout 'single_page_app', only: [:index]
+
+  before_action :check_user_and_401
+  before_action :check_user_can_see_pipeline, only: [:pipeline]
+
+  def index
+    @view_title = 'Analytics'
+  end
 
   def pipeline
     render :json => analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name]).toMap().to_h

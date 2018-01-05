@@ -9,6 +9,9 @@
         <li><%= link_to 'Pipelines', pipeline_dashboard_path -%></li>
         <li><%= link_to 'Environments', environments_path -%></li>
         <li><%= link_to 'Agents', agents_path -%></li>
+        <% with_analytics_dashboard_support do %>
+            <li><%= link_to 'Analytics', analytics_path -%></li>
+        <% end %>
         <li>
           <% unless can_view_admin_page? -%>
               <span>Admin</span>

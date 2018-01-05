@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
@@ -143,31 +140,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         if (!descriptor.isInvalid()) {
             osgiManifestGenerator.updateManifestOf(descriptor);
             goPluginOSGiFramework.loadPlugin(descriptor);
-            providePluginDescriptorToThePlugin(descriptor);
         }
-    }
-
-    private void providePluginDescriptorToThePlugin(final GoPluginDescriptor descriptor) {
-        if (descriptor.isInvalid()) {
-            LOGGER.debug("Descriptor Invalid skipping plugin descriptor callback.");
-            return;
-        }
-        if (!goPluginOSGiFramework.hasReferenceFor(PluginDescriptorAware.class, descriptor.id())) {
-            return;
-        }
-        goPluginOSGiFramework.doOnAllWithExceptionHandlingForPlugin(
-                PluginDescriptorAware.class, descriptor.id(), new Action<PluginDescriptorAware>() {
-                    @Override
-                    public void execute(PluginDescriptorAware descriptorAwarePlugin, GoPluginDescriptor pluginDescriptor) {
-                        descriptorAwarePlugin.setPluginDescriptor(pluginDescriptor);
-                    }
-                }, new ExceptionHandler<PluginDescriptorAware>() {
-                    @Override
-                    public void handleException(PluginDescriptorAware obj, Throwable t) {
-                        LOGGER.warn("Set Plugin Descriptor Call failed for plugin: {}", descriptor.id(), t);
-                    }
-                }
-        );
     }
 
     void explodePluginJarToBundleDir(File file, File location) {

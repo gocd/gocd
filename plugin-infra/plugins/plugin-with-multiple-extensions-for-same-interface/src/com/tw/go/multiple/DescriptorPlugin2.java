@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,23 @@
 
 package com.tw.go.multiple;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.annotation.Load;
 import com.thoughtworks.go.plugin.api.annotation.UnLoad;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginContext;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Extension
-public class DescriptorPlugin2 implements PluginDescriptorAware {
+public class DescriptorPlugin2 implements GoPlugin {
     public int loadCalled = 0;
     public int unloadCalled = 0;
 
@@ -42,17 +49,27 @@ public class DescriptorPlugin2 implements PluginDescriptorAware {
         ++loadCalled;
     }
 
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
-        if (loadCalled == 0) {
-            throw new RuntimeException("Load callback has not been called for this plugin");
-        }
-        System.out.println("Got the descriptor: " + descriptor);
-        System.setProperty("testplugin.multiple.extension.DescriptorPlugin2.setPluginDescriptor.invoked", descriptor.toString());
-    }
-
     @UnLoad
     public void onUnload(PluginContext context) {
         ++unloadCalled;
         System.out.println("Plugin unloaded");
+    }
+
+    @Override
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        if (loadCalled == 0) {
+            throw new RuntimeException("Load callback has not been called for this plugin");
+        }
+        System.setProperty("testplugin.multiple.extension.DescriptorPlugin2.setPluginDescriptor.invoked", goApplicationAccessor.toString());
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) throws UnhandledRequestTypeException {
+        return null;
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
+        return new GoPluginIdentifier("notification", Collections.singletonList("2.0"));
     }
 }

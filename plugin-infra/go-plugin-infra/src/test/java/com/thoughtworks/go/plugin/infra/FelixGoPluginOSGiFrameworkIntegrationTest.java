@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -65,8 +64,10 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
         ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.osgi.jar")));
         descriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "descriptor-plugin-bundle-dir");
+
         zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("error-generating-descriptor-aware-test-plugin.osgi.jar")));
         errorGeneratingDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "error-generating-descriptor-plugin-bundle-dir");
+
         zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("exception-throwing-at-load-plugin.osgi.jar")));
         exceptionThrowingAtLoadDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "exception-throwing-at-load-plugin-bundle-dir");
     }
@@ -84,18 +85,17 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         BundleContext context = bundle.getBundleContext();
-        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(PluginDescriptorAware.class.getCanonicalName(), null);
+        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), null);
         assertThat(allServiceReferences.length, is(1));
 
         try {
-            PluginDescriptorAware service = (PluginDescriptorAware) context.getService(allServiceReferences[0]);
-            service.setPluginDescriptor(getDescriptor());
+            GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
+            service.pluginIdentifier();
             assertThat("@Load should have been called", getIntField(service, "loadCalled"), is(1));
         } catch (Exception e) {
-            fail(String.format("setPluginDescriptor should have been called. Exception: %s", e.getMessage()));
+            fail(String.format("pluginIdentifier should have been called. Exception: %s", e.getMessage()));
         }
     }
-
 
     @Test
     public void shouldNotifyListenersWhenPluginLoaded() throws Exception {
@@ -118,26 +118,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         verify(pluginChangeListener).pluginUnLoaded(pluginDescriptor);
     }
 
-    private PluginDescriptor getDescriptor() {
-        return new PluginDescriptor() {
-            @Override
-            public String id() {
-                return null;
-            }
-
-            @Override
-            public String version() {
-                return null;
-            }
-
-            @Override
-            public About about() {
-                return null;
-            }
-        };
-    }
-
-    private int getIntField(PluginDescriptorAware service, String fieldName) {
+    private int getIntField(Object service, String fieldName) {
         return Integer.parseInt(ReflectionUtil.getField(service, fieldName) + "");
     }
 
@@ -149,14 +130,14 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
         String filterBySymbolicName = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, "testplugin.descriptorValidator");
         BundleContext context = bundle.getBundleContext();
-        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(PluginDescriptorAware.class.getCanonicalName(), filterBySymbolicName);
+        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), filterBySymbolicName);
         assertThat(allServiceReferences.length, is(1));
 
         try {
-            PluginDescriptorAware service = (PluginDescriptorAware) context.getService(allServiceReferences[0]);
-            service.setPluginDescriptor(getDescriptor());
+            GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
+            service.pluginIdentifier();
         } catch (Exception e) {
-            fail(String.format("setPluginDescriptor should have been called. Exception: %s", e.getMessage()));
+            fail(String.format("pluginIdentifier should have been called. Exception: %s", e.getMessage()));
         }
     }
 
@@ -165,16 +146,16 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(null, null, null, null, errorGeneratingDescriptorBundleDir, true));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<PluginDescriptorAware, Object> action = new ActionWithReturn<PluginDescriptorAware, Object>() {
+        ActionWithReturn<GoPlugin, Object> action = new ActionWithReturn<GoPlugin, Object>() {
             @Override
-            public Object execute(PluginDescriptorAware descriptorAware, GoPluginDescriptor goPluginDescriptor) {
-                descriptorAware.setPluginDescriptor(null);
+            public Object execute(GoPlugin goPlugin, GoPluginDescriptor goPluginDescriptor) {
+                goPlugin.pluginIdentifier();
                 return null;
             }
         };
 
         try {
-            pluginOSGiFramework.doOn(PluginDescriptorAware.class, "testplugin.descriptorValidator", action);
+            pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", action);
             fail("Should Throw An Exception");
         } catch (Exception ex) {
             assertThat(ex.getCause() instanceof AbstractMethodError, is(true));
@@ -188,15 +169,15 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<PluginDescriptorAware, Object> action = new ActionWithReturn<PluginDescriptorAware, Object>() {
+        ActionWithReturn<GoPlugin, Object> action = new ActionWithReturn<GoPlugin, Object>() {
             @Override
-            public Object execute(PluginDescriptorAware descriptorAware, GoPluginDescriptor pluginDescriptor) {
+            public Object execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 assertThat(pluginDescriptor, is(descriptor));
-                descriptorAware.setPluginDescriptor(pluginDescriptor);
+                plugin.pluginIdentifier();
                 return null;
             }
         };
-        pluginOSGiFramework.doOn(PluginDescriptorAware.class, "testplugin.descriptorValidator", action);
+        pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", action);
     }
 
     @Test
@@ -206,9 +187,9 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
         BundleContext context = bundle.getBundleContext();
 
-        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(PluginDescriptorAware.class.getCanonicalName(), null);
+        ServiceReference<?>[] allServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), null);
         assertThat(allServiceReferences.length, is(1));
-        PluginDescriptorAware service = (PluginDescriptorAware) context.getService(allServiceReferences[0]);
+        GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
         assertThat("@Load should have been called", getIntField(service, "loadCalled"), is(1));
 
         pluginDescriptor.setBundle(bundle);

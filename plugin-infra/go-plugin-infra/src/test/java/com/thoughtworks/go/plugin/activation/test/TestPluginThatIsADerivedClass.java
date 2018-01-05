@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,17 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.api.info;
+package com.thoughtworks.go.plugin.activation.test;
 
-public interface PluginDescriptorAware {
+import com.thoughtworks.go.plugin.api.annotation.Extension;
+
+
+
+class SubClassOfDummyTestPluginWhichIsNotPublic extends DummyTestPlugin {
 }
+
+@Extension
+public class TestPluginThatIsADerivedClass extends SubClassOfDummyTestPluginWhichIsNotPublic {
+}
+
+

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,28 @@
 
 package com.thoughtworks.go.plugin.activation.test;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 @Extension
-public class DummyPluginAwareExtension implements PluginDescriptorAware {
+public class DummyTestPlugin implements GoPlugin {
     @Override
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
         throw new UnsupportedOperationException();
     }
 }

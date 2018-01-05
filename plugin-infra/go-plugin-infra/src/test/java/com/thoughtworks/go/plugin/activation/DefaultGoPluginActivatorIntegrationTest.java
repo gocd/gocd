@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,21 @@ package com.thoughtworks.go.plugin.activation;
 
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.plugin.activation.test.*;
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.TestGoPluginExtensionPoint;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import lib.test.DummyPluginAwareExtensionInLibDirectory;
+import lib.test.DummyTestPluginInLibDirectory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
@@ -67,13 +71,13 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterAClassImplementingPluginDescriptorAwareAsAnOSGiService() throws Exception {
-        assertThatPluginWithThisExtensionClassLoadsSuccessfully(DummyPluginAwareExtension.class);
+    public void shouldRegisterAClassImplementingGoPluginAsAnOSGiService() throws Exception {
+        assertThatPluginWithThisExtensionClassLoadsSuccessfully(DummyTestPlugin.class);
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingPluginDescriptorAwareWithoutAPublicConstructor() throws Exception {
-        Bundle bundle = installBundleWithClasses(DummyPluginAwareExtensionWithNonPublicDefaultConstructor.class);
+    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithoutAPublicConstructor() throws Exception {
+        Bundle bundle = installBundleWithClasses(DummyTestPluginWithNonPublicDefaultConstructor.class);
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
@@ -81,13 +85,13 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingPluginDescriptorAwareWithOnlyAOneArgConstructor() throws Exception {
-        Bundle bundle = installBundleWithClasses(DummyPluginAwareExtensionWithOneArgConstructorOnly.class);
+    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithOnlyAOneArgConstructor() throws Exception {
+        Bundle bundle = installBundleWithClasses(DummyGoPluginWithOneArgConstructorOnly.class);
         assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         String error = descriptor.getStatus().getMessages().get(0);
-        assertThat(error.contains("DummyPluginAwareExtensionWithOneArgConstructorOnly"),is(true));
+        assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly"),is(true));
         assertThat(error.contains("Make sure it and all of its parent classes have a default constructor."),is(true));
     }
 
@@ -102,8 +106,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotLoadClassesFoundInMETA_INFEvenIfTheyAreProperGoExtensionPoints() throws Exception {
-        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyPluginAwareExtension.class);
-        File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyPluginAwareExtension.class");
+        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyTestPlugin.class);
+        File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyTestPlugin.class");
         File destinationFile = new File(bundleWithActivator, "META-INF/com/thoughtworks/go/plugin/activation/test/");
         FileUtils.moveFileToDirectory(sourceClassFile, destinationFile, true);
 
@@ -117,8 +121,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotFailToRegisterOtherClassesIfAClassCannotBeLoadedBecauseOfWrongPath() throws Exception {
-        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyPluginAwareExtension.class);
-        File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyPluginAwareExtension.class");
+        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyTestPlugin.class);
+        File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyTestPlugin.class");
         File destinationFile = new File(bundleWithActivator, "ABC-DEF/com/thoughtworks/go/plugin/activation/test/");
         FileUtils.copyFileToDirectory(sourceClassFile, destinationFile, true);
 
@@ -128,7 +132,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotLoadAClassFoundInLibDirectoryEvenIfItIsAProperGoExtensionPoints() throws Exception {
-        Bundle bundle = installBundleWithClasses(DummyPluginAwareExtensionInLibDirectory.class);
+        Bundle bundle = installBundleWithClasses(DummyTestPluginInLibDirectory.class);
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
@@ -137,7 +141,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAClassWhichIsAbstract() throws Exception {
-        Bundle bundle = installBundleWithClasses(AbstractPluginAwareExtension.class);
+        Bundle bundle = installBundleWithClasses(AbstractTestPlugin.class);
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
@@ -147,7 +151,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAClassWhichIsNotPublic() throws Exception {
-        Bundle bundle = installBundleWithClasses(DummyPluginAwareExtensionWhichIsNotPublic.class);
+        Bundle bundle = installBundleWithClasses(DummyTestPluginWhichIsNotPublic.class);
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
@@ -157,7 +161,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAnInterfaceEvenIfItImplementsAGoExtensionPointInterface() throws Exception {
-        Bundle bundle = installBundleWithClasses(PluginAwareExtensionInterface.class);
+        Bundle bundle = installBundleWithClasses(TestGoPluginExtensionInterface.class);
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
@@ -167,61 +171,61 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAClassWhichThrowsExceptionDuringInstantiation() throws Exception {
-        Bundle bundle = installBundleWithClasses(DummyPluginAwareExtension.class, DummyPluginAwareExtensionWhichThrowsAnExceptionDuringConstruction.class);
+        Bundle bundle = installBundleWithClasses(DummyTestPlugin.class, DummyGoPluginWhichThrowsAnExceptionDuringConstruction.class);
         assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         String error = descriptor.getStatus().getMessages().get(0);
-        assertThat(error.contains("DummyPluginAwareExtensionWhichThrowsAnExceptionDuringConstruction"), is(true));
+        assertThat(error.contains("DummyGoPluginWhichThrowsAnExceptionDuringConstruction"), is(true));
         assertThat(error.contains("java.lang.RuntimeException: Ouch! I failed!"), is(true));
     }
 
     @Test
-    public void shouldRegisterANestedClassImplementingPluginDescriptorAwareAsAnOSGiService() throws Exception {
+    public void shouldRegisterANestedClassImplementingGoPluginAsAnOSGiService() throws Exception {
         if (new OSChecker(OSChecker.WINDOWS).satisfy()) {
             return; // The class files in this test become too big for a Windows filesystem to handle.
         }
 
-        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, PluginAwareExtensionOuterClass.class,
-                PluginAwareExtensionOuterClass.NestedClass.class,
-                PluginAwareExtensionOuterClass.InnerClass.class,
-                PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.class,
-                PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class,
-                PluginAwareExtensionOuterClass.InnerClass.SecondLevelSiblingInnerClassNoDefaultConstructor.class);
+        File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, TestPluginOuterClass.class,
+                TestPluginOuterClass.NestedClass.class,
+                TestPluginOuterClass.InnerClass.class,
+                TestPluginOuterClass.InnerClass.SecondLevelInnerClass.class,
+                TestPluginOuterClass.InnerClass.SecondLevelInnerClass.TestPluginThirdLevelInnerClass.class,
+                TestPluginOuterClass.InnerClass.SecondLevelSiblingInnerClassNoDefaultConstructor.class);
         BundleContext installedBundledContext = bundleContext(installBundleFoundInDirectory(bundleWithActivator));
 
-        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
+        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
         assertEquals(Arrays.toString(services), 4, services.length);
-        assertEquals(PluginAwareExtensionOuterClass.class.getName(), services[0]);
-        assertEquals(PluginAwareExtensionOuterClass.InnerClass.class.getName(), services[1]);
-        assertEquals(PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class.getName(), services[2]);
-        assertEquals(PluginAwareExtensionOuterClass.NestedClass.class.getName(), services[3]);
+        assertEquals(TestPluginOuterClass.class.getName(), services[0]);
+        assertEquals(TestPluginOuterClass.InnerClass.class.getName(), services[1]);
+        assertEquals(TestPluginOuterClass.InnerClass.SecondLevelInnerClass.TestPluginThirdLevelInnerClass.class.getName(), services[2]);
+        assertEquals(TestPluginOuterClass.NestedClass.class.getName(), services[3]);
     }
 
     @Test
     public void shouldRegisterAsAnOSGiServiceADerivedClassWhoseAncestorImplementsAnExtensionPoint() throws Exception {
-        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(PluginAwareExtensionThatIsADerivedClass.class,
-                DummyPluginAwareExtension.class, PluginAwareExtensionThatIsADerivedClass.class.getSuperclass()));
-        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
+        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestPluginThatIsADerivedClass.class,
+                DummyTestPlugin.class, TestPluginThatIsADerivedClass.class.getSuperclass()));
+        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
         assertEquals(Arrays.toString(services), 2, services.length);
-        assertEquals(DummyPluginAwareExtension.class.getName(), services[0]);
-        assertEquals(PluginAwareExtensionThatIsADerivedClass.class.getName(), services[1]);
+        assertEquals(DummyTestPlugin.class.getName(), services[0]);
+        assertEquals(TestPluginThatIsADerivedClass.class.getName(), services[1]);
     }
 
     @Test
     public void shouldRegisterOneInstanceForEachExtensionPointAnExtensionImplements() throws Exception {
         BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class,
-                DummyPluginAwareExtension.class));
+                DummyTestPlugin.class));
 
-        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
+        ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
         assertEquals(Arrays.toString(services), 2, services.length);
-        assertEquals(DummyPluginAwareExtension.class.getName(), services[0]);
+        assertEquals(DummyTestPlugin.class.getName(), services[0]);
         assertEquals(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName(), services[1]);
 
         references = installedBundledContext.getServiceReferences(TestGoPluginExtensionPoint.class.getName(), null);
@@ -229,11 +233,11 @@ public class DefaultGoPluginActivatorIntegrationTest {
         assertEquals(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName(), installedBundledContext.getService(references[0]).getClass().getName());
         Object testExtensionImplementation = getImplementationOfType(installedBundledContext, references, TestGoPluginExtensionThatImplementsTwoExtensionPoints.class);
 
-        references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
+        references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         assertEquals(2, references.length);
-        Object descriptorAwareImplementation = getImplementationOfType(installedBundledContext, references, TestGoPluginExtensionThatImplementsTwoExtensionPoints.class);
+        Object testPluginImplementation = getImplementationOfType(installedBundledContext, references, TestGoPluginExtensionThatImplementsTwoExtensionPoints.class);
 
-        assertSame(testExtensionImplementation, descriptorAwareImplementation);
+        assertSame(testExtensionImplementation, testPluginImplementation);
     }
 
     @Test
@@ -245,11 +249,11 @@ public class DefaultGoPluginActivatorIntegrationTest {
         assertEquals(1, references.length);
         Object testExtensionImplementation = getImplementationOfType(installedBundledContext, references, ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class);
 
-        references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
+        references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         assertEquals(1, references.length);
-        Object descriptorAwareImplementation = getImplementationOfType(installedBundledContext, references, ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class);
+        Object testPluginImplementation = getImplementationOfType(installedBundledContext, references, ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class);
 
-        assertSame(testExtensionImplementation, descriptorAwareImplementation);
+        assertSame(testExtensionImplementation, testPluginImplementation);
     }
 
     @Test
@@ -312,8 +316,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
     private void assertThatPluginWithThisExtensionClassLoadsSuccessfully(Class<?> extensionClass) throws IOException, URISyntaxException, BundleException, InvalidSyntaxException {
         BundleContext installedBundleContext = bundleContext(installBundleWithClasses(extensionClass));
 
-        ServiceReference<?>[] references = installedBundleContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
-        assertEquals("No service registered for PluginDescriptorAware class", 1, references.length);
+        ServiceReference<?>[] references = installedBundleContext.getServiceReferences(GoPlugin.class.getName(), null);
+        assertEquals("No service registered for GoPlugin class", 1, references.length);
         assertEquals("Symbolic Name property should be present", GO_TEST_DUMMY_SYMBOLIC_NAME, references[0].getProperty(Constants.BUNDLE_SYMBOLICNAME));
         assertEquals(extensionClass.getName(), installedBundleContext.getService(references[0]).getClass().getName());
     }
@@ -407,18 +411,38 @@ public class DefaultGoPluginActivatorIntegrationTest {
 }
 
 @Extension
-class DummyPluginAwareExtensionWhichIsNotPublic implements PluginDescriptorAware {
+class DummyTestPluginWhichIsNotPublic implements GoPlugin {
     @Override
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
         throw new UnsupportedOperationException();
     }
 }
 
 class PackageLevelClassWithPublicInnerClass {
     @Extension
-    public class DummyInnerClassWithExtension implements PluginDescriptorAware {
+    public class DummyInnerClassWithExtension implements GoPlugin {
         @Override
-        public void setPluginDescriptor(PluginDescriptor descriptor) {
+        public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public GoPluginIdentifier pluginIdentifier() {
             throw new UnsupportedOperationException();
         }
     }

@@ -24,15 +24,9 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 @Extension
-public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
-    private final DocumentBuilderFactory documentBuilderFactory;
-
-    public ClassWhichUsesSomeClassInJavaxPackage() {
-        documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.getClass();
+public class DummyTestPluginWithNonPublicDefaultConstructor implements GoPlugin {
+    private DummyTestPluginWithNonPublicDefaultConstructor() {
     }
 
     @Override

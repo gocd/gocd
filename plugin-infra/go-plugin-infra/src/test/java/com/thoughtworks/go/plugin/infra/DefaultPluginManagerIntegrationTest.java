@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
+import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -61,7 +62,7 @@ public class DefaultPluginManagerIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterTheExtensionClassesOfAPluginAndExposeItInItsDescriptorAfterItIsLoaded() throws Exception {
+    public void shouldRegisterTheExtensionClassesOfAPluginAndInitializeAccessorUponFirstCall() throws Exception {
         GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID_1);
         assertThat(plugin.id(), is(PLUGIN_ID_1));
 
@@ -69,8 +70,9 @@ public class DefaultPluginManagerIntegrationTest {
         assertThat(plugin.bundleClassPath(), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
         assertThat(plugin.bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
         assertThat(plugin.isInvalid(), is(false));
-        //property set by the plugin in the setPluginDescriptor method.
-        assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1), is(plugin.toString()));
+
+        pluginManager.submitTo(PLUGIN_ID_1, new DefaultGoPluginApiRequest("test-extension", "2.0", "test-request"));
+        assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1), is("PluginLoad: 1, InitAccessor"));
     }
 
     @Before

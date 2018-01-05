@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
-import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
@@ -29,15 +25,11 @@ import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
@@ -47,12 +39,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class DefaultPluginJarChangeListenerTest {
     private static final String TEST_BUNDLES_DIR = "test-bundles-dir";
     private static final String TEST_PLUGINS_DIR = "test-plugins-dir";
+    private static final String PLUGIN_JAR_FILE_NAME = "descriptor-aware-test-plugin.jar";
     private File PLUGIN_DIR;
     private File BUNDLE_DIR;
     private DefaultPluginRegistry registry;
@@ -83,25 +75,25 @@ public class DefaultPluginJarChangeListenerTest {
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(PLUGIN_DIR);
         FileUtils.deleteQuietly(BUNDLE_DIR);
+        FileUtils.deleteQuietly(new File(PLUGIN_JAR_FILE_NAME));
     }
 
     @Test
     public void shouldCopyPluginToBundlePathAndInformRegistryAndUpdateTheOSGiManifestWhenAPluginIsAdded() throws Exception {
         String pluginId = "testplugin.descriptorValidator";
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId(pluginId, pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
-        when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(null);
+        when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
         doNothing().when(registry).loadPlugin(descriptor);
 
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         assertThat(expectedBundleDirectory.exists(), is(true));
-        verify(registry).getPluginByIdOrFileName(pluginId, pluginJarFileName);
+        verify(registry).getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME);
         verify(registry).loadPlugin(descriptor);
         verify(osgiManifestGenerator).updateManifestOf(descriptor);
         verify(osgiFramework).loadPlugin(descriptor);
@@ -112,13 +104,12 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldOverwriteAFileCalledGoPluginActivatorInLibWithOurOwnGoPluginActivatorEvenIfItExists() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
         File activatorFileLocation = new File(expectedBundleDirectory, "lib/go-plugin-activator.jar");
         FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA", UTF_8);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
         doNothing().when(registry).loadPlugin(descriptor);
@@ -176,9 +167,8 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldRemovePluginFromBundlePathAndInformRegistryWhenAPluginIsRemoved() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        File removedBundleDirectory = new File(BUNDLE_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File removedBundleDirectory = new File(BUNDLE_DIR, PLUGIN_JAR_FILE_NAME);
 
         Bundle bundle = mock(Bundle.class);
         GoPluginDescriptor descriptorOfThePluginWhichWillBeRemoved = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), removedBundleDirectory, true);
@@ -187,7 +177,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(registry.getPluginByIdOrFileName(null,descriptorOfThePluginWhichWillBeRemoved.fileName())).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
         when(registry.unloadPlugin(descriptorOfThePluginWhichWillBeRemoved)).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
 
-        copyPluginToTheDirectory(BUNDLE_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(BUNDLE_DIR, PLUGIN_JAR_FILE_NAME);
 
         listener.pluginJarRemoved(new PluginFileDetails(pluginJarFile, true));
 
@@ -198,10 +188,9 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotTryAndUpdateManifestOfAnAddedInvalidPlugin() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
 
         GoPluginDescriptor descriptorForInvalidPlugin = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true).markAsInvalid(
                 asList("For a test"), null);
@@ -220,10 +209,9 @@ public class DefaultPluginJarChangeListenerTest {
     public void shouldNotTryAndUpdateManifestOfAnUpdatedInvalidPlugin() throws Exception {
         DefaultPluginJarChangeListener spy = spy(listener);
         String pluginId = "plugin-id";
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginFile = new File(PLUGIN_DIR, pluginJarFileName);
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        File expectedBundleDirectoryForInvalidPlugin = new File(TEST_BUNDLES_DIR, pluginJarFileName);
+        File pluginFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectoryForInvalidPlugin = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
         File bundleDirectoryForOldPlugin = new File(TEST_BUNDLES_DIR, "descriptor-aware-test-plugin-old.jar");
         FileUtils.forceMkdir(bundleDirectoryForOldPlugin);
 
@@ -257,11 +245,10 @@ public class DefaultPluginJarChangeListenerTest {
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("some-path-which-does-not-exist.jar");
 
 
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        File bundleDirectory = new File(TEST_BUNDLES_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File bundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("some.old.id", pluginJarFile.getAbsolutePath(), bundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
 
@@ -357,12 +344,11 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null,
-                new File(pluginJarFileName), false);
+                new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
 
@@ -379,23 +365,22 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXMLForUpdatePath() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
 
         String pluginID = "some.id";
         GoPluginDescriptor newPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Mac OS X")), null,
-                new File(pluginJarFileName), true);
+                new File(PLUGIN_JAR_FILE_NAME), true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
 
-        GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null, new File(pluginJarFileName), true);
-        when(registry.getPluginByIdOrFileName(pluginID, pluginJarFileName)).thenReturn(oldPluginDescriptor);
+        GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null, new File(PLUGIN_JAR_FILE_NAME), true);
+        when(registry.getPluginByIdOrFileName(pluginID, PLUGIN_JAR_FILE_NAME)).thenReturn(oldPluginDescriptor);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newPluginDescriptor);
         when(registry.unloadPlugin(newPluginDescriptor)).thenReturn(oldPluginDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
-        listener.pluginJarUpdated(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(newPluginDescriptor);
 
@@ -406,12 +391,11 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldLoadAPluginWhenCurrentOSIsAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Linux")), null,
-                new File(pluginJarFileName), false);
+                new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
 
@@ -424,11 +408,10 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldLoadAPluginWhenAListOfTargetOSesIsNotDeclaredByThePluginInItsXML() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
+        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(pluginJarFileName), false);
+        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
 
@@ -437,115 +420,6 @@ public class DefaultPluginJarChangeListenerTest {
 
         verify(registry, times(1)).loadPlugin(descriptor);
         verify(osgiFramework, times(1)).loadPlugin(descriptor);
-    }
-
-    @Test
-    public void shouldLoadAPluginAndProvidePluginDescriptorIfThePluginImplementsDescriptorAware() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0",
-                new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(pluginJarFileName), false);
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
-        when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(true);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return null;
-            }
-        }).when(osgiFramework).doOnAllWithExceptionHandlingForPlugin(
-                eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject(),
-                Matchers.<ExceptionHandler<PluginDescriptorAware>>anyObject());
-
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
-
-        verify(registry, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).hasReferenceFor(PluginDescriptorAware.class, descriptor.id());
-        verify(osgiFramework, times(1)).doOnAllWithExceptionHandlingForPlugin(eq(PluginDescriptorAware.class),
-                eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject()
-                ,Matchers.<ExceptionHandler<PluginDescriptorAware>>anyObject());
-    }
-
-    @Test
-    public void shouldNotProvidePluginDescriptorIfThePluginIsInvalidatedDuringLoad() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0",
-                new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(pluginJarFileName), false);
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
-        when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(true);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                descriptor.markAsInvalid(Arrays.asList("Marking invalid for test"),new Exception("dummy test exception"));
-                return null;
-            }
-        }).when(osgiFramework).loadPlugin(descriptor);
-
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
-
-        verify(registry, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, never()).hasReferenceFor(PluginDescriptorAware.class,descriptor.id());
-        verify(osgiFramework, never()).doOnAllForPlugin(eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject());
-    }
-
-    @Test
-    public void shouldNotThrowExceptionIfThePluginImplementsDescriptorAwareIsNotAvailable() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0",
-                new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(pluginJarFileName), false);
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
-        when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(false);
-
-        doThrow(new GoPluginFrameworkException("Failed to find service reference")).when(osgiFramework).
-                doOnAllForPlugin(eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject());
-
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
-
-        verify(registry, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).hasReferenceFor(PluginDescriptorAware.class,descriptor.id());
-        verify(osgiFramework, never()).doOnAllForPlugin(eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject());
-    }
-
-    @Test
-    public void pluginDescriptorAwareCallbackErrorShouldNotBeFatal() throws Exception {
-        String pluginJarFileName = "descriptor-aware-test-plugin.jar";
-        File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
-
-        copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0",
-                new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(pluginJarFileName), false);
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
-        when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(true);
-
-        doThrow(new RuntimeException("Exception in plugin descriptor")).when(osgiFramework).doOnAllForPlugin(eq(PluginDescriptorAware.class), eq(descriptor.id()),
-                Matchers.<Action<PluginDescriptorAware>>anyObject());
-
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
-
-        verify(registry, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).loadPlugin(descriptor);
-        verify(osgiFramework, times(1)).hasReferenceFor(PluginDescriptorAware.class,descriptor.id());
-        verify(osgiFramework, times(1)).doOnAllWithExceptionHandlingForPlugin(eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject(),
-                Matchers.<ExceptionHandler<PluginDescriptorAware>>anyObject());
     }
 
     private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

@@ -14,39 +14,54 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.activation.test;
+package com.tw.go.exception.throwing.at.loadplugin;
 
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
+import com.thoughtworks.go.plugin.api.annotation.Load;
+import com.thoughtworks.go.plugin.api.annotation.UnLoad;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.info.PluginContext;
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.Collections;
 
 @Extension
-public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
-    private final DocumentBuilderFactory documentBuilderFactory;
+public class TestGoPluginTom implements GoPlugin {
+    Logger logger = Logger.getLoggerFor(TestGoPluginJerry.class);
 
-    public ClassWhichUsesSomeClassInJavaxPackage() {
-        documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.getClass();
+    public int loadCalled = 0;
+    public int unloadCalled = 0;
+
+    @Load
+    public void onLoad(PluginContext context) {
+        System.out.println("Tom Plugin loaded!!! .....");
+        ++loadCalled;
+        throw new RuntimeException("Jerry Not Found!!");
+    }
+
+    @UnLoad
+    public void onUnload(PluginContext context) {
+        ++unloadCalled;
+        System.out.println("Tom Plugin unloaded");
     }
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
-        throw new UnsupportedOperationException();
+    public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) throws UnhandledRequestTypeException {
+        return DefaultGoPluginApiResponse.success("{}");
     }
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        throw new UnsupportedOperationException();
+        return new GoPluginIdentifier("notification", Collections.singletonList("2.0"));
     }
 }

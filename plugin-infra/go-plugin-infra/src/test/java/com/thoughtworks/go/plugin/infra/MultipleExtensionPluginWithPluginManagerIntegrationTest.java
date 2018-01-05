@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
 
 
 
+    @Ignore("This functionality does not really exist. It was made to work with one kind of extension, almost inadvertently.")
     @Test
     public void shouldProvideDescriptorToMultipleExtensionsImplementingThePluginDescriptorAwareInterface() throws Exception {
         GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID);
@@ -72,7 +74,8 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         assertThat(plugin.bundleClassPath(), is("lib/go-plugin-activator.jar,."));
         assertThat(plugin.bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
         assertThat(plugin.isInvalid(), is(false));
-        //property set by the plugin in the setPluginDescriptor method.
+
+        //property set by the test plugin in the initializeGoApplicationAccessor method.
         assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_PLUGIN_EXT_1), is(plugin.toString()));
         assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_PLUGIN_EXT_2), is(plugin.toString()));
     }

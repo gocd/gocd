@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.plugin.api;
-
-import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 
 @GoPluginApiMarker
 public interface TestGoPluginExtensionPoint {

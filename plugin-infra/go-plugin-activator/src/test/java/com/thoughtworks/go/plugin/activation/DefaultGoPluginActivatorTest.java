@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 
 package com.thoughtworks.go.plugin.activation;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import org.junit.After;
@@ -311,23 +315,43 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements PluginDescriptorAware {
+    public class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor(int x) {
         }
 
         @Override
-        public void setPluginDescriptor(PluginDescriptor descriptor) {
+        public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        }
+
+        @Override
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            return null;
+        }
+
+        @Override
+        public GoPluginIdentifier pluginIdentifier() {
+            return null;
         }
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements PluginDescriptorAware {
+    public class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor() {
             throw new RuntimeException(CONSTRUCTOR_FAIL_MSG);
         }
 
         @Override
-        public void setPluginDescriptor(PluginDescriptor descriptor) {
+        public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        }
+
+        @Override
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            return null;
+        }
+
+        @Override
+        public GoPluginIdentifier pluginIdentifier() {
+            return null;
         }
     }
 

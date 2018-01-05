@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.tw.go.error.generating.testplugin;
+package com.thoughtworks.go.plugin.activation.test;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 
 @Extension
-public class ErrorGeneratingDescriptorValidatorPlugin implements PluginDescriptorAware {
+public abstract class AbstractTestPlugin implements GoPlugin {
 }

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,23 @@
 
 package com.tw.go.invalidDescriptor;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.annotation.Load;
 import com.thoughtworks.go.plugin.api.annotation.UnLoad;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginContext;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+
+import java.util.Collections;
 
 @Extension
-public class DescriptorPlugin implements PluginDescriptorAware {
+public class DescriptorPlugin implements GoPlugin {
     public int loadCalled = 0;
     public int unloadCalled = 0;
 
@@ -42,13 +49,23 @@ public class DescriptorPlugin implements PluginDescriptorAware {
         ++loadCalled;
     }
 
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
-        System.out.println("Got the descriptor: " + descriptor);
-    }
-
     @UnLoad
     public void onUnload(PluginContext context) {
         ++unloadCalled;
         System.out.println("Plugin unloaded");
+    }
+
+    @Override
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) throws UnhandledRequestTypeException {
+        return DefaultGoPluginApiResponse.success("{}");
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
+        return new GoPluginIdentifier("notification", Collections.singletonList("2.0"));
     }
 }

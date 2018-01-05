@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
     <about>
         <name>Plugin Descriptor Validator</name>
         <version>1.0.1</version>
-        <target-go-version>12.4</target-go-version>
+        <target-go-version>17.12</target-go-version>
         <description>Validates its own plugin descriptor</description>
         <vendor>
-            <name>ThoughtWorks Go Team</name>
+            <name>ThoughtWorks GoCD Team</name>
             <url>www.thoughtworks.com</url>
         </vendor>
 	<target-os>

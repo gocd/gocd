@@ -246,13 +246,6 @@ public class PluggableTaskBuilderTest {
                 throw new RuntimeException("err");
             }
         };
-        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(new Answer<ExecutionResult>() {
-            @Override
-            public ExecutionResult answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
-                return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
-            }
-        });
 
         try {
             taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
@@ -276,13 +269,6 @@ public class PluggableTaskBuilderTest {
                 return ExecutionResult.failure("err");
             }
         };
-        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(new Answer<ExecutionResult>() {
-            @Override
-            public ExecutionResult answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
-                return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
-            }
-        });
 
         try {
             taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");

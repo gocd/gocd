@@ -91,11 +91,6 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
-        return goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, actionToDoOnTheRegisteredServiceWhichMatches);
-    }
-
-    @Override
     public void startInfrastructure(boolean shouldPoll) {
         removeBundleDirectory();
         goPluginOSGiFramework.start();
@@ -169,7 +164,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public String resolveExtensionVersion(String pluginId, String extensionType, final List<String> goSupportedExtensionVersions) {
-        String resolvedExtensionVersion = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
+        String resolvedExtensionVersion = goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
             @Override
             public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
                 List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();

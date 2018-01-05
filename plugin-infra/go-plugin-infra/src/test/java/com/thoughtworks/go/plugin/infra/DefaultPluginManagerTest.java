@@ -199,15 +199,6 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldAllowRunningAnActionOnRegisteredImplementationOfSpecifiedPlugin() {
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-        ActionWithReturn action = mock(ActionWithReturn.class);
-        pluginManager.doOn(SomeInterface.class, "plugin-id", action);
-
-        verify(goPluginOSGiFramework).doOn(SomeInterface.class, "plugin-id", action);
-    }
-
-    @Test
     public void shouldGetPluginDescriptorForGivenPluginIdCorrectly() throws Exception {
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
         GoPluginDescriptor pluginDescriptorForP1 = new GoPluginDescriptor("p1", "1.0", null, null, null, true);

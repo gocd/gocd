@@ -27,8 +27,6 @@ public interface PluginManager {
 
     GoPluginDescriptor getPluginDescriptorFor(String pluginId);
 
-    <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches);
-
     void startInfrastructure(boolean shouldPoll);
 
     void stopInfrastructure();

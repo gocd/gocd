@@ -244,8 +244,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.PipelineConfigSaveValidationContext unless defined? PipelineConfigSaveValidationContext
   java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
   java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
-  java_import com.thoughtworks.go.server.ui.plugins.PluginInfo unless defined? PluginInfo
-  java_import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings unless defined? PluggableInstanceSettings
   java_import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException unless defined? InvalidPluginTypeException
   java_import com.thoughtworks.go.server.service.EntityHashingService unless defined? EntityHashingService
   java_import com.thoughtworks.go.config.EnvironmentAgentConfig unless defined? EnvironmentAgentConfig

@@ -91,7 +91,7 @@ public class ArtifactExtensionTest {
         String responseBody = "[{\"key\":\"BUCKET_NAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"AWS_ACCESS_KEY\",\"metadata\":{\"required\":true,\"secure\":true}}]";
 
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final List<PluginConfiguration> response = artifactExtension.getArtifactStoreMetadata(PLUGIN_ID);
 
@@ -110,7 +110,7 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldGetArtifactStoreViewFromPlugin() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"artifact-store-view\"}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"artifact-store-view\"}"));
 
         String view = artifactExtension.getArtifactStoreView(PLUGIN_ID);
 
@@ -127,7 +127,7 @@ public class ArtifactExtensionTest {
     public void shouldValidateArtifactStoreConfig() {
         String responseBody = "[{\"message\":\"ACCESS_KEY must not be blank.\",\"key\":\"ACCESS_KEY\"}]";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         ValidationResult validationResult = artifactExtension.validateArtifactStoreConfig(PLUGIN_ID, Collections.singletonMap("ACCESS_KEY", ""));
 
@@ -147,7 +147,7 @@ public class ArtifactExtensionTest {
     public void shouldGetPluggableArtifactMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"FILENAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"VERSION\",\"metadata\":{\"required\":true,\"secure\":true}}]";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final List<PluginConfiguration> response = artifactExtension.getPublishArtifactMetadata(PLUGIN_ID);
 
@@ -166,7 +166,7 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldGetPluggableArtifactViewFromPlugin() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"pluggable-artifact-view\"}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"pluggable-artifact-view\"}"));
 
         String view = artifactExtension.getPublishArtifactView(PLUGIN_ID);
 
@@ -183,7 +183,7 @@ public class ArtifactExtensionTest {
     public void shouldValidatePluggableArtifactConfig() {
         String responseBody = "[{\"message\":\"Filename must not be blank.\",\"key\":\"Filename\"}]";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(PLUGIN_ID, Collections.singletonMap("Filename", ""));
 
@@ -207,7 +207,7 @@ public class ArtifactExtensionTest {
                 "  }\n" +
                 "}";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new ArtifactPlan("{\"id\":\"installer\",\"storeId\":\"docker\"}"), new ArtifactStore("docker", "cd.go.docker"), "/temp");
 
@@ -238,7 +238,7 @@ public class ArtifactExtensionTest {
     public void shouldGetFetchArtifactMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"FILENAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"VERSION\",\"metadata\":{\"required\":true,\"secure\":true}}]";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final List<PluginConfiguration> response = artifactExtension.getFetchArtifactMetadata(PLUGIN_ID);
 
@@ -257,7 +257,7 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldGetFetchArtifactViewFromPlugin() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"fetch-artifact-view\"}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{ \"template\": \"fetch-artifact-view\"}"));
 
         String view = artifactExtension.getFetchArtifactView(PLUGIN_ID);
 
@@ -274,7 +274,7 @@ public class ArtifactExtensionTest {
     public void shouldValidateFetchArtifactConfig() {
         String responseBody = "[{\"message\":\"Filename must not be blank.\",\"key\":\"Filename\"}]";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(PLUGIN_ID, Collections.singletonMap("Filename", ""));
 
@@ -292,7 +292,7 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldSubmitFetchArtifactRequest() throws JSONException {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
         artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
 
@@ -332,7 +332,7 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldGetCapabilities() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{}"));
 
         artifactExtension.getCapabilities(PLUGIN_ID);
 

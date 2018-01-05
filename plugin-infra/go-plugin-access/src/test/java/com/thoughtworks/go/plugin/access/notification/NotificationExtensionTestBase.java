@@ -68,7 +68,7 @@ public abstract class NotificationExtensionTestBase {
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NOTIFICATION_EXTENSION, NotificationExtension.goSupportedVersions)).thenReturn(apiVersion());
         when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(NOTIFICATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }
 
     protected abstract String apiVersion();

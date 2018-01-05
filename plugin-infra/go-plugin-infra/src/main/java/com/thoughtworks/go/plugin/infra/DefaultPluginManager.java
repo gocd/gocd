@@ -135,7 +135,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public GoPluginApiResponse submitTo(final String pluginId, final GoPluginApiRequest apiRequest) {
+    public GoPluginApiResponse submitTo(final String pluginId, String extensionType, final GoPluginApiRequest apiRequest) {
         return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {

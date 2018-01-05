@@ -85,7 +85,7 @@ public class AnalyticsExtensionTest {
                 "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
                 "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
                 "]}";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
@@ -104,7 +104,7 @@ public class AnalyticsExtensionTest {
         pluginInfo.setStaticAssetsPath("/assets/root");
         metadataStore.setPluginInfo(pluginInfo);
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getAnalytics(PLUGIN_ID, "pipeline", "pipeline_with_highest_wait_time",
                 Collections.singletonMap("pipeline_name", "test_pipeline"));
@@ -124,7 +124,7 @@ public class AnalyticsExtensionTest {
     @Test
     public void shouldFetchStaticAssets() throws Exception {
         String responseBody = "{ \"assets\": \"assets payload\" }";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
         String assets = analyticsExtension.getStaticAssets(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), ANALYTICS_EXTENSION, "1.0", REQUEST_GET_STATIC_ASSETS, null);
@@ -137,7 +137,7 @@ public class AnalyticsExtensionTest {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("No assets defined!");
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
 
         analyticsExtension.getStaticAssets(PLUGIN_ID);
     }

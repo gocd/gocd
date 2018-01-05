@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class PluginRequestHelperTest {
     public void shouldNotInvokeSuccessBlockOnFailureResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.INTERNAL_ERROR);
         when(response.responseBody()).thenReturn("junk");
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
         try {
             helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
                 @Override
@@ -73,14 +73,14 @@ public class PluginRequestHelperTest {
             assertThat(e.getMessage(), is("Interaction with plugin with id 'pid' implementing 'some-extension' extension failed while requesting for 'req'. Reason: [The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk']"));
             assertThat(e.getCause().getMessage(), is("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'"));
             assertFalse(isSuccessInvoked[0]);
-            verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+            verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
         }
     }
 
     @Test
     public void shouldInvokeSuccessBlockOnSuccessfulResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
@@ -90,13 +90,13 @@ public class PluginRequestHelperTest {
             }
         });
         assertTrue(isSuccessInvoked[0]);
-        verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
     }
 
     @Test
     public void shouldErrorOutOnValidationFailure() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
         thrown.expect(RuntimeException.class);
 
@@ -118,10 +118,10 @@ public class PluginRequestHelperTest {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
                 return response;
             }
-        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
@@ -145,10 +145,10 @@ public class PluginRequestHelperTest {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
                 return response;
             }
-        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
         helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
@@ -191,9 +191,9 @@ public class PluginRequestHelperTest {
 
         final GoPluginApiRequest[] generatedRequest = {null};
         doAnswer(invocationOnMock -> {
-            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
             return response;
-        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
         helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {

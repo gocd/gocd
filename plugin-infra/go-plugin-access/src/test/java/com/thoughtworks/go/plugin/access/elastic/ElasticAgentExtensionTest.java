@@ -101,7 +101,7 @@ public class ElasticAgentExtensionTest {
 
     @Test
     public void shouldCallTheVersionedExtensionBasedOnResolvedVersion() throws JSONException {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}"));
 
         extension.getIcon(PLUGIN_ID);
 
@@ -111,7 +111,7 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldGetCapabilitiesOfAPlugin() {
         final String responseBody = "{\"supports_status_report\":\"true\", \"supports_agent_status_report\":\"true\"}";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final Capabilities capabilities = extension.getCapabilities(PLUGIN_ID);
 
@@ -122,7 +122,7 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldGetProfileMetadata() throws JSONException {
         String responseBody = "[{\"key\":\"Username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"Password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final List<PluginConfiguration> metadata = extension.getProfileMetadata(PLUGIN_ID);
 
@@ -138,7 +138,7 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldGetProfileView() throws JSONException {
         String responseBody = "{ \"template\": \"<div>This is profile view snippet</div>\" }";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final String view = extension.getProfileView(PLUGIN_ID);
 
@@ -150,7 +150,7 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldValidateProfile() throws JSONException {
         String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final ValidationResult result = extension.validate(PLUGIN_ID, Collections.emptyMap());
 
@@ -167,7 +167,7 @@ public class ElasticAgentExtensionTest {
     public void shouldMakeCreateAgentCall() throws JSONException {
         final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extension.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, jobIdentifier);
 
@@ -192,7 +192,7 @@ public class ElasticAgentExtensionTest {
 
     @Test
     public void shouldSendServerPing() throws JSONException {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extension.serverPing(PLUGIN_ID);
 
@@ -203,7 +203,7 @@ public class ElasticAgentExtensionTest {
     public void shouldMakeShouldAssignWorkCall() throws JSONException {
         final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
 
         final boolean shouldAssignWork = extension.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, new JobIdentifier());
 
@@ -229,7 +229,7 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldGetStatusReport() throws JSONException {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final String statusReportView = extension.getPluginStatusReport(PLUGIN_ID);
 
@@ -242,7 +242,7 @@ public class ElasticAgentExtensionTest {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         extension.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37");
 

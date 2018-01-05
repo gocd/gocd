@@ -89,7 +89,7 @@ public class TaskExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
-        when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         PluginSettingsConfiguration response = extension.getPluginSettingsConfiguration(pluginId);
 
@@ -108,7 +108,7 @@ public class TaskExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
-        when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         String response = extension.getPluginSettingsView(pluginId);
 
@@ -130,7 +130,7 @@ public class TaskExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
-        when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         ValidationResult response = extension.validatePluginSettings(pluginId, pluginSettingsConfiguration);
 
@@ -187,10 +187,11 @@ public class TaskExtensionTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
         when(response.responseBody()).thenReturn("{\"errors\":{\"key\":\"error\"}}");
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(response);
+
         ValidationResult validationResult = jsonBasedTaskExtension.validate(pluginId, taskConfig);
 
-        verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class));
         assertFalse(validationResult.isSuccessful());
         assertEquals(validationResult.getErrors().get(0).getKey(), "key");
         assertEquals(validationResult.getErrors().get(0).getMessage(), "error");

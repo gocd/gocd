@@ -81,7 +81,7 @@ public class SCMExtensionTest {
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SCM_EXTENSION, asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(SCM_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SCM_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
     }
 
     @Test
@@ -237,7 +237,7 @@ public class SCMExtensionTest {
 
     @Test
     public void shouldHandleExceptionDuringPluginInteraction() throws Exception {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SCM_EXTENSION), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
         try {
             scmExtension.checkConnectionToSCM(PLUGIN_ID, scmPropertyConfiguration);
         } catch (Exception e) {

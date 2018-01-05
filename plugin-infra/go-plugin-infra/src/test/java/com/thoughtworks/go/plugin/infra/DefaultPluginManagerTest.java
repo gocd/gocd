@@ -237,7 +237,7 @@ public class DefaultPluginManagerTest {
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq("plugin-id"), any(ActionWithReturn.class));
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
-        GoPluginApiResponse actualResponse = pluginManager.submitTo("plugin-id", request);
+        GoPluginApiResponse actualResponse = pluginManager.submitTo("plugin-id", "sample-extension", request);
 
         assertThat(actualResponse, is(expectedResponse));
         PluginAwareDefaultGoApplicationAccessor accessor = captor.getValue();

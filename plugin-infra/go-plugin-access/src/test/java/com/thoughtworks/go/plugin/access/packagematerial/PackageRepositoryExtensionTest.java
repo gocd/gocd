@@ -102,7 +102,7 @@ public class PackageRepositoryExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         PluginSettingsConfiguration response = extension.getPluginSettingsConfiguration(PLUGIN_ID);
 
@@ -121,7 +121,7 @@ public class PackageRepositoryExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         String response = extension.getPluginSettingsView(PLUGIN_ID);
 
@@ -142,7 +142,7 @@ public class PackageRepositoryExtensionTest {
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         ValidationResult response = extension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
@@ -161,7 +161,7 @@ public class PackageRepositoryExtensionTest {
                 "}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         RepositoryConfiguration repositoryConfiguration = extension.getRepositoryConfiguration(PLUGIN_ID);
 
@@ -181,7 +181,7 @@ public class PackageRepositoryExtensionTest {
                 "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
                 "}";
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = extension.getPackageConfiguration(PLUGIN_ID);
 
@@ -198,7 +198,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         ValidationResult validationResult = extension.isRepositoryConfigurationValid(PLUGIN_ID, repositoryConfiguration);
 
@@ -215,7 +215,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         ValidationResult validationResult = extension.isPackageConfigurationValid(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
@@ -234,7 +234,7 @@ public class PackageRepositoryExtensionTest {
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         PackageRevision packageRevision = extension.getLatestRevision(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
@@ -259,7 +259,7 @@ public class PackageRepositoryExtensionTest {
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         PackageRevision packageRevision = extension.latestModificationSince(PLUGIN_ID, packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
 
@@ -274,7 +274,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
@@ -289,7 +289,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"status\":\"failed\",messages=[\"message-one\",\"message-two\"]}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
@@ -305,7 +305,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
@@ -321,7 +321,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
 
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
@@ -332,7 +332,7 @@ public class PackageRepositoryExtensionTest {
     @Test
     public void shouldHandleExceptionDuringPluginInteraction() throws Exception {
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
         try {
             extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
         } catch (Exception e) {

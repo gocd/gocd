@@ -71,7 +71,8 @@ public class DefaultPluginManagerIntegrationTest {
         assertThat(plugin.bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
         assertThat(plugin.isInvalid(), is(false));
 
-        pluginManager.submitTo(PLUGIN_ID_1, new DefaultGoPluginApiRequest("test-extension", "2.0", "test-request"));
+        String extensionType = "notification";
+        pluginManager.submitTo(PLUGIN_ID_1, extensionType, new DefaultGoPluginApiRequest(extensionType, "2.0", "test-request"));
         assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1), is("PluginLoad: 1, InitAccessor"));
     }
 

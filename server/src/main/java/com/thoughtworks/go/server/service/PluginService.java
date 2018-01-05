@@ -28,9 +28,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +41,14 @@ import java.util.Map;
 public class PluginService {
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
-    private PluginInfoBuilder pluginInfoBuilder;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, PluginInfoBuilder pluginInfoBuilder, SecurityService securityService, EntityHashingService entityHashingService) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
-        this.pluginInfoBuilder = pluginInfoBuilder;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
     }
@@ -174,16 +170,6 @@ public class PluginService {
                 break;
             }
         }
-    }
-
-    @Deprecated // used by v1 and v2
-    public List<PluginInfo> pluginInfos(String type) {
-        return pluginInfoBuilder.allPluginInfos(type);
-    }
-
-    @Deprecated
-    public PluginInfo pluginInfo(String pluginId) {
-        return pluginInfoBuilder.pluginInfoFor(pluginId);
     }
 
     private String toJSON(Map<String, String> settingsMap) {

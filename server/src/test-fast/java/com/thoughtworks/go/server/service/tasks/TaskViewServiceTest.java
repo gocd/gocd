@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.tasks;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
@@ -40,14 +41,13 @@ import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
@@ -64,27 +64,16 @@ public class TaskViewServiceTest {
     private TaskViewService taskViewService;
     private PluginManager pluginManager;
     private FeatureToggleService featureToggleService;
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() {
         featureToggleService = mock(FeatureToggleService.class);
-        cleanupTaskPreferences();
         registry = mock(ConfigElementImplementationRegistry.class);
         pluginManager = mock(PluginManager.class);
         taskViewService = new TaskViewService(registry, pluginManager);
         Toggles.initializeWith(featureToggleService);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        cleanupTaskPreferences();
-    }
-
-    private void cleanupTaskPreferences() {
-        Set<String> plugins = PluggableTaskConfigStore.store().pluginIds();
-        for (String pluginId : plugins) {
-            PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
-        }
     }
 
     @Test

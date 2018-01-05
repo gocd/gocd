@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -26,6 +27,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.hamcrest.core.Is;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -46,6 +48,9 @@ public class PackageViewModelBuilderTest {
     private PackageViewModelBuilder builder;
     private GoPluginDescriptor yumPoller;
     private GoPluginDescriptor npmPoller;
+
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() {
@@ -80,7 +85,7 @@ public class PackageViewModelBuilderTest {
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
         assertThat(pluginInfos.size(), is(2));
-        PluginInfo pluginInfo = pluginInfos.get(0).getId() == "yum.poller" ? pluginInfos.get(0) : pluginInfos.get(1);
+        PluginInfo pluginInfo = pluginInfos.get(0).getId().equals("yum.poller") ? pluginInfos.get(0) : pluginInfos.get(1);
         assertThat(pluginInfo.getId(), is("yum.poller"));
         assertThat(pluginInfo.getType(), is("package-repository"));
         assertThat(pluginInfo.getName(), is(yumPoller.about().name()));

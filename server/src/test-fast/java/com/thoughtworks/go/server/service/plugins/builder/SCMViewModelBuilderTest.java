@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
-import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
-import com.thoughtworks.go.plugin.access.scm.SCMPreference;
-import com.thoughtworks.go.plugin.access.scm.SCMView;
+import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
@@ -28,6 +25,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 import org.hamcrest.core.Is;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -49,6 +47,8 @@ public class SCMViewModelBuilderTest {
     private GoPluginDescriptor githubPR;
     private GoPluginDescriptor stashPR;
     private SCMPreference preference;
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() {

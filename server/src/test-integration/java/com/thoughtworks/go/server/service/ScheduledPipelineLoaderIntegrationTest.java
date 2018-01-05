@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -113,6 +114,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
     private SvnTestRepoWithExternal svnRepo;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setup() throws Exception {

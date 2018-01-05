@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -62,6 +64,8 @@ public class PackageMaterialUpdaterIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
     private PackageMaterialUpdater packageMaterialUpdater;
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() throws Exception {

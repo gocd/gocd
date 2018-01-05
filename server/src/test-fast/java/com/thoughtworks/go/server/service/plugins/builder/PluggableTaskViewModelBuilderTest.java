@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedPluggableTask;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
@@ -29,6 +30,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 import org.hamcrest.core.Is;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -51,6 +53,9 @@ public class PluggableTaskViewModelBuilderTest {
     private GoPluginDescriptor xunitConvertor;
     private GoPluginDescriptor powershellTask;
     private TaskPreference taskPreference;
+
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() {

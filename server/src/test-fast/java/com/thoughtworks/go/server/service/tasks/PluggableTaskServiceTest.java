@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.tasks;
 
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -31,8 +32,8 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -50,6 +51,9 @@ public class PluggableTaskServiceTest {
     private String pluginId = "abc.def";
     private Localizer localizer;
 
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
+
     @Before
     public void setUp() throws Exception {
         taskExtension = mock(TaskExtension.class);
@@ -64,10 +68,6 @@ public class PluggableTaskServiceTest {
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, preference);
     }
 
-    @After
-    public void teardown() {
-        PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
-    }
 
     @Test
     public void shouldValidateTask() {

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.materials;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -36,6 +37,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,9 @@ import static org.mockito.Mockito.*;
         "classpath:testPropertyConfigurer.xml"
 })
 public class PluggableSCMMaterialUpdaterIntegrationTest {
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
+
     @Autowired
     private MaterialRepository materialRepository;
     @Autowired

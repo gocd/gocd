@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -29,7 +30,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,6 +65,8 @@ public class PluggableScmServiceTest {
 
     private PluggableScmService pluggableScmService;
     private SCMConfigurations scmConfigurations;
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
 
     @Before
     public void setUp() throws Exception {
@@ -78,11 +80,6 @@ public class PluggableScmServiceTest {
 
         when(preference.getScmConfigurations()).thenReturn(scmConfigurations);
         SCMMetadataStore.getInstance().setPreferenceFor(pluginId, preference);
-    }
-
-    @After
-    public void teardown() {
-        SCMMetadataStore.getInstance().clear();
     }
 
     @Test

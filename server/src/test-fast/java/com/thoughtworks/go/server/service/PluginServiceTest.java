@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
@@ -38,8 +39,8 @@ import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.hamcrest.core.Is;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -75,11 +76,12 @@ public class PluginServiceTest {
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
 
+    @Rule
+    public final ClearSingleton clearSingleton = new ClearSingleton();
+
     @Before
     public void setUp() {
         initMocks(this);
-
-        PluginSettingsMetadataStore.getInstance().clear();
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("p1-k1", "v1");
@@ -105,11 +107,6 @@ public class PluginServiceTest {
 
         extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
         pluginService = new PluginService(extensions, pluginDao, builder, securityService, entityHashingService);
-    }
-
-    @After
-    public void tearDown() {
-        PluginSettingsMetadataStore.getInstance().clear();
     }
 
     @Test

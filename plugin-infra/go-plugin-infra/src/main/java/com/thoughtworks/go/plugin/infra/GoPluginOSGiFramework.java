@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.osgi.framework.Bundle;
 
@@ -32,7 +33,5 @@ public interface GoPluginOSGiFramework {
 
     <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action);
 
-    <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId);
-
-
+    <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType);
 }

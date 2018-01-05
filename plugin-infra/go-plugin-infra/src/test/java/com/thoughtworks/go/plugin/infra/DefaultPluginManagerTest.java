@@ -245,20 +245,12 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldCheckIfReferenceCanBeFoundForServiceClassAndPluginId() throws Exception {
-        String pluginId = "plugin-id";
-        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)).thenReturn(true);
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
-        assertThat(pluginManager.hasReferenceFor(GoPlugin.class, pluginId), is(true));
-    }
-
-    @Test
-    public void shouldReturnTrueIfPluginIsOfGivenExtensionWhenReferenceFoundAndExtensionMatch() throws Exception {
+    public void shouldSayPluginIsOfGivenExtensionTypeWhenReferenceIsFound() throws Exception {
         String pluginId = "plugin-id";
         GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("sample-extension", asList("1.0"));
         final GoPlugin goPlugin = mock(GoPlugin.class);
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
-        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)).thenReturn(true);
+        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId, "sample-extension")).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -274,37 +266,16 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldNotFindPluginIsOfGivenExtensionWhenReferenceNotFound() throws Exception {
+    public void shouldSayAPluginIsNotOfAnExtensionTypeWhenReferenceIsNotFound() throws Exception {
         final String pluginThatDoesNotImplement = "plugin-that-does-not-implement";
-        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement)).thenReturn(false);
+        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement, "extension-type")).thenReturn(false);
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
-        assertFalse(pluginManager.isPluginOfType("extension-type", pluginThatDoesNotImplement));
-        verify(goPluginOSGiFramework).hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement);
+        boolean pluginIsOfExtensionType = pluginManager.isPluginOfType("extension-type", pluginThatDoesNotImplement);
+
+        assertFalse(pluginIsOfExtensionType);
+        verify(goPluginOSGiFramework).hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement, "extension-type");
         verify(goPluginOSGiFramework, never()).doOn(eq(GoPlugin.class), eq(pluginThatDoesNotImplement), any(ActionWithReturn.class));
-    }
-
-    @Test
-    public void shouldNotFindPluginIsOfGivenExtensionWhenReferenceNotFoundAndExtensionDoNotMatch() throws Exception {
-        final String pluginThatDoesNotImplement = "plugin-that-does-not-implement";
-        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("another-extension-type", asList("1.0"));
-        final GoPlugin goPlugin = mock(GoPlugin.class);
-        final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
-
-        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement)).thenReturn(true);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
-                return action.execute(goPlugin, descriptor);
-            }
-        }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginThatDoesNotImplement), any(ActionWithReturn.class));
-        when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);
-
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
-        assertFalse(pluginManager.isPluginOfType("extension-type", pluginThatDoesNotImplement));
-        verify(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginThatDoesNotImplement), any(ActionWithReturn.class));
     }
 
     @Test
@@ -312,11 +283,10 @@ public class DefaultPluginManagerTest {
         String pluginId = "plugin-id";
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
-        osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
+        osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, "sample-extension", true);
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
         assertThat(pluginManager.resolveExtensionVersion(pluginId, asList("1.0", "2.0", "3.0")), is("2.0"));
-
     }
 
     @Test
@@ -324,7 +294,7 @@ public class DefaultPluginManagerTest {
         String pluginId = "plugin-id";
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
-        osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
+        osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, "sample-extension", true);
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
         try {
@@ -395,7 +365,6 @@ public class DefaultPluginManagerTest {
 
         @Override
         public void unloadPlugin(GoPluginDescriptor pluginDescriptor) {
-
         }
 
         @Override
@@ -409,12 +378,12 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
-            return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
+        public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType) {
+            return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId, extensionType);
         }
 
-        public void addHasReferenceFor(Class<?> serviceRef, String pluginId, boolean hasReference) {
-            when(goPluginOSGiFramework.hasReferenceFor(serviceRef, pluginId)).thenReturn(hasReference);
+        public void addHasReferenceFor(Class<?> serviceRef, String pluginId, String extensionType, boolean hasReference) {
+            when(goPluginOSGiFramework.hasReferenceFor(serviceRef, pluginId, extensionType)).thenReturn(hasReference);
         }
     }
 

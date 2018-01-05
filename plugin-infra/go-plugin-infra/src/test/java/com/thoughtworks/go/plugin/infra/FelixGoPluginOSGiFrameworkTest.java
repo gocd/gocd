@@ -26,7 +26,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.osgi.framework.*;
@@ -86,9 +85,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
-        registerServices(firstService, secondService);
+        registerService(firstService, "extension-one");
+        registerService(secondService, "extension-two");
         spy.start();
-
 
         spy.doOn(SomeInterface.class, secondService.toString(), new ActionWithReturn<SomeInterface, Object>() {
             @Override
@@ -165,16 +164,19 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void HasReferencesShouldReturnAppropriateValueIfSpecifiedPluginImplementationsOfAGivenInterfaceIsFoundOrNotFound() throws Exception {
+    public void hasReferencesShouldReturnAppropriateValueIfSpecifiedPluginImplementationsOfAGivenInterfaceIsFoundOrNotFound() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
         spy.start();
 
-        boolean reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString());
+        boolean reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString(), "extension-two");
 
         assertThat(reference, is(false));
-        registerServices(firstService, secondService);
-        reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString());
+
+        registerService(firstService, "extension-one");
+        registerService(secondService, "extension-two");
+
+        reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString(), "extension-two");
         assertThat(reference, is(true));
 
         verifyNoMoreInteractions(firstService, secondService);
@@ -253,26 +255,17 @@ public class FelixGoPluginOSGiFrameworkTest {
 
     }
 
-    private void registerServices(SomeInterface... someInterfaces) throws InvalidSyntaxException {
-        ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
-            ServiceReference reference = mock(ServiceReference.class);
-            when(reference.getBundle()).thenReturn(bundle);
-            when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
+    private void registerService(SomeInterface someInterface, String extension) throws InvalidSyntaxException {
+        ServiceReference reference = mock(ServiceReference.class);
 
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
-            setExpectationForFilterBasedServiceReferenceCall(someInterfaces[i], reference);
-            references.add(reference);
-        }
-        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(references);
+        when(reference.getBundle()).thenReturn(bundle);
+        when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
+        when(bundleContext.getService(reference)).thenReturn(someInterface);
 
-    }
+        String propertyFormat = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, someInterface.toString(), Constants.BUNDLE_CATEGORY, extension);
+        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(Arrays.asList(reference));
 
-    private void setExpectationForFilterBasedServiceReferenceCall(SomeInterface service, ServiceReference reference) throws InvalidSyntaxException {
-        ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        String propertyFormat = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, service.toString());
-        references.add(reference);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
+        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(Arrays.asList(reference));
     }
 
     private GoPluginDescriptor buildExpectedDescriptor() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -32,7 +31,7 @@ public abstract class MetadataLoader<T extends PluginInfo> implements PluginChan
         this.metadataStore = metadataStore;
         this.extension = extension;
 
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        pluginManager.addPluginChangeListener(this);
     }
 
     @Override

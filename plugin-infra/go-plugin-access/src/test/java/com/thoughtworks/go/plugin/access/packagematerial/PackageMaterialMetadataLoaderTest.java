@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -89,7 +88,7 @@ public class PackageMaterialMetadataLoaderTest {
     @Test
     public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
         metadataLoader = new PackageMaterialMetadataLoader(pluginManager, packageRepositoryExtension);
-        verify(pluginManager).addPluginChangeListener(metadataLoader, GoPlugin.class);
+        verify(pluginManager).addPluginChangeListener(metadataLoader);
     }
 
     @Test

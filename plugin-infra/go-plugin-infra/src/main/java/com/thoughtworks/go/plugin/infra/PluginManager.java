@@ -33,7 +33,7 @@ public interface PluginManager {
 
     void stopInfrastructure();
 
-    void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
+    void addPluginChangeListener(PluginChangeListener pluginChangeListener);
 
     GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest);
 

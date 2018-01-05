@@ -162,7 +162,7 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldAllowRegistrationOfPluginChangeListenersForGivenServiceReferences() throws Exception {
+    public void shouldAllowRegistrationOfPluginChangeListeners() throws Exception {
         GoPlugginOSGiFrameworkStub frameworkStub = new GoPlugginOSGiFrameworkStub();
         PluginManager pluginManager = new DefaultPluginManager(monitor, registry, frameworkStub, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
 
@@ -186,16 +186,14 @@ public class DefaultPluginManagerTest {
                 pluginUnloaded[0]++;
             }
         };
-        pluginManager.addPluginChangeListener(someInterfaceListener, SomeInterface.class, SomeOtherInterface.class);
-        frameworkStub.addHasReferenceFor(SomeInterface.class, pluginId1, true);
-        frameworkStub.addHasReferenceFor(SomeOtherInterface.class, pluginId1, false);
-        frameworkStub.addHasReferenceFor(SomeInterface.class, pluginId2, false);
-        frameworkStub.addHasReferenceFor(SomeOtherInterface.class, pluginId2, true);
-        assertThat(frameworkStub.pluginChangeListener == null, is(false));
+        pluginManager.addPluginChangeListener(someInterfaceListener);
+
         frameworkStub.pluginChangeListener.pluginLoaded(descriptor1);
         frameworkStub.pluginChangeListener.pluginLoaded(descriptor2);
+
         frameworkStub.pluginChangeListener.pluginUnLoaded(descriptor1);
         frameworkStub.pluginChangeListener.pluginUnLoaded(descriptor2);
+
         assertThat(pluginLoaded[0], is(2));
         assertThat(pluginUnloaded[0], is(2));
     }

@@ -130,9 +130,8 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-        PluginChangeListener filterChangeListener = new FilterChangeListener(goPluginOSGiFramework, pluginChangeListener, serviceReferenceClass);
-        goPluginOSGiFramework.addPluginChangeListener(filterChangeListener);
+    public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
+        goPluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
     }
 
     @Override
@@ -211,40 +210,5 @@ public class DefaultPluginManager implements PluginManager {
         File bundleDir = new File(systemEnvironment.get(PLUGIN_BUNDLE_PATH));
         FileUtil.validateAndCreateDirectory(bundleDir);
         return bundleDir;
-    }
-
-    private static class FilterChangeListener implements PluginChangeListener {
-        private final GoPluginOSGiFramework goPluginOSGiFramework;
-        private final PluginChangeListener pluginChangeListenerDelegate;
-        private final Class<?>[] serviceReferences;
-
-        public FilterChangeListener(GoPluginOSGiFramework goPluginOSGiFramework,
-                                    PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-            this.goPluginOSGiFramework = goPluginOSGiFramework;
-            pluginChangeListenerDelegate = pluginChangeListener;
-            serviceReferences = serviceReferenceClass;
-        }
-
-        @Override
-        public void pluginLoaded(GoPluginDescriptor descriptor) {
-            String pluginId = descriptor.id();
-            if (shouldCallDelegate(pluginId)) {
-                pluginChangeListenerDelegate.pluginLoaded(descriptor);
-            }
-        }
-
-        private boolean shouldCallDelegate(String pluginId) {
-            for (Class<?> serviceReference : serviceReferences) {
-                if (goPluginOSGiFramework.hasReferenceFor(serviceReference, pluginId)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void pluginUnLoaded(GoPluginDescriptor descriptor) {
-            pluginChangeListenerDelegate.pluginUnLoaded(descriptor);
-        }
     }
 }

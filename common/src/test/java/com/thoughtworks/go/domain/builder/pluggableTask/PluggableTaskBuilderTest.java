@@ -78,8 +78,6 @@ public class PluggableTaskBuilderTest {
         HashMap<String, Map<String, String>> pluginConfig = new HashMap<>();
         when(pluggableTask.configAsMap()).thenReturn(pluginConfig);
         taskExtension = new TaskExtension(pluginManager);
-        when(pluginManager.hasReferenceFor(Task.class, TEST_PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.getPluginDescriptorFor(TEST_PLUGIN_ID)).thenReturn(mock(GoPluginDescriptor.class));
     }
 
     @After

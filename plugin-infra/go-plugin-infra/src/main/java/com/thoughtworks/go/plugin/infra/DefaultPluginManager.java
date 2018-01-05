@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,30 +91,8 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-        goPluginOSGiFramework.doOnAll(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches);
-    }
-
-    @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler) {
-        goPluginOSGiFramework.doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, exceptionHandler);
-    }
-
-    @Override
     public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
         return goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, actionToDoOnTheRegisteredServiceWhichMatches);
-    }
-
-    @Override
-    public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, action);
-    }
-
-    @Override
-    public <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        if (goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId)) {
-            doOn(serviceReferenceClass, pluginId, action);
-        }
     }
 
     @Override

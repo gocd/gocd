@@ -82,110 +82,6 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void shouldRunAnActionOnAllRegisteredImplementationsOfAGivenInterface() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-        registerServices(firstService, secondService);
-        spy.start();
-
-        spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
-        });
-
-        verify(firstService).someMethod();
-        verify(secondService).someMethod();
-        verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    @Test
-    public void shouldFailWithAnExceptionWhenAnExceptionHandlerIsNotProvided() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-        SomeInterface thirdService = mock(SomeInterface.class);
-
-        registerServices(firstService, secondService, thirdService);
-        spy.start();
-
-        RuntimeException exceptionToBeThrown = new RuntimeException("Ouch!");
-        doThrow(exceptionToBeThrown).when(secondService).someMethod();
-
-        try {
-            spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-                public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    obj.someMethod();
-                    assertThat(pluginDescriptor, is(descriptor));
-                }
-            });
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Ouch!"));
-            assertThat(e.getCause().getMessage(), is("Ouch!"));
-        }
-
-        verify(firstService).someMethod();
-        verify(secondService).someMethod();
-        verifyZeroInteractions(thirdService);
-        verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    @Test
-    public void shouldAllowHandlingExceptionsDuringRunningOfAnActionOnAllRegisteredImplementationsOfAGivenInterface() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-        SomeInterface thirdService = mock(SomeInterface.class);
-
-        registerServices(firstService, secondService, thirdService);
-        spy.start();
-
-        RuntimeException exceptionToBeThrown = new RuntimeException("Ouch!");
-
-        ExceptionHandler<SomeInterface> exceptionHandler = mock(ExceptionHandler.class);
-        doThrow(exceptionToBeThrown).when(secondService).someMethod();
-
-        spy.doOnAllWithExceptionHandling(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
-        }, exceptionHandler);
-
-        InOrder inOrder = inOrder(firstService, secondService, thirdService, exceptionHandler);
-        inOrder.verify(firstService).someMethod();
-        inOrder.verify(secondService).someMethod();
-        inOrder.verify(exceptionHandler).handleException(secondService, exceptionToBeThrown);
-        inOrder.verify(thirdService).someMethod();
-
-        verifyNoMoreInteractions(exceptionHandler, firstService, secondService, thirdService);
-    }
-
-    @Test
-    public void shouldDoNothingWhenTryingToRunOnAllImplementationsIfPluginsAreNotEnabled() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-
-        registerServices(firstService);
-
-        spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
-        });
-
-        verifyZeroInteractions(firstService);
-
-        ExceptionHandler exceptionHandler = mock(ExceptionHandler.class);
-        spy.doOnAllWithExceptionHandling(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-            }
-        }, exceptionHandler);
-
-        verifyZeroInteractions(firstService, exceptionHandler);
-    }
-
-    @Test
     public void doOnShouldRunAnActionOnSpecifiedPluginImplementationsOfAGivenInterface() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
@@ -201,60 +97,9 @@ public class FelixGoPluginOSGiFrameworkTest {
                 return obj.someMethodWithReturn();
             }
         });
-        spy.doOn(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-            @Override
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                obj.someMethod();
-            }
-        });
-
-        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
-                    }
-                }
-        );
 
         verify(firstService, never()).someMethodWithReturn();
         verify(secondService).someMethodWithReturn();
-        verify(secondService, times(2)).someMethod();
-        verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    @Test
-    public void doOnExceptionHandlingShouldRunAnActionOnSpecifiedPluginImplementationsOfAGivenInterfaceAndDelegateTheExceptionToTheHandler() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-
-        registerServices(firstService, secondService);
-        spy.start();
-
-        final RuntimeException expectedException = new RuntimeException("Exception Thrown By Spy Method");
-        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                        throw expectedException;
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
-                        assertThat(t, is(expectedException));
-                    }
-                }
-        );
-
-        verify(firstService, never()).someMethodWithReturn();
-        verify(secondService, never()).someMethodWithReturn();
-        verify(secondService).someMethod();
         verifyNoMoreInteractions(firstService, secondService);
     }
 
@@ -276,45 +121,6 @@ public class FelixGoPluginOSGiFrameworkTest {
                 }
             });
             fail("Should throw plugin framework exception");
-
-        } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("More than one reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
-        }
-
-        try {
-            spy.doOn(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                @Override
-                public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    obj.someMethod();
-                }
-            });
-            fail("Should throw plugin framework exception");
-
-        } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("More than one reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
-        }
-
-        try {
-            spy.doOnWithExceptionHandling(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                        @Override
-                        public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                            assertThat(pluginDescriptor, is(descriptor));
-                            obj.someMethod();
-                        }
-                    }, new ExceptionHandler<SomeInterface>() {
-                        @Override
-                        public void handleException(SomeInterface obj, Throwable t) {
-
-                        }
-                    }
-            );
-            fail("Should throw plugin framework exception");
-
         } catch (GoPluginFrameworkException ex) {
             assertThat(ex.getMessage().startsWith("More than one reference found"), is(true));
             assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName()), is(true));
@@ -352,110 +158,10 @@ public class FelixGoPluginOSGiFrameworkTest {
             assertThat(ex.getMessage().contains(symbolicName), is(true));
         }
 
-        try {
-            spy.doOn(SomeOtherInterface.class, symbolicName, new Action<SomeOtherInterface>() {
-                @Override
-                public void execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    throw new RuntimeException("Should Not Be invoked");
-                }
-            });
-            fail("Should throw plugin framework exception");
-
-        } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("No reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeOtherInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
-        }
-
-        try {
-            spy.doOnWithExceptionHandling(SomeOtherInterface.class, symbolicName, new Action<SomeOtherInterface>() {
-                        @Override
-                        public void execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                            assertThat(pluginDescriptor, is(descriptor));
-                            throw new RuntimeException("Should Not Be invoked");
-                        }
-                    }, new ExceptionHandler<SomeOtherInterface>() {
-                        @Override
-                        public void handleException(SomeOtherInterface obj, Throwable t) {
-
-                        }
-                    }
-            );
-            fail("Should throw plugin framework exception");
-
-        } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("No reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeOtherInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
-        }
-
         verify(firstService, never()).someMethodWithReturn();
         verify(secondService, never()).someMethodWithReturn();
         verify(secondService, never()).someMethod();
         verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    @Test
-    public void doOnAllShouldRunAnActionOnAllPluginExtensionsOfAGivenPluginJar() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-
-        String symbolicName = "same_symbolic_name";
-        registerServicesWithSameSymbolicName(symbolicName, firstService, secondService);
-        spy.start();
-        spy.doOnAllForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-            @Override
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                obj.someMethod();
-            }
-        });
-        verify(secondService).someMethod();
-        verify(firstService).someMethod();
-        verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    @Test
-    public void doOnAllWithExceptionHandlingShouldRunAnActionOnAllPluginExtensionsOfAGivenPluginJar() throws Exception {
-        SomeInterface firstService = mock(SomeInterface.class);
-        SomeInterface secondService = mock(SomeInterface.class);
-
-        String symbolicName = "same_symbolic_name";
-        registerServicesWithSameSymbolicName(symbolicName, firstService, secondService);
-        spy.start();
-        spy.doOnAllWithExceptionHandlingForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                        throw new RuntimeException("Dummy Exception");
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
-
-                    }
-                }
-        );
-        verify(secondService).someMethod();
-        verify(firstService).someMethod();
-        verifyNoMoreInteractions(firstService, secondService);
-    }
-
-    private void registerServicesWithSameSymbolicName(String symbolicName, SomeInterface... someInterfaces) throws InvalidSyntaxException {
-        ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
-            ServiceReference reference = mock(ServiceReference.class);
-            Bundle bundle = mock(Bundle.class);
-            when(reference.getBundle()).thenReturn(bundle);
-            when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
-            references.add(reference);
-        }
-        String propertyFormat = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, symbolicName);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
-
     }
 
     @Test
@@ -530,6 +236,21 @@ public class FelixGoPluginOSGiFrameworkTest {
         } catch (Exception e) {
             assertTrue(goPluginDescriptor.getStatus().isInvalid());
         }
+    }
+
+    private void registerServicesWithSameSymbolicName(String symbolicName, SomeInterface... someInterfaces) throws InvalidSyntaxException {
+        ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
+        for (int i = 0; i < someInterfaces.length; ++i) {
+            ServiceReference reference = mock(ServiceReference.class);
+            Bundle bundle = mock(Bundle.class);
+            when(reference.getBundle()).thenReturn(bundle);
+            when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
+            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
+            references.add(reference);
+        }
+        String propertyFormat = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, symbolicName);
+        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
+
     }
 
     private void registerServices(SomeInterface... someInterfaces) throws InvalidSyntaxException {

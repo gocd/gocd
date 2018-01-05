@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,32 +162,10 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldAllowRunningAnActionOnAllRegisteredImplementations() throws Exception {
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-
-        Action action = mock(Action.class);
-        pluginManager.doOnAll(SomeInterface.class, action);
-
-        verify(goPluginOSGiFramework).doOnAll(SomeInterface.class, action);
-    }
-
-    @Test
-    public void shouldAllowRunningAnActionOnASpecificPlugin() throws Exception {
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-
-        Action action = mock(Action.class);
-        String pluginId = "test-plugin-id";
-        pluginManager.doOn(SomeInterface.class, pluginId, action);
-
-        verify(goPluginOSGiFramework).doOn(SomeInterface.class, pluginId, action);
-    }
-
-    @Test
     public void shouldAllowRegistrationOfPluginChangeListenersForGivenServiceReferences() throws Exception {
         GoPlugginOSGiFrameworkStub frameworkStub = new GoPlugginOSGiFrameworkStub();
         PluginManager pluginManager = new DefaultPluginManager(monitor, registry, frameworkStub, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
 
-        Action action = mock(Action.class);
         String pluginId1 = "test-plugin-id-1";
         String pluginId2 = "test-plugin-id-2";
         GoPluginDescriptor descriptor1 = mock(GoPluginDescriptor.class);
@@ -220,35 +198,6 @@ public class DefaultPluginManagerTest {
         frameworkStub.pluginChangeListener.pluginUnLoaded(descriptor2);
         assertThat(pluginLoaded[0], is(2));
         assertThat(pluginUnloaded[0], is(2));
-    }
-
-    @Test
-    public void shouldAllowRunningAnActionOnASpecificPluginIfReferenceExists() throws Exception {
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-
-        Action action = mock(Action.class);
-        String pluginId1 = "test-plugin-id-1";
-        String pluginId2 = "test-plugin-id-2";
-        when(goPluginOSGiFramework.hasReferenceFor(SomeInterface.class, pluginId1)).thenReturn(true);
-        when(goPluginOSGiFramework.hasReferenceFor(SomeInterface.class, pluginId2)).thenReturn(false);
-        pluginManager.doOnIfHasReference(SomeInterface.class, pluginId1, action);
-        pluginManager.doOnIfHasReference(SomeInterface.class, pluginId2, action);
-
-        verify(goPluginOSGiFramework).hasReferenceFor(SomeInterface.class, pluginId1);
-        verify(goPluginOSGiFramework).hasReferenceFor(SomeInterface.class, pluginId2);
-        verify(goPluginOSGiFramework).doOn(SomeInterface.class, pluginId1, action);
-
-    }
-
-    @Test
-    public void shouldAllowRunningAnActionOnAllRegisteredImplementationsWithExceptionHandling() throws Exception {
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-
-        Action action = mock(Action.class);
-        ExceptionHandler exceptionHandler = mock(ExceptionHandler.class);
-        pluginManager.doOnAll(SomeInterface.class, action, exceptionHandler);
-
-        verify(goPluginOSGiFramework).doOnAllWithExceptionHandling(SomeInterface.class, action, exceptionHandler);
     }
 
     @Test
@@ -457,38 +406,8 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-
-        }
-
-        @Override
-        public <T> void doOnAllWithExceptionHandling(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> handler) {
-
-        }
-
-        @Override
         public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action) {
             return action.execute((T) serviceReferenceInstance, mock(GoPluginDescriptor.class));
-        }
-
-        @Override
-        public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-
-        }
-
-        @Override
-        public <T> void doOnWithExceptionHandling(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler) {
-
-        }
-
-        @Override
-        public <T> void doOnAllForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-
-        }
-
-        @Override
-        public <T> void doOnAllWithExceptionHandlingForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler) {
-
         }
 
         @Override

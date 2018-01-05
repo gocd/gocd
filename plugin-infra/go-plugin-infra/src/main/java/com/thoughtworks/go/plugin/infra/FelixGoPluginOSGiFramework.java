@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,45 +188,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return config;
     }
 
-    @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-        doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, new ExceptionHandler<T>() {
-            @Override
-            public void handleException(T obj, Throwable t) {
-                throw new RuntimeException(t.getMessage(), t);
-            }
-        });
-    }
-
-    @Override
-    public <T> void doOnAllWithExceptionHandling(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-        BundleContext bundleContext = framework.getBundleContext();
-
-
-        Collection<ServiceReference<T>> matchingServiceReferences;
-        try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, null);
-        } catch (InvalidSyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (ServiceReference<T> currentServiceReference : matchingServiceReferences) {
-
-            T service = bundleContext.getService(currentServiceReference);
-            GoPluginDescriptor descriptor = getDescriptorFor(currentServiceReference);
-            try {
-
-                actionToDoOnEachRegisteredServiceWhichMatches.execute(service, descriptor);
-            } catch (Throwable t) {
-                handler.handleException(service, t);
-            }
-        }
-    }
-
     private <T> GoPluginDescriptor getDescriptorFor(ServiceReference<T> serviceReference) {
         String symbolicName = serviceReference.getBundle().getSymbolicName();
         return registry.getPlugin(symbolicName);
@@ -247,47 +208,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     @Override
-    public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        doOnWithExceptionHandling(serviceReferenceClass, pluginId, action, null);
-    }
-
-    @Override
-    public <T> void doOnWithExceptionHandling(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-
-        BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
-        ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
-        T service = bundleContext.getService(serviceReference);
-        executeActionOnTheService(action, service, getDescriptorFor(serviceReference), handler);
-
-    }
-
-    @Override
-    public <T> void doOnAllForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        doOnAllWithExceptionHandlingForPlugin(serviceReferenceClass, pluginId, action, null);
-    }
-
-    @Override
-    public <T> void doOnAllWithExceptionHandlingForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action,
-                                                          ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-
-        BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
-        for (ServiceReference<T> serviceReference : matchingServiceReferences) {
-            T service = bundleContext.getService(serviceReference);
-            executeActionOnTheService(action, service, getDescriptorFor(serviceReference), handler);
-        }
-    }
-
-    @Override
     public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
@@ -297,18 +217,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         BundleContext bundleContext = framework.getBundleContext();
         Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
         return !matchingServiceReferences.isEmpty();
-    }
-
-    private <T> void executeActionOnTheService(Action<T> action, T service, GoPluginDescriptor goPluginDescriptor, ExceptionHandler<T> handler) {
-        try {
-            action.execute(service, goPluginDescriptor);
-        } catch (Throwable t) {
-            if (handler != null) {
-                handler.handleException(service, t);
-            } else {
-                throw new RuntimeException(t.getMessage(), t);
-            }
-        }
     }
 
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {

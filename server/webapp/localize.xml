@@ -22,6 +22,7 @@
     <entry key="PIPELINES">PIPELINES</entry>
     <entry key="PIPELINES_TITILEZED">Pipelines</entry>
     <entry key="AGENTS">AGENTS</entry>
+    <entry key="ANALYTICS">ANALYTICS</entry>
     <entry key="ERRORS_COUNT">Errors: {0}</entry>
     <entry key="UNIQUE_ERRORS_COUNT">Unique Errors: {0}</entry>
     <entry key="TOTAL_ERRORS_COUNT">Total Errors: {0}</entry>

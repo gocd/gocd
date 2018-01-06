@@ -41,6 +41,11 @@
         <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
             <%= link_to l.string('AGENTS'), main_app.agents_path -%>
         </li>
+        <% with_analytics_dashboard_support do %>
+            <li id='cruise-header-tab-analytics' class="<%= "current" if @current_tab_name == "analytics" %>">
+                <%= link_to l.string('ANALYTICS'), main_app.analytics_path -%>
+            </li>
+        <% end %>
         <li id="cruise-header-tab-admin" class="<%="current" if @current_tab_name == "admin"%>">
             <%
                admin_header_link_label = l.string("ADMIN")

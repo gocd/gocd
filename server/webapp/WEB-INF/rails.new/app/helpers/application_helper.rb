@@ -503,12 +503,16 @@ module ApplicationHelper
     plugin_info.supportsStatusReport()
   end
 
+  def supports_analytics_dashboard?
+    !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |plugin|
+      plugin.getCapabilities().supportsAnalyticsDashboard()
+    end.nil?
+  end
+
   def with_analytics_dashboard_support(&block)
     return unless block_given?
 
-    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |plugin|
-      yield if plugin.getCapabilities().supportsAnalyticsDashboard()
-    end
+    yield if supports_analytics_dashboard?
   end
 
   private

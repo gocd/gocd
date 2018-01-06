@@ -43,6 +43,19 @@ describe "/shared/_application_nav.html.erb" do
         end
       end
     end
+
+    it 'should have analytics header link when plugin supports dashboard' do
+      expect(view).to receive(:supports_analytics_dashboard?).and_return(true)
+      render :partial => partial_page
+
+      assert_header_values = {'pipelines' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'analytics' => 'ANALYTICS', 'admin' => 'ADMIN'}
+
+      assert_header_values.each do |key, value|
+        Capybara.string(response.body).find("li#cruise-header-tab-#{key}").tap do |ul_tabs_li|
+          expect(ul_tabs_li).to have_selector("a", text: value)
+        end
+      end
+    end
   end
 
   describe "user name and logout" do

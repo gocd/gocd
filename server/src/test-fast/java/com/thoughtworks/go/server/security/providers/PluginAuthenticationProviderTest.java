@@ -122,7 +122,6 @@ public class PluginAuthenticationProviderTest {
         assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
         assertThat(goUserPrincipal.getAuthorities().length, is(1));
         assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
-        assertTrue(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
     }
 
     @Test(expected = BadCredentialsException.class)
@@ -289,7 +288,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com", true);
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com");
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 
@@ -333,7 +332,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null, true);
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 

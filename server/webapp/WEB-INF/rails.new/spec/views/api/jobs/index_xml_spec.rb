@@ -86,8 +86,6 @@ describe "/api/jobs" do
       artifacts = entry.xpath("artifacts[@baseUri='http://test.host/artifacts-url'][@pathFromArtifactRoot='/artifacts-path']")
       expect(artifacts).to_not be_nil_or_empty
       artifacts.tap do |node|
-        expect(node.xpath("artifact[@dest='blahartifact/path'][@src='artifact'][@type='file']")).to_not be_nil_or_empty
-        expect(node.xpath("artifact[@dest='log-path'][@src='logs/log-artifact'][@type='file']")).to_not be_nil_or_empty
         expect(node.xpath("artifact[@dest=''][@src='test.xml'][@type='unit']")).to_not be_nil_or_empty
       end
       expect(entry.xpath("agent[@uuid='UUID']")).to_not be_nil_or_empty
@@ -137,12 +135,12 @@ describe "/api/jobs" do
       expect(root.valueOf("//property/.")).to eq("val<ue_of_prop\"erty_foo")
       expect(root.valueOf("//agent/@uuid")).to eq("1234")
       expect(root.valueOf("//artifacts/@pathFromArtifactRoot")).to eq("/artifacts-path")
-      expect(root.valueOf("//artifact[1]/@dest")).to eq("blah<artif\"act/path")
-      expect(root.valueOf("//artifact[2]/@dest")).to eq("log-path")
-      expect(root.valueOf("//artifact[3]/@dest")).to eq("")
-      expect(root.valueOf("//artifact[1]/@src")).to eq("artifact")
-      expect(root.valueOf("//artifact[2]/@src")).to eq("logs/log-arti\"fact")
-      expect(root.valueOf("//artifact[3]/@src")).to eq("te<s\"t.xml")
+      # expect(root.valueOf("//artifact[1]/@dest")).to eq("blah<artif\"act/path")
+      # expect(root.valueOf("//artifact[2]/@dest")).to eq("log-path")
+      expect(root.valueOf("//artifact[1]/@dest")).to eq("")
+      # expect(root.valueOf("//artifact[1]/@src")).to eq("artifact")
+      # expect(root.valueOf("//artifact[2]/@src")).to eq("logs/log-arti\"fact")
+      expect(root.valueOf("//artifact[1]/@src")).to eq("te<s\"t.xml")
     end
   end
 end

@@ -543,6 +543,10 @@ task war(type: Jar) {
     into('WEB-INF/classes')
   }
 
+  from("${project(':server').projectDir}/webapp/WEB-INF/rails.new/app/assets/javascripts/plugin-endpoint.js") {
+    into('WEB-INF/classes')
+  }
+
   from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
     into '/'
   }

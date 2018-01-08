@@ -40,6 +40,7 @@ public class DevelopmentServer {
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
         copyDbFiles();
+        copyPluginAssets();
         File webApp = new File("webapp");
         if (!webApp.exists()) {
             throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
@@ -96,6 +97,11 @@ public class DevelopmentServer {
         if (!new File("db/h2db/cruise.h2.db").exists()) {
             FileUtils.copyDirectoryToDirectory(new File("db/dbtemplate/h2db"), new File("db/"));
         }
+    }
+
+    private static void copyPluginAssets() throws IOException {
+        File classPathRoot = new File(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        FileUtils.copyFile(new File("webapp/WEB-INF/rails.new/app/assets/javascripts/plugin-endpoint.js"), new File(classPathRoot, "plugin-endpoint.js"));
     }
 
     private static void assertActivationJarPresent() throws IOException {

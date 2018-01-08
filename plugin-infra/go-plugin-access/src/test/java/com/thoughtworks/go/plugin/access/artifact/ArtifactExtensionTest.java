@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -311,7 +312,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldNotExposePluginSettings() throws Exception {
+    public void shouldNotExposePluginSettings() {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch Plugin Settings is not supported by Artifact endpoint.");
 
@@ -319,10 +320,31 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldNotExposeServerInfo() throws Exception {
+    public void shouldNotExposeServerInfo() {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch Server Info is not supported by Artifact endpoint.");
 
         artifactExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
+    }
+
+    @Test
+    public void allRequestMustHaveRequestPrefix() {
+        assertThat(REQUEST_PREFIX, is("cd.go.artifact"));
+
+        assertThat(REQUEST_STORE_CONFIG_METADATA, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_STORE_CONFIG_VIEW, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_STORE_CONFIG_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+
+        assertThat(REQUEST_PUBLISH_ARTIFACT_METADATA, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_PUBLISH_ARTIFACT_VIEW, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_PUBLISH_ARTIFACT_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+
+        assertThat(REQUEST_FETCH_ARTIFACT_METADATA, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_FETCH_ARTIFACT_VIEW, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_FETCH_ARTIFACT_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+
+        assertThat(REQUEST_PUBLISH_ARTIFACT, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_FETCH_ARTIFACT, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_PLUGIN_ICON, Matchers.startsWith(REQUEST_PREFIX));
     }
 }

@@ -147,7 +147,7 @@ describe Admin::StatusReportsController do
 
     it 'should return the status report for an available plugin' do
       elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')
-      allow(elastic_agent_extension).to receive(:getElasticAgentStatusReport).with('com.tw.myplugin', 'agent1').and_return('status_report')
+      allow(elastic_agent_extension).to receive(:getAgentStatusReport).with('com.tw.myplugin', 'agent1').and_return('status_report')
 
       allow(controller).to receive(:elastic_agent_extension).and_return(elastic_agent_extension)
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
@@ -162,7 +162,7 @@ describe Admin::StatusReportsController do
 
     it 'should be not found if plugin does not support status_report endpoint' do
       elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')
-      allow(elastic_agent_extension).to receive(:getElasticAgentStatusReport).with('com.tw.myplugin', 'agent1').and_raise(java.lang.UnsupportedOperationException.new)
+      allow(elastic_agent_extension).to receive(:getAgentStatusReport).with('com.tw.myplugin', 'agent1').and_raise(java.lang.UnsupportedOperationException.new)
 
       allow(controller).to receive(:elastic_agent_extension).and_return(elastic_agent_extension)
 

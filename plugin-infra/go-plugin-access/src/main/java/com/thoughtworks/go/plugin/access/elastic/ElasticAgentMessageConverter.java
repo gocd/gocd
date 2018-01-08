@@ -49,5 +49,5 @@ public interface ElasticAgentMessageConverter {
 
     com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
 
-    String getElasticAgentStatusReportRequestBody(String elasticAgentId);
+    String getAgentStatusReportRequestBody(String elasticAgentId);
 }

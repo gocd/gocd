@@ -118,8 +118,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         return new ImageDeserializer().fromJSON(responseBody);
     }
 
-    @Override
-    public String getElasticAgentStatusReportRequestBody(String elasticAgentId) {
+    public String getAgentStatusReportRequestBody(String elasticAgentId) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
         return GSON.toJson(jsonObject);

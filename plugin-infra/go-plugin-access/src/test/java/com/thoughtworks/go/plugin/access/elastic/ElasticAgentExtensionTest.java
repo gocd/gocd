@@ -84,11 +84,11 @@ public class ElasticAgentExtensionTest {
                 "\"view\": \"foo\"\n" +
                 "}"));
 
-        final String statusReport = new ElasticAgentExtension(pluginManager).getElasticAgentStatusReport("ecs.plugin", "elastic-agent-id");
+        final String statusReport = new ElasticAgentExtension(pluginManager).getAgentStatusReport("ecs.plugin", "elastic-agent-id");
 
         assertThat(statusReport, is("foo"));
         assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));
-        assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_ELASTIC_AGENT_STATUS_REPORT));
+        assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_AGENT_STATUS_REPORT));
     }
 
     @Test

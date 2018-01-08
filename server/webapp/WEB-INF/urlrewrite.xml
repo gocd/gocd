@@ -143,9 +143,16 @@
     </rule>
 
     <rule>
-        <name>Rails Status Reports show call</name>
+        <name>Rails Status Reports index call</name>
         <from>^/admin/status_reports/(.*)$</from>
-        <to last="true">/rails/admin/status_reports/${escape:$1}</to>
+        <to last="true">/rails/admin/status_reports/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Status Reports show call</name>
+        <from>^/admin/status_reports/([^/]+)/(.*)</from>
+        <to last="true">/rails/admin/status_reports/$1/$2</to>
         <set name="rails_bound">true</set>
     </rule>
 

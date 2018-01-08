@@ -22,7 +22,7 @@ import java.util.List;
 public interface ArtifactExtensionConstants {
     List<String> SUPPORTED_VERSIONS = Arrays.asList(ArtifactMessageConverterV1.VERSION);
 
-    String REQUEST_PREFIX = "go.cd.artifact";
+    String REQUEST_PREFIX = "cd.go.artifact";
     String REQUEST_STORE_CONFIG_METADATA = String.join(".", REQUEST_PREFIX, "store", "get-metadata");
     String REQUEST_STORE_CONFIG_VIEW = String.join(".", REQUEST_PREFIX, "store", "get-view");
     String REQUEST_STORE_CONFIG_VALIDATE = String.join(".", REQUEST_PREFIX, "store", "validate");

@@ -80,7 +80,8 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         userService.addUserIfDoesNotExist(toDomainUser(user));
-        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication), true);
+        GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "",
+                authorityGranter.authorities(user.getUsername()), loginName(username, authentication));
         return goUserPrinciple;
     }
 
@@ -128,11 +129,6 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
             LOGGER.debug("[Authenticate] Authentication failed for user: `{}` using the authorization plugin: `{}`", loginName, pluginId);
         }
         return null;
-    }
-
-    private GoUserPrinciple getGoUserPrinciple(User user, String loginName, boolean requiresPeriodicReAuthentication) {
-        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true,
-                authorityGranter.authorities(user.getUsername()), loginName, requiresPeriodicReAuthentication);
     }
 
     @Override

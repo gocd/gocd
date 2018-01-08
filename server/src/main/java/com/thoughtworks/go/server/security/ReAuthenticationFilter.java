@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.springframework.security.Authentication;
@@ -44,7 +43,7 @@ public class ReAuthenticationFilter extends SpringSecurityFilter {
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!systemEnvironment.isReAuthenticationEnabled() || (authentication == null) || !authenticatedUsingAuthorizationPlugin(authentication)) {
+        if (!systemEnvironment.isReAuthenticationEnabled() || authentication == null) {
             chain.doFilter(request, response);
             return;
         }
@@ -69,12 +68,5 @@ public class ReAuthenticationFilter extends SpringSecurityFilter {
 
     private boolean forceReAuthentication(Long lastAuthenticationTime) {
         return (timeProvider.currentTimeMillis() - lastAuthenticationTime) > systemEnvironment.getReAuthenticationTimeInterval();
-    }
-
-    private boolean authenticatedUsingAuthorizationPlugin(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof GoUserPrinciple) {
-            return ((GoUserPrinciple) (authentication.getPrincipal())).authenticatedUsingAuthorizationPlugin();
-        }
-        return false;
     }
 }

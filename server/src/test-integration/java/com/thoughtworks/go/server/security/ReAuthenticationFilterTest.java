@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.security.ReAuthenticationFilter.LAST_REAUTHENICATION_CHECK_TIME;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -85,6 +86,7 @@ public class ReAuthenticationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         verifyNoMoreInteractions(filterChain);
+        verify(session, times(0)).setAttribute(eq(LAST_REAUTHENICATION_CHECK_TIME), anyString());
     }
 
     @Test
@@ -95,6 +97,7 @@ public class ReAuthenticationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         verifyNoMoreInteractions(filterChain);
+        verify(session, times(0)).setAttribute(eq(LAST_REAUTHENICATION_CHECK_TIME), anyString());
     }
 
     @Test
@@ -133,7 +136,7 @@ public class ReAuthenticationFilterTest {
 
         filter.doFilterHttp(request, response, filterChain);
 
-        verify(session).setAttribute(ReAuthenticationFilter.LAST_REAUTHENICATION_CHECK_TIME, currentTimeMillis);
+        verify(session).setAttribute(LAST_REAUTHENICATION_CHECK_TIME, currentTimeMillis);
         verify(filterChain).doFilter(request, response);
         verifyNoMoreInteractions(filterChain);
         assertTrue(authentication.isAuthenticated());
@@ -148,11 +151,11 @@ public class ReAuthenticationFilterTest {
         when(timeProvider.currentTimeMillis()).thenReturn(currentTimeMillis);
         when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
         when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(55000L);
-        when(session.getAttribute(ReAuthenticationFilter.LAST_REAUTHENICATION_CHECK_TIME)).thenReturn(minuteBack);
+        when(session.getAttribute(LAST_REAUTHENICATION_CHECK_TIME)).thenReturn(minuteBack);
 
         filter.doFilterHttp(request, response, filterChain);
 
-        verify(session).setAttribute(ReAuthenticationFilter.LAST_REAUTHENICATION_CHECK_TIME, currentTimeMillis);
+        verify(session).setAttribute(LAST_REAUTHENICATION_CHECK_TIME, currentTimeMillis);
         verify(filterChain).doFilter(request, response);
         verifyNoMoreInteractions(filterChain);
         assertFalse(authentication.isAuthenticated());
@@ -161,7 +164,7 @@ public class ReAuthenticationFilterTest {
     private Authentication setupAuthentication(boolean authenticatedUsingAuthorizationPlugin) {
         GrantedAuthority[] authorities = {};
         Authentication authentication = new TestingAuthenticationToken(new GoUserPrinciple("user", "displayName", "password",
-                true, true,true, true, authorities, "loginName", authenticatedUsingAuthorizationPlugin), null, authorities);
+                true, true, true, true, authorities, "loginName"), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authentication.setAuthenticated(true);
 

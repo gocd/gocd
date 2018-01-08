@@ -119,6 +119,13 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
     }
 
     @Override
+    public String getElasticAgentStatusReportRequestBody(String elasticAgentId) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("elastic_agent_id", elasticAgentId);
+        return GSON.toJson(jsonObject);
+    }
+
+    @Override
     public ValidationResult getValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
     }

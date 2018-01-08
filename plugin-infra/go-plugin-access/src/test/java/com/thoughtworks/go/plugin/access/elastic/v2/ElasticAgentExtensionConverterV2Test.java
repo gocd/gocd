@@ -110,6 +110,15 @@ public class ElasticAgentExtensionConverterV2Test {
     }
 
     @Test
+    public void shouldJSONizeElasticAgentStatusReportRequestBody() throws Exception {
+        String elasticAgentId = "my-fancy-elastic-agent-id";
+        String actual = new ElasticAgentExtensionConverterV2().getElasticAgentStatusReportRequestBody(elasticAgentId);
+        String expected = String.format("{\"elastic_agent_id\": \"%s\"}", elasticAgentId);
+
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
+    }
+
+    @Test
     public void shouldJSONizesListAgentsResponseBody() throws Exception {
         String json = new ElasticAgentExtensionConverterV2().listAgentsResponseBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
         JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", JSONCompareMode.NON_EXTENSIBLE);

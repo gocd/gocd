@@ -39,14 +39,14 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     @Override
     public String getPipelineAnalyticsRequestBody(String pipelineName) {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("type", "pipeline");
+        requestMap.put("type", TYPE_PIPELINE);
         requestMap.put("data", Collections.singletonMap("pipeline_name", pipelineName));
 
         return GSON.toJson(requestMap);
     }
 
     @Override
-    public AnalyticsData getPipelineAnalyticsFromResponseBody(String responseBody) {
+    public AnalyticsData getAnalyticsFromResponseBody(String responseBody) {
         com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData analyticsData = com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.fromJSON(responseBody);
 
         if (!analyticsData.isValid()) {
@@ -54,6 +54,11 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
         }
 
         return analyticsData.toAnalyticsData();
+    }
+
+    @Override
+    public String getDashboardAnalyticsRequestBody() {
+        return GSON.toJson(Collections.singletonMap("type", TYPE_DASHBOARD));
     }
 
     @Override

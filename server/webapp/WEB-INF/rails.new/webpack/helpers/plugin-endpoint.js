@@ -29,7 +29,7 @@
       return;
     }
 
-    if (typeof ev.data !== "object") {
+    if ("object" !== typeof ev.data) {
       return;
     }
 
@@ -48,7 +48,7 @@
     handlers[ev.data.key](ev.data.body, function reply(key, message) { send(ev.source, key, message); });
   }
 
-  window.PluginEndpoint = {
+  module.exports = {
     ensure: function ensure() {
       if (!attached) {
         window.addEventListener("message", dispatch, false);

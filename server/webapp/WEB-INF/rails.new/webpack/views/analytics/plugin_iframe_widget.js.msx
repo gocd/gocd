@@ -1,0 +1,29 @@
+(function() {
+  "use strict";
+
+  const m = require("mithril");
+  const $ = require("jquery");
+
+  const PluginiFrameWidget = {
+    oncreate(vnode) {
+      $.ajax({
+        url: vnode.attrs.url,
+        type: "GET",
+        dataType: "json"
+      }).done((r) => {
+        vnode.dom.onload = () => {
+          console.log(r.data)
+          vnode.dom.contentWindow.postMessage({key: "analytics.dashboard", body: r.data}, "*");
+        };
+        vnode.dom.setAttribute("src", r.view_path);
+      });
+    },
+
+    view() {
+      return <iframe sandbox="allow-scripts"></iframe>;
+    }
+  };
+
+  module.exports = PluginiFrameWidget;
+
+})();

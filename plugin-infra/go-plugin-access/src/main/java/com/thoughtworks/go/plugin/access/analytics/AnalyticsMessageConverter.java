@@ -20,11 +20,16 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 
 public interface AnalyticsMessageConverter {
+    String TYPE_PIPELINE = "pipeline";
+    String TYPE_DASHBOARD = "dashboard";
+
     com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
     String getPipelineAnalyticsRequestBody(String pipelineName);
 
-    AnalyticsData getPipelineAnalyticsFromResponseBody(String responseBody);
+    AnalyticsData getAnalyticsFromResponseBody(String responseBody);
+
+    String getDashboardAnalyticsRequestBody();
 
     String getStaticAssets(String responseBody);
 

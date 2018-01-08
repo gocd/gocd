@@ -110,6 +110,28 @@ public class AnalyticsExtensionTest {
     }
 
     @Test
+    public void shouldTalkToPlugin_To_GetDashboardAnalytics() throws Exception {
+        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
+                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
+                null, null, null);
+        pluginInfo.setStaticAssetsPath("/assets/root");
+        metadataStore.setPluginInfo(pluginInfo);
+
+        AnalyticsData dashboardAnalytics = analyticsExtension.getDashboardAnalytics(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"dashboard\"}");
+
+        assertThat(dashboardAnalytics.getViewPath(), is("path/to/view"));
+
+        Map<String, String> expected = new HashMap<>();
+        expected.put("data", "{}");
+        expected.put("view_path", "/assets/root/path/to/view");
+        assertEquals(expected, dashboardAnalytics.toMap());
+    }
+
+    @Test
     public void shouldFetchStaticAssets() throws Exception {
         String responseBody = "{ \"assets\": \"assets payload\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));

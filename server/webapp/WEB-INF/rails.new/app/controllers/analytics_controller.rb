@@ -24,6 +24,14 @@ class AnalyticsController < ApplicationController
 
   def index
     @view_title = 'Analytics'
+    @plugin_ids = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject([]) do |memo, plugin|
+      memo << plugin.getDescriptor().id() if plugin.getCapabilities().supportsAnalyticsDashboard()
+      memo
+    end
+  end
+
+  def dashboard
+    render :json => analytics_extension.getDashboardAnalytics(params[:plugin_id]).toMap().to_h
   end
 
   def pipeline

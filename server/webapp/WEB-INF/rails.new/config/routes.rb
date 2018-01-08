@@ -162,6 +162,7 @@ Go::Application.routes.draw do
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
   resources :analytics, only: [:index], controller: "analytics"
+  get 'analytics/:plugin_id'=> 'analytics#dashboard', constraints: {plugin_id: PLUGIN_ID_FORMAT}, as: :dashboard_analytics
   get 'analytics/:plugin_id/:pipeline_name' => 'analytics#pipeline', constraints: {plugin_id: PLUGIN_ID_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_analytics
 
   scope 'pipelines' do

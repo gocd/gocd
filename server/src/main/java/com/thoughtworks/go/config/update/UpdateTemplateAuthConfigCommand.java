@@ -34,8 +34,7 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
     public void update(CruiseConfig modifiedConfig) throws Exception {
         PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
         TemplatesConfig templatesConfig = modifiedConfig.getTemplates();
-        templatesConfig.removeTemplateNamed(existingTemplateConfig.name());
-        templatesConfig.add(templateConfig);
+        existingTemplateConfig.setAuthorization(templateConfig.getAuthorization());
         modifiedConfig.setTemplates(templatesConfig);
     }
 }

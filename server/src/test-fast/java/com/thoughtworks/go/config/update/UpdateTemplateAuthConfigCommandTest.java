@@ -55,7 +55,7 @@ public class UpdateTemplateAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldReplaceTemplateAuthorizationWhileUpdatingTheTemplate() throws Exception {
+    public void shouldReplaceOnlyTemplateAuthorizationWhileUpdatingTheTemplate() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
         Authorization templateAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
@@ -65,8 +65,8 @@ public class UpdateTemplateAuthConfigCommandTest {
         UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
-        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(false));
         Authorization expectedTemplateAuthorization = cruiseConfig.getTemplateByName(updatedTemplateConfig.name()).getAuthorization();
         assertNotEquals(expectedTemplateAuthorization, authorization);
         assertThat(expectedTemplateAuthorization, is(templateAuthorization));

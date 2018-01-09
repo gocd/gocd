@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.messaging.plugin;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -27,6 +29,9 @@ import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class StageStatusPluginNotifier implements StageStatusListener {
@@ -49,7 +54,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
             String pipelineName = stage.getIdentifier().getPipelineName();
             String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
-            StageNotificationData data = new StageNotificationData(stage, buildCause, pipelineGroup);
+            StageNotificationData data = new StageNotificationData(stage, buildCause, pipelineGroup, stageNames(pipelineName));
             pluginNotificationQueue.post(new PluginNotificationMessage<>(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
         }
     }
@@ -60,5 +65,16 @@ public class StageStatusPluginNotifier implements StageStatusListener {
 
     private boolean isStageStateScheduledOrCompleted(Stage stage) {
         return stage.isScheduled() || stage.isReRun() || stage.getState().completed();
+    }
+
+    private List<String> stageNames(String pipelineName) {
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        List<String> stageNames = new ArrayList<>();
+
+        for (StageConfig stageConfig : pipelineConfig.getStages()) {
+            stageNames.add(stageConfig.name().toString());
+        }
+
+        return stageNames;
     }
 }

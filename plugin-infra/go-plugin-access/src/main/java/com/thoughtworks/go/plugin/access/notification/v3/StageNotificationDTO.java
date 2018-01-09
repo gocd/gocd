@@ -56,16 +56,20 @@ public class StageNotificationDTO {
         @SerializedName("build-cause")
         private List<MaterialRevisionDTO> buildCause;
         @Expose
+        @SerializedName("stages")
+        private List<String> stages;
+        @Expose
         @SerializedName("stage")
         private StageDTO stage;
 
-        public PipelineDTO(String name, Integer counter, String pipelineLabel, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage) {
+        public PipelineDTO(String name, Integer counter, String pipelineLabel, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage, List<String> stages) {
             this.name = name;
             this.counter = counter.toString();
             this.pipelineLabel = pipelineLabel;
             this.group = group;
             this.buildCause = buildCause;
             this.stage = stage;
+            this.stages = stages;
         }
     }
 

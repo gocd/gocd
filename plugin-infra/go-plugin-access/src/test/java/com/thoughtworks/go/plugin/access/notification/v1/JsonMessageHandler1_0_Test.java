@@ -255,7 +255,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t}\n" +
                 "}";
 
-        String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
+        String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group", null));
         JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
     }
 

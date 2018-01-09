@@ -358,7 +358,7 @@ Go::Application.routes.draw do
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
 
     get 'status_reports/:plugin_id' => 'status_reports#plugin_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :status_report
-    get 'status_reports/:plugin_id/:job_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
+    get 'status_reports/:plugin_id/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
 
     resources :plugins, only: [:index], controller: :plugins, as: :plugins
     namespace :security do

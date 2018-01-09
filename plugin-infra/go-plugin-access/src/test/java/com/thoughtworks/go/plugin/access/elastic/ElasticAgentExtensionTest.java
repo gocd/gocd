@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -84,7 +85,7 @@ public class ElasticAgentExtensionTest {
                 "\"view\": \"foo\"\n" +
                 "}"));
 
-        final String statusReport = new ElasticAgentExtension(pluginManager).getAgentStatusReport("ecs.plugin", "elastic-agent-id");
+        final String statusReport = new ElasticAgentExtension(pluginManager).getAgentStatusReport("ecs.plugin", new JobIdentifier(), "elastic-agent-id");
 
         assertThat(statusReport, is("foo"));
         assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));

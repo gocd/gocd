@@ -112,8 +112,19 @@ public class ElasticAgentExtensionConverterV2Test {
     @Test
     public void shouldJSONizeElasticAgentStatusReportRequestBody() throws Exception {
         String elasticAgentId = "my-fancy-elastic-agent-id";
-        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(elasticAgentId);
-        String expected = String.format("{\"elastic_agent_id\": \"%s\"}", elasticAgentId);
+        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(jobIdentifier, elasticAgentId);
+        String expected = String.format("{" +
+                "  \"elastic_agent_id\": \"%s\"," +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"test-pipeline\",\n" +
+                "    \"pipeline_counter\": 1,\n" +
+                "    \"pipeline_label\": \"Test Pipeline\",\n" +
+                "    \"stage_name\": \"test-stage\",\n" +
+                "    \"stage_counter\": \"1\",\n" +
+                "    \"job_name\": \"test-job\",\n" +
+                "    \"job_id\": 100\n" +
+                "  }\n" +
+                "}", elasticAgentId);
 
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
     }

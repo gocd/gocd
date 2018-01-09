@@ -35,8 +35,19 @@ module Admin
     def agent_status
       @view_title = 'Agent Status Report'
       @page_header = 'Agent Status Report'
-      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], params[:job_id])
-    rescue java.lang.UnsupportedOperationException => e
+
+      elastic_agent_id = nil
+
+      job_instance = job_instance_service.buildById params[:job_id].to_i
+      job_identifier = job_instance.getIdentifier
+
+      if job_instance.isAssignedToAgent
+        agent = agent_config_service.agents.getAgentByUuid job_instance.getAgentUuid
+        elastic_agent_id = agent.getElasticAgentId
+      end
+
+      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
+    rescue org.springframework.dao.DataRetrievalFailureException, java.lang.UnsupportedOperationException => e
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for job #{params[:job_id]} is not found.", 404
     rescue java.lang.Exception => e
       render_plugin_error e

@@ -103,7 +103,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String getAgentStatusReportRequestBody(String elasticAgentId) {
+    public String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId) {
         throw new UnsupportedOperationException();
     }
 

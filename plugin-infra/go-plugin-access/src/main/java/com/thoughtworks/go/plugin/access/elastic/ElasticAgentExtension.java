@@ -150,11 +150,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public String getAgentStatusReport(String pluginId, String elasticAgentId) {
+    public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).getAgentStatusReportRequestBody(elasticAgentId);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getAgentStatusReportRequestBody(identifier, elasticAgentId);
             }
 
             @Override

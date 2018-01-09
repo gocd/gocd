@@ -110,11 +110,20 @@ public class ElasticAgentExtensionConverterV2Test {
     }
 
     @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBody() throws Exception {
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
         String elasticAgentId = "my-fancy-elastic-agent-id";
-        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(jobIdentifier, elasticAgentId);
+        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(null, elasticAgentId);
         String expected = String.format("{" +
-                "  \"elastic_agent_id\": \"%s\"," +
+                "  \"elastic_agent_id\": \"%s\"" +
+                "}", elasticAgentId);
+
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
+    }
+
+    @Test
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
+        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(jobIdentifier, null);
+        String expected = "{" +
                 "  \"job_identifier\": {\n" +
                 "    \"pipeline_name\": \"test-pipeline\",\n" +
                 "    \"pipeline_counter\": 1,\n" +
@@ -124,7 +133,7 @@ public class ElasticAgentExtensionConverterV2Test {
                 "    \"job_name\": \"test-job\",\n" +
                 "    \"job_id\": 100\n" +
                 "  }\n" +
-                "}", elasticAgentId);
+                "}";
 
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
     }

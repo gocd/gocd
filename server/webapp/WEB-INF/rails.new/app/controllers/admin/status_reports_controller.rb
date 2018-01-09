@@ -22,7 +22,7 @@ module Admin
     before_action :check_admin_user_and_401
     before_action :load_plugin_info
 
-    def index
+    def plugin_status
       @view_title = 'Plugin Status Report'
       @page_header = 'Plugin Status Report'
       @status_report = elastic_agent_extension.getStatusReport(params[:plugin_id])
@@ -32,12 +32,12 @@ module Admin
       render_plugin_error e
     end
 
-    def show
-      @view_title = 'Plugin Status Report'
-      @page_header = 'Plugin Status Report'
-      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], params[:elastic_agent_id])
+    def agent_status
+      @view_title = 'Agent Status Report'
+      @page_header = 'Agent Status Report'
+      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], params[:job_id])
     rescue java.lang.UnsupportedOperationException => e
-      render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for elastic agent id #{params[:elastic_agent_id]} is not found.", 404
+      render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for job #{params[:job_id]} is not found.", 404
     rescue java.lang.Exception => e
       render_plugin_error e
     end

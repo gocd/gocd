@@ -21,7 +21,7 @@ describe Admin::StatusReportsController do
   describe "index" do
     describe "routes" do
       it 'should route to index' do
-        expect({:get => '/admin/status_reports/pluginId'}).to route_to(:controller => 'admin/status_reports', :action => 'index', :plugin_id => 'pluginId')
+        expect({:get => '/admin/status_reports/pluginId'}).to route_to(:controller => 'admin/status_reports', :action => 'plugin_status', :plugin_id => 'pluginId')
         expect(admin_status_report_path(:plugin_id => 'com.tw.myplugin')).to eq('/admin/status_reports/com.tw.myplugin')
       end
     end
@@ -39,20 +39,20 @@ describe Admin::StatusReportsController do
       it 'should be accessible only to admins' do
         login_as_admin
 
-        expect(controller).to allow_action(:get, :index, :plugin_id => 'com.tw.myplugin')
+        expect(controller).to allow_action(:get, :plugin_status, :plugin_id => 'com.tw.myplugin')
       end
 
       it 'should be inaccessible by non-admins' do
         login_as_group_admin
 
-        expect(controller).to disallow_action(:get, :index, :plugin_id => 'com.tw.myplugin')
+        expect(controller).to disallow_action(:get, :plugin_status, :plugin_id => 'com.tw.myplugin')
       end
 
       it 'should be accessible by all if security is disabled' do
         disable_security
         login_as_anonymous
 
-        expect(controller).to allow_action(:get, :index, :plugin_id => 'com.tw.myplugin')
+        expect(controller).to allow_action(:get, :plugin_status, :plugin_id => 'com.tw.myplugin')
       end
     end
 
@@ -61,7 +61,7 @@ describe Admin::StatusReportsController do
     end
 
     it 'should verify availability of plugin' do
-      get :index, :plugin_id => 'invalid_plugin_id'
+      get :plugin_status, :plugin_id => 'invalid_plugin_id'
 
       expect(response.response_code).to eq(404)
     end
@@ -75,7 +75,7 @@ describe Admin::StatusReportsController do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
 
-      get :index, :plugin_id => 'com.tw.myplugin'
+      get :plugin_status, :plugin_id => 'com.tw.myplugin'
 
       expect(response).to be_ok
       expect(assigns[:status_report]).to eq('status_report')
@@ -91,7 +91,7 @@ describe Admin::StatusReportsController do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
 
-      get :index, :plugin_id => 'com.tw.myplugin'
+      get :plugin_status, :plugin_id => 'com.tw.myplugin'
 
       expect(response.response_code).to eq(404)
     end
@@ -100,8 +100,8 @@ describe Admin::StatusReportsController do
   describe "show" do
     describe "routes" do
       it 'should route to show' do
-        expect({:get => '/admin/status_reports/pluginId/elasticAgentId'}).to route_to(:controller => 'admin/status_reports', :action => 'show', :plugin_id => 'pluginId', :elastic_agent_id => 'elasticAgentId')
-        expect(admin_agent_status_report_path(:plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1')).to eq('/admin/status_reports/com.tw.myplugin/agent1')
+        expect({:get => '/admin/status_reports/pluginId/elasticAgentId'}).to route_to(:controller => 'admin/status_reports', :action => 'agent_status', :plugin_id => 'pluginId', :job_id => 'elasticAgentId')
+        expect(admin_agent_status_report_path(:plugin_id => 'com.tw.myplugin', :job_id => 'agent1')).to eq('/admin/status_reports/com.tw.myplugin/agent1')
       end
     end
 
@@ -118,20 +118,20 @@ describe Admin::StatusReportsController do
       it 'should be accessible only to admins' do
         login_as_admin
 
-        expect(controller).to allow_action(:get, :show, :plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1')
+        expect(controller).to allow_action(:get, :agent_status, :plugin_id => 'com.tw.myplugin', :job_id => 'agent1')
       end
 
       it 'should be inaccessible by non-admins' do
         login_as_group_admin
 
-        expect(controller).to disallow_action(:get, :show, :plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1')
+        expect(controller).to disallow_action(:get, :agent_status, :plugin_id => 'com.tw.myplugin', :job_id => 'agent1')
       end
 
       it 'should be accessible by all if security is disabled' do
         disable_security
         login_as_anonymous
 
-        expect(controller).to allow_action(:get, :show, :plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1')
+        expect(controller).to allow_action(:get, :agent_status, :plugin_id => 'com.tw.myplugin', :job_id => 'agent1')
       end
     end
 
@@ -140,7 +140,7 @@ describe Admin::StatusReportsController do
     end
 
     it 'should verify availability of plugin' do
-      get :show, :plugin_id => 'invalid_plugin_id', :elastic_agent_id => 'agent1'
+      get :agent_status, :plugin_id => 'invalid_plugin_id', :job_id => 'agent1'
 
       expect(response.response_code).to eq(404)
     end
@@ -154,7 +154,7 @@ describe Admin::StatusReportsController do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
 
-      get :show, :plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1'
+      get :agent_status, :plugin_id => 'com.tw.myplugin', :job_id => 'agent1'
 
       expect(response).to be_ok
       expect(assigns[:agent_status_report]).to eq('status_report')
@@ -170,7 +170,7 @@ describe Admin::StatusReportsController do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
 
-      get :show, :plugin_id => 'com.tw.myplugin', :elastic_agent_id => 'agent1'
+      get :agent_status, :plugin_id => 'com.tw.myplugin', :job_id => 'agent1'
 
       expect(response.response_code).to eq(404)
     end

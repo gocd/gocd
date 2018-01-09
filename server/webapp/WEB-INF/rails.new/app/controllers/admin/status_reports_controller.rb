@@ -37,6 +37,10 @@ module Admin
       @view_title = 'Agent Status Report'
       @page_header = 'Agent Status Report'
 
+      if params[:elastic_agent_id].eql? 'unassigned' and (params[:job_id].nil? || params[:job_id].empty?)
+        return render_error_template 'Provide either elastic_agent_id or job_id for Status Report.', 422
+      end
+
       if params[:elastic_agent_id].eql? 'unassigned'
         agent_status_report_using_job_id
       else

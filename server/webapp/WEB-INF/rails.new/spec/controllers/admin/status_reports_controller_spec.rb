@@ -146,6 +146,16 @@ describe Admin::StatusReportsController do
       expect(response.response_code).to eq(404)
     end
 
+    it 'should be unprocessable entity when required parameters are not provided' do
+      capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
+      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
+
+      get :agent_status, :plugin_id => elastic_plugin_id, :elastic_agent_id => 'unassigned'
+
+      expect(response.response_code).to eq(422)
+    end
+
     it 'should return the status report for an available plugin' do
       agent_uuid = 'agent-uuid'
       elastic_agent_id = 'elastic_agent_1'
@@ -277,6 +287,16 @@ describe Admin::StatusReportsController do
       get :agent_status, :plugin_id => 'invalid_plugin_id', :elastic_agent_id => 'agent1'
 
       expect(response.response_code).to eq(404)
+    end
+
+    it 'should be unprocessable entity when required parameters are not provided' do
+      capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
+      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
+
+      get :agent_status, :plugin_id => elastic_plugin_id, :elastic_agent_id => 'unassigned'
+
+      expect(response.response_code).to eq(422)
     end
 
     it 'should return the status report for an available plugin' do

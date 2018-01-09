@@ -61,6 +61,7 @@
 //= require "lib/pako_inflate-1.0.5.js"
 //= require "lib/often-0.3.2.js"
 //= require "lib/component-emitter-1.2.1.js"
+//= require "plugin-endpoint.js"
 //= require "ansi_up.js"
 //= require "crel.js"
 //= require "json_to_css.js"

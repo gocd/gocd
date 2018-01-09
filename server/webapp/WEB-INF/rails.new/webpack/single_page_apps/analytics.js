@@ -6,7 +6,7 @@
 
   require("foundation-sites");
 
-  const PluginEndpoint     = require('helpers/plugin-endpoint');
+  const PluginEndpoint     = require('rails-shared/plugin-endpoint');
   const VersionUpdater     = require('models/shared/version_updater');
   const PluginiFrameWidget = require('views/analytics/plugin_iframe_widget');
   const Routes             = require('gen/js-routes');

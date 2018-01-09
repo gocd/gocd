@@ -29,6 +29,8 @@
       return;
     }
 
+    // We always expect data to be an object; this also has the nice
+    // side effect of ignoring bootstrap's test for window.postMessage()
     if ("object" !== typeof ev.data) {
       return;
     }
@@ -48,7 +50,7 @@
     handlers[ev.data.key](ev.data.body, function reply(key, message) { send(ev.source, key, message); });
   }
 
-  module.exports = {
+  const PluginEndpoint = {
     ensure: function ensure() {
       if (!attached) {
         window.addEventListener("message", dispatch, false);
@@ -71,4 +73,9 @@
     send: send
   };
 
+  if ("undefined" !== typeof module) {
+    module.exports = PluginEndpoint;
+  } else {
+    window.PluginEndpoint = PluginEndpoint;
+  }
 })();

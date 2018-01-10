@@ -32,45 +32,36 @@ module Admin
       render_plugin_error e
     end
 
-
     def agent_status
       @view_title = 'Agent Status Report'
       @page_header = 'Agent Status Report'
 
-      if params[:elastic_agent_id].eql? 'unassigned' and (params[:job_id].nil? || params[:job_id].empty?)
+      unless valid_params?
         return render_error_template 'Provide either elastic_agent_id or job_id for Status Report.', 422
       end
 
-      if params[:elastic_agent_id].eql? 'unassigned'
-        agent_status_report_using_job_id
-      else
-        agent_status_report_using_elastic_agent_id
-      end
+      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
     rescue org.springframework.dao.DataRetrievalFailureException, java.lang.UnsupportedOperationException
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for agent #{params[:elastic_agent_id]} is not found.", 404
     rescue java.lang.Exception => e
       render_plugin_error e
     end
 
-    def agent_status_report_using_job_id
-      elastic_agent_id = nil
-
-      job_instance = job_instance_service.buildById params[:job_id].to_i
-      job_identifier = job_instance.getIdentifier
-
-      if job_instance.isAssignedToAgent
-        agent = agent_config_service.agents.getAgentByUuid job_instance.getAgentUuid
-        elastic_agent_id = agent.getElasticAgentId
-      end
-
-      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
-    end
-
-    def agent_status_report_using_elastic_agent_id
-      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], nil, params[:elastic_agent_id])
-    end
-
     private
+    def elastic_agent_id
+      (params[:elastic_agent_id].eql? 'unassigned') ? nil : params[:elastic_agent_id]
+    end
+
+    def job_identifier
+      unless params[:job_id].blank?
+        job_instance = job_instance_service.buildById params[:job_id].to_i
+        job_instance.getIdentifier
+      end
+    end
+
+    def valid_params?
+      !(params[:elastic_agent_id].eql? 'unassigned' and params[:job_id].blank?)
+    end
 
     def load_plugin_info
       plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(params[:plugin_id])

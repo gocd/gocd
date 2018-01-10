@@ -157,34 +157,20 @@ describe Admin::StatusReportsController do
     end
 
     it 'should return the status report for an available plugin' do
-      agent_uuid = 'agent-uuid'
-      elastic_agent_id = 'elastic_agent_1'
-
       job_instance = double()
-      agent_instance = double()
-      agents = double()
 
       job_identifier = JobIdentifier.new('pipeline', 1, "label", "stage", "1", "100")
 
       elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')
       job_instance_service = instance_double('job-instance-service')
-      agent_config_service = instance_double('agent-config-service')
 
-      allow(elastic_agent_extension).to receive(:getAgentStatusReport).with(elastic_plugin_id, job_identifier, elastic_agent_id).and_return('status_report')
+      allow(elastic_agent_extension).to receive(:getAgentStatusReport).with(elastic_plugin_id, job_identifier, nil).and_return('status_report')
       allow(job_instance_service).to receive(:buildById).with(100).and_return(job_instance)
 
       allow(job_instance).to receive(:getIdentifier).and_return(job_identifier)
-      allow(job_instance).to receive(:isAssignedToAgent).and_return(true)
-      allow(job_instance).to receive(:getAgentUuid).and_return(agent_uuid)
-
-      allow(agent_instance).to receive(:getElasticAgentId).and_return(elastic_agent_id)
-
-      allow(agent_config_service).to receive(:agents).and_return(agents)
-      allow(agents).to receive(:getAgentByUuid).with(agent_uuid).and_return(agent_instance)
 
       allow(controller).to receive(:elastic_agent_extension).and_return(elastic_agent_extension)
       allow(controller).to receive(:job_instance_service).and_return(job_instance_service)
-      allow(controller).to receive(:agent_config_service).and_return(agent_config_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
       pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
@@ -223,7 +209,6 @@ describe Admin::StatusReportsController do
       expect(response).to be_ok
       expect(assigns[:agent_status_report]).to eq('status_report')
     end
-
 
     it 'should be not found if plugin does not support status_report endpoint' do
       elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')

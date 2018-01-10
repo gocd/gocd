@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 (function() {
   "use strict";
 
@@ -8,35 +24,37 @@
 
   const PluginEndpoint     = require('rails-shared/plugin-endpoint');
   const VersionUpdater     = require('models/shared/version_updater');
+  const Frame              = require('models/analytics/frame');
   const PluginiFrameWidget = require('views/analytics/plugin_iframe_widget');
   const Routes             = require('gen/js-routes');
+
+  const models = {};
 
   PluginEndpoint.ensure();
 
   PluginEndpoint.define({
-    "analytics.fetch-analytics-for-pipeline": (message, reply) => {
-      $("iframe[uid='" + message.uid + "']")[0];
-
-      $.ajax({
-        url: Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName}),
-        type: "GET",
-        dataType: "json"
-      }).done((r) => {
-        console.log(r);
-        console.log($("iframe[uid='" + message.uid + "']")[0]);
-      });
+    "analytics.pipeline": (message, reply) => {
+      let uid = message.uid;
+      models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName}));
+      m.redraw();
     }
   });
 
   document.addEventListener("DOMContentLoaded", () => {
     const main = document.getElementById("analytics-container");
-    let currentUid = 0;
+
   //loop plugin ids (data attribute), mount iframe widget, make call to dashboard (return viewpath + data), send message to iframe with data, set src to viewpath
     m.mount(main, {
       view() {
-        return $.map($(main).data("plugin-ids"), (id) => {
-          ++currentUid;
-          return m(PluginiFrameWidget, {url: Routes.dashboardAnalyticsPath({plugin_id: id}), pluginId: id, uid: "f-" + currentUid});
+        return $.map($(main).data("plugin-ids"), (id, idx) => {
+          let uid = "f-" + idx;
+
+          if (!models[uid]) {
+            models[uid] = new Frame();
+            models[uid].url(Routes.dashboardAnalyticsPath({plugin_id: id}));
+          }
+
+          return m(PluginiFrameWidget, {model: models[uid], pluginId: id, uid: uid});
         });
       }
     })

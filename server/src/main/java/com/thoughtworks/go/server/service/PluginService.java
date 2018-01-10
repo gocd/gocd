@@ -102,16 +102,17 @@ public class PluginService {
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
         ValidationResult result = null;
 
+        String extensionWhichCanHandleSettings = PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId);
         boolean anyExtensionSupportsPluginId = false;
         for (GoPluginExtension extension : extensions) {
-            if (extension.canHandlePlugin(pluginId)) {
+            if (extension.extensionName().equals(extensionWhichCanHandleSettings) && extension.canHandlePlugin(pluginId)) {
                 result = extension.validatePluginSettings(pluginId, configuration);
                 anyExtensionSupportsPluginId = true;
             }
         }
         if (!anyExtensionSupportsPluginId)
             throw new IllegalArgumentException(String.format(
-                    "Plugin '%s' is not supported by any extension point", pluginId));
+                    "Plugin '%s' does not exist or does not implement settings validation.", pluginId));
 
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {

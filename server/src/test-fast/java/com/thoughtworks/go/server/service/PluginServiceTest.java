@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
@@ -91,14 +92,19 @@ public class PluginServiceTest {
         configuration1.add(new PluginSettingsProperty("p1-k1"));
         configuration1.add(new PluginSettingsProperty("p1-k2"));
         configuration1.add(new PluginSettingsProperty("p1-k3"));
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-1", configuration1, "template-1");
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-1", PluginConstants.CONFIG_REPO_EXTENSION, configuration1, "template-1");
 
         PluginSettingsConfiguration configuration2 = new PluginSettingsConfiguration();
         configuration2.add(new PluginSettingsProperty("p2-k1"));
         configuration2.add(new PluginSettingsProperty("p2-k2"));
         configuration2.add(new PluginSettingsProperty("p2-k3"));
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", PluginConstants.CONFIG_REPO_EXTENSION, configuration2, "template-2");
 
+        when(packageRepositoryExtension.extensionName()).thenReturn(PluginConstants.PACKAGE_MATERIAL_EXTENSION);
+        when(scmExtension.extensionName()).thenReturn(PluginConstants.SCM_EXTENSION);
+        when(taskExtension.extensionName()).thenReturn(PluginConstants.PLUGGABLE_TASK_EXTENSION);
+        when(notificationExtension.extensionName()).thenReturn(PluginConstants.NOTIFICATION_EXTENSION);
+        when(configRepoExtension.extensionName()).thenReturn(PluginConstants.CONFIG_REPO_EXTENSION);
         extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
         pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService);
     }
@@ -121,7 +127,6 @@ public class PluginServiceTest {
         assertThat(pluginSettings.getValueFor("p2-k1"), is(""));
         assertThat(pluginSettings.getValueFor("p2-k2"), is(""));
         assertThat(pluginSettings.getValueFor("p2-k3"), is(""));
-
     }
 
     @Test
@@ -167,12 +172,13 @@ public class PluginServiceTest {
         pluginService.createPluginSettings(currentUser, result, pluginSettings);
 
         assertThat(result.httpCode(), is(422));
-        assertThat(result.toString(), containsString("Plugin 'non-existent-plugin' is not supported by any extension point"));
-
+        assertThat(result.toString(), containsString("Plugin 'non-existent-plugin' does not exist or does not implement settings validation"));
     }
 
     @Test
     public void shouldNotSavePluginSettingsIfPluginReturnsValidationErrors() {
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("some-plugin", PluginConstants.CONFIG_REPO_EXTENSION, null, null);
+
         PluginSettings pluginSettings = new PluginSettings("some-plugin");
         Username currentUser = new Username("admin");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -291,6 +297,8 @@ public class PluginServiceTest {
     public void shouldCallValidationOnPlugin() throws Exception {
         for (GoPluginExtension extension : extensions) {
             String pluginId = UUID.randomUUID().toString();
+            PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, extension.extensionName(), null, null);
+
             when(extension.canHandlePlugin(pluginId)).thenReturn(true);
             when(extension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
@@ -303,6 +311,8 @@ public class PluginServiceTest {
 
     @Test
     public void shouldTalkToPluginForPluginSettingsValidation_ConfigRepo() {
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.CONFIG_REPO_EXTENSION, null, null);
+
         when(configRepoExtension.isConfigRepoPlugin("plugin-id-4")).thenReturn(true);
         when(configRepoExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         when(configRepoExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
@@ -315,6 +325,8 @@ public class PluginServiceTest {
 
     @Test
     public void shouldUpdatePluginSettingsWithErrorsIfExists() {
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.NOTIFICATION_EXTENSION, null, null);
+
         when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("p4-k1", "m1"));
@@ -337,6 +349,8 @@ public class PluginServiceTest {
 
     @Test
     public void shouldNotUpdatePluginSettingsWithErrorsIfNotExists() {
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.NOTIFICATION_EXTENSION, null, null);
+
         when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 

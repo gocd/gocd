@@ -114,7 +114,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            stopAndUninstallBundle(bundle, bundleLocation);
+            handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
         }
     }
@@ -123,20 +123,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         String failureMsg = String.format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
                 bundleLocation, pluginDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);
-        stopAndUninstallBundle(bundle, bundleLocation);
-    }
-
-    private void stopAndUninstallBundle(Bundle bundle, File bundleLocation) {
-        if (bundle != null) {
-            try {
-                bundle.stop();
-                bundle.uninstall();
-            } catch (BundleException e) {
-                String stopFailMsg = "Failed to stop/uninstall bundle: " + bundleLocation;
-                LOGGER.error(stopFailMsg, e);
-                throw new RuntimeException(stopFailMsg, e);
-            }
-        }
+        unloadPlugin(pluginDescriptor);
     }
 
     @Override
@@ -147,10 +134,10 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
 
         try {
+            forAllDo(pluginChangeListeners, notifyPluginUnLoadedEvent(pluginDescriptor));
             bundle.stop();
             bundle.uninstall();
-            forAllDo(pluginChangeListeners, notifyPluginUnLoadedEvent(pluginDescriptor));
-        } catch (BundleException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to unload plugin: " + bundle, e);
         }
     }

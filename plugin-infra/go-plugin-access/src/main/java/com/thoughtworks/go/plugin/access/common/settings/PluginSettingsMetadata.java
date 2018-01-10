@@ -18,13 +18,15 @@ package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.config.PluginPreference;
 
-public class PluginSettings implements PluginPreference {
+public class PluginSettingsMetadata implements PluginPreference {
     private PluginSettingsConfiguration configuration;
     private String template;
+    private String extensionTypeWhichHandlesThisInThePlugin;
 
-    public PluginSettings(PluginSettingsConfiguration configuration, String template) {
+    public PluginSettingsMetadata(PluginSettingsConfiguration configuration, String template, String extensionTypeWhichHandlesThisInThePlugin) {
         this.configuration = configuration;
         this.template = template;
+        this.extensionTypeWhichHandlesThisInThePlugin = extensionTypeWhichHandlesThisInThePlugin;
     }
 
     public PluginSettingsConfiguration getConfiguration() {
@@ -41,5 +43,9 @@ public class PluginSettings implements PluginPreference {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public String extensionTypeWhichHandlesThis() {
+        return extensionTypeWhichHandlesThisInThePlugin;
     }
 }

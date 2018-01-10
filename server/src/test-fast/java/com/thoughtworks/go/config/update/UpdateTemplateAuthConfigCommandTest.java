@@ -62,12 +62,12 @@ public class UpdateTemplateAuthConfigCommandTest {
         updatedTemplateConfig.setAuthorization(templateAuthorization);
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(false));
-        Authorization expectedTemplateAuthorization = cruiseConfig.getTemplateByName(updatedTemplateConfig.name()).getAuthorization();
+        Authorization expectedTemplateAuthorization = cruiseConfig.getTemplateByName(pipelineTemplateConfig.name()).getAuthorization();
         assertNotEquals(expectedTemplateAuthorization, authorization);
         assertThat(expectedTemplateAuthorization, is(templateAuthorization));
 

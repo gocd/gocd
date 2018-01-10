@@ -117,8 +117,8 @@ public class TemplateConfigService {
         update(currentUser, result, command, templateConfig);
     }
 
-    public void updateTemplateAuthConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
-        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService);
+    public void updateTemplateAuthConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final Authorization authorization, final LocalizedOperationResult result, String md5) {
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(templateConfig, authorization, currentUser, securityService, result, md5, entityHashingService);
         update(currentUser, result, command, templateConfig);
     }
 

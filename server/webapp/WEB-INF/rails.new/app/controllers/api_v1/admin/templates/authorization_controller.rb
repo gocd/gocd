@@ -16,13 +16,14 @@
 
 module ApiV1
   module Admin
-    module Authorization
-      class TemplatesController < BaseController
-        CLONER = Cloner.new
+    module Templates
+      class AuthorizationController < BaseController
 
-        before_action :load_template, only: [:show, :update]
         before_action :check_admin_user_and_401
+        before_action :load_template, only: [:show, :update]
         before_action :check_for_stale_request, only: [:update]
+
+        CLONER = Cloner.new
 
         def show
           json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(@template.getAuthorization).to_hash(url_builder: self)
@@ -31,20 +32,21 @@ module ApiV1
 
         def update
           result = HttpLocalizedOperationResult.new
-          authorization = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(com.thoughtworks.go.config.Authorization.new).from_hash(params[:template])
+          authorization = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(com.thoughtworks.go.config.Authorization.new).from_hash(params[:authorization])
           updated_template = CLONER.deepClone(@template)
           updated_template.setAuthorization(authorization)
-          template_config_service.updateTemplateAuthConfig(current_user, updated_template, result, etag_for(@template))
-          handle_create_or_update_response(result, updated_template)
+          template_config_service.updateTemplateAuthConfig(current_user, updated_template, authorization, result, etag_for(@template))
+          handle_update_response(result, updated_template)
         end
-
+        
+        private
         def load_template(template_name = params[:template_name])
           result = HttpLocalizedOperationResult.new
           @template = template_config_service.loadForView(template_name, result)
           raise RecordNotFound unless @template
         end
 
-        def handle_create_or_update_response(result, updated_template)
+        def handle_update_response(result, updated_template)
           json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(updated_template.getAuthorization).to_hash(url_builder: self)
           if result.isSuccessful
             response.etag = [etag_for(updated_template)]

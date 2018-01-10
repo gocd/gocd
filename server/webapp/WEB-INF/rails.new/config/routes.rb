@@ -244,8 +244,9 @@ Go::Application.routes.draw do
           resources :roles, param: :role_name, except: [:new, :edit], constraints: {role_name: ROLE_NAME_FORMAT}
         end
 
-        namespace :authorization do
-          resources :templates, param: :template_name, only: [:show, :update], constraints: {template_name: ALLOW_DOTS}
+        namespace :templates do
+          get ':template_name/authorization' => 'authorization#show', constraints: {template_name: ALLOW_DOTS}
+          put ':template_name/authorization' => 'authorization#update', constraints: {template_name: ALLOW_DOTS}
         end
 
         post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection

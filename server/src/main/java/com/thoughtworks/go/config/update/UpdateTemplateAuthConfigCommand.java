@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.Authorization;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
@@ -26,15 +27,16 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand {
 
-    public UpdateTemplateAuthConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
+    private final Authorization authorization;
+
+    public UpdateTemplateAuthConfigCommand(PipelineTemplateConfig templateConfig, Authorization authorization, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
         super(templateConfig, currentUser, securityService, result, md5, entityHashingService);
+        this.authorization = authorization;
     }
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
         PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
-        TemplatesConfig templatesConfig = modifiedConfig.getTemplates();
-        existingTemplateConfig.setAuthorization(templateConfig.getAuthorization());
-        modifiedConfig.setTemplates(templatesConfig);
+        existingTemplateConfig.setAuthorization(authorization);
     }
 }

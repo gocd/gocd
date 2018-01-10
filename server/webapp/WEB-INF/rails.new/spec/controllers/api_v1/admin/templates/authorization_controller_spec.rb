@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-describe ApiV1::Admin::Authorization::TemplatesController do
+describe ApiV1::Admin::Templates::AuthorizationController do
   include ApiHeaderSetupTeardown
   include ApiV1::ApiVersionHelper
 
@@ -72,23 +72,23 @@ describe ApiV1::Admin::Authorization::TemplatesController do
     describe 'route' do
       describe 'with_header' do
         it 'should route to show action of templates controller for alphanumeric template name' do
-          expect(:get => 'api/admin/authorization/templates/foo123').to route_to(action: 'show', controller: 'api_v1/admin/authorization/templates', template_name: 'foo123')
+          expect(:get => 'api/admin/templates/foo123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo123')
         end
 
         it 'should route to show action of templates controller for template name with dots' do
-          expect(:get => 'api/admin/authorization/templates/foo.123').to route_to(action: 'show', controller: 'api_v1/admin/authorization/templates', template_name: 'foo.123')
+          expect(:get => 'api/admin/templates/foo.123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo.123')
         end
 
         it 'should route to show action of templates controller for template name with hyphen' do
-          expect(:get => 'api/admin/authorization/templates/foo-123').to route_to(action: 'show', controller: 'api_v1/admin/authorization/templates', template_name: 'foo-123')
+          expect(:get => 'api/admin/templates/foo-123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo-123')
         end
 
         it 'should route to show action of templates controller for template name with underscore' do
-          expect(:get => 'api/admin/authorization/templates/foo_123').to route_to(action: 'show', controller: 'api_v1/admin/authorization/templates', template_name: 'foo_123')
+          expect(:get => 'api/admin/templates/foo_123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo_123')
         end
 
         it 'should route to show action of templates controller for capitalized template name' do
-          expect(:get => 'api/admin/authorization/templates/FOO').to route_to(action: 'show', controller: 'api_v1/admin/authorization/templates', template_name: 'FOO')
+          expect(:get => 'api/admin/templates/FOO/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'FOO')
         end
       end
       describe 'without_header' do
@@ -96,8 +96,8 @@ describe ApiV1::Admin::Authorization::TemplatesController do
           teardown_header
         end
         it 'should not route to show action of templates controller without header' do
-          expect(:get => 'api/admin/authorization/templates/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/authorization/templates')
-          expect(:get => 'api/admin/authorization/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/authorization/templates/foo')
+          expect(:get => 'api/admin/templates/foo/authorization').to_not route_to(action: 'show', controller: 'api_v1/admin/templates/authorization')
+          expect(:get => 'api/admin/templates/foo/authorization').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo/authorization')
         end
       end
     end
@@ -108,7 +108,7 @@ describe ApiV1::Admin::Authorization::TemplatesController do
         @result =HttpLocalizedOperationResult.new
       end
 
-      it 'should render the template authorization for a given template' do
+      it 'should render the template templates for a given template' do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         expect(@template_config_service).to receive(:loadForView).with('template', @result).and_return(@template)
 
@@ -178,9 +178,9 @@ describe ApiV1::Admin::Authorization::TemplatesController do
         allow(controller).to receive(:etag_for).and_return('md5')
         allow(@template_config_service).to receive(:loadForView).with(anything, anything).and_return(@template)
 
-        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, anything)
+        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), anything, anything)
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, template_name: 'some-template', authorization: template_hash
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template.getAuthorization, ApiV1::Admin::Authorization::AuthorizationConfigRepresenter))
@@ -192,7 +192,7 @@ describe ApiV1::Admin::Authorization::TemplatesController do
 
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, template_name: 'some-template', authorization: template_hash
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Template 'some-template'. Please update your copy of the config with the changes." )
       end
@@ -200,11 +200,11 @@ describe ApiV1::Admin::Authorization::TemplatesController do
       it 'should proceed with update if etag matches.' do
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
 
-        expect(@template_config_service).to receive(:loadForView).with('some-template', anything).and_return(@template)
+        allow(@template_config_service).to receive(:loadForView).with('some-template', anything).and_return(@template)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')
-        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, "md5")
+        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), anything, "md5")
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, template_name: 'some-template', authorization: template_hash
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template.getAuthorization, ApiV1::Admin::Authorization::AuthorizationConfigRepresenter))
@@ -216,8 +216,8 @@ describe ApiV1::Admin::Authorization::TemplatesController do
         result = HttpLocalizedOperationResult.new
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
-        expect(@template_config_service).to receive(:loadForView).and_return(@template)
-        allow(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), result, anything)  do |user, template, result|
+        allow(@template_config_service).to receive(:loadForView).and_return(@template)
+        allow(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), result, anything)  do |user, template, auth, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
@@ -229,23 +229,23 @@ describe ApiV1::Admin::Authorization::TemplatesController do
     describe 'route' do
       describe 'with_header' do
         it 'should route to update action of templates controller for alphanumeric template name' do
-          expect(:put => 'api/admin/authorization/templates/foo123').to route_to(action: 'update', controller: 'api_v1/admin/authorization/templates', template_name: 'foo123')
+          expect(:put => 'api/admin/templates/foo123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo123')
         end
 
         it 'should route to update action of templates controller for template name with dots' do
-          expect(:put => 'api/admin/authorization/templates/foo.123').to route_to(action: 'update', controller: 'api_v1/admin/authorization/templates', template_name: 'foo.123')
+          expect(:put => 'api/admin/templates/foo.123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo.123')
         end
 
         it 'should route to update action of templates controller for template name with hyphen' do
-          expect(:put => 'api/admin/authorization/templates/foo-123').to route_to(action: 'update', controller: 'api_v1/admin/authorization/templates', template_name: 'foo-123')
+          expect(:put => 'api/admin/templates/foo-123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo-123')
         end
 
         it 'should route to update action of templates controller for template name with underscore' do
-          expect(:put => 'api/admin/authorization/templates/foo_123').to route_to(action: 'update', controller: 'api_v1/admin/authorization/templates', template_name: 'foo_123')
+          expect(:put => 'api/admin/templates/foo_123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo_123')
         end
 
         it 'should route to update action of templates controller for capitalized template name' do
-          expect(:put => 'api/admin/authorization/templates/FOO').to route_to(action: 'update', controller: 'api_v1/admin/authorization/templates', template_name: 'FOO')
+          expect(:put => 'api/admin/templates/FOO/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'FOO')
         end
       end
       describe 'without_header' do
@@ -253,8 +253,8 @@ describe ApiV1::Admin::Authorization::TemplatesController do
           teardown_header
         end
         it 'should not route to update action of templates controller without header' do
-          expect(:put => 'api/admin/authorization/templates/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/authorization/templates')
-          expect(:put => 'api/admin/authorization/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/authorization/templates/foo')
+          expect(:put => 'api/admin/templates/foo/authorization').to_not route_to(action: 'update', controller: 'api_v1/admin/templates/authorization')
+          expect(:put => 'api/admin/templates/foo/authorization').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo/authorization')
         end
       end
     end

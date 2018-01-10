@@ -3,6 +3,7 @@
 
   const m = require("mithril");
   const $ = require("jquery");
+  const PluginEndpoint = require("rails-shared/plugin-endpoint");
 
   const PluginiFrameWidget = {
     oncreate(vnode) {
@@ -12,10 +13,15 @@
         dataType: "json"
       }).done((r) => {
         vnode.dom.onload = () => {
-          console.log(r.data)
-          vnode.dom.contentWindow.postMessage({key: "analytics.dashboard", body: r.data}, "*");
+          var message = {
+            uid: vnode.attrs.uid,
+            pluginId: vnode.attrs.pluginId,
+            data: r.data
+          }
+          PluginEndpoint.init(vnode.dom.contentWindow, message);
         };
         vnode.dom.setAttribute("src", r.view_path);
+        vnode.dom.setAttribute("uid", vnode.attrs.uid);
       });
     },
 

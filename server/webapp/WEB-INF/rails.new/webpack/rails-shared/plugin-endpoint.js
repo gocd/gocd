@@ -4,6 +4,8 @@
   // these are intentionally private variables, hidden via closure
   var handlers = {};
   var attached = false;
+  var uid;
+  var pluginId;
 
   function err() {
     if (console && "function" === typeof console.error) {
@@ -11,14 +13,24 @@
     }
   }
 
+  function init(win, message) {
+    send(win, "init", message)
+  }
+
   /** constructs a message from key and body, and sends it to the target window */
-  function send(win, key, body) {
-    if (win && key && body) {
+  function send(win, key, message) {
+    if (uid) { message.uid = uid; }
+    if (pluginId) { message.pluginId = pluginId; }
+
+    if (win && key && message) {
+      message.key = key;
+
       // origin of target window is inaccessible when iframe sandbox is enforced, so
       // cannot check origin (no need to anyway), so just use "*"
-      win.postMessage({key: key, body: body}, "*");
+      win.postMessage(message, "*");
+
     } else {
-      err("Failed to send ", key, "=>", body, "to window:", win);
+      err("Failed to send", key, "=>", message, "to window:", win);
     }
   }
 
@@ -45,9 +57,14 @@
       return;
     }
 
+    function reply(key, data) {
+      var message = { data: data }
+      send(ev.source, key, message);
+    }
+
     // a handler is a function that will receive the message payload and a reply()
     // function to *optionally* allow the handler to send a response back.
-    handlers[ev.data.key](ev.data.body, function reply(key, message) { send(ev.source, key, message); });
+    handlers[ev.data.key](ev.data, reply);
   }
 
   const PluginEndpoint = {
@@ -70,7 +87,14 @@
         }
       }
     },
-    send: send
+    init: init,
+    onInit: function(initializerFn) {
+      PluginEndpoint.on("init", function(message, reply) {
+        uid = message.uid;
+        pluginId = message.pluginId;
+        initializerFn(message, reply);
+      });
+    }
   };
 
   if ("undefined" !== typeof module) {

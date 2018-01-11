@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,4 +186,31 @@ describe("util", function () {
         fire_event($("baz_input"), 'click');
         assertEquals("id quux text", jQuery('#update_on_evt').text());
     });
+});
+
+describe("disable input fields", function () {
+  beforeEach(function () {
+    setFixtures("<div id='search_users_table' class='users_table'>\n"
+    + "<input type='hidden'\n"
+    + "id='foo'\n"
+    + "name='foo'\n"
+    + "value='foo'\n"
+    + "/>\n"
+    + "<input type='hidden'\n"
+    + "id='bar'\n"
+    + "name='bar'\n"
+    + "value='bar'\n"
+    + "/>\n"
+    + "</div>");
+  });
+
+  it("should disable all hidden input fields", function () {
+    assertFalse(jQuery("#foo")[0].disabled);
+    assertFalse(jQuery("#bar")[0].disabled);
+
+    Util.disable_all_hidden_fields("#search_users_table");
+
+    assertTrue(jQuery("#foo")[0].disabled);
+    assertTrue(jQuery("#bar")[0].disabled);
+  });
 });

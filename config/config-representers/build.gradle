@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-apply plugin: 'groovy'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+  }
+}
+
+apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
 description = "Converts pipeline-config entities to and from JSON"
 File generatedSrcDir = file("$projectDir/generated/java")
@@ -31,8 +42,14 @@ dependencies {
 
   testCompile localGroovy()
   testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  testCompile group: 'junit', name: 'junit', version: project.versions.junit
+
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
 }
 
 sourceSets {
@@ -56,4 +73,43 @@ compileJava {
   dependsOn cleanGeneratedSrcDir
   options.annotationProcessorGeneratedSourcesDirectory = generatedSrcDir
   options.annotationProcessorPath = configurations.apt
+}
+
+compileTestJava {
+  options.compilerArgs += '-parameters'
+}
+
+junitPlatform {
+  enableStandardTestTask = true
+}
+
+junitPlatformTest {
+  outputs.upToDateWhen { false }
+
+  doFirst {
+    classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
+  }
+}
+
+afterEvaluate {
+  def junitPlatformTestTask = (JavaExec) project.tasks.getByName('junitPlatformTest')
+
+  jacoco {
+    applyTo(junitPlatformTestTask)
+  }
+
+  project.task(type: JacocoReport, "jacocoJupiterTestReport") {
+    executionData(junitPlatformTestTask)
+    sourceSets(sourceSets.main)
+    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+    classDirectories = files(sourceSets.main.output)
+
+    reports {
+      xml.enabled true
+      html.enabled true
+    }
+  }
+
+  check.dependsOn jacocoJupiterTestReport
+  test.dependsOn jacocoJupiterTestReport
 }

@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.*;
 
 @ConfigTag("property")
 public class ConfigurationProperty implements Serializable, Validatable {
@@ -103,7 +102,12 @@ public class ConfigurationProperty implements Serializable, Validatable {
         this.configurationKey = configurationKey;
     }
 
+    @Deprecated
     public void setEncryptedConfigurationValue(EncryptedConfigurationValue encryptedValue) {
+        setEncryptedValue(encryptedValue);
+    }
+
+    public void setEncryptedValue(EncryptedConfigurationValue encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 
@@ -195,7 +199,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
         return configErrors;
     }
 
-    public boolean hasErrors(){
+    public boolean hasErrors() {
         return !configErrors.isEmpty();
     }
 
@@ -236,7 +240,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
             encryptedValue = new EncryptedConfigurationValue();
             encryptedValue.setConfigAttributes(attributesMap.get(ENCRYPTED_VALUE));
         }
-        if(secureKeyInfoProvider==null){
+        if (secureKeyInfoProvider == null) {
             return;
         }
         if (secureKeyInfoProvider.isSecure(configurationKey.getName())) {
@@ -302,5 +306,24 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     public ConfigurationKey getKey() {
         return configurationKey;
+    }
+
+    public static ConfigurationProperty deserialize(String name, String value, String encryptedValue) {
+        ConfigurationProperty configurationProperty = new ConfigurationProperty();
+        configurationProperty.setKey(new ConfigurationKey(name));
+
+        if (isNotBlank(value) && isNotBlank(encryptedValue)) {
+            configurationProperty.addError("value", "You may only specify `value` or `encrypted_value`, not both!");
+            configurationProperty.addError(ENCRYPTED_VALUE, "You may only specify `value` or `encrypted_value`, not both!");
+        }
+
+        if (isNotBlank(encryptedValue)) {
+            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+        }
+
+        if (isNotBlank(value)) {
+            configurationProperty.setConfigurationValue(new ConfigurationValue(value));
+        }
+        return configurationProperty;
     }
 }

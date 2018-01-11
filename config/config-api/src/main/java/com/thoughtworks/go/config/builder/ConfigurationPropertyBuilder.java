@@ -43,23 +43,23 @@ public class ConfigurationPropertyBuilder {
             configurationProperty.addError("encryptedValue", "You may only specify `value` or `encrypted_value`, not both!");
 
             configurationProperty.setConfigurationValue(new ConfigurationValue(value));
-            configurationProperty.setEncryptedConfigurationValue(new EncryptedConfigurationValue(encryptedValue));
+            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
             return configurationProperty;
         }
 
         if (isSecure) {
             if (isNotBlank(encryptedValue)) {
-                configurationProperty.setEncryptedConfigurationValue(new EncryptedConfigurationValue(encryptedValue));
+                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
             }
 
             if (isNotBlank(value)) {
-                configurationProperty.setEncryptedConfigurationValue(new EncryptedConfigurationValue(encrypt(value)));
+                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encrypt(value)));
             }
 
         } else {
             if (isNotBlank(encryptedValue)) {
                 configurationProperty.addError("encryptedValue", "encrypted_value cannot be specified to a unsecured property.");
-                configurationProperty.setEncryptedConfigurationValue(new EncryptedConfigurationValue(encryptedValue));
+                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
             }
 
             if (isNotBlank(value)) {

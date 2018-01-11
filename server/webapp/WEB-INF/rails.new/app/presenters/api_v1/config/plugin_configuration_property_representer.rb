@@ -43,7 +43,7 @@ module ApiV1
       end
 
       def encrypted_value=(encrypted_val)
-        configuration_property.setEncryptedConfigurationValue(EncryptedConfigurationValue.new(encrypted_val))
+        configuration_property.setEncryptedValue(EncryptedConfigurationValue.new(encrypted_val))
       end
 
       def key

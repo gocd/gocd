@@ -18,21 +18,45 @@ package com.thoughtworks.go.config.representers;
 
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
+import com.google.gson.JsonIOException;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
+import java.util.Map;
 import java.util.function.Function;
 
-@Represents(ConfigurationProperty.class)
+@Represents(
+        value = ConfigurationProperty.class,
+        deserializer = ConfigurationPropertyRepresenter.ConfigurationPropertyDeserializer.class
+)
 public interface ConfigurationPropertyRepresenter {
 
-    @Property(modelAttributeType = ConfigurationKey.class, serializer = ConfigurationKeySerializer.class, deserializer = ConfigurationKeyDeserializer.class)
+    @Property(
+            modelAttributeType = ConfigurationKey.class,
+            serializer = ConfigurationKeySerializer.class,
+            deserializer = ConfigurationKeyDeserializer.class
+    )
     String key();
 
-    @Property(modelAttributeType = ConfigurationValue.class, modelAttributeName = "configurationValue",
-            serializer = ConfigurationValueSerializer.class, deserializer = ConfigurationValueDeserializer.class)
+    @Property(
+            modelAttributeType = ConfigurationValue.class,
+            modelAttributeName = "configurationValue",
+            serializer = ConfigurationValueSerializer.class,
+            deserializer = ConfigurationValueDeserializer.class,
+            skipRender = IfSecureConfigurationValue.class
+    )
     String value();
+
+
+    @Property(
+            modelAttributeType = EncryptedConfigurationValue.class,
+            modelAttributeName = "encryptedValue",
+            deserializer = EncryptedConfigurationValueDeserializer.class,
+            skipRender = IfPlainTextConfigurationValue.class
+    )
+    String encryptedValue();
 
     class ConfigurationKeySerializer implements Function<ConfigurationKey, String> {
         @Override
@@ -55,6 +79,20 @@ public interface ConfigurationPropertyRepresenter {
         }
     }
 
+    class EncryptedConfigurationValueSerializer implements Function<EncryptedConfigurationValue, String> {
+        @Override
+        public String apply(EncryptedConfigurationValue configurationValue) {
+            return configurationValue.getValue();
+        }
+    }
+
+    class EncryptedConfigurationValueDeserializer implements Function<String, EncryptedConfigurationValue> {
+        @Override
+        public EncryptedConfigurationValue apply(String encryptedValue) {
+            return new EncryptedConfigurationValue(encryptedValue);
+        }
+    }
+
     class ConfigurationValueDeserializer implements Function<String, ConfigurationValue> {
         @Override
         public ConfigurationValue apply(String s) {
@@ -62,4 +100,31 @@ public interface ConfigurationPropertyRepresenter {
         }
     }
 
+    class IfPlainTextConfigurationValue implements Function<ConfigurationProperty, Boolean> {
+        @Override
+        public Boolean apply(ConfigurationProperty configurationProperty) {
+            return !configurationProperty.isSecure();
+        }
+    }
+
+    class IfSecureConfigurationValue implements Function<ConfigurationProperty, Boolean> {
+        @Override
+        public Boolean apply(ConfigurationProperty configurationProperty) {
+            return configurationProperty.isSecure();
+        }
+    }
+
+    class ConfigurationPropertyDeserializer implements Function<Map, ConfigurationProperty> {
+        @Override
+        public ConfigurationProperty apply(Map jsonObject) {
+            try {
+                String key = (String) jsonObject.get("key");
+                String value = (String) jsonObject.get("value");
+                String encryptedValue = (String) jsonObject.get("encrypted_value");
+                return ConfigurationProperty.deserialize(key, value, encryptedValue);
+            } catch (Exception e) {
+                throw new JsonIOException("Could not parse configuration property", e);
+            }
+        }
+    }
 }

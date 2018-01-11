@@ -43,8 +43,9 @@ describe "admin/users/_user_results_table.html.erb" do
     expected_full_name_field_id = "display_name_user__display-name-with_special_chars__________-_RAND"
     expected_email_field_id = "email_user__username-with_special_chars_dot___________-__and_spacesRAND"
 
-    expect(response.body).to have_content("jQuery(\'##{expected_selection_id}\').change(Util.disable_or_enable_submittable_fields" \
-                                              "([\"#{expected_name_field_id}\",\"#{expected_full_name_field_id}\",\"#{expected_email_field_id}\"]));")
+    expect(response.body).to have_content("jQuery(\'input[name=selection]\')")
+
+    expect(response.body).to have_content("Util.disable_or_enable_submittable_fields([nameField, fullNameField, emailField])")
 
     expect(response.body).to have_selector("input[type='radio'][name='selection'][id='#{expected_selection_id}']")
     expect(response.body).to have_selector("input[type='hidden'][name='selections[][name]'][id='#{expected_name_field_id}']", visible: :hidden)

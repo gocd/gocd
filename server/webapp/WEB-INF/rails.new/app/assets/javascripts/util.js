@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,15 @@ Util = function() {
     }
 
     return {
+        disable_all_hidden_fields: function (searchItem) {
+          var allHiddenInputFields=jQuery(searchItem).find("input[type=hidden]");
+          for(var i=0; i<allHiddenInputFields.length; i++) {
+            allHiddenInputFields[i].disabled = true
+          }
+        },
         disable_or_enable_submittable_fields: function(submittable_field_ids) {
-            return function() {
-                var should_enable = this.checked;
+            return function(target) {
+                var should_enable = target.checked;
                 for(var i = 0; i < submittable_field_ids.length; i++) {
                     enable(submittable_field_ids[i], should_enable);
                 }

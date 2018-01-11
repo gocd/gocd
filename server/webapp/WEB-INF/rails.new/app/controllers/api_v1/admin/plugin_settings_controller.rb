@@ -55,9 +55,9 @@ module ApiV1
       end
 
       def load_plugin_info(plugin_id)
-        plugin_info = default_plugin_info_finder.pluginInfoFor(plugin_id)
-        if plugin_info
-          return plugin_info
+        combined_plugin_info = default_plugin_info_finder.pluginInfoFor(plugin_id)
+        if combined_plugin_info
+          return combined_plugin_info.getExtensionInfos()[0]
         end
         raise FailedDependency.new("The plugin with id #{plugin_id} is not loaded.")
       end

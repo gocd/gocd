@@ -59,6 +59,10 @@ public class RoleConfigService {
         return getRoles().findByName(new CaseInsensitiveString(name));
     }
 
+    public RolesConfig listAll() {
+        return getRoles();
+    }
+
     protected void update(Username currentUser, Role role, LocalizedOperationResult result, EntityConfigUpdateCommand<Role> command) {
         try {
             goConfigService.updateConfig(command, currentUser);

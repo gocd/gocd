@@ -59,10 +59,6 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         configErrors.add(fieldName, message);
     }
 
-    public boolean add(Role role) {
-        return super.add(role);
-    }
-
     public boolean add(CaseInsensitiveString roleName) {
         return add(new RoleConfig(roleName));
     }

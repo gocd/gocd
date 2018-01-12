@@ -18,9 +18,6 @@
 
       $.ajax({
         url: options.url,
-        params: {
-          pipeline_counter: options.pipeline_counter
-        },
         dataType: "json",
         type: "GET"
       }).done(function(r) {
@@ -28,7 +25,7 @@
         frame.sandbox = "allow-scripts";
 
         frame.onload = function(e) {
-          PluginEndpoint.send(frame.contentWindow, options.key, r.data);
+          PluginEndpoint.init(frame.contentWindow, {data: r.data })
         };
 
         div.appendChild(frame);

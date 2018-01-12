@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -290,19 +290,22 @@ public class ArtifactExtensionTest {
     @Test
     public void shouldSubmitFetchArtifactRequest() throws JSONException {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
-
-        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), new Configuration(create("Filename", false, "build/libs/foo.jar")), Collections.singletonMap("Version", "10.12.0"), "/temp");
+        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
+        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), pluggableArtifactTask.getArtifactId(), Collections.singletonMap("Version", "10.12.0"), "/temp");
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
         final String requestBody = "{\n" +
-                "  \"fetch_artifact_configuration\": {\n" +
-                "    \"Filename\": \"build/libs/foo.jar\"\n" +
-                "  },\n" +
                 "  \"artifact_metadata\": {\n" +
                 "    \"Version\": \"10.12.0\"\n" +
                 "  },\n" +
                 "  \"store_configuration\": {},\n" +
+                "  \"fetch_artifact\": {\n" +
+                "    \"configuration\": {\n" +
+                "      \"Filename\": \"build/libs/foo.jar\"\n" +
+                "    },\n" +
+                "    \"artifact_id\": \"artifactId\"\n" +
+                "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";
 

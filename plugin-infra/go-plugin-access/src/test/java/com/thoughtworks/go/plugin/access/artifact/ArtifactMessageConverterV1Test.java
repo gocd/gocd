@@ -17,9 +17,9 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -128,20 +128,23 @@ public class ArtifactMessageConverterV1Test {
     public void fetchArtifactMessage_shouldSerializeToJson() throws JSONException {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
-        final Configuration configuration = new Configuration(create("Filename", false, "build/libs/foo.jar"));
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
 
-        final String fetchArtifactMessage = converter.fetchArtifactMessage(artifactStore, configuration, metadata, "/temp");
+        final String fetchArtifactMessage = converter.fetchArtifactMessage(artifactStore, pluggableArtifactTask.getConfiguration(), pluggableArtifactTask.getArtifactId(), metadata, "/temp");
 
         final String expectedStr = "{\n" +
-                "  \"fetch_artifact_configuration\": {\n" +
-                "    \"Filename\": \"build/libs/foo.jar\"\n" +
-                "  },\n" +
                 "  \"artifact_metadata\": {\n" +
                 "    \"Version\": \"10.12.0\"\n" +
                 "  },\n" +
                 "  \"store_configuration\": {\n" +
                 "    \"Foo\": \"Bar\"\n" +
+                "  },\n" +
+                "  \"fetch_artifact\": {\n" +
+                "    \"configuration\": {\n" +
+                "      \"Filename\": \"build/libs/foo.jar\"\n" +
+                "    },\n" +
+                "    \"artifact_id\": \"artifactId\"\n" +
                 "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";

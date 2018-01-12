@@ -18,19 +18,19 @@
   "use strict";
 
   // these are intentionally private variables, hidden via closure
-  var handlers = {};
-  var attached = false;
-  var uid;
-  var pluginId;
+  const handlers = {};
+  let attached = false;
+  let uid;
+  let pluginId;
 
   function err() {
-    if (console && "function" === typeof console.error) {
-      console.error.apply(null, arguments);
+    if (window.console && "function" === typeof window.console.error) {
+      window.console.error.apply(null, arguments);
     }
   }
 
   function init(win, message) {
-    send(win, "init", message)
+    send(win, "init", message);
   }
 
   /** constructs a message from key and body, and sends it to the target window */
@@ -74,7 +74,7 @@
     }
 
     function reply(key, data) {
-      var message = { data: data }
+      const message = { data };
       send(ev.source, key, message);
     }
 
@@ -97,15 +97,15 @@
     },
     /** define an api, i.e. a set of handlers for one or more keys */
     define: function addMany(api) {
-      for (var i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) {
+      for (let i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) {
         if ("function" === typeof api[keys[i]]) {
           handlers[keys[i]] = api[keys[i]];
         }
       }
     },
-    init: init,
-    onInit: function(initializerFn) {
-      PluginEndpoint.on("init", function(message, reply) {
+    init,
+    onInit: function onInit(initializerFn) {
+      PluginEndpoint.on("init", (message, reply) => {
         uid = message.uid;
         pluginId = message.pluginId;
         initializerFn(message, reply);

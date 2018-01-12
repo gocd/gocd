@@ -33,31 +33,31 @@
   PluginEndpoint.ensure();
 
   PluginEndpoint.define({
-    "analytics.pipeline": (message, reply) => {
-      let uid = message.uid;
-      models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName}));
+    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
+      const uid = message.uid;
+      models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName})); // eslint-disable-line camelcase
       m.redraw();
     }
   });
 
   document.addEventListener("DOMContentLoaded", () => {
-    const main = document.getElementById("analytics-container");
+    const main = document.querySelector("[data-plugin-ids]");
 
   //loop plugin ids (data attribute), mount iframe widget, make call to dashboard (return viewpath + data), send message to iframe with data, set src to viewpath
     m.mount(main, {
       view() {
-        return $.map($(main).data("plugin-ids"), (id, idx) => {
-          let uid = "f-" + idx;
+        return $.map($(main).data("plugin-ids"), (pluginId, idx) => {
+          const uid = `f-${idx}`;
 
           if (!models[uid]) {
             models[uid] = new Frame();
-            models[uid].url(Routes.dashboardAnalyticsPath({plugin_id: id}));
+            models[uid].url(Routes.dashboardAnalyticsPath({plugin_id: pluginId})); // eslint-disable-line camelcase
           }
 
-          return m(PluginiFrameWidget, {model: models[uid], pluginId: id, uid: uid});
+          return m(PluginiFrameWidget, {model: models[uid], pluginId, uid});
         });
       }
-    })
+    });
 
     // boilerplate to init menus and check for updates
     $(document).foundation();

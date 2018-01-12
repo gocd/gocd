@@ -61,6 +61,22 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
+    public void validate_shouldValidateArtifactPropertiesConfigurationKeyUniqueness() {
+        final ValidationContext validationContext = mock(ValidationContext.class);
+        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID", create("Foo", false, "Bar"), create("Foo", true, "Bar"));
+        final ArtifactStores artifactStores = mock(ArtifactStores.class);
+        assertFalse(artifactConfig.hasErrors());
+
+        when(validationContext.artifactStores()).thenReturn(artifactStores);
+        when(artifactStores.find("Store-ID")).thenReturn(new ArtifactStore("Store-ID", "pluginId"));
+
+        artifactConfig.validate(validationContext);
+
+        assertThat(artifactConfig.get(0).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
+        assertThat(artifactConfig.get(1).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
+    }
+
+    @Test
     public void validate_shouldValidateUniquenessOnId() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
         final List<Artifact> artifactConfigs = Arrays.asList(existingConfig);
@@ -88,6 +104,21 @@ public class PluggableArtifactConfigTest {
 
         assertThat(newConfig.errors().on("id"), is("Duplicate pluggable artifacts  configuration defined."));
         assertThat(existingConfig.errors().on("id"), is("Duplicate pluggable artifacts  configuration defined."));
+    }
+
+    @Test
+    public void validate_shouldNotErrorWhenArtifactPropertiesConfigurationIsSameForDifferentStores() {
+        final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "storeId1", create("Foo", false, "Bar"));
+        final List<Artifact> artifactConfigs = Arrays.asList(existingConfig);
+
+        final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "storeId2", create("Foo", false, "Bar"));
+        newConfig.validateUniqueness(artifactConfigs);
+
+        assertFalse(newConfig.hasErrors());
+        assertFalse(existingConfig.hasErrors());
+
+        assertNull(newConfig.errors().on("id"));
+        assertNull(existingConfig.errors().on("id"));
     }
 
     @Test

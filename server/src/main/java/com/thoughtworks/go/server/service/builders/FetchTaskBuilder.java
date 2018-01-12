@@ -72,7 +72,7 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
         final File metadataFileDest = task.artifactDest(pipeline.getName(), fileName);
 
         return new FetchPluggableArtifactBuilder(task.getConditions(), cancelBuilder, task.describe(), fetchFrom, artifactStore,
-                task.getConfiguration(), metadataFileLocationOnServer, metadataFileDest, checksumHandler);
+                task.getConfiguration(), task.getArtifactId(), metadataFileLocationOnServer, metadataFileDest, checksumHandler);
     }
 
     private ArtifactStore getArtifactStoreFor(FetchPluggableArtifactTask task, JobIdentifier fetchFrom) {

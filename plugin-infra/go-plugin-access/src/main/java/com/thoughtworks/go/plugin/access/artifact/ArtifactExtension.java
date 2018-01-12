@@ -183,11 +183,11 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
 
-    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
+    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, String artifactId, Map<String, Object> metadata, String agentWorkingDirectory) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
+                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, artifactId, metadata, agentWorkingDirectory);
             }
         });
     }

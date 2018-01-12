@@ -18,10 +18,11 @@ package com.thoughtworks.go.domain.builder;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.domain.ChecksumFileHandler;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.RunIfConfigs;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -50,7 +51,7 @@ public class FetchPluggableArtifactBuilderTest {
 
     private JobIdentifier jobIdentifier;
     private ArtifactStore artifactStore;
-    private Configuration fetchConfiguration;
+    private FetchPluggableArtifactTask fetchPluggableArtifactTask;
     private String sourceOnServer;
     private ChecksumFileHandler checksumFileHandler;
     private DefaultGoPublisher publisher;
@@ -68,7 +69,12 @@ public class FetchPluggableArtifactBuilderTest {
 
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);
         artifactStore = new ArtifactStore("s3", "cd.go.s3", ConfigurationPropertyMother.create("ACCESS_KEY", true, "hksjdfhsksdfh"));
-        fetchConfiguration = new Configuration(ConfigurationPropertyMother.create("Destination", false, "build/"));
+
+        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("dev"),
+                new CaseInsensitiveString("windows"),
+                "artifactId",
+                ConfigurationPropertyMother.create("Destination", false, "build/"));
+
         sourceOnServer = format("%s/%s", PLUGGABLE_ARTIFACT_METADATA_FOLDER, "cd.go.s3.json");
 
         when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
@@ -76,7 +82,7 @@ public class FetchPluggableArtifactBuilderTest {
 
     @Test
     public void shouldCallPublisherToFetchMetadataFile() {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchConfiguration, sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
         builder.build(publisher, null, null, artifactExtension);
 
@@ -92,16 +98,16 @@ public class FetchPluggableArtifactBuilderTest {
 
     @Test
     public void shouldCallArtifactExtension() {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchConfiguration, sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
         builder.build(publisher, null, null, artifactExtension);
 
-        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchConfiguration, null, metadataDest.getParent());
+        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), null, metadataDest.getParent());
     }
 
     @Test
     public void shouldCallArtifactExtensionWithMetadata() throws IOException {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchConfiguration, sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
 
         final FileWriter fileWriter = new FileWriter(metadataDest);
@@ -110,6 +116,6 @@ public class FetchPluggableArtifactBuilderTest {
 
         builder.build(publisher, null, null, artifactExtension);
 
-        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchConfiguration, metadata, metadataDest.getParent());
+        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), metadata, metadataDest.getParent());
     }
 }

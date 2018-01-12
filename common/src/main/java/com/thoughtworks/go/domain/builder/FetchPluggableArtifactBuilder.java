@@ -43,6 +43,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetchPluggableArtifactBuilder.class);
 
     private final JobIdentifier jobIdentifier;
+    private final String artifactId;
     private final File metadataFileDest;
     private ChecksumFileHandler checksumFileHandler;
     private ArtifactStore artifactStore;
@@ -51,11 +52,12 @@ public class FetchPluggableArtifactBuilder extends Builder {
 
     public FetchPluggableArtifactBuilder(RunIfConfigs conditions, Builder cancelBuilder, String description,
                                          JobIdentifier jobIdentifier, ArtifactStore artifactStore, Configuration configuration,
-                                         String source, File metadataFileDest, ChecksumFileHandler checksumFileHandler) {
+                                         String artifactId, String source, File metadataFileDest, ChecksumFileHandler checksumFileHandler) {
         super(conditions, cancelBuilder, description);
         this.jobIdentifier = jobIdentifier;
         this.artifactStore = artifactStore;
         this.configuration = configuration;
+        this.artifactId = artifactId;
         this.metadataFileDest = metadataFileDest;
         this.checksumFileHandler = checksumFileHandler;
         this.metadataFileLocationOnServer = source;
@@ -69,7 +71,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 
-            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, getMetadataFromFile(), agentWorkingDirectory());
+            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, artifactId, getMetadataFromFile(), agentWorkingDirectory());
         } catch (Exception e) {
             publisher.taggedConsumeLine(TaggedStreamConsumer.ERR, e.getMessage());
             LOGGER.error(e.getMessage(), e);

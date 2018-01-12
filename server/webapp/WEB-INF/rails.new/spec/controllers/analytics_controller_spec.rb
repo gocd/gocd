@@ -74,7 +74,7 @@ describe AnalyticsController do
       get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
 
       expect(response.code).to eq('500')
-      expect(response.body).to eq('Error generating analytics for pipeline - pipeline_name')
+      expect(response.body).to eq('Error generating analytics from plugin - com.tw.myplugin')
     end
   end
 end

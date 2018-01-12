@@ -32,6 +32,8 @@ class AnalyticsController < ApplicationController
 
   def dashboard
     render :json => analytics_extension.getDashboardAnalytics(params[:plugin_id]).toMap().to_h
+  rescue => e
+    render_plugin_error e
   end
 
   def pipeline
@@ -42,6 +44,6 @@ class AnalyticsController < ApplicationController
 
   private
   def render_plugin_error e
-    render :text => "Error generating analytics for pipeline - #{params[:pipeline_name]}", status: 500
+    render :text => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
   end
 end

@@ -790,7 +790,7 @@ describe('PluginInfos', () => {
         required: true
       });
       expect(pluginInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
-      expect(pluginInfo.capabilities().supportAnalyticsDashboard()).toBeTruthy();
+      expect(pluginInfo.capabilities().supportsAnalyticsDashboard()).toBeTruthy();
     });
   });
 

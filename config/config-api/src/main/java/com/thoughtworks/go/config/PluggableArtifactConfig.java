@@ -108,9 +108,11 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
                     this.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
                     existingArtifact.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
                 }
-                if (this.size() == pluggableArtifactConfig.size() && this.containsAll(pluggableArtifactConfig)) {
-                    this.addError("id", "Duplicate pluggable artifacts  configuration defined.");
-                    existingArtifact.addError("id", "Duplicate pluggable artifacts  configuration defined.");
+                if (this.getStoreId().equalsIgnoreCase(pluggableArtifactConfig.getStoreId())) {
+                    if (this.size() == pluggableArtifactConfig.size() && this.containsAll(pluggableArtifactConfig)) {
+                        this.addError("id", "Duplicate pluggable artifacts  configuration defined.");
+                        existingArtifact.addError("id", "Duplicate pluggable artifacts  configuration defined.");
+                    }
                 }
                 return;
             }

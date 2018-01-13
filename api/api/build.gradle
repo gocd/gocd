@@ -26,6 +26,7 @@ buildscript {
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'groovy'
 apply plugin: 'jacoco'
+apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
   compile project(':server')
@@ -45,43 +46,4 @@ dependencies {
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile group: 'org.springframework', name: 'spring-test', version: project.versions.spring
-}
-
-compileTestJava {
-  options.compilerArgs += '-parameters'
-}
-
-junitPlatform {
-  enableStandardTestTask = true
-}
-
-junitPlatformTest {
-  outputs.upToDateWhen { false }
-
-  doFirst {
-    classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
-  }
-}
-
-afterEvaluate {
-  def junitPlatformTestTask = (JavaExec) project.tasks.getByName('junitPlatformTest')
-
-  jacoco {
-    applyTo(junitPlatformTestTask)
-  }
-
-  project.task(type: JacocoReport, "jacocoJupiterTestReport") {
-    executionData(junitPlatformTestTask)
-    sourceSets(sourceSets.main)
-    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output)
-
-    reports {
-      xml.enabled true
-      html.enabled true
-    }
-  }
-
-  check.dependsOn jacocoJupiterTestReport
-  test.dependsOn jacocoJupiterTestReport
 }

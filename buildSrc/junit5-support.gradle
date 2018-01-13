@@ -1,0 +1,89 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+configurations {
+  junitAnt
+}
+
+dependencies {
+  junitAnt group: 'org.apache.ant', name: 'ant-junit', version: '1.10.1'
+}
+
+compileTestJava {
+  options.compilerArgs += '-parameters'
+}
+
+junitPlatform {
+  enableStandardTestTask = true
+}
+
+junitPlatformTest {
+  outputs.upToDateWhen { false }
+
+  doFirst {
+    classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
+  }
+}
+
+afterEvaluate {
+  def junitPlatformTestTask = (JavaExec) project.tasks.getByName('junitPlatformTest')
+
+  jacoco {
+    applyTo(junitPlatformTestTask)
+  }
+
+  project.task(type: JacocoReport, "jacocoJupiterTestReport") {
+    executionData(junitPlatformTestTask)
+    sourceSets(sourceSets.main)
+    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+    classDirectories = files(sourceSets.main.output)
+
+    reports {
+      xml.enabled true
+      html.enabled true
+    }
+  }
+
+  check.dependsOn jacocoJupiterTestReport
+  test.dependsOn jacocoJupiterTestReport
+}
+
+// disable existing built-in test report generation, because junit 5 :(
+test {
+  reports {
+    junitXml.enabled = false
+    html.enabled = false
+  }
+}
+
+task junitHtmlReport {
+  doFirst {
+    ant.taskdef(name: 'junitreport', classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+      classpath: configurations.junitAnt.asPath)
+    def outputDir = file("${project.buildDir}/reports/tests/test")
+    delete(outputDir)
+    mkdir(outputDir)
+    ant.junitreport(todir: "${project.buildDir}/reports/tests/test") {
+      fileset(dir: "${project.buildDir}/test-results/junit-platform") {
+        include(name: '**/*.xml')
+      }
+      report(format: 'frames', todir: "${project.buildDir}/reports/tests/test")
+    }
+  }
+}
+
+junitPlatformTest.finalizedBy 'junitHtmlReport'

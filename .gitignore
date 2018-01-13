@@ -53,6 +53,10 @@ hs_err_pid*
 
 resources-generated/
 
+api/api/target
+api/api/config/cipher
+api/api-v1/target
+api/api-v1/config/cipher
 addon-api/database/target/
 agent-bootstrapper/.agent-bootstrapper.running
 agent-bootstrapper/.tmp.file.list

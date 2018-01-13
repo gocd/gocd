@@ -20,7 +20,7 @@ import spark.HaltException;
 
 import static spark.Spark.halt;
 
-public class HaltResponses {
+public abstract class HaltResponses {
 
     public static HaltException haltBecauseUnauthorized() {
         return halt(401, MessageJson.create(HaltMessages.unauthorizedMessage()));

@@ -16,26 +16,7 @@
 
 package com.thoughtworks.go.api.spring;
 
-import com.thoughtworks.go.api.RoutesHelper;
-import com.thoughtworks.go.api.SparkController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import spark.globalstate.ServletFlag;
-import spark.servlet.SparkApplication;
+public interface SparkSpringController {
 
-@Component
-public class Application implements SparkApplication {
-
-    @Autowired
-    public Application(SparkController... controllers) {
-        ServletFlag.runFromServlet();
-        RoutesHelper routesHelper = new RoutesHelper(controllers);
-        routesHelper.init();
-    }
-
-    @Override
-    public void init() {
-
-    }
-
+    void setupRoutes();
 }

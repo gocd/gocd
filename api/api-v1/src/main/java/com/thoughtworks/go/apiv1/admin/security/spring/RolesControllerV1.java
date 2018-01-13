@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.apiv1.admin.security.spring;
 
+import com.thoughtworks.go.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.spring.SparkSpringController;
 import com.thoughtworks.go.apiv1.admin.security.RolesControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.api.SparkController;
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RolesControllerV1 implements SparkController {
+public class RolesControllerV1 implements SparkSpringController {
 
     private final RolesControllerV1Delegate delegate;
 

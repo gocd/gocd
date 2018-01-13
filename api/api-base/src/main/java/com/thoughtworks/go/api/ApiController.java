@@ -17,58 +17,29 @@
 package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.api.util.MessageJson;
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static spark.Spark.halt;
 
-public abstract class BaseController implements ControllerMethods {
+public abstract class ApiController implements ControllerMethods, SparkController {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
 
     protected final ApiVersion apiVersion;
     protected final String mimeType;
 
-    protected BaseController(ApiVersion apiVersion) {
+    protected ApiController(ApiVersion apiVersion) {
         this.apiVersion = apiVersion;
         this.mimeType = apiVersion.mimeType();
     }
-
-    public String controllerPath(String... paths) {
-        if (paths == null || paths.length == 0) {
-            return controllerBasePath();
-        } else {
-            return (controllerBasePath() + "/" + StringUtils.join(paths, '/')).replaceAll("//", "/");
-        }
-    }
-
-    public String controllerPath(Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
-            return controllerBasePath();
-        } else {
-            List<BasicNameValuePair> queryParams = params.entrySet().stream().map(new Function<Map.Entry<String, String>, BasicNameValuePair>() {
-                @Override
-                public BasicNameValuePair apply(Map.Entry<String, String> entry) {
-                    return new BasicNameValuePair(entry.getKey(), entry.getValue());
-                }
-            }).collect(Collectors.toList());
-            return controllerBasePath() + '?' + URLEncodedUtils.format(queryParams, "utf-8");
-        }
-    }
-
-    protected abstract String controllerBasePath();
-
-    public abstract void setupRoutes();
 
     protected void setContentType(Request req, Response res) {
         res.raw().setCharacterEncoding("utf-8");

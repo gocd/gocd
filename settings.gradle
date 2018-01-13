@@ -16,6 +16,7 @@
 
 rootProject.name = 'gocd'
 include ':jar-class-loader'
+include ':api-base'
 include ':api'
 include ':api-v1'
 include ':base'
@@ -56,6 +57,7 @@ include ':release'
 include ':tools'
 include ':tw-go-plugins'
 
+project(':api-base').projectDir = "$rootDir/api/api-base" as File
 project(':api').projectDir = "$rootDir/api/api" as File
 project(':api-v1').projectDir = "$rootDir/api/api-v1" as File
 project(':base').projectDir = "$rootDir/base" as File

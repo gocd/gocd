@@ -16,13 +16,16 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
-import com.thoughtworks.go.api.*;
+import com.thoughtworks.go.api.ApiController;
+import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.RecordNotFoundException;
+import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -39,7 +42,7 @@ import java.util.Map;
 import static com.thoughtworks.go.api.util.HaltResponses.*;
 import static spark.Spark.*;
 
-public class RolesControllerV1Delegate extends BaseController implements CrudController<Role> {
+public class RolesControllerV1Delegate extends ApiController implements CrudController<Role> {
     private final RoleConfigService roleConfigService;
     private final AuthenticationHelper authenticationHelper;
     private final EntityHashingService entityHashingService;
@@ -81,11 +84,11 @@ public class RolesControllerV1Delegate extends BaseController implements CrudCon
     }
 
     @Override
-    protected String controllerBasePath() {
+    public String controllerBasePath() {
         return "/api/admin/security/roles";
     }
 
-    public Map index(Request req, Response res) throws InvalidPluginTypeException {
+    public Object index(Request req, Response res) throws InvalidPluginTypeException {
         String pluginType = req.queryParams("type");
         RolesConfig roles = roleConfigService.getRoles().ofType(pluginType);
         String etag = entityHashingService.md5ForEntity(roles);
@@ -98,7 +101,7 @@ public class RolesControllerV1Delegate extends BaseController implements CrudCon
         }
     }
 
-    public Map show(Request req, Response res) {
+    public Object show(Request req, Response res) {
         Role role = getEntityFromConfig(req.params("role_name"));
 
         if (isGetOrHeadRequestFresh(req, role)) {

@@ -25,7 +25,7 @@ import javax.servlet.FilterConfig
 
 import static org.mockito.Mockito.*
 
-trait ControllerTrait<T extends BaseController> {
+trait ControllerTrait<T extends SparkController> {
 
   FilterConfig filterConfig
   private T controller
@@ -36,6 +36,10 @@ trait ControllerTrait<T extends BaseController> {
 
   void get(String path) {
     sendRequest('get', path, [:], null)
+  }
+
+  void get(String path, Map headers) {
+    sendRequest('get', path, headers, null)
   }
 
   void put(String path, Object body) {

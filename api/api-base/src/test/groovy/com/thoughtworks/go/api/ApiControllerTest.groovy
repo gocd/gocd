@@ -29,16 +29,16 @@ import spark.RequestResponseFactory
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode
 
-class BaseControllerTest {
+class ApiControllerTest {
 
-  BaseController baseController
+  ApiController baseController
 
   @BeforeEach
   void setUp() {
-    this.baseController = new BaseController(ApiVersion.v1) {
+    this.baseController = new ApiController(ApiVersion.v1) {
 
       @Override
-      protected String controllerBasePath() {
+      String controllerBasePath() {
         return null
       }
 

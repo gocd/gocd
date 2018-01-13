@@ -17,7 +17,6 @@
 package com.thoughtworks.go.api.mocks
 
 import cd.go.jrepresenter.TestRequestContext
-import com.thoughtworks.go.api.util.HaltMessages
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions
@@ -104,7 +103,7 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
   }
 
   MockHttpServletResponseAssert isNotFound() {
-    return hasStatus(404).hasJsonMessage(HaltMessages.notFoundMessage())
+    return hasStatus(404)
   }
 
   MockHttpServletResponseAssert isUnprocessibleEntity() {
@@ -122,5 +121,24 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
   MockHttpServletResponseAssert isUnsupportedMediaType() {
     return hasStatus(415)
 
+  }
+
+  MockHttpServletResponseAssert hasCacheControl(String headerValue) {
+    return hasHeader('Cache-Control', headerValue)
+  }
+
+  MockHttpServletResponseAssert hasHeader(String name, String value) {
+    Assertions.assertThat(actual.getHeader(name)).isEqualTo(value)
+    return this
+  }
+
+  MockHttpServletResponseAssert hasBody(byte[] contents) {
+    Assertions.assertThat(actual.getContentAsByteArray()).isEqualTo(contents)
+    return this
+  }
+
+  MockHttpServletResponseAssert hasBody(String contents) {
+    Assertions.assertThat(actual.getContentAsString()).isEqualTo(contents)
+    return this
   }
 }

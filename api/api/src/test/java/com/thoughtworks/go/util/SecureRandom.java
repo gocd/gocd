@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.util;
 
-public interface SparkController {
+import java.util.Random;
 
-    void setupRoutes();
+public class SecureRandom {
+
+    public static String hex(int length) {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < length) {
+            sb.append(Integer.toHexString(random.nextInt()));
+        }
+        return sb.toString();
+    }
+
+    public static String hex() {
+        return hex(16);
+    }
+
 }

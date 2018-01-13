@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.api.mocks;
 
-import com.thoughtworks.go.api.BaseController;
 import com.thoughtworks.go.api.RoutesHelper;
+import com.thoughtworks.go.api.SparkController;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 import spark.ExceptionMapper;
@@ -34,7 +34,7 @@ public class TestApplication implements SparkApplication {
 
     private final RoutesHelper routesHelper;
 
-    public TestApplication(BaseController sparkController) {
+    public TestApplication(SparkController sparkController) {
         routesHelper = new RoutesHelper(sparkController);
     }
 

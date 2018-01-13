@@ -36,6 +36,12 @@
     </rule>
 
     <rule>
+        <name>Plugin Images</name>
+        <from>^/api/plugin_images/(.*)$</from>
+        <to last="true">/spark/api/plugin_images/$1</to>
+    </rule>
+
+    <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
         <set name="rails_bound">false</set>

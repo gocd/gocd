@@ -18,25 +18,28 @@ package com.thoughtworks.go.apiv1.admin.security
 
 import com.thoughtworks.go.api.ClearSingletonExtension
 import com.thoughtworks.go.api.ControllerTrait
+import com.thoughtworks.go.api.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
+import com.thoughtworks.go.api.spring.AuthenticationHelper
+import com.thoughtworks.go.api.util.HaltMessages
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.i18n.Localizer
-import com.thoughtworks.go.api.util.HaltMessages
-import com.thoughtworks.go.api.SecurityServiceTrait
-import com.thoughtworks.go.api.spring.AuthenticationHelper
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import gen.com.thoughtworks.go.config.representers.RoleMapper
 import gen.com.thoughtworks.go.config.representers.RolesMapper
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static HaltMessages.entityAlreadyExistsMessage
 import static HaltMessages.etagDoesNotMatch
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -283,8 +286,8 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isNotFound()
+          .hasJsonMessage(HaltMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
-          .hasJsonMessage('Either the resource you requested was not found, or you are not authorized to perform this action.')
       }
 
       @Test
@@ -656,6 +659,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
         assertThatResponse()
           .isNotFound()
+          .hasJsonMessage(HaltMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
       }
 

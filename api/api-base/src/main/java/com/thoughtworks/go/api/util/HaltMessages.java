@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.api.util;
 
-public class HaltMessages {
+public abstract class HaltMessages {
 
     public static String notFoundMessage() {
         return "Either the resource you requested was not found, or you are not authorized to perform this action.";

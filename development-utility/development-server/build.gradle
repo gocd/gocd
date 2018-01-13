@@ -24,6 +24,7 @@ configurations {
 
 dependencies {
   compile project(':server')
+  compile project(':api')
   compile project(':api-v1')
   compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty

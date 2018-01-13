@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.api;
 
+import com.thoughtworks.go.api.spring.SparkSpringController;
 import spark.Request;
 import spark.Response;
 
@@ -29,28 +30,28 @@ import static spark.Spark.before;
 public class RoutesHelper {
     private static final String TIMER_START = RuntimeHeaderEmitter.class.getName();
 
-    private List<SparkController> controllers;
-    private List<BaseController> sparkControllers;
+    private List<SparkSpringController> controllers;
+    private List<SparkController> sparkControllers;
 
-    public RoutesHelper(SparkController... controllers) {
+    public RoutesHelper(SparkSpringController... controllers) {
         this(controllers, null);
     }
 
-    public RoutesHelper(BaseController... sparkControllers) {
+    public RoutesHelper(SparkController... sparkControllers) {
         this(null, sparkControllers);
     }
 
-    private RoutesHelper(SparkController[] controllers, BaseController[] baseControllers) {
+    private RoutesHelper(SparkSpringController[] controllers, SparkController[] apiControllers) {
         this.controllers = controllers == null ? Collections.emptyList() : Arrays.asList(controllers);
-        this.sparkControllers = baseControllers == null ? Collections.emptyList() : Arrays.asList(baseControllers);
+        this.sparkControllers = apiControllers == null ? Collections.emptyList() : Arrays.asList(apiControllers);
     }
 
     public void init() {
         before("/*", (request, response) -> request.attribute(TIMER_START, new RuntimeHeaderEmitter(request, response)));
         before("/*", (request, response) -> response.header("Cache-Control", "max-age=0, private, must-revalidate"));
 
-        controllers.forEach(SparkController::setupRoutes);
-        sparkControllers.forEach(BaseController::setupRoutes);
+        controllers.forEach(SparkSpringController::setupRoutes);
+        sparkControllers.forEach(SparkController::setupRoutes);
 
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
     }

@@ -24,26 +24,13 @@ buildscript {
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'groovy'
 apply plugin: 'jacoco'
+apply plugin: 'groovy'
+
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
-  compile project(':server')
+  compile project(':api-base')
 
-  compile(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
-    transitive = false
-  }
-  compile group: 'cd.go.jrepresenter', name: 'annotation', version: project.versions.jrepresenter
-
-  testCompile localGroovy()
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito2
-  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testCompile group: 'org.springframework', name: 'spring-test', version: project.versions.spring
+  testCompile project(path: ':api-base', configuration: 'testOutput')
 }

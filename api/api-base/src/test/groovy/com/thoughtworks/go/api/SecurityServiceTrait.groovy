@@ -24,7 +24,10 @@ import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
 import org.springframework.security.providers.TestingAuthenticationToken
 
-import static org.mockito.Mockito.*
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 trait SecurityServiceTrait {
 

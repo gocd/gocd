@@ -22,12 +22,22 @@ import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 import static com.thoughtworks.go.api.util.HaltMessages.notFoundMessage;
 
 public interface ControllerMethods {
 
     default RequestContext requestContext(Request req) {
         return new RequestContext(req.scheme(), req.raw().getServerName(), req.port());
+    }
+
+    default boolean fresh(Request req, String etagFromServer) {
+        String etagFromClient = getIfNoneMatch(req);
+        if (etagFromClient == null) {
+            return false;
+        }
+        return Objects.equals(etagFromClient, etagFromServer);
     }
 
     default String getIfNoneMatch(Request request) {
@@ -56,5 +66,12 @@ public interface ControllerMethods {
     default void notFound(Exception ex, Request req, Response res) {
         res.status(HttpStatus.NOT_FOUND.value());
         res.body(MessageJson.create(notFoundMessage()));
+    }
+
+    default void setEtagHeader(Response res, String value) {
+        if (value == null) {
+            return;
+        }
+        res.header("ETag", '"' + value + '"');
     }
 }

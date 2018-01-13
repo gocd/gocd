@@ -32,14 +32,6 @@ public interface CrudController<Entity> extends ControllerMethods {
         return fresh(req, etagFor(entity));
     }
 
-    default boolean fresh(Request req, String etagFromServer) {
-        String etagFromClient = getIfNoneMatch(req);
-        if (etagFromClient == null) {
-            return false;
-        }
-        return Objects.equals(etagFromClient, etagFromServer);
-    }
-
     default boolean isPutRequestFresh(Request req, Entity entity) {
         String etagFromClient = getIfMatch(req);
         if (etagFromClient == null) {
@@ -81,11 +73,5 @@ public interface CrudController<Entity> extends ControllerMethods {
         setEtagHeader(res, etagFor(entity));
     }
 
-    default void setEtagHeader(Response res, String value) {
-        if (value == null) {
-            return;
-        }
-        res.header("ETag", '"' + value + '"');
-    }
 
 }

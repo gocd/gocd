@@ -205,7 +205,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
     public static final GoSystemProperty<Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
-    public static final GoSystemProperty<Boolean> GO_SPARK_ROUTER_ENABLED = new GoBooleanSystemProperty("go.spark.router.enable", false);
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 

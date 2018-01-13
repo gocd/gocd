@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import gen.com.thoughtworks.go.config.representers.RoleMapper;
 import gen.com.thoughtworks.go.config.representers.RolesMapper;
 import org.springframework.http.HttpStatus;
@@ -37,7 +36,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.api.HaltResponses.*;
-import static com.thoughtworks.go.util.SystemEnvironment.GO_SPARK_ROUTER_ENABLED;
 import static spark.Spark.*;
 
 public class RolesControllerV1Delegate extends BaseController implements CrudController<Role> {
@@ -57,9 +55,6 @@ public class RolesControllerV1Delegate extends BaseController implements CrudCon
 
     @Override
     public void setupRoutes() {
-        if (!new SystemEnvironment().get(GO_SPARK_ROUTER_ENABLED)) {
-            return;
-        }
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

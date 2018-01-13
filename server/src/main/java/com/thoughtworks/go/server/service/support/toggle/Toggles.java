@@ -23,6 +23,7 @@ public class Toggles {
     public static String PLUGIN_SPA_TOGGLE_KEY = "plugin_spa_toggle_key";
     public static String QUICKER_DASHBOARD_KEY = "quicker_dashboard_key";
     public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
+    public static String SPARK_ROUTER_ENABLED_KEY = "spark_router_enabled_key";
 
     private static FeatureToggleService service;
 

@@ -50,16 +50,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
     initMocks(this)
   }
 
-  @BeforeAll
-  static void setupRouting() {
-    SystemEnvironment.GO_SPARK_ROUTER_ENABLED.defaultValue = true
-  }
-
-  @AfterAll
-  static void disableRouting() {
-    SystemEnvironment.GO_SPARK_ROUTER_ENABLED.defaultValue = false
-  }
-
   @Mock
   private RoleConfigService roleConfigService
   @Mock

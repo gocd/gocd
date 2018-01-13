@@ -35,6 +35,11 @@
         "key": "artifact_extension_key",
         "description": "Disable artifact extension (implicit) by disabling the pluggable artifact specific config elements",
         "value": false
+      },
+      {
+        "key": "spark_router_enabled_key",
+        "description": "Whether the spark router should be enabled",
+        "value": false
       }
   ]
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.api;
 
 import com.thoughtworks.go.server.api.spring.Application;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -38,9 +39,15 @@ public class SparkPreFilter extends SparkFilter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) req;
-        String url = request.getRequestURI().replaceAll("^/go/spark/", "/go/");
-        servletHelper.getRequest(request).setRequestURI(url);
-        super.doFilter(req, resp, chain);
+        if (Toggles.isToggleOn(Toggles.SPARK_ROUTER_ENABLED_KEY)) {
+            String url = request.getRequestURI().replaceAll("^/go/spark/", "/go/");
+            servletHelper.getRequest(request).setRequestURI(url);
+            super.doFilter(req, resp, chain);
+        } else {
+            String url = request.getRequestURI().replaceAll("^/go/spark/", "/rails/");
+            req.setAttribute("rails_bound", true);
+            req.getRequestDispatcher(url).forward(req, resp);
+        }
     }
 
     @Override

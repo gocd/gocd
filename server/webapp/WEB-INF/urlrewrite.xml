@@ -25,16 +25,14 @@
 <urlrewrite>
     <rule>
         <name>Spark Security Auth Configs API Index API</name>
-        <from>^/api/admin/security/foo</from>
-        <set name="spark_bound">true</set>
-        <to last="true">/spark/api/admin/security/foo</to>
+        <from>^/api/admin/security/roles</from>
+        <to last="true">/spark/api/admin/security/roles</to>
     </rule>
 
     <rule>
         <name>Spark Security Auth Configs API</name>
-        <from>^/api/admin/security/foo/(.*)$</from>
-        <set name="spark_bound">true</set>
-        <to last="true">/spark/api/admin/security/foo/${escape:$1}</to>
+        <from>^/api/admin/security/roles/(.*)$</from>
+        <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
     </rule>
 
     <rule>

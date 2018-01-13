@@ -17,7 +17,7 @@
 package com.thoughtworks.go.api.mocks
 
 import cd.go.jrepresenter.TestRequestContext
-import com.thoughtworks.go.server.api.HaltMessages
+import com.thoughtworks.go.api.util.HaltMessages
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions

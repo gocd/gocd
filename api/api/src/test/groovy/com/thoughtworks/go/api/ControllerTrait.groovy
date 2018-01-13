@@ -19,8 +19,6 @@ package com.thoughtworks.go.api
 import cd.go.jrepresenter.RequestContext
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.api.mocks.*
-import com.thoughtworks.go.server.api.BaseController
-import com.thoughtworks.go.server.api.HttpRequestBuilder
 import spark.servlet.SparkFilter
 
 import javax.servlet.FilterConfig

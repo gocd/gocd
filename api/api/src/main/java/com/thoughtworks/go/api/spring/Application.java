@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api.spring;
+package com.thoughtworks.go.api.spring;
 
-import com.thoughtworks.go.server.api.RoutesHelper;
-import com.thoughtworks.go.server.api.SparkController;
+import com.thoughtworks.go.api.RoutesHelper;
+import com.thoughtworks.go.api.SparkController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.globalstate.ServletFlag;

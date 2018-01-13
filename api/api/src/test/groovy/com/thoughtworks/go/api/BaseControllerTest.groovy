@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api
+package com.thoughtworks.go.api
 
 import com.thoughtworks.go.api.mocks.MockHttpServletRequest
 import com.thoughtworks.go.api.mocks.MockHttpServletResponse
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
+import com.thoughtworks.go.api.util.MessageJson
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

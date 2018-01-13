@@ -22,13 +22,12 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.i18n.Localizer
-import com.thoughtworks.go.server.api.HaltMessages
-import com.thoughtworks.go.server.api.SecurityServiceTrait
-import com.thoughtworks.go.server.api.spring.AuthenticationHelper
+import com.thoughtworks.go.api.util.HaltMessages
+import com.thoughtworks.go.api.SecurityServiceTrait
+import com.thoughtworks.go.api.spring.AuthenticationHelper
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.util.SystemEnvironment
 import gen.com.thoughtworks.go.config.representers.RoleMapper
 import gen.com.thoughtworks.go.config.representers.RolesMapper
 import org.junit.jupiter.api.*
@@ -36,9 +35,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.server.api.HaltMessages.entityAlreadyExistsMessage
-import static com.thoughtworks.go.server.api.HaltMessages.etagDoesNotMatch
-import static org.mockito.ArgumentMatchers.*
+import static HaltMessages.entityAlreadyExistsMessage
+import static HaltMessages.etagDoesNotMatch
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 

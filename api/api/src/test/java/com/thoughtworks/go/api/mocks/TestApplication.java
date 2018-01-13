@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.api.mocks;
 
-import com.thoughtworks.go.server.api.BaseController;
-import com.thoughtworks.go.server.api.RoutesHelper;
+import com.thoughtworks.go.api.BaseController;
+import com.thoughtworks.go.api.RoutesHelper;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 import spark.ExceptionMapper;

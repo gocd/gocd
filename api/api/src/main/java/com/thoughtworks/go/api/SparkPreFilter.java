@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api;
+package com.thoughtworks.go.api;
 
-import com.thoughtworks.go.server.api.spring.Application;
+import com.thoughtworks.go.api.spring.Application;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.springframework.web.context.WebApplicationContext;

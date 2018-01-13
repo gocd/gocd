@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api
+package com.thoughtworks.go.api
 
+import com.thoughtworks.go.api.util.GsonTransformer
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 

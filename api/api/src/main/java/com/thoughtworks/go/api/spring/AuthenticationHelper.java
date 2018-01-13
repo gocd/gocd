@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api.spring;
+package com.thoughtworks.go.api.spring;
 
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
-import static com.thoughtworks.go.server.api.HaltResponses.haltBecauseUnauthorized;
+import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseUnauthorized;
 
 @Component
 public class AuthenticationHelper {

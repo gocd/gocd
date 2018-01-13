@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api
+package com.thoughtworks.go.api
 
 import com.google.gson.Gson
 import com.thoughtworks.go.api.mocks.MockHttpServletRequest

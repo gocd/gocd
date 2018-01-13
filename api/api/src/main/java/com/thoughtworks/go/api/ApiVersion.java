@@ -14,7 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api;
+package com.thoughtworks.go.api;
 
-public class RecordNotFoundException extends RuntimeException {
+public enum ApiVersion {
+    v1(),
+    v2(),
+    v3(),
+    v4(),
+    v5(),
+    v6();
+
+    private final String mimeType;
+
+    ApiVersion() {
+        this.mimeType = "application/vnd.go.cd." + this.name() + "+json";
+    }
+
+    public String mimeType() {
+        return this.mimeType;
+    }
 }

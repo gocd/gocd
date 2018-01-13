@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api;
+package com.thoughtworks.go.api.util;
 
 public class HaltMessages {
 

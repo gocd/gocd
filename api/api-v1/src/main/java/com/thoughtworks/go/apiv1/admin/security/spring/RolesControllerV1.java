@@ -18,8 +18,8 @@ package com.thoughtworks.go.apiv1.admin.security.spring;
 
 import com.thoughtworks.go.apiv1.admin.security.RolesControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.server.api.SparkController;
-import com.thoughtworks.go.server.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.SparkController;
+import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import org.springframework.beans.factory.annotation.Autowired;

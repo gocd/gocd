@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
+import com.thoughtworks.go.api.*;
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.server.api.*;
-import com.thoughtworks.go.server.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -35,7 +36,7 @@ import spark.Response;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.api.HaltResponses.*;
+import static com.thoughtworks.go.api.util.HaltResponses.*;
 import static spark.Spark.*;
 
 public class RolesControllerV1Delegate extends BaseController implements CrudController<Role> {

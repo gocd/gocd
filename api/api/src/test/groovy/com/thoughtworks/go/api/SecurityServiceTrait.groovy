@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api
+package com.thoughtworks.go.api
 
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.domain.Username
@@ -24,10 +24,7 @@ import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
 import org.springframework.security.providers.TestingAuthenticationToken
 
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.eq
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 
 trait SecurityServiceTrait {
 

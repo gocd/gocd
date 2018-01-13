@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api;
+package com.thoughtworks.go.api;
 
-public interface SparkController {
-
-    void setupRoutes();
+public class RecordNotFoundException extends RuntimeException {
 }

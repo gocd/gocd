@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.api;
+package com.thoughtworks.go.api;
 
 import cd.go.jrepresenter.RequestContext;
+import com.thoughtworks.go.api.util.MessageJson;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import static com.thoughtworks.go.server.api.HaltMessages.notFoundMessage;
+import static com.thoughtworks.go.api.util.HaltMessages.notFoundMessage;
 
 public interface ControllerMethods {
 

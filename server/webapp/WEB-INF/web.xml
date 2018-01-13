@@ -222,7 +222,7 @@
 
   <filter>
     <filter-name>SparkPreFilter</filter-name>
-    <filter-class>com.thoughtworks.go.server.api.SparkPreFilter</filter-class>
+    <filter-class>com.thoughtworks.go.api.SparkPreFilter</filter-class>
   </filter>
 
   <servlet-mapping>

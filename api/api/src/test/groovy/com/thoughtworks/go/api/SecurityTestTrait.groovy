@@ -17,7 +17,7 @@
 package com.thoughtworks.go.api
 
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.server.api.HaltMessages
+import com.thoughtworks.go.api.util.HaltMessages
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
 import spark.Request

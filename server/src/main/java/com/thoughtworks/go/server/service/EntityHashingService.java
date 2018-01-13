@@ -30,8 +30,12 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class EntityHashingService implements ConfigChangedListener, Initializer {
@@ -180,6 +184,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     private String computeMd5For(Object domainObject) {
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
         return CachedDigestUtils.md5Hex(xml);
+    }
+
+    public String md5ForEntity(RolesConfig roles) {
+        List<String> md5s = new ArrayList<>();
+        for (Role role : roles) {
+            md5s.add(md5ForEntity(role));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {

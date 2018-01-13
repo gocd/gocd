@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
-import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
@@ -36,13 +35,12 @@ import spark.Response;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.thoughtworks.go.server.api.HaltResponses.*;
 import static com.thoughtworks.go.util.SystemEnvironment.GO_SPARK_ROUTER_ENABLED;
 import static spark.Spark.*;
 
-public class RolesControllerV1Delegate extends BaseController {
+public class RolesControllerV1Delegate extends BaseController implements CrudController<Role> {
     private final RoleConfigService roleConfigService;
     private final AuthenticationHelper authenticationHelper;
     private final EntityHashingService entityHashingService;
@@ -88,32 +86,37 @@ public class RolesControllerV1Delegate extends BaseController {
 
     @Override
     protected String controllerBasePath() {
-        return "/api/admin/security/foo";
+        return "/api/admin/security/roles";
     }
 
     public Map index(Request req, Response res) throws InvalidPluginTypeException {
         String pluginType = req.queryParams("type");
         RolesConfig roles = roleConfigService.getRoles().ofType(pluginType);
-        RequestContext requestContext = requestContext(req);
-        return RolesMapper.toJSON(roles, requestContext);
+        String etag = entityHashingService.md5ForEntity(roles);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        } else {
+            setEtagHeader(res, etag);
+            return RolesMapper.toJSON(roles, requestContext(req));
+        }
     }
 
     public Map show(Request req, Response res) {
-        Role role = getRoleFromConfig(req.params("role_name"));
+        Role role = getEntityFromConfig(req.params("role_name"));
 
-        addETag(role, res);
-
-        if (etagNotMatching(req, role)) {
-            return RoleMapper.toJSON(role, requestContext(req));
-        } else {
+        if (isGetOrHeadRequestFresh(req, role)) {
             return notModified(res);
+        } else {
+            setEtagHeader(role, res);
+            return RoleMapper.toJSON(role, requestContext(req));
         }
     }
 
     public Map create(Request req, Response res) {
-        Role role = getRoleFromRequestBody(req);
+        Role role = getEntityFromRequestBody(req);
 
-        haltIfRoleBySameNameExists(req, role);
+        haltIfEntityBySameNameInRequestExists(req, role);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         roleConfigService.create(UserHelper.getUserName(), role, result);
@@ -123,12 +126,13 @@ public class RolesControllerV1Delegate extends BaseController {
 
     public Map update(Request req, Response res) {
         Role roleFromServer = roleConfigService.findRole(req.params(":role_name"));
-        Role roleFromRequest = getRoleFromRequestBody(req);
+        Role roleFromRequest = getEntityFromRequestBody(req);
+
         if (isRenameAttempt(roleFromServer, roleFromRequest)) {
             throw haltBecauseRenameOfEntityIsNotSupported("roles");
         }
 
-        if (etagNotMatching(req, roleFromServer)) {
+        if (!isPutRequestFresh(req, roleFromServer)) {
             throw haltBecauseEtagDoesNotMatch("role", roleFromServer.getName());
         }
 
@@ -138,7 +142,7 @@ public class RolesControllerV1Delegate extends BaseController {
     }
 
     public Map destroy(Request req, Response res) {
-        Role role = getRoleFromConfig(req.params("role_name"));
+        Role role = getEntityFromConfig(req.params("role_name"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         roleConfigService.delete(UserHelper.getUserName(), role, result);
 
@@ -146,52 +150,41 @@ public class RolesControllerV1Delegate extends BaseController {
         return Collections.singletonMap("message", result.message(localizer));
     }
 
-    protected String etagFor(Role role) {
-        return entityHashingService.md5ForEntity(role);
+    @Override
+    public String etagFor(Role entityFromServer) {
+        return entityHashingService.md5ForEntity(entityFromServer);
     }
 
-    private boolean isRenameAttempt(Role fromServer, Role fromRequest) {
+    @Override
+    public boolean isRenameAttempt(Role fromServer, Role fromRequest) {
         return !fromServer.getName().equals(fromRequest.getName());
     }
 
-    private Role getRoleFromConfig(String roleName) {
-        Role role = roleConfigService.findRole(roleName);
-        if (role == null) {
-            throw new RecordNotFoundException();
-        }
-        return role;
+    @Override
+    public Localizer getLocalizer() {
+        return localizer;
     }
 
-    private void haltIfRoleBySameNameExists(Request req, Role role) {
+    @Override
+    public Role doGetEntityFromConfig(String name) {
+        return roleConfigService.findRole(name);
+    }
+
+    @Override
+    public Role getEntityFromRequestBody(Request req) {
+        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class));
+    }
+
+    @Override
+    public Map jsonize(Request req, Role role) {
+        return RoleMapper.toJSON(role, requestContext(req));
+    }
+
+    private void haltIfEntityBySameNameInRequestExists(Request req, Role role) {
         if (roleConfigService.findRole(role.getName().toString()) == null) {
             return;
         }
         role.addError("name", "Role names should be unique. Role with the same name exists.");
-        throw haltBecauseEntityAlreadyExists(RoleMapper.toJSON(role, requestContext(req)), "role", role.getName());
-    }
-
-
-    private Role getRoleFromRequestBody(Request req) {
-        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class));
-    }
-
-    private Map handleCreateOrUpdateResponse(Request req, Response res, Role role, HttpLocalizedOperationResult result) {
-        if (result.isSuccessful()) {
-            addETag(role, res);
-            return RoleMapper.toJSON(role, requestContext(req));
-        } else {
-            res.status(result.httpCode());
-            return Collections.singletonMap("message", result.message(localizer));
-        }
-    }
-
-    private boolean etagNotMatching(Request req, Role entity) {
-        String etagFromClient = getIfMatch(req);
-        String etagFromServer = etagFor(entity);
-        return !Objects.equals(etagFromClient, etagFromServer);
-    }
-
-    private void addETag(Role entity, Response res) {
-        res.header("ETag", etagFor(entity));
+        throw haltBecauseEntityAlreadyExists(jsonize(req, role), "role", role.getName());
     }
 }

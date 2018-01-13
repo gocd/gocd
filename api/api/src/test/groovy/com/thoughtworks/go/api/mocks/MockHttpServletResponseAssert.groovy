@@ -95,7 +95,7 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
   }
 
   MockHttpServletResponseAssert isNotModified() {
-    return hasStatus(304).hasNoBody()
+    return hasStatus(304).hasEtag(null).hasNoBody()
   }
 
   MockHttpServletResponseAssert hasNoBody() {

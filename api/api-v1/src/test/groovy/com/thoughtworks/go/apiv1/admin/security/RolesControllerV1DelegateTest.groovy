@@ -38,6 +38,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.server.api.HaltMessages.entityAlreadyExistsMessage
 import static com.thoughtworks.go.server.api.HaltMessages.etagDoesNotMatch
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -143,12 +144,14 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
       @Test
       void 'should list all security auth configs'() {
         def expectedRoles = new RolesConfig([new PluginRoleConfig('foo', 'ldap')])
+        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
           .hasJsonBodySerializedWith(expectedRoles, RolesMapper)
       }
@@ -158,6 +161,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         def pluginRoleConfig = new PluginRoleConfig('foo', 'ldap')
         def gocdRoleConfig = new RoleConfig('bar')
         def expectedRoles = new RolesConfig([pluginRoleConfig, gocdRoleConfig])
+        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
         getWithApiHeader(controller.controllerPath(type: 'plugin'))
@@ -176,8 +180,23 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isBadRequest()
+          .hasEtag(null)
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Bad role type `bad-role-type`. Valid values are gocd, plugin")
+      }
+
+      @Test
+      void 'should render 304 if etag matches'() {
+        def expectedRoles = new RolesConfig([new PluginRoleConfig('foo', 'ldap')])
+
+        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
+        when(roleConfigService.getRoles()).thenReturn(expectedRoles)
+
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"some-etag"'])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
       }
     }
   }
@@ -263,7 +282,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
-          .hasEtag('md5')
+          .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
           .hasJsonBodySerializedWith(role, RoleMapper)
       }
@@ -285,11 +304,25 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         def role = new PluginRoleConfig('blackbird', 'ldap')
         when(entityHashingService.md5ForEntity(role)).thenReturn('md5')
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
-        getWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'md5'])
+        getWithApiHeader(controller.controllerPath('/blackbird'), ['if-none-match': '"md5"'])
 
         assertThatResponse()
           .isNotModified()
           .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should render 200 if etag does not match'() {
+        def role = new PluginRoleConfig('blackbird', 'ldap')
+        when(entityHashingService.md5ForEntity(role)).thenReturn('md5')
+        when(roleConfigService.findRole('blackbird')).thenReturn(role)
+        getWithApiHeader(controller.controllerPath('/blackbird'), ['if-none-match': '"junk"'])
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasJsonBodySerializedWith(role, RoleMapper)
       }
     }
   }
@@ -369,7 +402,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
       @Test
       void 'should deserialize auth config from given parameters'() {
         PluginRoleConfig role = new PluginRoleConfig('blackbird', 'blackbird')
-        when(controller.etagFor((Role) role)).thenReturn('some-md5')
+        when(entityHashingService.md5ForEntity(role)).thenReturn('some-md5')
         when(roleConfigService.findRole('blackbird')).thenReturn(null)
         doNothing().when(roleConfigService).create(any(), any(), any())
 
@@ -377,6 +410,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"some-md5"')
           .hasContentType(controller.mimeType)
           .hasJsonBodySerializedWith(role, RoleMapper)
       }
@@ -543,7 +577,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         Role role = new PluginRoleConfig('blackbird', 'ldap')
         Role newRole = new PluginRoleConfig('blackbird', 'blackbird')
 
-
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
         when(entityHashingService.md5ForEntity(role)).thenReturn('cached-md5')
         when(entityHashingService.md5ForEntity(newRole)).thenReturn('new-md5')
@@ -552,7 +585,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
-          .hasEtag('new-md5')
+          .hasEtag('"new-md5"')
           .hasContentType(controller.mimeType)
           .hasJsonBodySerializedWith(newRole, RoleMapper)
       }

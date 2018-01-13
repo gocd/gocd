@@ -47,6 +47,7 @@ public class RoutesHelper {
 
     public void init() {
         before("/*", (request, response) -> request.attribute(TIMER_START, new RuntimeHeaderEmitter(request, response)));
+        before("/*", (request, response) -> response.header("Cache-Control", "max-age=0, private, must-revalidate"));
 
         controllers.forEach(SparkController::setupRoutes);
         sparkControllers.forEach(BaseController::setupRoutes);

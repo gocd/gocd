@@ -65,7 +65,7 @@ trait SecurityServiceTrait {
   void loginAsAnonymous() {
     SecurityContextHolder.getContext().setAuthentication(null)
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
-    when(securityService.isUserGroupAdmin()).thenReturn(false)
+    when(securityService.isUserGroupAdmin(any())).thenReturn(false)
     when(securityService.isAuthorizedToViewAndEditTemplates()).thenReturn(false)
     when(securityService.isAuthorizedToEditTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)

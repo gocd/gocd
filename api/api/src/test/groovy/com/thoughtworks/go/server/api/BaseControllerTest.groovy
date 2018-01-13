@@ -26,7 +26,6 @@ import spark.HaltException
 import spark.Request
 import spark.RequestResponseFactory
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode
 
 class BaseControllerTest {
@@ -46,10 +45,8 @@ class BaseControllerTest {
       void setupRoutes() {
 
       }
-
     }
   }
-
 
   @Nested
   class verifyContentType {
@@ -166,27 +163,4 @@ class BaseControllerTest {
     }
   }
 
-  @Nested
-  class getIfMatch {
-
-    @Test
-    void 'should return etag from request'() {
-      def req = HttpRequestBuilder.GET().withHeaders(['if-match': '"foo"']).build()
-      assertThat(baseController.getIfMatch(RequestResponseFactory.create(req))).isEqualTo('"foo"')
-    }
-
-    @Test
-    void 'should return null when etag is not present in request'() {
-      assertThat(baseController.getIfMatch(RequestResponseFactory.create(new MockHttpServletRequest()))).isNull()
-    }
-
-    @Test
-    void 'should handle weak etag'() {
-      def req = HttpRequestBuilder.GET().withHeaders(['if-match': '"foo--deflate"']).build()
-      assertThat(baseController.getIfMatch(RequestResponseFactory.create(req))).isEqualTo('"foo"')
-
-      req = HttpRequestBuilder.GET().withHeaders(['if-match': '"foo--gzip"']).build()
-      assertThat(baseController.getIfMatch(RequestResponseFactory.create(req))).isEqualTo('"foo"')
-    }
-  }
 }

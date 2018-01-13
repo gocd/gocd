@@ -16,14 +16,13 @@
   -->
 
 <!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
-        "http://tuckey.org/res/dtds/urlrewrite3.2.dtd">
+        "http://www.tuckey.org/res/dtds/urlrewrite3.2.dtd">
 
 <!--
     Configuration file for UrlRewriteFilter 2.6
     http://tuckey.org/urlrewrite/
 -->
 <urlrewrite>
-
     <rule>
         <name>Spark Security Auth Configs API Index API</name>
         <from>^/api/admin/security/foo</from>
@@ -31,12 +30,12 @@
         <to last="true">/spark/api/admin/security/foo</to>
     </rule>
 
-    <!--<rule>-->
-        <!--<name>Spark Security Auth Configs API</name>-->
-        <!--<from>^/api/admin/security/foo/(.*)$</from>-->
-        <!--<set name="spark_bound">true</set>-->
-        <!--<to last="true">/spark/api/admin/security/foo/${escape:$1}</to>-->
-    <!--</rule>-->
+    <rule>
+        <name>Spark Security Auth Configs API</name>
+        <from>^/api/admin/security/foo/(.*)$</from>
+        <set name="spark_bound">true</set>
+        <to last="true">/spark/api/admin/security/foo/${escape:$1}</to>
+    </rule>
 
     <rule>
         <name>Initialize for_rails</name>
@@ -104,7 +103,7 @@
         <set name="rails_bound">true</set>
     </rule>
 
-    <rule>  
+    <rule>
         <name>Rails Security Auth Config UI</name>
         <from>^/admin/security/auth_configs$</from>
         <to last="true">/rails/admin/security/auth_configs</to>

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.api;
 
-import cd.go.jrepresenter.RequestContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -30,11 +29,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.server.api.HaltMessages.notFoundMessage;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static spark.Spark.halt;
 
-public abstract class BaseController {
+public abstract class BaseController implements ControllerMethods {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
 
     protected final ApiVersion apiVersion;
@@ -43,10 +41,6 @@ public abstract class BaseController {
     protected BaseController(ApiVersion apiVersion) {
         this.apiVersion = apiVersion;
         this.mimeType = apiVersion.mimeType();
-    }
-
-    protected RequestContext requestContext(Request req) {
-        return new RequestContext(req.scheme(), req.raw().getServerName(), req.port());
     }
 
     public String controllerPath(String... paths) {
@@ -84,15 +78,6 @@ public abstract class BaseController {
         return MessageJson.create(ex.getMessage());
     }
 
-    protected String getIfMatch(Request request) {
-        //possibly move to a filter/middleware?
-        String etag = request.headers("If-Match");
-        if (etag == null) {
-            return null;
-        }
-        return etag.replaceAll("--(gzip|deflate)\"$", "\"");
-    }
-
     protected void verifyContentType(Request request, Response response) {
         if (!UPDATE_HTTP_METHODS.contains(request.requestMethod().toUpperCase())) {
             return;
@@ -107,11 +92,6 @@ public abstract class BaseController {
         }
     }
 
-    protected void notFound(Exception ex, Request req, Response res) {
-        res.status(HttpStatus.NOT_FOUND.value());
-        res.body(MessageJson.create(notFoundMessage()));
-    }
-
     protected boolean isJsonContentType(Request request) {
         String mime = request.headers("Content-Type");
         if (isBlank(mime)) {
@@ -124,8 +104,7 @@ public abstract class BaseController {
         }
     }
 
-    protected <ALWAYS_NULL> ALWAYS_NULL notModified(Response res) {
-        res.status(304);
-        return null;
+    public String getMimeType() {
+        return mimeType;
     }
 }

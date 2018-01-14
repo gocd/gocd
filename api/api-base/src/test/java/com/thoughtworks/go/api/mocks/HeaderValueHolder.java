@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications 2018 ThoughtWorks, Inc.
+ * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
 

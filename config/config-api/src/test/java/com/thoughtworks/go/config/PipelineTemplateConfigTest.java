@@ -215,6 +215,24 @@ public class PipelineTemplateConfigTest {
     }
 
     @Test
+    public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("non-existent-role")))));
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" defined for `pipeline` does not exist.")));
+    }
+
+    @Test
     public void shouldValidateTemplateStageUsedInDownstreamPipelines() {
         JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
         jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));

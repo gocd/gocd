@@ -87,7 +87,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
             PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
-            validateFetchTasksAndElasticProfileId(pipelineConfig, contextForStages);
+            validatePartsOfPipelineConfig(pipelineConfig, contextForStages);
             validateDependenciesOfDownstreams(pipelineConfig, contextForStages);
         }
     }
@@ -98,14 +98,23 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         this.errors().addAll(pipelineConfig.errors());
     }
 
-    private void validateFetchTasksAndElasticProfileId(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+    private void validatePartsOfPipelineConfig(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
         for (StageConfig stageConfig : pipelineConfig.getStages()) {
-            PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
+            PipelineConfigSaveValidationContext contextForChildren = contextForStages.withParent(stageConfig);
+            validateStageApprovalAuthorization(stageConfig, contextForChildren);
             for (JobConfig jobConfig : stageConfig.getJobs()) {
-                PipelineConfigSaveValidationContext contextForTasks = contextForJobs.withParent(jobConfig);
+                PipelineConfigSaveValidationContext contextForTasks = contextForChildren.withParent(jobConfig);
                 validateFetchTasks(jobConfig, contextForTasks);
                 validateElasticProfileId(jobConfig, contextForTasks);
             }
+        }
+    }
+
+    private void validateStageApprovalAuthorization(StageConfig stageConfig, PipelineConfigSaveValidationContext contextForChildren) {
+        //validate only the users and roles in the stage approval. The other validations are taken care of during the template validation itself.
+        Approval approval = stageConfig.getApproval();
+        if (!approval.validateAuthConfig(contextForChildren, true)) {
+            this.errors().addAll(approval.getAuthConfig().errors());
         }
     }
 

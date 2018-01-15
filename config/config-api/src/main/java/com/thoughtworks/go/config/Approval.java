@@ -113,6 +113,11 @@ public class Approval implements Validatable, ParamsAttributeAware {
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors.isEmpty();
+        isValid = validateAuthConfig(validationContext, isValid);
+        return isValid;
+    }
+
+    public boolean validateAuthConfig(ValidationContext validationContext, boolean isValid) {
         for (Admin admin : authConfig) {
             admin.validate(validationContext);
             authConfig.errors().addAll(admin.errors());

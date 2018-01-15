@@ -54,15 +54,16 @@ public class AdminRoleTest {
     }
 
     @Test
-    public void shouldAddValidationErrorIfRoleNameInPipelinesAuthorizationDoesNotExist_PipelineConfigSaveValidationContext()  {
+    public void shouldAddValidationErrorWithPipelineNameIfRoleNameInPipelinesAuthorizationDoesNotExist_PipelineConfigSaveValidationContext()  {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role2"));
         PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setName("foo");
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs(new Authorization(new ViewConfig(role)), pipelineConfig);
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         role.validate(PipelineConfigSaveValidationContext.forChain(true, "group",config, pipelineConfig));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" does not exist."));
+        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" defined for `foo` does not exist."));
     }
 
     @Test

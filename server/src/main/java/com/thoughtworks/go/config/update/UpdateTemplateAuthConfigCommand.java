@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -38,5 +35,24 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
     public void update(CruiseConfig modifiedConfig) throws Exception {
         PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
         existingTemplateConfig.setAuthorization(authorization);
+    }
+
+    @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        TemplatesConfig templates = preprocessedConfig.getTemplates();
+        preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
+        preprocessedTemplateConfig.validateTemplateAuth(new DelegatingValidationContext(ConfigSaveValidationContext.forChain(preprocessedConfig, templates)) {
+            @Override
+            public boolean shouldNotCheckRole() {
+                return false;
+            }
+        });
+
+        if (!preprocessedTemplateConfig.getAuthorization().getAllErrors().isEmpty()) {
+            BasicCruiseConfig.copyErrors(preprocessedTemplateConfig.getAuthorization(), authorization);
+            return false;
+        }
+        return true;
+
     }
 }

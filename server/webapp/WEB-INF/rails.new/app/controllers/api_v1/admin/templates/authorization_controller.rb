@@ -23,8 +23,6 @@ module ApiV1
         before_action :load_template, only: [:show, :update]
         before_action :check_for_stale_request, only: [:update]
 
-        CLONER = Cloner.new
-
         def show
           json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(@template.getAuthorization).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
@@ -32,11 +30,9 @@ module ApiV1
 
         def update
           result = HttpLocalizedOperationResult.new
-          authorization = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(com.thoughtworks.go.config.Authorization.new).from_hash(params[:authorization])
-          updated_template = CLONER.deepClone(@template)
-          updated_template.setAuthorization(authorization)
-          template_config_service.updateTemplateAuthConfig(current_user, updated_template, authorization, result, etag_for(@template))
-          handle_update_response(result, updated_template)
+          updated_authorization = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(com.thoughtworks.go.config.Authorization.new).from_hash(params[:authorization])
+          template_config_service.updateTemplateAuthConfig(current_user, @template, updated_authorization, result, etag_for(@template))
+          handle_update_response(result, updated_authorization)
         end
         
         private
@@ -46,8 +42,8 @@ module ApiV1
           raise RecordNotFound unless @template
         end
 
-        def handle_update_response(result, updated_template)
-          json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(updated_template.getAuthorization).to_hash(url_builder: self)
+        def handle_update_response(result, updated_authorization)
+          json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(updated_authorization).to_hash(url_builder: self)
           if result.isSuccessful
             response.etag = [etag_for(updated_template)]
             render DEFAULT_FORMAT => json

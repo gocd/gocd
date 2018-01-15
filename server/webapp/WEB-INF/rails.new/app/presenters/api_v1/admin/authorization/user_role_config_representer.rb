@@ -19,7 +19,7 @@ module ApiV1
     module Authorization
       class UserRoleConfigRepresenter < BaseRepresenter
 
-        error_representer({"name" => "roles"})
+        error_representer
 
         collection :roles,
                    getter: lambda {|roles| roles().map {|role| role.getName().to_s}},

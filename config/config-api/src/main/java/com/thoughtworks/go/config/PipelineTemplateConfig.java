@@ -158,7 +158,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         });
     }
 
-    private void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
+    public void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
         for (Admin admin : getAuthorization().getAdminsConfig()) {
             admin.validate(validationContextWhichChecksForRole);
             authorization.getAdminsConfig().errors().addAll(admin.errors());

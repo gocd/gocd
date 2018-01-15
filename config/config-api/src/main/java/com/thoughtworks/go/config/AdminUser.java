@@ -60,7 +60,7 @@ public class AdminUser implements Admin {
     }
 
     public void addError(String message) {
-        errors().add("name", message);
+        errors().add("users", message);
     }
 
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {

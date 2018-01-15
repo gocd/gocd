@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import java.util.Arrays;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -73,4 +75,17 @@ public class UpdateTemplateAuthConfigCommandTest {
 
     }
 
+    @Test
+    public void shouldCopyOverErrorsOnAuthorizationFromThePreprocessedTemplateConfig() throws Exception {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
+        Authorization templateAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString(""))));
+        updatedTemplateConfig.setAuthorization(templateAuthorization);
+        cruiseConfig.addTemplate(updatedTemplateConfig);
+
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
+        assertFalse(command.isValid(cruiseConfig));
+
+        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles"), is(Arrays.asList("Role \"\" does not exist.")));
+    }
 }

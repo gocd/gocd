@@ -228,6 +228,10 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return configErrors;
     }
 
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

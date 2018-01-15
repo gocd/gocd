@@ -36,4 +36,9 @@ public class ConfigurationPropertyMother {
     public static ConfigurationProperty create(String key, String value, String encryptedValue) {
         return new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value), new EncryptedConfigurationValue(encryptedValue), null);
     }
+
+    public static ConfigurationProperty createKeyOnly(String key) {
+        ConfigurationValue configurationValue = null;
+        return new ConfigurationProperty(new ConfigurationKey(key), configurationValue);
+    }
 }

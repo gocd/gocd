@@ -43,6 +43,13 @@ class ConfigurationPropertyRepresenterTest {
       def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'password', encrypted_value: configProperty.getEncryptedValue()])
     }
+
+    @Test
+    void 'it should serialize property with null value'() {
+      def configProperty = ConfigurationPropertyMother.createKeyOnly("Username")
+      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      assertThatJson(map).isEqualTo([key: 'Username'])
+    }
   }
 
   @Nested

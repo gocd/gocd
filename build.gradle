@@ -169,6 +169,54 @@ rootProject.ext.versions = [
   xmlUnitMatchers     : '2.5.1',
 ]
 
+task licenseHeaderCheck {
+  doFirst {
+    FileTree tree = fileTree(dir: project.projectDir, includes: ['**/*.java', '**/*.xml', "**/*.rb", "**/*.js*", "**/*.scss", "**/*.css"])
+    tree.excludes = [".idea/**",
+                     "**/target/",
+                     "**/out/",
+                     "**/src/*test*/resources",
+                     "tools/",
+                     "**/package.json",
+                     "**/*.erb",
+                     "**/test.rb",
+                     "**/test_service_cache.rb",
+                     "plugin-infra/go-plugin-access/**/migrations",
+                     "**/plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/**",
+                     "server/webapp/scripts",
+                     "server/config/cruise-config.xml",
+                     "server/webapp/WEB-INF/rails.new/vendor",
+                     "server/webapp/WEB-INF/rails.new/**/assets",
+                     "server/webapp/WEB-INF/rails.new/spec/javascripts",
+                     "server/webapp/WEB-INF/rails.new/node_modules",
+                     "**/rails.new/spec/webpack/patches",
+                     "**/WEB-INF/rails.new/webpack/gen",
+                     "**/spec/webpack/helpers/fixup-stacktraces.js",
+                     "**/admin/commands/matched_command_snippets.json",
+                     "**/server/plugins_work/**",
+                     "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml",
+                     "server/webapp/WEB-INF/rails.new/tmp/**",
+                     "server/db/config.git/cruise-config.xml",
+                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/HeaderValueHolder.java",
+                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletRequest.java",
+                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletResponse.java",
+    ]
+
+    def filesWithoutLicenseHeader = []
+    tree.each { File file ->
+      if (!file.getText("UTF-8").findAll(/Copyright \d\d\d\d ThoughtWorks, Inc./)) {
+        filesWithoutLicenseHeader << file
+      }
+    }
+
+    if (filesWithoutLicenseHeader.size() > 0) {
+      throw new GradleException("License header missing on following files\n" + filesWithoutLicenseHeader.join("\n"))
+    } else {
+      println "License header verified."
+    }
+  }
+}
+
 allprojects {
   apply plugin: 'idea'
 
@@ -230,7 +278,7 @@ subprojects {
   }
 
   clean.dependsOn cleanLogs
-  check.dependsOn 'licenseHeaderCheck'
+  check.dependsOn licenseHeaderCheck
 
   tasks.withType(Jar) { jarTask ->
     manifest {
@@ -367,54 +415,6 @@ subprojects {
       if (details.requested.name == 'commons-logging' && details.requested.group == 'commons-logging') {
         details.useTarget group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j
       }
-    }
-  }
-}
-
-task licenseHeaderCheck {
-  doFirst {
-    FileTree tree = fileTree(dir: project.projectDir, includes: ['**/*.java', '**/*.xml', "**/*.rb", "**/*.js*", "**/*.scss", "**/*.css"])
-    tree.excludes = [".idea/**",
-                     "**/target/",
-                     "**/out/",
-                     "**/src/*test*/resources",
-                     "tools/",
-                     "**/package.json",
-                     "**/*.erb",
-                     "**/test.rb",
-                     "**/test_service_cache.rb",
-                     "plugin-infra/go-plugin-access/**/migrations",
-                     "**/plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/**",
-                     "server/webapp/scripts",
-                     "server/config/cruise-config.xml",
-                     "server/webapp/WEB-INF/rails.new/vendor",
-                     "server/webapp/WEB-INF/rails.new/**/assets",
-                     "server/webapp/WEB-INF/rails.new/spec/javascripts",
-                     "server/webapp/WEB-INF/rails.new/node_modules",
-                     "**/rails.new/spec/webpack/patches",
-                     "**/WEB-INF/rails.new/webpack/gen",
-                     "**/spec/webpack/helpers/fixup-stacktraces.js",
-                     "**/admin/commands/matched_command_snippets.json",
-                     "**/server/plugins_work/**",
-                     "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml",
-                     "server/webapp/WEB-INF/rails.new/tmp/**",
-                     "server/db/config.git/cruise-config.xml",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/HeaderValueHolder.java",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletRequest.java",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletResponse.java",
-    ]
-
-    def filesWithoutLicenseHeader = []
-    tree.each { File file ->
-      if (!file.getText("UTF-8").findAll(/Copyright \d\d\d\d ThoughtWorks, Inc./)) {
-        filesWithoutLicenseHeader << file
-      }
-    }
-
-    if (filesWithoutLicenseHeader.size() > 0) {
-      throw new GradleException("License header missing on following files\n" + filesWithoutLicenseHeader.join("\n"))
-    } else {
-      println "License header verified."
     }
   }
 }

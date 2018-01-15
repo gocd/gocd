@@ -75,14 +75,14 @@ public interface ConfigurationPropertyRepresenter {
     class ConfigurationValueSerializer implements Function<ConfigurationValue, String> {
         @Override
         public String apply(ConfigurationValue configurationValue) {
-            return configurationValue.getValue();
+            return configurationValue == null ? null : configurationValue.getValue();
         }
     }
 
     class EncryptedConfigurationValueSerializer implements Function<EncryptedConfigurationValue, String> {
         @Override
         public String apply(EncryptedConfigurationValue configurationValue) {
-            return configurationValue.getValue();
+            return configurationValue == null ? null : configurationValue.getValue();
         }
     }
 

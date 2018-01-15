@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ configurations {
 
 dependencies {
   compile project(':server')
-  compile project(':api')
-  compile project(':api-v1')
+  compile project(':api').subprojects
   compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty

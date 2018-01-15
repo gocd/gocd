@@ -29,6 +29,9 @@ apply plugin: 'jacoco'
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
+
+  compile group: 'cd.go.jrepresenter', name: 'annotation', version: project.versions.jrepresenter
+
   compile project(':server')
 
   compile(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {

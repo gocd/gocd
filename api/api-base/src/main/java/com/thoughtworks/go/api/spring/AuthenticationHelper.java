@@ -50,5 +50,4 @@ public class AuthenticationHelper {
             throw haltBecauseUnauthorized();
         }
     }
-
 }

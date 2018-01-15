@@ -39,7 +39,6 @@ import org.mockito.invocation.InvocationOnMock
 
 import static HaltMessages.entityAlreadyExistsMessage
 import static HaltMessages.etagDoesNotMatch
-import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 

@@ -53,10 +53,9 @@ hs_err_pid*
 
 resources-generated/
 
-api/api/target
-api/api/config/cipher
-api/api-v1/target
-api/api-v1/config/cipher
+api/*/target/
+api/*/generated/
+api/*/config/cipher
 addon-api/database/target/
 agent-bootstrapper/.agent-bootstrapper.running
 agent-bootstrapper/.tmp.file.list
@@ -89,8 +88,6 @@ common/logs/
 config/config-api/target/
 config/config-server/target/
 config/config-server/config/cipher
-config/config-representers/generated/
-config/config-representers/config/
 db/target/
 development-utility/development-agent/target/
 development-utility/development-server/target/

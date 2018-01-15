@@ -30,7 +30,7 @@ apply plugin: 'groovy'
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
-  compile project(':api-base')
+  compile project(':api:api-base')
 
-  testCompile project(path: ':api-base', configuration: 'testOutput')
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
 }

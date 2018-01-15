@@ -30,7 +30,6 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 trait SecurityServiceTrait {
-
   SecurityService securityService = mock(SecurityService.class)
 
   void loginAsAdmin() {

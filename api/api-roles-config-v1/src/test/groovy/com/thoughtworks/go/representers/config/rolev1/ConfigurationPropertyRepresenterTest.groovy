@@ -20,6 +20,7 @@ import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
 import gen.com.thoughtworks.go.representers.config.rolev1.ConfigurationPropertyMapper
+import org.junit.BeforeClass
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -27,6 +28,12 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class ConfigurationPropertyRepresenterTest {
+
+  @BeforeClass
+  static void init() {
+    //TODO need to find a better workaround
+    System.setProperty("json-unit.libraries", "gson");
+  }
 
   @Nested
   class Serialize {
@@ -49,6 +56,16 @@ class ConfigurationPropertyRepresenterTest {
       def configProperty = ConfigurationPropertyMother.createKeyOnly("Username")
       def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'Username'])
+    }
+
+    @Test
+    void 'it should serialize with errors'() {
+      def configProperty = ConfigurationPropertyMother.create("user", false, "bob")
+      configProperty.addError("encryptedValue", "blah")
+      configProperty.addError("encryptedValue", "boo")
+
+      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      assertThatJson(map).isEqualTo([key: 'user', value: 'bob', "errors": ["encrypted_value": ["blah", "boo"]]])
     }
   }
 

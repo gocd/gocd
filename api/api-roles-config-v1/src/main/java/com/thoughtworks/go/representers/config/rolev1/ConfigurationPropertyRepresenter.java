@@ -16,16 +16,22 @@
 
 package com.thoughtworks.go.representers.config.rolev1;
 
+import cd.go.jrepresenter.annotations.Errors;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
 import com.google.gson.JsonIOException;
+import com.thoughtworks.go.api.ErrorGetter;
+import com.thoughtworks.go.api.IfNoErrors;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Represents(
         value = ConfigurationProperty.class,
@@ -45,7 +51,7 @@ public interface ConfigurationPropertyRepresenter {
             modelAttributeName = "configurationValue",
             serializer = ConfigurationValueSerializer.class,
             deserializer = ConfigurationValueDeserializer.class,
-            skipRender = IfSecureConfigurationValue.class
+            skipRender = IfSecureConfigurationValueOrNull.class
     )
     String value();
 
@@ -54,9 +60,12 @@ public interface ConfigurationPropertyRepresenter {
             modelAttributeType = EncryptedConfigurationValue.class,
             modelAttributeName = "encryptedValue",
             deserializer = EncryptedConfigurationValueDeserializer.class,
-            skipRender = IfPlainTextConfigurationValue.class
+            skipRender = IfPlainTextConfigurationValueOrNull.class
     )
     String encryptedValue();
+
+    @Errors(getter = ConfigurationPropertyRoleGetter.class, skipRender = IfNoErrors.class)
+    Map errors();
 
     class ConfigurationKeySerializer implements Function<ConfigurationKey, String> {
         @Override
@@ -100,17 +109,17 @@ public interface ConfigurationPropertyRepresenter {
         }
     }
 
-    class IfPlainTextConfigurationValue implements Function<ConfigurationProperty, Boolean> {
+    class IfPlainTextConfigurationValueOrNull implements Function<ConfigurationProperty, Boolean> {
         @Override
         public Boolean apply(ConfigurationProperty configurationProperty) {
-            return !configurationProperty.isSecure();
+            return !configurationProperty.isSecure() || isBlank(configurationProperty.getEncryptedValue());
         }
     }
 
-    class IfSecureConfigurationValue implements Function<ConfigurationProperty, Boolean> {
+    class IfSecureConfigurationValueOrNull implements Function<ConfigurationProperty, Boolean> {
         @Override
         public Boolean apply(ConfigurationProperty configurationProperty) {
-            return configurationProperty.isSecure();
+            return configurationProperty.isSecure() || isBlank(configurationProperty.getConfigValue());
         }
     }
 
@@ -125,6 +134,16 @@ public interface ConfigurationPropertyRepresenter {
             } catch (Exception e) {
                 throw new JsonIOException("Could not parse configuration property", e);
             }
+        }
+    }
+
+    class ConfigurationPropertyRoleGetter extends ErrorGetter {
+        public ConfigurationPropertyRoleGetter() {
+            super(new LinkedHashMap<String, String>() {{
+                put("encryptedValue", "encrypted_value");
+                put("configurationValue", "configuration_value");
+                put("configurationKey", "configuration_key");
+            }});
         }
     }
 }

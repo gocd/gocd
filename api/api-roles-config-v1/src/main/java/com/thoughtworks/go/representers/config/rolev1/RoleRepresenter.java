@@ -20,12 +20,15 @@ import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
 import cd.go.jrepresenter.annotations.RepresentsSubClasses;
 import cd.go.jrepresenter.util.TrueFunction;
+import com.thoughtworks.go.api.ErrorGetter;
+import com.thoughtworks.go.api.IfNoErrors;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.representers.config.CaseInsensitiveStringDeserializer;
 import com.thoughtworks.go.representers.config.CaseInsensitiveStringSerializer;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -55,7 +58,7 @@ public interface RoleRepresenter {
 
     @Property(skipParse = TrueFunction.class,
             skipRender = IfNoErrors.class,
-            getter = ErrorGetter.class,
+            getter = RoleErrorGetter.class,
             modelAttributeType = Map.class,
             modelAttributeName = "errors")
     Map errors();
@@ -72,17 +75,9 @@ public interface RoleRepresenter {
         }
     }
 
-    class IfNoErrors implements Function<Role, Boolean> {
-        @Override
-        public Boolean apply(Role role) {
-            return !role.hasErrors();
-        }
-    }
-
-    class ErrorGetter implements Function<Role, Map> {
-        @Override
-        public Map apply(Role roleConfig) {
-            return roleConfig.errors();
+    class RoleErrorGetter extends ErrorGetter {
+        public RoleErrorGetter() {
+            super(Collections.singletonMap("authConfigId", "auth_config_id"));
         }
     }
 

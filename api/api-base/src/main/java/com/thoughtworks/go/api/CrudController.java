@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -62,8 +62,14 @@ public interface CrudController<Entity> extends ControllerMethods {
             setEtagHeader(entity, res);
             return jsonize(req, entity);
         } else {
+            Map data = entity == null ? null : jsonize(req, entity);
             res.status(result.httpCode());
-            return Collections.singletonMap("message", result.message(getLocalizer()));
+            Map<Object, Object> response = new HashMap<>();
+            response.put("message", result.message(getLocalizer()));
+            if(data != null) {
+                response.put("data", data);
+            }
+            return response;
         }
     }
 

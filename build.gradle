@@ -30,6 +30,15 @@ buildscript {
 }
 
 apply plugin: 'jacoco'
+apply plugin: 'base'
+
+configurations {
+  junitAnt
+}
+
+dependencies {
+  junitAnt group: 'org.apache.ant', name: 'ant-junit', version: '1.10.1'
+}
 
 def script = this
 
@@ -438,6 +447,41 @@ task apiTest { thisTask ->
   project(':api').subprojects.each { Project subPrj ->
     thisTask.dependsOn subPrj.tasks.withType(Test)
     thisTask.dependsOn subPrj.tasks.withType(JacocoReport)
+  }
+  finalizedBy 'apiTestJunitHtmlReport'
+}
+
+task apiTestJunitHtmlReport {
+  dependsOn apiTest
+
+  project(':api').subprojects.collect { subPrj ->
+    inputs.dir("${subPrj.buildDir}/test-results/junit-platform")
+  }
+
+  def htmlOutputDir = file("${project.buildDir}/reports/tests/apiTest")
+  def xmlOutputDir = file("${project.buildDir}/test-results/tests/apiTest")
+  outputs.dir(htmlOutputDir)
+  outputs.dir(xmlOutputDir)
+
+  doFirst {
+    ant.taskdef(
+      name: 'junitreport',
+      classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+      classpath: configurations.junitAnt.asPath
+    )
+    delete(xmlOutputDir)
+    delete(htmlOutputDir)
+    mkdir(xmlOutputDir)
+
+    mkdir(htmlOutputDir)
+    ant.junitreport(todir: xmlOutputDir) {
+      project(':api').subprojects.each { subPrj ->
+        fileset(dir: "${subPrj.buildDir}/test-results/junit-platform") {
+          include(name: '**/*.xml')
+        }
+      }
+      report(format: 'frames', todir: htmlOutputDir)
+    }
   }
 }
 

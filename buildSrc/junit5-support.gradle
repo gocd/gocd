@@ -71,19 +71,31 @@ test {
 }
 
 task junitHtmlReport {
+  dependsOn junitPlatformTest
+
+  def htmlOutputDir = file("${project.buildDir}/reports/tests/apiTest")
+  def xmlOutputDir = file("${project.buildDir}/test-results/tests/apiTest")
+  outputs.dir(htmlOutputDir)
+  outputs.dir(xmlOutputDir)
+
   doFirst {
-    ant.taskdef(name: 'junitreport', classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-      classpath: configurations.junitAnt.asPath)
-    def outputDir = file("${project.buildDir}/reports/tests/test")
-    delete(outputDir)
-    mkdir(outputDir)
-    ant.junitreport(todir: "${project.buildDir}/reports/tests/test") {
+    ant.taskdef(
+      name: 'junitreport',
+      classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+      classpath: configurations.junitAnt.asPath
+    )
+    delete(xmlOutputDir)
+    delete(htmlOutputDir)
+    mkdir(xmlOutputDir)
+    mkdir(htmlOutputDir)
+    ant.junitreport(todir: xmlOutputDir) {
       fileset(dir: "${project.buildDir}/test-results/junit-platform") {
         include(name: '**/*.xml')
       }
-      report(format: 'frames', todir: "${project.buildDir}/reports/tests/test")
+      report(format: 'frames', todir: htmlOutputDir)
     }
   }
+
 }
 
 junitPlatformTest.finalizedBy 'junitHtmlReport'

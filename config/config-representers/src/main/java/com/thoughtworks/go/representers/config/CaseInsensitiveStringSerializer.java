@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.representers;
+package com.thoughtworks.go.representers.config;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.function.Function;
 
-public class CaseInsensitiveStringDeserializer implements Function<String, CaseInsensitiveString> {
+public class CaseInsensitiveStringSerializer implements Function<CaseInsensitiveString, String> {
 
     @Override
-    public CaseInsensitiveString apply(String s) {
-        return new CaseInsensitiveString(s);
+    public String apply(CaseInsensitiveString caseInsensitiveString) {
+        return caseInsensitiveString != null ? caseInsensitiveString.toString() : null;
     }
 }

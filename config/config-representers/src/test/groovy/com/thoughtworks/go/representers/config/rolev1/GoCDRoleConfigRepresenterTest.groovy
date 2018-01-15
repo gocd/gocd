@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.representers
+package com.thoughtworks.go.representers.config.rolev1
 
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
-import gen.com.thoughtworks.go.config.representers.RoleMapper
+import gen.com.thoughtworks.go.representers.config.rolev1.RoleMapper
 import org.junit.Test
 
 import static org.assertj.core.api.Assertions.assertThat
@@ -49,7 +49,7 @@ class GoCDRoleConfigRepresenterTest {
   }
 
   @Test
-  public void shouldBuildObjectFromJson() {
+  void shouldBuildObjectFromJson() {
     def roleConfig = RoleMapper.fromJSON(map)
     assertThat(roleConfig).isEqualTo(this.roleConfig)
   }

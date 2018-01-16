@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-
-configurations {
-  // used by annotation processors
-  apt
-}
-
 dependencies {
-  apt group: 'cd.go.jrepresenter', name: 'annotation-processor', version: project.versions.jrepresenter
+  compile group: 'cd.go.jrepresenter', name: 'annotation-processor', version: project.versions.jrepresenter
 }
 
 File generatedSrcDir = file("$projectDir/generated/java")
@@ -46,5 +40,4 @@ compileJava {
 
   dependsOn cleanGeneratedSrcDir
   options.annotationProcessorGeneratedSourcesDirectory = generatedSrcDir
-  options.annotationProcessorPath = configurations.apt
 }

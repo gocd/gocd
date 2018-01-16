@@ -59,6 +59,7 @@ configurations {
   compile.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   runtime.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   api.exclude(group: 'ch.qos.logback', module: 'logback-classic')
+  api.exclude(group: 'cd.go.jrepresenter', module: 'annotation-processor')
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")

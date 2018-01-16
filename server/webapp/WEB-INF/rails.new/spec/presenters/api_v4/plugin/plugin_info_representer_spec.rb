@@ -308,7 +308,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', plugin_metadata)], plugin_view)
-      capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(true)
+      capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(true, true)
 
       plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, image, capabilities, plugin_settings)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)

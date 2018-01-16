@@ -42,8 +42,8 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedConfig.server().security().getRoles().replace(findExistingRole(preprocessedConfig), role);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        modifiedConfig.server().security().getRoles().replace(findExistingRole(modifiedConfig), role);
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {

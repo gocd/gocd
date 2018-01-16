@@ -38,8 +38,8 @@ public class AgentsUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        updatedConfig = command.update(preprocessedConfig);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        updatedConfig = command.update(modifiedConfig);
     }
 
     @Override

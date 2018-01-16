@@ -30,8 +30,8 @@ public class RoleConfigCreateCommand extends RoleConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedConfig.server().security().addRole(role);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        modifiedConfig.server().security().addRole(role);
     }
 
 

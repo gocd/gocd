@@ -19,7 +19,7 @@ package com.thoughtworks.go.config.commands;
 import com.thoughtworks.go.config.CruiseConfig;
 
 public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
-    void update(CruiseConfig preprocessedConfig) throws Exception;
+    void update(CruiseConfig modifiedConfig) throws Exception;
 
     boolean isValid(CruiseConfig preprocessedConfig);
 

@@ -26,7 +26,6 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,20 +64,20 @@ public class SecurityAuthConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldInvokePluginValidationsBeforeSave() throws Exception {
+    public void shouldInvokePluginValidationsBeforeSave() {
         ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("key", "error"));
-        when(extension.validateAuthConfig(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        validationResult.addError(new ValidationError("key", "some-error"));
         SecurityAuthConfig newProfile = new SecurityAuthConfig("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.server().security().securityAuthConfigs().add(newProfile);
 
-        thrown.expect(PluginProfileNotFoundException.class);
-        thrown.expectMessage("Security auth config `foo` does not exist.");
+        when(extension.validateAuthConfig(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+
+        PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
+
         command.isValid(cruiseConfig);
-        command.update(cruiseConfig);
-        assertThat(newProfile.first().errors().size(), is(1));
-        assertThat(newProfile.first().errors().asString(), is("error"));
-    }
 
+        assertThat(newProfile.first().errors().size(), is(1));
+        assertThat(newProfile.first().errors().on("key"), is("some-error"));
+    }
 }

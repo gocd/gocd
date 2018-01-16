@@ -41,8 +41,8 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand implements Enti
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedConfig.getEnvironments().remove(environmentConfig);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        modifiedConfig.getEnvironments().remove(environmentConfig);
     }
 
     @Override

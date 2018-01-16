@@ -33,17 +33,17 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedRole = findExistingRole(preprocessedConfig);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        preprocessedRole = findExistingRole(modifiedConfig);
         if (preprocessedRole == null) {
             throw new RoleNotFoundException();
         }
 
-        removeFromServerRole(preprocessedConfig, preprocessedRole);
-        removeFromServerAdmins(preprocessedConfig);
-        removeFromAllGroups(preprocessedConfig);
-        removeFromAllTemplates(preprocessedConfig);
-        removeFromSecurity(preprocessedConfig);
+        removeFromServerRole(modifiedConfig, preprocessedRole);
+        removeFromServerAdmins(modifiedConfig);
+        removeFromAllGroups(modifiedConfig);
+        removeFromAllTemplates(modifiedConfig);
+        removeFromSecurity(modifiedConfig);
     }
 
     @Override

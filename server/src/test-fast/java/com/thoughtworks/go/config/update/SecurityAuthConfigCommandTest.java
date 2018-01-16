@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
@@ -60,7 +61,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
@@ -73,7 +74,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAuthorized() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -86,7 +87,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
@@ -123,7 +124,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -135,7 +136,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
@@ -148,6 +149,16 @@ public class SecurityAuthConfigCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
     }
 
+    @Test
+    public void shouldRaiseErrorForNonExistentSecurityAuthConfig() {
+        cruiseConfig.server().security().securityAuthConfigs().clear();
+        StubCommand command = new StubCommand(null, new SecurityAuthConfig("foo", "ldap"), null, null, new HttpLocalizedOperationResult());
+
+        thrown.expect(PluginProfileNotFoundException.class);
+
+        command.isValid(cruiseConfig);
+    }
+
     private class StubCommand extends SecurityAuthConfigCommand {
 
 
@@ -156,7 +167,7 @@ public class SecurityAuthConfigCommandTest {
         }
 
         @Override
-        public void update(CruiseConfig preprocessedConfig) throws Exception {
+        public void update(CruiseConfig modifiedConfig) {
 
         }
 

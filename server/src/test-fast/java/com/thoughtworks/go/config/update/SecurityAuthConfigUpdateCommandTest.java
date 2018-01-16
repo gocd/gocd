@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,14 +46,6 @@ public class SecurityAuthConfigUpdateCommandTest {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-    }
-
-    @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
-        cruiseConfig.server().security().securityAuthConfigs().clear();
-        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, new SecurityAuthConfig("foo", "ldap"), null, null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(PluginProfileNotFoundException.class);
-        command.update(cruiseConfig);
     }
 
     @Test

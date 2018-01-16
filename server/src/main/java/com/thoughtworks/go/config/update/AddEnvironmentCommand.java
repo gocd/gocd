@@ -51,8 +51,8 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedConfig.addEnvironment(environmentConfig);
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        modifiedConfig.addEnvironment(environmentConfig);
     }
 
     @Override

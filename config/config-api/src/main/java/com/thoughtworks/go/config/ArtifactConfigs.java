@@ -58,6 +58,16 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
         return null;
     }
 
+    public List<PluggableArtifactConfig> findByStoreId(String storeId) {
+        final ArrayList<PluggableArtifactConfig> pluggableArtifactConfigs = new ArrayList<>();
+        for (PluggableArtifactConfig artifact : getPluggableArtifactConfigs()) {
+            if (artifact.getStoreId().equals(storeId)) {
+                pluggableArtifactConfigs.add(artifact);
+            }
+        }
+        return pluggableArtifactConfigs;
+    }
+
     public void validate(ValidationContext validationContext) {
         List<Artifact> plans = new ArrayList<>();
         for (Artifact artifact : this) {

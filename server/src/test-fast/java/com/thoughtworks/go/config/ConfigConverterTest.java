@@ -396,6 +396,21 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertHgMaterialWhenWhitelist() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, true, filter, "url");
+
+        HgMaterialConfig hgMaterialConfig =
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+
+        assertThat(hgMaterialConfig.getName().toLower(), is("name"));
+        assertThat(hgMaterialConfig.getFolder(), is("folder"));
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.isInvertFilter(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
+
+    @Test
     public void shouldConvertGitMaterialWhenNulls() {
         CRGitMaterial crGitMaterial = new CRGitMaterial();
         crGitMaterial.setUrl("url");
@@ -595,6 +610,7 @@ public class ConfigConverterTest {
         assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
         assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
         assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getInvertFilter(), is(false));
     }
 
     @Test

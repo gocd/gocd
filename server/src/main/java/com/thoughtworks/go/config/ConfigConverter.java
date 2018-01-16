@@ -368,9 +368,12 @@ public class ConfigConverter {
             return gitConfig;
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
-            return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
+            HgMaterialConfig hgConfig = new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
                     hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDirectory(),
                     toMaterialName(materialName));
+            setCommonMaterialMembers(hgConfig, crScmMaterial);
+            setCommonScmMaterialMembers(hgConfig, hg);
+            return hgConfig;
         } else if (crScmMaterial instanceof CRP4Material) {
             CRP4Material crp4Material = (CRP4Material) crScmMaterial;
             P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(crp4Material.getServerAndPort(), crp4Material.getView(), cipher);

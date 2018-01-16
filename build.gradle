@@ -244,11 +244,6 @@ allprojects {
 
 subprojects {
   apply plugin: 'base'
-
-  if ([':api', ':installers', 'tw-go-plugins', 'tools'].contains(project.path)) {
-    return
-  }
-
   apply plugin: 'java'
   apply plugin: 'maven'
   apply plugin: org.owasp.dependencycheck.gradle.DependencyCheck

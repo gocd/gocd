@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
         jobInstanceService = mock(JobInstanceService.class);
         consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
-        scheduleService = new ScheduleService(null, null, null, null, null, null, null, null, null, null, jobInstanceService,
+        scheduleService = new ScheduleService(null, null, null, null, null, null, null, null, null, jobInstanceService,
                 null, null, null, null, null, null, agentService, null, null, consoleActivityMonitor, null, null, schedulingPerformanceLogger,
                 null
         );

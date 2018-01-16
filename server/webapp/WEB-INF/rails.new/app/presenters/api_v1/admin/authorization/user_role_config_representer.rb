@@ -18,6 +18,7 @@ module ApiV1
   module Admin
     module Authorization
       class UserRoleConfigRepresenter < BaseRepresenter
+        alias_method :config, :represented
 
         error_representer
 
@@ -27,6 +28,10 @@ module ApiV1
         collection :users,
                    getter: lambda {|users| users().map {|user| user.getName().to_s}},
                    setter: lambda {|val, options| val.each {|user| self.add(com.thoughtworks.go.config.AdminUser.new(CaseInsensitiveString.new(user)))}}
+
+        def errors
+          config.errors().select {|k,v| ["roles", "users"].include?(k) }
+        end
       end
     end
   end

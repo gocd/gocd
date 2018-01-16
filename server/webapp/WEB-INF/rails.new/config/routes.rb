@@ -245,8 +245,8 @@ Go::Application.routes.draw do
         end
 
         namespace :templates do
-          get ':template_name/authorization' => 'authorization#show', constraints: {template_name: ALLOW_DOTS}
-          put ':template_name/authorization' => 'authorization#update', constraints: {template_name: ALLOW_DOTS}
+          get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
+          put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
         end
 
         post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection

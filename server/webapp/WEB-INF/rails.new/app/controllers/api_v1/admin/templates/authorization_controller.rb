@@ -45,7 +45,7 @@ module ApiV1
         def handle_update_response(result, updated_authorization)
           json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(updated_authorization).to_hash(url_builder: self)
           if result.isSuccessful
-            response.etag = [etag_for(updated_template)]
+            response.etag = [etag_for(@template)]
             render DEFAULT_FORMAT => json
           else
             render_http_operation_result(result, {data: json})

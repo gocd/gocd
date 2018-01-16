@@ -48,6 +48,11 @@ describe AnalyticsController do
   end
 
   describe 'pipeline' do
+    before(:each) do
+      login_as_user
+      allow_current_user_to_access_pipeline('pipeline_name')
+    end
+
     it 'should render analytics for a pipeline' do
       analytics_extension = instance_double('AnalyticsExtension')
       analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new("pipeline_analytics", "/path/to/view")

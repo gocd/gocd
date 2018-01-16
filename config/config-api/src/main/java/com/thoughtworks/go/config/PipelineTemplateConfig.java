@@ -85,7 +85,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         ParamsConfig paramsConfig = this.referredParams();
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
-            PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
+            PipelineConfigs pipelineGroup = preprocessedConfig.findGroupOfPipeline(pipelineConfig);
+            PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, pipelineGroup.getGroup(), preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
             validatePartsOfPipelineConfig(pipelineConfig, contextForStages);
             validateDependenciesOfDownstreams(pipelineConfig, contextForStages);
@@ -111,10 +112,11 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     private void validateStageApprovalAuthorization(StageConfig stageConfig, PipelineConfigSaveValidationContext contextForChildren) {
-        //validate only the users and roles in the stage approval. The other validations are taken care of during the template validation itself.
         Approval approval = stageConfig.getApproval();
-        if (!approval.validateAuthConfig(contextForChildren, true)) {
-            this.errors().addAll(approval.getAuthConfig().errors());
+        if (!approval.validateTree(contextForChildren)) {
+            for (ConfigErrors errors : approval.getAllErrors()) {
+                this.errors().addAll(errors);
+            }
         }
     }
 

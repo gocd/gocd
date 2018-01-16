@@ -117,7 +117,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         return isValid;
     }
 
-    public boolean validateAuthConfig(ValidationContext validationContext, boolean isValid) {
+    private boolean validateAuthConfig(ValidationContext validationContext, boolean isValid) {
         for (Admin admin : authConfig) {
             admin.validate(validationContext);
             authConfig.errors().addAll(admin.errors());
@@ -130,6 +130,10 @@ public class Approval implements Validatable, ParamsAttributeAware {
         if (!isValidTypeValue()) {
             errors.add(TYPE, String.format("You have defined approval type as '%s'. Approval can only be of the type '%s' or '%s'.", type, MANUAL, SUCCESS));
         }
+        validateOperatePermissions(validationContext);
+    }
+
+    private void validateOperatePermissions(ValidationContext validationContext) {
         if (validationContext.isWithinPipelines()) {
             PipelineConfigs group = validationContext.getPipelineGroup();
             if (!group.hasOperationPermissionDefined()) {
@@ -148,7 +152,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
                 boolean approverIsNotAGroupOperator = !groupOperators.has(approver, roles.memberRoles(approver));
 
                 if (approverIsNotAnAdmin && approverIsNotAGroupOperator) {
-                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver, group.getGroup()));
+                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group `%s` can not be authorized to approve stage", approver.describe(), approver, group.getGroup()));
                 }
             }
         }
@@ -167,6 +171,10 @@ public class Approval implements Validatable, ParamsAttributeAware {
 
     public ConfigErrors errors() {
         return errors;
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     public void addError(String fieldName, String message) {

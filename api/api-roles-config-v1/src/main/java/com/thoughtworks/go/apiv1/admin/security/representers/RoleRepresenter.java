@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
+import cd.go.jrepresenter.Link;
+import cd.go.jrepresenter.LinksProvider;
+import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
 import cd.go.jrepresenter.annotations.RepresentsSubClasses;
@@ -28,7 +31,9 @@ import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.api.serializers.CaseInsensitiveStringDeserializer;
 import com.thoughtworks.go.api.serializers.CaseInsensitiveStringSerializer;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -40,11 +45,11 @@ import java.util.function.Function;
                 @RepresentsSubClasses.SubClassInfo(
                         value = "gocd",
                         representer = GoCDRoleConfigRepresenter.class,
-                        linksProvider = GoCDRoleConfigRepresenter.RoleConfigLinksProvider.class),
+                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class),
                 @RepresentsSubClasses.SubClassInfo(
                         value = "plugin",
                         representer = PluginRoleConfigRepresenter.class,
-                        linksProvider = PluginRoleConfigRepresenter.RoleConfigLinksProvider.class)
+                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class)
         })
 public interface RoleRepresenter {
 
@@ -78,6 +83,19 @@ public interface RoleRepresenter {
     class RoleErrorGetter extends ErrorGetter {
         public RoleErrorGetter() {
             super(Collections.singletonMap("authConfigId", "auth_config_id"));
+        }
+    }
+
+    class RoleConfigLinksProvider implements LinksProvider<Role> {
+        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
+
+        @Override
+        public List<Link> getLinks(Role model, RequestContext requestContext) {
+            return Arrays.asList(
+                    DOC,
+                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
+                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
+            );
         }
     }
 

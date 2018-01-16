@@ -34,18 +34,6 @@ public interface GoCDRoleConfigRepresenter {
     @Collection(modelAttributeType = RoleUser.class, serializer = RoleUserSerializer.class, deserializer = RoleUserDeserializer.class)
     List<String> users();
 
-    class RoleConfigLinksProvider implements LinksProvider<RoleConfig> {
-        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
-
-        @Override
-        public List<Link> getLinks(RoleConfig model, RequestContext requestContext) {
-            return Arrays.asList(
-                    DOC,
-                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
-                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
-            );
-        }
-    }
 
     class RoleUserSerializer implements Function<RoleUser, String> {
         @Override

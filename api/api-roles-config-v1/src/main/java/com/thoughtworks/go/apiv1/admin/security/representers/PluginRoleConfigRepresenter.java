@@ -45,18 +45,7 @@ public interface PluginRoleConfigRepresenter {
             modelAttributeType = ConfigurationProperty.class)
     List<Map> properties();
 
-    class RoleConfigLinksProvider implements LinksProvider<PluginRoleConfig> {
-        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
 
-        @Override
-        public List<Link> getLinks(PluginRoleConfig model, RequestContext requestContext) {
-            return Arrays.asList(
-                    DOC,
-                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
-                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
-            );
-        }
-    }
 
     class ConfigurationPropertyGetter implements Function<PluginRoleConfig, List<ConfigurationProperty>> {
         @Override

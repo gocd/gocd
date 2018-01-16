@@ -37,6 +37,10 @@ apply plugin: 'jacoco'
 apply plugin: 'base'
 apply plugin: "com.github.hierynomus.license"
 
+if (file('build-ext.gradle').exists()) {
+  apply from: 'build-ext.gradle'
+}
+
 configurations {
   junitAnt
 }

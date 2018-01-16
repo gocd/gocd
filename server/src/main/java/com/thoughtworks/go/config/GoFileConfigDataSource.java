@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -312,7 +312,14 @@ public class GoFileConfigDataSource {
                 writeToConfigXmlFile(configAsXml);
                 checkinConfigToGitRepo(partials, preprocessedConfig, configAsXml, md5, currentUser.getUsername().toString());
                 LOGGER.debug("[Config Save] Done writing with lock");
-                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
+                CruiseConfig mergedCruiseConfigForEdit = modifiedConfig;
+                if (!partials.isEmpty()) {
+                    LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Starting.");
+                    mergedCruiseConfigForEdit = cloner.deepClone(modifiedConfig);
+                    mergedCruiseConfigForEdit.merge(partials, true);
+                    LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Done.");
+                }
+                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig, mergedCruiseConfigForEdit));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }

@@ -47,6 +47,48 @@ describe AnalyticsController do
     end
   end
 
+  describe 'dashboard' do
+    before(:each) do
+      login_as_user
+    end
+
+    it 'should include the plugin ids in the SPA skeleton' do
+      plugin_info_finder = instance_double('DefaultPluginInfoFinder')
+      cap = instance_double('Capabilities')
+      info = instance_double('AnalyticsPluginInfo')
+      descriptor = com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor.new("com.tw.myplugin", nil, nil, nil, nil, false);
+
+      allow(info).to receive(:getDescriptor).and_return(descriptor)
+      allow(info).to receive(:getCapabilities).and_return(cap)
+      allow(cap).to receive(:supportsAnalyticsDashboard).and_return(true)
+
+      allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
+      allow(plugin_info_finder).to receive(:allPluginInfos).with(PluginConstants.ANALYTICS_EXTENSION).and_return([info])
+
+      get :index
+
+      expect(response).to be_ok
+      expect(controller.instance_variable_get(:@plugin_ids)).to eq(["com.tw.myplugin"])
+    end
+
+    it 'should render the analytics data for the dashboard' do
+      analytics_extension = instance_double('AnalyticsExtension')
+      analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new("dashboard_analytics", "/path/to/view")
+
+      allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
+      allow(analytics_extension).to receive(:getDashboardAnalytics).with('com.tw.myplugin').and_return(analytics_data)
+
+      get :dashboard, plugin_id: 'com.tw.myplugin'
+
+      expect(response).to be_ok
+
+      response_json = JSON.parse(response.body)
+      expect(response_json['data']).to eq('dashboard_analytics')
+      expect(response_json['view_path']).to eq('/path/to/view')
+      expect(response.content_type).to eq('application/json')
+    end
+  end
+
   describe 'pipeline' do
     before(:each) do
       login_as_user

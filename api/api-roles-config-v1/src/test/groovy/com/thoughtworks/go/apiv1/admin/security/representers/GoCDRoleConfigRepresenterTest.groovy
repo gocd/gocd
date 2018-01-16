@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1
+package com.thoughtworks.go.apiv1.admin.security.representers
 
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
-import gen.com.thoughtworks.go.representers.config.rolev1.RoleMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper
 import org.junit.Test
 
 import static org.assertj.core.api.Assertions.assertThat

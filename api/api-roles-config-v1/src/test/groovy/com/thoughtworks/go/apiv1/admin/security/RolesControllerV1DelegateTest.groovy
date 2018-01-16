@@ -28,8 +28,8 @@ import com.thoughtworks.go.i18n.Localizer
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import gen.com.thoughtworks.go.representers.config.rolev1.RoleMapper
-import gen.com.thoughtworks.go.representers.config.rolev1.RolesMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RolesMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

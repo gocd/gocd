@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1;
+package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import cd.go.jrepresenter.Link;
 import cd.go.jrepresenter.LinksProvider;

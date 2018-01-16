@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config;
+package com.thoughtworks.go.api.serializers;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.function.Function;
 
-public class CaseInsensitiveStringDeserializer implements Function<String, CaseInsensitiveString> {
+public class CaseInsensitiveStringSerializer implements Function<CaseInsensitiveString, String> {
 
     @Override
-    public CaseInsensitiveString apply(String s) {
-        return new CaseInsensitiveString(s);
+    public String apply(CaseInsensitiveString caseInsensitiveString) {
+        return caseInsensitiveString != null ? caseInsensitiveString.toString() : null;
     }
 }

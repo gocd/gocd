@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1
+package com.thoughtworks.go.apiv1.admin.security.representers
 
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
-import gen.com.thoughtworks.go.representers.config.rolev1.ConfigurationPropertyMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.ConfigurationPropertyMapper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 

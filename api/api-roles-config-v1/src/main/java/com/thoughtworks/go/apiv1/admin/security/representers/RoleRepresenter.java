@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1;
+package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
@@ -25,8 +25,8 @@ import com.thoughtworks.go.api.IfNoErrors;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
-import com.thoughtworks.go.representers.config.CaseInsensitiveStringDeserializer;
-import com.thoughtworks.go.representers.config.CaseInsensitiveStringSerializer;
+import com.thoughtworks.go.api.serializers.CaseInsensitiveStringDeserializer;
+import com.thoughtworks.go.api.serializers.CaseInsensitiveStringSerializer;
 
 import java.util.Collections;
 import java.util.Map;

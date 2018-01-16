@@ -15,22 +15,27 @@
  */
 
 import groovy.io.FileType
+import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
 
 buildscript {
   repositories {
-    jcenter()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
   }
 
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
+    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
   }
 }
 
 apply plugin: 'jacoco'
 apply plugin: 'base'
+apply plugin: "com.github.hierynomus.license"
 
 configurations {
   junitAnt
@@ -179,54 +184,6 @@ rootProject.ext.versions = [
   junitPlatformGradlePlugin: '1.0.2'
 ]
 
-task licenseHeaderCheck {
-  doFirst {
-    FileTree tree = fileTree(dir: project.projectDir, includes: ['**/*.java', '**/*.xml', "**/*.rb", "**/*.js*", "**/*.scss", "**/*.css"])
-    tree.excludes = [".idea/**",
-                     "**/target/",
-                     "**/out/",
-                     "**/src/*test*/resources",
-                     "tools/",
-                     "**/package.json",
-                     "**/*.erb",
-                     "**/test.rb",
-                     "**/test_service_cache.rb",
-                     "plugin-infra/go-plugin-access/**/migrations",
-                     "**/plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/**",
-                     "server/webapp/scripts",
-                     "server/config/cruise-config.xml",
-                     "server/webapp/WEB-INF/rails.new/vendor",
-                     "server/webapp/WEB-INF/rails.new/**/assets",
-                     "server/webapp/WEB-INF/rails.new/spec/javascripts",
-                     "server/webapp/WEB-INF/rails.new/node_modules",
-                     "**/rails.new/spec/webpack/patches",
-                     "**/WEB-INF/rails.new/webpack/gen",
-                     "**/spec/webpack/helpers/fixup-stacktraces.js",
-                     "**/admin/commands/matched_command_snippets.json",
-                     "**/server/plugins_work/**",
-                     "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml",
-                     "server/webapp/WEB-INF/rails.new/tmp/**",
-                     "server/db/config.git/cruise-config.xml",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/HeaderValueHolder.java",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletRequest.java",
-                     "api/api/src/test/java/com/thoughtworks/go/api/mocks/MockHttpServletResponse.java",
-    ]
-
-    def filesWithoutLicenseHeader = []
-    tree.each { File file ->
-      if (!file.getText("UTF-8").findAll(/Copyright \d\d\d\d ThoughtWorks, Inc./)) {
-        filesWithoutLicenseHeader << file
-      }
-    }
-
-    if (filesWithoutLicenseHeader.size() > 0) {
-      throw new GradleException("License header missing on following files\n" + filesWithoutLicenseHeader.join("\n"))
-    } else {
-      println "License header verified."
-    }
-  }
-}
-
 allprojects {
   apply plugin: 'idea'
 
@@ -244,6 +201,34 @@ allprojects {
 
 subprojects {
   apply plugin: 'base'
+  apply plugin: "com.github.hierynomus.license"
+
+  license {
+    skipExistingHeaders = true
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    exclude '**/*.jar'
+    exclude '**/*.json'
+    exclude '**/*.html'
+    header rootProject.file('buildSrc/Apache-2.0.txt')
+    headerDefinitions {
+      intellijStyleXML {
+        firstLine = "<!--"
+        beforeEachLine = '  ~ '
+        endLine = "  -->"
+        afterEachLine = ''
+        skipLinePattern = "^<\\?xml.*>\$"
+        firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
+        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
+        allowBlankLines = true
+        isMultiline = false
+        padLines = false
+      }
+    }
+    mapping {
+      xml = 'intellijStyleXML'
+    }
+  }
+
   apply plugin: 'java'
   apply plugin: 'maven'
   apply plugin: org.owasp.dependencycheck.gradle.DependencyCheck
@@ -283,7 +268,7 @@ subprojects {
   }
 
   clean.dependsOn cleanLogs
-  check.dependsOn licenseHeaderCheck
+  check.dependsOn 'licenseCheck'
 
   tasks.withType(Jar) { jarTask ->
     manifest {
@@ -330,6 +315,26 @@ subprojects {
     options.warnings = false
     options.encoding = "UTF-8"
     options.compilerArgs += '-Xlint:-deprecation'
+  }
+
+  tasks.withType(License) {
+    outputs.upToDateWhen { false }
+  }
+
+  project.afterEvaluate {
+    tasks.withType(License) { thisTask ->
+      thisTask.outputs.upToDateWhen { false }
+      def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
+      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
+
+      if (thisTask.name.toLowerCase().contains('test')) {
+        thisTask.source -= mappedSourceSet.resources
+      }
+
+      if (project.name == 'test-utils') {
+        thisTask.source -= mappedSourceSet.resources
+      }
+    }
   }
 
   task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {

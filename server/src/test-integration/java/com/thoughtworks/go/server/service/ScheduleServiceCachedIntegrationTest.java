@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -71,7 +70,6 @@ public class ScheduleServiceCachedIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private StageService stageService;
     @Autowired private SchedulingCheckerService schedulingChecker;
-    @Autowired private PipelineScheduledTopic pipelineScheduledTopic;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private StageOrderService stageOrderService;
@@ -170,7 +168,7 @@ public class ScheduleServiceCachedIntegrationTest {
         StageDao stageDao = mock(StageDao.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
 
-        ScheduleService service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, pipelineScheduledTopic, pipelineDao,
+        ScheduleService service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, pipelineDao,
                 stageDao, stageOrderService, securityService, pipelineScheduleQueue, jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService,
                 pipelineLockService, serverHealthService, transactionTemplate, agentService, synchronizationManager, null, null, null, null, schedulingPerformanceLogger,
                 null

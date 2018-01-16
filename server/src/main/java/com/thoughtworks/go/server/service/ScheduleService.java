@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledMessage;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
@@ -70,7 +68,6 @@ public class ScheduleService {
     private PipelineService pipelineService;
     private StageService stageService;
     private SchedulingCheckerService schedulingChecker;
-    private PipelineScheduledTopic pipelineScheduledTopic;
     private PipelineDao pipelineDao;
     private StageDao stageDao;
     private JobInstanceDao jobInstanceDao;
@@ -102,7 +99,6 @@ public class ScheduleService {
                            PipelineService pipelineService,
                            StageService stageService,
                            SchedulingCheckerService schedulingChecker,
-                           PipelineScheduledTopic pipelineScheduledTopic,
                            PipelineDao pipelineDao,
                            StageDao stageDao,
                            StageOrderService stageOrderService,
@@ -128,7 +124,6 @@ public class ScheduleService {
         this.pipelineService = pipelineService;
         this.stageService = stageService;
         this.schedulingChecker = schedulingChecker;
-        this.pipelineScheduledTopic = pipelineScheduledTopic;
         this.pipelineDao = pipelineDao;
         this.stageDao = stageDao;
         this.stageOrderService = stageOrderService;
@@ -166,7 +161,6 @@ public class ScheduleService {
                     long schedulingEndTime = System.currentTimeMillis();
 
                     if (pipeline != null) {
-                        pipelineScheduledTopic.post(new PipelineScheduledMessage(pipeline.getIdentifier()));
                         schedulingPerformanceLogger.scheduledPipeline(pipelineName, pipelineScheduleQueue.toBeScheduled().size(), schedulingStartTime, schedulingEndTime);
                     }
                 }

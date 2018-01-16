@@ -34,9 +34,9 @@
 
   PluginEndpoint.define({
     "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
-      const uid = message.uid;
-      models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName})); // eslint-disable-line camelcase
-      m.redraw();
+      const model = models[message.uid];
+      model.url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName})); // eslint-disable-line camelcase
+      model.load();
     }
   });
 
@@ -49,9 +49,10 @@
         return $.map($(main).data("plugin-ids"), (pluginId, idx) => {
           const uid = `f-${idx}`;
 
-          if (!models[uid]) {
-            models[uid] = new Frame();
-            models[uid].url(Routes.dashboardAnalyticsPath({plugin_id: pluginId})); // eslint-disable-line camelcase
+          let model = models[uid];
+          if (!model) {
+            model = models[uid] = new Frame(m.redraw);
+            model.url(Routes.dashboardAnalyticsPath({plugin_id: pluginId})); // eslint-disable-line camelcase
           }
 
           return m(PluginiFrameWidget, {model: models[uid], pluginId, uid});

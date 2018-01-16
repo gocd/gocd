@@ -18,11 +18,26 @@
   "use strict";
 
   const Stream = require("mithril/stream");
+  const      $ = require("jquery");
 
-  function Frame() {
-    this.url = Stream();
-    this.view = Stream();
-    this.data = Stream();
+  function Frame(callback) {
+    const url = Stream();
+    const view = Stream();
+    const data = Stream();
+
+    function load() {
+      $.ajax({
+        url: url(),
+        type: "GET",
+        dataType: "json"
+      }).done((r) => {
+        data(r.data);
+        view(r.view_path);
+        callback();
+      });
+    }
+
+    return {url, view, data, load};
   }
 
   module.exports = Frame;

@@ -24,6 +24,7 @@ describe("Dashboard", () => {
 
       expect(pipelineGroups.groups.length).toBe(1);
       expect(pipelineGroups.groups[0].name()).toBe(pipelineGroupsData[0].name);
+      expect(pipelineGroups.groups[0].canAdminister()).toBe(pipelineGroupsData[0].can_administer);
 
       expect(pipelineGroups.groups[0].pipelines()).toEqual(pipelineGroupsData[0].pipelines);
     });
@@ -39,7 +40,8 @@ describe("Dashboard", () => {
           }
         },
         "name":      "first",
-        "pipelines": ["up42"]
+        "pipelines": ["up42"],
+        "can_administer": true
       }
     ];
   });

@@ -18,8 +18,9 @@ const _      = require('lodash');
 const Stream = require('mithril/stream');
 
 const PipelineGroup = function (info) {
-  this.name      = Stream(info.name);
-  this.pipelines = Stream(info.pipelines);
+  this.name          = Stream(info.name);
+  this.pipelines     = Stream(info.pipelines);
+  this.canAdminister = Stream(info.can_administer);
 };
 
 const PipelineGroups = function (groups) {

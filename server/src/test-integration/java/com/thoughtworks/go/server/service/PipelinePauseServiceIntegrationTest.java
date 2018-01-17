@@ -67,6 +67,7 @@ public class PipelinePauseServiceIntegrationTest {
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "tiny pause cause", userName);
         assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause(), is("tiny pause cause"));
+        pipelinePauseService.unpause(name);
 
         String stringWith255Chars = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         pipelinePauseService.pause(name, stringWith255Chars + "aa", userName);

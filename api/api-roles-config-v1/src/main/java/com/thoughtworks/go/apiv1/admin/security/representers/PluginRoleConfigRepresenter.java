@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1;
+package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.Link;
-import cd.go.jrepresenter.LinksProvider;
 import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Collection;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
+import cd.go.jrepresenter.util.TriConsumer;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @Represents(value = PluginRoleConfig.class)
 public interface PluginRoleConfigRepresenter {
@@ -45,37 +42,26 @@ public interface PluginRoleConfigRepresenter {
             modelAttributeType = ConfigurationProperty.class)
     List<Map> properties();
 
-    class RoleConfigLinksProvider implements LinksProvider<PluginRoleConfig> {
-        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
 
-        @Override
-        public List<Link> getLinks(PluginRoleConfig model, RequestContext requestContext) {
-            return Arrays.asList(
-                    DOC,
-                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
-                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
-            );
-        }
-    }
 
-    class ConfigurationPropertyGetter implements Function<PluginRoleConfig, List<ConfigurationProperty>> {
+    class ConfigurationPropertyGetter implements BiFunction<PluginRoleConfig, RequestContext, List<ConfigurationProperty>> {
         @Override
-        public List<ConfigurationProperty> apply(PluginRoleConfig pluginRoleConfig) {
+        public List<ConfigurationProperty> apply(PluginRoleConfig pluginRoleConfig, RequestContext requestContext) {
             return pluginRoleConfig;
         }
     }
 
-    class ConfigurationPropertySetter implements BiConsumer<PluginRoleConfig, List<ConfigurationProperty>> {
+    class ConfigurationPropertySetter implements TriConsumer<PluginRoleConfig, List<ConfigurationProperty>, RequestContext> {
 
         @Override
-        public void accept(PluginRoleConfig pluginRoleConfig, List<ConfigurationProperty> configurationProperties) {
+        public void accept(PluginRoleConfig pluginRoleConfig, List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
             pluginRoleConfig.addConfigurations(configurationProperties);
         }
     }
 
-    class ConfigurationPropertySerializer implements Function<ConfigurationProperty, Map> {
+    class ConfigurationPropertySerializer implements BiFunction<ConfigurationProperty, RequestContext, Map> {
         @Override
-        public Map apply(ConfigurationProperty configurationProperty) {
+        public Map apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
             Map<String, String> json = new LinkedHashMap<>();
             json.put("key", configurationProperty.getConfigKeyName());
             json.put("value", configurationProperty.getValue());

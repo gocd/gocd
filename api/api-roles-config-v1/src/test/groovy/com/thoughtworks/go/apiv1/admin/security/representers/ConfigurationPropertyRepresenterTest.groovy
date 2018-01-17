@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1
+package com.thoughtworks.go.apiv1.admin.security.representers
 
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
-import gen.com.thoughtworks.go.representers.config.rolev1.ConfigurationPropertyMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.ConfigurationPropertyMapper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -67,13 +67,13 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should deserialize to encrypted property if encrypted value is submitted'() {
       def encryptedValue = new GoCipher().encrypt('password')
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', encrypted_value: encryptedValue], new TestRequestContext())
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 
     @Test
     void 'it should deserialize to simple property if plain-text value is submitted'() {
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', value: 'bob'])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', value: 'bob'], new TestRequestContext())
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", false, "bob"))
     }
 
@@ -81,7 +81,7 @@ class ConfigurationPropertyRepresenterTest {
     void 'it should deserialize with errors'() {
       def encryptedValue = new GoCipher().encrypt('p@ssword')
 
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue], new TestRequestContext())
 
       assertThat(property.hasErrors()).isTrue()
       assertThat(property.errors()).hasSize(2)

@@ -30,8 +30,8 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import gen.com.thoughtworks.go.representers.config.rolev1.RoleMapper;
-import gen.com.thoughtworks.go.representers.config.rolev1.RolesMapper;
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper;
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RolesMapper;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -171,7 +171,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public Role getEntityFromRequestBody(Request req) {
-        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class));
+        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class), requestContext(req));
     }
 
     @Override

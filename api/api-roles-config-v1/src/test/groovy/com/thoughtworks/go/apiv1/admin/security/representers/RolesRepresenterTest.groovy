@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1
+package com.thoughtworks.go.apiv1.admin.security.representers
 
 import cd.go.jrepresenter.TestRequestContext
-import com.thoughtworks.go.config.PluginRoleConfig
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
-import gen.com.thoughtworks.go.representers.config.rolev1.RoleMapper
+import gen.com.thoughtworks.go.apiv1.admin.security.representers.RolesMapper
 import org.junit.Test
 
 import static org.assertj.core.api.Assertions.assertThat
 
-class PluginRoleConfigRepresenterTest {
-  private final LinkedHashMap<String, Object> map = [
+class RolesRepresenterTest {
+
+  private final LinkedHashMap<String, Object> pluginRole = [
     _links    : [
       doc : [href: 'https://api.gocd.org/#roles'],
       self: [href: 'http://test.host/go/api/admin/security/roles/blackbird'],
@@ -37,33 +38,58 @@ class PluginRoleConfigRepresenterTest {
     type      : 'plugin',
     attributes: [
       auth_config_id: "ldap",
-      properties: [
+      properties    : [
         [
-          key: "UserGroupMembershipAttribute",
+          key  : "UserGroupMembershipAttribute",
           value: "memberOf"
         ],
         [
-          key: "GroupIdentifiers",
+          key  : "GroupIdentifiers",
           value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
         ]
       ]
     ]
   ]
 
-  private final PluginRoleConfig roleConfig = new PluginRoleConfig("blackbird", "ldap",
+  private final LinkedHashMap<String, Object> goCDRole = [
+    _links    : [
+      doc : [href: 'https://api.gocd.org/#roles'],
+      self: [href: 'http://test.host/go/api/admin/security/roles/admins'],
+      find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
+    ],
+    name      : 'admins',
+    type      : 'gocd',
+    attributes: [
+      users: ['bob', 'alice']
+    ]
+  ]
+
+  private final LinkedHashMap<Object, Object> rolesList = [
+    _links: [
+      doc : [href: 'https://api.gocd.org/#roles'],
+      self: [href: 'http://test.host/go/api/admin/security/roles'],
+      find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
+    ],
+    _embedded: [
+      roles: [
+        goCDRole,
+        pluginRole
+      ]
+    ]
+  ]
+
+  private final PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("blackbird", "ldap",
     new ConfigurationProperty(new ConfigurationKey("UserGroupMembershipAttribute"), new ConfigurationValue("memberOf")),
     new ConfigurationProperty(new ConfigurationKey("GroupIdentifiers"), new ConfigurationValue("ou=admins,ou=groups,ou=system,dc=example,dc=com")))
 
+  private final RoleConfig goCDRoleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
+
   @Test
   void shouldGenerateJSON() {
-    Map map = RoleMapper.toJSON(roleConfig, new TestRequestContext());
+    def roles = new RolesConfig(goCDRoleConfig, pluginRoleConfig)
+    Map map = RolesMapper.toJSON(roles, new TestRequestContext())
 
-    assertThat(map).isEqualTo(this.map)
+    assertThat(map).isEqualTo(this.rolesList)
   }
 
-  @Test
-  void shouldBuildObjectFromJson() {
-    def roleConfig = RoleMapper.fromJSON(map)
-    assertThat(roleConfig).isEqualTo(this.roleConfig)
-  }
 }

@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.rolev1;
+package com.thoughtworks.go.apiv1.admin.security.representers;
 
+import cd.go.jrepresenter.Link;
+import cd.go.jrepresenter.LinksProvider;
+import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
 import cd.go.jrepresenter.annotations.RepresentsSubClasses;
-import cd.go.jrepresenter.util.TrueFunction;
+import cd.go.jrepresenter.util.TrueBiFunction;
 import com.thoughtworks.go.api.ErrorGetter;
 import com.thoughtworks.go.api.IfNoErrors;
+import com.thoughtworks.go.api.serializers.CaseInsensitiveStringDeserializer;
+import com.thoughtworks.go.api.serializers.CaseInsensitiveStringSerializer;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
-import com.thoughtworks.go.representers.config.CaseInsensitiveStringDeserializer;
-import com.thoughtworks.go.representers.config.CaseInsensitiveStringSerializer;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @Represents(value = Role.class)
 @RepresentsSubClasses(
@@ -40,11 +45,11 @@ import java.util.function.Function;
                 @RepresentsSubClasses.SubClassInfo(
                         value = "gocd",
                         representer = GoCDRoleConfigRepresenter.class,
-                        linksProvider = GoCDRoleConfigRepresenter.RoleConfigLinksProvider.class),
+                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class),
                 @RepresentsSubClasses.SubClassInfo(
                         value = "plugin",
                         representer = PluginRoleConfigRepresenter.class,
-                        linksProvider = PluginRoleConfigRepresenter.RoleConfigLinksProvider.class)
+                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class)
         })
 public interface RoleRepresenter {
 
@@ -53,10 +58,10 @@ public interface RoleRepresenter {
             modelAttributeType = CaseInsensitiveString.class)
     String name();
 
-    @Property(getter = RoleTypeGetter.class, skipParse = TrueFunction.class)
+    @Property(getter = RoleTypeGetter.class, skipParse = TrueBiFunction.class)
     String type();
 
-    @Property(skipParse = TrueFunction.class,
+    @Property(skipParse = TrueBiFunction.class,
             skipRender = IfNoErrors.class,
             getter = RoleErrorGetter.class,
             modelAttributeType = Map.class,
@@ -64,9 +69,9 @@ public interface RoleRepresenter {
     Map errors();
 
 
-    public class RoleTypeGetter implements Function<Role, String> {
+    public class RoleTypeGetter implements BiFunction<Role, RequestContext, String> {
         @Override
-        public String apply(Role role) {
+        public String apply(Role role, RequestContext requestContext) {
             if (role instanceof RoleConfig) {
                 return "gocd";
             } else {
@@ -78,6 +83,19 @@ public interface RoleRepresenter {
     class RoleErrorGetter extends ErrorGetter {
         public RoleErrorGetter() {
             super(Collections.singletonMap("authConfigId", "auth_config_id"));
+        }
+    }
+
+    class RoleConfigLinksProvider implements LinksProvider<Role> {
+        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
+
+        @Override
+        public List<Link> getLinks(Role model, RequestContext requestContext) {
+            return Arrays.asList(
+                    DOC,
+                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
+                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
+            );
         }
     }
 

@@ -18,10 +18,13 @@
   "use strict";
 
   // these are intentionally private variables, hidden via closure
-  const handlers = {};
-  let attached = false;
-  let uid;
-  let pluginId;
+  /* eslint-disable no-var */
+  // disabling no-var because this is also shared with rails
+  var handlers = {};
+  var attached = false;
+  var uid;
+  var pluginId;
+  /* eslint-enable no-var */
 
   function err() {
     if (window.console && "function" === typeof window.console.error) {
@@ -74,7 +77,7 @@
     }
 
     function reply(key, data) {
-      const message = { data };
+      var message = { data: data }; // eslint-disable-line no-var, object-shorthand
       send(ev.source, key, message);
     }
 
@@ -83,7 +86,7 @@
     handlers[ev.data.key](ev.data, reply);
   }
 
-  const PluginEndpoint = {
+  var PluginEndpoint = { // eslint-disable-line no-var
     ensure: function ensure() {
       if (!attached) {
         window.addEventListener("message", dispatch, false);
@@ -97,15 +100,15 @@
     },
     /** define an api, i.e. a set of handlers for one or more keys */
     define: function addMany(api) {
-      for (let i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) {
+      for (var i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) { // eslint-disable-line no-var
         if ("function" === typeof api[keys[i]]) {
           handlers[keys[i]] = api[keys[i]];
         }
       }
     },
-    init,
+    init: init, // eslint-disable-line object-shorthand
     onInit: function onInit(initializerFn) {
-      PluginEndpoint.on("init", (message, reply) => {
+      PluginEndpoint.on("init", function handleInit(message, reply) { // eslint-disable-line prefer-arrow-callback
         uid = message.uid;
         pluginId = message.pluginId;
         initializerFn(message, reply);

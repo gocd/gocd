@@ -65,8 +65,6 @@ import java.io.File;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -1036,6 +1034,7 @@ public class GoConfigServiceTest {
         pipeline.setName("pipeline1");
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(cruiseConfig.isSecurityEnabled()).thenReturn(true);
         when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
         BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());

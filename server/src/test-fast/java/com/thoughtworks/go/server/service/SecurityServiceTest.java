@@ -69,6 +69,7 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
 
         SecurityService spy = spy(securityService);
         doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
@@ -81,6 +82,7 @@ public class SecurityServiceTest {
     public void shouldBeAbleToTellIfAUserIsAnAdmin() {
         Username username = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isUserAdmin(username)).thenReturn(Boolean.TRUE);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
         assertThat(securityService.canViewAdminPage(username), is(true));
         verify(goConfigService).isUserAdmin(username);
     }
@@ -96,6 +98,7 @@ public class SecurityServiceTest {
     public void shouldBeAbleToTellIfAnUserISNotAllowedToViewTheAdminPage() {
         final Username user = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(Boolean.FALSE);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
         SecurityService spy = spy(securityService);
         doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
         doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
@@ -117,6 +120,7 @@ public class SecurityServiceTest {
         final Username user = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
         SecurityService spy = spy(securityService);
         doReturn(true).when(spy).isAuthorizedToViewAndEditTemplates(user);
         assertThat(spy.canCreatePipelines(new Username(new CaseInsensitiveString("user"))), is(false));

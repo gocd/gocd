@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1027,6 +1027,25 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldUpdateMergedConfigForEditUponSaveOfEntitiesDefinedInMainXmlUsingAPIs() {
+        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
+        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
+        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+
+        String md5 = CachedDigestUtils.md5Hex(new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
+        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
     }
 
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {

@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.api.serializers;
 
+import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-public class CaseInsensitiveStringSerializer implements Function<CaseInsensitiveString, String> {
+public class CaseInsensitiveStringSerializer implements BiFunction<CaseInsensitiveString, RequestContext, String> {
 
     @Override
-    public String apply(CaseInsensitiveString caseInsensitiveString) {
+    public String apply(CaseInsensitiveString caseInsensitiveString, RequestContext requestContext) {
         return caseInsensitiveString != null ? caseInsensitiveString.toString() : null;
     }
 }

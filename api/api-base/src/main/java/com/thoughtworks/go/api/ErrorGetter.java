@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.api;
 
+import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.config.Validatable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-public class ErrorGetter implements Function<Validatable, Map> {
+public class ErrorGetter implements BiFunction<Validatable, RequestContext, Map> {
 
     private final Map<String, String> mapping;
 
@@ -32,7 +33,7 @@ public class ErrorGetter implements Function<Validatable, Map> {
     }
 
     @Override
-    public Map apply(Validatable entity) {
+    public Map apply(Validatable entity, RequestContext requestContext) {
         LinkedHashMap<String, List<String>> transformedErrors = new LinkedHashMap<>();
 
         for (Map.Entry<String, List<String>> entry : entity.errors().entrySet()) {

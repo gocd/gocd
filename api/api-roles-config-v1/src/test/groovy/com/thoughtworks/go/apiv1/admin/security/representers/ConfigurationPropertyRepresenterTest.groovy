@@ -67,13 +67,13 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should deserialize to encrypted property if encrypted value is submitted'() {
       def encryptedValue = new GoCipher().encrypt('password')
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', encrypted_value: encryptedValue], new TestRequestContext())
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 
     @Test
     void 'it should deserialize to simple property if plain-text value is submitted'() {
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', value: 'bob'])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', value: 'bob'], new TestRequestContext())
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", false, "bob"))
     }
 
@@ -81,7 +81,7 @@ class ConfigurationPropertyRepresenterTest {
     void 'it should deserialize with errors'() {
       def encryptedValue = new GoCipher().encrypt('p@ssword')
 
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyMapper.fromJSON([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue], new TestRequestContext())
 
       assertThat(property.hasErrors()).isTrue()
       assertThat(property.errors()).hasSize(2)

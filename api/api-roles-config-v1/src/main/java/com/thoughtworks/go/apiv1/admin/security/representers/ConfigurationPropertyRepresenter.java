@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
+import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Errors;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
@@ -29,7 +30,7 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -67,65 +68,65 @@ public interface ConfigurationPropertyRepresenter {
     @Errors(getter = ConfigurationPropertyRoleGetter.class, skipRender = IfNoErrors.class)
     Map errors();
 
-    class ConfigurationKeySerializer implements Function<ConfigurationKey, String> {
+    class ConfigurationKeySerializer implements BiFunction<ConfigurationKey, RequestContext, String> {
         @Override
-        public String apply(ConfigurationKey configurationKey) {
+        public String apply(ConfigurationKey configurationKey, RequestContext requestContext) {
             return configurationKey.getName();
         }
     }
 
-    class ConfigurationKeyDeserializer implements Function<String, ConfigurationKey> {
+    class ConfigurationKeyDeserializer implements BiFunction<String, RequestContext, ConfigurationKey> {
         @Override
-        public ConfigurationKey apply(String s) {
+        public ConfigurationKey apply(String s, RequestContext requestContext) {
             return new ConfigurationKey(s);
         }
     }
 
-    class ConfigurationValueSerializer implements Function<ConfigurationValue, String> {
+    class ConfigurationValueSerializer implements BiFunction<ConfigurationValue, RequestContext, String> {
         @Override
-        public String apply(ConfigurationValue configurationValue) {
+        public String apply(ConfigurationValue configurationValue, RequestContext requestContext) {
             return configurationValue == null ? null : configurationValue.getValue();
         }
     }
 
-    class EncryptedConfigurationValueSerializer implements Function<EncryptedConfigurationValue, String> {
+    class EncryptedConfigurationValueSerializer implements BiFunction<EncryptedConfigurationValue, RequestContext, String> {
         @Override
-        public String apply(EncryptedConfigurationValue configurationValue) {
+        public String apply(EncryptedConfigurationValue configurationValue, RequestContext requestContext) {
             return configurationValue == null ? null : configurationValue.getValue();
         }
     }
 
-    class EncryptedConfigurationValueDeserializer implements Function<String, EncryptedConfigurationValue> {
+    class EncryptedConfigurationValueDeserializer implements BiFunction<String, RequestContext, EncryptedConfigurationValue> {
         @Override
-        public EncryptedConfigurationValue apply(String encryptedValue) {
+        public EncryptedConfigurationValue apply(String encryptedValue, RequestContext requestContext) {
             return new EncryptedConfigurationValue(encryptedValue);
         }
     }
 
-    class ConfigurationValueDeserializer implements Function<String, ConfigurationValue> {
+    class ConfigurationValueDeserializer implements BiFunction<String, RequestContext, ConfigurationValue> {
         @Override
-        public ConfigurationValue apply(String s) {
+        public ConfigurationValue apply(String s, RequestContext requestContext) {
             return new ConfigurationValue(s);
         }
     }
 
-    class IfPlainTextConfigurationValueOrNull implements Function<ConfigurationProperty, Boolean> {
+    class IfPlainTextConfigurationValueOrNull implements BiFunction<ConfigurationProperty, RequestContext, Boolean> {
         @Override
-        public Boolean apply(ConfigurationProperty configurationProperty) {
+        public Boolean apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
             return !configurationProperty.isSecure() || isBlank(configurationProperty.getEncryptedValue());
         }
     }
 
-    class IfSecureConfigurationValueOrNull implements Function<ConfigurationProperty, Boolean> {
+    class IfSecureConfigurationValueOrNull implements BiFunction<ConfigurationProperty, RequestContext, Boolean> {
         @Override
-        public Boolean apply(ConfigurationProperty configurationProperty) {
+        public Boolean apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
             return configurationProperty.isSecure() || isBlank(configurationProperty.getConfigValue());
         }
     }
 
-    class ConfigurationPropertyDeserializer implements Function<Map, ConfigurationProperty> {
+    class ConfigurationPropertyDeserializer implements BiFunction<Map, RequestContext, ConfigurationProperty> {
         @Override
-        public ConfigurationProperty apply(Map jsonObject) {
+        public ConfigurationProperty apply(Map jsonObject, RequestContext requestContext) {
             try {
                 String key = (String) jsonObject.get("key");
                 String value = (String) jsonObject.get("value");

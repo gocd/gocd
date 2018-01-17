@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.Link;
-import cd.go.jrepresenter.LinksProvider;
 import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Collection;
 import cd.go.jrepresenter.annotations.Represents;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @Represents(value = RoleConfig.class)
 public interface GoCDRoleConfigRepresenter {
@@ -35,9 +32,9 @@ public interface GoCDRoleConfigRepresenter {
     List<String> users();
 
 
-    class RoleUserSerializer implements Function<RoleUser, String> {
+    class RoleUserSerializer implements BiFunction<RoleUser, RequestContext, String> {
         @Override
-        public String apply(RoleUser roleUser) {
+        public String apply(RoleUser roleUser, RequestContext requestContext) {
             if (roleUser == null || roleUser.getName() == null) {
                 return null;
             }
@@ -45,9 +42,9 @@ public interface GoCDRoleConfigRepresenter {
         }
     }
 
-    class RoleUserDeserializer implements Function<String, RoleUser> {
+    class RoleUserDeserializer implements BiFunction<String, RequestContext, RoleUser> {
         @Override
-        public RoleUser apply(String s) {
+        public RoleUser apply(String s, RequestContext requestContext) {
             return new RoleUser(s);
         }
     }

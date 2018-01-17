@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.api;
 
+import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.config.Validatable;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-public class IfNoErrors implements Function<Validatable, Boolean> {
+public class IfNoErrors implements BiFunction<Validatable, RequestContext, Boolean> {
     @Override
-    public Boolean apply(Validatable entity) {
+    public Boolean apply(Validatable entity, RequestContext requestContext) {
         return entity.errors().isEmpty();
     }
 }

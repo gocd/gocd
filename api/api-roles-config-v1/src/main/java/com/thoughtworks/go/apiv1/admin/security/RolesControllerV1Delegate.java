@@ -171,7 +171,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public Role getEntityFromRequestBody(Request req) {
-        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class));
+        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class), requestContext(req));
     }
 
     @Override

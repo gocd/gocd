@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter;
 import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter;
@@ -40,20 +40,20 @@ import spark.Response;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.thoughtworks.go.api.util.HaltResponses.*;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 public class RolesControllerV1Delegate extends ApiController implements CrudController<Role> {
     private final RoleConfigService roleConfigService;
-    private final AuthenticationHelper authenticationHelper;
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
     private final Localizer localizer;
 
-    public RolesControllerV1Delegate(RoleConfigService roleConfigService, AuthenticationHelper authenticationHelper,
+    public RolesControllerV1Delegate(RoleConfigService roleConfigService, ApiAuthenticationHelper apiAuthenticationHelper,
                                      EntityHashingService entityHashingService, Localizer localizer) {
         super(ApiVersion.v1);
         this.roleConfigService = roleConfigService;
-        this.authenticationHelper = authenticationHelper;
+        this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
         this.localizer = localizer;
     }
@@ -65,8 +65,8 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             before("/*", mimeType, this::setContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
-            before("", mimeType, authenticationHelper::checkAdminUserAnd401);
-            before("/*", mimeType, authenticationHelper::checkAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
 
             get("", mimeType, this::index, GsonTransformer.getInstance());
             post("", mimeType, this::create, GsonTransformer.getInstance());

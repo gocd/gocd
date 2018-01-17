@@ -18,6 +18,7 @@ package com.thoughtworks.go.api.spring;
 
 import com.thoughtworks.go.api.PluginImagesControllerDelegate;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

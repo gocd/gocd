@@ -1,0 +1,22 @@
+<li role="presentation">
+  <a href="/go/admin/pipelines">Pipelines</a>
+</li>
+<li role="presentation">
+  <a href="/go/admin/templates">Templates</a>
+</li>
+<li role="presentation">
+  <a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a>
+</li>
+<li role="presentation">
+  <a href="/go/admin/pipelines/snippet">Config XML</a>
+</li>
+<li role="presentation">
+  #if(${toggles.isToggleOn(${toggles.PLUGIN_SPA_TOGGLE_KEY})})
+    <a href="/go/admin/plugins">Plugins</a>
+  #else
+    <a href="/go/admin/old_plugins">Plugins</a>
+  #end
+</li>
+<li role="presentation">
+  <a href="/go/admin/package_repositories/new">Package Repositories</a>
+</li>

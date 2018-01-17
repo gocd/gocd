@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <title>${viewTitle} - Go</title>
+
+  <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
+  <link href="/go/${railsAssetsService.getAssetPath('frameworks.css')}" media="screen" rel="stylesheet"/>
+  #if(${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")} != "")
+    <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen" rel="stylesheet"/>
+  #end
+  #foreach( $js in ${webpackAssetsService.getAssetPaths("single_page_apps/${controllerName}")})
+    <script src="${js}"></script>
+  #end
+</head>
+
+<body data-controller-name="${controllerName}" id="${controllerName}-page">
+<div class="page-wrap">
+  <header class="app-header">
+    <div class="row expanded">
+      #parse('new_navigation_elements/_navigation.vm')
+    </div>
+  </header>
+
+  <main class="main-container">
+    #parse("${viewName}")
+  </main>
+
+</div>
+
+#parse('new_navigation_elements/_footer.vm')
+
+</body>
+</html>

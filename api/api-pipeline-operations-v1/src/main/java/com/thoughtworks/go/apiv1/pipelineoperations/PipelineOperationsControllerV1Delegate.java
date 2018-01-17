@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.pipelineoperations;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.i18n.Localizer;
@@ -33,13 +33,13 @@ import static spark.Spark.*;
 
 public class PipelineOperationsControllerV1Delegate extends ApiController {
     private final PipelinePauseService pipelinePauseService;
-    private final AuthenticationHelper authenticationHelper;
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final Localizer localizer;
 
-    public PipelineOperationsControllerV1Delegate(PipelinePauseService pipelinePauseService, AuthenticationHelper authenticationHelper, Localizer localizer) {
+    public PipelineOperationsControllerV1Delegate(PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer) {
         super(ApiVersion.v1);
         this.pipelinePauseService = pipelinePauseService;
-        this.authenticationHelper = authenticationHelper;
+        this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.localizer = localizer;
     }
 
@@ -56,8 +56,8 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("/:pipeline_name/pause", mimeType, authenticationHelper::checkPipelineGroupOperateUserAnd401);
-            before("/:pipeline_name/unpause", mimeType, authenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before("/:pipeline_name/pause", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before("/:pipeline_name/unpause", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
 
             post("/:pipeline_name/pause", mimeType, this::pause, GsonTransformer.getInstance());
             post("/:pipeline_name/unpause", mimeType, this::unpause, GsonTransformer.getInstance());

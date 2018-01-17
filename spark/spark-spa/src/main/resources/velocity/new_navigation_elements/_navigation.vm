@@ -1,0 +1,59 @@
+<div class="top-bar">
+
+  <div class="medium-6 columns">
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu>
+
+        <li class="menu-text"><a href="#pipeline_dashboard_path()" class="logo"></a></li>
+
+        <li>#link_to('Pipelines', "#pipeline_dashboard_path()")</li>
+        <li>#link_to('Environments', "#environments_path()")</li>
+        <li>#link_to('Agents', "#agents_path()")</li>
+        <li>
+          #if(${securityService.canViewAdminPage(${currentUser})})
+            <a href="#" onclick="return false;">Admin</a>
+            <ul class="menu vertical admin-dropdown">
+              #if(${securityService.isUserAdmin(${currentUser})})
+                #parse("new_navigation_elements/_dropdown_admin.vm")
+              #elseif(${securityService.isUserGroupAdmin(${currentUser})})
+                #parse("new_navigation_elements/_dropdown_pipeline_group_admin.vm")
+              #elseif(${securityService.isAuthorizedToViewTemplates(${currentUser})})
+                <li role="presentation">
+                  <a href="/go/admin/templates">Templates</a>
+                </li>
+              #end
+            </ul>
+          #else
+            <span>Admin</span>
+          #end
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="medium-6 columns">
+    <div class="top-bar-right">
+      <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
+        <li><a href="https://gocd.org/help" target="_blank">Need Help?</a></li>
+        #if(!$currentUser.anonymous)
+          <li class="current-user">
+            <a href="#" onclick="return false;"><i class="user"></i>${currentUser.displayName}</a>
+            <ul class="menu vertical">
+              <li><a href="/go/preferences/notifications">Preferences</a></li>
+              <li><a href="/go/auth/logout">Sign out</a></li>
+            </ul>
+          </li>
+        #end
+      </ul>
+      #if(${goUpdateCheckEnabled} && ${goUpdate})
+      <div class="notifications">
+        <span class="bell"></span>
+        <div class="hover-container">
+          <div class="hover">
+            <span>A new release of GoCD - <a href="https://www.gocd.org/download/" target="_blank">${goUpdate}</a> is available.</span>
+          </div>
+        </div>
+      </div>
+      #end
+    </div>
+  </div>
+</div>

@@ -17,10 +17,10 @@
 package com.thoughtworks.go.apiv1.pipelineoperations
 
 import com.thoughtworks.go.api.ClearSingletonExtension
-import com.thoughtworks.go.api.ControllerTrait
-import com.thoughtworks.go.api.SecurityServiceTrait
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.AuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelinePauseService
@@ -49,7 +49,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
   @Override
   PipelineOperationsControllerV1Delegate createControllerInstance() {
-    new PipelineOperationsControllerV1Delegate(pipelinePauseService, new AuthenticationHelper(goConfigService, securityService), localizer)
+    new PipelineOperationsControllerV1Delegate(pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), localizer)
   }
 
   @Nested

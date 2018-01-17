@@ -25,6 +25,7 @@ configurations {
 dependencies {
   compile project(':server')
   compile project(':api').subprojects
+  compile project(':spark').subprojects
   compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty

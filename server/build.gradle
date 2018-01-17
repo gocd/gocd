@@ -59,6 +59,7 @@ configurations {
   compile.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   runtime.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   api.exclude(group: 'ch.qos.logback', module: 'logback-classic')
+  spark.exclude(group: 'ch.qos.logback', module: 'logback-classic')
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
@@ -118,6 +119,7 @@ sourceSets {
 
 dependencies {
   api project(':api').subprojects
+  spark project(':spark').subprojects
   compile project(':database')
   compile project(':config-server')
   compile project(':go-plugin-access')
@@ -155,9 +157,7 @@ dependencies {
     exclude(module: 'spring-context')
     exclude(module: 'org.osgi.core')
   }
-  compile(group: 'com.sparkjava', name: 'spark-core', version: '2.7.1') {
-    transitive = false
-  }
+
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
@@ -530,6 +530,7 @@ task war(type: Jar) {
   dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
   dependsOn project.configurations.compile
   dependsOn project.configurations.api
+  dependsOn project.configurations.spark
   finalizedBy 'verifyWar'
   baseName = 'cruise'
   extension 'war'
@@ -540,9 +541,9 @@ task war(type: Jar) {
 
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
 
-  def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
-  classpath += project.configurations.api.minus(project(':app-server').jar.archivePath)
-  classpath -= jar.archivePath
+  def classpath = (project.configurations.api + project.configurations.spark + project.configurations.compile)
+    .minus(project(':app-server').jar.archivePath)
+    .minus(jar.archivePath)
 
   from(classpath) {
     into 'WEB-INF/lib'
@@ -600,7 +601,7 @@ task verifyWar(type: VerifyJarTask) {
   jarTask = war
   expectedJars = [
     "WEB-INF/lib": (
-      project(':api').subprojects.collect { apiProject -> apiProject.jar.archivePath.name }
+      ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
@@ -681,6 +682,7 @@ task verifyWar(type: VerifyJarTask) {
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",
         "org.eclipse.jgit.http.server-${project.versions.jgit}.jar",
+        "oro-${project.versions.oro}.jar",
         "oscache-2.4.1.jar",
         "plugin-metadata-store-${project.version}.jar",
         "quartz-1.6.5.jar",

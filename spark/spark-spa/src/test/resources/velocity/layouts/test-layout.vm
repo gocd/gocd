@@ -1,0 +1,3 @@
+begin parent layout
+#parse("${viewName}")
+end parent layout

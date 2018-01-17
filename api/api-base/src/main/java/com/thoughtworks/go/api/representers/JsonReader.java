@@ -21,7 +21,7 @@ import com.google.gson.JsonObject;
 
 import java.util.Optional;
 
-import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 import static java.lang.String.format;
 
 public class JsonReader {

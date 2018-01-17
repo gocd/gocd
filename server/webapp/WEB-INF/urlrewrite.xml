@@ -24,6 +24,13 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Spark Roles Config SPA</name>
+        <from>^/admin/security/roles$</from>
+        <condition type="parameter" name="spark">true</condition>
+        <to last="true">/spark/admin/security/roles</to>
+    </rule>
+
+    <rule>
         <name>Spark Security Auth Configs API Index API</name>
         <from>^/api/admin/security/roles</from>
         <to last="true">/spark/api/admin/security/roles</to>
@@ -42,6 +49,7 @@
         <condition type="method">POST</condition>
         <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
     </rule>
+
 
     <rule>
         <name>Spark Plugin Images</name>

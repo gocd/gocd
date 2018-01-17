@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.apiv1.admin.security.spring;
 
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
-import com.thoughtworks.go.api.spring.SparkSpringController;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.apiv1.admin.security.RolesControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -31,9 +31,9 @@ public class RolesControllerV1 implements SparkSpringController {
     private final RolesControllerV1Delegate delegate;
 
     @Autowired
-    public RolesControllerV1(RoleConfigService roleConfigService, AuthenticationHelper authenticationHelper,
+    public RolesControllerV1(RoleConfigService roleConfigService, ApiAuthenticationHelper apiAuthenticationHelper,
                              EntityHashingService entityHashingService, Localizer localizer) {
-        delegate = new RolesControllerV1Delegate(roleConfigService, authenticationHelper, entityHashingService, localizer);
+        delegate = new RolesControllerV1Delegate(roleConfigService, apiAuthenticationHelper, entityHashingService, localizer);
     }
 
     @Override

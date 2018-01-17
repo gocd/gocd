@@ -17,6 +17,8 @@
 package com.thoughtworks.go.api.representers;
 
 
+import com.thoughtworks.go.spark.Link;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;

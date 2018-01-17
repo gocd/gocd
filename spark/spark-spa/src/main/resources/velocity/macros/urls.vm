@@ -1,0 +1,7 @@
+#macro(pipeline_dashboard_path)/go/pipelines#end
+
+#macro(environments_path)/go/environments#end
+
+#macro(agents_path)/go/agents#end
+
+#macro(link_to $text $url $htmlOptions)<a href="$url">${text}$!{bodyContent}</a>#end

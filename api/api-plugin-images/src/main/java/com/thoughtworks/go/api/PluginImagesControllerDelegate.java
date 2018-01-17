@@ -18,6 +18,7 @@ package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.spark.SparkController;
 import spark.Request;
 import spark.Response;
 

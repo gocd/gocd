@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.api
 
-import com.thoughtworks.go.api.mocks.MockHttpServletRequest
+import com.thoughtworks.go.spark.HttpRequestBuilder
+import com.thoughtworks.go.spark.mocks.MockHttpServletRequest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

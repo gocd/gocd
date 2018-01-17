@@ -19,8 +19,8 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.representers.Link;
-import com.thoughtworks.go.api.representers.RequestContext;
+import com.thoughtworks.go.spark.Link;
+import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
@@ -29,7 +29,7 @@ import com.thoughtworks.go.config.RoleConfig;
 import java.util.*;
 
 import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
-import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 
 
 public class RoleRepresenter {

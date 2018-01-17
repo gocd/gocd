@@ -18,8 +18,8 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
 import com.google.common.collect.ImmutableMap;
-import com.thoughtworks.go.api.representers.Link;
-import com.thoughtworks.go.api.representers.RequestContext;
+import com.thoughtworks.go.spark.Link;
+import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.config.Role;
 
 import java.util.Arrays;

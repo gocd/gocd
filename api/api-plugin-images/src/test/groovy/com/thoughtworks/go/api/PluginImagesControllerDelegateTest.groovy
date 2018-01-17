@@ -18,7 +18,9 @@ package com.thoughtworks.go.api
 
 import com.thoughtworks.go.plugin.domain.common.Image
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
-import com.thoughtworks.go.util.SecureRandom
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SparkController
+import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

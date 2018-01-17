@@ -1,0 +1,15 @@
+{
+  "errors": [],
+  "entrypoints": {
+    "single_page_apps/agents": {
+      "chunks": [
+        9,
+        2
+      ],
+      "assets": [
+        "vendor-and-helpers.chunk.js",
+        "single_page_apps/agents.js"
+      ]
+    }
+  }
+}

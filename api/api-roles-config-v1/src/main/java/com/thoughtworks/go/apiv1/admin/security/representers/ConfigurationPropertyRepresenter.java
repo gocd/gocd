@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.representers.RequestContext;
+import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.LinkedHashMap;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public interface ConfigurationPropertyRepresenter {

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import com.thoughtworks.go.api.mocks.TestRequestContext
+import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.domain.config.ConfigurationKey

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.api;
 
 
-import com.thoughtworks.go.api.representers.RequestContext;
+import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.thoughtworks.go.api.util.HaltMessages.notFoundMessage;
+import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 
 public interface ControllerMethods {
 

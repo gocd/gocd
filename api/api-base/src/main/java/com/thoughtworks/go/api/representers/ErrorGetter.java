@@ -17,6 +17,7 @@
 package com.thoughtworks.go.api.representers;
 
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;

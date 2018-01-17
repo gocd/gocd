@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.apiv1.pipelineoperations.spring;
 
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
-import com.thoughtworks.go.api.spring.SparkSpringController;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.apiv1.pipelineoperations.PipelineOperationsControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.PipelinePauseService;
@@ -29,8 +29,8 @@ public class PipelineOperationsControllerV1 implements SparkSpringController {
     private PipelineOperationsControllerV1Delegate delegate;
 
     @Autowired
-    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService, AuthenticationHelper authenticationHelper, Localizer localizer) {
-        this.delegate = new PipelineOperationsControllerV1Delegate(pipelinePauseService, authenticationHelper, localizer);
+    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer) {
+        this.delegate = new PipelineOperationsControllerV1Delegate(pipelinePauseService, apiAuthenticationHelper, localizer);
     }
 
     @Override

@@ -17,13 +17,13 @@
 package com.thoughtworks.go.api
 
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.api.util.HaltMessages
+import com.thoughtworks.go.api.util.HaltApiMessages
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
 import spark.Request
 import spark.Response
 
-import static org.mockito.Matchers.any
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
 trait SecurityTestTrait {
@@ -60,7 +60,7 @@ trait SecurityTestTrait {
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType(controller.mimeType)
       .hasStatus(401)
-      .hasJsonMessage(HaltMessages.unauthorizedMessage())
+      .hasJsonMessage(HaltApiMessages.unauthorizedMessage())
   }
 
 }

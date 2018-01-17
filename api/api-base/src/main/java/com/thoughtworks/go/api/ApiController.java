@@ -18,19 +18,14 @@ package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.spark.SparkController;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static spark.Spark.halt;
@@ -86,15 +81,11 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     }
 
     protected Map readRequestBodyAsJSON(Request req) {
-        return GsonTransformer.getInstance().fromJson(req.body(), Map.class);
-    }
-
-    protected Username currentUsername() {
-        return UserHelper.getUserName();
-    }
-
-    protected CaseInsensitiveString currentUserLoginName() {
-        return currentUsername().getUsername();
+        Map map = GsonTransformer.getInstance().fromJson(req.body(), Map.class);
+        if (map == null) {
+            return Collections.emptyMap();
+        }
+        return map;
     }
 
 }

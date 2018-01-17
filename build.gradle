@@ -30,6 +30,7 @@ buildscript {
     classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+    classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.2"
   }
 }
 
@@ -153,38 +154,38 @@ rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 rootProject.ext.versions = [
-  apacheHttpComponents     : '4.5.4',
-  apacheHttpMime           : '4.5.4',
-  assertJ                  : '3.8.0',
-  commonsCodec             : '1.10',
-  commonsFileUpload        : '1.3.3',
-  commonsIO                : '2.6',
-  commonsLang              : '2.6',
-  dbunit                   : '2.5.4',
-  felix                    : '5.6.10',
-  gson                     : '2.8.2',
-  hamcrest                 : '1.3',
-  jcommander               : '1.72',
-  jetty                    : '9.2.18.v20160721',
-  jgit                     : '4.9.0.201710071750-r',
-  jsonAssert               : '1.5.0',
-  jsonUnit                 : '1.28.1',
-  jsoup                    : '1.11.2',
-  junit                    : '4.12',
-  junit5                   : '5.0.2',
-  logback                  : '1.2.3',
-  mail                     : '1.6.0',
-  mockito                  : '1.9.5',
-  mockito2                 : '2.13.0',
-  nanohttpd                : '2.3.1',
-  rack                     : '1.1.21',
-  rhino                    : '1.7.7.2',
-  slf4j                    : '1.7.25',
-  spark                    : '2.7.1',
-  spring                   : '3.1.3.RELEASE',
-  tinybundles              : '3.0.0',
-  xmlUnitMatchers          : '2.5.1',
-  junitPlatformGradlePlugin: '1.0.2'
+  apacheHttpComponents: '4.5.4',
+  apacheHttpMime      : '4.5.4',
+  assertJ             : '3.8.0',
+  commonsCodec        : '1.10',
+  commonsFileUpload   : '1.3.3',
+  commonsIO           : '2.6',
+  commonsLang         : '2.6',
+  dbunit              : '2.5.4',
+  felix               : '5.6.10',
+  gson                : '2.8.2',
+  hamcrest            : '1.3',
+  jcommander          : '1.72',
+  jetty               : '9.2.18.v20160721',
+  jgit                : '4.9.0.201710071750-r',
+  jsonAssert          : '1.5.0',
+  jsonUnit            : '1.28.1',
+  jsoup               : '1.11.2',
+  junit               : '4.12',
+  junit5              : '5.0.2',
+  logback             : '1.2.3',
+  mail                : '1.6.0',
+  mockito             : '1.9.5',
+  mockito2            : '2.13.0',
+  nanohttpd           : '2.3.1',
+  oro                 : '2.0.8',
+  rack                : '1.1.21',
+  rhino               : '1.7.7.2',
+  slf4j               : '1.7.25',
+  spark               : '2.7.1',
+  spring              : '3.1.3.RELEASE',
+  tinybundles         : '3.0.0',
+  xmlUnitMatchers     : '2.5.1',
 ]
 
 allprojects {
@@ -445,25 +446,25 @@ task compileAll { compileAllTask ->
   }
 }
 
-task apiTest { thisTask ->
+task sparkTest { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
-  project(':api').subprojects.each { Project subPrj ->
+  (project(':api').subprojects + project(':spark').subprojects).each { Project subPrj ->
     thisTask.dependsOn subPrj.tasks.withType(Test)
     thisTask.dependsOn subPrj.tasks.withType(JacocoReport)
   }
-  finalizedBy 'apiTestJunitHtmlReport'
+  finalizedBy 'sparkTestJunitHtmlReport'
 }
 
-task apiTestJunitHtmlReport {
-  dependsOn apiTest
+task sparkTestJunitHtmlReport {
+  dependsOn sparkTest
 
-  project(':api').subprojects.collect { subPrj ->
+  (project(':api').subprojects + project(':spark').subprojects).collect { subPrj ->
     inputs.dir("${subPrj.buildDir}/test-results/junit-platform")
   }
 
-  def htmlOutputDir = file("${project.buildDir}/reports/tests/apiTest")
-  def xmlOutputDir = file("${project.buildDir}/test-results/tests/apiTest")
+  def htmlOutputDir = file("${project.buildDir}/reports/tests/sparkTest")
+  def xmlOutputDir = file("${project.buildDir}/test-results/tests/sparkTest")
   outputs.dir(htmlOutputDir)
   outputs.dir(xmlOutputDir)
 
@@ -479,7 +480,7 @@ task apiTestJunitHtmlReport {
 
     mkdir(htmlOutputDir)
     ant.junitreport(todir: xmlOutputDir) {
-      project(':api').subprojects.each { subPrj ->
+      (project(':api').subprojects + project(':spark').subprojects).each { subPrj ->
         fileset(dir: "${subPrj.buildDir}/test-results/junit-platform") {
           include(name: '**/*.xml')
         }
@@ -489,8 +490,8 @@ task apiTestJunitHtmlReport {
   }
 }
 
-task apiTestJacocoMerge(type: JacocoMerge) { thisTask ->
-  dependsOn apiTest
+task sparkTestJacocoMerge(type: JacocoMerge) { thisTask ->
+  dependsOn sparkTest
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Combine coverage reports for api modules"
 
@@ -498,7 +499,7 @@ task apiTestJacocoMerge(type: JacocoMerge) { thisTask ->
   executionData file("${project.buildDir}/no-op.exec")
 
   doFirst {
-    project(':api').subprojects.each { subproject ->
+    (project(':api').subprojects + project(':spark').subprojects).each { subproject ->
       TaskCollection<JacocoReport> jacocoReportTasks = subproject.tasks.withType(JacocoReport)
       jacocoReportTasks.all { eachReportTask ->
         thisTask.executionData(eachReportTask.executionData)
@@ -509,16 +510,16 @@ task apiTestJacocoMerge(type: JacocoMerge) { thisTask ->
   }
 }
 
-task apiTestJacocoReport(type: JacocoReport, group: 'Coverage reports') { JacocoReport thisTask ->
+task sparkTestJacocoReport(type: JacocoReport, group: 'Coverage reports') { JacocoReport thisTask ->
   description = 'Generates an aggregate report from api subprojects'
 
-  dependsOn apiTestJacocoMerge
+  dependsOn sparkTestJacocoMerge
 
-  executionData apiTestJacocoMerge.destinationFile
+  executionData sparkTestJacocoMerge.destinationFile
   sourceDirectories = files([])
   classDirectories = files([])
 
-  project(':api').subprojects.each { subproject ->
+  (project(':api').subprojects + project(':spark').subprojects).each { subproject ->
     TaskCollection<JacocoReport> jacocoReportTasks = subproject.tasks.withType(JacocoReport)
     jacocoReportTasks.all { eachReportTask ->
       thisTask.sourceDirectories += files(subproject.sourceSets.main.allSource.srcDirs)
@@ -550,7 +551,7 @@ task newApi {
 
     def newSettingsFile = settingsFile.readLines().collect { line ->
       if (line =~ /include ':api:/) {
-        def projectNames = project(':api').subprojects.collect { subPrj -> subPrj.path }
+        def projectNames = (project(':api').subprojects + project(':spark').subprojects).collect { subPrj -> subPrj.path }
         projectNames << ":api:${newProjectName}"
         projectNames.sort(true)
         projectNames.unique(true)
@@ -578,16 +579,6 @@ task newApi {
            * See the License for the specific language governing permissions and
            * limitations under the License.
            */
-          
-          
-          buildscript {
-            repositories {
-              mavenCentral()
-            }
-            dependencies {
-              classpath "org.junit.platform:junit-platform-gradle-plugin:\${project.versions.junitPlatformGradlePlugin}"
-            }
-          }
           
           apply plugin: 'org.junit.platform.gradle.plugin'
           apply plugin: 'jacoco'

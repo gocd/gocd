@@ -17,11 +17,9 @@
 package com.thoughtworks.go.apiv1.admin.security
 
 import com.thoughtworks.go.api.ClearSingletonExtension
-import com.thoughtworks.go.api.ControllerTrait
-import com.thoughtworks.go.api.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.AuthenticationHelper
-import com.thoughtworks.go.api.util.HaltMessages
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter
 import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter
 import com.thoughtworks.go.config.*
@@ -29,6 +27,8 @@ import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,8 +36,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.util.HaltMessages.entityAlreadyExistsMessage
-import static com.thoughtworks.go.api.util.HaltMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -59,7 +59,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
   @Override
   RolesControllerV1Delegate createControllerInstance() {
-    new RolesControllerV1Delegate(roleConfigService, new AuthenticationHelper(goConfigService, securityService), entityHashingService, localizer)
+    new RolesControllerV1Delegate(roleConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, localizer)
   }
 
   @Nested
@@ -285,7 +285,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltMessages.notFoundMessage())
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
       }
 
@@ -541,7 +541,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isUnprocessibleEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(HaltMessages.renameOfEntityIsNotSupportedMessage("roles"))
+          .hasJsonMessage(HaltApiMessages.renameOfEntityIsNotSupportedMessage("roles"))
       }
 
       @Test
@@ -654,7 +654,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltMessages.notFoundMessage())
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
       }
 

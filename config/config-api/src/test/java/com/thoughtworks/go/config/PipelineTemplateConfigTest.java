@@ -229,7 +229,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" defined for `pipeline` does not exist.")));
+        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
     }
 
     @Test

@@ -48,6 +48,7 @@ public class PipelinePauseServiceTest {
     private SecurityService securityService;
 
     private static final String VALID_PIPELINE = "some-pipeline";
+    private static final String PIPELINE_WITH_CAPITAL_NAME = "SOME-PIPELINE";
     private static final Username VALID_USER = new Username(new CaseInsensitiveString("admin"));
     private static final String INVALID_PIPELINE = "nonexistent-pipeline";
     private static final Username INVALID_USER = new Username(new CaseInsensitiveString("someone-who-not-operate"));
@@ -78,7 +79,6 @@ public class PipelinePauseServiceTest {
 
     @Test
     public void shouldPausePipeline() throws Exception {
-
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -90,6 +90,19 @@ public class PipelinePauseServiceTest {
         assertThat(result.httpCode(), is(SC_OK));
     }
 
+    @Test
+    public void shouldPausePipelineWithCaptialName() throws Exception {
+        setUpValidPipelineWithAuth();
+        when(pipelineDao.pauseState(PIPELINE_WITH_CAPITAL_NAME)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        pipelinePauseService.pause(PIPELINE_WITH_CAPITAL_NAME, "cause", VALID_USER, result);
+        verify(pipelineDao).pause(PIPELINE_WITH_CAPITAL_NAME, "cause", VALID_USER.getUsername().toString());
+
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.httpCode(), is(SC_OK));
+    }
 
     @Test
     public void shouldUnPausePipeline() throws Exception {

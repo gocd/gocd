@@ -72,7 +72,7 @@ public class PipelinePauseService {
             return;
         }
         try {
-            pausePipeline(pipelineName.toLowerCase(), pauseCause, pausedBy);
+            pausePipeline(pipelineName, pauseCause, pausedBy);
             result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName));
         } catch (Exception e) {
             LOGGER.error("[Pipeline Pause] Failed to pause pipeline", e);

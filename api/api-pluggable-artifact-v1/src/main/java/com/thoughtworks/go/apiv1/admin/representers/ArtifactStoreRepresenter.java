@@ -20,10 +20,10 @@ import cd.go.jrepresenter.Link;
 import cd.go.jrepresenter.LinksProvider;
 import cd.go.jrepresenter.RequestContext;
 import cd.go.jrepresenter.annotations.Collection;
+import cd.go.jrepresenter.annotations.Errors;
 import cd.go.jrepresenter.annotations.Property;
 import cd.go.jrepresenter.annotations.Represents;
 import cd.go.jrepresenter.util.TriConsumer;
-import cd.go.jrepresenter.util.TrueBiFunction;
 import com.thoughtworks.go.api.ErrorGetter;
 import com.thoughtworks.go.api.IfNoErrors;
 import com.thoughtworks.go.config.ArtifactStore;
@@ -34,18 +34,14 @@ import java.util.function.BiFunction;
 
 @Represents(value = ArtifactStore.class, linksProvider = ArtifactStoreRepresenter.ArtifactStoreLinksProvider.class)
 public interface ArtifactStoreRepresenter {
+    @Errors(getter = ArtifactStoreErrorGetter.class, skipRender = IfNoErrors.class)
+    Map errors();
+
     @Property(modelAttributeType = String.class)
     String id();
 
     @Property(modelAttributeType = String.class)
     String pluginId();
-
-    @Property(skipParse = TrueBiFunction.class,
-            skipRender = IfNoErrors.class,
-            getter = ArtifactStoreErrorGetter.class,
-            modelAttributeType = Map.class,
-            modelAttributeName = "errors")
-    Map errors();
 
     @Collection(
             representer = ConfigurationPropertyRepresenter.class,

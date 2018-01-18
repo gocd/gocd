@@ -63,7 +63,7 @@ public class AdminRoleTest {
         role.validate(PipelineConfigSaveValidationContext.forChain(true, "group",config, pipelineConfig));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" defined does not exist."));
+        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" does not exist."));
     }
 
     @Test

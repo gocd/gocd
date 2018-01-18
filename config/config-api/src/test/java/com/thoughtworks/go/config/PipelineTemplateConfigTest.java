@@ -215,6 +215,44 @@ public class PipelineTemplateConfigTest {
     }
 
     @Test
+    public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("non-existent-role")))));
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" defined for `pipeline` does not exist.")));
+    }
+
+    @Test
+    public void shouldValidateStagePermissionsOfATemplateStageInTheContextOfPipelineUsingTheTemplate() {
+        StageConfig stageConfig = StageConfigMother.custom("stage", new JobConfigs(new JobConfig(new CaseInsensitiveString("defaultJob"))));
+        stageConfig.setApproval(new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("non-admin-non-operate")))));
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+        PipelineConfigs group = cruiseConfig.findGroup("group");
+        group.setAuthorization(new Authorization(new ViewConfig(), new OperationConfig(new AdminUser(new CaseInsensitiveString("foo"))), new AdminsConfig()));
+        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig());
+        cruiseConfig.server().security().adminsConfig().add(new AdminUser(new CaseInsensitiveString("super-admin")));
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("User \"non-admin-non-operate\" who is not authorized to operate pipeline group `group` can not be authorized to approve stage")));
+    }
+
+    @Test
     public void shouldValidateTemplateStageUsedInDownstreamPipelines() {
         JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
         jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));

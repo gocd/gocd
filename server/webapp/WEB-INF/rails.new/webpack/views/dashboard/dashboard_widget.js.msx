@@ -17,7 +17,6 @@
 const m               = require('mithril');
 const _               = require('lodash');
 const f               = require('helpers/form_helper');
-const Routes          = require('gen/js-routes');
 const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const PipelineWidget  = require('views/dashboard/pipeline_widget');
@@ -33,13 +32,12 @@ const DashboardWidget = {
         );
       });
 
-      const pipelineGroupEditPath = `${Routes.pipelineGroupsPath()}#group-${pipelineGroup.name()}`;
-
       return (
         <div class="pipeline-group-wrapper">
           <div class="pipeline-group">
             <h2 class="pipeline-group-title">
-              {pipelineGroup.canAdminister() ? <a href={pipelineGroupEditPath}>{pipelineGroup.name()}</a> : pipelineGroup.name()}
+              {pipelineGroup.canAdminister() ?
+                <a href={pipelineGroup.editLink}>{pipelineGroup.name()}</a> : pipelineGroup.name()}
             </h2>
             <div>
               {pipelines}

@@ -16,11 +16,13 @@
 
 const _      = require('lodash');
 const Stream = require('mithril/stream');
+const Routes = require('gen/js-routes');
 
 const PipelineGroup = function (info) {
   this.name          = Stream(info.name);
   this.pipelines     = Stream(info.pipelines);
   this.canAdminister = Stream(info.can_administer);
+  this.editLink      = `${Routes.pipelineGroupsPath()}#group-${this.name}`;
 };
 
 const PipelineGroups = function (groups) {

@@ -93,12 +93,7 @@ public class AdminRole implements Admin {
         }
         SecurityConfig securityConfig = validationContext.getServerSecurityConfig();
         if (!securityConfig.isRoleExist(this.name)) {
-            if(validationContext.isWithinPipelines()) {
-                configErrors.add(NAME, String.format("Role \"%s\" defined for `%s` does not exist.", this.name, validationContext.getPipeline().getName()));
-            }
-            else {
-                configErrors.add(NAME, String.format("Role \"%s\" does not exist.", this.name));
-            }
+            configErrors.add(NAME, String.format("Role \"%s\" does not exist.", this.name));
         }
     }
 

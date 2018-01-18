@@ -31,11 +31,6 @@ public class TestSparkPreFilter extends SparkFilter {
     }
 
     @Override
-    public void init(FilterConfig config) throws ServletException {
-        super.init(config);
-    }
-
-    @Override
     protected SparkApplication[] getApplications(FilterConfig filterConfig) throws ServletException {
         return new SparkApplication[]{application};
     }

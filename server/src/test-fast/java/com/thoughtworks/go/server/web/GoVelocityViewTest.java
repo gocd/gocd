@@ -17,9 +17,12 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
+import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -39,7 +42,9 @@ import org.springframework.security.userdetails.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
@@ -55,9 +60,14 @@ public class GoVelocityViewTest {
     private HttpServletRequest request;
     private Context velocityContext;
     private SecurityContextImpl securityContext;
-    @Mock private RailsAssetsService railsAssetsService;
-    @Mock private FeatureToggleService featureToggleService;
-    @Mock private VersionInfoService versionInfoService;
+    @Mock
+    private RailsAssetsService railsAssetsService;
+    @Mock
+    private FeatureToggleService featureToggleService;
+    @Mock
+    private VersionInfoService versionInfoService;
+    @Mock
+    private DefaultPluginInfoFinder pluginInfoFinder;
 
     @Before
     public void setUp() throws Exception {
@@ -67,9 +77,24 @@ public class GoVelocityViewTest {
         view = spy(new GoVelocityView());
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
+        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
         securityContext = new SecurityContextImpl();
+    }
+
+    @Test
+    public void shouldNotSetSupportsAnalyticsDashboardIfPluginMissing() throws Exception {
+        view.exposeHelpers(velocityContext, request);
+        assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(false));
+    }
+
+    @Test
+    public void shouldSetSupportsAnalyticsDashboardIfPluginInstalled() throws Exception {
+        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(false, true), null);
+        when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(info));
+        view.exposeHelpers(velocityContext, request);
+        assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(true));
     }
 
     @Test
@@ -179,6 +204,7 @@ public class GoVelocityViewTest {
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
+        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
@@ -205,6 +231,7 @@ public class GoVelocityViewTest {
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
+        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 

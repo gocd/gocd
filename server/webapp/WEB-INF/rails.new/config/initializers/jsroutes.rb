@@ -16,6 +16,7 @@ JsRoutes.setup do |config|
   config.prefix     = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
   config.camel_case = true
   config.include    = [
+    /analytics/,
     /^api_internal/,
     /^apiv\d/,
     /^admin_elastic_profile/,

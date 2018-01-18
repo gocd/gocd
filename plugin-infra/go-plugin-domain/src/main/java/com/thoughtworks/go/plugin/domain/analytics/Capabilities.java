@@ -19,13 +19,19 @@ package com.thoughtworks.go.plugin.domain.analytics;
 
 public class Capabilities {
     private final boolean supportsPipelineAnalytics;
+    private final boolean supportsAnalyticsDashboard;
 
-    public Capabilities(boolean supportsPipelineAnalytics) {
+    public Capabilities(boolean supportsPipelineAnalytics, boolean supportsAnalyticsDashboard) {
         this.supportsPipelineAnalytics = supportsPipelineAnalytics;
+        this.supportsAnalyticsDashboard = supportsAnalyticsDashboard;
     }
 
     public boolean supportsPipelineAnalytics() {
         return supportsPipelineAnalytics;
+    }
+
+    public boolean supportsAnalyticsDashboard() {
+        return supportsAnalyticsDashboard;
     }
 
     @Override
@@ -35,11 +41,12 @@ public class Capabilities {
 
         Capabilities that = (Capabilities) o;
 
-        return supportsPipelineAnalytics == that.supportsPipelineAnalytics;
+        return supportsPipelineAnalytics == that.supportsPipelineAnalytics &&
+                supportsAnalyticsDashboard == that.supportsAnalyticsDashboard;
     }
 
     @Override
     public int hashCode() {
-        return (supportsPipelineAnalytics ? 1 : 0);
+        return (supportsPipelineAnalytics ? 1 : 0) + (supportsAnalyticsDashboard ? 2 : 0);
     }
 }

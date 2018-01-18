@@ -77,13 +77,14 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetCapabilities() throws Exception {
-        String responseBody = "{\"supports_pipeline_analytics\":\"true\"}";
+        String responseBody = "{\"supports_pipeline_analytics\":\"true\", \"supports_analytics_dashboard\":\"true\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
         assertThat(capabilities.supportsPipelineAnalytics(), is(true));
+        assertThat(capabilities.supportsAnalyticsDashboard(), is(true));
     }
 
     @Test
@@ -106,6 +107,28 @@ public class AnalyticsExtensionTest {
         expected.put("data", "{}");
         expected.put("view_path", "/assets/root/path/to/view");
         assertEquals(expected, pipelineAnalytics.toMap());
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetDashboardAnalytics() throws Exception {
+        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
+                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
+                null, null, null);
+        pluginInfo.setStaticAssetsPath("/assets/root");
+        metadataStore.setPluginInfo(pluginInfo);
+
+        AnalyticsData dashboardAnalytics = analyticsExtension.getDashboardAnalytics(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"dashboard\"}");
+
+        assertThat(dashboardAnalytics.getViewPath(), is("path/to/view"));
+
+        Map<String, String> expected = new HashMap<>();
+        expected.put("data", "{}");
+        expected.put("view_path", "/assets/root/path/to/view");
+        assertEquals(expected, dashboardAnalytics.toMap());
     }
 
     @Test

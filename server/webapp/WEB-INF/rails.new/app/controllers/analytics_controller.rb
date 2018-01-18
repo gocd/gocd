@@ -17,7 +17,24 @@
 class AnalyticsController < ApplicationController
   include AuthenticationHelper
 
-  before_action :check_user_can_see_pipeline
+  layout 'single_page_app', only: [:index]
+
+  before_action :check_user_and_401
+  before_action :check_user_can_see_pipeline, only: [:pipeline]
+
+  def index
+    @view_title = 'Analytics'
+    @plugin_ids = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject([]) do |memo, plugin|
+      memo << plugin.getDescriptor().id() if plugin.getCapabilities().supportsAnalyticsDashboard()
+      memo
+    end
+  end
+
+  def dashboard
+    render :json => analytics_extension.getDashboardAnalytics(params[:plugin_id]).toMap().to_h
+  rescue => e
+    render_plugin_error e
+  end
 
   def pipeline
     render :json => analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name]).toMap().to_h
@@ -27,6 +44,6 @@ class AnalyticsController < ApplicationController
 
   private
   def render_plugin_error e
-    render :text => "Error generating analytics for pipeline - #{params[:pipeline_name]}", status: 500
+    render :text => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
   end
 end

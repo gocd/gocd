@@ -72,7 +72,23 @@ public class AnalyticsExtension extends AbstractExtension {
 
             @Override
             public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsFromResponseBody(responseBody);
+                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
+                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
+                return analyticsData;
+            }
+        });
+    }
+
+    public AnalyticsData getDashboardAnalytics(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getDashboardAnalyticsRequestBody();
+            }
+
+            @Override
+            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
+                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
                 analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
                 return analyticsData;
             }

@@ -503,6 +503,18 @@ module ApplicationHelper
     plugin_info.supportsStatusReport()
   end
 
+  def supports_analytics_dashboard?
+    !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |plugin|
+      plugin.getCapabilities().supportsAnalyticsDashboard()
+    end.nil?
+  end
+
+  def with_analytics_dashboard_support(&block)
+    return unless block_given?
+
+    yield if supports_analytics_dashboard?
+  end
+
   private
   def form_remote_tag(options = {})
     options[:form] = true

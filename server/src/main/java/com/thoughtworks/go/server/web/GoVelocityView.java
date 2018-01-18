@@ -17,9 +17,12 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -56,11 +59,16 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String PATH_RESOLVER = "pathResolver";
     public static final String GO_UPDATE = "goUpdate";
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
+    public static final String SUPPORTS_ANALYTICS_DASHBOARD = "supportsAnalyticsDashboard";
 
     private final SystemEnvironment systemEnvironment;
 
     public GoVelocityView() {
         this(new SystemEnvironment());
+    }
+
+    public GoVelocityView(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
     }
 
     RailsAssetsService getRailsAssetsService() {
@@ -71,8 +79,8 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
     }
 
-    public GoVelocityView(SystemEnvironment systemEnvironment) {
-        this.systemEnvironment = systemEnvironment;
+    DefaultPluginInfoFinder getPluginInfoFinder() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DefaultPluginInfoFinder.class);
     }
 
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
@@ -104,6 +112,8 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
+        velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, isSupportsAnalyticsDashboard());
+
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);
         if (securityContext == null || securityContext.getAuthentication() == null) {
@@ -112,6 +122,16 @@ public class GoVelocityView extends VelocityToolboxView {
         final Authentication authentication = securityContext.getAuthentication();
         setPrincipal(velocityContext, authentication);
         setAdmininstratorRole(velocityContext, authentication);
+    }
+
+    private boolean isSupportsAnalyticsDashboard() {
+        for (Object obj : getPluginInfoFinder().allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
+            AnalyticsPluginInfo info = (AnalyticsPluginInfo) obj;
+            if (info.getCapabilities().supportsAnalyticsDashboard()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setPrincipal(Context velocityContext, Authentication authentication) throws NamingException {
@@ -163,7 +183,7 @@ public class GoVelocityView extends VelocityToolboxView {
     private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
         boolean isTemplateViewUser = false;
         for (GrantedAuthority authority : authorities) {
-            if(isTemplateViewUser(authority)) {
+            if (isTemplateViewUser(authority)) {
                 isTemplateViewUser = true;
             }
         }

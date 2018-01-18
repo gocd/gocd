@@ -117,6 +117,11 @@
                         <li id="cruise-header-tab-agents" class="#if($current_tab == 'Agents') current #end">
                           <a href="$req.getContextPath()/agents">$l.localize("AGENTS")</a>
                         </li>
+                        #if($supportsAnalyticsDashboard)
+                          <li id="cruise-header-tab-agents" class="#if($current_tab == 'Analytics') current #end">
+                            <a href="$req.getContextPath()/analytics">$l.localize("ANALYTICS")</a>
+                          </li>
+                        #end
 
                         <li id="cruise-header-tab-admin"
                             class="#if($current_tab ==

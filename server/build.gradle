@@ -553,7 +553,7 @@ task war(type: Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project(':server').projectDir}/webapp/WEB-INF/rails.new/app/assets/javascripts/plugin-endpoint.js") {
+  from("${project(':server').projectDir}/webapp/WEB-INF/rails.new/webpack/rails-shared/plugin-endpoint.js") {
     into('WEB-INF/classes')
   }
 

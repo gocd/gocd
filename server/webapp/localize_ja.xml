@@ -22,6 +22,7 @@
     <entry key="PIPELINES">パイプライン</entry>
     <entry key="PIPELINES_TITILEZED">パイプライン</entry>
     <entry key="AGENTS">エージェント</entry>
+    <entry key="ANALYTICS">ANALYTICS</entry>
     <entry key="ERRORS_COUNT">間違い: {0}</entry>
     <entry key="SIGN_OUT">サインアウト</entry>
     <entry key="GO_VERSION">Goのバージョン</entry>

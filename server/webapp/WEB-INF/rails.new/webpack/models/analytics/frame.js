@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
-const Stream = require('mithril/stream');
+(function() {
+  "use strict";
 
-const Capabilities = function (data) {
-  this.supportsAnalyticsDashboard  = Stream(data.supportsAnalyticsDashboard);
-  this.supportsPipelineAnalytics   = Stream(data.supportsPipelineAnalytics);
-};
+  const Stream = require("mithril/stream");
+  const      $ = require("jquery");
 
-Capabilities.fromJSON = (data = {}) => new Capabilities({
-  supportsPipelineAnalytics: data.supports_pipeline_analytics,
-  supportsAnalyticsDashboard: data.supports_analytics_dashboard
-});
+  function Frame(callback) {
+    const url = Stream();
+    const view = Stream();
+    const data = Stream();
 
-module.exports = Capabilities;
+    function load() {
+      $.ajax({
+        url: url(),
+        type: "GET",
+        dataType: "json"
+      }).done((r) => {
+        data(r.data);
+        view(r.view_path);
+        callback();
+      });
+    }
+
+    return {url, view, data, load};
+  }
+
+  module.exports = Frame;
+})();

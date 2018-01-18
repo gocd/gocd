@@ -773,7 +773,8 @@ describe('PluginInfos', () => {
             }
           },
           "capabilities":     {
-            "supports_pipeline_analytics": true
+            "supports_pipeline_analytics": true,
+            "supports_analytics_dashboard": true
           }
         }
       };
@@ -789,6 +790,7 @@ describe('PluginInfos', () => {
         required: true
       });
       expect(pluginInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
+      expect(pluginInfo.capabilities().supportsAnalyticsDashboard()).toBeTruthy();
     });
   });
 

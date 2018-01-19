@@ -20,7 +20,6 @@ configurations {
   copyOnly {
     transitive = false
   }
-  compile.exclude(group: 'cd.go.jrepresenter', module: 'annotation-processor')
 }
 
 dependencies {

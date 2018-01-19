@@ -59,7 +59,6 @@ configurations {
   compile.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   runtime.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   api.exclude(group: 'ch.qos.logback', module: 'logback-classic')
-  api.exclude(group: 'cd.go.jrepresenter', module: 'annotation-processor')
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
@@ -606,7 +605,6 @@ task verifyWar(type: VerifyJarTask) {
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
         "activemq-protobuf-1.1.jar",
-        "annotation-${project.versions.jrepresenter}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
         "AppleJavaExtensions-1.4.jar",

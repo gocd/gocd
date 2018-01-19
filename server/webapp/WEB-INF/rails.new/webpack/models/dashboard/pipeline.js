@@ -23,10 +23,11 @@ const Stream   = require('mithril/stream');
 const PipelineInstance = require('models/dashboard/pipeline_instance');
 
 const Pipeline = function (info) {
-  this.name         = Stream(info.name);
-  this.settingsPath = Stream(info._links.settings_path.href);
-  this.historyPath  = Stream(info._links.self.href);
-  this.instances    = Stream(_.map(info._embedded.instances, (instance) => new PipelineInstance(instance)));
+  this.name          = Stream(info.name);
+  this.settingsPath  = Stream(info._links.settings_path.href);
+  this.historyPath   = Stream(info._links.self.href);
+  this.instances     = Stream(_.map(info._embedded.instances, (instance) => new PipelineInstance(instance)));
+  this.canAdminister = info.can_administer;
 
   const triggerPath = Stream(info._links.trigger.href);
 

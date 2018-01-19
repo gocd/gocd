@@ -8,7 +8,7 @@
               <h2 class="entity_title"><%= scope[:pipeline_group].getName() %></h2>
             <% end %>
             <% scope[:pipeline_models] = scope[:pipeline_group].getPipelineModels()
-               scope[:pipeline_models].each_with_index do |pipeline_model_in_pipeline_group, idx_in_pipeline_group| -%>
+               scope[:pipeline_models].sort_by { |pipeline| pipeline.getLatestPipelineInstance().getName() }.each_with_index do |pipeline_model_in_pipeline_group, idx_in_pipeline_group| -%>
 
             <% unless scope[:omit_pipeline] %>
                 <div id="<%= pipelines_pipeline_dom_id(pipeline_model_in_pipeline_group) -%>" class="pipeline">

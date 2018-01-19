@@ -13,7 +13,7 @@
         <% if scope[:pipeline_models].empty? %>
             <span><%= l.string('NO_PIPELINES_CONFIGURED_FOR_ENVIRONMENT')-%></span>
         <% else %>
-            <% scope[:pipeline_models].each do |pipeline_model_in_environment| %>
+            <% scope[:pipeline_models].sort_by { |pipeline| pipeline.getLatestPipelineInstance().getName() }.each do |pipeline_model_in_environment| %>
                 <div id="<%= env_pipeline_dom_id(pipeline_model_in_environment) %>" class="pipeline hidereveal_collapsed">
                     <% unless scope[:omit_pipeline] %>
                         <% cache(view_cache_key.forEnvironmentPipelineBox(pipeline_model_in_environment), {:subkey => "environment_html", :skip_digest => true}) do %>

@@ -16,56 +16,46 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.RequestContext;
-import cd.go.jrepresenter.annotations.Collection;
-import cd.go.jrepresenter.annotations.Property;
-import cd.go.jrepresenter.annotations.Represents;
-import cd.go.jrepresenter.util.TriConsumer;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
-@Represents(value = PluginRoleConfig.class)
 public interface PluginRoleConfigRepresenter {
 
-    @Property(modelAttributeType = String.class)
-    String authConfigId();
-
-    @Collection(
-            representer = ConfigurationPropertyRepresenter.class,
-            getter = ConfigurationPropertyGetter.class,
-            setter = ConfigurationPropertySetter.class,
-            modelAttributeType = ConfigurationProperty.class)
-    List<Map> properties();
-
-
-
-    class ConfigurationPropertyGetter implements BiFunction<PluginRoleConfig, RequestContext, List<ConfigurationProperty>> {
-        @Override
-        public List<ConfigurationProperty> apply(PluginRoleConfig pluginRoleConfig, RequestContext requestContext) {
-            return pluginRoleConfig;
+    public static Map toJSON(PluginRoleConfig pluginRoleConfig, RequestContext requestContext) {
+        if (pluginRoleConfig == null) {
+            return null;
         }
+        Map<String, Object> jsonObject = new LinkedHashMap<>();
+        jsonObject.put("auth_config_id", pluginRoleConfig.getAuthConfigId());
+        jsonObject.put("properties", ConfigurationPropertyRepresenter.toJSON(pluginRoleConfig, requestContext));
+
+        return jsonObject;
     }
 
-    class ConfigurationPropertySetter implements TriConsumer<PluginRoleConfig, List<ConfigurationProperty>, RequestContext> {
-
-        @Override
-        public void accept(PluginRoleConfig pluginRoleConfig, List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
-            pluginRoleConfig.addConfigurations(configurationProperties);
+    public static PluginRoleConfig fromJSON(JsonObject jsonObject) {
+        PluginRoleConfig model = new PluginRoleConfig();
+        if (jsonObject == null) {
+            return model;
         }
+        if (jsonObject.has("auth_config_id")) {
+            model.setAuthConfigId(jsonObject.get("auth_config_id").getAsString());
+        }
+        if (jsonObject.has("properties")) {
+            JsonArray properties = jsonObject.get("properties").getAsJsonArray();
+            List<ConfigurationProperty> configurationProperties = new ArrayList<>();
+            properties.forEach(property -> configurationProperties.add(ConfigurationPropertyRepresenter.fromJSON(property.getAsJsonObject())));
+            model.addConfigurations(configurationProperties);
+        }
+        return model;
     }
 
-    class ConfigurationPropertySerializer implements BiFunction<ConfigurationProperty, RequestContext, Map> {
-        @Override
-        public Map apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
-            Map<String, String> json = new LinkedHashMap<>();
-            json.put("key", configurationProperty.getConfigKeyName());
-            json.put("value", configurationProperty.getValue());
-            return json;
-        }
-    }
 }

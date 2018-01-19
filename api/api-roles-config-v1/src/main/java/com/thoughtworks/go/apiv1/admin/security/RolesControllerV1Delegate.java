@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter;
+import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
@@ -30,8 +33,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper;
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.RolesMapper;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -97,7 +98,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(res, etag);
-            return RolesMapper.toJSON(roles, requestContext(req));
+            return RolesRepresenter.toJSON(roles, requestContext(req));
         }
     }
 
@@ -108,7 +109,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(role, res);
-            return RoleMapper.toJSON(role, requestContext(req));
+            return RoleRepresenter.toJSON(role, requestContext(req));
         }
     }
 
@@ -171,12 +172,14 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public Role getEntityFromRequestBody(Request req) {
-        return RoleMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class), requestContext(req));
+        GsonTransformer gsonTransformer = GsonTransformer.getInstance();
+        JsonObject jsonObject = gsonTransformer.jsonObjectFrom(req.body());
+        return RoleRepresenter.fromJSON(jsonObject, requestContext(req));
     }
 
     @Override
     public Map jsonize(Request req, Role role) {
-        return RoleMapper.toJSON(role, requestContext(req));
+        return RoleRepresenter.toJSON(role, requestContext(req));
     }
 
     private void haltIfEntityBySameNameInRequestExists(Request req, Role role) {

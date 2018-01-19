@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import cd.go.jrepresenter.TestRequestContext
+import com.thoughtworks.go.api.mocks.TestRequestContext
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper
 import org.junit.Test
 
+import static com.thoughtworks.go.api.utils.JsonUtil.jsonObjectFrom
 import static org.assertj.core.api.Assertions.assertThat
 
 class PluginRoleConfigRepresenterTest {
@@ -56,14 +56,14 @@ class PluginRoleConfigRepresenterTest {
 
   @Test
   void shouldGenerateJSON() {
-    Map map = RoleMapper.toJSON(roleConfig, new TestRequestContext());
+    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext());
 
     assertThat(map).isEqualTo(this.map)
   }
 
   @Test
   void shouldBuildObjectFromJson() {
-    def roleConfig = RoleMapper.fromJSON(map, new TestRequestContext())
+    def roleConfig = RoleRepresenter.fromJSON(jsonObjectFrom(map), new TestRequestContext())
     assertThat(roleConfig).isEqualTo(this.roleConfig)
   }
 }

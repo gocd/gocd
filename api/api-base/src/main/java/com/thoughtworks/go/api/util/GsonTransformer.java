@@ -44,6 +44,10 @@ public class GsonTransformer implements ResponseTransformer {
         return GSON.toJson(model);
     }
 
+    public JsonObject jsonObjectFrom(String string) {
+        return GSON.fromJson(string, JsonElement.class).getAsJsonObject();
+    }
+
     public <T> T fromJson(String string, Class<T> classOfT) {
         return GSON.fromJson(string, classOfT);
     }

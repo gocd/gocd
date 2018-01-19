@@ -22,14 +22,13 @@ import com.thoughtworks.go.api.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.AuthenticationHelper
 import com.thoughtworks.go.api.util.HaltMessages
+import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter
+import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.i18n.LocalizedMessage
-import com.thoughtworks.go.i18n.Localizer
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.RoleMapper
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.RolesMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -144,7 +143,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(expectedRoles, RolesMapper)
+          .hasJsonBodySerializedWith(expectedRoles, RolesRepresenter)
       }
 
       @Test
@@ -160,7 +159,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(new RolesConfig([pluginRoleConfig]), RolesMapper)
+          .hasJsonBodySerializedWith(new RolesConfig([pluginRoleConfig]), RolesRepresenter)
       }
 
       @Test
@@ -275,7 +274,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(role, RoleMapper)
+          .hasJsonBodySerializedWith(role, RoleRepresenter)
       }
 
       @Test
@@ -313,7 +312,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(role, RoleMapper)
+          .hasJsonBodySerializedWith(role, RoleRepresenter)
       }
     }
   }
@@ -397,13 +396,13 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         when(roleConfigService.findRole('blackbird')).thenReturn(null)
         doNothing().when(roleConfigService).create(any(), any(), any())
 
-        postWithApiHeader(controller.controllerPath(), RoleMapper.toJSON(role, requestContext))
+        postWithApiHeader(controller.controllerPath(), RoleRepresenter.toJSON(role, requestContext))
 
         assertThatResponse()
           .isOk()
           .hasEtag('"some-md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(role, RoleMapper)
+          .hasJsonBodySerializedWith(role, RoleRepresenter)
       }
 
       @Test
@@ -415,7 +414,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"))
         })
 
-        postWithApiHeader(controller.controllerPath(), RoleMapper.toJSON(role, requestContext))
+        postWithApiHeader(controller.controllerPath(), RoleRepresenter.toJSON(role, requestContext))
 
         assertThatResponse()
           .isUnprocessibleEntity()
@@ -431,7 +430,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         expectedRole.addError('name', 'Role names should be unique. Role with the same name exists.')
 
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
-        postWithApiHeader(controller.controllerPath(), RoleMapper.toJSON(expectedRole, requestContext))
+        postWithApiHeader(controller.controllerPath(), RoleRepresenter.toJSON(expectedRole, requestContext))
 
         verify(roleConfigService, never()).create(any(), any(), any())
 
@@ -439,7 +438,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           .isUnprocessibleEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("role", "blackbird"))
-          .hasJsonAtrribute('data', RoleMapper.toJSON(expectedRole, requestContext))
+          .hasJsonAtrribute('data', RoleRepresenter.toJSON(expectedRole, requestContext))
       }
     }
   }
@@ -467,7 +466,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-md5',
           'content-type': 'application/json'
-        ], RoleMapper.toJSON(this.roleConfig, requestContext))
+        ], RoleRepresenter.toJSON(this.roleConfig, requestContext))
       }
 
       @Test
@@ -533,7 +532,8 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         ]
         def body = [
           name: 'blackbird',
-          type: 'plugin'
+          type: 'plugin',
+          attributes: [:]
         ]
 
         putWithApiHeader(controller.controllerPath('/foo'), headers, body)
@@ -551,7 +551,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
         when(entityHashingService.md5ForEntity(role)).thenReturn('cached-md5')
 
-        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'some-string'], RoleMapper.toJSON(role, requestContext))
+        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'some-string'], RoleRepresenter.toJSON(role, requestContext))
 
         assertThatResponse().isPreconditionFailed()
           .hasContentType(controller.mimeType)
@@ -567,13 +567,13 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         when(entityHashingService.md5ForEntity(role)).thenReturn('cached-md5')
         when(entityHashingService.md5ForEntity(newRole)).thenReturn('new-md5')
 
-        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'cached-md5'], RoleMapper.toJSON((Role) newRole, requestContext))
+        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'cached-md5'], RoleRepresenter.toJSON((Role) newRole, requestContext))
 
         assertThatResponse()
           .isOk()
           .hasEtag('"new-md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(newRole, RoleMapper)
+          .hasJsonBodySerializedWith(newRole, RoleRepresenter)
       }
     }
   }

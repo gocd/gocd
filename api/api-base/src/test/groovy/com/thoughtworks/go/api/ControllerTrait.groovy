@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.api
 
-import cd.go.jrepresenter.RequestContext
-import cd.go.jrepresenter.TestRequestContext
+
 import com.thoughtworks.go.api.mocks.*
+import com.thoughtworks.go.api.representers.RequestContext
 import com.thoughtworks.go.i18n.Localizer
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock

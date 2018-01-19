@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api.serializers;
+package com.thoughtworks.go.api.representers;
 
-import cd.go.jrepresenter.RequestContext;
-import com.thoughtworks.go.config.CaseInsensitiveString;
+public class Link {
 
-import java.util.function.BiFunction;
+    private String name;
+    private String href;
 
-public class CaseInsensitiveStringSerializer implements BiFunction<CaseInsensitiveString, RequestContext, String> {
+    public Link(String name, String href) {
+        this.name = name;
+        this.href = href;
+    }
 
-    @Override
-    public String apply(CaseInsensitiveString caseInsensitiveString, RequestContext requestContext) {
-        return caseInsensitiveString != null ? caseInsensitiveString.toString() : null;
+    public String getName() {
+        return name;
+    }
+
+    public String getHref() {
+        return href;
     }
 }

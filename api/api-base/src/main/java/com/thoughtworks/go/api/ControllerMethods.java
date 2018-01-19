@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.api;
 
-import cd.go.jrepresenter.RequestContext;
+
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;

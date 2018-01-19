@@ -16,36 +16,40 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.RequestContext;
-import cd.go.jrepresenter.annotations.Collection;
-import cd.go.jrepresenter.annotations.Represents;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-@Represents(value = RoleConfig.class)
-public interface GoCDRoleConfigRepresenter {
+public class GoCDRoleConfigRepresenter {
 
-    @Collection(modelAttributeType = RoleUser.class, serializer = RoleUserSerializer.class, deserializer = RoleUserDeserializer.class)
-    List<String> users();
-
-
-    class RoleUserSerializer implements BiFunction<RoleUser, RequestContext, String> {
-        @Override
-        public String apply(RoleUser roleUser, RequestContext requestContext) {
-            if (roleUser == null || roleUser.getName() == null) {
-                return null;
-            }
-            return roleUser.getName().toString();
-        }
+    public static Map toJSON(RoleConfig roleConfig, RequestContext requestContext) {
+        Map<String, Object> jsonObject = new LinkedHashMap<>();
+        jsonObject.put("users", usersAsString(roleConfig));
+        return jsonObject;
     }
 
-    class RoleUserDeserializer implements BiFunction<String, RequestContext, RoleUser> {
-        @Override
-        public RoleUser apply(String s, RequestContext requestContext) {
-            return new RoleUser(s);
+    public static RoleConfig fromJSON(JsonObject jsonObject) {
+        RoleConfig model = new RoleConfig();
+        if (jsonObject == null) {
+            return model;
         }
+        if (jsonObject.has("users")) {
+            JsonArray users = jsonObject.get("users").getAsJsonArray();
+            users.forEach(user -> model.addUser(new RoleUser(user.getAsString())));
+        }
+        return model;
     }
+
+    private static List<String> usersAsString(RoleConfig roleConfig) {
+        return roleConfig.getUsers().stream().map(user -> user.getName().toString()).collect(Collectors.toList());
+    }
+
 }

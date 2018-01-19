@@ -16,135 +16,58 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.RequestContext;
-import cd.go.jrepresenter.annotations.Errors;
-import cd.go.jrepresenter.annotations.Property;
-import cd.go.jrepresenter.annotations.Represents;
 import com.google.gson.JsonIOException;
-import com.thoughtworks.go.api.ErrorGetter;
-import com.thoughtworks.go.api.IfNoErrors;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-@Represents(
-        value = ConfigurationProperty.class,
-        deserializer = ConfigurationPropertyRepresenter.ConfigurationPropertyDeserializer.class
-)
 public interface ConfigurationPropertyRepresenter {
 
-    @Property(
-            modelAttributeType = ConfigurationKey.class,
-            serializer = ConfigurationKeySerializer.class,
-            deserializer = ConfigurationKeyDeserializer.class
-    )
-    String key();
-
-    @Property(
-            modelAttributeType = ConfigurationValue.class,
-            modelAttributeName = "configurationValue",
-            serializer = ConfigurationValueSerializer.class,
-            deserializer = ConfigurationValueDeserializer.class,
-            skipRender = IfSecureConfigurationValueOrNull.class
-    )
-    String value();
-
-
-    @Property(
-            modelAttributeType = EncryptedConfigurationValue.class,
-            modelAttributeName = "encryptedValue",
-            deserializer = EncryptedConfigurationValueDeserializer.class,
-            skipRender = IfPlainTextConfigurationValueOrNull.class
-    )
-    String encryptedValue();
-
-    @Errors(getter = ConfigurationPropertyRoleGetter.class, skipRender = IfNoErrors.class)
-    Map errors();
-
-    class ConfigurationKeySerializer implements BiFunction<ConfigurationKey, RequestContext, String> {
-        @Override
-        public String apply(ConfigurationKey configurationKey, RequestContext requestContext) {
-            return configurationKey.getName();
-        }
+    public static List<Map<String, Object>> toJSON(List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
+        return configurationProperties.stream()
+                .map(configurationProperty -> ConfigurationPropertyRepresenter.toJSON(configurationProperty, requestContext))
+                .collect(Collectors.toList());
     }
 
-    class ConfigurationKeyDeserializer implements BiFunction<String, RequestContext, ConfigurationKey> {
-        @Override
-        public ConfigurationKey apply(String s, RequestContext requestContext) {
-            return new ConfigurationKey(s);
+    public static Map<String, Object> toJSON(ConfigurationProperty configurationProperty, RequestContext requestContext) {
+        if (configurationProperty == null) {
+            return null;
         }
-    }
-
-    class ConfigurationValueSerializer implements BiFunction<ConfigurationValue, RequestContext, String> {
-        @Override
-        public String apply(ConfigurationValue configurationValue, RequestContext requestContext) {
-            return configurationValue == null ? null : configurationValue.getValue();
+        Map<String, Object> jsonObject = new LinkedHashMap<>();
+        jsonObject.put("key", configurationProperty.getKey().getName());
+        if (!configurationProperty.isSecure() && !isBlank(configurationProperty.getConfigValue())) {
+            jsonObject.put("value", configurationProperty.getConfigurationValue().getValue());
         }
-    }
-
-    class EncryptedConfigurationValueSerializer implements BiFunction<EncryptedConfigurationValue, RequestContext, String> {
-        @Override
-        public String apply(EncryptedConfigurationValue configurationValue, RequestContext requestContext) {
-            return configurationValue == null ? null : configurationValue.getValue();
+        if (configurationProperty.isSecure() && !isBlank(configurationProperty.getEncryptedValue())) {
+            jsonObject.put("encrypted_value", configurationProperty.getEncryptedValue());
         }
-    }
-
-    class EncryptedConfigurationValueDeserializer implements BiFunction<String, RequestContext, EncryptedConfigurationValue> {
-        @Override
-        public EncryptedConfigurationValue apply(String encryptedValue, RequestContext requestContext) {
-            return new EncryptedConfigurationValue(encryptedValue);
-        }
-    }
-
-    class ConfigurationValueDeserializer implements BiFunction<String, RequestContext, ConfigurationValue> {
-        @Override
-        public ConfigurationValue apply(String s, RequestContext requestContext) {
-            return new ConfigurationValue(s);
-        }
-    }
-
-    class IfPlainTextConfigurationValueOrNull implements BiFunction<ConfigurationProperty, RequestContext, Boolean> {
-        @Override
-        public Boolean apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
-            return !configurationProperty.isSecure() || isBlank(configurationProperty.getEncryptedValue());
-        }
-    }
-
-    class IfSecureConfigurationValueOrNull implements BiFunction<ConfigurationProperty, RequestContext, Boolean> {
-        @Override
-        public Boolean apply(ConfigurationProperty configurationProperty, RequestContext requestContext) {
-            return configurationProperty.isSecure() || isBlank(configurationProperty.getConfigValue());
-        }
-    }
-
-    class ConfigurationPropertyDeserializer implements BiFunction<Map, RequestContext, ConfigurationProperty> {
-        @Override
-        public ConfigurationProperty apply(Map jsonObject, RequestContext requestContext) {
-            try {
-                String key = (String) jsonObject.get("key");
-                String value = (String) jsonObject.get("value");
-                String encryptedValue = (String) jsonObject.get("encrypted_value");
-                return ConfigurationProperty.deserialize(key, value, encryptedValue);
-            } catch (Exception e) {
-                throw new JsonIOException("Could not parse configuration property", e);
-            }
-        }
-    }
-
-    class ConfigurationPropertyRoleGetter extends ErrorGetter {
-        public ConfigurationPropertyRoleGetter() {
-            super(new LinkedHashMap<String, String>() {{
+        if (configurationProperty.hasErrors()) {
+            jsonObject.put("errors", new ErrorGetter(new LinkedHashMap<String, String>() {{
                 put("encryptedValue", "encrypted_value");
                 put("configurationValue", "configuration_value");
                 put("configurationKey", "configuration_key");
-            }});
+            }}).apply(configurationProperty, requestContext));
+        }
+        return jsonObject;
+    }
+
+    public static ConfigurationProperty fromJSON(JsonObject jsonObject) {
+        try {
+            String key = jsonObject.get("key").getAsString();
+            String value = jsonObject.has("value") ? jsonObject.get("value").getAsString() : null;
+            String encryptedValue = jsonObject.has("encrypted_value") ? jsonObject.get("encrypted_value").getAsString() : null;
+            return ConfigurationProperty.deserialize(key, value, encryptedValue);
+        } catch (Exception e) {
+            throw new JsonIOException("Could not parse configuration property", e);
         }
     }
+
 }

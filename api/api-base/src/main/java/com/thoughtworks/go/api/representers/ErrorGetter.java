@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.api.representers;
 
-import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.config.Validatable;
 
 import java.util.LinkedHashMap;

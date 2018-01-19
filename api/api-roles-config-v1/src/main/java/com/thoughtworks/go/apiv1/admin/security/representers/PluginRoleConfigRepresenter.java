@@ -17,8 +17,7 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -41,20 +40,21 @@ public interface PluginRoleConfigRepresenter {
         return jsonObject;
     }
 
-    public static PluginRoleConfig fromJSON(JsonObject jsonObject) {
+    public static PluginRoleConfig fromJSON(JsonReader jsonReader) {
         PluginRoleConfig model = new PluginRoleConfig();
-        if (jsonObject == null) {
+        if (jsonReader == null) {
             return model;
         }
-        if (jsonObject.has("auth_config_id")) {
-            model.setAuthConfigId(jsonObject.get("auth_config_id").getAsString());
-        }
-        if (jsonObject.has("properties")) {
-            JsonArray properties = jsonObject.get("properties").getAsJsonArray();
+        jsonReader.optString("auth_config_id").ifPresent(model::setAuthConfigId);
+        jsonReader.optJsonArray("properties").ifPresent(properties -> {
             List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-            properties.forEach(property -> configurationProperties.add(ConfigurationPropertyRepresenter.fromJSON(property.getAsJsonObject())));
+            properties.forEach(property -> {
+                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
+                ConfigurationProperty configurationProperty = ConfigurationPropertyRepresenter.fromJSON(configPropertyReader);
+                configurationProperties.add(configurationProperty);
+            });
             model.addConfigurations(configurationProperties);
-        }
+        });
         return model;
     }
 

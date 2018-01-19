@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.AuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter;
@@ -173,8 +173,8 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
     @Override
     public Role getEntityFromRequestBody(Request req) {
         GsonTransformer gsonTransformer = GsonTransformer.getInstance();
-        JsonObject jsonObject = gsonTransformer.jsonObjectFrom(req.body());
-        return RoleRepresenter.fromJSON(jsonObject, requestContext(req));
+        JsonReader jsonReader = gsonTransformer.jsonReaderFrom(req.body());
+        return RoleRepresenter.fromJSON(jsonReader);
     }
 
     @Override

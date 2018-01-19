@@ -50,8 +50,8 @@ class GoCDRoleConfigRepresenterTest {
 
   @Test
   void shouldBuildObjectFromJson() {
-    def jsonObject = GsonTransformer.instance.jsonObjectFrom(map)
-    def roleConfig = RoleRepresenter.fromJSON(jsonObject,  new TestRequestContext())
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(map)
+    def roleConfig = RoleRepresenter.fromJSON(jsonReader)
     assertThat(roleConfig).isEqualTo(this.roleConfig)
   }
 }

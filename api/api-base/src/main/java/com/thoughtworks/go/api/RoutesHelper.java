@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.api;
 
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.spring.SparkSpringController;
+import com.thoughtworks.go.api.util.ErrorResponses;
 import spark.Request;
 import spark.Response;
 
@@ -26,6 +28,7 @@ import java.util.List;
 
 import static spark.Spark.afterAfter;
 import static spark.Spark.before;
+import static spark.Spark.exception;
 
 public class RoutesHelper {
     private static final String TIMER_START = RuntimeHeaderEmitter.class.getName();
@@ -52,6 +55,8 @@ public class RoutesHelper {
 
         controllers.forEach(SparkSpringController::setupRoutes);
         sparkControllers.forEach(SparkController::setupRoutes);
+
+        exception(JsonParseException.class, ErrorResponses::invalidJsonPayload);
 
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
     }

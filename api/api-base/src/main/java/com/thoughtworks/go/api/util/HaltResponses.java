@@ -38,4 +38,8 @@ public abstract class HaltResponses {
         return halt(412, MessageJson.create(HaltMessages.etagDoesNotMatch(entityType, name)));
     }
 
+    public static HaltException haltBecauseInvalidJSON(String errorMessage) {
+        return halt(422, MessageJson.create(errorMessage));
+    }
+
 }

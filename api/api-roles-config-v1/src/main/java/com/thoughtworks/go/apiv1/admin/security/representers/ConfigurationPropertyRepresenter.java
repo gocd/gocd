@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public interface ConfigurationPropertyRepresenter {
@@ -59,14 +59,14 @@ public interface ConfigurationPropertyRepresenter {
         return jsonObject;
     }
 
-    public static ConfigurationProperty fromJSON(JsonObject jsonObject) {
+    public static ConfigurationProperty fromJSON(JsonReader jsonReader) {
         try {
-            String key = jsonObject.get("key").getAsString();
-            String value = jsonObject.has("value") ? jsonObject.get("value").getAsString() : null;
-            String encryptedValue = jsonObject.has("encrypted_value") ? jsonObject.get("encrypted_value").getAsString() : null;
+            String key = jsonReader.getString("key");
+            String value = jsonReader.optString("value").orElse(null);
+            String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
             return ConfigurationProperty.deserialize(key, value, encryptedValue);
         } catch (Exception e) {
-            throw new JsonIOException("Could not parse configuration property", e);
+            throw haltBecauseInvalidJSON("Could not parse configuration property");
         }
     }
 

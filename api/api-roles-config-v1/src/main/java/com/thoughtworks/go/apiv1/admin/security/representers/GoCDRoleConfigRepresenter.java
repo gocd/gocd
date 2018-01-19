@@ -17,8 +17,7 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
@@ -36,15 +35,14 @@ public class GoCDRoleConfigRepresenter {
         return jsonObject;
     }
 
-    public static RoleConfig fromJSON(JsonObject jsonObject) {
+    public static RoleConfig fromJSON(JsonReader jsonReader) {
         RoleConfig model = new RoleConfig();
-        if (jsonObject == null) {
+        if (jsonReader == null) {
             return model;
         }
-        if (jsonObject.has("users")) {
-            JsonArray users = jsonObject.get("users").getAsJsonArray();
+        jsonReader.optJsonArray("users").ifPresent(users -> {
             users.forEach(user -> model.addUser(new RoleUser(user.getAsString())));
-        }
+        });
         return model;
     }
 

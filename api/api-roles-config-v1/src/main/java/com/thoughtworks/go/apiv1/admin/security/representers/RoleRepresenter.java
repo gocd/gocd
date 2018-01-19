@@ -17,8 +17,8 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.Link;
 import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.RoleConfig;
 import java.util.*;
 
 import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
+import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
 
 
 public class RoleRepresenter {
@@ -61,23 +62,19 @@ public class RoleRepresenter {
         return jsonObject;
     }
 
-    public static Role fromJSON(JsonObject jsonObject, RequestContext requestContext) {
+    public static Role fromJSON(JsonReader jsonReader) {
         Role model;
-        String type = jsonObject.get("type").getAsString();
+        String type = jsonReader.optString("type").orElse("");
 
         if ("gocd".equals(type)) {
-            model = GoCDRoleConfigRepresenter.fromJSON(jsonObject.get("attributes").getAsJsonObject());
-        }
-        else if ("plugin".equals(type)) {
-            model = PluginRoleConfigRepresenter.fromJSON(jsonObject.get("attributes").getAsJsonObject());
-        }
-        else {
-            throw new RuntimeException("Could not find any subclass for specified type. Possible values are: gocd,plugin");
+            model = GoCDRoleConfigRepresenter.fromJSON(jsonReader.readJsonObject("attributes"));
+        } else if ("plugin".equals(type)) {
+            model = PluginRoleConfigRepresenter.fromJSON(jsonReader.readJsonObject("attributes"));
+        } else {
+            throw haltBecauseInvalidJSON("Invalid role type %s. It has to be one of 'gocd' or 'plugin'");
         }
 
-        if (jsonObject.has("name")) {
-            model.setName(new CaseInsensitiveString(jsonObject.get("name").getAsString()));
-        }
+        model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));
 
         return model;
     }

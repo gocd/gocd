@@ -67,23 +67,23 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should deserialize to encrypted property if encrypted value is submitted'() {
       def encryptedValue = new GoCipher().encrypt('password')
-      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'user', encrypted_value: encryptedValue])
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 
     @Test
     void 'it should deserialize to simple property if plain-text value is submitted'() {
-      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'user', value: 'bob'])
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', value: 'bob'])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", false, "bob"))
     }
 
     @Test
     void 'it should deserialize with errors'() {
       def encryptedValue = new GoCipher().encrypt('p@ssword')
-      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
 
       assertThat(property.hasErrors()).isTrue()
       assertThat(property.errors()).hasSize(2)

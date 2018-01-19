@@ -56,7 +56,7 @@ def gitRevision = { ->
   exec {
     commandLine "git", "log", "-n", "1", "--format=%H"
     standardOutput = hashStdOut
-    workingDir = script.buildscript.sourceFile.parent
+    workingDir = script.buildscript.sourceFile.canonicalFile.parent
   }
 
   return hashStdOut.toString().trim()
@@ -67,7 +67,7 @@ def releaseRevision = { ->
   exec {
     commandLine "git", "log", "--pretty=format:"
     standardOutput = hashStdOut
-    workingDir = script.buildscript.sourceFile.parent
+    workingDir = script.buildscript.sourceFile.canonicalFile.parent
   }
 
   return hashStdOut.size().toString()

@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api.serializers;
+package com.thoughtworks.go.api.representers;
 
-import cd.go.jrepresenter.RequestContext;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.function.BiFunction;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-public class CaseInsensitiveStringDeserializer implements BiFunction<String, RequestContext, CaseInsensitiveString> {
+public class RepresenterUtils {
 
-    @Override
-    public CaseInsensitiveString apply(String s, RequestContext requestContext) {
-        return new CaseInsensitiveString(s);
+    public static void addLinks(List<Link> links, Map jsonObject) {
+        if (links.isEmpty()) {
+            return;
+        }
+        Map<String, Object> linksMap = new LinkedHashMap<>();
+        links.forEach(link -> linksMap.put(link.getName(), Collections.singletonMap("href", link.getHref())));
+        jsonObject.put("_links", linksMap);
     }
 }

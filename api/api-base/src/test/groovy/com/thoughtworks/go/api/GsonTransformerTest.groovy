@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.api
 
+import com.google.gson.JsonParseException
 import com.thoughtworks.go.api.util.GsonTransformer
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType
 
 class GsonTransformerTest {
   private GsonTransformer gsonTransformer = GsonTransformer.instance
@@ -49,5 +52,11 @@ class GsonTransformerTest {
   @Test
   void shouldSerializeNulls() {
     JSONAssert.assertEquals(gsonTransformer.render([x: null]), '{"x": null}', true)
+  }
+
+  @Test
+  void shouldThrowJsonParseExceptionWhenReadingBadData() {
+    assertThatExceptionOfType(JsonParseException.class)
+    .isThrownBy({gsonTransformer.jsonReaderFrom("bad-data")})
   }
 }

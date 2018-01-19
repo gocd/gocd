@@ -18,9 +18,11 @@ package com.thoughtworks.go.api.util;
 
 import com.google.gson.*;
 import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.thoughtworks.go.api.representers.JsonReader;
 import spark.ResponseTransformer;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class GsonTransformer implements ResponseTransformer {
@@ -42,6 +44,22 @@ public class GsonTransformer implements ResponseTransformer {
             return "";
         }
         return GSON.toJson(model);
+    }
+
+    public JsonReader jsonReaderFrom(String string) {
+        try {
+            return new JsonReader(GSON.fromJson(string, JsonElement.class).getAsJsonObject());
+        } catch (Exception e) {
+            throw new JsonParseException(e);
+        }
+    }
+
+    public JsonReader jsonReaderFrom(Map map) {
+        try {
+            return new JsonReader(GSON.toJsonTree(map).getAsJsonObject());
+        } catch (Exception e) {
+            throw new JsonParseException(e);
+        }
     }
 
     public <T> T fromJson(String string, Class<T> classOfT) {

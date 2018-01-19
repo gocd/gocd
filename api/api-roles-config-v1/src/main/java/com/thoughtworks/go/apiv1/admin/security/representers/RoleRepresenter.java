@@ -16,87 +16,76 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.Link;
-import cd.go.jrepresenter.LinksProvider;
-import cd.go.jrepresenter.RequestContext;
-import cd.go.jrepresenter.annotations.Property;
-import cd.go.jrepresenter.annotations.Represents;
-import cd.go.jrepresenter.annotations.RepresentsSubClasses;
-import cd.go.jrepresenter.util.TrueBiFunction;
-import com.thoughtworks.go.api.ErrorGetter;
-import com.thoughtworks.go.api.IfNoErrors;
-import com.thoughtworks.go.api.serializers.CaseInsensitiveStringDeserializer;
-import com.thoughtworks.go.api.serializers.CaseInsensitiveStringSerializer;
+
+import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.api.representers.Link;
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.*;
 
-@Represents(value = Role.class)
-@RepresentsSubClasses(
-        property = "type",
-        nestedUnder = "attributes",
-        subClasses = {
-                @RepresentsSubClasses.SubClassInfo(
-                        value = "gocd",
-                        representer = GoCDRoleConfigRepresenter.class,
-                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class),
-                @RepresentsSubClasses.SubClassInfo(
-                        value = "plugin",
-                        representer = PluginRoleConfigRepresenter.class,
-                        linksProvider = RoleRepresenter.RoleConfigLinksProvider.class)
-        })
-public interface RoleRepresenter {
-
-    @Property(deserializer = CaseInsensitiveStringDeserializer.class,
-            serializer = CaseInsensitiveStringSerializer.class,
-            modelAttributeType = CaseInsensitiveString.class)
-    String name();
-
-    @Property(getter = RoleTypeGetter.class, skipParse = TrueBiFunction.class)
-    String type();
-
-    @Property(skipParse = TrueBiFunction.class,
-            skipRender = IfNoErrors.class,
-            getter = RoleErrorGetter.class,
-            modelAttributeType = Map.class,
-            modelAttributeName = "errors")
-    Map errors();
+import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
+import static com.thoughtworks.go.api.util.HaltResponses.haltBecauseInvalidJSON;
 
 
-    public class RoleTypeGetter implements BiFunction<Role, RequestContext, String> {
-        @Override
-        public String apply(Role role, RequestContext requestContext) {
-            if (role instanceof RoleConfig) {
-                return "gocd";
-            } else {
-                return "plugin";
-            }
+public class RoleRepresenter {
+
+    private static List<Link> getLinks(Role model, RequestContext requestContext) {
+        return Arrays.asList(
+                new Link("doc", "https://api.gocd.org/#roles"),
+                requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
+                requestContext.build("find", "/go/api/admin/security/roles/:role_name")
+        );
+    }
+
+    public static Map toJSON(Role role, RequestContext requestContext) {
+        if (role == null) return null;
+        Map<String, Object> jsonObject = new LinkedHashMap<>();
+        List<Link> links = getLinks(role, requestContext);
+        addLinks(links, jsonObject);
+
+        jsonObject.put("name", role.getName().toString());
+        jsonObject.put("type", getRoleType(role));
+        if (role.hasErrors()) {
+            jsonObject.put("errors", new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id"))
+                    .apply(role, requestContext));
+        }
+        if (role instanceof RoleConfig) {
+            jsonObject.put("attributes", GoCDRoleConfigRepresenter.toJSON((RoleConfig) role, requestContext));
+        } else if (role instanceof PluginRoleConfig) {
+            jsonObject.put("attributes", PluginRoleConfigRepresenter.toJSON((PluginRoleConfig) role, requestContext));
+        }
+        return jsonObject;
+    }
+
+    public static Role fromJSON(JsonReader jsonReader) {
+        Role model;
+        String type = jsonReader.optString("type").orElse("");
+
+        if ("gocd".equals(type)) {
+            model = GoCDRoleConfigRepresenter.fromJSON(jsonReader.readJsonObject("attributes"));
+        } else if ("plugin".equals(type)) {
+            model = PluginRoleConfigRepresenter.fromJSON(jsonReader.readJsonObject("attributes"));
+        } else {
+            throw haltBecauseInvalidJSON("Invalid role type %s. It has to be one of 'gocd' or 'plugin'");
+        }
+
+        model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));
+
+        return model;
+    }
+
+    private static String getRoleType(Role role) {
+        if (role instanceof RoleConfig) {
+            return "gocd";
+        } else {
+            return "plugin";
         }
     }
 
-    class RoleErrorGetter extends ErrorGetter {
-        public RoleErrorGetter() {
-            super(Collections.singletonMap("authConfigId", "auth_config_id"));
-        }
-    }
-
-    class RoleConfigLinksProvider implements LinksProvider<Role> {
-        private static final Link DOC = new Link("doc", "https://api.gocd.org/#roles");
-
-        @Override
-        public List<Link> getLinks(Role model, RequestContext requestContext) {
-            return Arrays.asList(
-                    DOC,
-                    requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
-                    requestContext.build("find", "/go/api/admin/security/roles/:role_name")
-            );
-        }
-    }
 
 }

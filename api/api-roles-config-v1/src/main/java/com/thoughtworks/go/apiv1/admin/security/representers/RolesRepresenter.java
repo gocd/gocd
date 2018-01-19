@@ -16,32 +16,36 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
-import cd.go.jrepresenter.Link;
-import cd.go.jrepresenter.LinksProvider;
-import cd.go.jrepresenter.RequestContext;
-import cd.go.jrepresenter.annotations.Collection;
-import cd.go.jrepresenter.annotations.Represents;
+
+import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.api.representers.Link;
+import com.thoughtworks.go.api.representers.RequestContext;
 import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RolesConfig;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Represents(value = RolesConfig.class, linksProvider = RolesRepresenter.RolesLinksProvider.class)
-public interface RolesRepresenter {
+import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 
-    @Collection(modelAttributeType = Role.class, embedded = true, representer = RoleRepresenter.class)
-    List<Map> roles();
+public class RolesRepresenter {
 
-    class RolesLinksProvider implements LinksProvider<RolesConfig> {
-        @Override
-        public List<Link> getLinks(RolesConfig model, RequestContext requestContext) {
-            return Arrays.asList(
-                    requestContext.build("self", "/go/api/admin/security/roles"),
-                    new Link("doc", "https://api.gocd.org/#roles"),
-                    requestContext.build("find", "/go/api/admin/security/roles/:role_name"));
-        }
+    public static List<Link> getLinks(RequestContext requestContext) {
+        return Arrays.asList(
+                requestContext.build("self", "/go/api/admin/security/roles"),
+                new Link("doc", "https://api.gocd.org/#roles"),
+                requestContext.build("find", "/go/api/admin/security/roles/:role_name"));
+    }
 
+    public static Map toJSON(List<Role> roles, RequestContext requestContext) {
+        Map<String, Object> jsonObject = new LinkedHashMap<>();
+        addLinks(getLinks(requestContext), jsonObject);
+        List<Map> rolesArray = roles.stream()
+                .map(role -> RoleRepresenter.toJSON(role, requestContext))
+                .collect(Collectors.toList());
+        jsonObject.put("_embedded", ImmutableMap.of("roles", rolesArray));
+        return jsonObject;
     }
 }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.api.mocks
 
-import cd.go.jrepresenter.TestRequestContext
+
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions
@@ -64,8 +64,8 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return this
   }
 
-  MockHttpServletResponseAssert hasJsonBodySerializedWith(Object expected, Class mapper) throws UnsupportedEncodingException {
-    JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(mapper.toJSON(expected, new TestRequestContext()))
+  MockHttpServletResponseAssert hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
+    JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(representer.toJSON(expected, new TestRequestContext()))
     return this
   }
 

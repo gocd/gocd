@@ -29,7 +29,6 @@ apply plugin: 'jacoco'
 apply plugin: 'groovy'
 
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
-apply from: rootProject.file('buildSrc/jrepresenter-support.gradle')
 
 
 dependencies {

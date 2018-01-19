@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import cd.go.jrepresenter.TestRequestContext
+import com.thoughtworks.go.api.mocks.TestRequestContext
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
-import gen.com.thoughtworks.go.apiv1.admin.security.representers.ConfigurationPropertyMapper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -33,21 +33,21 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should serialize an unencrypted value if property type is unsecure'() {
       def configProperty = ConfigurationPropertyMother.create("user", false, "bob")
-      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'user', value: 'bob'])
     }
 
     @Test
     void 'it should serialize an encrypted value if property type is secure'() {
       def configProperty = ConfigurationPropertyMother.create("password", true, "p@ssw0rd")
-      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'password', encrypted_value: configProperty.getEncryptedValue()])
     }
 
     @Test
     void 'it should serialize property with null value'() {
       def configProperty = ConfigurationPropertyMother.createKeyOnly("Username")
-      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'Username'])
     }
 
@@ -57,7 +57,7 @@ class ConfigurationPropertyRepresenterTest {
       configProperty.addError("encryptedValue", "blah")
       configProperty.addError("encryptedValue", "boo")
 
-      def map = ConfigurationPropertyMapper.toJSON(configProperty, new TestRequestContext())
+      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
       assertThatJson(map).isEqualTo([key: 'user', value: 'bob', "errors": ["encrypted_value": ["blah", "boo"]]])
     }
   }
@@ -67,21 +67,23 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should deserialize to encrypted property if encrypted value is submitted'() {
       def encryptedValue = new GoCipher().encrypt('password')
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', encrypted_value: encryptedValue], new TestRequestContext())
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 
     @Test
     void 'it should deserialize to simple property if plain-text value is submitted'() {
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'user', value: 'bob'], new TestRequestContext())
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', value: 'bob'])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", false, "bob"))
     }
 
     @Test
     void 'it should deserialize with errors'() {
       def encryptedValue = new GoCipher().encrypt('p@ssword')
-
-      def property = ConfigurationPropertyMapper.fromJSON([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue], new TestRequestContext())
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
 
       assertThat(property.hasErrors()).isTrue()
       assertThat(property.errors()).hasSize(2)

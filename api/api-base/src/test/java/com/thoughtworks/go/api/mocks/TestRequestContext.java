@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.api.mocks;
 
-import cd.go.jrepresenter.RequestContext;
-import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.api.representers.RequestContext;
 
-import java.util.function.BiFunction;
+public class TestRequestContext extends RequestContext {
 
-public class IfNoErrors implements BiFunction<Validatable, RequestContext, Boolean> {
-    @Override
-    public Boolean apply(Validatable entity, RequestContext requestContext) {
-        return entity.errors().isEmpty();
+    public TestRequestContext() {
+        super("http", "test.host", 80);
     }
+
 }

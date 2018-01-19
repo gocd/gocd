@@ -17,13 +17,13 @@
 package com.thoughtworks.go.apiv1.admin.security.representers
 
 import com.thoughtworks.go.api.mocks.TestRequestContext
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.Test
 
-import static com.thoughtworks.go.api.utils.JsonUtil.jsonObjectFrom
 import static org.assertj.core.api.Assertions.assertThat
 
 class GoCDRoleConfigRepresenterTest {
@@ -50,7 +50,8 @@ class GoCDRoleConfigRepresenterTest {
 
   @Test
   void shouldBuildObjectFromJson() {
-    def roleConfig = RoleRepresenter.fromJSON(jsonObjectFrom(map),  new TestRequestContext())
+    def jsonObject = GsonTransformer.instance.jsonObjectFrom(map)
+    def roleConfig = RoleRepresenter.fromJSON(jsonObject,  new TestRequestContext())
     assertThat(roleConfig).isEqualTo(this.roleConfig)
   }
 }

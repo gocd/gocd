@@ -21,6 +21,7 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 import spark.ResponseTransformer;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class GsonTransformer implements ResponseTransformer {
@@ -46,6 +47,10 @@ public class GsonTransformer implements ResponseTransformer {
 
     public JsonObject jsonObjectFrom(String string) {
         return GSON.fromJson(string, JsonElement.class).getAsJsonObject();
+    }
+
+    public JsonObject jsonObjectFrom(Map map) {
+        return GSON.toJsonTree(map).getAsJsonObject();
     }
 
     public <T> T fromJson(String string, Class<T> classOfT) {

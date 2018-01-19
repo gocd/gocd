@@ -17,13 +17,13 @@
 package com.thoughtworks.go.apiv1.admin.security.representers
 
 import com.thoughtworks.go.api.mocks.TestRequestContext
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
 import org.junit.Test
 
-import static com.thoughtworks.go.api.utils.JsonUtil.jsonObjectFrom
 import static org.assertj.core.api.Assertions.assertThat
 
 class PluginRoleConfigRepresenterTest {
@@ -63,7 +63,8 @@ class PluginRoleConfigRepresenterTest {
 
   @Test
   void shouldBuildObjectFromJson() {
-    def roleConfig = RoleRepresenter.fromJSON(jsonObjectFrom(map), new TestRequestContext())
+    def jsonObject = GsonTransformer.instance.jsonObjectFrom(map)
+    def roleConfig = RoleRepresenter.fromJSON(jsonObject, new TestRequestContext())
     assertThat(roleConfig).isEqualTo(this.roleConfig)
   }
 }

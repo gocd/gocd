@@ -17,12 +17,12 @@
 package com.thoughtworks.go.apiv1.admin.security.representers
 
 import com.thoughtworks.go.api.mocks.TestRequestContext
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.utils.JsonUtil.jsonObjectFrom
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -67,21 +67,23 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should deserialize to encrypted property if encrypted value is submitted'() {
       def encryptedValue = new GoCipher().encrypt('password')
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObjectFrom([key: 'user', encrypted_value: encryptedValue]))
+      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'user', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 
     @Test
     void 'it should deserialize to simple property if plain-text value is submitted'() {
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObjectFrom([key: 'user', value: 'bob']))
+      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'user', value: 'bob'])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", false, "bob"))
     }
 
     @Test
     void 'it should deserialize with errors'() {
       def encryptedValue = new GoCipher().encrypt('p@ssword')
-
-      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObjectFrom([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue]))
+      def jsonObject = GsonTransformer.instance.jsonObjectFrom([key: 'password', value: 'p@ssword', encrypted_value: encryptedValue])
+      def property = ConfigurationPropertyRepresenter.fromJSON(jsonObject)
 
       assertThat(property.hasErrors()).isTrue()
       assertThat(property.errors()).hasSize(2)

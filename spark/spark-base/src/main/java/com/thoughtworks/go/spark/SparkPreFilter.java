@@ -43,7 +43,7 @@ public class SparkPreFilter extends SparkFilter {
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) req;
         if (Toggles.isToggleOn(Toggles.SPARK_ROUTER_ENABLED_KEY)) {
-            if (request.getRequestURI().startsWith("/go/spark/api/") && noApiVersionInAcceptHeader((HttpServletRequest) req)) {
+            if (request.getRequestURI().startsWith("/go/spark/api/") && !request.getRequestURI().startsWith("/go/spark/api/plugin_images") && noApiVersionInAcceptHeader((HttpServletRequest) req)) {
                 render404((HttpServletResponse) resp);
                 return;
             }

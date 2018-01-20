@@ -427,6 +427,7 @@ integrationTest { thisTask ->
 
 tasks.withType(Test) {
   dependsOn copyAgentSideJarsToServerDir
+  dependsOn prepareNoRails
 
   minHeapSize '1024m'
   maxHeapSize '2048m'

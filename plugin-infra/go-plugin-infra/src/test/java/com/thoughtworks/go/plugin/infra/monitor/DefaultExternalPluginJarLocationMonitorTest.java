@@ -16,34 +16,33 @@
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
-import java.io.File;
-import java.util.Random;
-
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
+import java.io.File;
+import java.util.Random;
+
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@RunWith(JunitExtRunner.class)
+@RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON,  OSChecker.WINDOWS})
 public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
-    private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private static final Random RANDOM = new Random();
     private File PLUGIN_BUNDLED_DIR;
     private File PLUGIN_EXTERNAL_DIR;
@@ -55,9 +54,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         String pluginBundledDirName = "./tmp-bundled-DEPJLMT" + RANDOM.nextInt();
         PLUGIN_BUNDLED_DIR = new File(pluginBundledDirName);
         recreateDirectory(PLUGIN_BUNDLED_DIR);
@@ -79,9 +75,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @After
     public void tearDown() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.stop();
         FileUtils.deleteQuietly(PLUGIN_BUNDLED_DIR);
         FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
@@ -90,9 +83,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldCreateExternalPluginDirectoryIfItDoesNotExist() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         PLUGIN_EXTERNAL_DIR.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
         assertThat(PLUGIN_EXTERNAL_DIR.exists(), is(true));
@@ -100,9 +90,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldThrowUpWhenExternalPluginDirectoryCreationFails() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("/xyz");
         try {
             new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
@@ -114,9 +101,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldDetectNewlyAddedPluginJar() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -129,9 +113,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldDetectOnlyJarsAsNewPlugins() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -143,9 +124,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldDetectRemovedPluginJar() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar");
@@ -161,9 +139,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -181,9 +156,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldNotifyListenerOfMultiplePluginFilesRemoved() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -205,9 +177,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldNotifyRemoveEventBeforeAddEventInCaseOfFileRename() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -229,9 +198,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin.jar");
@@ -247,9 +213,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldAlwaysHandleBundledPluginsAheadOfExternalPlugins() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -280,9 +243,6 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Test
     public void shouldSpecifyIfPluginIsBundledOrExternalWhenAdded() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 

@@ -16,19 +16,13 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Random;
-import java.util.zip.ZipInputStream;
-
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -37,6 +31,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Random;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
 import static org.hamcrest.CoreMatchers.is;
@@ -74,6 +74,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @After
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(TMP_DIR);
+        pluginOSGiFramework.stop();
     }
 
     @Test

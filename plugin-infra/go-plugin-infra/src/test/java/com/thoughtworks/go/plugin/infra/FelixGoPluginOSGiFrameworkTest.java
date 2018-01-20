@@ -16,52 +16,35 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.List;
-
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FelixGoPluginOSGiFrameworkTest {
@@ -83,6 +66,11 @@ public class FelixGoPluginOSGiFrameworkTest {
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(descriptor);
         doReturn(framework).when(spy).getFelixFramework(Matchers.<List<FrameworkFactory>>anyObject());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        spy.stop();
     }
 
     @Test

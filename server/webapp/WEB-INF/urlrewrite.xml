@@ -56,11 +56,16 @@
         <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
     </rule>
 
-
     <rule>
         <name>Spark Plugin Images</name>
         <from>^/api/plugin_images/(.*)$</from>
         <to last="true">/spark/api/plugin_images/$1</to>
+    </rule>
+
+    <rule>
+        <name>Spark Encryption API</name>
+        <from>^/api/admin/encrypt</from>
+        <to last="true">/spark/api/admin/encrypt</to>
     </rule>
 
     <rule>

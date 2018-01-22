@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.spark.RequestContext;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -98,7 +99,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(res, etag);
-            return RolesRepresenter.toJSON(roles, requestContext(req));
+            return RolesRepresenter.toJSON(roles, RequestContext.requestContext(req));
         }
     }
 
@@ -109,7 +110,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(role, res);
-            return RoleRepresenter.toJSON(role, requestContext(req));
+            return RoleRepresenter.toJSON(role, RequestContext.requestContext(req));
         }
     }
 
@@ -179,7 +180,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public Map jsonize(Request req, Role role) {
-        return RoleRepresenter.toJSON(role, requestContext(req));
+        return RoleRepresenter.toJSON(role, RequestContext.requestContext(req));
     }
 
     private void haltIfEntityBySameNameInRequestExists(Request req, Role role) {

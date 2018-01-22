@@ -17,6 +17,7 @@
 package com.thoughtworks.go.spark;
 
 import org.apache.commons.lang.text.StrSubstitutor;
+import spark.Request;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,6 +39,10 @@ public class RequestContext {
         this.host = host;
         this.port = protocol.equalsIgnoreCase("https") && port == 443 || protocol.equals("http") && port == 80 ? -1 : port;
         this.protocol = protocol;
+    }
+
+    public static RequestContext requestContext(Request req) {
+        return new RequestContext(req.scheme(), req.raw().getServerName(), req.port());
     }
 
     public Link build(String name, String template, Object... args) {

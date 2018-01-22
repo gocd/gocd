@@ -62,17 +62,18 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
     @Test
     void 'should get dashboard json'() {
+      loginAsUser()
+
       def pipelineSelections = PipelineSelections.ALL
       def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
       when(pipelineSelectionsService.getSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(normalUser()))).thenReturn([pipelineGroup])
+      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
 
-      loginAsUser()
       getWithApiHeader(controller.controllerPath())
 
-      def expectedJsonBody = PipelineGroupsRepresenter.toJSON([pipelineGroup], new TestRequestContext(), normalUser())
+      def expectedJsonBody = PipelineGroupsRepresenter.toJSON([pipelineGroup], new TestRequestContext(), currentUsername())
 
       assertThatResponse()
         .isOk()
@@ -84,12 +85,12 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       def noPipelineGroups = []
       def pipelineSelections = PipelineSelections.ALL
       when(pipelineSelectionsService.getSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(normalUser()))).thenReturn(noPipelineGroups)
+      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
 
       loginAsUser()
       getWithApiHeader(controller.controllerPath())
 
-      def expectedJsonBody = PipelineGroupsRepresenter.toJSON(noPipelineGroups, new TestRequestContext(), normalUser())
+      def expectedJsonBody = PipelineGroupsRepresenter.toJSON(noPipelineGroups, new TestRequestContext(), currentUsername())
 
       assertThatResponse()
         .isOk()

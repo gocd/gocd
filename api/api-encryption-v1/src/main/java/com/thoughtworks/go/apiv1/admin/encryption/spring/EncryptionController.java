@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.spark.spring;
+package com.thoughtworks.go.apiv1.admin.encryption.spring;
 
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.spark.HtmlErrorPage;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spark.HaltException;
-
-import java.io.IOException;
-
-import static spark.Spark.halt;
 
 @Component
-public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
-
+public class EncryptionController implements SparkSpringController {
+    private final EncryptionControllerDelegate delegate;
+    private static final int DEFAULT_REQUESTS_PER_MINUTE = 60;
 
     @Autowired
-    public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) throws IOException {
-        super(securityService, goConfigService);
+    public EncryptionController(ApiAuthenticationHelper apiAuthenticationHelper) {
+        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE);
     }
 
     @Override
-    protected HaltException renderUnauthorizedResponse() {
-        return halt(401, HtmlErrorPage.errorPage(401, "Unauthorized"));
+    public void setupRoutes() {
+        delegate.setupRoutes();
     }
-
 }

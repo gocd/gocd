@@ -17,6 +17,7 @@
 package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
+import com.thoughtworks.go.spark.HtmlErrorPage
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
 import spark.ModelAndView
@@ -60,7 +61,6 @@ trait SecurityTestTrait {
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType("text/html")
       .hasStatus(401)
-      .hasBody(authenticationHelper.replaceHtml(401, "Unauthorized"))
+      .hasBody(HtmlErrorPage.errorPage(401, "Unauthorized"))
   }
-
 }

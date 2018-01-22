@@ -42,4 +42,7 @@ public abstract class HaltApiResponses {
         return halt(422, MessageJson.create(errorMessage));
     }
 
+    public static HaltException haltBecauseRateLimitExceeded() {
+        return halt(429, MessageJson.create(HaltApiMessages.rateLimitExceeded()));
+    }
 }

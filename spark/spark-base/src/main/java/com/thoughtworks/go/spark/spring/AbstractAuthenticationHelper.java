@@ -81,4 +81,14 @@ public abstract class AbstractAuthenticationHelper {
     protected CaseInsensitiveString currentUserLoginName() {
         return currentUsername().getUsername();
     }
+
+    public void checkAnyAdminUserAnd401(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
+            throw renderUnauthorizedResponse();
+        }
+    }
 }

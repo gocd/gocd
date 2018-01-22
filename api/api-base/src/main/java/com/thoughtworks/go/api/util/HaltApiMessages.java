@@ -37,4 +37,12 @@ public abstract class HaltApiMessages {
     public static String etagDoesNotMatch(String entityType, Object name) {
         return String.format("Someone has modified the configuration for %s `%s'. Please update your copy of the config with the changes and try again.", entityType, name);
     }
+
+    public static String rateLimitExceeded() {
+        return "Rate Limit Exceeded";
+    }
+
+    public static String errorWhileEncryptingMessage() {
+        return "An error occurred while encrypting the value. Please check the logs for more details.";
+    }
 }

@@ -34,6 +34,7 @@
     <context:component-scan base-package="com.thoughtworks.go.spark.spa.spring"/>
 
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard.spring"/>
 

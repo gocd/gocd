@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
+import com.thoughtworks.go.spark.RequestContext;
 import spark.Request;
 import spark.Response;
 
@@ -67,6 +68,6 @@ public class DashboardControllerDelegate extends ApiController {
         PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(selectedPipelinesCookie, userId);
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
 
-        return PipelineGroupsRepresenter.toJSON(pipelineGroups, requestContext(request), userName);
+        return PipelineGroupsRepresenter.toJSON(pipelineGroups, RequestContext.requestContext(request), userName);
     }
 }

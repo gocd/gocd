@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,7 +73,11 @@ describe Api::WebHooks::GitLabController do
                             git@gitlab.example.com:org/repo
                             git@gitlab.example.com:org/repo/
                             git@gitlab.example.com:org/repo.git
-                            git@gitlab.example.com:org/repo.git/)
+                            git@gitlab.example.com:org/repo.git/
+                            gitlab@gitlab.example.com:org/repo
+                            gitlab@gitlab.example.com:org/repo/
+                            gitlab@gitlab.example.com:org/repo.git
+                            gitlab@gitlab.example.com:org/repo.git/)
 
         expect(@material_update_service)
           .to receive(:updateGitMaterial)

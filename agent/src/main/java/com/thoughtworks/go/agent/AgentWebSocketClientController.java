@@ -33,6 +33,7 @@ import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
@@ -130,11 +131,11 @@ public class AgentWebSocketClientController extends AgentController {
                 LOG.debug("Got work from server: [{}]", work.description());
                 runner = new JobRunner();
                 try {
-                    runner.run(work, agentIdentifier(),
+                    runner.run(work, new AgentWorkContext(agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
                             manipulator, getAgentRuntimeInfo(),
                             packageRepositoryExtension, scmExtension,
-                            taskExtension, artifactExtension);
+                            taskExtension, artifactExtension));
                 } finally {
                     getAgentRuntimeInfo().idle();
                     updateServerAgentRuntimeInfo();

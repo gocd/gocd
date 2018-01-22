@@ -16,14 +16,8 @@
 
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -53,12 +47,11 @@ public class JobRunner {
         handled = true;
     }
 
-    public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
-                    PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public void run(Work work, AgentWorkContext agentWorkContext) {
         running = true;
         this.work = work;
         try {
-            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension, artifactExtension);
+            work.doWork(environmentVariableContext, agentWorkContext);
         } finally {
             running = false;
             doneSignal.countDown();

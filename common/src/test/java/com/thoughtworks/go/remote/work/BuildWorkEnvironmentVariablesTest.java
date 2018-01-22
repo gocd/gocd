@@ -136,16 +136,15 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly()  {
+    public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly() {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
         BuildWork work = getBuildWorkWithP4MaterialRevision(p4Material);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
 
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
+                new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null));
 
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("10"));
@@ -183,8 +182,7 @@ public class BuildWorkEnvironmentVariablesTest {
         EnvironmentVariableContext environmentContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(),
-                environmentContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
+        work.doWork(environmentContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null));
 
         assertEnvironmentContext(environmentContext, "foo", is("bar"));
     }
@@ -225,9 +223,8 @@ public class BuildWorkEnvironmentVariablesTest {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
+                new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null));
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE"), is("3"));
     }
@@ -250,8 +247,8 @@ public class BuildWorkEnvironmentVariablesTest {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
+                manipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null));
 
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_SERVER_URL", "some_random_place"));
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME));
@@ -326,9 +323,8 @@ public class BuildWorkEnvironmentVariablesTest {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
+                new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null));
         return environmentVariableContext;
     }
 }

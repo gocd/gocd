@@ -50,7 +50,7 @@ public class BuildWorkArtifactFetchingTest {
     File buildWorkingDirectory;
 
     private static final String WITH_FETCH_FILE =
-                      "<job name=\"" + JOB_NAME + "\">\n"
+            "<job name=\"" + JOB_NAME + "\">\n"
                     + "  <tasks>\n"
                     + "    <fetchartifact stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
                     + "    <ant target=\"--help\" >\n"
@@ -93,8 +93,7 @@ public class BuildWorkArtifactFetchingTest {
     public void shouldFailTheJobWhenFetchingArtifactFails() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
-        buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null);
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null));
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
@@ -108,8 +107,7 @@ public class BuildWorkArtifactFetchingTest {
     public void shouldTransitIntoFailedStatusWhenFetchingArtifactFailed() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
-        buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null);
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null));
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
@@ -121,9 +119,9 @@ public class BuildWorkArtifactFetchingTest {
     public void shouldFetchFolder() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
-        buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null);
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubManipulator,
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null));
 
-        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
+        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
     }
 }

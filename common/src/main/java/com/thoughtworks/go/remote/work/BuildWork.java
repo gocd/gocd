@@ -19,13 +19,9 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
-import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
@@ -66,25 +62,22 @@ public class BuildWork implements Work {
         this.assignment = assignment;
     }
 
-    private void initialize(BuildRepositoryRemote remoteBuildRepository,
-                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    private void initialize(AgentWorkContext agentWorkContext) {
         JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
         this.timeProvider = new TimeProvider();
-        agentRuntimeInfo.busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
+        agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(goArtifactsManipulator, jobIdentifier, remoteBuildRepository, agentRuntimeInfo);
-        this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension, artifactExtension);
-        this.artifactsPublisher = new ArtifactsPublisher(artifactExtension, assignment.getArtifactStores());
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
+        this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension());
+        this.artifactsPublisher = new ArtifactsPublisher(agentWorkContext.getArtifactExtension(), assignment.getArtifactStores());
     }
 
-    public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
-                       EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
-                       PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
-        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension, artifactExtension);
+    public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
+        initialize(agentWorkContext);
         try {
-            JobResult result = build(environmentVariableContext, agentIdentifier, packageRepositoryExtension, scmExtension);
+            JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getPackageRepositoryExtension(), agentWorkContext.getScmExtension());
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);

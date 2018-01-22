@@ -18,13 +18,7 @@ package com.thoughtworks.go.work;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Property;
-import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -47,12 +41,12 @@ public class SleepWork implements Work {
     }
 
     @Override
-    public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         cancelLatch = new CountDownLatch(1);
-        agentRuntimeInfo.busy(new AgentBuildingInfo("sleepwork", "sleepwork1"));
+        agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo("sleepwork", "sleepwork1"));
         boolean canceled = false;
-        DefaultGoPublisher goPublisher = new DefaultGoPublisher(manipulator, new JobIdentifier(),
-                remoteBuildRepository, agentRuntimeInfo);
+        DefaultGoPublisher goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), new JobIdentifier(),
+                agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
 
         try {
             if (this.sleepInMilliSeconds > 0) {
@@ -60,7 +54,7 @@ public class SleepWork implements Work {
             }
 
             String result = canceled ? "done_canceled" : "done";
-            manipulator.setProperty(null, new Property(name + "_result", result));
+            agentWorkContext.getArtifactsManipulator().setProperty(null, new Property(name + "_result", result));
             SystemEnvironment systemEnvironment = new SystemEnvironment();
             if (systemEnvironment.isConsoleLogsThroughWebsocketEnabled() && systemEnvironment.isWebsocketsForAgentsEnabled()) {
                 goPublisher.consumeLine(format("Sleeping for %s milliseconds", this.sleepInMilliSeconds));

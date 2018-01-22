@@ -18,6 +18,12 @@ module ApiV4
     class ArtifactPluginInfoRepresenter < BasePluginInfoRepresenter
       alias_method :plugin, :represented
 
+      property :capabilities,
+               skip_nil: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.artifact.Capabilities,
+               decorator: ArtifactCapabilitiesRepresenter
+
       property :store_config_settings,
                skip_nil: true,
                expect_hash: true,

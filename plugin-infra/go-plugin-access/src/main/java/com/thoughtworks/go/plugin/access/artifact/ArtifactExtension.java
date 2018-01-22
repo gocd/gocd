@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
-import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 
 @Component
@@ -51,6 +50,15 @@ public class ArtifactExtension extends AbstractExtension {
 
     private void addHandler(String version, ArtifactMessageConverter extensionHandler) {
         messageHandlerMap.put(version, extensionHandler);
+    }
+
+    public com.thoughtworks.go.plugin.domain.artifact.Capabilities getCapabilities(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.artifact.Capabilities>() {
+            @Override
+            public com.thoughtworks.go.plugin.domain.artifact.Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
+            }
+        });
     }
 
     public List<PluginConfiguration> getArtifactStoreMetadata(String pluginId) {
@@ -191,7 +199,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
         });
     }
-    
+
     @Override
     public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
         throw new UnsupportedOperationException("Fetch Plugin Settings is not supported by Artifact endpoint.");

@@ -53,7 +53,7 @@ public class Capabilities {
         return GSON.fromJson(json, Capabilities.class);
     }
 
-    public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilites() {
+    public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilities() {
         return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics, supportsAnalyticsDashboard);
     }
 }

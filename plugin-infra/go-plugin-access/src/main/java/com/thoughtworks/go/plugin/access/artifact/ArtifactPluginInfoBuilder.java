@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,11 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
         PluggableInstanceSettings publishArtifactConfigSettings = publishArtifactMetadata(descriptor.id());
         PluggableInstanceSettings fetchArtifactConfigSettings = fetchArtifactMetadata(descriptor.id());
         Image image = image(descriptor.id());
-        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings, image);
+        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings, image, getCapabilities(descriptor.id()));
+    }
+
+    private Capabilities getCapabilities(String pluginId) {
+        return artifactExtension.getCapabilities(pluginId);
     }
 
     private PluggableInstanceSettings storeConfigMetadata(String pluginId) {

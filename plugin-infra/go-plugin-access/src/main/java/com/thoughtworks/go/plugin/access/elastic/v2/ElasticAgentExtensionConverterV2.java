@@ -151,7 +151,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
     }
 
     public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return com.thoughtworks.go.plugin.access.elastic.models.Capabilities.fromJSON(responseBody).toCapabilites();
+        return com.thoughtworks.go.plugin.access.elastic.models.Capabilities.fromJSON(responseBody).toCapabilities();
     }
 }
 

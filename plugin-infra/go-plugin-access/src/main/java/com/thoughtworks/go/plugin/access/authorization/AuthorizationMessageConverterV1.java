@@ -41,7 +41,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
 
     @Override
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return Capabilities.fromJSON(responseBody).toCapabilites();
+        return Capabilities.fromJSON(responseBody).toCapabilities();
     }
 
     @Override

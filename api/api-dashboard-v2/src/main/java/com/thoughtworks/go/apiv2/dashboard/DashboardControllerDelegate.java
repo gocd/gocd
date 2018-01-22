@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'groovy'
-apply plugin: 'jacoco'
-apply from: rootProject.file('buildSrc/junit5-support.gradle')
+package com.thoughtworks.go.apiv2.dashboard;
 
-dependencies {
-  compile project(':server')
-  compile project(':spark:spark-base')
 
-  testCompile localGroovy()
-  testCompile project(path: ':server', configuration: 'testOutput')
-  testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
+import com.thoughtworks.go.api.ApiController;
+import com.thoughtworks.go.api.ApiVersion;
+
+import static spark.Spark.path;
+
+public class DashboardControllerDelegate extends ApiController /*implements CrudController<Thing>*/ {
+    public DashboardControllerDelegate() {
+        super(ApiVersion.v2);
+    }
+
+    @Override
+    public String controllerBasePath() {
+        return "/dashboard";
+    }
+
+    @Override
+    public void setupRoutes() {
+        path(controllerBasePath(), () -> {
+
+        });
+    }
 }

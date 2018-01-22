@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'groovy'
-apply plugin: 'jacoco'
-apply from: rootProject.file('buildSrc/junit5-support.gradle')
+package com.thoughtworks.go.apiv2.dashboard
 
-dependencies {
-  compile project(':server')
-  compile project(':spark:spark-base')
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
-  testCompile localGroovy()
-  testCompile project(path: ':server', configuration: 'testOutput')
-  testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
+class DashboardControllerDelegateTest {
+
+  @Nested
+  class Dashboard {
+
+    @Test
+    void 'should get dashboard json'() {
+
+    }
+
+    @Test
+    void 'should get empty json when dashboard is empty'() {
+
+    }
+
+  }
+
 }

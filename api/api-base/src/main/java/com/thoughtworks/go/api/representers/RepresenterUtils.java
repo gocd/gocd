@@ -34,4 +34,10 @@ public class RepresenterUtils {
         links.forEach(link -> linksMap.put(link.getName(), Collections.singletonMap("href", link.getHref())));
         jsonObject.put("_links", linksMap);
     }
+
+    public static void addIfNotNull(String propertyName, Object value, Map<String, Object> jsonObject) {
+        if(value != null) {
+            jsonObject.put(propertyName, value);
+        }
+    }
 }

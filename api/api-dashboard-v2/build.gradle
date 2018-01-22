@@ -15,15 +15,13 @@
  */
 
 apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'groovy'
 apply plugin: 'jacoco'
+apply plugin: 'groovy'
+
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
-  compile project(':server')
-  compile project(':spark:spark-base')
+  compile project(':api:api-base')
 
-  testCompile localGroovy()
-  testCompile project(path: ':server', configuration: 'testOutput')
-  testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
 }

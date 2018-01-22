@@ -17,35 +17,29 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.google.common.collect.ImmutableMap;
-import com.thoughtworks.go.spark.Link;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
-
 public class RolesRepresenter {
 
-    public static List<Link> getLinks(RequestContext requestContext) {
-        return Arrays.asList(
-                requestContext.build("self", "/go/api/admin/security/roles"),
-                new Link("doc", "https://api.gocd.org/#roles"),
-                requestContext.build("find", "/go/api/admin/security/roles/:role_name"));
+    private static void addLinks(JsonWriter jsonWriter) {
+        jsonWriter.addLink("self", "/go/api/admin/security/roles");
+        jsonWriter.addDocLink("https://api.gocd.org/#roles");
+        jsonWriter.addLink("find", "/go/api/admin/security/roles/:role_name");
     }
 
     public static Map toJSON(List<Role> roles, RequestContext requestContext) {
-        Map<String, Object> jsonObject = new LinkedHashMap<>();
-        addLinks(getLinks(requestContext), jsonObject);
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        addLinks(jsonWriter);
         List<Map> rolesArray = roles.stream()
                 .map(role -> RoleRepresenter.toJSON(role, requestContext))
                 .collect(Collectors.toList());
-        jsonObject.put("_embedded", ImmutableMap.of("roles", rolesArray));
-        return jsonObject;
+        jsonWriter.addEmbedded("roles", rolesArray);
+        return jsonWriter.getAsMap();
     }
 }

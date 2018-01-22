@@ -17,49 +17,49 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
+import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.spark.Link;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
+import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 
 
 public class RoleRepresenter {
 
-    private static List<Link> getLinks(Role model, RequestContext requestContext) {
-        return Arrays.asList(
-                new Link("doc", "https://api.gocd.org/#roles"),
-                requestContext.build("self", "/go/api/admin/security/roles/%s", model.getName()),
-                requestContext.build("find", "/go/api/admin/security/roles/:role_name")
-        );
+    private static void addLinks(Role model, JsonWriter jsonWriter) {
+        jsonWriter.addDocLink("https://api.gocd.org/#roles");
+        jsonWriter.addLink("self", "/go/api/admin/security/roles/${role_name}", ImmutableMap.of("role_name", model.getName()));
+        jsonWriter.addLink("find", "/go/api/admin/security/roles/:role_name");
     }
 
     public static Map toJSON(Role role, RequestContext requestContext) {
         if (role == null) return null;
-        Map<String, Object> jsonObject = new LinkedHashMap<>();
-        List<Link> links = getLinks(role, requestContext);
-        addLinks(links, jsonObject);
 
-        jsonObject.put("name", role.getName().toString());
-        jsonObject.put("type", getRoleType(role));
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+
+        addLinks(role, jsonWriter);
+
+        jsonWriter.add("name", role.getName().toString());
+        jsonWriter.add("type", getRoleType(role));
         if (role.hasErrors()) {
-            jsonObject.put("errors", new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id"))
+            jsonWriter.add("errors", new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id"))
                     .apply(role, requestContext));
         }
         if (role instanceof RoleConfig) {
-            jsonObject.put("attributes", GoCDRoleConfigRepresenter.toJSON((RoleConfig) role, requestContext));
+            jsonWriter.add("attributes", GoCDRoleConfigRepresenter.toJSON((RoleConfig) role, requestContext));
         } else if (role instanceof PluginRoleConfig) {
-            jsonObject.put("attributes", PluginRoleConfigRepresenter.toJSON((PluginRoleConfig) role, requestContext));
+            jsonWriter.add("attributes", PluginRoleConfigRepresenter.toJSON((PluginRoleConfig) role, requestContext));
         }
-        return jsonObject;
+        return jsonWriter.getAsMap();
     }
 
     public static Role fromJSON(JsonReader jsonReader) {

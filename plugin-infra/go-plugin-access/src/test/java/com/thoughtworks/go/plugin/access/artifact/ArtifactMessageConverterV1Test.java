@@ -29,9 +29,7 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -46,38 +44,24 @@ public class ArtifactMessageConverterV1Test {
     public void publishArtifactMessage_shouldSerializeToJson() throws JSONException {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
-        final List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car"))),
-                new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3-store", create("junit", false, "junit.xml")))
-        );
+        final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
 
-        final String publishArtifactMessage = converter.publishArtifactMessage(Collections.singletonMap(artifactStore, artifactPlans), "/temp");
+        final String publishArtifactMessage = converter.publishArtifactMessage(artifactPlan, artifactStore, "/temp");
 
         final String expectedStr = "{\n" +
-                "  \"artifact_infos\": [\n" +
-                "    {\n" +
-                "      \"configuration\": {\n" +
-                "        \"Foo\": \"Bar\"\n" +
-                "      },\n" +
-                "      \"id\": \"s3-store\",\n" +
-                "      \"artifact_plans\": [\n" +
-                "        {\n" +
-                "          \"configuration\": {\n" +
-                "            \"Baz\": \"Car\"\n" +
-                "          },\n" +
-                "          \"id\": \"installers\",\n" +
-                "          \"storeId\": \"s3-store\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"configuration\": {\n" +
-                "            \"junit\": \"junit.xml\"\n" +
-                "          },\n" +
-                "          \"id\": \"test-reports\",\n" +
-                "          \"storeId\": \"s3-store\"\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
+                "  \"artifact_plan\": {\n" +
+                "    \"configuration\": {\n" +
+                "      \"Baz\": \"Car\"\n" +
+                "    },\n" +
+                "    \"id\": \"installers\",\n" +
+                "    \"storeId\": \"s3-store\"\n" +
+                "  },\n" +
+                "  \"artifact_store\": {\n" +
+                "    \"configuration\": {\n" +
+                "      \"Foo\": \"Bar\"\n" +
+                "    },\n" +
+                "    \"id\": \"s3-store\"\n" +
+                "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";
 

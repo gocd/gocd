@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -41,18 +42,20 @@ import static java.lang.String.join;
 public class ArtifactsPublisher implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsPublisher.class);
     public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
+    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private ArtifactPlanFilter artifactPlanFilter;
     private ArtifactExtension artifactExtension;
     private ArtifactStores artifactStores;
 
-    public ArtifactsPublisher(ArtifactPlanFilter artifactPlanFilter, ArtifactExtension artifactExtension, ArtifactStores artifactStores) {
+    public ArtifactsPublisher(ArtifactPlanFilter artifactPlanFilter, ArtifactExtension artifactExtension, ArtifactStores artifactStores, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         this.artifactPlanFilter = artifactPlanFilter;
         this.artifactExtension = artifactExtension;
         this.artifactStores = artifactStores;
+        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
-    public ArtifactsPublisher(ArtifactExtension artifactExtension, ArtifactStores artifactStores) {
-        this(new ArtifactPlanFilter(), artifactExtension, artifactStores);
+    public ArtifactsPublisher(ArtifactExtension artifactExtension, ArtifactStores artifactStores, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
+        this(new ArtifactPlanFilter(), artifactExtension, artifactStores, pluginRequestProcessorRegistry);
     }
 
     public void publishArtifacts(GoPublisher goPublisher, File workingDirectory, List<ArtifactPlan> artifactPlans) {
@@ -89,18 +92,25 @@ public class ArtifactsPublisher implements Serializable {
 
     private File publishPluggableArtifact(GoPublisher goPublisher, File workingDirectory, List<ArtifactPlan> artifactPlans) {
         final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
-        final Map<String, Map<ArtifactStore, List<ArtifactPlan>>> artifactStoresToPlugin = artifactStoresToPlugin(pluggableArtifactPlans);
+        final Map<ArtifactPlan, ArtifactStore> artifactPlanToStores = artifactStoresToPlugin(pluggableArtifactPlans);
 
-        final Map<String, PublishArtifactResponse> publishArtifactResponses = new HashMap<>();
-        for (Map.Entry<String, Map<ArtifactStore, List<ArtifactPlan>>> artifactStoreAndPlansForAPlugin : artifactStoresToPlugin.entrySet()) {
+        final PluggableArtifactMetadata pluggableArtifactMetadata = new PluggableArtifactMetadata();
+        for (Map.Entry<ArtifactPlan, ArtifactStore> artifactPlanAndStore : artifactPlanToStores.entrySet()) {
             try {
-                final String pluginId = artifactStoreAndPlansForAPlugin.getKey();
+                final ArtifactStore artifactStore = artifactPlanAndStore.getValue();
+                final ArtifactPlan artifactPlan = artifactPlanAndStore.getKey();
+                final String pluginId = artifactStore.getPluginId();
+
                 final String message = format("[%s] Start to upload pluggable artifact using plugin `%s`.", PRODUCT_NAME, pluginId);
                 goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, message);
                 LOGGER.info(message);
 
-                final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactStoreAndPlansForAPlugin.getValue(), workingDirectory.getAbsolutePath());
-                publishArtifactResponses.put(pluginId, publishArtifactResponse);
+                final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactPlan, artifactStore, workingDirectory.getAbsolutePath());
+
+                if (!publishArtifactResponse.getMetadata().isEmpty()) {
+                    final String artifactId = (String) artifactPlan.getPluggableArtifactConfiguration().get("id");
+                    pluggableArtifactMetadata.addMetadata(pluginId, artifactId, publishArtifactResponse.getMetadata());
+                }
 
                 writeErrorToConsoleLog(goPublisher, publishArtifactResponse.getErrors());
             } catch (RuntimeException e) {
@@ -109,7 +119,7 @@ public class ArtifactsPublisher implements Serializable {
             }
         }
 
-        if (publishArtifactResponses.isEmpty()) {
+        if (pluggableArtifactMetadata.isEmpty()) {
             LOGGER.info(format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
             goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
             return null;
@@ -122,7 +132,7 @@ public class ArtifactsPublisher implements Serializable {
         }
 
 
-        for (Map.Entry<String, PublishArtifactResponse> entry : publishArtifactResponses.entrySet()) {
+        for (Map.Entry<String, Map<String, Map>> entry : pluggableArtifactMetadata.getMetadataPerPlugin().entrySet()) {
             writeMetadataFile(pluggableArtifactMetadataFolder, entry.getKey(), entry.getValue());
         }
 
@@ -138,40 +148,27 @@ public class ArtifactsPublisher implements Serializable {
         goPublisher.taggedConsumeLine(GoPublisher.PUBLISH_ERR, join("\n", errors));
     }
 
-    private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, PublishArtifactResponse response) {
-        if (response.getMetadata() == null || response.getMetadata().isEmpty()) {
+    private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, Map<String, Map> responseMetadata) {
+        if (responseMetadata == null || responseMetadata.isEmpty()) {
             LOGGER.info(String.format("No metadata to write for plugin `%s`.", pluginId));
             return;
         }
 
         try {
             LOGGER.info(String.format("Writing metadata file for plugin `%s`.", pluginId));
-            FileUtils.writeStringToFile(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)), new Gson().toJson(response.getMetadata()), StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)), new Gson().toJson(responseMetadata), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Map<String, Map<ArtifactStore, List<ArtifactPlan>>> artifactStoresToPlugin(List<ArtifactPlan> artifactPlans) {
-        final Map<String, Map<ArtifactStore, List<ArtifactPlan>>> artifactStoresToPlugin = new HashMap<>();
-        final Map<String, List<ArtifactPlan>> artifactPlansToArtifactStore = artifactPlansToArtifactStore(artifactPlans);
-
-        for (ArtifactStore artifactStore : artifactStores) {
-            final String pluginId = artifactStore.getPluginId();
-            artifactStoresToPlugin.putIfAbsent(pluginId, new HashMap<>());
-            artifactStoresToPlugin.get(pluginId).put(artifactStore, artifactPlansToArtifactStore.get(artifactStore.getId()));
-        }
-
-        return artifactStoresToPlugin;
-    }
-
-    public Map<String, List<ArtifactPlan>> artifactPlansToArtifactStore(List<ArtifactPlan> artifactPlans) {
-        final Map<String, List<ArtifactPlan>> artifactPlansToArtifactStore = new HashMap<>();
+    public Map<ArtifactPlan, ArtifactStore> artifactStoresToPlugin(List<ArtifactPlan> artifactPlans) {
+        final HashMap<ArtifactPlan, ArtifactStore> artifactPlanToArtifactStoreMap = new HashMap<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
             final String storeId = (String) artifactPlan.getPluggableArtifactConfiguration().get("storeId");
-            artifactPlansToArtifactStore.putIfAbsent(storeId, new ArrayList<>());
-            artifactPlansToArtifactStore.get(storeId).add(artifactPlan);
+            artifactPlanToArtifactStoreMap.put(artifactPlan, artifactStores.find(storeId));
         }
-        return artifactPlansToArtifactStore;
+
+        return artifactPlanToArtifactStoreMap;
     }
 }

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ArtifactMessageConverter {
-    String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory);
+    String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory);
 
     PublishArtifactResponse publishArtifactResponse(String responseBody);
 

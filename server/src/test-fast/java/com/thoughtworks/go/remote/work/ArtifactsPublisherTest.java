@@ -69,7 +69,7 @@ public class ArtifactsPublisherTest {
         artifactExtension = mock(ArtifactExtension.class);
         publisher = new StubGoPublisher();
 
-        artifactsPublisher = new ArtifactsPublisher(artifactExtension, new ArtifactStores());
+        artifactsPublisher = new ArtifactsPublisher(artifactExtension, new ArtifactStores(), null);
 
         workingFolder = temporaryFolder.newFolder("temporaryFolder");
         File file = new File(workingFolder, "cruise-output/log.xml");
@@ -165,37 +165,38 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldPublishPluggableArtifactsAndUploadMetadataFileToServer() throws IOException {
-        final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
-        final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
-        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
-        List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car"))),
-                new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3", create("junit", false, "junit.xml")))
-        );
+        final ArtifactStore s3ArtifactStore = new ArtifactStore("s3", "cd.go.s3", create("access_key", false, "some-key"));
+        final ArtifactStore dockerArtifactStore = new ArtifactStore("docker", "cd.go.docker", create("registry-url", false, "docker.io"));
+        final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore, dockerArtifactStore);
+        final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
+        final ArtifactPlan dockerArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3", create("junit", false, "junit.xml")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), new ArrayList<>()));
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores, null);
 
-        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString()))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist"), new ArrayList<>()));
+        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString()))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("image", "alpine"), new ArrayList<>()));
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, Arrays.asList(s3ArtifactPlan, dockerArtifactPlan));
 
 
         final File fileUploaded = getFileUploaded("cd.go.s3.json");
 
         assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
-        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"Foo\":\"Bar\"}"));
+        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"installers\":{\"src\":\"s3://dist\"}}"));
     }
 
     @Test
     public void shouldNotUploadMetadataFileWhenPublishPluggableArtifactIsUnsuccessful() {
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
-        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
-        List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
-        );
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores, null);
+        final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenThrow(new RuntimeException("something"));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenThrow(new RuntimeException("something"));
 
-        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, Arrays.asList(artifactPlan));
 
         assertThat(publisher.publishedFiles().size(), is(0));
     }
@@ -206,37 +207,38 @@ public class ArtifactsPublisherTest {
 
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
-        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
-        List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
-        );
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores, null);
+        final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenReturn(new PublishArtifactResponse(null, Arrays.asList("some-error")));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), Arrays.asList("some-error")));
 
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
 
         workingFolder.setWritable(false);
 
-        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, Arrays.asList(artifactPlan));
     }
 
     @Test
     public void shouldContinueWithOtherPluginWhenPublishArtifactCallFailsForOnePlugin() throws IOException {
-        final ArtifactStore artifactStoreForS3 = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
-        final ArtifactStore artifactStoreForDocker = new ArtifactStore("docker", "cd.go.docker", create("tag", false, "10.12.0"));
-        final ArtifactStores artifactStores = new ArtifactStores(artifactStoreForS3, artifactStoreForDocker);
-        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        final ArtifactStore s3ArtifactStore = new ArtifactStore("s3", "cd.go.s3", create("access_key", false, "some-key"));
+        final ArtifactStore dockerArtifactStore = new ArtifactStore("docker", "cd.go.docker", create("registry-url", false, "docker.io"));
+        final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore, dockerArtifactStore);
+        final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
+        final ArtifactPlan dockerArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("test-reports", "docker", create("junit", false, "junit.xml")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
-        when(artifactExtension.publishArtifact(eq("cd.go.docker"), any(Map.class), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0"), new ArrayList<>()));
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores, null);
 
-        artifactsPublisher.publishArtifacts(publisher, workingFolder, new ArrayList<>());
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString())).thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
+        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0"), new ArrayList<>()));
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, Arrays.asList(s3ArtifactPlan, dockerArtifactPlan));
 
         final File fileUploaded = getFileUploaded("cd.go.docker.json");
 
         assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
-        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"tag\":\"10.12.0\"}"));
+        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"test-reports\":{\"tag\":\"10.12.0\"}}"));
 
         assertThat(publisher.getMessage(), containsString("[go] Interaction with plugin `cd.go.s3` failed"));
     }
@@ -257,17 +259,18 @@ public class ArtifactsPublisherTest {
     public void shouldAddPluggableArtifactMetadataFileArtifactPlanAtTop() throws Exception {
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
-        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores, null);
         TestFileUtil.createTestFile(workingFolder, "installer.zip");
         TestFileUtil.createTestFile(workingFolder, "testreports.xml");
 
+        final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
         List<ArtifactPlan> artifactPlans = Arrays.asList(
                 new ArtifactPlan(ArtifactType.file, "installer.zip", "dist"),
                 new ArtifactPlan(ArtifactType.unit, "testreports.xml", "testreports"),
-                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
+                artifactPlan
         );
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), new ArrayList<>()));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), new ArrayList<>()));
 
         final GoPublisher publisher = mock(GoPublisher.class);
 

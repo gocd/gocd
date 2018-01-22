@@ -71,7 +71,7 @@ public class BuildWork implements Work {
         this.materialRevisions = assignment.materialRevisions();
         this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension());
-        this.artifactsPublisher = new ArtifactsPublisher(agentWorkContext.getArtifactExtension(), assignment.getArtifactStores());
+        this.artifactsPublisher = new ArtifactsPublisher(agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry());
     }
 
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {

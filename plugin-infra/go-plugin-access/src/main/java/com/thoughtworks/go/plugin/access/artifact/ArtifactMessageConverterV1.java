@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -29,44 +30,28 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     public static final String VERSION = "1.0";
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
     @Override
-    public String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
+    public String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory) {
         final Map<String, Object> messageObject = new HashMap<>();
-        final List<Map> artifactInfos = new ArrayList<>();
-
-        for (Map.Entry<ArtifactStore, List<ArtifactPlan>> entry : artifactStoreToArtifactPlans.entrySet()) {
-            artifactInfos.add(getArtifactStore(entry.getKey(), entry.getValue()));
-        }
-
+        messageObject.put("artifact_store", getArtifactStore(artifactStore));
+        messageObject.put("artifact_plan", artifactPlan.getPluggableArtifactConfiguration());
         messageObject.put("agent_working_directory", agentWorkingDirectory);
-        messageObject.put("artifact_infos", artifactInfos);
-
         return GSON.toJson(messageObject);
     }
 
-    private Map getArtifactStore(ArtifactStore artifactStore, List<ArtifactPlan> artifactPlans) {
+    private Map getArtifactStore(ArtifactStore artifactStore) {
         final HashMap<String, Object> artifactStoreAndPlans = new HashMap<>();
         artifactStoreAndPlans.put("id", artifactStore.getId());
         artifactStoreAndPlans.put("configuration", artifactStore.getConfigurationAsMap(true));
-        artifactStoreAndPlans.put("artifact_plans", getArtifactPlans(artifactPlans));
         return artifactStoreAndPlans;
-    }
-
-    private List<Map<String, Object>> getArtifactPlans(List<ArtifactPlan> artifactPlans) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : artifactPlans) {
-            list.add(artifactPlan.getPluggableArtifactConfiguration());
-        }
-        return list;
     }
 
     @Override

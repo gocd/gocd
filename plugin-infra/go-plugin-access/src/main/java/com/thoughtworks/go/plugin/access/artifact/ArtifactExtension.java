@@ -125,11 +125,11 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
+    public PublishArtifactResponse publishArtifact(String pluginId, ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans, agentWorkingDirectory);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactPlan, artifactStore, agentWorkingDirectory);
             }
 
             @Override

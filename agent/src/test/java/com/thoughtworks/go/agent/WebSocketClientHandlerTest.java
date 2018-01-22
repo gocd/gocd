@@ -91,6 +91,7 @@ public class WebSocketClientHandlerTest {
                 mock(SCMExtension.class),
                 mock(TaskExtension.class),
                 mock(ArtifactExtension.class),
+                null,
                 mock(HttpService.class),
                 mock(WebSocketClientHandler.class),
                 mock(WebSocketSessionHandler.class),

@@ -428,6 +428,7 @@ public class AgentWebSocketClientControllerTest {
                 scmExtension,
                 taskExtension,
                 artifactExtension,
+                null,
                 httpService,
                 webSocketClientHandler, webSocketSessionHandler, null);
         return controller;

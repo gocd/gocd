@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
+import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -36,7 +37,6 @@ import org.mockito.ArgumentCaptor;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -210,7 +210,7 @@ public class ArtifactExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new HashMap<>(), "/temp");
+        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new ArtifactPlan("{\"id\":\"installer\",\"storeId\":\"docker\"}"), new ArtifactStore("docker", "cd.go.docker"), "/temp");
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -218,7 +218,14 @@ public class ArtifactExtensionTest {
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
 
         final String expectedJSON = "{\n" +
-                "  \"artifact_infos\": [],\n" +
+                "  \"artifact_plan\": {\n" +
+                "    \"id\": \"installer\",\n" +
+                "    \"storeId\": \"docker\"\n" +
+                "  },\n" +
+                "  \"artifact_store\": {\n" +
+                "    \"configuration\": {},\n" +
+                "    \"id\": \"docker\"\n" +
+                "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";
 

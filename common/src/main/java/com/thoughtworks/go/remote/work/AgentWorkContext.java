@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -34,8 +35,9 @@ public class AgentWorkContext {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private ArtifactExtension artifactExtension;
+    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
-    public AgentWorkContext(AgentIdentifier agentIdentifier, BuildRepositoryRemote repositoryRemote, GoArtifactsManipulator artifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public AgentWorkContext(AgentIdentifier agentIdentifier, BuildRepositoryRemote repositoryRemote, GoArtifactsManipulator artifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         this.agentIdentifier = agentIdentifier;
         this.repositoryRemote = repositoryRemote;
         this.artifactsManipulator = artifactsManipulator;
@@ -44,6 +46,7 @@ public class AgentWorkContext {
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.artifactExtension = artifactExtension;
+        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
     public AgentIdentifier getAgentIdentifier() {
@@ -76,5 +79,9 @@ public class AgentWorkContext {
 
     public ArtifactExtension getArtifactExtension() {
         return artifactExtension;
+    }
+
+    public PluginRequestProcessorRegistry getPluginRequestProcessorRegistry() {
+        return pluginRequestProcessorRegistry;
     }
 }

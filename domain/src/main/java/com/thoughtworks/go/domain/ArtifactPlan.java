@@ -78,8 +78,8 @@ public class ArtifactPlan extends PersistentObject {
         setDest(dest);
     }
 
-    public ArtifactPlan(ArtifactType plugin, String pluggableArtifactConfigJson) {
-        artifactType = plugin;
+    public ArtifactPlan(String pluggableArtifactConfigJson) {
+        artifactType = ArtifactType.plugin;
         this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 

@@ -16,23 +16,23 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BuildCauseRepresenter {
 
     public static Map toJSON(BuildCause model, RequestContext requestContext) {
-        Map<String, Object> json = new LinkedHashMap<>();
-        json.put("approver", model.getApprover());
-        json.put("is_forced", model.isForced());
-        json.put("trigger_message", model.getBuildCauseMessage());
-        json.put("material_revisions", getMaterialRevisions(model, requestContext));
-        return json;
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        jsonWriter.add("approver", model.getApprover());
+        jsonWriter.add("is_forced", model.isForced());
+        jsonWriter.add("trigger_message", model.getBuildCauseMessage());
+        jsonWriter.add("material_revisions", getMaterialRevisions(model, requestContext));
+        return jsonWriter.getAsMap();
     }
 
     private static List<Map> getMaterialRevisions(BuildCause model, RequestContext requestContext) {

@@ -16,35 +16,26 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.spark.Link;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 
 
 public class PipelineGroupRepresenter {
 
-    public static List<Link> getLinks(GoDashboardPipelineGroup model, RequestContext requestContext) {
-        return Arrays.asList(
-                new Link("doc", "https://api.go.cd/current/#pipeline-groups"),
-                requestContext.build("self", "/api/config/pipeline_groups"));
-    }
-
     public static Map toJSON(GoDashboardPipelineGroup model, RequestContext requestContext, Username username) {
-        Map<String, Object> json = new LinkedHashMap<>();
-        addLinks(getLinks(model, requestContext), json);
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
 
-        json.put("name", model.getName());
-        json.put("pipelines", model.allPipelineNames());
-        json.put("can_administer", model.canBeAdministeredBy(username.getUsername().toString()));
+        jsonWriter.addDocLink("https://api.go.cd/current/#pipeline-groups");
+        jsonWriter.addLink("self", "/api/config/pipeline_groups");
 
-        return json;
+        jsonWriter.add("name", model.getName());
+        jsonWriter.add("pipelines", model.allPipelineNames());
+        jsonWriter.add("can_administer", model.canBeAdministeredBy(username.getUsername().toString()));
+
+        return jsonWriter.getAsMap();
     }
 }

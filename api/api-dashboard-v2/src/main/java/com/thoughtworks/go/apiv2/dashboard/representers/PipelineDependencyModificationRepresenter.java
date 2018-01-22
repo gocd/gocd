@@ -17,45 +17,32 @@
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
 import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.spark.Link;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addIfNotNull;
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 
 public class PipelineDependencyModificationRepresenter {
 
     private static final String VSM_HREF = "/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}";
     private static final String STAGE_DETAIL_TAB_HREF = "/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}";
 
-    private static List<Link> getLinks(RequestContext requestContext, DependencyMaterialRevision latestRevision) {
-        return Arrays.asList(
-                requestContext.buildWithNamedArgs("vsm", VSM_HREF,
-                        ImmutableMap.of(
-                                "pipeline_name", latestRevision.getPipelineName(),
-                                "pipeline_counter", latestRevision.getPipelineCounter())),
-                requestContext.buildWithNamedArgs("stage_details_url", STAGE_DETAIL_TAB_HREF,
-                        ImmutableMap.of(
-                                "pipeline_name", latestRevision.getPipelineName(),
-                                "pipeline_counter", latestRevision.getPipelineCounter(),
-                                "stage_name", latestRevision.getStageName(),
-                                "stage_counter", latestRevision.getStageCounter()))
-        );
-    }
-
     public static Map toJSON(Modification model, RequestContext requestContext, DependencyMaterialRevision latestRevision) {
-        Map<String, Object> json = new LinkedHashMap<>();
-        addLinks(getLinks(requestContext, latestRevision), json);
-        addIfNotNull("revision", model.getRevision(), json);
-        addIfNotNull("modified_time", model.getModifiedTime(), json);
-        addIfNotNull("pipeline_label", model.getPipelineLabel(), json);
-        return json;
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        jsonWriter.addLink("vsm", VSM_HREF, ImmutableMap.of(
+                "pipeline_name", latestRevision.getPipelineName(),
+                "pipeline_counter", latestRevision.getPipelineCounter()));
+        jsonWriter.addLink("stage_details_url", STAGE_DETAIL_TAB_HREF, ImmutableMap.of(
+                "pipeline_name", latestRevision.getPipelineName(),
+                "pipeline_counter", latestRevision.getPipelineCounter(),
+                "stage_name", latestRevision.getStageName(),
+                "stage_counter", latestRevision.getStageCounter()));
+
+        jsonWriter.addIfNotNull("revision", model.getRevision());
+        jsonWriter.addIfNotNull("modified_time", model.getModifiedTime());
+        jsonWriter.addIfNotNull("pipeline_label", model.getPipelineLabel());
+        return jsonWriter.getAsMap();
     }
 }

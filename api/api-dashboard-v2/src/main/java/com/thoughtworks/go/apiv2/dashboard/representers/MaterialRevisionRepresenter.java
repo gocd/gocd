@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
@@ -28,12 +28,12 @@ import static java.util.stream.Collectors.toList;
 public class MaterialRevisionRepresenter {
 
     public static Map toJSON(MaterialRevision model, RequestContext requestContext) {
-        Map<String, Object> json = new LinkedHashMap<>();
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
 
-        json.put("material_type", model.getMaterialType());
-        json.put("material_name", model.getMaterialName());
-        json.put("changed", model.isChanged());
-        json.put("modifications", model.getModifications().stream().map(modification -> {
+        jsonWriter.add("material_type", model.getMaterialType());
+        jsonWriter.add("material_name", model.getMaterialName());
+        jsonWriter.add("changed", model.isChanged());
+        jsonWriter.add("modifications", model.getModifications().stream().map(modification -> {
             if("Pipeline".equals(model.getMaterial().getTypeForDisplay())) {
                 //copied from ruby: not typesafe, can be improved
                 return PipelineDependencyModificationRepresenter.toJSON(modification, requestContext, (DependencyMaterialRevision) model.getRevision());
@@ -41,7 +41,7 @@ public class MaterialRevisionRepresenter {
             return ModificationRepresenter.toJSON(modification, requestContext, model.getMaterial());
         }).collect(toList()));
 
-        return json;
+        return jsonWriter.getAsMap();
     }
 
 }

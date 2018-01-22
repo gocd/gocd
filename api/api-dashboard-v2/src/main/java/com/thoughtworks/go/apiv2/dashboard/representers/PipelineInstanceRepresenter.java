@@ -17,13 +17,13 @@
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
 import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.spark.Link;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 import static java.util.stream.Collectors.toList;
 
 public class PipelineInstanceRepresenter {
@@ -33,39 +33,41 @@ public class PipelineInstanceRepresenter {
     private static final String HISTORY_HREF = "/api/pipelines/${pipeline_name}/history";
     private static final String VSM_HREF = "/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}";
 
-    private static List<Link> getLinks(PipelineInstanceModel model, RequestContext requestContext) {
-        return Arrays.asList(
-                requestContext.buildWithNamedArgs("self", SELF_HREF,
-                        ImmutableMap.of("pipeline_name", model.getName(), "pipeline_counter", model.getCounter())),
-                requestContext.buildWithNamedArgs("compare_url", COMPARE_HREF,
-                        ImmutableMap.of("pipeline_name", model.getName(), "from_counter", model.getCounter() - 1, "to_counter", model.getCounter())),
-                requestContext.buildWithNamedArgs("history_url", HISTORY_HREF,
-                        ImmutableMap.of("pipeline_name", model.getName())),
-                requestContext.buildWithNamedArgs("vsm_url", VSM_HREF,
-                        ImmutableMap.of("pipeline_name", model.getName(), "pipeline_counter", model.getCounter()))
-        );
+    private static void addLinks(JsonWriter jsonWriter, PipelineInstanceModel model) {
+        jsonWriter.addLink("self", SELF_HREF, ImmutableMap.of(
+                "pipeline_name", model.getName(),
+                "pipeline_counter", model.getCounter()));
+        jsonWriter.addLink("compare_url", COMPARE_HREF, ImmutableMap.of(
+                "pipeline_name", model.getName(),
+                "from_counter", model.getCounter() - 1,
+                "to_counter", model.getCounter()));
+        jsonWriter.addLink("history_url", HISTORY_HREF, ImmutableMap.of(
+                "pipeline_name", model.getName()));
+        jsonWriter.addLink("vsm_url", VSM_HREF, ImmutableMap.of(
+                "pipeline_name", model.getName(),
+                "pipeline_counter", model.getCounter()));
     }
 
 
     public static Map toJSON(PipelineInstanceModel model, RequestContext requestContext) {
-        Map<String, Object> json = new HashMap<>();
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
 
-        addLinks(getLinks(model, requestContext), json);
+        addLinks(jsonWriter, model);
 
-        json.put("label", model.getLabel());
-        json.put("triggered_by", model.getApprovedByForDisplay());
-        json.put("scheduled_at", model.getScheduledDate());
-        json.put("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext));
-        json.put("_embedded", getEmbedded(model, requestContext));
-        return json;
+        jsonWriter.add("label", model.getLabel());
+        jsonWriter.add("triggered_by", model.getApprovedByForDisplay());
+        jsonWriter.add("scheduled_at", model.getScheduledDate());
+        jsonWriter.add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext));
+        jsonWriter.addEmbedded("stages", getStages(model, requestContext));
+        jsonWriter.add("_embedded", getStages(model, requestContext));
+
+        return jsonWriter.getAsMap();
     }
 
-    private static Map getEmbedded(PipelineInstanceModel model, RequestContext requestContext) {
-        Map<String, Object> embedded = new LinkedHashMap<>();
-        embedded.put("stages", model.getStageHistory().stream()
+    private static List<Map> getStages(PipelineInstanceModel model, RequestContext requestContext) {
+        return model.getStageHistory().stream()
                 .map(stage -> StageRepresenter.toJSON(stage, requestContext, model.getName(), String.valueOf(model.getCounter())))
-                .collect(toList()));
-        return embedded;
+                .collect(toList());
     }
 
 }

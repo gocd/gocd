@@ -17,59 +17,55 @@
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
 import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceModel;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.spark.Link;
 import com.thoughtworks.go.spark.RequestContext;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.api.representers.RepresenterUtils.addLinks;
 import static java.util.stream.Collectors.toList;
 
 public class PipelineRepresenter {
 
-    private static List<Link> getLinks(GoDashboardPipeline model, RequestContext requestContext) {
+    private static void addLinks(GoDashboardPipeline model, JsonWriter jsonWriter) {
         String pipelineName = model.name().toString();
-        return Arrays.asList(
-                requestContext.build("self", "/api/pipelines/%s/history", pipelineName),
-                new Link("doc", "https://api.go.cd/current/#pipelines"),
-                requestContext.build("settings_path", "/admin/pipelines/%s/general", pipelineName),
-                requestContext.build("trigger", "/api/pipelines/%s/schedule", pipelineName),
-                requestContext.build("trigger_with_options", "/api/pipelines/%s/schedule", pipelineName),
-                requestContext.build("pause", "/api/pipelines/%s/pause", pipelineName),
-                requestContext.build("unpause", "/api/pipelines/%s/unpause", pipelineName)
-        );
+        ImmutableMap<String, Object> args = ImmutableMap.of("pipeline_name", pipelineName);
+        jsonWriter.addLink("self", "/api/pipelines/${pipeline_name}/history", args);
+        jsonWriter.addDocLink("https://api.go.cd/current/#pipelines");
+        jsonWriter.addLink("settings_path", "/admin/pipelines/${pipeline_name}/general", args);
+        jsonWriter.addLink("trigger", "/api/pipelines/${pipeline_name}/schedule", args);
+        jsonWriter.addLink("trigger_with_options", "/api/pipelines/${pipeline_name}/schedule", args);
+        jsonWriter.addLink("pause", "/api/pipelines/${pipeline_name}/pause", args);
+        jsonWriter.addLink("unpause", "/api/pipelines/${pipeline_name}/unpause", args);
     }
 
     public static Map toJSON(GoDashboardPipeline model, RequestContext requestContext, Username username) {
-        Map<String, Object> json = new LinkedHashMap<>();
-        addLinks(getLinks(model, requestContext), json);
-        json.put("name", model.name().toString());
-        json.put("last_updated_timestamp", model.getLastUpdatedTimeStamp());
-        json.put("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked());
-        json.put("pause_info", getPauseInfo(model));
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        addLinks(model, jsonWriter);
+        jsonWriter.add("name", model.name().toString());
+        jsonWriter.add("last_updated_timestamp", model.getLastUpdatedTimeStamp());
+        jsonWriter.add("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked());
+        jsonWriter.add("pause_info", getPauseInfo(model));
         String usernameString = username.getUsername().toString();
-        json.put("can_operate", model.isPipelineOperator(usernameString));
-        json.put("can_administer", model.canBeAdministeredBy(usernameString));
-        json.put("can_unlock", model.canBeOperatedBy(usernameString));
-        json.put("can_pause", model.canBeOperatedBy(usernameString));
-        json.put("_embedded", getEmbedded(model, requestContext));
-        return json;
+        jsonWriter.add("can_operate", model.isPipelineOperator(usernameString));
+        jsonWriter.add("can_administer", model.canBeAdministeredBy(usernameString));
+        jsonWriter.add("can_unlock", model.canBeOperatedBy(usernameString));
+        jsonWriter.add("can_pause", model.canBeOperatedBy(usernameString));
+        jsonWriter.addEmbedded("instances", getInstances(model, requestContext));
+        return jsonWriter.getAsMap();
     }
 
-    private static Map getEmbedded(GoDashboardPipeline model, RequestContext requestContext) {
-        List<Map> instances = model.model().getActivePipelineInstances().stream()
+    private static List<Map> getInstances(GoDashboardPipeline model, RequestContext requestContext) {
+        return model.model().getActivePipelineInstances().stream()
                 .filter(instanceModel -> !(instanceModel instanceof EmptyPipelineInstanceModel))
                 .map(instanceModel -> PipelineInstanceRepresenter.toJSON(instanceModel, requestContext))
                 .collect(toList());
-        return ImmutableMap.of("instances", instances);
     }
 
     private static Map<String, Object> getPauseInfo(GoDashboardPipeline model) {

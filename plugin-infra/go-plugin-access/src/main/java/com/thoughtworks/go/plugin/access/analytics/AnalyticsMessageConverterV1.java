@@ -33,7 +33,7 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
 
     @Override
     public com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return Capabilities.fromJSON(responseBody).toCapabilites();
+        return Capabilities.fromJSON(responseBody).toCapabilities();
     }
 
     @Override

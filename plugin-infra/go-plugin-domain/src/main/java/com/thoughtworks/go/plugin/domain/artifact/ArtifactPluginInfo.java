@@ -26,12 +26,14 @@ public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings storeConfigSettings;
     private final PluggableInstanceSettings artifactConfigSettings;
     private final PluggableInstanceSettings fetchArtifactSettings;
+    private final Capabilities capabilities;
 
-    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, Image image) {
+    public ArtifactPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings storeConfigSettings, PluggableInstanceSettings publishArtifactSettings, PluggableInstanceSettings fetchArtifactSettings, Image image, Capabilities capabilities) {
         super(descriptor, PluginConstants.ARTIFACT_EXTENSION, null, image);
         this.storeConfigSettings = storeConfigSettings;
         this.artifactConfigSettings = publishArtifactSettings;
         this.fetchArtifactSettings = fetchArtifactSettings;
+        this.capabilities = capabilities;
     }
 
     public PluggableInstanceSettings getStoreConfigSettings() {
@@ -46,6 +48,10 @@ public class ArtifactPluginInfo extends PluginInfo {
         return fetchArtifactSettings;
     }
 
+    public Capabilities getCapabilities() {
+        return capabilities;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,7 +64,9 @@ public class ArtifactPluginInfo extends PluginInfo {
             return false;
         if (artifactConfigSettings != null ? !artifactConfigSettings.equals(that.artifactConfigSettings) : that.artifactConfigSettings != null)
             return false;
-        return fetchArtifactSettings != null ? fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings == null;
+        if (fetchArtifactSettings != null ? !fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings != null)
+            return false;
+        return capabilities != null ? capabilities.equals(that.capabilities) : that.capabilities == null;
     }
 
     @Override
@@ -67,6 +75,7 @@ public class ArtifactPluginInfo extends PluginInfo {
         result = 31 * result + (storeConfigSettings != null ? storeConfigSettings.hashCode() : 0);
         result = 31 * result + (artifactConfigSettings != null ? artifactConfigSettings.hashCode() : 0);
         result = 31 * result + (fetchArtifactSettings != null ? fetchArtifactSettings.hashCode() : 0);
+        result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
         return result;
     }
 }

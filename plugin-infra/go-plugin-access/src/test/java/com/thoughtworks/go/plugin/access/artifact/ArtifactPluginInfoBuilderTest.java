@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.core.Is;
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -38,6 +39,17 @@ public class ArtifactPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(ArtifactExtension.class);
+    }
+
+    @Test
+    public void shouldBuildPluginInfoWithCapabilities() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(extension.getCapabilities(descriptor.id())).thenReturn(new Capabilities());
+
+        ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        assertNotNull(pluginInfo.getCapabilities());
     }
 
     @Test

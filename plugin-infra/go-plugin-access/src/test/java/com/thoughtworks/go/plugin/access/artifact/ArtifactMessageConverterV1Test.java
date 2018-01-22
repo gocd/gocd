@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import org.hamcrest.MatcherAssert;
 import org.json.JSONException;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNotNull;
 
 public class ArtifactMessageConverterV1Test {
 
@@ -157,5 +159,11 @@ public class ArtifactMessageConverterV1Test {
         com.thoughtworks.go.plugin.domain.common.Image image = new ArtifactMessageConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
+    }
+
+    @Test
+    public void shouldDeserializeCapabilities() {
+        final Capabilities capabilities = new ArtifactMessageConverterV1().getCapabilitiesFromResponseBody("{}");
+        assertNotNull(capabilities);
     }
 }

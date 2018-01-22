@@ -62,7 +62,7 @@ public class Capabilities {
         return canAuthorize;
     }
 
-    public com.thoughtworks.go.plugin.domain.authorization.Capabilities toCapabilites() {
+    public com.thoughtworks.go.plugin.domain.authorization.Capabilities toCapabilities() {
         com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
         return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canAuthorize);
     }

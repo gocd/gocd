@@ -25,12 +25,15 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,6 +41,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -49,20 +53,22 @@ public class FetchPluggableArtifactBuilderTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    private File metadataDest;
+    private String sourceOnServer;
     private JobIdentifier jobIdentifier;
     private ArtifactStore artifactStore;
-    private FetchPluggableArtifactTask fetchPluggableArtifactTask;
-    private String sourceOnServer;
-    private ChecksumFileHandler checksumFileHandler;
     private DefaultGoPublisher publisher;
     private ArtifactExtension artifactExtension;
-    private File metadataDest;
+    private ChecksumFileHandler checksumFileHandler;
+    private FetchPluggableArtifactTask fetchPluggableArtifactTask;
+    private PluginRequestProcessorRegistry registry;
 
     @Before
     public void setUp() throws Exception {
         publisher = mock(DefaultGoPublisher.class);
-        checksumFileHandler = mock(ChecksumFileHandler.class);
         artifactExtension = mock(ArtifactExtension.class);
+        checksumFileHandler = mock(ChecksumFileHandler.class);
+        registry = mock(PluginRequestProcessorRegistry.class);
 
         metadataDest = new File(temporaryFolder.newFolder("dest"), "cd.go.s3.json");
         metadataDest.createNewFile();
@@ -84,7 +90,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallPublisherToFetchMetadataFile() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension);
+        builder.build(publisher, null, null, artifactExtension, registry);
 
         final ArgumentCaptor<FetchArtifactBuilder> argumentCaptor = ArgumentCaptor.forClass(FetchArtifactBuilder.class);
 
@@ -100,7 +106,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallArtifactExtension() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension);
+        builder.build(publisher, null, null, artifactExtension, registry);
 
         verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), null, metadataDest.getParent());
     }
@@ -114,8 +120,26 @@ public class FetchPluggableArtifactBuilderTest {
         fileWriter.write(new Gson().toJson(metadata));
         fileWriter.close();
 
-        builder.build(publisher, null, null, artifactExtension);
+        builder.build(publisher, null, null, artifactExtension, registry);
 
         verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), metadata, metadataDest.getParent());
+    }
+
+    @Test
+    public void shouldRegisterAndDeRegisterArtifactRequestProcessBeforeAndAfterPublishingPluggableArtifact() throws IOException {
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+
+        final FileWriter fileWriter = new FileWriter(metadataDest);
+        fileWriter.write(new Gson().toJson(metadata));
+        fileWriter.close();
+
+        builder.build(publisher, null, null, artifactExtension, registry);
+
+
+        InOrder inOrder = inOrder(registry, artifactExtension);
+        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));
+        inOrder.verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), metadata, metadataDest.getParent());
+        inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }
 }

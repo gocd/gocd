@@ -58,7 +58,7 @@ public class KillAllChildProcessTaskBuilderTest {
 
         long before = getSystemTime();
         Builder builder = new KillAllChildProcessTaskBuilder().createBuilder(builderFactory, new KillAllChildProcessTask(), null, null);
-        builder.build(publisher, environmentVariableContext, null, null);
+        builder.build(publisher, environmentVariableContext, null, null, null);
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
         assertThat(getSystemTime() - before, is(lessThan(10 * 60 * 1000 * 1000 * 1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;

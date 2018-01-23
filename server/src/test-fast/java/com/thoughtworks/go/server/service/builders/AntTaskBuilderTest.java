@@ -73,7 +73,7 @@ public class AntTaskBuilderTest {
     }
 
     @Test
-    public void shouldUseAbsoluteWorkingDirectoryWhenItIsSet() throws Exception {
+    public void shouldUseAbsoluteWorkingDirectoryWhenItIsSet() {
         final File absoluteFile = new File("me/antdirectory").getAbsoluteFile();
         antTask.setWorkingDirectory(absoluteFile.getPath());
 
@@ -82,14 +82,14 @@ public class AntTaskBuilderTest {
     }
 
     @Test
-    public void shouldUseDefaultWorkingDirectoryWhenItIsNotSet() throws Exception {
+    public void shouldUseDefaultWorkingDirectoryWhenItIsNotSet() {
         File workingDir = new File(DEFAULT_WORKING_DIRECTORY);
         CommandBuilder builder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
         assertThat(builder.getWorkingDir(), is(workingDir));
     }
 
     @Test
-    public void shouldFailWhenTargetDoesNotExist() throws Exception {
+    public void shouldFailWhenTargetDoesNotExist() {
         String target = "not-exist-target";
         String buildXml = "./build.xml";
         antTask.setBuildFile(buildXml);
@@ -97,14 +97,14 @@ public class AntTaskBuilderTest {
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null);
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
         }
     }
 
     @Test
-    public void shouldPrependDefaultWorkingDirectoryIfRelativeAntHomeIsUsed() throws Exception {
+    public void shouldPrependDefaultWorkingDirectoryIfRelativeAntHomeIsUsed() {
         antTask.setWorkingDirectory("lib");
         File baseDir = new File(DEFAULT_WORKING_DIRECTORY);
         CommandBuilder builder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
@@ -113,7 +113,7 @@ public class AntTaskBuilderTest {
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void antTaskShouldNormalizeWorkingDirectory() throws Exception {
+    public void antTaskShouldNormalizeWorkingDirectory() {
         AntTask task = new AntTask();
         task.setWorkingDirectory("folder1\\folder2");
 
@@ -123,7 +123,7 @@ public class AntTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() throws Exception {
+    public void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() {
         ExecTask cancelTask = new ExecTask();
         Builder builderForCancelTask = execTaskBuilder.createBuilder(builderFactory, cancelTask, pipeline, resolver);
 

@@ -32,6 +32,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
@@ -359,7 +360,7 @@ public class BuildWorkArtifactUploadingTest {
         }
 
         public void build(DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {

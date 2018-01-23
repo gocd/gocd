@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -31,7 +32,7 @@ public class BuilderForKillAllChildTask extends Builder {
     }
 
     @Override
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException {
         new JavaSysMon().infanticide();
     }
 

@@ -27,6 +27,7 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -132,7 +133,7 @@ public class BuilderFactoryTest {
     private Builder myFakeBuilder() {
         return new Builder(null, null, null) {
             @Override
-            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
+            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException {
             }
 
             public String toString() {

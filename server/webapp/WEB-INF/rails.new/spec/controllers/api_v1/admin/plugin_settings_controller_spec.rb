@@ -89,7 +89,7 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render the plugin settings for a specified plugin id' do
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(CombinedPluginInfo.new(@plugin_info))
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
@@ -100,7 +100,7 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render 404 for non existent plugin settings' do
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.2').and_return(nil)
 
         get_with_api_header :show, plugin_id: 'plugin.id.2'
 
@@ -108,7 +108,7 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render 424 for a non existent plugin' do
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
 
         get_with_api_header :show, plugin_id: 'plugin.id.1'
@@ -319,7 +319,7 @@ describe ApiV1::Admin::PluginSettingsController do
         allow(result).to receive(:httpCode).and_return(422)
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('md5')
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@plugin_service).to receive(:updatePluginSettings).with(anything, result, an_instance_of(PluginSettings), "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
@@ -331,7 +331,7 @@ describe ApiV1::Admin::PluginSettingsController do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
@@ -348,7 +348,7 @@ describe ApiV1::Admin::PluginSettingsController do
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@plugin_service).to receive(:updatePluginSettings).with(anything, anything, an_instance_of(PluginSettings), "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
@@ -363,7 +363,7 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should render 424 for a non existent plugin' do
         controller.stub(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1'}
-        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash

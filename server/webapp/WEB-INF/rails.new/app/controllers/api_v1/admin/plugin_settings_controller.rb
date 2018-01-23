@@ -63,7 +63,7 @@ module ApiV1
       end
 
       def load_plugin_settings
-        @plugin_settings = plugin_service.getPluginSettings(params[:plugin_id])
+        @plugin_settings = plugin_service.loadStoredPluginSettings(params[:plugin_id])
         raise RecordNotFound unless @plugin_settings
       end
 

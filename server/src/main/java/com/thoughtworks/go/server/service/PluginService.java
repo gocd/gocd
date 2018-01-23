@@ -53,7 +53,7 @@ public class PluginService {
         this.entityHashingService = entityHashingService;
     }
 
-    public PluginSettings getPluginSettings(String pluginId) {
+    public PluginSettings loadStoredPluginSettings(String pluginId) {
         PluginSettings pluginSettings = new PluginSettings(pluginId);
         Plugin plugin = pluginDao.findPlugin(pluginId);
         if (plugin instanceof NullPlugin) {
@@ -165,7 +165,7 @@ public class PluginService {
     }
 
     private boolean isRequestFresh(String md5, PluginSettings pluginSettings, LocalizedOperationResult result) {
-        PluginSettings storedPluginSettings = getPluginSettings(pluginSettings.getPluginId());
+        PluginSettings storedPluginSettings = loadStoredPluginSettings(pluginSettings.getPluginId());
         if (storedPluginSettings == null) {
             result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginSettings.getPluginId()), HealthStateType.notFound());
             return false;

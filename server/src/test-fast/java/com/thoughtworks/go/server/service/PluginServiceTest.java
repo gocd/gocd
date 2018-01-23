@@ -111,7 +111,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldReturnPluginSettingsFromDbIfItExists() {
-        PluginSettings pluginSettings = pluginService.getPluginSettings("plugin-id-1");
+        PluginSettings pluginSettings = pluginService.loadStoredPluginSettings("plugin-id-1");
 
         assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("p1-k1"), is("v1"));
@@ -121,7 +121,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldReturnNullIfPluginSettingsDoesNotExistInDb() {
-        PluginSettings pluginSettings = pluginService.getPluginSettings("plugin-id-2");
+        PluginSettings pluginSettings = pluginService.loadStoredPluginSettings("plugin-id-2");
 
         assertNull(pluginSettings);
     }

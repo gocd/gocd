@@ -15,10 +15,11 @@
  */
 
 const _      = require('lodash');
+const Stream = require('mithril/stream');
 
 const PipelineGroup = function (info) {
-  this.name      = info.name;
-  this.pipelines = info.pipelines;
+  this.name      = Stream(info.name);
+  this.pipelines = Stream(info.pipelines);
 };
 
 const PipelineGroups = function (groups) {

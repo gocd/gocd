@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 describe("Dashboard Pipeline Instance Widget", () => {
-  const m = require("mithril");
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
-  const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
 
   let $root, root;
   beforeEach(() => {
@@ -48,33 +48,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
       }
     },
     "label":        "1",
-    "scheduled_at": "2017-11-10T07:25:28.539Z",
+    "scheduled_at":  "2017-11-10T07:25:28.539Z",
     "triggered_by": "changes",
-    "build_cause":  {
-      "approver":           "",
-      "is_forced":          false,
-      "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-      "material_revisions": [
-        {
-          "material_type": "Git",
-          "material_name": "test-repo",
-          "changed":       true,
-          "modifications": [
-            {
-              "_links":        {
-                "vsm": {
-                  "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                }
-              },
-              "user_name":     "GoCD Test User <devnull@example.com>",
-              "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-              "modified_time": "2017-12-19T05:30:32.000Z",
-              "comment":       "Initial commit"
-            }
-          ]
-        }
-      ]
-    },
     "_embedded":    {
       "stages": [
         {
@@ -95,17 +70,13 @@ describe("Dashboard Pipeline Instance Widget", () => {
     }
   };
 
-  const instance = new PipelineInstance(pipelineInstanceJson);
+  const instance = Stream(new PipelineInstance(pipelineInstanceJson));
 
   beforeEach(() => {
-    const dashboardViewModel = new DashboardVM();
-
     m.mount(root, {
       view() {
         return m(PipelineInstanceWidget, {
-          instance,
-          dropdown:     dashboardViewModel.dropdown,
-          pipelineName: "dummy"
+          instance
         });
       }
     });
@@ -127,36 +98,16 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render compare link", () => {
-    const links       = $root.find('.info a');
+    const links       = $root.find('.links a');
     const compareLink = links.get(0);
 
     expect(compareLink).toContainText('Compare');
     expect(compareLink.href).toEqual(pipelineInstanceJson._links.compare_url.href);
   });
 
-  it("should render changes link", () => {
-    const links       = $root.find('.info a');
-    const changesLink = links.get(1);
-
-    expect(changesLink).toContainText('Changes');
-  });
-
-  it("should show changes once changes link is clicked", () => {
-    const links         = $root.find('.info a');
-    const changesLink   = links.get(1);
-    const changesWidget = $root.find('.material_changes');
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('hide');
-
-    changesLink.click();
-
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('show');
-  });
-
   it("should render vsm link", () => {
-    const links       = $root.find('.info a');
-    const compareLink = links.get(2);
+    const links       = $root.find('.links a');
+    const compareLink = links.get(1);
 
     expect(compareLink).toContainText('VSM');
     expect(compareLink.href).toEqual(pipelineInstanceJson._links.vsm_url.href);

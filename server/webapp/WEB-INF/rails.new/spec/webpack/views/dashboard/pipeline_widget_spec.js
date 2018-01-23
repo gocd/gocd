@@ -15,15 +15,13 @@
  */
 describe("Dashboard Pipeline Widget", () => {
   const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
   const Pipelines      = require('models/dashboard/pipelines');
-  const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
 
-  let $root, root, dashboardViewModel;
+  let $root, root;
   beforeEach(() => {
-    dashboardViewModel = new DashboardVM();
-
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
@@ -86,31 +84,6 @@ describe("Dashboard Pipeline Widget", () => {
           "label":        "1",
           "scheduled_at":  "2017-11-10T07:25:28.539Z",
           "triggered_by": "changes",
-          "build_cause": {
-            "approver": "",
-            "is_forced": false,
-            "trigger_message": "modified by GoCD Test User <devnull@example.com>",
-            "material_revisions": [
-              {
-                "material_type": "Git",
-                "material_name": "test-repo",
-                "changed": true,
-                "modifications": [
-                  {
-                    "_links": {
-                      "vsm": {
-                        "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                      }
-                    },
-                    "user_name": "GoCD Test User <devnull@example.com>",
-                    "revision": "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                    "modified_time": "2017-12-19T05:30:32.000Z",
-                    "comment": "Initial commit"
-                  }
-                ]
-              }
-            ]
-          },
           "_embedded":    {
             "stages": [
               {
@@ -134,14 +107,13 @@ describe("Dashboard Pipeline Widget", () => {
     }
   }];
 
-  const pipeline = new Pipelines(pipelinesJson).pipelines['up42'];
+  const pipeline = Stream(new Pipelines(pipelinesJson).pipelines['up42']);
 
   beforeEach(() => {
     m.mount(root, {
       view() {
         return m(PipelineWidget, {
-          pipeline,
-          dropdown: dashboardViewModel.dropdown
+          pipeline
         });
       }
     });

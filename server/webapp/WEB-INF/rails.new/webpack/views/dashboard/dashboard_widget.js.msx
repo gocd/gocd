@@ -16,8 +16,8 @@
 
 const m               = require('mithril');
 const _               = require('lodash');
-const $               = require('jquery');
 const f               = require('helpers/form_helper');
+const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const PipelineWidget  = require('views/dashboard/pipeline_widget');
 
@@ -25,27 +25,17 @@ const DashboardWidget = {
   oninit(vnode) {
     ComponentMixins.HasViewModel.call(this);
 
-    this.attachClickEventToBody = () => {
-      const body = $("body");
-      body.click(() => {
-        vnode.attrs.vm.dropdown.hideAllDropDowns();
-        m.redraw();
-      });
-    };
-
-    this.attachClickEventToBody();
     this.getPipelinesGroupView = (pipelineGroup, _index) => {
-      const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
+      const pipelines = _.map(pipelineGroup.pipelines(), (pipelineName) => {
         return (
-          <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
-                          dropdown={vnode.attrs.vm.dropdown}/>
+          <PipelineWidget pipeline={Stream(vnode.attrs.dashboard().findPipeline(pipelineName))}/>
         );
       });
 
       return (
         <div class="pipeline-group-wrapper">
           <div class="pipeline-group">
-            <h2 class="pipeline-group-title"> {pipelineGroup.name}</h2>
+            <h2 class="pipeline-group-title"> {pipelineGroup.name()}</h2>
             <div>
               {pipelines}
             </div>
@@ -56,11 +46,11 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const dashboard  = vnode.attrs.dashboard;
+    const dashboard  = vnode.attrs.dashboard();
     const groupsView = _.map(dashboard.getPipelineGroups(), vnode.state.getPipelinesGroupView);
 
     return (
-      <div class="pipeline_wrapper">
+      <div>
         <div class="header-panel">
           <header class="page-header">
             <f.row>Pipelines</f.row>

@@ -43,6 +43,7 @@ import org.mockito.Mock;
 
 import java.util.*;
 
+import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -199,24 +200,46 @@ public class PluginServiceTest {
 
     @Test
     public void shouldNotifyPluginThatPluginSettingsHaveChangedAfterSaving() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p2-k1", "v1");
+        String pluginId = "plugin-id-2";
+        Map<String, String> parameterMap = m("p2-k1", "v1");
 
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
-        pluginSettings.populateSettingsMap(parameterMap);
+        PluginSettings pluginSettings = new PluginSettings(pluginId).populateSettingsMap(parameterMap);
 
         Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
 
-        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(configRepoExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(configRepoExtension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, new HttpLocalizedOperationResult(), pluginSettings);
 
-        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
+        Plugin plugin = new Plugin(pluginId, toJSON(parameterMap));
         verify(pluginDao).saveOrUpdate(plugin);
-        verify(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+        verify(configRepoExtension).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+    }
+
+    @Test
+    public void shouldNotifyTheExtensionWhichHandlesSettingsInAPluginWithMultipleExtensions_WhenPluginSettingsHaveChanged() {
+        String pluginId = "plugin-id-2";
+        Map<String, String> parameterMap = m("p2-k1", "v1");
+
+        PluginSettings pluginSettings = new PluginSettings(pluginId).populateSettingsMap(parameterMap);
+
+        Username currentUser = new Username("admin");
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+
+        when(configRepoExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(configRepoExtension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+
+        pluginService.savePluginSettings(currentUser, new HttpLocalizedOperationResult(), pluginSettings);
+
+        verify(configRepoExtension).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+
+        verify(scmExtension, never()).canHandlePlugin(pluginId);
+        verify(scmExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        verify(taskExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        verify(notificationExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        verify(packageRepositoryExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
     }
 
     @Test

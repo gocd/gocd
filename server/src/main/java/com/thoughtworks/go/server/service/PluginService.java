@@ -81,20 +81,13 @@ public class PluginService {
     public void validatePluginSettingsFor(PluginSettings pluginSettings) {
         String pluginId = pluginSettings.getPluginId();
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
-        ValidationResult result = null;
 
-        String extensionWhichCanHandleSettings = PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId);
-        boolean anyExtensionSupportsPluginId = false;
-        for (GoPluginExtension extension : extensions) {
-            if (extension.extensionName().equals(extensionWhichCanHandleSettings) && extension.canHandlePlugin(pluginId)) {
-                result = extension.validatePluginSettings(pluginId, configuration);
-                anyExtensionSupportsPluginId = true;
-            }
-        }
-        if (!anyExtensionSupportsPluginId)
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        if (extension == null)
             throw new IllegalArgumentException(String.format(
                     "Plugin '%s' does not exist or does not implement settings validation.", pluginId));
 
+        ValidationResult result = extension.validatePluginSettings(pluginId, configuration);
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {
                 pluginSettings.populateErrorMessageFor(error.getKey(), error.getMessage());
@@ -142,15 +135,16 @@ public class PluginService {
     private void notifyPluginSettingsChange(PluginSettings pluginSettings) {
         String pluginId = pluginSettings.getPluginId();
 
-        for (GoPluginExtension extension : extensions) {
-            if (extension.canHandlePlugin(pluginId)) {
-                try {
-                    extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-                } catch (Exception e) {
-                    LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
-                }
-                break;
-            }
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        if (extension == null) {
+            LOGGER.trace("No extension handles plugin settings for plugin: {}", pluginId);
+            return;
+        }
+
+        try {
+            extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        } catch (Exception e) {
+            LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
         }
     }
 
@@ -176,4 +170,14 @@ public class PluginService {
 
     }
 
+    private GoPluginExtension findExtensionWhichCanHandleSettingsFor(String pluginId) {
+        String extensionWhichCanHandleSettings = PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId);
+        for (GoPluginExtension extension : extensions) {
+            if (extension.extensionName().equals(extensionWhichCanHandleSettings) && extension.canHandlePlugin(pluginId)) {
+                return extension;
+            }
+        }
+
+        return null;
+    }
 }

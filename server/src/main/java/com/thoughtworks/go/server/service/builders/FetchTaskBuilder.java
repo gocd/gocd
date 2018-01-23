@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-import static com.thoughtworks.go.remote.work.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
+import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;

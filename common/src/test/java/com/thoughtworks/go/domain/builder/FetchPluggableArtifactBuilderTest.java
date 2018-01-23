@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.thoughtworks.go.remote.work.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
+import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.is;

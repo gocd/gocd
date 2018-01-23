@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.remote.work.artifact.PluggableArtifactMetadata;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

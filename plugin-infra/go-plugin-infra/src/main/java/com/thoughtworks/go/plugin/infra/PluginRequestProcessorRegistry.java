@@ -39,5 +39,9 @@ public class PluginRequestProcessorRegistry {
     public GoPluginApiRequestProcessor processorFor(GoApiRequest request) {
         return processorMap.get(request.api());
     }
+
+    public void removeProcessorFor(String requestName) {
+        processorMap.remove(requestName);
+    }
 }
 

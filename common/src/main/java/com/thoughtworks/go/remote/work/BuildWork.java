@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
@@ -36,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +71,7 @@ public class BuildWork implements Work {
         this.materialRevisions = assignment.materialRevisions();
         this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension());
-        this.artifactsPublisher = new ArtifactsPublisher(agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry());
+        this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
     }
 
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
@@ -191,7 +191,7 @@ public class BuildWork implements Work {
         return execute(environmentVariableContext);
     }
 
-    private JobResult completeJob(JobResult result) throws SocketTimeoutException {
+    private JobResult completeJob(JobResult result) {
         if (goPublisher.isIgnored()) {
             return result;
         }
@@ -206,7 +206,7 @@ public class BuildWork implements Work {
         goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
 
         try {
-            artifactsPublisher.publishArtifacts(goPublisher, workingDirectory, assignment.getArtifactPlans());
+            artifactsPublisher.publishArtifacts(assignment.getArtifactPlans());
         } catch (Exception e) {
             LOGGER.error(null, e);
             goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());

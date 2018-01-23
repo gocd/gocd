@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ describe("Dashboard", () => {
       const expectedPipeline = new Pipelines(dashboardData._embedded.pipelines).find(pipelineName);
       const actualPipeline   = dashboard.findPipeline(pipelineName);
 
-      expect(actualPipeline.name()).toEqual(expectedPipeline.name());
+      expect(actualPipeline.name).toEqual(expectedPipeline.name);
     });
 
     it('should get new dashboard json', () => {
@@ -151,6 +151,31 @@ describe("Dashboard", () => {
                   "label":        "1",
                   "scheduled_at":  "2017-11-10T07:25:28.539Z",
                   "triggered_by": "changes",
+                  "build_cause": {
+                    "approver": "",
+                    "is_forced": false,
+                    "trigger_message": "modified by GoCD Test User <devnull@example.com>",
+                    "material_revisions": [
+                      {
+                        "material_type": "Git",
+                        "material_name": "test-repo",
+                        "changed": true,
+                        "modifications": [
+                          {
+                            "_links": {
+                              "vsm": {
+                                "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                              }
+                            },
+                            "user_name": "GoCD Test User <devnull@example.com>",
+                            "revision": "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                            "modified_time": "2017-12-19T05:30:32.000Z",
+                            "comment": "Initial commit"
+                          }
+                        ]
+                      }
+                    ]
+                  },
                   "_embedded":    {
                     "stages": [
                       {

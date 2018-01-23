@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 
 const _      = require('lodash');
-const Stream = require('mithril/stream');
 
 const PipelineGroup = function (info) {
-  this.name      = Stream(info.name);
-  this.pipelines = Stream(info.pipelines);
+  this.name      = info.name;
+  this.pipelines = info.pipelines;
 };
 
 const PipelineGroups = function (groups) {

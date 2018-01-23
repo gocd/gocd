@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,38 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const Stream = require('mithril/stream');
+const _                = require('lodash');
+const MaterialRevision = require('models/dashboard/material_revision');
 
-const StageInstance = function (json) {
-  this.name       = Stream(json.name);
-  this.status     = Stream(json.status);
+const StageInstance    = function (json) {
+  this.name       = json.name;
+  this.status     = json.status;
   this.isBuilding = () => json.status === 'Building';
 };
 
 const PipelineInstance = function (info) {
-  this.label       = Stream(info.label);
-  this.scheduledAt = Stream(new Date(info.scheduled_at));
-  this.triggeredBy = Stream(info.triggered_by);
+  this.label       = info.label;
+  this.scheduledAt = new Date(info.scheduled_at);
+  this.triggeredBy = info.triggered_by;
 
-  this.vsmPath     = Stream(info._links.vsm_url.href);
-  this.comparePath = Stream(info._links.compare_url.href);
+  this.vsmPath     = info._links.vsm_url.href;
+  this.comparePath = info._links.compare_url.href;
 
-  this.stages = Stream(_.map(info._embedded.stages, (stage) => new StageInstance(stage)));
+  this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage));
+
+  this.materialRevisions = _.map(info.build_cause.material_revisions, (revision) => new MaterialRevision(revision));
 
   this.latestStageInfo = () => {
-    const stages = this.stages();
+    const stages = this.stages;
 
     for (let i = 0; i < stages.length; i++) {
       if (stages[i].isBuilding()) {
-        return `${stages[i].status()}: ${stages[i].name()}`;
+        return `${stages[i].status}: ${stages[i].name}`;
       }
     }
 
     const lastStage = stages[stages.length - 1];
-    return `${lastStage.status()}: ${lastStage.name()}`;
+    return `${lastStage.status}: ${lastStage.name}`;
   };
 };
 

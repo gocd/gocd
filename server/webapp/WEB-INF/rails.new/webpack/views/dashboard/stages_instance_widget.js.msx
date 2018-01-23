@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ const _ = require('lodash');
 
 const StagesInstanceWidget = {
   view: (vnode) => {
-    const stages        = vnode.attrs.stages();
+    const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
-      return (<span class={`stage-instance ${  stage.status().toLowerCase() }`}/>);
+      return (<span class={`stage-instance ${  stage.status.toLowerCase() }`}/>);
     });
 
     return (

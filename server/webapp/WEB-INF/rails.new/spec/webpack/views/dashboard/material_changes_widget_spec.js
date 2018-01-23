@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Dashboard Pipeline Instance Widget", () => {
+
+describe("Dashboard Material Changes Widget", () => {
   const m = require("mithril");
 
-  const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
-  const PipelineInstance       = require('models/dashboard/pipeline_instance');
-  const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
+  const MaterialChangesWidget = require("views/dashboard/material_changes_widget");
+  const PipelineInstance      = require('models/dashboard/pipeline_instance');
 
   let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
-  afterEach(window.destroyDomElementForTest);
+
+  afterEach(() => {
+    window.destroyDomElementForTest();
+  });
 
   const pipelineInstanceJson = {
     "_links":       {
@@ -98,14 +101,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const instance = new PipelineInstance(pipelineInstanceJson);
 
   beforeEach(() => {
-    const dashboardViewModel = new DashboardVM();
 
     m.mount(root, {
       view() {
-        return m(PipelineInstanceWidget, {
-          instance,
-          dropdown:     dashboardViewModel.dropdown,
-          pipelineName: "dummy"
+        return m(MaterialChangesWidget, {
+          materialRevisions: instance.materialRevisions,
+          isChangeVisible:   true,
         });
       }
     });
@@ -117,56 +118,13 @@ describe("Dashboard Pipeline Instance Widget", () => {
     m.redraw();
   });
 
-  it("should render instance label", () => {
-    expect($root.find('.instance-label')).toContainText('Instance: 1');
-  });
+  it("should not close material changes dropdown when a click happens inside the dropdown", () => {
+    const materialChanges = $root.find(".material-changes");
+    expect(materialChanges).toHaveClass("show");
 
-  it("should render triggered by information", () => {
-    expect($root.find('.instance-details')).toContainText(`${  pipelineInstanceJson.triggered_by }`);
-    expect($root.find('.instance-details')).toContainText(`on ${ new Date(pipelineInstanceJson.scheduled_at).toString()}`);
-  });
+    materialChanges.click();
 
-  it("should render compare link", () => {
-    const links       = $root.find('.info a');
-    const compareLink = links.get(0);
-
-    expect(compareLink).toContainText('Compare');
-    expect(compareLink.href).toEqual(pipelineInstanceJson._links.compare_url.href);
-  });
-
-  it("should render changes link", () => {
-    const links       = $root.find('.info a');
-    const changesLink = links.get(1);
-
-    expect(changesLink).toContainText('Changes');
-  });
-
-  it("should show changes once changes link is clicked", () => {
-    const links         = $root.find('.info a');
-    const changesLink   = links.get(1);
-    const changesWidget = $root.find('.material-changes');
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('hide');
-
-    changesLink.click();
-
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('show');
-  });
-
-  it("should render vsm link", () => {
-    const links       = $root.find('.info a');
-    const compareLink = links.get(2);
-
-    expect(compareLink).toContainText('VSM');
-    expect(compareLink.href).toEqual(pipelineInstanceJson._links.vsm_url.href);
-  });
-
-  it("should render the latest stage", () => {
-    expect($root.find('.latest-stage')).toContainText('Failed: up42_stage');
-  });
-
-  it("should render stages instance", () => {
-    expect($root.find('.stages-instance')).toBeInDOM();
+    expect(materialChanges).not.toHaveClass("hide");
+    expect(materialChanges).toHaveClass("show");
   });
 });

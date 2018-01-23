@@ -111,7 +111,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldGetSettingsFromDBIfExists() {
-        PluginSettings pluginSettings = pluginService.getPluginSettingsFor("plugin-id-1");
+        PluginSettings pluginSettings = pluginService.loadPluginSettingsFor("plugin-id-1");
 
         assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("p1-k1"), is("v1"));
@@ -121,7 +121,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldGetSettingsFromConfigurationIfItDoesNotExistInDB() {
-        PluginSettings pluginSettings = pluginService.getPluginSettingsFor("plugin-id-2");
+        PluginSettings pluginSettings = pluginService.loadPluginSettingsFor("plugin-id-2");
 
         assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("p2-k1"), is(""));
@@ -285,7 +285,7 @@ public class PluginServiceTest {
         parameterMap.put("p3-k2", "");
         parameterMap.put("p3-k3", null);
 
-        PluginSettings pluginSettings = pluginService.getPluginSettingsFor("plugin-id-3", parameterMap);
+        PluginSettings pluginSettings = pluginService.createPluginSettingsFrom("plugin-id-3", parameterMap);
 
         assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("p3-k1"), is("v1"));

@@ -133,7 +133,7 @@ $settings-icon-hover-color: #000;
   background-color: #ffc11b;
 }
 
-.more_info {
+.more-info {
   position: relative;
   .changes {
     position:      relative;
@@ -169,14 +169,14 @@ $settings-icon-hover-color: #000;
     }
     a {
       display:     block;
-      padding:     0px 7px;
+      padding:     0 7px;
       font-size:   13px;
       line-height: 13px;
     }
   }
 }
 
-.material_changes {
+.material-changes {
   position:      absolute;
   background:    #333;
   padding:       20px 20px 0;
@@ -194,11 +194,10 @@ $settings-icon-hover-color: #000;
       font-style: italic;
     }
   }
-  .rev_head {
+  .rev-head {
     border-bottom: 1px solid #ccc;
     padding:       0 0 5px;
     word-break:    break-all;
-
   }
   .modifications {
     padding:       10px 0;
@@ -208,16 +207,12 @@ $settings-icon-hover-color: #000;
       padding:    0 10px;
       width:      28%;
       box-sizing: border-box;
-      &:nth-child(1) {
-      }
       &:nth-child(2) {
         flex-grow: 2;
       }
-      &:nth-child(3) {
-      }
     }
   }
-  .modified_by {
+  .modified-by {
     word-break: break-all;
     span {
       display: block;
@@ -225,7 +220,7 @@ $settings-icon-hover-color: #000;
   }
   .revision {
     display: flex;
-    .revision_id {
+    .revision-id {
       display:       inline-block;
       text-overflow: ellipsis;
       overflow:      hidden;

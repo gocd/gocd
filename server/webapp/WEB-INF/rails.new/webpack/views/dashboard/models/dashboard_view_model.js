@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const Stream = require('mithril/Stream');
+const Stream = require('mithril/stream');
 
 const VM = () => {
   const dropdownStates = {};

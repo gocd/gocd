@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ const PipelineInstanceWidget = {
     return (
       <div class="pipeline-instance">
         <div class="instance-label">Instance: {instance.label} </div>
-        <div class="more_info">
+        <div class="more-info">
           <ul class="info">
             <li><a href={instance.comparePath}> Compare </a></li>
             <li><a onclick={ctrl.toggleChanges}><span class="changes"> Changes</span> </a></li>

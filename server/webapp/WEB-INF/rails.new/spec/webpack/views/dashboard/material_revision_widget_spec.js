@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it('should render material type and material name', () => {
-      const widgetHeader = $root.find('.rev_head');
+      const widgetHeader = $root.find('.rev-head');
       expect(widgetHeader).toContainText(gitRevisionJson.material_type);
       expect(widgetHeader).toContainText(gitRevisionJson.material_name);
     });
@@ -125,7 +125,7 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it('should render material type and pipeline material name', () => {
-      const widgetHeader = $root.find('.rev_head');
+      const widgetHeader = $root.find('.rev-head');
       expect(widgetHeader).toContainText(pipelineRevisionJson.material_type);
       expect(widgetHeader).toContainText(pipelineRevisionJson.material_name);
     });
@@ -190,7 +190,7 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it("should render material type as Package and the correct package name", () => {
-      const widgetHeader = $root.find('.rev_head');
+      const widgetHeader = $root.find('.rev-head');
       expect(widgetHeader).toContainText(packageRevisionJson.material_type);
       expect(widgetHeader).toContainText(packageRevisionJson.material_name);
     });

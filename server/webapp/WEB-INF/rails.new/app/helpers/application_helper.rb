@@ -505,7 +505,7 @@ module ApplicationHelper
 
   def supports_analytics_dashboard?
     !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |plugin|
-      plugin.getCapabilities().supportsAnalyticsDashboard()
+      plugin.getCapabilities().supportedAnalyticsDashboardMetrics().size() > 0
     end.nil?
   end
 

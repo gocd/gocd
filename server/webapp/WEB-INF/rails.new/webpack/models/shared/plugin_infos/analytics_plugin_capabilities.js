@@ -17,13 +17,13 @@
 const Stream = require('mithril/stream');
 
 const Capabilities = function (data) {
-  this.supportsAnalyticsDashboard  = Stream(data.supportsAnalyticsDashboard);
-  this.supportsPipelineAnalytics   = Stream(data.supportsPipelineAnalytics);
+  this.supportedAnalyticsDashboardMetrics = Stream(data.supportedAnalyticsDashboardMetrics);
+  this.supportsPipelineAnalytics          = Stream(data.supportsPipelineAnalytics);
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
   supportsPipelineAnalytics: data.supports_pipeline_analytics,
-  supportsAnalyticsDashboard: data.supports_analytics_dashboard
+  supportedAnalyticsDashboardMetrics: data.supported_analytics_dashboard_metrics
 });
 
 module.exports = Capabilities;

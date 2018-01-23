@@ -774,7 +774,7 @@ describe('PluginInfos', () => {
           },
           "capabilities":     {
             "supports_pipeline_analytics": true,
-            "supports_analytics_dashboard": true
+            "supported_analytics_dashboard_metrics": ["foo"]
           }
         }
       };
@@ -790,7 +790,7 @@ describe('PluginInfos', () => {
         required: true
       });
       expect(pluginInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
-      expect(pluginInfo.capabilities().supportsAnalyticsDashboard()).toBeTruthy();
+      expect(pluginInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual(["foo"]);
     });
   });
 

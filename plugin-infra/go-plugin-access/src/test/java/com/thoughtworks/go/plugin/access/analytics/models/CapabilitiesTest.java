@@ -18,6 +18,10 @@ package com.thoughtworks.go.plugin.access.analytics.models;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CapabilitiesTest {
@@ -26,11 +30,38 @@ public class CapabilitiesTest {
     public void shouldDeserializeFromJSON() throws Exception {
         String json = "" +
                 "{\n" +
-                "  \"supports_pipeline_analytics\": \"true\"\n" +
+                "  \"supports_pipeline_analytics\": \"true\",\n" +
+                "  \"supported_analytics_dashboard_metrics\": [\"foo\"]\n" +
                 "}";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
         assertTrue(capabilities.supportsPipelineAnalytics());
+        assertEquals(Collections.singletonList("foo"), capabilities.supportedAnalyticsDashboardMetrics());
+    }
+
+
+    @Test
+    public void shouldCreateEquivalentObjectsForSameJSON() throws Exception {
+        String json = "" +
+                "{\n" +
+                "  \"supports_pipeline_analytics\": \"true\",\n" +
+                "  \"supported_analytics_dashboard_metrics\": [\"foo\"]\n" +
+                "}";
+
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities a = Capabilities.fromJSON(json).toCapabilities();
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities b = Capabilities.fromJSON(json).toCapabilities();
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities c = Capabilities.fromJSON("{\"supports_pipeline_analytics\": false, \"supported_analytics_dashboard_metrics\": [\"foo\"]}").toCapabilities();
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities d = Capabilities.fromJSON("{\"supports_pipeline_analytics\": true, \"supported_analytics_dashboard_metrics\": [\"bar\"]}").toCapabilities();
+
+        assertEquals(a, b);
+        assertEquals(a.hashCode(), b.hashCode());
+
+        assertNotEquals(a, c);
+        assertNotEquals(a.hashCode(), c.hashCode());
+
+        assertNotEquals(a, d);
+        assertNotEquals(a.hashCode(), d.hashCode());
+
     }
 }

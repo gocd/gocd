@@ -20,8 +20,11 @@ describe AnalyticsController do
 
   describe 'routes' do
     it 'should resolve the path' do
-      expect(:get => '/analytics/plugin_id/pipeline_name').to route_to(controller: 'analytics', action: 'pipeline', plugin_id: 'plugin_id', pipeline_name: 'pipeline_name')
-      expect(pipeline_analytics_path(plugin_id: 'test_plugin', pipeline_name: 'test_pipeline')).to eq('/analytics/test_plugin/test_pipeline')
+      expect(:get => '/analytics/plugin_id/dashboard/test_metric').to route_to(controller: 'analytics', action: 'dashboard', plugin_id: 'plugin_id', metric: 'test_metric')
+      expect(dashboard_analytics_path(plugin_id: 'test_plugin', metric: 'test_metric')).to eq('/analytics/test_plugin/dashboard/test_metric')
+
+      expect(:get => '/analytics/plugin_id/pipelines/pipeline_name').to route_to(controller: 'analytics', action: 'pipeline', plugin_id: 'plugin_id', pipeline_name: 'pipeline_name')
+      expect(pipeline_analytics_path(plugin_id: 'test_plugin', pipeline_name: 'test_pipeline')).to eq('/analytics/test_plugin/pipelines/test_pipeline')
     end
   end
 
@@ -47,7 +50,7 @@ describe AnalyticsController do
     end
   end
 
-  describe 'dashboard' do
+  describe 'analytics dashboard' do
     before(:each) do
       login_as_user
     end
@@ -60,7 +63,7 @@ describe AnalyticsController do
 
       allow(info).to receive(:getDescriptor).and_return(descriptor)
       allow(info).to receive(:getCapabilities).and_return(cap)
-      allow(cap).to receive(:supportsAnalyticsDashboard).and_return(true)
+      allow(cap).to receive(:supportedAnalyticsDashboardMetrics).and_return(["foo"])
 
       allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
       allow(plugin_info_finder).to receive(:allPluginInfos).with(PluginConstants.ANALYTICS_EXTENSION).and_return([info])
@@ -68,7 +71,7 @@ describe AnalyticsController do
       get :index
 
       expect(response).to be_ok
-      expect(controller.instance_variable_get(:@plugin_ids)).to eq(["com.tw.myplugin"])
+      expect(controller.instance_variable_get(:@plugin_ids)).to eq({"com.tw.myplugin" => ["foo"]})
     end
 
     it 'should render the analytics data for the dashboard' do
@@ -76,9 +79,9 @@ describe AnalyticsController do
       analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new("dashboard_analytics", "/path/to/view")
 
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
-      allow(analytics_extension).to receive(:getDashboardAnalytics).with('com.tw.myplugin').and_return(analytics_data)
+      allow(analytics_extension).to receive(:getDashboardAnalytics).with('com.tw.myplugin', 'foo').and_return(analytics_data)
 
-      get :dashboard, plugin_id: 'com.tw.myplugin'
+      get :dashboard, plugin_id: 'com.tw.myplugin', metric: 'foo'
 
       expect(response).to be_ok
 

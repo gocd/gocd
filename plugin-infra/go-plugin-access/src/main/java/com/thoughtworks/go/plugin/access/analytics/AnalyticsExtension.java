@@ -79,11 +79,11 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    public AnalyticsData getDashboardAnalytics(String pluginId) {
+    public AnalyticsData getDashboardAnalytics(String pluginId, String metric) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getDashboardAnalyticsRequestBody();
+                return getMessageConverter(resolvedExtensionVersion).getDashboardAnalyticsRequestBody(metric);
             }
 
             @Override
@@ -99,7 +99,7 @@ public class AnalyticsExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getImageFromResponseBody(responseBody);
             }
         });
     }
@@ -108,7 +108,7 @@ public class AnalyticsExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_STATIC_ASSETS, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getStaticAssets(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getStaticAssetsFromResponseBody(responseBody);
             }
         });
     }

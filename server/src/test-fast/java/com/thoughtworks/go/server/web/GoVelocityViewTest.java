@@ -91,7 +91,7 @@ public class GoVelocityViewTest {
 
     @Test
     public void shouldSetSupportsAnalyticsDashboardIfPluginInstalled() throws Exception {
-        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(false, true), null);
+        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(false, Collections.singletonList("foo")), null);
         when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(info));
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(true));

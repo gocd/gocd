@@ -43,20 +43,22 @@
   document.addEventListener("DOMContentLoaded", () => {
     const main = document.querySelector("[data-plugin-ids]");
 
-  //loop plugin ids (data attribute), mount iframe widget, make call to dashboard (return viewpath + data), send message to iframe with data, set src to viewpath
     m.mount(main, {
       view() {
-        return $.map($(main).data("plugin-ids"), (pluginId, idx) => {
-          const uid = `f-${idx}`;
+        const frames = [];
+        $.each($(main).data("plugin-ids"), (pluginId, metrics) => {
+          $.each(metrics, (idx, metric) => {
+            const uid = `f-${pluginId}:${metric}:${idx}`;
 
-          let model = models[uid];
-          if (!model) {
-            model = models[uid] = new Frame(m.redraw);
-            model.url(Routes.dashboardAnalyticsPath({plugin_id: pluginId})); // eslint-disable-line camelcase
-          }
-
-          return m(PluginiFrameWidget, {model: models[uid], pluginId, uid});
+            let model = models[uid];
+            if (!model) {
+              model = models[uid] = new Frame(m.redraw);
+              model.url(Routes.dashboardAnalyticsPath({plugin_id: pluginId, metric})); // eslint-disable-line camelcase
+            }
+            frames.push(m(PluginiFrameWidget, {model: models[uid], pluginId, uid}));
+          });
         });
+        return frames;
       }
     });
 

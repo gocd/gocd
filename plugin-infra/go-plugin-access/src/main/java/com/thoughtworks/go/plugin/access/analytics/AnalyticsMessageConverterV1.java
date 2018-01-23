@@ -32,11 +32,6 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     private static final Gson GSON = new Gson();
 
     @Override
-    public com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return Capabilities.fromJSON(responseBody).toCapabilites();
-    }
-
-    @Override
     public String getPipelineAnalyticsRequestBody(String pipelineName) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("type", TYPE_PIPELINE);
@@ -46,23 +41,30 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     }
 
     @Override
+    public String getDashboardAnalyticsRequestBody(String metric) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("type", TYPE_DASHBOARD);
+        requestMap.put("data", Collections.singletonMap("metric", metric));
+
+        return GSON.toJson(requestMap);
+    }
+
+    @Override
+    public com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
+        return Capabilities.fromJSON(responseBody).toCapabilities();
+    }
+
+    @Override
     public AnalyticsData getAnalyticsFromResponseBody(String responseBody) {
         com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData analyticsData = com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.fromJSON(responseBody);
 
-        if (!analyticsData.isValid()) {
-            throw new RuntimeException("Analytics is blank!");
-        }
+        analyticsData.validate();
 
         return analyticsData.toAnalyticsData();
     }
 
     @Override
-    public String getDashboardAnalyticsRequestBody() {
-        return GSON.toJson(Collections.singletonMap("type", TYPE_DASHBOARD));
-    }
-
-    @Override
-    public String getStaticAssets(String responseBody) {
+    public String getStaticAssetsFromResponseBody(String responseBody) {
         String assets = (String) new Gson().fromJson(responseBody, Map.class).get("assets");
 
         if (StringUtils.isBlank(assets)) {
@@ -73,7 +75,7 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     }
 
     @Override
-    public Image getImageResponseFromBody(String responseBody) {
+    public Image getImageFromResponseBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
     }
 }

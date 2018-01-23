@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -42,13 +43,13 @@ public class AnalyticsPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AnalyticsExtension.class);
-        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities( true, true));
+        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities( true, Collections.emptyList()));
     }
 
     @Test
     public void shouldBuildPluginInfoWithCapablities() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Capabilities capabilities = new Capabilities(true, true);
+        Capabilities capabilities = new Capabilities(true, Collections.emptyList());
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 

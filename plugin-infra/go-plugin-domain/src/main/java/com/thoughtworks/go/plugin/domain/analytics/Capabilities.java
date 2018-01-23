@@ -17,21 +17,23 @@
 package com.thoughtworks.go.plugin.domain.analytics;
 
 
+import java.util.List;
+
 public class Capabilities {
     private final boolean supportsPipelineAnalytics;
-    private final boolean supportsAnalyticsDashboard;
+    private final List<String> supportedAnalyticsDashboardMetrics;
 
-    public Capabilities(boolean supportsPipelineAnalytics, boolean supportsAnalyticsDashboard) {
+    public Capabilities(boolean supportsPipelineAnalytics, List<String> supportedAnalyticsDashboardMetrics) {
         this.supportsPipelineAnalytics = supportsPipelineAnalytics;
-        this.supportsAnalyticsDashboard = supportsAnalyticsDashboard;
+        this.supportedAnalyticsDashboardMetrics = supportedAnalyticsDashboardMetrics;
     }
 
     public boolean supportsPipelineAnalytics() {
         return supportsPipelineAnalytics;
     }
 
-    public boolean supportsAnalyticsDashboard() {
-        return supportsAnalyticsDashboard;
+    public List<String> supportedAnalyticsDashboardMetrics() {
+        return supportedAnalyticsDashboardMetrics;
     }
 
     @Override
@@ -42,11 +44,11 @@ public class Capabilities {
         Capabilities that = (Capabilities) o;
 
         return supportsPipelineAnalytics == that.supportsPipelineAnalytics &&
-                supportsAnalyticsDashboard == that.supportsAnalyticsDashboard;
+                supportedAnalyticsDashboardMetrics.equals(that.supportedAnalyticsDashboardMetrics);
     }
 
     @Override
     public int hashCode() {
-        return (supportsPipelineAnalytics ? 1 : 0) + (supportsAnalyticsDashboard ? 2 : 0);
+        return (supportedAnalyticsDashboardMetrics.hashCode() << 1) + (supportsPipelineAnalytics ? 1 : 0);
     }
 }

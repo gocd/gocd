@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 describe("Dashboard Widget", () => {
-  const m = require("mithril");
-  const $ = require('jquery');
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   const DashboardWidget = require("views/dashboard/dashboard_widget");
   const Dashboard       = require('models/dashboard/dashboard');
-  const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
 
   let $root, root;
   beforeEach(() => {
@@ -100,33 +99,8 @@ describe("Dashboard Widget", () => {
                   }
                 },
                 "label":        "1",
-                "scheduled_at": "2017-11-10T07:25:28.539Z",
+                "scheduled_at":  "2017-11-10T07:25:28.539Z",
                 "triggered_by": "changes",
-                "build_cause":  {
-                  "approver":           "",
-                  "is_forced":          false,
-                  "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-                  "material_revisions": [
-                    {
-                      "material_type": "Git",
-                      "material_name": "test-repo",
-                      "changed":       true,
-                      "modifications": [
-                        {
-                          "_links":        {
-                            "vsm": {
-                              "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                            }
-                          },
-                          "user_name":     "GoCD Test User <devnull@example.com>",
-                          "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                          "modified_time": "2017-12-19T05:30:32.000Z",
-                          "comment":       "Initial commit"
-                        }
-                      ]
-                    }
-                  ]
-                },
                 "_embedded":    {
                   "stages": [
                     {
@@ -153,16 +127,13 @@ describe("Dashboard Widget", () => {
     }
   };
 
-  const dashboard = new Dashboard(dashboardJson);
+  const dashboard = Stream(new Dashboard(dashboardJson));
 
   beforeEach(() => {
-    const dashboardViewModel = new DashboardVM();
-
     m.mount(root, {
       view() {
         return m(DashboardWidget, {
-          dashboard,
-          vm: dashboardViewModel
+          dashboard
         });
       }
     });
@@ -193,22 +164,5 @@ describe("Dashboard Widget", () => {
 
     expect(pipelinesWithinPipelineGroup.size()).toEqual(pipelinesWithinPipelineGroupCount);
     expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
-  });
-
-  it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
-    const dashboard   = $root.find('.pipeline_wrapper');
-    const changesLink = $root.find('.info a')[1];
-    const changes     = dashboard.find('.material_changes');
-
-    expect(changes).toHaveClass('hide');
-    $(changesLink).click();
-    m.redraw();
-
-    expect(changes).toHaveClass('show');
-
-    $(dashboard).click();
-    m.redraw();
-
-    expect(changes).toHaveClass('hide');
   });
 });

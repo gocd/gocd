@@ -122,23 +122,26 @@ public class PluginSettings {
         return settingsAsKeyValuePair;
     }
 
-    public void populateSettingsMap(Plugin plugin) {
+    public PluginSettings populateSettingsMap(Plugin plugin) {
         for (String settingsKey : plugin.getAllConfigurationKeys()) {
             settingsMap.add(new ConfigurationProperty(new ConfigurationKey(settingsKey), new ConfigurationValue(plugin.getConfigurationValue(settingsKey))));
         }
+        return this;
     }
 
-    public void populateSettingsMap(PluginSettingsConfiguration configuration) {
+    public PluginSettings populateSettingsMap(PluginSettingsConfiguration configuration) {
         for (Property property : configuration.list()) {
             String settingsKey = property.getKey();
             settingsMap.add(new ConfigurationProperty(new ConfigurationKey(settingsKey), new ConfigurationValue("")));
         }
+        return this;
     }
 
-    public void populateSettingsMap(Map<String, String> parameterMap) {
+    public PluginSettings populateSettingsMap(Map<String, String> parameterMap) {
         for (String settingsKey : parameterMap.keySet()) {
             settingsMap.add(new ConfigurationProperty(new ConfigurationKey(settingsKey), new ConfigurationValue(parameterMap.get(settingsKey))));
         }
+        return this;
     }
 
     public void populateErrorMessageFor(String settingsKey, String errorMessage) {

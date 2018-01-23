@@ -54,14 +54,12 @@ public class PluginService {
     }
 
     public PluginSettings loadStoredPluginSettings(String pluginId) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
         Plugin plugin = pluginDao.findPlugin(pluginId);
         if (plugin instanceof NullPlugin) {
             return null;
         } else {
-            pluginSettings.populateSettingsMap(plugin);
+            return new PluginSettings(pluginId).populateSettingsMap(plugin);
         }
-        return pluginSettings;
     }
 
     public void savePluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {

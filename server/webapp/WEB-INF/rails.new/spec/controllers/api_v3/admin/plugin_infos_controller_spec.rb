@@ -173,7 +173,7 @@ describe ApiV3::Admin::PluginInfosController do
       expected_response = %w(authorization configrepo elastic-agent notification package-repository scm task)
 
       expect(response).to be_ok
-      expect(actual_response[:_embedded][:plugin_info].length).to eq(8)
+      expect(actual_response[:_embedded][:plugin_info].length).to eq(7)
       expect(actual_response[:_embedded][:plugin_info].map {|pi| pi[:type]}.sort).to eq(expected_response)
     end
 

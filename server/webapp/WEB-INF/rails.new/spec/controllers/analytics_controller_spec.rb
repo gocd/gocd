@@ -18,13 +18,6 @@ require 'rails_helper'
 
 describe AnalyticsController do
 
-  describe 'routes' do
-    it 'should resolve the path' do
-      expect(:get => '/analytics/plugin_id/pipeline/metric_id').to route_to(controller: 'analytics', action: 'show', plugin_id: 'plugin_id', type: 'pipeline', id: 'metric_id')
-      expect(show_analytics_path(plugin_id: 'test_plugin', plugin_id: 'plugin_id', type: 'pipeline', id: 'metric_id')).to eq('/analytics/plugin_id/pipeline/metric_id')
-    end
-  end
-
   describe 'authorization' do
     before(:each) do
       @system_environment = double('system_environment')
@@ -142,7 +135,7 @@ describe AnalyticsController do
       allow(controller).to receive(:pipeline_config_service).and_return(pipeline_config_service)
       allow(pipeline_config_service).to receive(:getPipelineConfig).with('pipeline_name').and_return(nil)
 
-      get :show, plugin_id: 'com.tw.myplugin', type: 'pipeline', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'
+      get :show, params: {plugin_id: 'com.tw.myplugin', type: 'pipeline', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'}
 
       expect(response.code).to eq('404')
     end

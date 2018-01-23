@@ -64,7 +64,7 @@ public class PluginService {
         return pluginSettings;
     }
 
-    public void createPluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
+    public void savePluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
         update(currentUser, result, pluginSettings);
     }
 

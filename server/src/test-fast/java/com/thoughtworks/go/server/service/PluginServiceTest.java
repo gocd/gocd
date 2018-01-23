@@ -133,7 +133,7 @@ public class PluginServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         assertThat(result.httpCode(), is(401));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
@@ -149,7 +149,7 @@ public class PluginServiceTest {
             when(extension.canHandlePlugin("non-existent-plugin")).thenReturn(false);
         }
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         assertThat(result.httpCode(), is(422));
         assertThat(result.toString(), containsString("Plugin 'non-existent-plugin' does not exist or does not implement settings validation"));
@@ -169,7 +169,7 @@ public class PluginServiceTest {
         validationResult.addError(new ValidationError("foo", "foo is a required field"));
         when(configRepoExtension.validatePluginSettings(eq("some-plugin"), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         assertThat(result.httpCode(), is(422));
         assertThat(pluginSettings.errors().size(), is(1));
@@ -191,7 +191,7 @@ public class PluginServiceTest {
         when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
         when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
         verify(pluginDao).saveOrUpdate(plugin);
@@ -212,7 +212,7 @@ public class PluginServiceTest {
         when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
         when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
         verify(pluginDao).saveOrUpdate(plugin);
@@ -235,7 +235,7 @@ public class PluginServiceTest {
         when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
         doThrow(new RuntimeException()).when(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
 
-        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+        pluginService.savePluginSettings(currentUser, result, pluginSettings);
 
         Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
         verify(pluginDao).saveOrUpdate(plugin);

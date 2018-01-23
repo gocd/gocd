@@ -196,7 +196,7 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should deserialize plugin settings from given object' do
         allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("some-md5")
         hash = {plugin_id: 'plugin.id.2',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
-        expect(@plugin_service).to receive(:createPluginSettings).with(anything, anything, an_instance_of(PluginSettings))
+        expect(@plugin_service).to receive(:savePluginSettings).with(anything, anything, an_instance_of(PluginSettings))
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -214,7 +214,7 @@ describe ApiV1::Admin::PluginSettingsController do
         allow(result).to receive(:isSuccessful).and_return(false)
         allow(result).to receive(:message).with(anything).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
-        expect(@plugin_service).to receive(:createPluginSettings).with(anything, result, an_instance_of(PluginSettings))
+        expect(@plugin_service).to receive(:savePluginSettings).with(anything, result, an_instance_of(PluginSettings))
 
         post_with_api_header :create, plugin_setting: hash
 

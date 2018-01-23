@@ -30,7 +30,7 @@ module ApiV1
         result = HttpLocalizedOperationResult.new
         object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
         @plugin_settings = object[:plugin_settings]
-        plugin_service.createPluginSettings(current_user, result, @plugin_settings)
+        plugin_service.savePluginSettings(current_user, result, @plugin_settings)
         handle_create_or_update_response(result, @plugin_settings)
       end
 

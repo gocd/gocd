@@ -19,23 +19,54 @@ package com.thoughtworks.go.apiv2.dashboard;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.service.GoDashboardService;
+import com.thoughtworks.go.server.service.PipelineSelectionsService;
+import spark.Request;
+import spark.Response;
 
-import static spark.Spark.path;
+import java.util.List;
+import java.util.Map;
 
-public class DashboardControllerDelegate extends ApiController /*implements CrudController<Thing>*/ {
-    public DashboardControllerDelegate() {
+import static spark.Spark.*;
+
+public class DashboardControllerDelegate extends ApiController {
+
+    private final PipelineSelectionsService pipelineSelectionsService;
+    private final GoDashboardService goDashboardService;
+
+    public DashboardControllerDelegate(PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
         super(ApiVersion.v2);
+        this.pipelineSelectionsService = pipelineSelectionsService;
+        this.goDashboardService = goDashboardService;
     }
 
     @Override
     public String controllerBasePath() {
-        return "/dashboard";
+        return "/api/dashboard";
     }
 
     @Override
     public void setupRoutes() {
-        path(controllerBasePath(), () -> {
-
+        path(controllerPath(), () -> {
+            before("", mimeType, this::setContentType);
+            before("", this::verifyContentType);
+            get("", this::index, GsonTransformer.getInstance());
         });
+    }
+
+    private Map index(Request request, Response response) {
+        String selectedPipelinesCookie = request.cookie("selected_pipelines");
+        Long userId = currentUserId(request);
+        Username userName = currentUsername();
+
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(selectedPipelinesCookie, userId);
+        List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
+
+        return PipelineGroupsRepresenter.toJSON(pipelineGroups, requestContext(request), userName);
     }
 }

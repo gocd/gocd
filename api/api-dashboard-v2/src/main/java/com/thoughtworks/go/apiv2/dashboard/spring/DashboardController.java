@@ -17,7 +17,10 @@
 package com.thoughtworks.go.apiv2.dashboard.spring;
 
 import com.thoughtworks.go.apiv2.dashboard.DashboardControllerDelegate;
+import com.thoughtworks.go.server.service.GoDashboardService;
+import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,8 +28,9 @@ public class DashboardController implements SparkSpringController {
 
     private final DashboardControllerDelegate delegate;
 
-    public DashboardController() {
-        delegate = new DashboardControllerDelegate();
+    @Autowired
+    public DashboardController(PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
+        delegate = new DashboardControllerDelegate(pipelineSelectionsService, goDashboardService);
     }
 
     @Override

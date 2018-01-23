@@ -35,6 +35,7 @@
 
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard.spring"/>
 
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>

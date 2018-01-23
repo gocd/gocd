@@ -52,7 +52,7 @@ public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            GoPluginExtension extension = extensionFor(pluginDescriptor.id());
+            GoPluginExtension extension = extensionFor(pluginDescriptor.id(), goPluginApiRequest.pluginIdentifier().getExtension());
 
             ServerConfig serverConfig = configService.serverConfig();
             String serverInfoJSON = extension.serverInfoJSON(pluginDescriptor.id(), serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl());
@@ -64,9 +64,9 @@ public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
         }
     }
 
-    private GoPluginExtension extensionFor(String pluginId) {
-        for(GoPluginExtension extension : extensions) {
-            if(extension.canHandlePlugin(pluginId)){
+    private GoPluginExtension extensionFor(String pluginId, String extensionType) {
+        for (GoPluginExtension extension : extensions) {
+            if (extension.extensionName().equals(extensionType) && extension.canHandlePlugin(pluginId)) {
                 return extension;
             }
         }

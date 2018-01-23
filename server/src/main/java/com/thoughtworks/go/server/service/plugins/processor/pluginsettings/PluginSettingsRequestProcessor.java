@@ -58,7 +58,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            GoPluginExtension extension = extensionFor(pluginDescriptor.id());
+            GoPluginExtension extension = extensionFor(pluginDescriptor.id(), goPluginApiRequest.pluginIdentifier().getExtension());
 
             PluginSettings pluginSettings = pluginSettingsFor(pluginDescriptor.id());
 
@@ -86,9 +86,9 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         return pluginSettings;
     }
 
-    private GoPluginExtension extensionFor(String pluginId) {
-        for(GoPluginExtension extension : extensions) {
-            if(extension.canHandlePlugin(pluginId)){
+    private GoPluginExtension extensionFor(String pluginId, String extensionType) {
+        for (GoPluginExtension extension : extensions) {
+            if (extension.extensionName().equals(extensionType) && extension.canHandlePlugin(pluginId)) {
                 return extension;
             }
         }

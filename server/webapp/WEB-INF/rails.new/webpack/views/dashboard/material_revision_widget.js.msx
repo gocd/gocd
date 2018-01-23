@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ const _ = require('lodash');
 
 const PipelineModificationWidget = (modification) => {
   return (<div class="modifications">
-      <div class="item modified_by">
+      <div class="item modified-by">
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
       </div>
       <div class="item comment">
@@ -34,13 +34,13 @@ const PipelineModificationWidget = (modification) => {
 
 const SCMModificationWidget = (modification) => {
   return (<div class="modifications">
-    <div class="item modified_by">
+    <div class="item modified-by">
       <span>{modification.username}</span>
       <span>{modification.modifiedTime.toString()}</span>
     </div>
     <div class="item comment"><p>{modification.comment}</p></div>
     <div class="item revision">
-      <span class="revision_id wrapped_word">{modification.revision}</span> - <span><a
+      <span class="revision-id wrapped_word">{modification.revision}</span> - <span><a
       href={modification.vsmPath}> VSM </a></span>
     </div>
   </div>);
@@ -65,7 +65,7 @@ const MaterialRevisionWidget = {
     const changed      = revision.changed ? "changed" : "";
 
     return (<div class={`revisions ${changed}`}>
-      <div class="rev_head">
+      <div class="rev-head">
         {revision.materialType} - {revision.materialName}
       </div>
       {revisionView}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
   it("should show changes once changes link is clicked", () => {
     const links         = $root.find('.info a');
     const changesLink   = links.get(1);
-    const changesWidget = $root.find('.material_changes');
+    const changesWidget = $root.find('.material-changes');
     expect(changesWidget).toBeInDOM();
     expect(changesWidget).toHaveClass('hide');
 

@@ -16,11 +16,13 @@
 
 const $               = require('jquery');
 const m               = require('mithril');
-const Stream          = require('mithril/stream');
+const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
 
 require('foundation-sites');
+
+const dashboardViewModel = new DashboardVM();
 
 $(() => {
   $(document).foundation();
@@ -28,7 +30,10 @@ $(() => {
   const onSuccess = (dashboard) => {
     const component = {
       view() {
-        return m(DashboardWidget, {dashboard: Stream(dashboard)});
+        return m(DashboardWidget, {
+          dashboard,
+          vm: dashboardViewModel
+        });
       }
     };
 

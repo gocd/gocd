@@ -1,0 +1,76 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require('mithril');
+const _ = require('lodash');
+
+const PipelineModificationWidget = (modification) => {
+  return (<div class="modifications">
+      <div class="item modified_by">
+        <a href={modification.stageDetailsUrl}>{modification.revision}</a>
+      </div>
+      <div class="item comment">
+        <a href={`${window.location.origin}/go/pipelines/${modification.revision}/pipeline`}>
+          {modification.pipelineLabel}
+        </a>
+      </div>
+      <div class="item revision">{modification.modifiedTime.toString()}</div>
+    </div>
+  );
+};
+
+const SCMModificationWidget = (modification) => {
+  return (<div class="modifications">
+    <div class="item modified_by">
+      <span>{modification.username}</span>
+      <span>{modification.modifiedTime.toString()}</span>
+    </div>
+    <div class="item comment"><p>{modification.comment}</p></div>
+    <div class="item revision">
+      <span class="revision_id wrapped_word">{modification.revision}</span> - <span><a
+      href={modification.vsmPath}> VSM </a></span>
+    </div>
+  </div>);
+};
+
+const MaterialRevisionWidget = {
+  oninit(_vnode) {
+    const self = this;
+
+    self.renderAppropriateChanges = (revision) => {
+      const modificationWidget = revision.isDependencyMaterial() ? PipelineModificationWidget : SCMModificationWidget;
+
+      return _.map(revision.modifications, (modification) => {
+        return modificationWidget(modification);
+      });
+    };
+  },
+
+  view(vnode) {
+    const revision     = vnode.attrs.revision;
+    const revisionView = vnode.state.renderAppropriateChanges(revision);
+    const changed      = revision.changed ? "changed" : "";
+
+    return (<div class={`revisions ${changed}`}>
+      <div class="rev_head">
+        {revision.materialType} - {revision.materialName}
+      </div>
+      {revisionView}
+    </div>);
+  }
+};
+
+module.exports = MaterialRevisionWidget;

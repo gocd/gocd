@@ -15,7 +15,6 @@
  */
 
 const _        = require('lodash');
-const Stream   = require('mithril/stream');
 const Pipeline = require('models/dashboard/pipeline');
 
 const Pipelines = function (list) {
@@ -26,7 +25,7 @@ const Pipelines = function (list) {
     return hash;
   }, {});
 
-  this.size = Stream(Object.keys(this.pipelines).length);
+  this.size = Object.keys(this.pipelines).length;
 
   this.find = (pipelineName) => {
     return self.pipelines[pipelineName];

@@ -16,26 +16,28 @@
 
 package com.thoughtworks.go.api.util;
 
+import org.springframework.http.HttpStatus;
 import spark.HaltException;
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.*;
 import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
 
     public static HaltException haltBecauseUnauthorized() {
-        return halt(401, MessageJson.create(HaltApiMessages.unauthorizedMessage()));
+        return halt(401, MessageJson.create(unauthorizedMessage()));
     }
 
     public static HaltException haltBecauseEntityAlreadyExists(Object jsonInRequestBody, String entityType, Object existingName) {
-        return halt(422, MessageJson.create(HaltApiMessages.entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
+        return halt(422, MessageJson.create(entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
     }
 
     public static HaltException haltBecauseRenameOfEntityIsNotSupported(String entityType) {
-        return halt(422, MessageJson.create(HaltApiMessages.renameOfEntityIsNotSupportedMessage(entityType)));
+        return halt(422, MessageJson.create(renameOfEntityIsNotSupportedMessage(entityType)));
     }
 
     public static HaltException haltBecauseEtagDoesNotMatch(String entityType, Object name) {
-        return halt(412, MessageJson.create(HaltApiMessages.etagDoesNotMatch(entityType, name)));
+        return halt(412, MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
 
     public static HaltException haltBecauseInvalidJSON(String errorMessage) {
@@ -43,6 +45,14 @@ public abstract class HaltApiResponses {
     }
 
     public static HaltException haltBecauseRateLimitExceeded() {
-        return halt(429, MessageJson.create(HaltApiMessages.rateLimitExceeded()));
+        return halt(429, MessageJson.create(rateLimitExceeded()));
+    }
+
+    public static HaltException haltBecauseJsonContentTypeExpected() {
+        return halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create(jsonContentTypeExpected()));
+    }
+
+    public static HaltException haltBecauseConfirmHeaderMissing() {
+        return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(confirmHeaderMissing()));
     }
 }

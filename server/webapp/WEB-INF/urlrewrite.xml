@@ -75,6 +75,12 @@
     </rule>
 
     <rule>
+        <name>Spark Current User API</name>
+        <from>^/api/backup$</from>
+        <to last="true">/spark/api/backup</to>
+    </rule>
+
+    <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
         <set name="rails_bound">false</set>

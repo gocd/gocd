@@ -56,7 +56,6 @@ public interface SparkController {
 
     void setupRoutes();
 
-
     default Username currentUsername() {
         return UserHelper.getUserName();
     }

@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.currentuser
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.currentuser.representers.UserRepresenter
+import com.thoughtworks.go.apiv1.user.representers.UserRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
@@ -212,7 +212,6 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
         User newUser = new User(user.name, user.displayName, data.checkin_aliases.split(', '), 'foo@example.com', false)
 
         doAnswer({ InvocationOnMock invocation ->
-          println "invocation = $invocation"
           return newUser
         }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
         patchWithApiHeader(controller.controllerBasePath(), data)

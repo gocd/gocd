@@ -42,8 +42,8 @@ trait SecurityServiceTrait {
 
     when(securityService.isUserAdmin(username)).thenReturn(true)
     when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(username))).thenReturn(true)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(true)
   }
 
@@ -55,8 +55,8 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(false)
     when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(username))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
@@ -64,11 +64,11 @@ trait SecurityServiceTrait {
   void loginAsAnonymous() {
     SecurityContextHolder.getContext().setAuthentication(null)
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
-    when(securityService.isUserGroupAdmin(any())).thenReturn(false)
-    when(securityService.isAuthorizedToViewAndEditTemplates()).thenReturn(false)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplates()).thenReturn(false)
+    when(securityService.isUserGroupAdmin(Username.ANONYMOUS)).thenReturn(false)
+    when(securityService.isAuthorizedToViewAndEditTemplates(Username.ANONYMOUS)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplates(Username.ANONYMOUS)).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
 
@@ -85,8 +85,8 @@ trait SecurityServiceTrait {
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any())).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
+    when(groups.hasGroup(any() as String)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
   }
 
   void loginAsGroupOperateUser() {
@@ -98,8 +98,8 @@ trait SecurityServiceTrait {
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any())).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
+    when(groups.hasGroup(any() as String)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
   }
 
   void disableSecurity() {

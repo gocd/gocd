@@ -75,7 +75,7 @@ public interface ControllerMethods {
         res.header("ETag", '"' + value + '"');
     }
 
-    default Map renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
+    default Map<String, Object> renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
         response.status(result.httpCode());
         return Collections.singletonMap("message", result.message(localizer));
     }

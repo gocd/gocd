@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.currentuser.representers
+package com.thoughtworks.go.apiv1.user.representers
 
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.spark.mocks.TestRequestContext

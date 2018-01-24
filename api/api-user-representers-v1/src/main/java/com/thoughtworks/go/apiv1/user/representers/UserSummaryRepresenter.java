@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.currentuser.representers;
+package com.thoughtworks.go.apiv1.user.representers;
 
 import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.Map;
 
-
-public class UserRepresenter {
-    public static Map toJSON(User user, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(user, jsonWriter);
-        jsonWriter.add("login_name", user.getName());
-        jsonWriter.add("display_name", user.getDisplayName());
-        jsonWriter.add("enabled", user.isEnabled());
-        jsonWriter.add("email", user.getEmail());
-        jsonWriter.add("email_me", user.isEmailMe());
-        jsonWriter.add("checkin_aliases", user.getMatchers());
-        return jsonWriter.getAsMap();
+public class UserSummaryRepresenter {
+    public static Map<String, Object> toJSON(String loginName, RequestContext requestContext) {
+        return getJsonWriter(loginName, requestContext).getAsMap();
     }
 
-    private static void addLinks(User user, JsonWriter jsonWriter) {
+    public static JsonWriter getJsonWriter(String loginName, RequestContext requestContext) {
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        addLinks(loginName, jsonWriter);
+        jsonWriter.add("login_name", loginName);
+        return jsonWriter;
+    }
+
+    private static void addLinks(String loginName, JsonWriter jsonWriter) {
         jsonWriter.addDocLink("https://api.gocd.org/#users");
-        jsonWriter.addLink("self", "/api/users/${loginName}", ImmutableMap.of("loginName", user.getName()));
+        jsonWriter.addLink("self", "/api/users/${loginName}", ImmutableMap.of("loginName", loginName));
         jsonWriter.addLink("find", "/api/users/${loginName}", ImmutableMap.of("loginName", ":login_name"));
         jsonWriter.addLink("current_user", "/api/current_user");
+
     }
+
 }

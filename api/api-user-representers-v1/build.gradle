@@ -22,7 +22,6 @@ apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
   compile project(':api:api-base')
-  compile project(':api:api-user-representers-v1')
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
 }

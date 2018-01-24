@@ -45,4 +45,12 @@ public abstract class HaltApiMessages {
     public static String errorWhileEncryptingMessage() {
         return "An error occurred while encrypting the value. Please check the logs for more details.";
     }
+
+    public static String jsonContentTypeExpected() {
+        return "You must specify a 'Content-Type' of 'application/json'";
+    }
+
+    public static String confirmHeaderMissing() {
+        return "Missing required header 'Confirm' with value 'true'";
+    }
 }

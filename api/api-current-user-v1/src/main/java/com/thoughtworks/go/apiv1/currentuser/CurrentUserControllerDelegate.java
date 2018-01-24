@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv1.currentuser.representers.UserRepresenter;
+import com.thoughtworks.go.apiv1.user.representers.UserRepresenter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;

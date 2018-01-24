@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api.mocks
 
+import com.google.gson.*
+import com.google.gson.internal.bind.util.ISO8601Utils
 import com.thoughtworks.go.spark.mocks.MockHttpServletResponse
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
@@ -26,12 +28,27 @@ import org.assertj.core.util.Objects
 
 import javax.activation.MimeType
 import javax.activation.MimeTypeParseException
+import java.lang.reflect.Type
 
 import static org.apache.commons.lang.StringUtils.isNotBlank
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual
 import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty
 
 class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServletResponseAssert, MockHttpServletResponse> {
+  static private JsonSerializer<Date> dateSerializer = new JsonSerializer<Date>() {
+    @Override
+    JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+      return src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, TimeZone.getTimeZone("UTC")))
+    }
+  }
+
+  private static final Gson GSON = new GsonBuilder()
+    .serializeNulls()
+    .setPrettyPrinting()
+    .excludeFieldsWithoutExposeAnnotation()
+    .disableHtmlEscaping()
+    .registerTypeAdapter(Date.class, dateSerializer)
+    .create()
 
   MockHttpServletResponseAssert(MockHttpServletResponse actual) {
     super(actual, MockHttpServletResponseAssert.class)
@@ -70,7 +87,7 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
   }
 
   MockHttpServletResponseAssert hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
-    JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(representer.toJSON(expected, new TestRequestContext()))
+    JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(GSON.toJson(representer.toJSON(expected, new TestRequestContext())))
     return this
   }
 

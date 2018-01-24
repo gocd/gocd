@@ -57,7 +57,7 @@ public class JsonWriter {
         links.add(requestContext.build(name, href));
     }
 
-    public Map getAsMap() {
+    public Map<String, Object> getAsMap() {
         Map<String, Object> json = new LinkedHashMap<>();
         if (!links.isEmpty()) {
             json.put("_links", getLinksAsMap());

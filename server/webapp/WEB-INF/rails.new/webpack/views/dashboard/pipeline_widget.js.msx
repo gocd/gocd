@@ -21,13 +21,16 @@ const Stream = require('mithril/stream');
 const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
 
 const PipelineHeaderWidget = {
-  view:(vnode) => {
-    const pipeline          = vnode.attrs.pipeline();
+  view: (vnode) => {
+    const pipeline = vnode.attrs.pipeline();
     return (
       <div class="pipeline-header">
-        <div class="pipeline-actions">
-          <a class='edit-pipeline' href={pipeline.settingsPath()}/>
-        </div>
+        {pipeline.canAdminister ?
+          <div class="pipeline-actions">
+            <a class='edit-pipeline' href={pipeline.settingsPath()}/>
+          </div> : ""
+        }
+
         <div class="pipeline-name"> {pipeline.name()} </div>
       </div>
     );
@@ -50,7 +53,7 @@ const PipelineWidget = {
 
     return (
       <div class="pipeline">
-        <PipelineHeaderWidget pipeline={vnode.attrs.pipeline} />
+        <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}/>
         {pipelineInstances}
       </div>
     );

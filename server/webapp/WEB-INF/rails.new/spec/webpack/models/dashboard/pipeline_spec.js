@@ -25,6 +25,7 @@ describe("Dashboard", () => {
       expect(pipeline.settingsPath()).toBe(pipelineJson._links.settings_path.href);
       expect(pipeline.historyPath()).toBe(pipelineJson._links.self.href);
       expect(pipeline.instances().length).toEqual(pipelineJson._embedded.instances.length);
+      expect(pipeline.canAdminister).toEqual(pipelineJson.can_administer);
     });
 
     const pipelineJson = {
@@ -59,6 +60,7 @@ describe("Dashboard", () => {
         "paused_by":    null,
         "pause_reason": null
       },
+      "can_administer": true,
       "_embedded":              {
         "instances": [
           {

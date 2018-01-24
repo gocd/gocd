@@ -26,114 +26,181 @@ describe("Dashboard Pipeline Widget", () => {
   });
   afterEach(window.destroyDomElementForTest);
 
-  const pipelinesJson = [{
-    "_links":                 {
-      "self":                 {
-        "href": "http://localhost:8153/go/api/pipelines/up42/history"
-      },
-      "doc":                  {
-        "href": "https://api.go.cd/current/#pipelines"
-      },
-      "settings_path":        {
-        "href": "http://localhost:8153/go/admin/pipelines/up42/general"
-      },
-      "trigger":              {
-        "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-      },
-      "trigger_with_options": {
-        "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-      },
-      "pause":                {
-        "href": "http://localhost:8153/go/api/pipelines/up42/pause"
-      },
-      "unpause":              {
-        "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
-      }
-    },
-    "name":                   "up42",
-    "last_updated_timestamp": 1510299695473,
-    "locked":                 false,
-    "pause_info":             {
-      "paused":       false,
-      "paused_by":    null,
-      "pause_reason": null
-    },
-    "_embedded":              {
-      "instances": [
-        {
-          "_links":       {
-            "self":            {
-              "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-            },
-            "doc":             {
-              "href": "https://api.go.cd/current/#get-pipeline-instance"
-            },
-            "history_url":     {
-              "href": "http://localhost:8153/go/api/pipelines/up42/history"
-            },
-            "vsm_url":         {
-              "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-            },
-            "compare_url":     {
-              "href": "http://localhost:8153/go/compare/up42/0/with/1"
-            },
-            "build_cause_url": {
-              "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
-            }
-          },
-          "label":        "1",
-          "scheduled_at":  "2017-11-10T07:25:28.539Z",
-          "triggered_by": "changes",
-          "_embedded":    {
-            "stages": [
-              {
-                "_links":       {
-                  "self": {
-                    "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                  },
-                  "doc":  {
-                    "href": "https://api.go.cd/current/#get-stage-instance"
-                  }
-                },
-                "name":         "up42_stage",
-                "status":       "Failed",
-                "approved_by":  "changes",
-                "scheduled_at": "2017-11-10T07:25:28.539Z"
-              }
-            ]
-          }
+  describe("if users have admin rights", () => {
+    const pipelinesJson = [{
+      "_links":                 {
+        "self":                 {
+          "href": "http://localhost:8153/go/api/pipelines/up42/history"
+        },
+        "doc":                  {
+          "href": "https://api.go.cd/current/#pipelines"
+        },
+        "settings_path":        {
+          "href": "http://localhost:8153/go/admin/pipelines/up42/general"
+        },
+        "trigger":              {
+          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+        },
+        "trigger_with_options": {
+          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+        },
+        "pause":                {
+          "href": "http://localhost:8153/go/api/pipelines/up42/pause"
+        },
+        "unpause":              {
+          "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
         }
-      ]
-    }
-  }];
-
-  const pipeline = Stream(new Pipelines(pipelinesJson).pipelines['up42']);
-
-  beforeEach(() => {
-    m.mount(root, {
-      view() {
-        return m(PipelineWidget, {
-          pipeline
-        });
+      },
+      "name":                   "up42",
+      "last_updated_timestamp": 1510299695473,
+      "locked":                 false,
+      "pause_info":             {
+        "paused":       false,
+        "paused_by":    null,
+        "pause_reason": null
+      },
+      "can_administer": true,
+      "_embedded":              {
+        "instances": [
+          {
+            "_links":       {
+              "self":            {
+                "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
+              },
+              "doc":             {
+                "href": "https://api.go.cd/current/#get-pipeline-instance"
+              },
+              "history_url":     {
+                "href": "http://localhost:8153/go/api/pipelines/up42/history"
+              },
+              "vsm_url":         {
+                "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
+              },
+              "compare_url":     {
+                "href": "http://localhost:8153/go/compare/up42/0/with/1"
+              },
+              "build_cause_url": {
+                "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
+              }
+            },
+            "label":        "1",
+            "scheduled_at":  "2017-11-10T07:25:28.539Z",
+            "triggered_by": "changes",
+            "_embedded":    {
+              "stages": [
+                {
+                  "_links":       {
+                    "self": {
+                      "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
+                    },
+                    "doc":  {
+                      "href": "https://api.go.cd/current/#get-stage-instance"
+                    }
+                  },
+                  "name":         "up42_stage",
+                  "status":       "Failed",
+                  "approved_by":  "changes",
+                  "scheduled_at": "2017-11-10T07:25:28.539Z"
+                }
+              ]
+            }
+          }
+        ]
       }
+    }];
+
+    const pipeline = Stream(new Pipelines(pipelinesJson).pipelines['up42']);
+
+    beforeEach(() => {
+      m.mount(root, {
+        view() {
+          return m(PipelineWidget, {
+            pipeline
+          });
+        }
+      });
+      m.redraw(true);
     });
-    m.redraw(true);
+
+    afterEach(() => {
+      m.mount(root, null);
+      m.redraw();
+    });
+
+    it("should render pipeline name", () => {
+      expect($root.find('.pipeline-name')).toContainText('up42');
+    });
+
+    it("should render pipeline settings icon", () => {
+      expect($root.find('.edit-pipeline')).toBeInDOM();
+    });
+
+    it("should render pipeline instances", () => {
+      expect($root.find('.pipeline-instance')).toBeInDOM();
+    });
   });
 
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
+  describe("if users don't have admin permissions", () => {
+    const pipelinesWithoutAdminRightsJson = [{
+      "_links":                 {
+        "self":                 {
+          "href": "http://localhost:8153/go/api/pipelines/up42/history"
+        },
+        "doc":                  {
+          "href": "https://api.go.cd/current/#pipelines"
+        },
+        "settings_path":        {
+          "href": "http://localhost:8153/go/admin/pipelines/up42/general"
+        },
+        "trigger":              {
+          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+        },
+        "trigger_with_options": {
+          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+        },
+        "pause":                {
+          "href": "http://localhost:8153/go/api/pipelines/up42/pause"
+        },
+        "unpause":              {
+          "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
+        }
+      },
+      "name":                   "up42",
+      "last_updated_timestamp": 1510299695473,
+      "locked":                 false,
+      "pause_info":             {
+        "paused":       false,
+        "paused_by":    null,
+        "pause_reason": null
+      },
+      "can_administer": false,
+      "_embedded":              {
+        "instances": []
+      }
+    }];
+
+    const pipeline = Stream(new Pipelines(pipelinesWithoutAdminRightsJson).pipelines['up42']);
+
+    beforeEach(() => {
+      m.mount(root, {
+        view() {
+          return m(PipelineWidget, {
+            pipeline
+          });
+        }
+      });
+      m.redraw(true);
+    });
+
+    afterEach(() => {
+      m.mount(root, null);
+      m.redraw();
+    });
+
+    it("should not show settings icon", () => {
+      expect($root.find('.edit-pipeline')).not.toBeInDOM();
+    });
+
   });
 
-  it("should render pipeline name", () => {
-    expect($root.find('.pipeline-name')).toContainText('up42');
-  });
-
-  it("should render pipeline settings icon", () => {
-    expect($root.find('.edit-pipeline')).toBeInDOM();
-  });
-
-  it("should render pipeline instances", () => {
-    expect($root.find('.pipeline-instance')).toBeInDOM();
-  });
 });

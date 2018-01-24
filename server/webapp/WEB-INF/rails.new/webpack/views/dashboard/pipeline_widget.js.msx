@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const _      = require('lodash');
+const m = require('mithril');
+const _ = require('lodash');
 
 const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
 
 const PipelineHeaderWidget = {
   view: (vnode) => {
-    const pipeline = vnode.attrs.pipeline;
     return (
-      <div class="pipeline-header">
-        <div class="pipeline-actions">
-          <a class='edit-pipeline' href={pipeline.settingsPath}/>
+      <div class="pipeline_header">
+        <h3 class="pipeline_name"> {vnode.attrs.pipeline.name}</h3>
+        <a href="#" class="pipeline_history">History</a>
+        <div className="pipeline_actions">
+          <a class="pipeline_edit" href={vnode.attrs.pipeline.settingsPath}></a>
+          <button className="pipeline_locked"></button>
         </div>
-        <div class="pipeline-name"> {pipeline.name} </div>
+
+        <ul className="pipeline_operations">
+          <li>
+            <button className="btn play"></button>
+          </li>
+          <li>
+            <button className="btn play_with_options"></button>
+          </li>
+          <li>
+            <button className="btn pause"></button>
+          </li>
+        </ul>
+        <div className="pipeline_pause-message">Paused by admin (this is paused due to something)</div>
       </div>
     );
   }
@@ -50,10 +64,15 @@ const PipelineWidget = {
     });
 
     return (
-      <div class="pipeline">
-        <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}/>
-        {pipelineInstances}
-      </div>
+      <li class="pipeline-group_pipeline">
+        <div class="pipeline">
+          <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}/>
+          <div className="pipeline_instances">
+            {pipelineInstances}
+          </div>
+
+        </div>
+      </li>
     );
   }
 };

@@ -19,7 +19,7 @@ const _ = require('lodash');
 
 const PipelineModificationWidget = (modification) => {
   return (<div class="modifications">
-      <div class="item modified-by">
+      <div class="item modified_by">
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
       </div>
       <div class="item comment">
@@ -34,13 +34,13 @@ const PipelineModificationWidget = (modification) => {
 
 const SCMModificationWidget = (modification) => {
   return (<div class="modifications">
-    <div class="item modified-by">
+    <div class="item modified_by">
       <span>{modification.username}</span>
       <span>{modification.modifiedTime.toString()}</span>
     </div>
     <div class="item comment"><p>{modification.comment}</p></div>
     <div class="item revision">
-      <span class="revision-id wrapped_word">{modification.revision}</span> -
+      <span class="revision_id wrapped_word">{modification.revision}</span> -
       <span><a href={modification.vsmPath}> VSM </a></span>
     </div>
   </div>);

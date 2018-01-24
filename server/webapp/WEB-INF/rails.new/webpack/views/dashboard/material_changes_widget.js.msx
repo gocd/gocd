@@ -34,7 +34,7 @@ const MaterialRevisionsWidget = {
       return (<MaterialRevisionWidget revision={revision}/>);
     });
 
-    return (<div class={`material-changes ${showClass}`} onclick={ctrl.disableCloseWhenClicked}>
+    return (<div class={`material_changes ${showClass}`} onclick={ctrl.disableCloseWhenClicked}>
       {materialRevisions}
     </div>);
   }

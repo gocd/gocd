@@ -1,5 +1,5 @@
 /*!
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// scss-lint:disable NameFormat
+// scss-lint:disable SelectorFormat
+// scss-lint:disable MergeableSelector
 @import 'shared/mixins';
 @import 'shared/autocomplete';
 @import 'shared/common';
@@ -21,119 +24,180 @@
 @import 'shared/alert';
 @import 'pipeline_configs/accordion';
 
-$settings-icon-color: #555;
-$settings-icon-hover-color: #000;
+//variables
 
-%pipeline-label-text {
-  font-size:     12px;
-  margin-bottom: 5px;
-  font-weight:   600;
-  color:         #333;
-}
+$passed: #1ec659;
+$failed: #fc131b;
+$building: #fed34e;
 
-.edit-pipeline {
-  @include icon-before($type: gear, $color: $settings-icon-color);
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $settings-icon-hover-color;
-      }
-    }
+//animation
+
+//building animation
+
+%building {
+  position:   relative;
+  background: #fff;
+  > span {
+    display:          block;
+    height:           100%;
+    background-color: $building;
+    position:         relative;
+    overflow:         hidden;
   }
 
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
+  > span:after, .animate > span > span {
+    animation:        move 2s linear infinite;
+    content:          "";
+    position:         absolute;
+    top:              0;
+    left:             0;
+    bottom:           0;
+    right:            0;
+    background-image: linear-gradient(
+                          -45deg,
+                          rgba(255, 255, 255, 0.3) 25%,
+                          transparent 25%,
+                          transparent 50%,
+                          rgba(255, 255, 255, 0.3) 50%,
+                          rgba(255, 255, 255, 0.3) 75%,
+                          transparent 75%,
+                          transparent
+                      );
+    z-index:          1;
+    background-size:  50px 50px;
+    overflow:         hidden;
   }
 }
 
-.pipeline-group-title {
-  font-weight: 600;
-  margin:      10px 0 10px 0;
-  font-size:   20px;
+.animate > span:after {
+  display: none;
 }
 
-.pipeline {
-  position:         relative;
-  display:          block;
-  float:            left;
-  width:            275px;
-  padding:          15px;
-  min-height:       190px;
-  margin:           0 10px 10px 0;
-  border-radius:    5px;
-  background-color: #fff;
-}
-
-.pipeline-group {
-  display: inline-block;
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
 }
 
 .dashboard {
-  margin-top:   60px;
-  display:      block;
-  margin-left:  15px;
-  margin-right: 15px;
+  margin-top: 50px;
+  padding:    0 20px 50px;
 }
 
-.pipeline-group-wrapper {
-  display: block;
+.pipeline-group {
+  margin-bottom: 50px;
 }
 
-.pipeline-header {
-  border-bottom:  1px solid #ccc;
-  display:        block;
-  float:          left;
-  margin-bottom:  15px;
-  overflow:       visible;
-  padding-bottom: 10px;
-  width:          100%;
-  vertical-align: baseline;
+.pipeline-group_title {
+  background:  image_url('g9/icons/icon_pipelinegroup_24.png') no-repeat 0 -1px;
+  padding:     0 0 0 45px;
+  font-size:   25px;
+  font-weight: 600;
+  line-height: 40px;
 }
 
-.pipeline-actions {
-  float:          right;
-  padding-top:    5px;
-  padding-left:   10px;
-  padding-bottom: 5px;
+.pipeline-group_items {
+  display:         flex;
+  flex-wrap:       wrap;
+  list-style-type: none;
+  margin:          0;
+  padding:         0;
 }
 
-.pipeline-name {
-  display:     table-cell;
+.pipeline-group_pipeline {
+  width:         267px;
+  padding:       0 0 5px 0;
+  background:    #fff;
+  border-radius: 5px;
+  margin:        5px;
+}
+
+.pipeline {
+  position: relative;
+}
+
+.pipeline_header {
+  @include clearfix;
+  padding:       10px 15px;
+  border-bottom: 1px dotted #333;
+}
+
+.pipeline_name {
+  font-size:     17px;
+  font-weight:   500;
+  width:         195px;
+  margin:        0;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline_history {
+  text-decoration: underline;
+  font-size:       13px;
+}
+
+.pipeline_actions {
+  position: absolute;
+  right:    10px;
+  top:      6px;
+}
+
+.pipeline_locked {
+  @include icon-before($type: lock);
+  overflow:  hidden;
+  width:     25px;
+  height:    25px;
+  font-size: 20px;
+  color:     #555;
+  &:hover {
+    color: #000;
+  }
+  &.disabled {
+    color: #999;
+  }
+}
+
+.pipeline_edit {
+  @include icon-before($type: gear);
+  overflow:  hidden;
+  width:     25px;
+  height:    25px;
+  font-size: 20px;
+  color:     #555;
+  &:hover {
+    color: #000;
+  }
+  &.disabled {
+    color: #999;
+  }
+}
+
+.pipeline_pause-message {
+  font-size:   12px;
+  clear:       both;
+  text-align:  right;
+  line-height: 14px;
+}
+
+.pipeline_instance {
+  padding:    10px 0;
+  border-top: 1px dotted #ccc;
+  margin:     0 15px;
+  &:first-child {
+    border: 0;
+  }
+}
+
+.pipeline_instance-label {
+  font-size:   14px;
   font-weight: 600;
 }
 
-.instance-label {
-  @extend %pipeline-label-text;
-}
-
-.instance-details, .latest-stage {
-  @extend %pipeline-label-text;
-  font-weight: 300;
-}
-
-.stage-instance {
-  height:       12px;
-  margin-top:   10px;
-  display:      block;
-  line-height:  12px;
-  margin-right: 4px;
-}
-
-.passed {
-  background-color: #00c853;
-}
-
-.failed {
-  background-color: #fa2d2d;
-}
-
-.building {
-  background-color: #ffc11b;
-}
-
-.more-info {
+.more_info {
   position: relative;
   .changes {
     position:      relative;
@@ -176,7 +240,7 @@ $settings-icon-hover-color: #000;
   }
 }
 
-.material-changes {
+.material_changes {
   position:      absolute;
   background:    #333;
   padding:       20px 20px 0;
@@ -212,7 +276,7 @@ $settings-icon-hover-color: #000;
       }
     }
   }
-  .modified-by {
+  .modified_by {
     word-break: break-all;
     span {
       display: block;
@@ -220,11 +284,156 @@ $settings-icon-hover-color: #000;
   }
   .revision {
     display: flex;
-    .revision-id {
+    .revision_id {
       display:       inline-block;
       text-overflow: ellipsis;
       overflow:      hidden;
       max-width:     77%;
+    }
+  }
+}
+
+.pipeline_instance-details {
+  font-size: 12px;
+}
+
+.pipeline_stages {
+  display:         flex;
+  flex-wrap:       wrap;
+  justify-content: flex-start;
+  list-style-type: none;
+  margin:          10px 0 10px -2px;
+  padding:         0;
+  .pipeline_stage {
+    width:       34px;
+    height:      16px;
+    line-height: 13px;
+    margin:      2px;
+    text-align:  center;
+
+    &.passed {
+      @include icon-before($passed-icon, 12px, 0);
+      background: $passed;
+      color:      #fff;
+    }
+    &.failed {
+      @include icon-before($failed-icon, 12px, 0);
+      background: $failed;
+    }
+    &.failing {
+      @extend %building;
+      background: $failed;
+      > span {
+        background-color: $failed;
+      }
+    }
+    &.building {
+      @extend %building;
+      background: $building;
+    }
+    &.unknown {
+      border:     1px solid #ccc;
+      background: #e6e3e3;
+    }
+    &.cancelled {
+      @include icon-before($cancelled-icon, 12px, 0);
+      background: $building;
+    }
+  }
+}
+
+//operations buttons
+
+.pipeline_operations {
+  list-style-type: none;
+  margin:          10px 0 0 0;
+  float:           right;
+  padding:         0;
+  li {
+    display: inline-block;
+  }
+}
+
+.btn {
+  border:      1px solid #ccc;
+  background:  #fff;
+  width:       40px;
+  height:      25px;
+  margin-left: 2px;
+  transition:  all 0.2s ease-in-out;
+  &:focus, &:active {
+    outline: 0;
+  }
+  &:hover {
+    background-color: #4d4d4d;
+    transition:       all 0.2s ease-in-out;
+  }
+}
+
+.btn.play {
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+  &:hover {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px 0 no-repeat #4d4d4d;
+  }
+  &.disabled {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+    opacity:    0.5;
+    cursor:     not-allowed;
+    &:hover {
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+      opacity:    0.5;
+      cursor:     not-allowed;
+    }
+  }
+}
+
+.btn.play_with_options {
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+  &:hover {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px 0 no-repeat #4d4d4d;
+  }
+  &.disabled {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+    opacity:    0.5;
+    cursor:     not-allowed;
+    &:hover {
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+      opacity:    0.5;
+      cursor:     not-allowed;
+    }
+  }
+}
+
+.btn.pause {
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+  &:hover {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+  }
+  &.disabled {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+    opacity:    0.5;
+    cursor:     not-allowed;
+    &:hover {
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+      opacity:    0.5;
+      cursor:     not-allowed;
+    }
+  }
+}
+
+.btn.unpause {
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+  &:hover {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+  }
+  &.disabled {
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+    opacity:    0.5;
+    cursor:     not-allowed;
+    &:hover {
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+      opacity:    0.5;
+      cursor:     not-allowed;
     }
   }
 }

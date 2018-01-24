@@ -119,7 +119,7 @@ describe("Dashboard Material Changes Widget", () => {
   });
 
   it("should not close material changes dropdown when a click happens inside the dropdown", () => {
-    const materialChanges = $root.find(".material-changes");
+    const materialChanges = $root.find(".material_changes");
     expect(materialChanges).toHaveClass("show");
 
     materialChanges.click();

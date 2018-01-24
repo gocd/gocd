@@ -21,13 +21,15 @@ const StagesInstanceWidget = {
   view: (vnode) => {
     const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
-      return (<span class={`stage-instance ${  stage.status.toLowerCase() }`}/>);
+      return (<li class={`pipeline_stage ${  stage.status.toLowerCase() }`}>
+        <span><span></span></span>
+      </li>);
     });
 
     return (
-      <div class="stages-instance" size="4">
+      <ul class="pipeline_stages">
         {stageInstance}
-      </div>
+      </ul>
     );
   }
 };

@@ -37,9 +37,9 @@ const PipelineInstanceWidget = {
     const dropdown     = vnode.attrs.dropdown;
     const pipelineName = vnode.attrs.pipelineName;
     return (
-      <div class="pipeline-instance">
-        <div class="instance-label">Instance: {instance.label} </div>
-        <div class="more-info">
+      <div class="pipeline_instance">
+        <div class="pipeline_instance-label">Instance: {instance.label} </div>
+        <div class="more_info">
           <ul class="info">
             <li><a href={instance.comparePath}> Compare </a></li>
             <li><a onclick={ctrl.toggleChanges}><span class="changes"> Changes</span> </a></li>
@@ -48,12 +48,9 @@ const PipelineInstanceWidget = {
           <MaterialChangesWidget materialRevisions={instance.materialRevisions}
                                  isChangeVisible={dropdown.isDropDownOpen(pipelineName)}/>
         </div>
-        <div class="instance-details">
+        <div class="pipeline_instance-details">
           <div>{instance.triggeredBy}</div>
           <div>on {instance.scheduledAt.toString()}</div>
-        </div>
-        <div class="latest-stage">
-          {instance.latestStageInfo()}
         </div>
         <StagesInstanceWidget stages={instance.stages}/>
       </div>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.config.update.SecurityAuthConfigCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
@@ -58,12 +60,15 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
     }
 
     protected SecurityAuthConfigs getPluginProfiles() {
-        return goConfigService.serverConfig().security().securityAuthConfigs();
+        return goConfigService.security().securityAuthConfigs();
     }
 
     public void update(Username currentUser, String md5, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
-        update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigUpdateCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result, hashingService, md5));
+        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result, hashingService, md5);
+        update(currentUser, newSecurityAuthConfig, result, command);
     }
+
+
 
     public void delete(Username currentUser, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
         update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result));
@@ -73,7 +78,8 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
     }
 
     public void create(Username currentUser, SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result) {
-        update(currentUser, securityAuthConfig, result, new SecurityAuthConfigCreateCommand(goConfigService, securityAuthConfig, authorizationExtension, currentUser, result));
+        SecurityAuthConfigCreateCommand command = new SecurityAuthConfigCreateCommand(goConfigService, securityAuthConfig, authorizationExtension, currentUser, result);
+        update(currentUser, securityAuthConfig, result, command);
     }
 
     public VerifyConnectionResponse verifyConnection(SecurityAuthConfig securityAuthConfig) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.Map;
 
-abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
+public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
     protected final AuthorizationExtension extension;
 
     public SecurityAuthConfigCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
@@ -43,7 +43,7 @@ abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAu
     }
 
     @Override
-    protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
+    public ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
         return extension.validateAuthConfig(pluginId, configuration);
     }
 

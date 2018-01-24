@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.PluginProfileCommand;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.PluginNotFoundException;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.Logger;
@@ -54,8 +58,34 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         return result;
     }
 
-    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, EntityConfigUpdateCommand<M> command) {
+    private void validatePluginProperties(PluginProfileCommand command, PluginProfile newPluginProfile) {
         try {
+            ValidationResult result = command.validateUsingExtension(newPluginProfile.getPluginId(), newPluginProfile.getConfigurationAsMap(true));
+            addErrorsToConfiguration(result, newPluginProfile);
+        }catch (PluginNotFoundException e) {
+            newPluginProfile.addError("pluginId", String.format("Plugin with id `%s` is not found.", newPluginProfile.getPluginId()));
+        }catch (Exception e) {
+            //Ignore - it will be the invalid cipher text exception for an encrypted value. This will be validated later during entity update
+        }
+    }
+
+    private void addErrorsToConfiguration(ValidationResult result, PluginProfile newSecurityAuthConfig) {
+        if (!result.isSuccessful()) {
+            for (com.thoughtworks.go.plugin.api.response.validation.ValidationError validationError : result.getErrors()) {
+                ConfigurationProperty property = newSecurityAuthConfig.getProperty(validationError.getKey());
+
+                if (property != null) {
+                    property.addError(validationError.getKey(), validationError.getMessage());
+                } else {
+                    newSecurityAuthConfig.addError(validationError.getKey(), validationError.getMessage());
+                }
+            }
+        }
+    }
+
+    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command) {
+        try {
+            validatePluginProperties(command, pluginProfile);
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {

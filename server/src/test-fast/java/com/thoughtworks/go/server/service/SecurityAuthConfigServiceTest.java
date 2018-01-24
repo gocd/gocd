@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
+import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
+import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -33,18 +35,21 @@ import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class SecurityAuthConfigServiceTest {
 
@@ -119,6 +124,121 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
+     public void shouldAddSecurityAuthConfigToConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+
+        Username username = new Username("username");
+        securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(goConfigService).updateConfig(any(SecurityAuthConfigCreateCommand.class), eq(username));
+    }
+
+    @Test
+    public void shouldPerformPluginValidationsBeforeAddingSecurityAuthConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap", create("key", false, "value"));
+
+        Username username = new Username("username");
+        securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(extension).validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true));
+    }
+
+    @Test
+    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() throws Exception {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
+
+        Username username = new Username("username");
+        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("some error"));
+
+        securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        assertThat(securityAuthConfig.errors().isEmpty(), is(false));
+        assertThat(securityAuthConfig.errors().on("pluginId"), is("Plugin with id `non-existent-plugin` is not found."));
+    }
+
+    @Test
+    public void shouldUpdateExistingSecurityAuthConfigInConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+
+        Username username = new Username("username");
+        securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(goConfigService).updateConfig(any(SecurityAuthConfigUpdateCommand.class), eq(username));
+    }
+
+    @Test
+    public void shouldPerformPluginValidationsBeforeUpdatingSecurityAuthConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap", create("key", false, "value"));
+
+        Username username = new Username("username");
+        securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(extension).validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true));
+    }
+
+    @Test
+    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginId() throws Exception {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
+
+        Username username = new Username("username");
+        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("plugin not found"));
+
+        securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
+
+        assertThat(securityAuthConfig.errors().isEmpty(), is(false));
+        assertThat(securityAuthConfig.errors().on("pluginId"), is("Plugin with id `non-existent-plugin` is not found."));
+    }
+
+    @Test
+    public void shouldDeleteExistingSecurityAuthConfigInConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+
+        Username username = new Username("username");
+        securityAuthConfigService.delete(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(goConfigService).updateConfig(any(SecurityAuthConfigDeleteCommand.class), eq(username));
+    }
+
+    @Test
+    public void shouldGetSecurityAuthConfigByGivenId() throws Exception {
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+        SecurityConfig securityConfig = new SecurityConfig();
+        securityConfig.securityAuthConfigs().add(authConfig);
+        when(goConfigService.security()).thenReturn(securityConfig);
+
+        assertThat(securityAuthConfigService.findProfile("ldap"), is(authConfig));
+    }
+
+    @Test
+    public void shouldGetNullIfSecurityAuthConfigByGivenIdIsNotPresent() {
+        when(goConfigService.security()).thenReturn(new SecurityConfig());
+
+        assertNull(securityAuthConfigService.findProfile("ldap"));
+    }
+
+    @Test
+    public void shouldReturnAnEmptyMapForAuthConfigsIfNonePresent() {
+        when(goConfigService.security()).thenReturn(new SecurityConfig());
+
+        assertThat(securityAuthConfigService.listAll().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldReturnAMapOfSecurityAuthConfigs() throws Exception {
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+        SecurityConfig securityConfig = new SecurityConfig();
+        securityConfig.securityAuthConfigs().add(authConfig);
+        when(goConfigService.security()).thenReturn(securityConfig);
+
+        HashMap<String, SecurityAuthConfig> expectedMap = new HashMap<>();
+        expectedMap.put("ldap", authConfig);
+
+        Map<String, SecurityAuthConfig> authConfigMap = securityAuthConfigService.listAll();
+        assertThat(authConfigMap.size(), is(1));
+        assertThat(authConfigMap, is(expectedMap));
+    }
+
+    @Test
     public void shouldGetAListOfAllConfiguredWebBasedAuthorizationPlugins() {
         Set<AuthorizationPluginInfo> installedWebBasedPlugins = new HashSet<>();
         String githubPluginId = "cd.go.github";
@@ -134,7 +254,7 @@ public class SecurityAuthConfigServiceTest {
         securityConfig.securityAuthConfigs().add(github);
 
         securityConfig.securityAuthConfigs().add(ldap);
-        when(goConfigService.serverConfig()).thenReturn(new ServerConfig(securityConfig, null));
+        when(goConfigService.security()).thenReturn(securityConfig);
 
         List<AuthPluginInfoViewModel> allWebBasedAuthorizationConfigs = securityAuthConfigService.getAllConfiguredWebBasedAuthorizationPlugins();
         assertThat(allWebBasedAuthorizationConfigs.size(), is(1));

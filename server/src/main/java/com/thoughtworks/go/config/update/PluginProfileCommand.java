@@ -31,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
-abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
+public abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
     protected final GoConfigService goConfigService;
     protected final T profile;
     protected final Username currentUser;
@@ -47,7 +47,7 @@ abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginPro
 
     protected abstract M getPluginProfiles(CruiseConfig preprocessedConfig);
 
-    protected abstract ValidationResult validateUsingExtension(final String pluginId, final Map<String, String> configuration);
+    public abstract ValidationResult validateUsingExtension(final String pluginId, final Map<String, String> configuration);
 
     protected abstract String getObjectDescriptor();
 
@@ -68,23 +68,12 @@ abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginPro
 
     protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
-        preprocessedProfile.validate(null);
-        ValidationResult result = validateUsingExtension(preprocessedProfile.getPluginId(), profile.getConfigurationAsMap(true));
-        if (!result.isSuccessful()) {
-            for (ValidationError validationError : result.getErrors()) {
-                ConfigurationProperty property = preprocessedProfile.getProperty(validationError.getKey());
-                if (property == null) {
-                    profile.addNewConfiguration(validationError.getKey(), false);
-                    preprocessedProfile.addNewConfiguration(validationError.getKey(), false);
-                    property = preprocessedProfile.getProperty(validationError.getKey());
-                }
-                property.addError(validationError.getKey(), validationError.getMessage());
-            }
-        }
-        if (preprocessedProfile.errors().isEmpty()) {
+        preprocessedProfile.validateTree(null);
+
+        if (preprocessedProfile.getAllErrors().isEmpty()) {
             getPluginProfiles(preprocessedConfig).validate(null);
             BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
-            return preprocessedProfile.getAllErrors().isEmpty() && profile.errors().isEmpty();
+            return preprocessedProfile.getAllErrors().isEmpty();
         }
 
         BasicCruiseConfig.copyErrors(preprocessedProfile, profile);

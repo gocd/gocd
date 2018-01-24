@@ -73,6 +73,11 @@ public abstract class PluginProfile extends Configuration implements Validatable
         errors().add(fieldName, message);
     }
 
+    public void validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        super.validateTree();
+    }
+
     @Override
     public void validate(ValidationContext validationContext) {
         validateUniqueness(getObjectDescription() + " " + (isBlank(id) ? "(noname)" : "'" + id + "'"));

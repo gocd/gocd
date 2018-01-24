@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
-        update(currentUser, newProfile, result, new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, elasticAgentExtension, currentUser, result, hashingService, md5));
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, elasticAgentExtension, currentUser, result, hashingService, md5);
+        update(currentUser, newProfile, result, command);
     }
 
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
@@ -55,6 +56,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     }
 
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        update(currentUser, elasticProfile, result, new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result));
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result);
+        update(currentUser, elasticProfile, result, command);
     }
 }

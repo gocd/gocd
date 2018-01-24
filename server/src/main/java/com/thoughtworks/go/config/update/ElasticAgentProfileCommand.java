@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.Map;
 
-abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
+public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
 
     private final ElasticAgentExtension extension;
 
@@ -44,7 +44,7 @@ abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticPr
     }
 
     @Override
-    protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
+    public ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
         return extension.validate(pluginId, configuration);
     }
 

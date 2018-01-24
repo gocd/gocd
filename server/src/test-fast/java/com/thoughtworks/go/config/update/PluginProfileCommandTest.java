@@ -130,7 +130,7 @@ public class PluginProfileCommandTest {
         }
 
         @Override
-        protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
+        public ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
             return null;
         }
 

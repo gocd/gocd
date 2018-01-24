@@ -24,14 +24,12 @@ import java.util.Map;
 
 public interface EncryptedValueRepresenter {
     static Map toJSON(String encryptedValue, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(jsonWriter);
-        jsonWriter.add("encrypted_value", encryptedValue);
-        return jsonWriter.getAsMap();
+        return new JsonWriter(requestContext)
+
+                .addDocLink("https://api.gocd.org/#encryption")
+                .addLink("self", "/go/api/admin/encrypt")
+
+                .add("encrypted_value", encryptedValue).getAsMap();
     }
 
-    static void addLinks(JsonWriter jsonWriter) {
-        jsonWriter.addDocLink("https://api.gocd.org/#encryption");
-        jsonWriter.addLink("self", "/go/api/admin/encrypt");
-    }
 }

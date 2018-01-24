@@ -30,19 +30,19 @@ public class PipelineDependencyModificationRepresenter {
     private static final String STAGE_DETAIL_TAB_HREF = "/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}";
 
     public static Map toJSON(Modification model, RequestContext requestContext, DependencyMaterialRevision latestRevision) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.addLink("vsm", VSM_HREF, ImmutableMap.of(
-                "pipeline_name", latestRevision.getPipelineName(),
-                "pipeline_counter", latestRevision.getPipelineCounter()));
-        jsonWriter.addLink("stage_details_url", STAGE_DETAIL_TAB_HREF, ImmutableMap.of(
-                "pipeline_name", latestRevision.getPipelineName(),
-                "pipeline_counter", latestRevision.getPipelineCounter(),
-                "stage_name", latestRevision.getStageName(),
-                "stage_counter", latestRevision.getStageCounter()));
+        return new JsonWriter(requestContext)
 
-        jsonWriter.addIfNotNull("revision", model.getRevision());
-        jsonWriter.addIfNotNull("modified_time", model.getModifiedTime());
-        jsonWriter.addIfNotNull("pipeline_label", model.getPipelineLabel());
-        return jsonWriter.getAsMap();
+                .addLink("vsm", VSM_HREF, ImmutableMap.of(
+                        "pipeline_name", latestRevision.getPipelineName(),
+                        "pipeline_counter", latestRevision.getPipelineCounter()))
+                .addLink("stage_details_url", STAGE_DETAIL_TAB_HREF, ImmutableMap.of(
+                        "pipeline_name", latestRevision.getPipelineName(),
+                        "pipeline_counter", latestRevision.getPipelineCounter(),
+                        "stage_name", latestRevision.getStageName(),
+                        "stage_counter", latestRevision.getStageCounter()))
+
+                .addIfNotNull("revision", model.getRevision())
+                .addIfNotNull("modified_time", model.getModifiedTime())
+                .addIfNotNull("pipeline_label", model.getPipelineLabel()).getAsMap();
     }
 }

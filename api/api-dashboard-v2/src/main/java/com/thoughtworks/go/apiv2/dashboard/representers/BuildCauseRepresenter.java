@@ -27,12 +27,11 @@ import java.util.Map;
 public class BuildCauseRepresenter {
 
     public static Map toJSON(BuildCause model, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.add("approver", model.getApprover());
-        jsonWriter.add("is_forced", model.isForced());
-        jsonWriter.add("trigger_message", model.getBuildCauseMessage());
-        jsonWriter.add("material_revisions", getMaterialRevisions(model, requestContext));
-        return jsonWriter.getAsMap();
+        return new JsonWriter(requestContext)
+                .add("approver", model.getApprover())
+                .add("is_forced", model.isForced())
+                .add("trigger_message", model.getBuildCauseMessage())
+                .add("material_revisions", getMaterialRevisions(model, requestContext)).getAsMap();
     }
 
     private static List<Map> getMaterialRevisions(BuildCause model, RequestContext requestContext) {

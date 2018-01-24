@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 import static java.lang.String.format;
@@ -73,5 +74,13 @@ public class JsonReader {
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
                 .orElseThrow(() -> haltBecauseInvalidJSON(format("Json does not contain property: %s", property)));
+    }
+
+    public void readStringIfPresent(String key, Consumer<String> setterMethod) {
+        optString(key).ifPresent(setterMethod);
+    }
+
+    public void readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {
+        optJsonArray(key).ifPresent(setterMethod);
     }
 }

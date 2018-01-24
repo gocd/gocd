@@ -33,35 +33,32 @@ public class PipelineInstanceRepresenter {
     private static final String HISTORY_HREF = "/api/pipelines/${pipeline_name}/history";
     private static final String VSM_HREF = "/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}";
 
-    private static void addLinks(JsonWriter jsonWriter, PipelineInstanceModel model) {
-        jsonWriter.addLink("self", SELF_HREF, ImmutableMap.of(
-                "pipeline_name", model.getName(),
-                "pipeline_counter", model.getCounter()));
-        jsonWriter.addLink("compare_url", COMPARE_HREF, ImmutableMap.of(
-                "pipeline_name", model.getName(),
-                "from_counter", model.getCounter() - 1,
-                "to_counter", model.getCounter()));
-        jsonWriter.addLink("history_url", HISTORY_HREF, ImmutableMap.of(
-                "pipeline_name", model.getName()));
-        jsonWriter.addLink("vsm_url", VSM_HREF, ImmutableMap.of(
-                "pipeline_name", model.getName(),
-                "pipeline_counter", model.getCounter()));
+    private static JsonWriter addLinks(JsonWriter jsonWriter, PipelineInstanceModel model) {
+        return jsonWriter
+                .addLink("self", SELF_HREF, ImmutableMap.of(
+                        "pipeline_name", model.getName(),
+                        "pipeline_counter", model.getCounter()))
+                .addLink("compare_url", COMPARE_HREF, ImmutableMap.of(
+                        "pipeline_name", model.getName(),
+                        "from_counter", model.getCounter() - 1,
+                        "to_counter", model.getCounter()))
+                .addLink("history_url", HISTORY_HREF, ImmutableMap.of(
+                        "pipeline_name", model.getName()))
+                .addLink("vsm_url", VSM_HREF, ImmutableMap.of(
+                        "pipeline_name", model.getName(),
+                        "pipeline_counter", model.getCounter()));
     }
 
 
     public static Map toJSON(PipelineInstanceModel model, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-
-        addLinks(jsonWriter, model);
-
-        jsonWriter.add("label", model.getLabel());
-        jsonWriter.add("triggered_by", model.getApprovedByForDisplay());
-        jsonWriter.add("scheduled_at", model.getScheduledDate());
-        jsonWriter.add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext));
-        jsonWriter.addEmbedded("stages", getStages(model, requestContext));
-        jsonWriter.add("_embedded", getStages(model, requestContext));
-
-        return jsonWriter.getAsMap();
+        return addLinks(new JsonWriter(requestContext), model)
+                .add("label", model.getLabel())
+                .add("triggered_by", model.getApprovedByForDisplay())
+                .add("scheduled_at", model.getScheduledDate())
+                .add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext))
+                .addEmbedded("stages", getStages(model, requestContext))
+                .add("_embedded", getStages(model, requestContext))
+                .getAsMap();
     }
 
     private static List<Map> getStages(PipelineInstanceModel model, RequestContext requestContext) {

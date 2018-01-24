@@ -28,18 +28,15 @@ public class UserSummaryRepresenter {
     }
 
     public static JsonWriter getJsonWriter(String loginName, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(loginName, jsonWriter);
-        jsonWriter.add("login_name", loginName);
-        return jsonWriter;
+        return addLinks(loginName, new JsonWriter(requestContext))
+                .add("login_name", loginName);
     }
 
-    private static void addLinks(String loginName, JsonWriter jsonWriter) {
-        jsonWriter.addDocLink("https://api.gocd.org/#users");
-        jsonWriter.addLink("self", "/api/users/${loginName}", ImmutableMap.of("loginName", loginName));
-        jsonWriter.addLink("find", "/api/users/${loginName}", ImmutableMap.of("loginName", ":login_name"));
-        jsonWriter.addLink("current_user", "/api/current_user");
-
+    private static JsonWriter addLinks(String loginName, JsonWriter jsonWriter) {
+        return jsonWriter.addDocLink("https://api.gocd.org/#users")
+                .addLink("self", "/api/users/${loginName}", ImmutableMap.of("loginName", loginName))
+                .addLink("find", "/api/users/${loginName}", ImmutableMap.of("loginName", ":login_name"))
+                .addLink("current_user", "/api/current_user");
     }
 
 }

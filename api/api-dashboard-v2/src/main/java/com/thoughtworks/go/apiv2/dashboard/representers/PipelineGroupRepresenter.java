@@ -27,15 +27,13 @@ import java.util.Map;
 public class PipelineGroupRepresenter {
 
     public static Map toJSON(GoDashboardPipelineGroup model, RequestContext requestContext, Username username) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        return new JsonWriter(requestContext)
 
-        jsonWriter.addDocLink("https://api.go.cd/current/#pipeline-groups");
-        jsonWriter.addLink("self", "/api/config/pipeline_groups");
+                .addDocLink("https://api.go.cd/current/#pipeline-groups")
+                .addLink("self", "/api/config/pipeline_groups")
 
-        jsonWriter.add("name", model.getName());
-        jsonWriter.add("pipelines", model.allPipelineNames());
-        jsonWriter.add("can_administer", model.canBeAdministeredBy(username.getUsername().toString()));
-
-        return jsonWriter.getAsMap();
+                .add("name", model.getName())
+                .add("pipelines", model.allPipelineNames())
+                .add("can_administer", model.canBeAdministeredBy(username.getUsername().toString())).getAsMap();
     }
 }

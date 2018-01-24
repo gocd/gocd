@@ -27,19 +27,19 @@ import java.util.stream.Collectors;
 
 public class RolesRepresenter {
 
-    private static void addLinks(JsonWriter jsonWriter) {
-        jsonWriter.addLink("self", "/go/api/admin/security/roles");
-        jsonWriter.addDocLink("https://api.gocd.org/#roles");
-        jsonWriter.addLink("find", "/go/api/admin/security/roles/:role_name");
+    private static JsonWriter addLinks(JsonWriter jsonWriter) {
+        return jsonWriter.addLink("self", "/go/api/admin/security/roles")
+                .addDocLink("https://api.gocd.org/#roles")
+                .addLink("find", "/go/api/admin/security/roles/:role_name");
     }
 
     public static Map toJSON(List<Role> roles, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(jsonWriter);
         List<Map> rolesArray = roles.stream()
                 .map(role -> RoleRepresenter.toJSON(role, requestContext))
                 .collect(Collectors.toList());
-        jsonWriter.addEmbedded("roles", rolesArray);
-        return jsonWriter.getAsMap();
+
+        return addLinks(new JsonWriter(requestContext))
+                .addEmbedded("roles", rolesArray)
+                .getAsMap();
     }
 }

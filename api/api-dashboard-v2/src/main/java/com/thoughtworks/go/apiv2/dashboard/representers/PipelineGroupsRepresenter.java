@@ -28,14 +28,13 @@ import java.util.stream.Collectors;
 public class PipelineGroupsRepresenter {
 
     public static Map toJSON(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.addLink("self", "/api/dashboard");
-        jsonWriter.addDocLink("https://api.go.cd/current/#dashboard");
+        return new JsonWriter(requestContext)
+                .addLink("self", "/api/dashboard")
+                .addDocLink("https://api.go.cd/current/#dashboard")
 
-        jsonWriter.addEmbedded("pipeline_groups", getPipelineGroups(pipelineGroups, requestContext, username));
-        jsonWriter.addEmbedded("pipelines", getPipelines(pipelineGroups, requestContext, username));
-
-        return jsonWriter.getAsMap();
+                .addEmbedded("pipeline_groups", getPipelineGroups(pipelineGroups, requestContext, username))
+                .addEmbedded("pipelines", getPipelines(pipelineGroups, requestContext, username))
+                .getAsMap();
     }
 
     private static List<Map> getPipelines(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {

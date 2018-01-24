@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 public class GoCDRoleConfigRepresenter {
 
     public static Map toJSON(RoleConfig roleConfig, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.add("users", usersAsString(roleConfig));
-        return jsonWriter.getAsMap();
+        return new JsonWriter(requestContext)
+                .add("users", usersAsString(roleConfig))
+                .getAsMap();
     }
 
     public static RoleConfig fromJSON(JsonReader jsonReader) {
@@ -40,7 +40,7 @@ public class GoCDRoleConfigRepresenter {
         if (jsonReader == null) {
             return model;
         }
-        jsonReader.optJsonArray("users").ifPresent(users -> {
+        jsonReader.readArrayIfPresent("users", users -> {
             users.forEach(user -> model.addUser(new RoleUser(user.getAsString())));
         });
         return model;

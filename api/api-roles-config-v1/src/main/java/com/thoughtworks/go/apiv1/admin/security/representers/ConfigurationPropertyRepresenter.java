@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-public interface ConfigurationPropertyRepresenter {
+public class ConfigurationPropertyRepresenter {
 
     public static List<Map> toJSON(List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
         return configurationProperties.stream()

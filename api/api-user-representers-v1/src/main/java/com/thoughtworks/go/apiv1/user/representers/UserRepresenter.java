@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.user.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.spark.RequestContext;
 
@@ -26,14 +25,13 @@ import java.util.Map;
 public class UserRepresenter {
 
     public static Map<String, Object> toJSON(User user, RequestContext requestContext) {
-        JsonWriter jsonObject = UserSummaryRepresenter.getJsonWriter(user.getName(), requestContext);
-
-        jsonObject.add("display_name", user.getDisplayName());
-        jsonObject.add("enabled", user.isEnabled());
-        jsonObject.add("email", user.getEmail());
-        jsonObject.add("email_me", user.isEmailMe());
-        jsonObject.add("checkin_aliases", user.getMatchers());
-        return jsonObject.getAsMap();
+        return UserSummaryRepresenter.getJsonWriter(user.getName(), requestContext)
+                .add("display_name", user.getDisplayName())
+                .add("enabled", user.isEnabled())
+                .add("email", user.getEmail())
+                .add("email_me", user.isEmailMe())
+                .add("checkin_aliases", user.getMatchers())
+                .getAsMap();
     }
 
 }

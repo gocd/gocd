@@ -35,26 +35,31 @@ public class JsonWriter {
         this.embedded = new HashMap<>();
     }
 
-    public void add(String propertyName, Object value) {
+    public JsonWriter add(String propertyName, Object value) {
         properties.put(propertyName, value);
+        return this;
     }
 
-    public void addEmbedded(String propertyName, List<Map> objects) {
+    public JsonWriter addEmbedded(String propertyName, List<Map> objects) {
         embedded.put(propertyName, objects);
+        return this;
     }
 
-    public void addIfNotNull(String propertyName, Object value) {
+    public JsonWriter addIfNotNull(String propertyName, Object value) {
         if (value != null) {
             properties.put(propertyName, value);
         }
+        return this;
     }
 
-    public void addLink(String name, String hrefTemplate, Map<String, Object> args) {
+    public JsonWriter addLink(String name, String hrefTemplate, Map<String, Object> args) {
         links.add(requestContext.buildWithNamedArgs(name, hrefTemplate, args));
+        return this;
     }
 
-    public void addLink(String name, String href) {
+    public JsonWriter addLink(String name, String href) {
         links.add(requestContext.build(name, href));
+        return this;
     }
 
     public Map<String, Object> getAsMap() {
@@ -75,7 +80,8 @@ public class JsonWriter {
         return linksMap;
     }
 
-    public void addDocLink(String absoluteUrl) {
+    public JsonWriter addDocLink(String absoluteUrl) {
         links.add(new Link("doc", absoluteUrl));
+        return this;
     }
 }

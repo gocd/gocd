@@ -26,14 +26,13 @@ import java.util.Map;
 public class BackupRepresenter {
 
     public static Map<String, Object> toJSON(ServerBackup backup, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.addDocLink("https://api.gocd.org/#backups");
+        return new JsonWriter(requestContext)
 
-        jsonWriter.add("time", backup.getTime());
-        jsonWriter.add("path", backup.getPath());
-        jsonWriter.add("user", UserSummaryRepresenter.toJSON(backup.getUsername(), requestContext));
+                .addDocLink("https://api.gocd.org/#backups")
 
-        return jsonWriter.getAsMap();
+                .add("time", backup.getTime())
+                .add("path", backup.getPath())
+                .add("user", UserSummaryRepresenter.toJSON(backup.getUsername(), requestContext)).getAsMap();
     }
 
 }

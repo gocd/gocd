@@ -33,32 +33,32 @@ import static java.util.stream.Collectors.toList;
 
 public class PipelineRepresenter {
 
-    private static void addLinks(GoDashboardPipeline model, JsonWriter jsonWriter) {
+    private static JsonWriter addLinks(GoDashboardPipeline model, JsonWriter jsonWriter) {
         String pipelineName = model.name().toString();
         ImmutableMap<String, Object> args = ImmutableMap.of("pipeline_name", pipelineName);
-        jsonWriter.addLink("self", "/api/pipelines/${pipeline_name}/history", args);
-        jsonWriter.addDocLink("https://api.go.cd/current/#pipelines");
-        jsonWriter.addLink("settings_path", "/admin/pipelines/${pipeline_name}/general", args);
-        jsonWriter.addLink("trigger", "/api/pipelines/${pipeline_name}/schedule", args);
-        jsonWriter.addLink("trigger_with_options", "/api/pipelines/${pipeline_name}/schedule", args);
-        jsonWriter.addLink("pause", "/api/pipelines/${pipeline_name}/pause", args);
-        jsonWriter.addLink("unpause", "/api/pipelines/${pipeline_name}/unpause", args);
+        return jsonWriter.addLink("self", "/api/pipelines/${pipeline_name}/history", args)
+                .addDocLink("https://api.go.cd/current/#pipelines")
+                .addLink("settings_path", "/admin/pipelines/${pipeline_name}/general", args)
+                .addLink("trigger", "/api/pipelines/${pipeline_name}/schedule", args)
+                .addLink("trigger_with_options", "/api/pipelines/${pipeline_name}/schedule", args)
+                .addLink("pause", "/api/pipelines/${pipeline_name}/pause", args)
+                .addLink("unpause", "/api/pipelines/${pipeline_name}/unpause", args);
     }
 
-    public static Map toJSON(GoDashboardPipeline model, RequestContext requestContext, Username username) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(model, jsonWriter);
-        jsonWriter.add("name", model.name().toString());
-        jsonWriter.add("last_updated_timestamp", model.getLastUpdatedTimeStamp());
-        jsonWriter.add("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked());
-        jsonWriter.add("pause_info", getPauseInfo(model));
+    public static Map<String, Object> toJSON(GoDashboardPipeline model, RequestContext requestContext, Username username) {
         String usernameString = username.getUsername().toString();
-        jsonWriter.add("can_operate", model.isPipelineOperator(usernameString));
-        jsonWriter.add("can_administer", model.canBeAdministeredBy(usernameString));
-        jsonWriter.add("can_unlock", model.canBeOperatedBy(usernameString));
-        jsonWriter.add("can_pause", model.canBeOperatedBy(usernameString));
-        jsonWriter.addEmbedded("instances", getInstances(model, requestContext));
-        return jsonWriter.getAsMap();
+
+        return addLinks(model, new JsonWriter(requestContext))
+                .add("name", model.name().toString())
+                .add("last_updated_timestamp", model.getLastUpdatedTimeStamp())
+                .add("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked())
+                .add("pause_info", getPauseInfo(model))
+                .add("can_operate", model.isPipelineOperator(usernameString))
+                .add("can_administer", model.canBeAdministeredBy(usernameString))
+                .add("can_unlock", model.canBeOperatedBy(usernameString))
+                .add("can_pause", model.canBeOperatedBy(usernameString))
+                .addEmbedded("instances", getInstances(model, requestContext))
+                .getAsMap();
     }
 
     private static List<Map> getInstances(GoDashboardPipeline model, RequestContext requestContext) {

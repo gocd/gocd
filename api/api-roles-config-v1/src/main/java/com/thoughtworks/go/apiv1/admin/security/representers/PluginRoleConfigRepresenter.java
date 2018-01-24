@@ -27,17 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public interface PluginRoleConfigRepresenter {
+public class PluginRoleConfigRepresenter {
 
     public static Map toJSON(PluginRoleConfig pluginRoleConfig, RequestContext requestContext) {
         if (pluginRoleConfig == null) {
             return null;
         }
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.add("auth_config_id", pluginRoleConfig.getAuthConfigId());
-        jsonWriter.add("properties", ConfigurationPropertyRepresenter.toJSON(pluginRoleConfig, requestContext));
 
-        return jsonWriter.getAsMap();
+        return new JsonWriter(requestContext)
+                .add("auth_config_id", pluginRoleConfig.getAuthConfigId())
+                .add("properties", ConfigurationPropertyRepresenter.toJSON(pluginRoleConfig, requestContext))
+                .getAsMap();
     }
 
     public static PluginRoleConfig fromJSON(JsonReader jsonReader) {
@@ -45,8 +45,8 @@ public interface PluginRoleConfigRepresenter {
         if (jsonReader == null) {
             return model;
         }
-        jsonReader.optString("auth_config_id").ifPresent(model::setAuthConfigId);
-        jsonReader.optJsonArray("properties").ifPresent(properties -> {
+        jsonReader.readStringIfPresent("auth_config_id", model::setAuthConfigId);
+        jsonReader.readArrayIfPresent("properties", properties -> {
             List<ConfigurationProperty> configurationProperties = new ArrayList<>();
             properties.forEach(property -> {
                 JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());

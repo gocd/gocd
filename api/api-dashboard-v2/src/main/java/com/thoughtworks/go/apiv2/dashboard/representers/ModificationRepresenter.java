@@ -29,19 +29,18 @@ public class ModificationRepresenter {
     private static final String VSM_HREF = "/materials/value_stream_map/${material_fingerprint}/${revision}";
 
     public static Map toJSON(Modification model, RequestContext requestContext, Material material) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        return new JsonWriter(requestContext)
 
-        jsonWriter.addLink("vsm", VSM_HREF, ImmutableMap.of(
-                "material_fingerprint", material.getFingerprint(),
-                "revision", model.getRevision()));
+                .addLink("vsm", VSM_HREF, ImmutableMap.of(
+                        "material_fingerprint", material.getFingerprint(),
+                        "revision", model.getRevision()))
 
-        jsonWriter.addIfNotNull("user_name", model.getUserName());
-        jsonWriter.addIfNotNull("email_address", model.getEmailAddress());
-        jsonWriter.addIfNotNull("revision", model.getRevision());
-        jsonWriter.addIfNotNull("modified_time", model.getModifiedTime());
-        jsonWriter.addIfNotNull("comment", model.getComment());
-
-        return jsonWriter.getAsMap();
+                .addIfNotNull("user_name", model.getUserName())
+                .addIfNotNull("email_address", model.getEmailAddress())
+                .addIfNotNull("revision", model.getRevision())
+                .addIfNotNull("modified_time", model.getModifiedTime())
+                .addIfNotNull("comment", model.getComment())
+                .getAsMap();
     }
 
 }

@@ -28,20 +28,17 @@ import static java.util.stream.Collectors.toList;
 public class MaterialRevisionRepresenter {
 
     public static Map toJSON(MaterialRevision model, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-
-        jsonWriter.add("material_type", model.getMaterialType());
-        jsonWriter.add("material_name", model.getMaterialName());
-        jsonWriter.add("changed", model.isChanged());
-        jsonWriter.add("modifications", model.getModifications().stream().map(modification -> {
-            if("Pipeline".equals(model.getMaterial().getTypeForDisplay())) {
-                //copied from ruby: not typesafe, can be improved
-                return PipelineDependencyModificationRepresenter.toJSON(modification, requestContext, (DependencyMaterialRevision) model.getRevision());
-            }
-            return ModificationRepresenter.toJSON(modification, requestContext, model.getMaterial());
-        }).collect(toList()));
-
-        return jsonWriter.getAsMap();
+        return new JsonWriter(requestContext)
+                .add("material_type", model.getMaterialType())
+                .add("material_name", model.getMaterialName())
+                .add("changed", model.isChanged())
+                .add("modifications", model.getModifications().stream().map(modification -> {
+                    if ("Pipeline".equals(model.getMaterial().getTypeForDisplay())) {
+                        //copied from ruby: not typesafe, can be improved
+                        return PipelineDependencyModificationRepresenter.toJSON(modification, requestContext, (DependencyMaterialRevision) model.getRevision());
+                    }
+                    return ModificationRepresenter.toJSON(modification, requestContext, model.getMaterial());
+                }).collect(toList())).getAsMap();
     }
 
 }

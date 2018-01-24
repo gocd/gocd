@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.*;
+import java.util.Map;
 
 public class StageRepresenter {
 
@@ -29,18 +29,18 @@ public class StageRepresenter {
 
     public static Map toJSON(StageInstanceModel model, RequestContext requestContext,
                              String pipelineName, String pipelineCounter) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        JsonWriter jsonWriter = new JsonWriter(requestContext)
+                .addLink("self", SELF_HREF, ImmutableMap.of(
+                        "pipeline_name", pipelineName,
+                        "stage_name", model.getName(),
+                        "pipeline_counter", pipelineCounter,
+                        "stage_counter", model.getCounter()))
 
-        jsonWriter.addLink("self", SELF_HREF, ImmutableMap.of(
-                "pipeline_name", pipelineName,
-                "stage_name", model.getName(),
-                "pipeline_counter", pipelineCounter,
-                "stage_counter", model.getCounter()));
+                .add("name", model.getName())
+                .add("status", model.getState())
+                .add("approved_by", model.getApprovedBy())
+                .add("scheduled_at", model.getScheduledDate());
 
-        jsonWriter.add("name", model.getName());
-        jsonWriter.add("status", model.getState());
-        jsonWriter.add("approved_by", model.getApprovedBy());
-        jsonWriter.add("scheduled_at", model.getScheduledDate());
         if (model.getPreviousStage() != null) {
             jsonWriter.add("previous_stage", StageRepresenter.toJSON(model.getPreviousStage(), requestContext, pipelineName, pipelineCounter));
         }

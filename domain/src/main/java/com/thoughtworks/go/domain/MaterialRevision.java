@@ -16,18 +16,23 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
+import static com.sun.corba.se.spi.activation.IIOP_CLEAR_TEXT.value;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
+import static java.lang.String.format;
 
 public class MaterialRevision implements Serializable {
     private Material material;
@@ -241,6 +246,7 @@ public class MaterialRevision implements Serializable {
 
     public void populateEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
         material.populateEnvironmentContext(context, this, workingDir);
+        context.setPropertyWithEscape(format("GO_MATERIAL_%s_HAS_CHANGED", material.getMaterialNameForEnvironmentVariable()), Boolean.toString(isChanged()));
     }
 
     public void populateAgentSideEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {

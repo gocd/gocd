@@ -32,6 +32,7 @@ import java.util.Date;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ScmMaterialTest {
     DummyMaterial material = new DummyMaterial();
@@ -129,5 +130,15 @@ public class ScmMaterialTest {
     public void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() throws Exception {
         ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch");
         assertThat(material.supportsDestinationFolder(), is(true));
+    }
+
+    @Test
+    public void shouldGetMaterialNameForEnvironmentMaterial(){
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
+        assertThat(gitMaterial.getMaterialNameForEnvironmentVariable(), is(nullValue()));
+        gitMaterial.setFolder("dest-folder");
+        assertThat(gitMaterial.getMaterialNameForEnvironmentVariable(), is("DEST_FOLDER"));
+        gitMaterial.setName(new CaseInsensitiveString("git-material"));
+        assertThat(gitMaterial.getMaterialNameForEnvironmentVariable(), is("GIT_MATERIAL"));
     }
 }

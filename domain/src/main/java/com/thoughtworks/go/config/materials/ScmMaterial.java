@@ -140,17 +140,22 @@ public abstract class ScmMaterial extends AbstractMaterial {
     }
 
     protected void setVariableWithName(EnvironmentVariableContext environmentVariableContext, String value, String propertyName) {
-        if (!CaseInsensitiveString.isBlank(this.name)) {
-            environmentVariableContext.setProperty(propertyName + "_" + escapeEnvironmentVariable(this.name.toUpper()), value, false);
-            return;
-        }
-
-        String scrubbedFolder = escapeEnvironmentVariable(folder);
-        if (!StringUtils.isEmpty(scrubbedFolder)) {
-            environmentVariableContext.setProperty(propertyName + "_" + scrubbedFolder, value, false);
+        String materialNameForEnvironmentVariable = getMaterialNameForEnvironmentVariable();
+        if (StringUtils.isNotBlank(materialNameForEnvironmentVariable)) {
+            environmentVariableContext.setProperty(propertyName + "_" + materialNameForEnvironmentVariable, value, false);
         } else {
             environmentVariableContext.setProperty(propertyName, value, false);
         }
+    }
+
+    @Override
+    public String getMaterialNameForEnvironmentVariable() {
+        if (!CaseInsensitiveString.isBlank(this.name)) {
+            return escapeEnvironmentVariable(this.name.toUpper());
+        }
+
+        String scrubbedFolder = escapeEnvironmentVariable(folder);
+        return StringUtils.isEmpty(scrubbedFolder) ? null : scrubbedFolder;
     }
 
     public String getFolder() {

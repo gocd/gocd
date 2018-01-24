@@ -35,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -91,6 +92,7 @@ public class EnvironmentVariableContextTest {
         materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
 
         assertThat(context.getProperty("GO_REVISION_SVN"), is("revision1"));
+        assertThat(context.getProperty("GO_MATERIAL_SVN_HAS_CHANGED"), is("false"));
     }
 
     @Test

@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin.security.representers;
-
+package com.thoughtworks.go.apiv2.dashboard.representers;
 
 import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class RolesRepresenter {
 
-    private static void addLinks(JsonWriter jsonWriter) {
-        jsonWriter.addLink("self", "/go/api/admin/security/roles");
-        jsonWriter.addDocLink("https://api.gocd.org/#roles");
-        jsonWriter.addLink("find", "/go/api/admin/security/roles/:role_name");
-    }
+public class PipelineGroupRepresenter {
 
-    public static Map toJSON(List<Role> roles, RequestContext requestContext) {
+    public static Map toJSON(GoDashboardPipelineGroup model, RequestContext requestContext, Username username) {
         JsonWriter jsonWriter = new JsonWriter(requestContext);
-        addLinks(jsonWriter);
-        List<Map> rolesArray = roles.stream()
-                .map(role -> RoleRepresenter.toJSON(role, requestContext))
-                .collect(Collectors.toList());
-        jsonWriter.addEmbedded("roles", rolesArray);
+
+        jsonWriter.addDocLink("https://api.go.cd/current/#pipeline-groups");
+        jsonWriter.addLink("self", "/api/config/pipeline_groups");
+
+        jsonWriter.add("name", model.getName());
+        jsonWriter.add("pipelines", model.allPipelineNames());
+        jsonWriter.add("can_administer", model.canBeAdministeredBy(username.getUsername().toString()));
+
         return jsonWriter.getAsMap();
     }
 }

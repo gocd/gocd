@@ -18,12 +18,12 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +33,11 @@ public interface PluginRoleConfigRepresenter {
         if (pluginRoleConfig == null) {
             return null;
         }
-        Map<String, Object> jsonObject = new LinkedHashMap<>();
-        jsonObject.put("auth_config_id", pluginRoleConfig.getAuthConfigId());
-        jsonObject.put("properties", ConfigurationPropertyRepresenter.toJSON(pluginRoleConfig, requestContext));
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        jsonWriter.add("auth_config_id", pluginRoleConfig.getAuthConfigId());
+        jsonWriter.add("properties", ConfigurationPropertyRepresenter.toJSON(pluginRoleConfig, requestContext));
 
-        return jsonObject;
+        return jsonWriter.getAsMap();
     }
 
     public static PluginRoleConfig fromJSON(JsonReader jsonReader) {

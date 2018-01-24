@@ -38,8 +38,8 @@ trait SecurityServiceTrait {
   SPAAuthenticationHelper authenticationHelper = new SPAAuthenticationHelper(securityService, goConfigService)
 
   void loginAsAdmin() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
+    GoUserPrinciple principal = adminPrincipal()
+    Username username = adminUser()
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
     SecurityContextHolder.getContext().setAuthentication(authentication)
 
@@ -51,8 +51,8 @@ trait SecurityServiceTrait {
   }
 
   void loginAsUser() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
+    GoUserPrinciple principal = normalPrincipal()
+    Username username = normalUser()
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
     SecurityContextHolder.getContext().setAuthentication(authentication)
 
@@ -83,8 +83,8 @@ trait SecurityServiceTrait {
   }
 
   void loginAsGroupAdmin() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
+    GoUserPrinciple principal = groupAdminPrincipal()
+    Username username = groupAdminUser()
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
     SecurityContextHolder.getContext().setAuthentication(authentication)
 
@@ -118,4 +118,33 @@ trait SecurityServiceTrait {
     when(securityService.isSecurityEnabled()).thenReturn(false)
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }
+
+  private GoUserPrinciple adminPrincipal() {
+    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
+    principal
+  }
+
+  Username adminUser() {
+    new Username(adminPrincipal().username, adminPrincipal().displayName)
+  }
+
+
+  Username groupAdminUser() {
+    new Username(groupAdminPrincipal().username, groupAdminPrincipal().displayName)
+  }
+
+  GoUserPrinciple groupAdminPrincipal() {
+    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
+    principal
+  }
+
+
+  Username normalUser() {
+    new Username(normalPrincipal().username, normalPrincipal().displayName)
+  }
+
+  GoUserPrinciple normalPrincipal() {
+    new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
+  }
+
 }

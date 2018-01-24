@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api.representers;
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
+apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
-import com.thoughtworks.go.spark.Link;
+dependencies {
+  compile project(':api:api-base')
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-public class RepresenterUtils {
-
-    public static void addLinks(List<Link> links, Map jsonObject) {
-        if (links.isEmpty()) {
-            return;
-        }
-        Map<String, Object> linksMap = new LinkedHashMap<>();
-        links.forEach(link -> linksMap.put(link.getName(), Collections.singletonMap("href", link.getHref())));
-        jsonObject.put("_links", linksMap);
-    }
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
 }

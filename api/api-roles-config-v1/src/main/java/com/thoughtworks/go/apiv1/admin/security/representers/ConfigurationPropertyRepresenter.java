@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
@@ -31,32 +32,32 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 public interface ConfigurationPropertyRepresenter {
 
-    public static List<Map<String, Object>> toJSON(List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
+    public static List<Map> toJSON(List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
         return configurationProperties.stream()
                 .map(configurationProperty -> ConfigurationPropertyRepresenter.toJSON(configurationProperty, requestContext))
                 .collect(Collectors.toList());
     }
 
-    public static Map<String, Object> toJSON(ConfigurationProperty configurationProperty, RequestContext requestContext) {
+    public static Map toJSON(ConfigurationProperty configurationProperty, RequestContext requestContext) {
         if (configurationProperty == null) {
             return null;
         }
-        Map<String, Object> jsonObject = new LinkedHashMap<>();
-        jsonObject.put("key", configurationProperty.getKey().getName());
+        JsonWriter jsonWriter = new JsonWriter(requestContext);
+        jsonWriter.add("key", configurationProperty.getKey().getName());
         if (!configurationProperty.isSecure() && !isBlank(configurationProperty.getConfigValue())) {
-            jsonObject.put("value", configurationProperty.getConfigurationValue().getValue());
+            jsonWriter.add("value", configurationProperty.getConfigurationValue().getValue());
         }
         if (configurationProperty.isSecure() && !isBlank(configurationProperty.getEncryptedValue())) {
-            jsonObject.put("encrypted_value", configurationProperty.getEncryptedValue());
+            jsonWriter.add("encrypted_value", configurationProperty.getEncryptedValue());
         }
         if (configurationProperty.hasErrors()) {
-            jsonObject.put("errors", new ErrorGetter(new LinkedHashMap<String, String>() {{
+            jsonWriter.add("errors", new ErrorGetter(new LinkedHashMap<String, String>() {{
                 put("encryptedValue", "encrypted_value");
                 put("configurationValue", "configuration_value");
                 put("configurationKey", "configuration_key");
             }}).apply(configurationProperty, requestContext));
         }
-        return jsonObject;
+        return jsonWriter.getAsMap();
     }
 
     public static ConfigurationProperty fromJSON(JsonReader jsonReader) {

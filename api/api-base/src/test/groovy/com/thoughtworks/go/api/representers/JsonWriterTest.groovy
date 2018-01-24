@@ -25,31 +25,31 @@ class JsonWriterTest {
 
   @Test
   void "should add property"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
-    jsonWriter.add("foo", "bar");
+    def jsonWriter = new JsonWriter(new TestRequestContext())
+    jsonWriter.add("foo", "bar")
 
-    assertThat(jsonWriter.getAsMap()).isEqualTo([foo: "bar"]);
+    assertThat(jsonWriter.getAsMap()).isEqualTo([foo: "bar"])
   }
 
   @Test
   void "should add property if not null"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
-    jsonWriter.addIfNotNull("foo", "not-null-value");
+    def jsonWriter = new JsonWriter(new TestRequestContext())
+    jsonWriter.addIfNotNull("foo", "not-null-value")
 
-    assertThat(jsonWriter.getAsMap()).isEqualTo([foo: "not-null-value"]);
+    assertThat(jsonWriter.getAsMap()).isEqualTo([foo: "not-null-value"])
   }
 
   @Test
   void "should not add property if null"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
-    jsonWriter.addIfNotNull("foo", null);
+    def jsonWriter = new JsonWriter(new TestRequestContext())
+    jsonWriter.addIfNotNull("foo", null)
 
-    assertThat(jsonWriter.getAsMap()).isEqualTo([:]);
+    assertThat(jsonWriter.getAsMap()).isEqualTo([:])
   }
 
   @Test
   void "should add an embedded list"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
+    def jsonWriter = new JsonWriter(new TestRequestContext())
     jsonWriter.addEmbedded("stages", [
       [name: "stage1"],
       [name: "stage2"],
@@ -74,7 +74,7 @@ class JsonWriterTest {
 
   @Test
   void "should add link without named params"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
+    def jsonWriter = new JsonWriter(new TestRequestContext())
     jsonWriter.addLink("self", "/api/foo/bar")
 
     assertThat(jsonWriter.getAsMap()).isEqualTo([_links: [
@@ -84,7 +84,7 @@ class JsonWriterTest {
 
   @Test
   void "should add link with named params"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
+    def jsonWriter = new JsonWriter(new TestRequestContext())
     jsonWriter.addLink("self", "/api/pipelines/\${pipeline_name}/history", [pipeline_name: "foo"])
 
     assertThat(jsonWriter.getAsMap()).isEqualTo([_links: [
@@ -94,7 +94,7 @@ class JsonWriterTest {
 
   @Test
   void "should add doc link"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext());
+    def jsonWriter = new JsonWriter(new TestRequestContext())
     jsonWriter.addDocLink("https://api.gocd.org/current/#agents")
 
     assertThat(jsonWriter.getAsMap()).isEqualTo([_links: [

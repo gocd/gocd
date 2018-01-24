@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ public class ArtifactsService implements ArtifactUrlReader {
             File stageRoot = chooser.findArtifact(stageIdentifier, "");
             File cachedStageRoot = chooser.findCachedArtifact(stageIdentifier);
             deleteFile(cachedStageRoot);
-            boolean didDelete = deleteArtifactsExceptCruiseOutput(stageRoot);
+            boolean didDelete = deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(stageRoot);
 
             if (!didDelete) {
                 LOGGER.error("Artifacts for stage '{}' at path '{}' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath());
@@ -171,7 +171,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
     }
 
-    private boolean deleteArtifactsExceptCruiseOutput(File stageRoot) throws IOException {
+    private boolean deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(File stageRoot) throws IOException {
         File[] jobs = stageRoot.listFiles();
         if (jobs == null) {  // null if security restricted
             throw new IOException("Failed to list contents of " + stageRoot);
@@ -185,7 +185,7 @@ public class ArtifactsService implements ArtifactUrlReader {
                 throw new IOException("Failed to list contents of " + stageRoot);
             }
             for (File artifact : artifacts) {
-                if (artifact.isDirectory() && artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER)) {
+                if (artifact.isDirectory() && (artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER) || artifact.getName().equals(ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER))) {
                     continue;
                 }
                 didDelete &= deleteFile(artifact);

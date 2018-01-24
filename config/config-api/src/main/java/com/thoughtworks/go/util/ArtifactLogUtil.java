@@ -22,16 +22,12 @@ import java.io.File;
 
 public class ArtifactLogUtil {
     public static final String CONSOLE_LOG_FILE_NAME = "console.log";
-    public static final String SERVER_FAILURE_PAGE = "server_failure.html";
     public static final String CRUISE_OUTPUT_FOLDER = "cruise-output";
     public static final String MD5_CHECKSUM_FILENAME = "md5.checksum";
+    public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
 
     public static String getPath(long buildId) {
         return getPath(buildId, CONSOLE_LOG_FILE_NAME);
-    }
-
-    public static String getOutputFolderAndFileName(String fileName) {
-        return getOutputFolderAndFileName(fileName, File.separator);
     }
 
     public static String getConsoleOutputFolderAndFileNameUrl() {
@@ -40,10 +36,6 @@ public class ArtifactLogUtil {
 
     public static String getConsoleOutputFolderAndFileName() {
         return CRUISE_OUTPUT_FOLDER + "/" + CONSOLE_LOG_FILE_NAME;
-    }
-
-    public static String getConsoleLogOutputFolderAndFileName() {
-        return getOutputFolderAndFileName(ArtifactLogUtil.CONSOLE_LOG_FILE_NAME);
     }
 
     private static String getOutputFolderAndFileName(String fileName, String separator) {

@@ -38,6 +38,16 @@ public abstract class AbstractAuthenticationHelper {
         this.goConfigService = goConfigService;
     }
 
+    public void checkUserAnd401(Request req, Response res) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (currentUsername().isAnonymous()) {
+            throw renderUnauthorizedResponse();
+        }
+    }
+
     public void checkAdminUserAnd401(Request req, Response res) {
         if (!securityService.isUserAdmin(currentUsername())) {
             throw renderUnauthorizedResponse();

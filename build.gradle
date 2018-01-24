@@ -552,7 +552,7 @@ task newApi {
 
     def newSettingsFile = settingsFile.readLines().collect { line ->
       if (line =~ /include ':api:/) {
-        def projectNames = (project(':api').subprojects + project(':spark').subprojects).collect { subPrj -> subPrj.path }
+        def projectNames = (project(':api').subprojects).collect { subPrj -> subPrj.path }
         projectNames << ":api:${newProjectName}"
         projectNames.sort(true)
         projectNames.unique(true)
@@ -651,6 +651,8 @@ task newApi {
           @Component
           public class FooController implements SparkSpringController {
             private final FooControllerDelegate delegate;
+            
+            @Autowired
             public FooController() {
               delegate = new FooControllerDelegate();
             }

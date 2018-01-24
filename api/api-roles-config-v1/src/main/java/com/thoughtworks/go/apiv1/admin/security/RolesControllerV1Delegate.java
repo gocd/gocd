@@ -156,7 +156,6 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         return entityHashingService.md5ForEntity(entityFromServer);
     }
 
-    @Override
     public boolean isRenameAttempt(Role fromServer, Role fromRequest) {
         return !fromServer.getName().equals(fromRequest.getName());
     }

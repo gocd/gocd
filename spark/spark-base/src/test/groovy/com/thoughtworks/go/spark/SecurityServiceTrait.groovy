@@ -47,7 +47,6 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(true)
   }
 
-
   void loginAsUser() {
     Username username = loginAsRandomUser()
 

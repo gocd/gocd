@@ -69,6 +69,12 @@
     </rule>
 
     <rule>
+        <name>Spark Current User API</name>
+        <from>^/api/current_users$</from>
+        <to last="true">/spark/api/current_user</to>
+    </rule>
+
+    <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
         <set name="rails_bound">false</set>

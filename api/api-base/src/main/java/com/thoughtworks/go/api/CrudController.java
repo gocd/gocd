@@ -42,8 +42,6 @@ public interface CrudController<Entity> extends ControllerMethods {
         return Objects.equals(etagFromClient, etagFromServer);
     }
 
-    boolean isRenameAttempt(Entity fromServer, Entity fromRequest);
-
     default Entity getEntityFromConfig(String name) {
         Entity entity = doGetEntityFromConfig(name);
         if (entity == null) {

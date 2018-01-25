@@ -66,7 +66,7 @@ public class BuilderFactoryIntegrationTest {
         final PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("up42"));
         goConfigService.artifactStores().add(new ArtifactStore("storeId", "PluginId"));
         pipelineConfig.getStage("up42_stage").jobConfigByConfigName("up42_job").artifactConfigs()
-                .add(new PluggableArtifactConfig("artifactId", "storeId"));
+                .add(new ArtifactConfig("artifactId", "storeId"));
 
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(
                 new CaseInsensitiveString("up42"),

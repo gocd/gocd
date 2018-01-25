@@ -16,12 +16,40 @@
 
 package com.thoughtworks.go.domain;
 
+import com.google.gson.Gson;
+import com.thoughtworks.go.config.ArtifactConfig;
+
+import java.util.HashMap;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public enum ArtifactType {
-    unit,
-    file,
-    plugin;
+    unit {
+        @Override
+        public String toJSON(ArtifactConfig artifactConfig) {
+            final HashMap<String, Object> artifactStoreAsHashMap = new HashMap<>();
+            artifactStoreAsHashMap.put("type", artifactConfig.getArtifactType().name().toLowerCase());
+            artifactStoreAsHashMap.put("src", artifactConfig.getSource());
+            artifactStoreAsHashMap.put("dest", artifactConfig.getDestination());
+            return new Gson().toJson(artifactStoreAsHashMap);
+        }
+    },
+    file {
+        @Override
+        public String toJSON(ArtifactConfig artifactConfig) {
+            return unit.toJSON(artifactConfig);
+        }
+    },
+    plugin {
+        @Override
+        public String toJSON(ArtifactConfig artifactConfig) {
+            final HashMap<String, Object> artifactStoreAsHashMap = new HashMap<>();
+            artifactStoreAsHashMap.put("id", artifactConfig.getId());
+            artifactStoreAsHashMap.put("storeId", artifactConfig.getStoreId());
+            artifactStoreAsHashMap.put("configuration", artifactConfig.getConfigurationAsMap(true));
+            return new Gson().toJson(artifactStoreAsHashMap);
+        }
+    };
 
     public static ArtifactType fromName(String artifactType) {
         try {
@@ -30,6 +58,8 @@ public enum ArtifactType {
             throw bomb("Illegal name in for the artifact type.[" + artifactType + "]", e);
         }
     }
+
+    public abstract String toJSON(ArtifactConfig artifactConfig);
 
     public boolean isTest() {
         return this.equals(unit);

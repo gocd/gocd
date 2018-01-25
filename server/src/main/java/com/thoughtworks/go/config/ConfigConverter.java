@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -483,8 +484,8 @@ public class ConfigConverter {
             }
         }
 
-        if(crJob.getPluggableArtifacts() != null) {
-            for (CRPluggableArtifact crPluggableArtifact: crJob.getPluggableArtifacts()) {
+        if (crJob.getPluggableArtifacts() != null) {
+            for (CRPluggableArtifact crPluggableArtifact : crJob.getPluggableArtifacts()) {
                 artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
             }
         }
@@ -514,15 +515,15 @@ public class ConfigConverter {
 
     public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
         if (crArtifact.getType() == CRArtifactType.test) {
-            return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+            return new ArtifactConfig(ArtifactType.unit, crArtifact.getSource(), crArtifact.getDestination());
         }
-        return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+        return new ArtifactConfig(ArtifactType.file, crArtifact.getSource(), crArtifact.getDestination());
     }
 
-    public PluggableArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
+    public ArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
         Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
         ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
-        return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
+        return new ArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
     }
 
     private Tab toTab(CRTab crTab) {

@@ -325,8 +325,8 @@ public class MagicalGoConfigXmlLoaderTest {
         final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
                 "cardlist", true).artifactConfigs();
         assertThat(cardListArtifacts.size(), is(1));
-        Artifact artifactPlan = cardListArtifacts.get(0);
-        assertThat(artifactPlan.getArtifactType(), is(ArtifactType.unit));
+        ArtifactConfig artifactConfig = cardListArtifacts.get(0);
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.unit));
     }
 
     @Test
@@ -3970,7 +3970,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactConfigs();
 
         assertThat(artifactConfigs, hasSize(1));
-        assertThat(artifactConfigs, contains(new PluggableArtifactConfig("installer", "s3", create("filename", false, "foo.xml"))));
+        assertThat(artifactConfigs, contains(new ArtifactConfig("installer", "s3", create("filename", false, "foo.xml"))));
     }
 
     @Test

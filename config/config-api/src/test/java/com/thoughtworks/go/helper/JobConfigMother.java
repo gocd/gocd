@@ -17,6 +17,7 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.ArtifactType;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -47,8 +48,8 @@ public class JobConfigMother {
         job.setTimeout("100");
         job.setRunInstanceCount(3);
         job.artifactConfigs().clear();
-        job.artifactConfigs().add(new ArtifactConfig("target/dist.jar", "pkg"));
-        job.artifactConfigs().add(new TestArtifactConfig("target/reports/**/*Test.xml", "reports"));
+        job.artifactConfigs().add(new ArtifactConfig(ArtifactType.file, "target/dist.jar", "pkg"));
+        job.artifactConfigs().add(new ArtifactConfig(ArtifactType.unit, "target/reports/**/*Test.xml", "reports"));
         job.addTab("coverage", "Jcoverage/index.html");
         job.addTab("something", "something/path.html");
         job.getProperties().add(new ArtifactPropertyConfig("coverage.class", "target/emma/coverage.xml", "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
@@ -56,7 +57,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig("src", "dest"))));
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig(ArtifactType.file, "src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {
@@ -68,7 +69,7 @@ public class JobConfigMother {
     public static JobConfig jobWithNoResourceRequirement() {
         JobConfig jobConfig = jobConfig();
         jobConfig.setName(UUID.randomUUID().toString());
-        jobConfig.setRunInstanceCount((String)null);
+        jobConfig.setRunInstanceCount((String) null);
         jobConfig.resourceConfigs().clear();
         return jobConfig;
     }

@@ -164,8 +164,8 @@ describe "config_view/templates/_job_view.html.erb" do
 
   it "should render artifacts tab for a job" do
     artifact_plans = ArtifactConfigs.new()
-    artifact_plans.add(ArtifactConfig.new("build-result", "build-output"))
-    test_artifact = TestArtifactConfig.new('test-result', 'test-output')
+    artifact_plans.add(ArtifactConfig.new(ArtifactType::file, "build-result", "build-output"))
+    test_artifact = ArtifactConfig.new(ArtifactType::unit, 'test-result', 'test-output')
     artifact_plans.add(test_artifact)
     job = JobConfig.new(CaseInsensitiveString.new("jobName"), ResourceConfigs.new(), artifact_plans)
     job.addTask(ant_task)

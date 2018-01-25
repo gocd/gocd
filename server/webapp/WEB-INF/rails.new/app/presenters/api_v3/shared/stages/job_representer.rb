@@ -43,8 +43,8 @@ module ApiV3
                    exec_context: :decorator,
                    decorator: Shared::Stages::Tasks::TaskRepresenter,
                    expect_hash: true,
-                   class: lambda { |fragment, *|
-                     Shared::Stages::Tasks::TaskRepresenter.task_class_for_type(fragment[:type]||fragment['type'])
+                   class: lambda {|fragment, *|
+                     Shared::Stages::Tasks::TaskRepresenter.task_class_for_type(fragment[:type] || fragment['type'])
                    }
         collection :tabs,
                    exec_context: :decorator,
@@ -55,9 +55,7 @@ module ApiV3
                    exec_context: :decorator,
                    decorator: Shared::Stages::ArtifactRepresenter,
                    expect_hash: true,
-                   class: lambda { |fragment, *|
-                     Shared::Stages::ArtifactRepresenter.get_class_for_artifact_type(fragment[:type] || fragment['type'])
-                   }
+                   class: com.thoughtworks.go.config.ArtifactConfig
 
         collection :properties, exec_context: :decorator, decorator: Shared::Stages::PropertyConfigRepresenter, class: com.thoughtworks.go.config.ArtifactPropertyConfig, render_empty: false
 
@@ -122,7 +120,7 @@ module ApiV3
         end
 
         def resources=(values)
-          job.setResourceConfigs(ResourceConfigs.new(values.map { |name| ResourceConfig.new(name) }))
+          job.setResourceConfigs(ResourceConfigs.new(values.map {|name| ResourceConfig.new(name)}))
         end
 
         def tasks

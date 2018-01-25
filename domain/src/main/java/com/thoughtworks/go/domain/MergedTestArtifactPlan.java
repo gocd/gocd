@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 
 import java.util.Iterator;
 
-import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
+import static com.thoughtworks.go.config.ArtifactConfig.TEST_OUTPUT_FOLDER;
 
 public class MergedTestArtifactPlan extends ArtifactPlan {
     public MergedTestArtifactPlan(ArtifactPlan artifactPlan) {

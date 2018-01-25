@@ -75,7 +75,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
             final PathFromAncestor pipelineNamePathFromAncestor = getPipelineNamePathFromAncestor();
             final PipelineConfig pipelineConfig = validationContext.getPipelineConfigByName(pipelineNamePathFromAncestor.getAncestorName());
             final JobConfig jobConfig = pipelineConfig.getStage(getStage()).jobConfigByConfigName(getJob());
-            final PluggableArtifactConfig pluggableArtifactConfig = jobConfig.artifactConfigs().findByArtifactId(artifactId);
+            final ArtifactConfig pluggableArtifactConfig = jobConfig.artifactConfigs().findByArtifactId(artifactId);
 
             if (pluggableArtifactConfig == null) {
                 addError("artifactId", format("Pluggable artifact with id `%s` does not exist in [%s/%s/%s].", artifactId, pipelineNamePathFromAncestor.getAncestorName(), getStage(), getJob()));

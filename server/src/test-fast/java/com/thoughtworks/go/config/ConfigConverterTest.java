@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -804,7 +805,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
-        PluggableArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId"));
+        ArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId"));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -813,7 +814,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
-        PluggableArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("filename", "who-cares")));
+        ArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("filename", "who-cares")));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -834,7 +835,7 @@ public class ConfigConverterTest {
         assertThat(jobConfig.hasVariable("key"), is(true));
         assertThat(jobConfig.getTabs().first().getName(), is("tabname"));
         assertThat(jobConfig.resourceConfigs(), hasItem(new ResourceConfig("resource1")));
-        assertThat(jobConfig.artifactConfigs(), hasItem(new ArtifactConfig("src", "dest")));
+        assertThat(jobConfig.artifactConfigs(), hasItem(new ArtifactConfig(ArtifactType.file, "src", "dest")));
         assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertyConfig("name", "src", "path")));
         assertThat(jobConfig.isRunOnAllAgents(), is(false));
         assertThat(jobConfig.getRunInstanceCount(), is("5"));

@@ -28,8 +28,8 @@ describe Admin::JobsController, "view" do
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["job-1", "job-2"].to_java(java.lang.String))
-      @artifact1 = ArtifactConfig.new('src', 'dest')
-      @artifact2 = ArtifactConfig.new('src2', 'dest2')
+      @artifact1 = ArtifactConfig.new(ArtifactType::file, 'src', 'dest')
+      @artifact2 = ArtifactConfig.new(ArtifactType::file, 'src2', 'dest2')
       @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact1)
       @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact2)
 
@@ -43,7 +43,7 @@ describe Admin::JobsController, "view" do
 
     describe "edit settings" do
       it "should display 'Job Name' " do
-        get :edit, :stage_parent=> "pipelines", :current_tab => "settings", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, :stage_parent => "pipelines", :current_tab => "settings", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("input[name='job[name]']")
       end
@@ -53,9 +53,9 @@ describe Admin::JobsController, "view" do
       include FormUI
 
       it "should display artifacts title, instruction and list of artifacts" do
-        get :edit,:stage_parent=> "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, :stage_parent => "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
         expect(response.status).to eq(200)
-        expect(response.body).to have_selector("h3", :text=>"Artifacts")
+        expect(response.body).to have_selector("h3", :text => "Artifacts")
 
         Capybara.string(response.body).find("table[class='artifact']").tap do |table|
           expect(table).to have_selector("input[class='form_input artifact_source'][value='src']")
@@ -63,8 +63,8 @@ describe Admin::JobsController, "view" do
           expect(table).to have_selector("input[class='form_input artifact_source'][value='src2']")
           expect(table).to have_selector("input[class='form_input artifact_destination'][value='dest2']")
           table.all("select[class='small']").tap do |select|
-            expect(select[0]).to have_selector("option",:text=>"Test Artifact")
-            expect(select[0]).to have_selector("option",:text=>"Build Artifact")
+            expect(select[0]).to have_selector("option", :text => "Test Artifact")
+            expect(select[0]).to have_selector("option", :text => "Build Artifact")
           end
         end
       end
@@ -74,15 +74,15 @@ describe Admin::JobsController, "view" do
         error.add(ArtifactConfig::DEST, "Dest is wrong")
         set(@artifact1, "errors", error)
 
-        get :edit, :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, :stage_parent => "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
 
         expect(response.status).to eq(200)
-        expect(response.body).to have_selector("h3", :text=>"Artifacts")
+        expect(response.body).to have_selector("h3", :text => "Artifacts")
         Capybara.string(response.body).find("table[class='artifact']").tap do |table|
           expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_source'][value='src']")
-          expect(table).to have_selector("div.form_error", :text=>"Source is wrong")
+          expect(table).to have_selector("div.form_error", :text => "Source is wrong")
           expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_destination'][value='dest']")
-          expect(table).to have_selector("div.form_error", :text=>"Dest is wrong")
+          expect(table).to have_selector("div.form_error", :text => "Dest is wrong")
         end
       end
     end

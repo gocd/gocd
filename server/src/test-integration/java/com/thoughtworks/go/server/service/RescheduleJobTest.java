@@ -132,7 +132,7 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void rescheduleHungBuildShouldScheduleNewBuild()  {
+    public void rescheduleHungBuildShouldScheduleNewBuild() {
         JobInstance hungJob = stage.getJobInstances().get(0);
         dbHelper.getBuildInstanceDao().save(stage.getId(), hungJob);
         scheduleService.rescheduleJob(hungJob);
@@ -150,11 +150,11 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void shouldRescheduleBuildAlongWithAssociatedEntitiesCorrectly()  {
+    public void shouldRescheduleBuildAlongWithAssociatedEntitiesCorrectly() {
         dbHelper.cancelStage(stage);
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig("s1", "d1"), new ArtifactConfig("s2", "d2")));
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig(ArtifactType.file, "s1", "d1"), new ArtifactConfig(ArtifactType.file, "s2", "d2")));
         ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig(new ArtifactPropertyConfig("n1", "s1", "x1"), new ArtifactPropertyConfig("n2", "s2", "x2"));
         configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesConfig);
 

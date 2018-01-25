@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
+import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -45,7 +45,7 @@ public class ArtifactMessageConverterV1Test {
     public void publishArtifactMessage_shouldSerializeToJson() throws JSONException {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
-        final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
+        final ArtifactPlan artifactPlan = new ArtifactPlan(new ArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
 
         final String publishArtifactMessage = converter.publishArtifactMessage(artifactPlan, artifactStore, "/temp");
 

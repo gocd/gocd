@@ -106,16 +106,6 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void testShouldProvideTheDefaultArtifactsConfigMappings() {
-        List<Class<? extends Artifact>> artifacts = new ArrayList<>();
-        artifacts.add(TestArtifactConfig.class);
-        artifacts.add(ArtifactConfig.class);
-        artifacts.add(PluggableArtifactConfig.class);
-
-        assertThat(registry.implementersOf(Artifact.class), is(artifacts));
-    }
-
-    @Test
     public void testShouldProvideTheDefaultOutputMatcherConfigMappings() {
         List<Class<? extends OutputMatcher>> outputMatchers = new ArrayList<>();
         outputMatchers.add(BuildOutputMatcher.class);

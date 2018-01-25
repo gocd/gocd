@@ -37,10 +37,10 @@ public class StageConfigMother {
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig(ArtifactType.unit, "junit", "junit")))
         );
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig(ArtifactType.unit, "junit", "junit")))
         );
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
         return stageConfig(stageName, jobConfigs);
@@ -50,7 +50,7 @@ public class StageConfigMother {
         return new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs());
     }
 
-   public static StageConfig stageConfig(String stageName, JobConfigs jobConfigs) {
+    public static StageConfig stageConfig(String stageName, JobConfigs jobConfigs) {
         return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
     }
 
@@ -58,11 +58,11 @@ public class StageConfigMother {
         return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
     }
 
-    public static StageConfig custom(String stageName, String ... buildNames) {
+    public static StageConfig custom(String stageName, String... buildNames) {
         return new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames));
     }
 
-    public static StageConfig custom(String stageName, boolean artifactCleanupProhibited, String ... buildNames) {
+    public static StageConfig custom(String stageName, boolean artifactCleanupProhibited, String... buildNames) {
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames));
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", artifactCleanupProhibited);
         return stageConfig;
@@ -101,15 +101,15 @@ public class StageConfigMother {
     public static StageConfig stageConfigWithParams(String stageName, String paramName) {
         StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
         ArrayList<EnvironmentVariableConfig> environmentVariableConfigs = new ArrayList<>();
-        environmentVariableConfigs.add(new EnvironmentVariableConfig("env1", "#{" +paramName+ "}"));
+        environmentVariableConfigs.add(new EnvironmentVariableConfig("env1", "#{" + paramName + "}"));
         stageConfig.setVariables(new EnvironmentVariablesConfig(environmentVariableConfigs));
         stageConfig.getJobs().add(JobConfigMother.jobConfig());
         return stageConfig;
     }
 
-    public static StageConfig stageConfigWithArtifact(String stageName, String jobName , ArtifactType artifactType){
+    public static StageConfig stageConfigWithArtifact(String stageName, String jobName, ArtifactType artifactType) {
         ArtifactConfigs artifactConfigsWithTests = new ArtifactConfigs();
-        artifactConfigsWithTests.add(ArtifactConfig.create(artifactType, "src", "dest"));
+        artifactConfigsWithTests.add(new ArtifactConfig(artifactType, "src", "dest"));
         JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs("abc"), artifactConfigsWithTests);
         StageConfig stage = new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
         return stage;

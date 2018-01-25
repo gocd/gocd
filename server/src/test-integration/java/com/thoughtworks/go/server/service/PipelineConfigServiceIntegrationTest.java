@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
@@ -371,7 +372,7 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactConfig artifactConfig = new ArtifactConfig("", "/foo");
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.file, "", "/foo");
         artifactConfigs.add(artifactConfig);
         jobConfig.setArtifactConfigs(artifactConfigs);
 

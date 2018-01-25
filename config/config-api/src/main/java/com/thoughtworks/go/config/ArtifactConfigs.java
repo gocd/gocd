@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
@@ -23,19 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.ArtifactConfig.TEST_OUTPUT_FOLDER;
+
 @ConfigTag("artifacts")
-@ConfigCollection(Artifact.class)
-public class ArtifactConfigs extends BaseCollection<Artifact> implements Validatable, ParamsAttributeAware {
+@ConfigCollection(ArtifactConfig.class)
+public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements Validatable, ParamsAttributeAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public ArtifactConfigs() {
     }
 
-    public ArtifactConfigs(List<Artifact> artifactConfigs) {
+    public ArtifactConfigs(List<ArtifactConfig> artifactConfigs) {
         super(artifactConfigs);
     }
 
-    public ArtifactConfigs(Artifact... artifactConfigs) {
+    public ArtifactConfigs(ArtifactConfig... artifactConfigs) {
         super(artifactConfigs);
     }
 
@@ -43,14 +46,14 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 
-        for (Artifact artifact : this) {
+        for (ArtifactConfig artifact : this) {
             isValid = artifact.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
 
-    public PluggableArtifactConfig findByArtifactId(String artifactId) {
-        for (PluggableArtifactConfig artifact : getPluggableArtifactConfigs()) {
+    public ArtifactConfig findByArtifactId(String artifactId) {
+        for (ArtifactConfig artifact : getPluggableArtifactConfigs()) {
             if (artifact.getId().equals(artifactId)) {
                 return artifact;
             }
@@ -59,9 +62,9 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
     }
 
     public void validate(ValidationContext validationContext) {
-        List<Artifact> plans = new ArrayList<>();
-        for (Artifact artifact : this) {
-            artifact.validateUniqueness(plans);
+        List<ArtifactConfig> artifactConfigs = new ArrayList<>();
+        for (ArtifactConfig artifact : this) {
+            artifact.validateUniqueness(artifactConfigs);
         }
     }
 
@@ -87,29 +90,29 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
             }
             String type = (String) attrMap.get("artifactTypeValue");
 
-            if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type)) {
-                this.add(new TestArtifactConfig(source, destination));
+            if (TEST_OUTPUT_FOLDER.equals(type)) {
+                this.add(new ArtifactConfig(ArtifactType.unit, source, destination));
             } else {
-                this.add(new ArtifactConfig(source, destination));
+                this.add(new ArtifactConfig(ArtifactType.file, source, destination));
             }
         }
     }
 
     public List<ArtifactConfig> getArtifactConfigs() {
         final List<ArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (Artifact artifact : this) {
-            if (artifact instanceof ArtifactConfig) {
-                artifactConfigs.add((ArtifactConfig) artifact);
+        for (ArtifactConfig artifact : this) {
+            if (artifact.getArtifactType() != ArtifactType.plugin) {
+                artifactConfigs.add(artifact);
             }
         }
         return artifactConfigs;
     }
 
-    public List<PluggableArtifactConfig> getPluggableArtifactConfigs() {
-        final List<PluggableArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (Artifact artifact : this) {
-            if (artifact instanceof PluggableArtifactConfig) {
-                artifactConfigs.add((PluggableArtifactConfig) artifact);
+    public List<ArtifactConfig> getPluggableArtifactConfigs() {
+        final List<ArtifactConfig> artifactConfigs = new ArrayList<>();
+        for (ArtifactConfig artifact : this) {
+            if (artifact.getArtifactType() == ArtifactType.plugin) {
+                artifactConfigs.add(artifact);
             }
         }
         return artifactConfigs;

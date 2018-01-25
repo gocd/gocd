@@ -21,29 +21,29 @@ module ApiV4
         alias_method :artifact, :represented
 
         error_representer({"src" => "source", "dest" => "destination"})
-
         ARTIFACT_TYPE_TO_STRING_TYPE_MAP = {
           ArtifactType::unit => 'test',
           ArtifactType::file => 'build'
         }
 
-        ARTIFACT_TYPE_TO_ARTIFACT_CLASS_MAP = {
-          'test' => TestArtifactConfig,
-          'build' => ArtifactConfig
+        STRING_TYPE_TO_ARTIFACT_TYPE_MAP = {
+          'test' => ArtifactType::unit,
+          'build' => ArtifactType::file
         }
 
         property :source
         property :destination
-        property :type, exec_context: :decorator, skip_parse: true
+        property :type, exec_context: :decorator
 
         def type
           ARTIFACT_TYPE_TO_STRING_TYPE_MAP[artifact.getArtifactType]
         end
 
-        class << self
-          def get_class_for_artifact_type(type)
-            ARTIFACT_TYPE_TO_ARTIFACT_CLASS_MAP[type] || (raise UnprocessableEntity, "Invalid Artifact type: '#{type}'. It has to be one of #{ARTIFACT_TYPE_TO_ARTIFACT_CLASS_MAP.keys.join(', ')}")
+        def type=(value)
+          unless (value == 'build' || value == 'test')
+            raise UnprocessableEntity, "Invalid Artifact type: '#{value}'. It has to be one of test, build"
           end
+          artifact.setArtifactType(STRING_TYPE_TO_ARTIFACT_TYPE_MAP[value])
         end
       end
     end

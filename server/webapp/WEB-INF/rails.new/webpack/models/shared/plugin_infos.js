@@ -61,7 +61,7 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, status, pluginFileLocation, bundledPlugin, extensions}) {
+PluginInfos.PluginInfo = function (type, {about, bundledPlugin, extensions, id, imageUrl, pluginFileLocation, pluginSettings, status}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);
@@ -97,14 +97,14 @@ PluginInfos.PluginInfo.ConfigRepo = function (data) {
 };
 
 PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ConfigRepo({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
 });
 
 PluginInfos.PluginInfo.Notification = function (data) {
@@ -112,14 +112,14 @@ PluginInfos.PluginInfo.Notification = function (data) {
 };
 
 PluginInfos.PluginInfo.Notification.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Notification({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
 });
 
 PluginInfos.PluginInfo.PackageRepository = function (data) {
@@ -130,16 +130,16 @@ PluginInfos.PluginInfo.PackageRepository = function (data) {
 };
 
 PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInfos.PluginInfo.PackageRepository({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
+  bundledPlugin:      data.bundled_plugin,
+  extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
   pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
   packageSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].package_settings")),
   repositorySettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].repository_settings")),
-  imageUrl:           _.get(data, '_links.image.href'),
-  extensions:         data.extensions,
 });
 
 PluginInfos.PluginInfo.Task = function (data) {
@@ -149,14 +149,15 @@ PluginInfos.PluginInfo.Task = function (data) {
 };
 
 PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Task({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  taskSettings:       PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].task_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+
+  taskSettings:       PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].task_settings),
 });
 
 PluginInfos.PluginInfo.SCM = function (data) {
@@ -166,92 +167,99 @@ PluginInfos.PluginInfo.SCM = function (data) {
 };
 
 PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.SCM({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
-  scmSettings:        PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].scm_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  scmSettings:        PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].scm_settings),
 });
 
 PluginInfos.PluginInfo.Authorization = function (data) {
   PluginInfos.PluginInfo.call(this, "authorization", data);
 
   this.authConfigSettings = Stream(data.authConfigSettings);
-  this.roleSettings       = Stream(data.roleSettings);
   this.capabilities       = Stream(data.capabilities);
+  this.roleSettings       = Stream(data.roleSettings);
 };
 
 PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authorization({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  authConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].auth_config_settings")),
-  roleSettings:       PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].role_settings")),
-  capabilities:       AuthorizationPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+
+  authConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].auth_config_settings")),
+  capabilities:       AuthorizationPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
+  roleSettings:       PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].role_settings")),
 });
 
 PluginInfos.PluginInfo.ElasticAgent = function (data) {
   PluginInfos.PluginInfo.call(this, "elastic-agent", data);
-  this.profileSettings = Stream(data.profileSettings);
+
   this.capabilities    = Stream(data.capabilities);
+  this.profileSettings = Stream(data.profileSettings);
 };
 
 PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ElasticAgent({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
-  profileSettings:    PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].profile_settings),
-  capabilities:       ElasticPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+
+  capabilities:       ElasticPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
+  profileSettings:    PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].profile_settings),
 });
 
 PluginInfos.PluginInfo.Artifact = function (data) {
   PluginInfos.PluginInfo.call(this, "artifact", data);
-  this.storeConfigSettings    = Stream(data.storeConfigSettings);
+
   this.artifactConfigSettings = Stream(data.artifactConfigSettings);
   this.fetchArtifactSettings  = Stream(data.fetchArtifactSettings);
+  this.storeConfigSettings    = Stream(data.storeConfigSettings);
 };
 
 PluginInfos.PluginInfo.Artifact.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Artifact({
-  id:                     data.id,
-  status:                 PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation:     data.plugin_file_location,
-  bundledPlugin:          data.bundled_plugin,
   about:                  About.fromJSON(data.about),
-  storeConfigSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].store_config_settings")),
+  bundledPlugin:          data.bundled_plugin,
+  extensions:             data.extensions,
+  id:                     data.id,
+  imageUrl:               _.get(data, '_links.image.href'),
+  pluginFileLocation:     data.plugin_file_location,
+  status:                 PluginInfos.PluginInfo.Status.fromJSON(data.status),
+
   artifactConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].artifact_config_settings")),
   fetchArtifactSettings:  PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].fetch_artifact_settings")),
-  imageUrl:               _.get(data, '_links.image.href'),
-  extensions:             data.extensions,
+  storeConfigSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].store_config_settings")),
 });
 
 PluginInfos.PluginInfo.Analytics = function (data) {
   PluginInfos.PluginInfo.call(this, "analytics", data);
+
   this.capabilities    = Stream(data.capabilities);
 };
 
 PluginInfos.PluginInfo.Analytics.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Analytics({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
-  capabilities:       AnalyticsPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
-  imageUrl:           _.get(data, '_links.image.href'),
+  bundledPlugin:      data.bundled_plugin,
   extensions:         data.extensions,
+  id:                 data.id,
+  imageUrl:           _.get(data, '_links.image.href'),
+  pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].plugin_settings),
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+
+  capabilities:       AnalyticsPluginCapabilities.fromJSON(_.get(data, "extensions[0].capabilities")),
 });
 
 PluginInfos.PluginInfo.Bad = function (data) {
@@ -260,12 +268,12 @@ PluginInfos.PluginInfo.Bad = function (data) {
 
 PluginInfos.PluginInfo.Bad.fromJSON = function (data) {
   return new PluginInfos.PluginInfo.Bad({
-    id:                 data.id,
-    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-    pluginFileLocation: data.plugin_file_location,
-    bundledPlugin:      data.bundled_plugin,
     about:              About.fromJSON(data.about),
+    bundledPlugin:      data.bundled_plugin,
     extensions:         data.extensions,
+    id:                 data.id,
+    pluginFileLocation: data.plugin_file_location,
+    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
   });
 };
 

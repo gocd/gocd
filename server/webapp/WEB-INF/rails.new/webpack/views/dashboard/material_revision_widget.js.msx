@@ -23,7 +23,7 @@ const PipelineModificationWidget = (modification) => {
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
       </div>
       <div class="item comment">
-        <a href={`${window.location.origin}/go/pipelines/${modification.revision}/pipeline`}>
+        <a href={`/go/pipelines/${modification.revision}/pipeline`}>
           {modification.pipelineLabel}
         </a>
       </div>
@@ -40,8 +40,8 @@ const SCMModificationWidget = (modification) => {
     </div>
     <div class="item comment"><p>{modification.comment}</p></div>
     <div class="item revision">
-      <span class="revision-id wrapped_word">{modification.revision}</span> - <span><a
-      href={modification.vsmPath}> VSM </a></span>
+      <span class="revision-id wrapped_word">{modification.revision}</span> -
+      <span><a href={modification.vsmPath}> VSM </a></span>
     </div>
   </div>);
 };

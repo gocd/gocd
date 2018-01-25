@@ -33,7 +33,6 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_user_a_template_admin?).and_return(false)
     allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
-    allow(view).to receive(:is_plugin_spa_toggle_enabled?).and_return(false)
     class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
@@ -68,57 +67,6 @@ describe "/layouts/admin" do
     assign(:config_valid, false)
     render :inline => '<div>content</div>', :layout => @layout_name
     expect(response.body).to have_selector(".flash p.warning", "Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).")
-  end
-
-  describe "plugins" do
-    before(:each) do
-      assign(:tab_name, "plugins-listing")
-    end
-
-    it "should show plugins listing page if plugins are enabled" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        tab.find("li#plugins-listing-tab-button") do |li|
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
-        end
-      end
-    end
-
-    it "should show plugins listing page if plugins are enabled and user is admin" do
-      allow(view).to receive(:is_user_an_admin?).and_return(true)
-
-      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        tab.find("li#plugins-listing-tab-button") do |li|
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
-        end
-      end
-    end
-
-    it "should show plugins listing page if plugins are enabled and user is group admin" do
-      allow(view).to receive(:is_user_an_admin?).and_return(false)
-      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
-
-      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        tab.find("li#plugins-listing-tab-button") do |li|
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
-        end
-      end
-    end
-
-    it "should not show plugins listing page if plugins are enabled and user is neither an admin nor a group admin" do
-      allow(view).to receive(:is_user_an_admin?).and_return(false)
-      allow(view).to receive(:is_user_a_group_admin?).and_return(false)
-
-      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        expect(tab).to_not have_selector("li#plugins-listing-tab-button")
-      end
-    end
   end
 
   describe "user-summary" do

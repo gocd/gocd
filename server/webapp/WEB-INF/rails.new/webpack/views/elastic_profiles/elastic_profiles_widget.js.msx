@@ -278,7 +278,7 @@ const ElasticProfilesWidget = {
                 pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
                 pluginNameLabel = (<label className="medium-4 column plugin-name">{pluginInfo.about().name()}</label>);
 
-                if (pluginInfo.capabilities() && pluginInfo.capabilities().supportsStatusReport()) {
+                if (pluginInfo.extensions()['elastic-agent'].capabilities() && pluginInfo.extensions()['elastic-agent'].capabilities().supportsStatusReport()) {
                   statusReportButton = (
                     <f.link class="button plugin-status end" href={`status_reports/${pluginId}`}>Status Report</f.link>);
                 }

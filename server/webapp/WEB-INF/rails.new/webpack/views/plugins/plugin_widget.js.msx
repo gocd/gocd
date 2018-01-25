@@ -48,7 +48,8 @@ const PluginWidget = {
       image = <span class="unknown-plugin-icon"/>;
     }
 
-    const statusReport = pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport();
+    let elasticAgentExtensionInfo = pluginInfo.extensions() && pluginInfo.extensions()['elastic-agent'];
+    const statusReport = elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities() && elasticAgentExtensionInfo.capabilities().supportsStatusReport();
     const settingsIcon = pluginInfo.supportsPluginSettings();
 
     actionIcons = (<div class="plugin-actions">

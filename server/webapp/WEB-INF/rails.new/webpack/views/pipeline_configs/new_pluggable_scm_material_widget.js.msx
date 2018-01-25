@@ -64,7 +64,7 @@ const ScmConfigModalBody = {
           </f.column>
         </f.row>
         <f.row collapse>
-          <AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().scmSettings}
+          <AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().extensions().scm.scmSettings}
                          configuration={vnode.attrs.scm.configuration}
                          key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>
         </f.row>

@@ -71,6 +71,60 @@ describe("PluginsWidget", () => {
     ]
   };
 
+  const elasticAgentPluginInfoJSON = {
+    "id":             "cd.go.contrib.elastic-agent.docker",
+    "status":         {
+      "state": "active"
+    },
+    "about":          {
+      "name":                     "Docker Elastic Agent Plugin",
+      "version":                  "0.6.1",
+      "target_go_version":        "16.12.0",
+      "description":              "Docker Based Elastic Agent Plugins for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    "extensions": [
+      {
+        "type": "elastic-agent",
+        "plugin_settings":  {
+          "configurations": [
+            {
+              "key":      "instance_type",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "elastic agent plugin settings view"
+          }
+        },
+        "profile_settings": {
+          "configurations": [
+            {
+              "key":      "Image",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": 'elastic-profile-view'
+          }
+        },
+        "capabilities":     {
+          "supports_status_report": true
+        }
+      }
+    ]
+  };
+
   describe('functionality', () => {
     const pluginSettingJSON = {
       "plugin_id":     "github.oauth.login",
@@ -86,59 +140,6 @@ describe("PluginsWidget", () => {
       ]
     };
 
-    const elasticAgentPluginInfoJSON = {
-      "id":             "cd.go.contrib.elastic-agent.docker",
-      "status":         {
-        "state": "active"
-      },
-      "about":          {
-        "name":                     "Docker Elastic Agent Plugin",
-        "version":                  "0.6.1",
-        "target_go_version":        "16.12.0",
-        "description":              "Docker Based Elastic Agent Plugins for GoCD",
-        "target_operating_systems": [],
-        "vendor":                   {
-          "name": "GoCD Contributors",
-          "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
-        }
-      },
-      "extensions": [
-        {
-          "type": "elastic-agent",
-          "plugin_settings":  {
-            "configurations": [
-              {
-                "key":      "instance_type",
-                "metadata": {
-                  "secure":   false,
-                  "required": true
-                }
-              }
-            ],
-            "view":           {
-              "template": "elastic agent plugin settings view"
-            }
-          },
-          "profile_settings": {
-            "configurations": [
-              {
-                "key":      "Image",
-                "metadata": {
-                  "secure":   false,
-                  "required": true
-                }
-              }
-            ],
-            "view":           {
-              "template": 'elastic-profile-view'
-            }
-          },
-          "capabilities":     {
-            "supports_status_report": true
-          }
-        }
-      ]
-    };
 
     const githubAuthPluginInfoJSON = {
       "id":                   "github.oauth.login",
@@ -339,7 +340,7 @@ describe("PluginsWidget", () => {
   });
 
   describe('for an admin', () => {
-    const allPluginInfosJSON = [configRepoPluginInfoJSON];
+    const allPluginInfosJSON = [configRepoPluginInfoJSON, elasticAgentPluginInfoJSON];
     const pluginInfos        = Stream(PluginInfos.fromJSON([]));
     const isUserAnAdmin      = Stream('true' === 'true');
 
@@ -368,7 +369,11 @@ describe("PluginsWidget", () => {
       expect($root.find('.plugin-actions')).toContainElement('a.edit-plugin');
     });
 
-
+    it("should show status report button for admin", () => {
+      let pluginWithStatusReport = $root.find('.plugin .plugin-actions a.status-report-btn').parents('.plugin');
+      expect(pluginWithStatusReport.find('.plugin-name')).toContainText(elasticAgentPluginInfoJSON.about.name);
+      expect(pluginWithStatusReport.find('.plugin-name')).not.toContainText(configRepoPluginInfoJSON.about.name);
+    });
   });
 
   describe('for a non-admin', () => {

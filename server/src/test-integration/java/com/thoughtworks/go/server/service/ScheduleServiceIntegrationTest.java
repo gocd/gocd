@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -87,8 +86,6 @@ public class ScheduleServiceIntegrationTest {
     private PipelineService pipelineService;
     @Autowired
     private ScheduleService scheduleService;
-    @Autowired
-    private PipelineScheduledTopic pipelineScheduledTopic;
     @Autowired
     private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired
@@ -327,27 +324,6 @@ public class ScheduleServiceIntegrationTest {
         JobInstance instance = jobInstanceService.buildById(firstJob.getId());
         assertThat(instance.getState(), is(JobState.Completed));
         assertThat(instance.getResult(), is(JobResult.Cancelled));
-    }
-
-    @Test
-    public void shouldSendMessageWhenScheduled() throws Exception {
-        evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, JOB_NAME);
-        autoSchedulePipelines("mingle", "evolve");
-        PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
-        assertThat(goConfigService.stageConfigNamed("mingle", "dev"), is(notNullValue()));
-
-        Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("test")));
-        assertEquals(NullStage.class, cruise.getClass());
-
-        String dir = goConfigDao.load().server().artifactsDir();
-        new File(dir).mkdirs();
-
-        TestGoMessageListener listener = new TestGoMessageListener();
-        pipelineScheduledTopic.addListener(listener);
-
-        autoSchedulePipelines("cruise");
-
-        listener.waitForMessage(PipelineScheduledMessageMatchers.messageForPipelineNamed("cruise"));
     }
 
     @Test //#6826

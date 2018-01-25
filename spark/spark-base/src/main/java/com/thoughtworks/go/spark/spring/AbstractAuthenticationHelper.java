@@ -38,6 +38,16 @@ public abstract class AbstractAuthenticationHelper {
         this.goConfigService = goConfigService;
     }
 
+    public void checkUserAnd401(Request req, Response res) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (currentUsername().isAnonymous()) {
+            throw renderUnauthorizedResponse();
+        }
+    }
+
     public void checkAdminUserAnd401(Request req, Response res) {
         if (!securityService.isUserAdmin(currentUsername())) {
             throw renderUnauthorizedResponse();
@@ -80,5 +90,15 @@ public abstract class AbstractAuthenticationHelper {
 
     protected CaseInsensitiveString currentUserLoginName() {
         return currentUsername().getUsername();
+    }
+
+    public void checkAnyAdminUserAnd401(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
+            throw renderUnauthorizedResponse();
+        }
     }
 }

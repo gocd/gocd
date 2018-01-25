@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 const m               = require('mithril');
 const _               = require('lodash');
+const $               = require('jquery');
 const f               = require('helpers/form_helper');
-const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const PipelineWidget  = require('views/dashboard/pipeline_widget');
 
@@ -25,17 +25,27 @@ const DashboardWidget = {
   oninit(vnode) {
     ComponentMixins.HasViewModel.call(this);
 
+    const attachClickEventToBody = () => {
+      const body = $("body");
+      body.click(() => {
+        vnode.attrs.vm.dropdown.hideAllDropDowns();
+        m.redraw();
+      });
+    };
+
+    attachClickEventToBody();
     this.getPipelinesGroupView = (pipelineGroup, _index) => {
-      const pipelines = _.map(pipelineGroup.pipelines(), (pipelineName) => {
+      const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
-          <PipelineWidget pipeline={Stream(vnode.attrs.dashboard().findPipeline(pipelineName))}/>
+          <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
+                          dropdown={vnode.attrs.vm.dropdown}/>
         );
       });
 
       return (
         <div class="pipeline-group-wrapper">
           <div class="pipeline-group">
-            <h2 class="pipeline-group-title"> {pipelineGroup.name()}</h2>
+            <h2 class="pipeline-group-title"> {pipelineGroup.name}</h2>
             <div>
               {pipelines}
             </div>
@@ -46,11 +56,11 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const dashboard  = vnode.attrs.dashboard();
+    const dashboard  = vnode.attrs.dashboard;
     const groupsView = _.map(dashboard.getPipelineGroups(), vnode.state.getPipelinesGroupView);
 
     return (
-      <div>
+      <div class="pipeline_wrapper">
         <div class="header-panel">
           <header class="page-header">
             <f.row>Pipelines</f.row>

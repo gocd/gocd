@@ -19,10 +19,12 @@ package com.thoughtworks.go.spark
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.i18n.Localizer
 import com.thoughtworks.go.spark.mocks.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
 import spark.servlet.SparkFilter
 
+import javax.servlet.Filter
 import javax.servlet.FilterConfig
 
 import static org.mockito.ArgumentMatchers.any
@@ -31,9 +33,8 @@ import static org.mockito.Mockito.*
 
 trait ControllerTrait<T extends SparkController> {
 
-  FilterConfig filterConfig
   private T controller
-  TestSparkPreFilter testSparkPreFilter
+  Filter prefilter
   MockHttpServletRequest request
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext()
@@ -105,13 +106,6 @@ trait ControllerTrait<T extends SparkController> {
   }
 
   void sendRequest(String httpVerb, String path, Map<String, String> headers, Object requestBody) {
-    filterConfig = mock(FilterConfig.class)
-
-
-    when(filterConfig.getInitParameter(SparkFilter.APPLICATION_CLASS_PARAM)).thenReturn(TestApplication.class.getName())
-    testSparkPreFilter = new TestSparkPreFilter(new TestApplication(controller))
-    testSparkPreFilter.init(filterConfig)
-
     HttpRequestBuilder builder = HttpRequestBuilder."${httpVerb.toUpperCase()}"(path).withHeaders(headers)
 
     if (requestBody != null) {
@@ -123,14 +117,19 @@ trait ControllerTrait<T extends SparkController> {
     }
 
     request = builder.build()
-
     response = new MockHttpServletResponse()
 
-    try {
-      testSparkPreFilter.doFilter(request, response, null)
-    } finally {
-      testSparkPreFilter.destroy()
+    getPrefilter().doFilter(request, response, null)
+  }
+
+  private Filter getPrefilter() {
+    if (prefilter == null) {
+      def filterConfig = mock(FilterConfig.class)
+      when(filterConfig.getInitParameter(SparkFilter.APPLICATION_CLASS_PARAM)).thenReturn(TestApplication.class.getName())
+      prefilter = new TestSparkPreFilter(new TestApplication(controller))
+      prefilter.init(filterConfig)
     }
+    return prefilter
   }
 
   T getController() {
@@ -151,5 +150,10 @@ trait ControllerTrait<T extends SparkController> {
     when(localizer.localize(any() as String, anyVararg())).then({ InvocationOnMock invocation ->
       return invocation.getArguments().first()
     })
+  }
+
+  @AfterEach
+  void destroyPrefilter() {
+    getPrefilter().destroy()
   }
 }

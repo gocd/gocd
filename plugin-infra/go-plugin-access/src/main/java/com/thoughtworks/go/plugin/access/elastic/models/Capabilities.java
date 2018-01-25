@@ -41,7 +41,7 @@ public class Capabilities {
         return GSON.fromJson(json, Capabilities.class);
     }
 
-    public com.thoughtworks.go.plugin.domain.elastic.Capabilities toCapabilites() {
+    public com.thoughtworks.go.plugin.domain.elastic.Capabilities toCapabilities() {
         return new com.thoughtworks.go.plugin.domain.elastic.Capabilities(supportsStatusReport);
     }
 }

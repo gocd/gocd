@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -81,7 +80,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private GoConfigService goConfigService;
     @Autowired private SchedulingCheckerService schedulingCheckerService;
-    @Autowired private PipelineScheduledTopic pipelineScheduledTopic;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private StageOrderService stageOrderService;
@@ -261,7 +259,7 @@ public class ScheduleServiceStageTriggerTest {
 
         StageOrderService stageOrderService = mock(StageOrderService.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
-        scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineScheduledTopic, pipelineDao, stageDao,
+        scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineDao, stageDao,
                 stageOrderService, securityService, pipelineScheduleQueue, this.jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
                 transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger, null);
 
@@ -303,7 +301,7 @@ public class ScheduleServiceStageTriggerTest {
                 transactionSynchronizationManager, goCache, stageStatusListener);
 
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
-        scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineScheduledTopic, pipelineDao, stageDao,
+        scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineDao, stageDao,
                 stageOrderService, securityService, pipelineScheduleQueue, this.jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
                 transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger, null);
 

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.api;
 
 
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -32,10 +31,6 @@ import java.util.Objects;
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 
 public interface ControllerMethods {
-
-    default RequestContext requestContext(Request req) {
-        return new RequestContext(req.scheme(), req.raw().getServerName(), req.port());
-    }
 
     default boolean fresh(Request req, String etagFromServer) {
         String etagFromClient = getIfNoneMatch(req);
@@ -80,7 +75,7 @@ public interface ControllerMethods {
         res.header("ETag", '"' + value + '"');
     }
 
-    default Map renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
+    default Map<String, Object> renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
         response.status(result.httpCode());
         return Collections.singletonMap("message", result.message(localizer));
     }

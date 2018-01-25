@@ -22,7 +22,8 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.server.util.UserHelper
+import com.thoughtworks.go.spark.util.SecureRandom
 import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
 import org.springframework.security.providers.TestingAuthenticationToken
@@ -35,34 +36,27 @@ import static org.mockito.Mockito.when
 trait SecurityServiceTrait {
   SecurityService securityService = mock(SecurityService.class)
   GoConfigService goConfigService = mock(GoConfigService.class)
-  SPAAuthenticationHelper authenticationHelper = new SPAAuthenticationHelper(securityService, goConfigService)
 
   void loginAsAdmin() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
-    SecurityContextHolder.getContext().setAuthentication(authentication)
+    Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(true)
     when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(username))).thenReturn(true)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(true)
   }
 
   void loginAsUser() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
-    SecurityContextHolder.getContext().setAuthentication(authentication)
+    Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(false)
     when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(username))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
@@ -70,11 +64,11 @@ trait SecurityServiceTrait {
   void loginAsAnonymous() {
     SecurityContextHolder.getContext().setAuthentication(null)
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
-    when(securityService.isUserGroupAdmin(any())).thenReturn(false)
-    when(securityService.isAuthorizedToViewAndEditTemplates()).thenReturn(false)
-    when(securityService.isAuthorizedToEditTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
-    when(securityService.isAuthorizedToViewTemplates()).thenReturn(false)
+    when(securityService.isUserGroupAdmin(Username.ANONYMOUS)).thenReturn(false)
+    when(securityService.isAuthorizedToViewAndEditTemplates(Username.ANONYMOUS)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplates(Username.ANONYMOUS)).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
 
@@ -83,10 +77,7 @@ trait SecurityServiceTrait {
   }
 
   void loginAsGroupAdmin() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
-    SecurityContextHolder.getContext().setAuthentication(authentication)
+    Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
@@ -94,15 +85,12 @@ trait SecurityServiceTrait {
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any())).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
+    when(groups.hasGroup(any() as String)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
   }
 
   void loginAsGroupOperateUser() {
-    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
-    SecurityContextHolder.getContext().setAuthentication(authentication)
+    Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
@@ -110,12 +98,43 @@ trait SecurityServiceTrait {
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any())).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
+    when(groups.hasGroup(any() as String)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
   }
 
   void disableSecurity() {
     when(securityService.isSecurityEnabled()).thenReturn(false)
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
+  }
+
+
+  void loginAsTemplateAdmin() {
+    Username username = loginAsRandomUser()
+
+    when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.isUserGroupAdmin(username)).thenReturn(false)
+    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
+  }
+
+  private Username loginAsRandomUser() {
+    def hex = SecureRandom.hex(20)
+    String loginName = "jdoe-${hex}"
+    String displayName = "Jon Doe ${hex}"
+    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName, "password", true, true, true, true, new GrantedAuthority[0], null)
+    Username username = new Username(principal.username, principal.displayName)
+    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
+    SecurityContextHolder.getContext().setAuthentication(authentication)
+    username
+  }
+
+  Username currentUsername() {
+    return UserHelper.getUserName()
+  }
+
+  CaseInsensitiveString currentUserLoginName() {
+    return currentUsername().getUsername()
   }
 }

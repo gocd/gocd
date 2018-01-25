@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -319,6 +319,40 @@ public class ArtifactsServiceTest {
 
         assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists(), is(true));
         assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists(), is(true));
+
+        verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    public void shouldPurgeArtifactsExceptPluggableArtifactMetadataFolderForGivenStageAndMarkItCleaned() throws IOException {
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
+        jobDir.mkdirs();
+        File aFile = new File(jobDir, "foo");
+        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        File aDirectory = new File(jobDir, "bar");
+        aDirectory.mkdir();
+        File anotherFile = new File(aDirectory, "baz");
+        FileUtils.writeStringToFile(anotherFile, "quux", UTF_8);
+
+        File pluggableArtifactMetadataDir = new File(jobDir, "pluggable-artifact-metadata");
+        pluggableArtifactMetadataDir.mkdir();
+        File metadataJson = new File(pluggableArtifactMetadataDir, "cd.go.artifact.docker.json");
+        FileUtils.writeStringToFile(metadataJson, "{\"image\": \"alpine:foo\", \"digest\": \"sha\"}", UTF_8);
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        artifactsService.purgeArtifactsForStage(stage);
+
+        assertThat(jobDir.exists(), is(true));
+        assertThat(aFile.exists(), is(false));
+        assertThat(anotherFile.exists(), is(false));
+        assertThat(aDirectory.exists(), is(false));
+
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/pluggable-artifact-metadata/cd.go.artifact.docker.json").exists(), is(true));
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }

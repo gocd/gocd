@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+import spark.Request;
 
 import java.util.List;
 import java.util.Map;
@@ -55,9 +56,12 @@ public interface SparkController {
 
     void setupRoutes();
 
-
     default Username currentUsername() {
         return UserHelper.getUserName();
+    }
+
+    default Long currentUserId(Request request) {
+        return UserHelper.getUserId(request.raw());
     }
 
     default CaseInsensitiveString currentUserLoginName() {

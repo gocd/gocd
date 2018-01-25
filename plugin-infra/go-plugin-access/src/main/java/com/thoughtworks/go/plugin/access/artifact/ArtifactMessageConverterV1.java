@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
@@ -115,6 +114,11 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     @Override
     public Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
+    }
+
+    @Override
+    public com.thoughtworks.go.plugin.domain.artifact.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
+        return com.thoughtworks.go.plugin.access.artifact.models.Capabilities.fromJSON(responseBody).toCapabilities();
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

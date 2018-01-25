@@ -16,30 +16,55 @@
 
 package com.thoughtworks.go.api.util;
 
+import org.springframework.http.HttpStatus;
 import spark.HaltException;
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.*;
 import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
 
     public static HaltException haltBecauseUnauthorized() {
-        return halt(401, MessageJson.create(HaltApiMessages.unauthorizedMessage()));
+        return halt(HttpStatus.UNAUTHORIZED.value(), MessageJson.create(unauthorizedMessage()));
     }
 
     public static HaltException haltBecauseEntityAlreadyExists(Object jsonInRequestBody, String entityType, Object existingName) {
-        return halt(422, MessageJson.create(HaltApiMessages.entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
     }
 
     public static HaltException haltBecauseRenameOfEntityIsNotSupported(String entityType) {
-        return halt(422, MessageJson.create(HaltApiMessages.renameOfEntityIsNotSupportedMessage(entityType)));
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(renameOfEntityIsNotSupportedMessage(entityType)));
     }
 
     public static HaltException haltBecauseEtagDoesNotMatch(String entityType, Object name) {
-        return halt(412, MessageJson.create(HaltApiMessages.etagDoesNotMatch(entityType, name)));
+        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
 
-    public static HaltException haltBecauseInvalidJSON(String errorMessage) {
-        return halt(422, MessageJson.create(errorMessage));
+    public static HaltException haltBecauseRateLimitExceeded() {
+        return halt(HttpStatus.TOO_MANY_REQUESTS.value(), MessageJson.create(rateLimitExceeded()));
     }
 
+    public static HaltException haltBecauseJsonContentTypeExpected() {
+        return halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create(jsonContentTypeExpected()));
+    }
+
+    public static HaltException haltBecauseConfirmHeaderMissing() {
+        return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(confirmHeaderMissing()));
+    }
+
+    public static HaltException haltBecausePropertyIsNotAJsonString(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonString(property)));
+    }
+
+    public static HaltException haltBecausePropertyIsNotAJsonArray(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonArray(property)));
+    }
+
+    public static HaltException haltBecausePropertyIsNotAJsonObject(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonObject(property)));
+    }
+
+    public static HaltException haltBecauseMissingJsonProperty(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property)));
+    }
 }

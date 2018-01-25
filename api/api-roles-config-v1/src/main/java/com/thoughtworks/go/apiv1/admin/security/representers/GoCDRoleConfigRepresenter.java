@@ -18,11 +18,11 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
+import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 public class GoCDRoleConfigRepresenter {
 
     public static Map toJSON(RoleConfig roleConfig, RequestContext requestContext) {
-        Map<String, Object> jsonObject = new LinkedHashMap<>();
-        jsonObject.put("users", usersAsString(roleConfig));
-        return jsonObject;
+        return new JsonWriter(requestContext)
+                .add("users", usersAsString(roleConfig))
+                .getAsMap();
     }
 
     public static RoleConfig fromJSON(JsonReader jsonReader) {
@@ -40,7 +40,7 @@ public class GoCDRoleConfigRepresenter {
         if (jsonReader == null) {
             return model;
         }
-        jsonReader.optJsonArray("users").ifPresent(users -> {
+        jsonReader.readArrayIfPresent("users", users -> {
             users.forEach(user -> model.addUser(new RoleUser(user.getAsString())));
         });
         return model;

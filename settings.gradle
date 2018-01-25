@@ -16,7 +16,7 @@
 
 rootProject.name = 'gocd'
 include ':jar-class-loader'
-include ':api:api-base', ':api:api-plugin-images', ':api:api-roles-config-v1', ':api:api-pipeline-operations-v1'
+include ':api:api-backups-v1', ':api:api-base', ':api:api-current-user-v1', ':api:api-dashboard-v2', ':api:api-encryption-v1', ':api:api-pipeline-operations-v1', ':api:api-plugin-images', ':api:api-roles-config-v1', ':api:api-user-representers-v1' // this line is managed by the `newApi` task
 include ':spark:spark-base'
 include ':spark:spark-spa'
 include ':base'
@@ -94,4 +94,3 @@ project(':tw-go-plugins').projectDir = "$rootDir/tw-go-plugins" as File
 
 include 'domain'
 include 'commandline'
-

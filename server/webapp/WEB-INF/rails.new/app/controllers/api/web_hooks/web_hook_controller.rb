@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,18 @@ module Api
   module WebHooks
     class WebHookController < ::Api::ApiController
       def notify
-        possible_urls = %W(
+        Rails.logger.info("[WebHook] Noticed a git push to #{repo_host_name}/#{repo_full_name} on branch #{repo_branch}")
+
+        if material_update_service.updateGitMaterial(repo_branch, possible_urls)
+          render text: 'OK!', content_type: 'text/plain', status: :accepted, layout: nil
+        else
+          render text: 'No matching materials!', content_type: 'text/plain', status: :accepted, layout: nil
+        end
+      end
+
+      protected
+      def possible_urls
+        %W(
           https://#{repo_host_name}/#{repo_full_name}
           https://#{repo_host_name}/#{repo_full_name}/
           https://#{repo_host_name}/#{repo_full_name}.git
@@ -36,17 +47,8 @@ module Api
           git@#{repo_host_name}:#{repo_full_name}.git
           git@#{repo_host_name}:#{repo_full_name}.git/
         )
-
-        Rails.logger.info("[WebHook] Noticed a git push to #{repo_host_name}/#{repo_full_name} on branch #{repo_branch}")
-
-        if material_update_service.updateGitMaterial(repo_branch, possible_urls)
-          render text: 'OK!', content_type: 'text/plain', status: :accepted, layout: nil
-        else
-          render text: 'No matching materials!', content_type: 'text/plain', status: :accepted, layout: nil
-        end
       end
 
-      protected
       def repo_branch
         raise 'Subclass responsibility!'
       end
@@ -62,6 +64,7 @@ module Api
       def webhook_secret
         server_config_service.getWebhookSecret
       end
+
     end
   end
 end

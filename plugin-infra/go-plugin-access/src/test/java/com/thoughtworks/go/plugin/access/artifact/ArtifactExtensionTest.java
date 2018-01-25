@@ -331,6 +331,19 @@ public class ArtifactExtensionTest {
     }
 
     @Test
+    public void shouldGetCapabilities() {
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{}"));
+
+        artifactExtension.getCapabilities(PLUGIN_ID);
+
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+
+        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
+        assertThat(request.requestName(), is(REQUEST_GET_CAPABILITIES));
+        assertNull(request.requestBody());
+    }
+
+    @Test
     public void allRequestMustHaveRequestPrefix() {
         assertThat(REQUEST_PREFIX, is("cd.go.artifact"));
 

@@ -37,6 +37,12 @@
     </rule>
 
     <rule>
+        <name>Spark Dashboard API</name>
+        <from>^/api/dashboard</from>
+        <to last="true">/spark/api/dashboard</to>
+    </rule>
+
+    <rule>
         <name>Spark Security Auth Configs API</name>
         <from>^/api/admin/security/roles/(.*)$</from>
         <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
@@ -50,11 +56,28 @@
         <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
     </rule>
 
-
     <rule>
         <name>Spark Plugin Images</name>
         <from>^/api/plugin_images/(.*)$</from>
         <to last="true">/spark/api/plugin_images/$1</to>
+    </rule>
+
+    <rule>
+        <name>Spark Encryption API</name>
+        <from>^/api/admin/encrypt</from>
+        <to last="true">/spark/api/admin/encrypt</to>
+    </rule>
+
+    <rule>
+        <name>Spark Current User API</name>
+        <from>^/api/current_users$</from>
+        <to last="true">/spark/api/current_user</to>
+    </rule>
+
+    <rule>
+        <name>Spark Current User API</name>
+        <from>^/api/backup$</from>
+        <to last="true">/spark/api/backup</to>
     </rule>
 
     <rule>

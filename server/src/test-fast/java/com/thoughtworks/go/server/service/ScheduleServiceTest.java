@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledMessage;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
@@ -37,9 +35,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,9 +44,6 @@ import java.util.HashMap;
 import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
 import static com.thoughtworks.go.domain.JobState.Completed;
-import static com.thoughtworks.go.domain.JobState.Completing;
-import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.hamcrest.core.Is.is;
@@ -262,37 +255,6 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldNotifyForEveryPipelineCreated() throws Exception {
-        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-        when(cruiseConfig.getMd5()).thenReturn("md5-test");
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        StubPipelineScheduleTopic stubTopic = new StubPipelineScheduleTopic();
-        service = new ScheduleService(goConfigService, null, null, schedulingChecker, stubTopic, null, null, null, null, pipelineScheduleQueue,
-                jobInstanceService, null, null, environmentConfigService, null, serverHealthService, null, null, null, timeProvider, null, null, null, schedulingPerformanceLogger, elasticProfileService);
-
-        PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
-        PipelineConfig evolveConfig = PipelineConfigMother.createPipelineConfig("evolve", "build", "unit");
-        BuildCause mingleBuildCause = modifySomeFiles(mingleConfig);
-        BuildCause evolveBuildCause = modifySomeFiles(evolveConfig);
-        when(pipelineScheduleQueue.toBeScheduled()).thenReturn(m("mingle", mingleBuildCause, "evolve", evolveBuildCause));
-
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("mingle"))).thenReturn(mingleConfig);
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("evolve"))).thenReturn(evolveConfig);
-
-        when(schedulingChecker.canAutoTriggerConsumer(mingleConfig)).thenReturn(true);
-        when(schedulingChecker.canAutoTriggerConsumer(evolveConfig)).thenReturn(true);
-
-        when(pipelineScheduleQueue.createPipeline(mingleBuildCause, mingleConfig, new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY, new Agents()), "md5-test", timeProvider)).thenReturn(
-                PipelineMother.schedule(mingleConfig, mingleBuildCause));
-        when(pipelineScheduleQueue.createPipeline(evolveBuildCause, evolveConfig, new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY, new Agents()), "md5-test", timeProvider)).thenReturn(
-                PipelineMother.schedule(evolveConfig, evolveBuildCause));
-
-        service.autoSchedulePipelinesFromRequestBuffer();
-
-        assertThat(stubTopic.callCount, Matchers.is(2));
-    }
-
-    @Test
     public void shouldCancelUnresponsiveJobs() {
         service.cancelHungJobs();
         verify(consoleActivityMonitor).cancelUnresponsiveJobs(service);
@@ -359,22 +321,9 @@ public class ScheduleServiceTest {
         elasticProfileService = mock(ElasticProfileService.class);
         stageOrderService = mock(StageOrderService.class);
         pipelineLockService = mock(PipelineLockService.class);
-        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(
-                PipelineScheduledTopic.class), mock(PipelineDao.class), mock(StageDao.class), stageOrderService, securityService, pipelineScheduleQueue,
+        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class), mock(StageDao.class), stageOrderService, securityService, pipelineScheduleQueue,
                 jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, pipelineLockService, serverHealthService,
                 new TestTransactionTemplate(synchronizationManager),
                 mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService);
-    }
-
-    private static class StubPipelineScheduleTopic extends PipelineScheduledTopic {
-        private int callCount;
-
-        public StubPipelineScheduleTopic() {
-            super(null);
-        }
-
-        public void post(PipelineScheduledMessage message) {
-            callCount++;
-        }
     }
 }

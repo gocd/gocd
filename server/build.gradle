@@ -705,6 +705,7 @@ task verifyWar(type: VerifyJarTask) {
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
+        "token-bucket-${project.versions.tokenBucket}.jar",
         "urlrewritefilter-3.2.0.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",

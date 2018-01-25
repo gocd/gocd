@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -95,6 +96,6 @@ class RolesControllerDelegateTest implements ControllerTrait<RolesControllerDele
 
   @Override
   RolesControllerDelegate createControllerInstance() {
-    return new RolesControllerDelegate(authenticationHelper, templateEngine)
+    return new RolesControllerDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 }

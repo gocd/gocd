@@ -62,5 +62,4 @@ trait SecurityTestTrait {
       .hasStatus(401)
       .hasJsonMessage(HaltApiMessages.unauthorizedMessage())
   }
-
 }

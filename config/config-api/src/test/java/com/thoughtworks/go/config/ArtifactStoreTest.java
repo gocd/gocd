@@ -114,7 +114,7 @@ public class ArtifactStoreTest {
 
     @Test
     public void shouldReturnTrueIfPluginInfoIsDefined() {
-        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), null, null, null, null);
+        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), null, null, null, null, null);
         store.setPluginInfo(pluginInfo);
 
         final ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
@@ -135,7 +135,7 @@ public class ArtifactStoreTest {
                 Arrays.asList(new PluginConfiguration("password", new Metadata(true, true)))
         );
 
-        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), storeConfig, null, null, null);
+        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), storeConfig, null, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));

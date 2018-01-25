@@ -18,42 +18,27 @@ package com.thoughtworks.go.spark.spring;
 
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.apache.commons.io.IOUtils;
+import com.thoughtworks.go.spark.HtmlErrorPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.HaltException;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
-import static java.lang.String.valueOf;
 import static spark.Spark.halt;
 
 @Component
 public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
 
-    private final String fileContents;
 
     @Autowired
     public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) throws IOException {
         super(securityService, goConfigService);
-        try (InputStream in = getClass().getResourceAsStream("/error.html")) {
-            fileContents = IOUtils.toString(in, StandardCharsets.UTF_8);
-        }
     }
 
     @Override
     protected HaltException renderUnauthorizedResponse() {
-        return halt(401, replaceHtml(401, "Unauthorized"));
+        return halt(401, HtmlErrorPage.errorPage(401, "Unauthorized"));
     }
 
-    public String replaceHtml(int code, String message) {
-        return fileContents.replaceAll(buildRegex("status_code"), valueOf(code))
-                .replaceAll(buildRegex("error_message"), message);
-    }
-
-    private String buildRegex(final String value) {
-        return "\\{\\{" + value + "\\}\\}";
-    }
 }

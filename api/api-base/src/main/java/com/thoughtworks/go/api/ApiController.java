@@ -18,8 +18,9 @@ package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.spark.SparkController;
-import org.springframework.http.HttpStatus;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
@@ -27,11 +28,13 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import java.util.*;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static spark.Spark.halt;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
+    private static final HeaderConstraint HEADER_CONSTRAINT = new HeaderConstraint(new SystemEnvironment());
 
     protected final ApiVersion apiVersion;
     protected final String mimeType;
@@ -50,17 +53,23 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return MessageJson.create(ex.getMessage());
     }
 
+    protected void verifyConfirmHeader(Request request, Response response) {
+        if (!HEADER_CONSTRAINT.isSatisfied(request.raw())) {
+            throw haltBecauseConfirmHeaderMissing();
+        }
+    }
+
     protected void verifyContentType(Request request, Response response) {
         if (!UPDATE_HTTP_METHODS.contains(request.requestMethod().toUpperCase())) {
             return;
         }
 
         if (request.contentLength() >= 1 && !isJsonContentType(request)) {
-            throw halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create("You must specify a 'Content-Type' of 'application/json'"));
+            throw haltBecauseJsonContentTypeExpected();
         }
 
         if ("chunked".equalsIgnoreCase(request.headers("Transfer-Encoding")) && !isJsonContentType(request)) {
-            throw halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create("You must specify a 'Content-Type' of 'application/json'"));
+            throw haltBecauseJsonContentTypeExpected();
         }
     }
 
@@ -87,5 +96,6 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         }
         return map;
     }
+
 
 }

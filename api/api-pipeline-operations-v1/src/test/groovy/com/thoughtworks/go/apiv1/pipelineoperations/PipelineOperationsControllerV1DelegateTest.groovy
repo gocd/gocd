@@ -17,24 +17,23 @@
 package com.thoughtworks.go.apiv1.pipelineoperations
 
 import com.thoughtworks.go.api.ClearSingletonExtension
-import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelinePauseService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 
 import static org.mockito.ArgumentMatchers.any
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.doAnswer
 import static org.mockito.MockitoAnnotations.initMocks
 
 @ExtendWith(ClearSingletonExtension.class)
@@ -134,14 +133,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should pause a pipeline'() {
 
-        when(pipelinePauseService.pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(3)
-            result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
+          result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
+          return result
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -154,14 +150,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should show errors occurred while pausing a pipeline'() {
 
-        when(pipelinePauseService.pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(3)
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+          return result
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -183,14 +176,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should pause a pipeline'() {
 
-        when(pipelinePauseService.pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(3)
-            result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
+          result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
+          return result
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -203,14 +193,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should show errors occurred while pausing a pipeline'() {
 
-        when(pipelinePauseService.pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(3)
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+          return result
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -304,14 +291,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should pause a pipeline'() {
 
-        when(pipelinePauseService.unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(2)
-            result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName))
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
+          result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName))
+          return result
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 
@@ -324,14 +308,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should show errors occurred while pausing a pipeline'() {
 
-        when(pipelinePauseService.unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(2)
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+          return result
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 
@@ -353,14 +334,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should pause a pipeline'() {
 
-        when(pipelinePauseService.unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(2)
-            result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName))
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
+          result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName))
+          return result
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 
@@ -373,15 +351,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Test
       void 'should show errors occurred while pausing a pipeline'() {
 
-
-        when(pipelinePauseService.unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)).then(new Answer<Object>() {
-          @Override
-          Object answer(InvocationOnMock invocation) throws Throwable {
-            HttpLocalizedOperationResult result = invocation.getArgument(2)
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
-            return result
-          }
-        })
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+          return result
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api.util;
 
+import static java.lang.String.format;
+
 public abstract class HaltApiMessages {
 
     public static String notFoundMessage() {
@@ -36,5 +38,37 @@ public abstract class HaltApiMessages {
 
     public static String etagDoesNotMatch(String entityType, Object name) {
         return String.format("Someone has modified the configuration for %s `%s'. Please update your copy of the config with the changes and try again.", entityType, name);
+    }
+
+    public static String rateLimitExceeded() {
+        return "Rate Limit Exceeded";
+    }
+
+    public static String errorWhileEncryptingMessage() {
+        return "An error occurred while encrypting the value. Please check the logs for more details.";
+    }
+
+    public static String jsonContentTypeExpected() {
+        return "You must specify a 'Content-Type' of 'application/json'";
+    }
+
+    public static String confirmHeaderMissing() {
+        return "Missing required header 'Confirm' with value 'true'";
+    }
+
+    public static String propertyIsNotAJsonString(String property) {
+        return String.format("Could not read property '%s' as a String", property);
+    }
+
+    public static String propertyIsNotAJsonObject(String property) {
+        return String.format("Could not read property '%s' as a JsonObject", property);
+    }
+
+    public static String propertyIsNotAJsonArray(String property) {
+        return String.format("Could not read property '%s' as a JsonArray", property);
+    }
+
+    public static String missingJsonProperty(String property) {
+        return format("Json does not contain property '%s'", property);
     }
 }

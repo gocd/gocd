@@ -24,5 +24,6 @@ dependencies {
   compile project(':spark:spark-base')
 
   testCompile localGroovy()
+  testCompile project(path: ':server', configuration: 'testOutput')
   testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
 }

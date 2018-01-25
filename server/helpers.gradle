@@ -18,7 +18,7 @@ task bumpSchemaVersion {
   description = "Helper to bump `schemaVersion` and setup cruise-config.xml migrations."
   doFirst {
 
-    File goConstantsFile = project(':base').file("src/com/thoughtworks/go/util/GoConstants.java")
+    File goConstantsFile = project(':base').file("src/main/java/com/thoughtworks/go/util/GoConstants.java")
     def originalXSDFile = project(':config-server').file('src/main/resources/cruise-config.xsd')
 
     def goConstantsContents = goConstantsFile.getText('utf-8')
@@ -33,7 +33,7 @@ task bumpSchemaVersion {
 
     copy {
       from originalXSDFile
-      into project(':config-server').file("resources/schemas")
+      into project(':config-server').file("src/main/resources/schemas")
       rename "cruise-config.xsd", "${currentVersion}_cruise-config.xsd"
     }
 

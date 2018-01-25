@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -88,7 +87,7 @@ public class JobRerunScheduleServiceTest {
         schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         elasticProfileService = mock(ElasticProfileService.class);
 
-        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
+        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), synchronizationManager, timeProvider, null, null, instanceFactory,
                 schedulingPerformanceLogger, elasticProfileService);
@@ -135,7 +134,7 @@ public class JobRerunScheduleServiceTest {
         schedulingChecker = mock(SchedulingCheckerService.class);//leads to null pointer exception
         doThrow(new NullPointerException("The whole world is a big null.")).when(schedulingChecker).canSchedule(any(OperationResult.class));
 
-        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
+        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), null, null, null, null, null, schedulingPerformanceLogger,
                 null
@@ -256,7 +255,7 @@ public class JobRerunScheduleServiceTest {
                 return super.execute(action);
             }
         };
-        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
+        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, template, mock(AgentService.class), null, timeProvider, null, null, mock(InstanceFactory.class),
                 schedulingPerformanceLogger, elasticProfileService) {

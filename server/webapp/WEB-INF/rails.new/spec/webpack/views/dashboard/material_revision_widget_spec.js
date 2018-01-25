@@ -140,14 +140,13 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it('should contain a link to overview of stage details page of the stage that triggered the pipeline', () => {
-      const stageDetailLink = $root.find('a')[0];
-      const modification    = pipelineRevisionJson.modifications[0];
-      expect(stageDetailLink).toHaveAttr("href", modification._links.stage_details_url.href);
+      const pipelineDependencyLink = $root.find('.modified-by a').get(0);
+      expect(pipelineDependencyLink.href).toEqual(pipelineRevisionJson.modifications[0]._links.stage_details_url.href);
     });
 
     it('should contain a link to stage details page showing pipeline dependencies of the run of the upstream pipeline run', () => {
-      const pipelineDependencyLink = $root.find('a')[1];
-      expect(pipelineDependencyLink).toHaveAttr("href", "http://localhost:8153/go/pipelines/up42/2/up42_stage/1/pipeline");
+      const pipelineDependencyLink = $root.find('.comment a').get(0);
+      expect(pipelineDependencyLink.href.includes(`/go/pipelines/${pipelineRevisionJson.modifications[0].revision}/pipeline`)).toBe(true);
     });
 
   });

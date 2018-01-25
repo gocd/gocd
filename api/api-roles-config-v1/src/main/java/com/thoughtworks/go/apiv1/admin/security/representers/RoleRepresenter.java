@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.JsonWriter;
@@ -29,8 +30,6 @@ import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.Collections;
 import java.util.Map;
-
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 
 
 public class RoleRepresenter {
@@ -71,7 +70,7 @@ public class RoleRepresenter {
         } else if ("plugin".equals(type)) {
             model = PluginRoleConfigRepresenter.fromJSON(jsonReader.readJsonObject("attributes"));
         } else {
-            throw haltBecauseInvalidJSON("Invalid role type %s. It has to be one of 'gocd' or 'plugin'");
+            throw new JsonParseException("Invalid role type '%s'. It has to be one of 'gocd' or 'plugin'");
         }
 
         model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.errorWhileEncryptingMessage
+import static com.thoughtworks.go.api.util.HaltApiMessages.missingJsonProperty
 import static com.thoughtworks.go.api.util.HaltApiMessages.rateLimitExceeded
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.spy
@@ -134,6 +135,17 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
           .isInternalServerError()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(errorWhileEncryptingMessage())
+      }
+
+      @Test
+      void 'should handle bad input JSON'() {
+        loginAsAdmin()
+        postWithApiHeader(controller.controllerBasePath(), [foo: 'bar'])
+
+        assertThatResponse()
+          .isUnprocessibleEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(missingJsonProperty("value"))
       }
 
       @Nested

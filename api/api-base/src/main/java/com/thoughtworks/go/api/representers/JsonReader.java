@@ -22,8 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
-import static java.lang.String.format;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 
 public class JsonReader {
 
@@ -35,7 +34,7 @@ public class JsonReader {
 
     public String getString(String property) {
         return optString(property)
-                .orElseThrow(() -> haltBecauseInvalidJSON(format("Json does not contain property: %s", property)));
+                .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
     public Optional<String> optString(String property) {
@@ -43,7 +42,7 @@ public class JsonReader {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsString());
             } catch (Exception e) {
-                throw haltBecauseInvalidJSON(format("Could not get %s as a String", property));
+                throw haltBecausePropertyIsNotAJsonString(property);
             }
         }
         return Optional.empty();
@@ -54,26 +53,28 @@ public class JsonReader {
             try {
                 return Optional.ofNullable(jsonObject.getAsJsonArray(property));
             } catch (Exception e) {
-                throw haltBecauseInvalidJSON(format("Could not get %s as a JsonArray", property));
+                throw haltBecausePropertyIsNotAJsonArray(property);
             }
         }
         return Optional.empty();
     }
+
 
     public Optional<JsonReader> optJsonObject(String property) {
         if (jsonObject.has(property)) {
             try {
                 return Optional.of(new JsonReader(jsonObject.getAsJsonObject(property)));
             } catch (Exception e) {
-                throw haltBecauseInvalidJSON(format("Could not get %s as a JsonObject", property));
+                throw haltBecausePropertyIsNotAJsonObject(property);
             }
         }
         return Optional.empty();
     }
 
+
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
-                .orElseThrow(() -> haltBecauseInvalidJSON(format("Json does not contain property: %s", property)));
+                .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
     public void readStringIfPresent(String key, Consumer<String> setterMethod) {

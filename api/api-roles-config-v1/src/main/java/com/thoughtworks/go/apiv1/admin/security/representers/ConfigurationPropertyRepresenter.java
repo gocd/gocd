@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseInvalidJSON;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class ConfigurationPropertyRepresenter {
@@ -67,7 +67,7 @@ public class ConfigurationPropertyRepresenter {
             String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
             return ConfigurationProperty.deserialize(key, value, encryptedValue);
         } catch (Exception e) {
-            throw haltBecauseInvalidJSON("Could not parse configuration property");
+            throw new JsonParseException("Could not parse configuration property");
         }
     }
 

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api.util;
 
+import static java.lang.String.format;
+
 public abstract class HaltApiMessages {
 
     public static String notFoundMessage() {
@@ -52,5 +54,21 @@ public abstract class HaltApiMessages {
 
     public static String confirmHeaderMissing() {
         return "Missing required header 'Confirm' with value 'true'";
+    }
+
+    public static String propertyIsNotAJsonString(String property) {
+        return String.format("Could not read property '%s' as a String", property);
+    }
+
+    public static String propertyIsNotAJsonObject(String property) {
+        return String.format("Could not read property '%s' as a JsonObject", property);
+    }
+
+    public static String propertyIsNotAJsonArray(String property) {
+        return String.format("Could not read property '%s' as a JsonArray", property);
+    }
+
+    public static String missingJsonProperty(String property) {
+        return format("Json does not contain property '%s'", property);
     }
 }

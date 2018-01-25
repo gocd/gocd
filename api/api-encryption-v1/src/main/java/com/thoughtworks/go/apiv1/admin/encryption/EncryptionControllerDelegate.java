@@ -21,6 +21,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiMessages;
@@ -91,8 +92,8 @@ public class EncryptionControllerDelegate extends ApiController {
     }
 
     public Map encrypt(Request request, Response response) throws InvalidCipherTextException {
-        Map map = readRequestBodyAsJSON(request);
-        String value = (String) map.get("value");
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        String value = jsonReader.getString("value");
         return EncryptedValueRepresenter.toJSON(cipher.encrypt(value), RequestContext.requestContext(request));
     }
 

@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,6 @@ import java.util.Map;
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.GoConstants.PRODUCT_NAME;
 import static java.lang.String.format;
-import static java.lang.String.join;
 
 public class ArtifactsPublisher implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsPublisher.class);
@@ -48,6 +48,7 @@ public class ArtifactsPublisher implements Serializable {
     private final ArtifactPlanFilter artifactPlanFilter;
     private ArtifactExtension artifactExtension;
     private ArtifactStores artifactStores;
+    private final List<ArtifactPlan> failedArtifact = new ArrayList<>();
 
     public ArtifactsPublisher(GoPublisher goPublisher, ArtifactExtension artifactExtension, ArtifactStores artifactStores, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, File workingDirectory) {
         this.goPublisher = goPublisher;
@@ -60,29 +61,32 @@ public class ArtifactsPublisher implements Serializable {
 
     public void publishArtifacts(List<ArtifactPlan> artifactPlans) {
         final File pluggableArtifactFolder = publishPluggableArtifacts(artifactPlans);
-        final List<ArtifactPlan> mergedPlans = artifactPlanFilter.getBuiltInMergedArtifactPlans(artifactPlans);
+        try {
+            final List<ArtifactPlan> mergedPlans = artifactPlanFilter.getBuiltInMergedArtifactPlans(artifactPlans);
 
-        if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
-            LOGGER.info("Pluggable metadata folder is empty.");
-        } else if (pluggableArtifactFolder != null) {
-            mergedPlans.add(0, new ArtifactPlan(ArtifactType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
-        }
-
-        List<ArtifactPlan> failedArtifact = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : mergedPlans) {
-            try {
-                artifactPlan.publish(goPublisher, workingDirectory);
-            } catch (Exception e) {
-                failedArtifact.add(artifactPlan);
+            if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
+                LOGGER.info("Pluggable metadata folder is empty.");
+            } else if (pluggableArtifactFolder != null) {
+                mergedPlans.add(0, new ArtifactPlan(ArtifactType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
             }
-        }
 
-        if (!failedArtifact.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            for (ArtifactPlan artifactPlan : failedArtifact) {
-                artifactPlan.printArtifactInfo(builder);
+            for (ArtifactPlan artifactPlan : mergedPlans) {
+                try {
+                    artifactPlan.publish(goPublisher, workingDirectory);
+                } catch (Exception e) {
+                    failedArtifact.add(artifactPlan);
+                }
             }
-            throw new RuntimeException(format("[%s] Uploading finished. Failed to upload %s.", PRODUCT_NAME, builder));
+
+            if (!failedArtifact.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                for (ArtifactPlan artifactPlan : failedArtifact) {
+                    artifactPlan.printArtifactInfo(builder);
+                }
+                throw new RuntimeException(format("[%s] Uploading finished. Failed to upload %s.", PRODUCT_NAME, builder));
+            }
+        } finally {
+            FileUtils.deleteQuietly(pluggableArtifactFolder);
         }
     }
 
@@ -101,7 +105,7 @@ public class ArtifactsPublisher implements Serializable {
                 publishPluggableArtifact(pluggableArtifactMetadata, artifactPlanAndStore.getKey(), artifactPlanAndStore.getValue());
             }
 
-            if (pluggableArtifactMetadata.isEmpty()) {
+            if (!pluggableArtifactPlans.isEmpty() && pluggableArtifactMetadata.isEmpty()) {
                 LOGGER.info(format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
                 goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
                 return null;
@@ -127,19 +131,11 @@ public class ArtifactsPublisher implements Serializable {
                 final String artifactId = (String) artifactPlan.getPluggableArtifactConfiguration().get("id");
                 pluggableArtifactMetadata.addMetadata(pluginId, artifactId, publishArtifactResponse.getMetadata());
             }
-
-            writeErrorToConsoleLog(goPublisher, publishArtifactResponse.getErrors());
         } catch (RuntimeException e) {
+            failedArtifact.add(artifactPlan);
             goPublisher.taggedConsumeLine(GoPublisher.ERR, format("[%s] %s", PRODUCT_NAME, e.getMessage()));
             LOGGER.error(e.getMessage(), e);
         }
-    }
-
-    private void writeErrorToConsoleLog(GoPublisher goPublisher, List<String> errors) {
-        if (errors == null || errors.isEmpty()) {
-            return;
-        }
-        goPublisher.taggedConsumeLine(GoPublisher.PUBLISH_ERR, join("\n", errors));
     }
 
     private Map<ArtifactPlan, ArtifactStore> artifactStoresToPlugin(List<ArtifactPlan> artifactPlans) {

@@ -41,7 +41,7 @@ public interface ArtifactMessageConverter {
 
     ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody);
 
-    String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, String artifactId, Map<String, Object> metadata, String agentWorkingDirectory);
+    String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory);
 
     Image getImageResponseFromBody(String responseBody);
 

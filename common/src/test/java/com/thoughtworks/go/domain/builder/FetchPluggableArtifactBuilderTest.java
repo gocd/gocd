@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.mockito.InOrder;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
@@ -71,7 +73,7 @@ public class FetchPluggableArtifactBuilderTest {
         registry = mock(PluginRequestProcessorRegistry.class);
 
         metadataDest = new File(temporaryFolder.newFolder("dest"), "cd.go.s3.json");
-        metadataDest.createNewFile();
+        FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", StandardCharsets.UTF_8);
 
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);
         artifactStore = new ArtifactStore("s3", "cd.go.s3", ConfigurationPropertyMother.create("ACCESS_KEY", true, "hksjdfhsksdfh"));
@@ -108,7 +110,7 @@ public class FetchPluggableArtifactBuilderTest {
 
         builder.build(publisher, null, null, artifactExtension, registry);
 
-        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), null, metadataDest.getParent());
+        verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
 
     @Test
@@ -122,7 +124,7 @@ public class FetchPluggableArtifactBuilderTest {
 
         builder.build(publisher, null, null, artifactExtension, registry);
 
-        verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), metadata, metadataDest.getParent());
+        verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
 
     @Test
@@ -139,7 +141,7 @@ public class FetchPluggableArtifactBuilderTest {
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));
-        inOrder.verify(artifactExtension).fetchArtifact("cd.go.s3", artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), metadata, metadataDest.getParent());
+        inOrder.verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
         inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }
 }

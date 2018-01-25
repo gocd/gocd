@@ -80,20 +80,13 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     }
 
     @Override
-    public String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, String artifactId, Map<String, Object> metadata, String agentWorkingDirectory) {
+    public String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
         final Map<String, Object> map = new HashMap<>();
         map.put("store_configuration", artifactStore.getConfigurationAsMap(true));
-        map.put("fetch_artifact", getFetchTaskConfiguration(configuration, artifactId));
+        map.put("fetch_artifact_configuration", configuration.getConfigurationAsMap(true));
         map.put("artifact_metadata", metadata);
         map.put("agent_working_directory", agentWorkingDirectory);
         return GSON.toJson(map);
-    }
-
-    private Map<String, Object> getFetchTaskConfiguration(Configuration configuration, String artifactId) {
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put("artifact_id", artifactId);
-        map.put("configuration", configuration.getConfigurationAsMap(true));
-        return map;
     }
 
     @Override

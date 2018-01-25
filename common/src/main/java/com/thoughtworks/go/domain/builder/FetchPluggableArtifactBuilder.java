@@ -74,7 +74,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 
-            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, artifactId, getMetadataFromFile(), agentWorkingDirectory());
+            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, getMetadataFromFile(artifactId), agentWorkingDirectory());
         } catch (Exception e) {
             publisher.taggedConsumeLine(TaggedStreamConsumer.ERR, e.getMessage());
             LOGGER.error(e.getMessage(), e);
@@ -102,12 +102,13 @@ public class FetchPluggableArtifactBuilder extends Builder {
         return jobIdentifier.artifactLocator(metadataFileDest.getName());
     }
 
-    private Map<String, Object> getMetadataFromFile() throws IOException {
+    private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
         final String fileToString = FileUtils.readFileToString(metadataFileDest, StandardCharsets.UTF_8);
         LOGGER.debug(format("Reading metadata from file %s.", metadataFileDest.getAbsolutePath()));
         final Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
-        return new GsonBuilder().create().fromJson(fileToString, type);
+        final Map<String, Map> allArtifactsPerPlugin = new GsonBuilder().create().fromJson(fileToString, type);
+        return allArtifactsPerPlugin.get(artifactId);
     }
 
     public JobIdentifier getJobIdentifier() {

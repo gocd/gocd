@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api
 
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import com.thoughtworks.go.plugin.domain.common.Image
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.ControllerTrait
@@ -27,7 +29,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static java.nio.charset.StandardCharsets.UTF_8
-import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -51,7 +52,8 @@ class PluginImagesControllerDelegateTest implements ControllerTrait<SparkControl
     @Test
     void 'should render an image with a hash and a long lived cache header'() {
       def image = new Image('image/foo', Base64.encoder.encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
-      when(defaultPluginInfoFinder.getImage('foo', image.getHash())).thenReturn(image)
+      def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
+      when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 
       get(controller.controllerPath("/foo/${image.getHash()}"))
 
@@ -65,7 +67,8 @@ class PluginImagesControllerDelegateTest implements ControllerTrait<SparkControl
     @Test
     void 'should render 304 when etag matches'() {
       def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
-      when(defaultPluginInfoFinder.getImage('foo', image.getHash())).thenReturn(image)
+      def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
+      when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 
       get(controller.controllerPath("/foo/${image.getHash()}"), ['if-none-match': $/"${image.getHash()}"/$])
 
@@ -76,8 +79,20 @@ class PluginImagesControllerDelegateTest implements ControllerTrait<SparkControl
     }
 
     @Test
-    void 'renders 404 when plugin or hash does not match up'() {
-      when(defaultPluginInfoFinder.getImage(any(), any())).thenReturn(null)
+    void 'renders 404 when plugin does not match'() {
+      when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(null)
+
+      get(controller.controllerPath("/foo/random-hash"))
+
+      assertThatResponse()
+        .isNotFound()
+    }
+
+    @Test
+    void 'renders 404 when hash does not match'() {
+      def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
+      def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
+      when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 
       get(controller.controllerPath("/foo/random-hash"))
 

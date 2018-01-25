@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.api;
 
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.Routes;
@@ -51,9 +52,13 @@ public class PluginImagesControllerDelegate implements SparkController, Controll
         String pluginId = request.params("plugin_id");
         String hash = request.params("hash");
 
-        Image image = pluginInfoFinder.getImage(pluginId, hash);
+        CombinedPluginInfo pluginInfo = pluginInfoFinder.pluginInfoFor(pluginId);
+        if (pluginInfo == null) {
+            throw halt(404, "");
+        }
 
-        if (image == null) {
+        Image image = pluginInfo.getImage();
+        if (image == null || !image.getHash().equals(hash)) {
             throw halt(404, "");
         }
 

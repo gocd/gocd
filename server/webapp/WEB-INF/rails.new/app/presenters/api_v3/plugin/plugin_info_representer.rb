@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ module ApiV3
     class PluginInfoRepresenter < BaseRepresenter
 
       REPRESENTER_FOR_PLUGIN_INFO_TYPE = {
-        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo => NotificationPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo => SCMPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
+        AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
+        NotificationPluginInfo => NotificationPluginInfoRepresenter,
+        PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
+        PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
+        SCMPluginInfo => SCMPluginInfoRepresenter,
+        ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
+        ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
       }
 
       alias_method :plugin, :represented
@@ -50,7 +50,7 @@ module ApiV3
       end
 
       property :id, exec_context: :decorator
-      property :getExtensionName, as: :type
+      property :getExtensionName, as: :type, exec_context: :decorator
       property :status, exec_context: :decorator do
         property :state, getter: lambda {|*| state.to_s.downcase}
         property :messages, if: lambda {|args| !self.messages.blank?}
@@ -84,15 +84,15 @@ module ApiV3
       protected
 
       delegate :id, :version, :status, :about, :plugin_file_location, :isBundledPlugin, to: :descriptor
+      delegate :getExtensionName, to: :extension_info
 
       def descriptor
         plugin.getDescriptor()
       end
 
       def extension_info
-        plugin
+        plugin.getExtensionInfos().get(0)
       end
-
     end
   end
 end

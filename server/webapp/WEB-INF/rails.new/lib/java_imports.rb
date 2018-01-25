@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -276,7 +276,17 @@ module JavaImports
   java_import com.thoughtworks.go.config.security.users.Everyone unless defined? Everyone
   java_import com.thoughtworks.go.config.security.users.NoOne unless defined? NoOne
   java_import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension unless defined? AnalyticsExtension
-  java_import com.thoughtworks.go.plugin.domain.common.PluginConstants
+  java_import com.thoughtworks.go.plugin.domain.common.PluginConstants unless defined? PluginConstants
   java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo unless defined? BadPluginInfo
   java_import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics unless defined? SupportedAnalytics
+  java_import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo unless defined? AuthorizationPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo unless defined? ConfigRepoPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo unless defined? ElasticAgentPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo unless defined? NotificationPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo unless defined? PackageMaterialPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo unless defined? PluggableTaskPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo unless defined? SCMPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo unless defined? ArtifactPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo unless defined? AnalyticsPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo unless defined? CombinedPluginInfo
 end

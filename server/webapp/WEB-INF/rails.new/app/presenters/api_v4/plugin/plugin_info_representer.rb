@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ module ApiV4
     class PluginInfoRepresenter < BaseRepresenter
 
       REPRESENTER_FOR_PLUGIN_INFO_TYPE = {
-        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo => NotificationPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo => SCMPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo => AnalyticsPluginInfoRepresenter,
-        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo => ArtifactPluginInfoRepresenter
+        AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
+        NotificationPluginInfo => NotificationPluginInfoRepresenter,
+        PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
+        PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
+        SCMPluginInfo => SCMPluginInfoRepresenter,
+        ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
+        ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
+        AnalyticsPluginInfo => AnalyticsPluginInfoRepresenter,
+        ArtifactPluginInfo => ArtifactPluginInfoRepresenter
       }
 
       alias_method :plugin, :represented
@@ -52,7 +52,6 @@ module ApiV4
       end
 
       property :id, exec_context: :decorator
-      property :getExtensionName, as: :type
       property :status, exec_context: :decorator do
         property :state, getter: lambda {|*| state.to_s.downcase}
         property :messages, if: lambda {|args| !self.messages.blank?}
@@ -74,13 +73,13 @@ module ApiV4
         end
       end
 
-      property :extension_info,
+      collection :extensions,
                exec_context: :decorator,
-               skip_render: lambda {|plugin, opts|
-                 REPRESENTER_FOR_PLUGIN_INFO_TYPE[plugin.class].nil?
+               skip_render: lambda {|extension, opts|
+                 REPRESENTER_FOR_PLUGIN_INFO_TYPE[extension.class].nil?
                },
-               decorator: lambda { |plugin, opts|
-                 REPRESENTER_FOR_PLUGIN_INFO_TYPE[plugin.class]
+               decorator: lambda { |extension, opts|
+                 REPRESENTER_FOR_PLUGIN_INFO_TYPE[extension.class]
                }
 
       protected
@@ -91,10 +90,9 @@ module ApiV4
         plugin.getDescriptor()
       end
 
-      def extension_info
-        plugin
+      def extensions
+        plugin.getExtensionInfos()
       end
-
     end
   end
 end

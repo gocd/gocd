@@ -101,10 +101,11 @@ module PipelinesHelper
   def with_pipeline_analytics_support(&block)
     return unless block_given? && is_user_an_admin?
 
-    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |plugin|
-      if plugin.getCapabilities().supportsPipelineAnalytics()
-        supported_analytics = plugin.getCapabilities().supportedPipelineAnalytics().get(0)
-        yield plugin.getDescriptor().id(), supported_analytics.getId()
+    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |combined_plugin_info|
+      extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
+      if extension_info.getCapabilities().supportsPipelineAnalytics()
+        supported_analytics = extension_info.getCapabilities().supportedPipelineAnalytics().get(0)
+        yield combined_plugin_info.getDescriptor().id(), supported_analytics.getId()
         break
       end
     end

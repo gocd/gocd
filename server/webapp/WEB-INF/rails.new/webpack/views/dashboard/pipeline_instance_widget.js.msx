@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,43 @@
  * limitations under the License.
  */
 
-const m                    = require('mithril');
-const StagesInstanceWidget = require('views/dashboard/stages_instance_widget');
+const m                     = require('mithril');
+const StagesInstanceWidget  = require('views/dashboard/stages_instance_widget');
+const MaterialChangesWidget = require('views/dashboard/material_changes_widget');
 
 const PipelineInstanceWidget = {
+  oninit: (vnode) => {
+    const self = vnode.state;
+
+    self.toggleChanges = (e) => {
+      const dropdown     = vnode.attrs.dropdown;
+      const pipelineName = vnode.attrs.pipelineName;
+      dropdown.create(pipelineName);
+      dropdown.toggleDropDownState(pipelineName);
+      e.stopPropagation();
+    };
+  },
+
   view: (vnode) => {
-    const instance = vnode.attrs.instance();
+    const ctrl         = vnode.state;
+    const instance     = vnode.attrs.instance;
+    const dropdown     = vnode.attrs.dropdown;
+    const pipelineName = vnode.attrs.pipelineName;
     return (
       <div class="pipeline-instance">
-        <div class="instance-label">Instance: {instance.label()} </div>
-        <div class="links">
-          <span><a href={instance.comparePath()}> Compare </a></span>
-          <span>|</span>
-          <span> Changes </span>
-          <span>|</span>
-          <span><a href={instance.vsmPath()}> VSM </a></span>
+        <div class="instance-label">Instance: {instance.label} </div>
+        <div class="more-info">
+          <ul class="info">
+            <li><a href={instance.comparePath}> Compare </a></li>
+            <li><a onclick={ctrl.toggleChanges}><span class="changes"> Changes</span> </a></li>
+            <li><a href={instance.vsmPath}> VSM </a></li>
+          </ul>
+          <MaterialChangesWidget materialRevisions={instance.materialRevisions}
+                                 isChangeVisible={dropdown.isDropDownOpen(pipelineName)}/>
         </div>
         <div class="instance-details">
-          <div>{instance.triggeredBy()}</div>
-          <div>on {instance.scheduledAt().toString()}</div>
+          <div>{instance.triggeredBy}</div>
+          <div>on {instance.scheduledAt.toString()}</div>
         </div>
         <div class="latest-stage">
           {instance.latestStageInfo()}

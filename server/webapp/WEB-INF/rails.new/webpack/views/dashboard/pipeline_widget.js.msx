@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 
 const m      = require('mithril');
 const _      = require('lodash');
-const Stream = require('mithril/stream');
 
 const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
 
 const PipelineHeaderWidget = {
-  view:(vnode) => {
-    const pipeline          = vnode.attrs.pipeline();
+  view: (vnode) => {
+    const pipeline = vnode.attrs.pipeline;
     return (
       <div class="pipeline-header">
         <div class="pipeline-actions">
-          <a class='edit-pipeline' href={pipeline.settingsPath()}/>
+          <a class='edit-pipeline' href={pipeline.settingsPath}/>
         </div>
-        <div class="pipeline-name"> {pipeline.name()} </div>
+        <div class="pipeline-name"> {pipeline.name} </div>
       </div>
     );
   }
@@ -41,16 +40,18 @@ const PipelineWidget = {
   },
 
   view: (vnode) => {
-    const pipeline          = vnode.attrs.pipeline();
-    const pipelineInstances = _.map(pipeline.instances(), (instance) => {
+    const pipeline          = vnode.attrs.pipeline;
+    const pipelineInstances = _.map(pipeline.instances, (instance) => {
       return (
-        <PipelineInstanceWidget instance={Stream(instance)}/>
+        <PipelineInstanceWidget instance={instance}
+                                dropdown={vnode.attrs.dropdown}
+                                pipelineName={pipeline.name}/>
       );
     });
 
     return (
       <div class="pipeline">
-        <PipelineHeaderWidget pipeline={vnode.attrs.pipeline} />
+        <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}/>
         {pipelineInstances}
       </div>
     );

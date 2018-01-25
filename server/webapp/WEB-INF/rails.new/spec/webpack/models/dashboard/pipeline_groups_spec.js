@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ describe("Dashboard", () => {
       const pipelineGroups = new PipelineGroups(pipelineGroupsData);
 
       expect(pipelineGroups.groups.length).toBe(1);
-      expect(pipelineGroups.groups[0].name()).toBe(pipelineGroupsData[0].name);
+      expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);
 
-      expect(pipelineGroups.groups[0].pipelines()).toEqual(pipelineGroupsData[0].pipelines);
+      expect(pipelineGroups.groups[0].pipelines).toEqual(pipelineGroupsData[0].pipelines);
     });
 
     const pipelineGroupsData = [

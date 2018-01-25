@@ -155,6 +155,7 @@ PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo
   id:                 data.id,
   imageUrl:           _.get(data, '_links.image.href'),
   pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     null,
   status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
 
   taskSettings:       PluggableInstanceSettings.fromJSON(data.extensions[0] && data.extensions[0].task_settings),
@@ -193,6 +194,7 @@ PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.P
   id:                 data.id,
   imageUrl:           _.get(data, '_links.image.href'),
   pluginFileLocation: data.plugin_file_location,
+  pluginSettings:     null,
   status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
 
   authConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].auth_config_settings")),
@@ -236,6 +238,7 @@ PluginInfos.PluginInfo.Artifact.fromJSON = (data = {}) => new PluginInfos.Plugin
   id:                     data.id,
   imageUrl:               _.get(data, '_links.image.href'),
   pluginFileLocation:     data.plugin_file_location,
+  pluginSettings:         null,
   status:                 PluginInfos.PluginInfo.Status.fromJSON(data.status),
 
   artifactConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extensions[0].artifact_config_settings")),
@@ -272,7 +275,9 @@ PluginInfos.PluginInfo.Bad.fromJSON = function (data) {
     bundledPlugin:      data.bundled_plugin,
     extensions:         data.extensions,
     id:                 data.id,
+    imageUrl:           null,
     pluginFileLocation: data.plugin_file_location,
+    pluginSettings:     null,
     status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
   });
 };

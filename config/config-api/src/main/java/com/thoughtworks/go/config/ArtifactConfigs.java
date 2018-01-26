@@ -90,7 +90,7 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
             }
             String type = (String) attrMap.get("artifactTypeValue");
 
-            if (TEST_OUTPUT_FOLDER.equals(type)) {
+            if ("Test Artifact".equals(type)) {
                 this.add(new ArtifactConfig(ArtifactType.unit, source, destination));
             } else {
                 this.add(new ArtifactConfig(ArtifactType.file, source, destination));

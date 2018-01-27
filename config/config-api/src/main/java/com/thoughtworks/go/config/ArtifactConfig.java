@@ -140,6 +140,8 @@ public class ArtifactConfig extends Configuration implements Serializable, Valid
     }
 
     private void validatePluggableArtifact(ValidationContext validationContext) {
+        validateAbsenceOf(getSource(), SRC);
+        validateAbsenceOf(getDestination(), DEST);
         super.validateUniqueness(getArtifactTypeValue());
         if (!new NameTypeValidator().isNameValid(storeId)) {
             errors.add("storeId", NameTypeValidator.errorMessage("pluggable artifact storeId", storeId));
@@ -159,11 +161,26 @@ public class ArtifactConfig extends Configuration implements Serializable, Valid
     }
 
     private void validateBuiltInArtifact(ValidationContext validationContext) {
+        validateAbsenceOf(getId(), "id");
+        validateAbsenceOf(getStoreId(), "storeId");
+        validateEmptyConfiguration();
         if (!StringUtils.isBlank(destination) && (!(destination.equals(getDefaultFolder()) || new FilePathTypeValidator().isPathValid(destination)))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
         }
         if (StringUtils.isBlank(source)) {
             addError(SRC, String.format("Job '%s' has an artifact with an empty source", validationContext.getJob().name()));
+        }
+    }
+
+    private void validateAbsenceOf(String value, String field) {
+        if (StringUtils.isNotBlank(value)) {
+            addError(field, String.format("Field `%s` must not be set for artifact type '%s'.", field, getArtifactTypeValue()));
+        }
+    }
+
+    private void validateEmptyConfiguration() {
+        if (this.size() != 0) {
+            errors.add("configuration", String.format("Configuration properties cannot be set for artifact type '%s'.", getArtifactTypeValue()));
         }
     }
 

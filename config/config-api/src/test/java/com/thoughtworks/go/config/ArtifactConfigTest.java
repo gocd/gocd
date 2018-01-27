@@ -71,6 +71,72 @@ public class ArtifactConfigTest {
         assertThat(existingArtifactConfig.errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
     }
 
+    @Test
+    public void validate_shouldAddAnErrorIfConfigPropertiesAreDefinedForBuildArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.file, "src", "dest");
+        artifactConfig.add(create("key", false, "value"));
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("configuration"), is("Configuration properties cannot be set for artifact type 'Build Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldAddAnErrorIfConfigPropertiesAreDefinedForTestArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.unit, "src", "dest");
+        artifactConfig.add(create("key", false, "value"));
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("configuration"), is("Configuration properties cannot be set for artifact type 'Test Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldAddErrorIfStoreIdIsSetForBuildArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.file, "src", "dest");
+        artifactConfig.setStoreId("s3");
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("storeId"), is("Field `storeId` must not be set for artifact type 'Build Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldAddErrorIfArtifactIdIsSetForBuildArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.file, "src", "dest");
+        artifactConfig.setId("artifact-id");
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("id"), is("Field `id` must not be set for artifact type 'Build Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldAddErrorIfStoreIdIsSetForTestArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.unit, "src", "dest");
+        artifactConfig.setStoreId("s3");
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("storeId"), is("Field `storeId` must not be set for artifact type 'Test Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldAddErrorIfArtifactIdIsSetForTestArtifacts() {
+        ArtifactConfig artifactConfig = new ArtifactConfig(ArtifactType.unit, "src", "dest");
+        artifactConfig.setId("artifact-id");
+
+        artifactConfig.validate(null);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("id"), is("Field `id` must not be set for artifact type 'Test Artifact'."));
+    }
+
     //Pluggable artifact
 
     @Test
@@ -164,6 +230,34 @@ public class ArtifactConfigTest {
 
         assertNull(newConfig.errors().on("id"));
         assertNull(existingConfig.errors().on("id"));
+    }
+
+    @Test
+    public void validate_shouldValidateAbsenceOfSource() {
+        ValidationContext validationContext = mock(ValidationContext.class);
+        ArtifactConfig artifactConfig = new ArtifactConfig("artifactId", "storeId", create("key", false, "value"));
+        artifactConfig.setSource("foo");
+
+        when(validationContext.artifactStores()).thenReturn(new ArtifactStores());
+
+        artifactConfig.validate(validationContext);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("source"), is("Field `source` must not be set for artifact type 'Pluggable Artifact'."));
+    }
+
+    @Test
+    public void validate_shouldValidateAbsenceOfDestination() {
+        ValidationContext validationContext = mock(ValidationContext.class);
+        ArtifactConfig artifactConfig = new ArtifactConfig("artifactId", "storeId", create("key", false, "value"));
+        artifactConfig.setDestination("foo");
+
+        when(validationContext.artifactStores()).thenReturn(new ArtifactStores());
+
+        artifactConfig.validate(validationContext);
+
+        assertTrue(artifactConfig.hasErrors());
+        assertThat(artifactConfig.errors().on("destination"), is("Field `destination` must not be set for artifact type 'Pluggable Artifact'."));
     }
 
     @Test

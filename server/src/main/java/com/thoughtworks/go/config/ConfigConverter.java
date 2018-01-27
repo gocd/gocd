@@ -484,12 +484,6 @@ public class ConfigConverter {
             }
         }
 
-        if (crJob.getPluggableArtifacts() != null) {
-            for (CRPluggableArtifact crPluggableArtifact : crJob.getPluggableArtifacts()) {
-                artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
-            }
-        }
-
         ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
         if (crJob.getArtifactPropertiesGenerators() != null)
             for (CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators()) {
@@ -514,16 +508,16 @@ public class ConfigConverter {
     }
 
     public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
+        if (crArtifact.getType() == CRArtifactType.plugin) {
+            Configuration configuration = toConfiguration(crArtifact.getConfiguration());
+            ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
+            return new ArtifactConfig(crArtifact.getId(), crArtifact.getStoreId(), configuration.toArray(configProperties));
+        }
+
         if (crArtifact.getType() == CRArtifactType.test) {
             return new ArtifactConfig(ArtifactType.unit, crArtifact.getSource(), crArtifact.getDestination());
         }
         return new ArtifactConfig(ArtifactType.file, crArtifact.getSource(), crArtifact.getDestination());
-    }
-
-    public ArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
-        Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
-        ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
-        return new ArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
     }
 
     private Tab toTab(CRTab crTab) {

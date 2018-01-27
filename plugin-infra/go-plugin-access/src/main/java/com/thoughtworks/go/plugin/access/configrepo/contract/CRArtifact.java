@@ -18,10 +18,16 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public class CRArtifact extends CRBase {
     private String source;
     private String destination;
     private CRArtifactType type;
+    private String id;
+    private String store_id;
+    private Collection<CRConfigurationProperty> configuration;
 
     public CRArtifact(){}
     public CRArtifact(String src, String dest,CRArtifactType type) {
@@ -30,12 +36,12 @@ public class CRArtifact extends CRBase {
         this.type = type;
     }
 
-    public CRArtifact(String src, String dest) {
-        this.source = src;
-        this.destination = dest;
-        this.type = CRArtifactType.build;
+    public CRArtifact(String id, String store_id, CRConfigurationProperty... configurationProperties) {
+        this.type = CRArtifactType.plugin;
+        this.id = id;
+        this.store_id = store_id;
+        this.configuration = Arrays.asList(configurationProperties);
     }
-
     public String getSource() {
         return source;
     }
@@ -52,26 +58,41 @@ public class CRArtifact extends CRBase {
         this.destination = destination;
     }
 
-    public boolean equals(Object other) {
-        return this == other || other != null && other instanceof CRArtifact && equals((CRArtifact) other);
+    public String getId() {
+        return id;
     }
 
-    private boolean equals(CRArtifact other) {
-        if (destination != null ? !destination.equals(other.destination) : other.destination != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(other.type) : other.type != null) {
-            return false;
-        }
-        return !(source != null ? !source.equals(other.source) : other.source != null) ;
-
+    public String getStoreId() {
+        return store_id;
     }
 
+    public Collection<CRConfigurationProperty> getConfiguration() {
+        return configuration;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CRArtifact that = (CRArtifact) o;
+
+        if (source != null ? !source.equals(that.source) : that.source != null) return false;
+        if (destination != null ? !destination.equals(that.destination) : that.destination != null) return false;
+        if (type != that.type) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (store_id != null ? !store_id.equals(that.store_id) : that.store_id != null) return false;
+        return configuration != null ? configuration.equals(that.configuration) : that.configuration == null;
+    }
+
+    @Override
     public int hashCode() {
-        int result = 0;
-        result = 31 * result + (source != null ? source.hashCode() : 0);
+        int result = source != null ? source.hashCode() : 0;
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (store_id != null ? store_id.hashCode() : 0);
+        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }
 
@@ -87,7 +108,17 @@ public class CRArtifact extends CRBase {
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
         errors.checkMissing(location,"type",type);
-        errors.checkMissing(location,"source",source);
+        if (type == CRArtifactType.plugin) {
+            errors.checkMissing(location, "id", id);
+            errors.checkMissing(location, "store_id", store_id);
+            if (this.configuration != null) {
+                for (CRConfigurationProperty property : configuration) {
+                    property.getErrors(errors, location);
+                }
+            }
+        } else {
+            errors.checkMissing(location, "source", source);
+        }
     }
 
     @Override

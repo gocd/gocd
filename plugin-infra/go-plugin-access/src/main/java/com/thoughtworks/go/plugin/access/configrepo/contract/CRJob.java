@@ -27,7 +27,6 @@ public class CRJob extends CRBase {
     private Collection<CRTab> tabs = new ArrayList<>();
     private Collection<String> resources = new ArrayList<>();
     private Collection<CRArtifact> artifacts = new ArrayList<>();
-    private Collection<CRPluggableArtifact> pluggable_artifacts = new ArrayList<>();
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
     private String elastic_profile_id;
     private String run_instance_count;
@@ -45,7 +44,7 @@ public class CRJob extends CRBase {
     }
 
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts, Collection<CRPluggableArtifact> pluggableArtifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  String runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
@@ -54,7 +53,6 @@ public class CRJob extends CRBase {
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
-        this.pluggable_artifacts = pluggableArtifacts;
         this.properties = artifactPropertiesGenerators;
         this.run_instance_count = runInstanceCount;
         this.timeout = timeout;
@@ -62,7 +60,7 @@ public class CRJob extends CRBase {
     }
 
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts, Collection<CRPluggableArtifact> pluggableArtifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
@@ -71,7 +69,6 @@ public class CRJob extends CRBase {
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
-        this.pluggable_artifacts = pluggableArtifacts;
         this.properties = artifactPropertiesGenerators;
         this.run_instance_count = Integer.toString(runInstanceCount);
         this.timeout = timeout;
@@ -87,7 +84,6 @@ public class CRJob extends CRBase {
         validateEnvironmentVariableUniqueness(errors, location);
         validateTabs(errors, location);
         validateArtifacts(errors, location);
-        validatePluggableArtifacts(errors, location);
         validateProperties(errors, location);
         validateTasks(errors, location);
         validateElasticProfile(errors, location);
@@ -125,15 +121,6 @@ public class CRJob extends CRBase {
         for(CRArtifact artifact : artifacts)
         {
             artifact.getErrors(errors,location);
-        }
-    }
-
-    private void validatePluggableArtifacts(ErrorCollection errors, String location) {
-        if(pluggable_artifacts == null)
-            return;
-        for(CRPluggableArtifact pluggableArtifact : pluggable_artifacts)
-        {
-            pluggableArtifact.getErrors(errors,location);
         }
     }
 
@@ -185,9 +172,6 @@ public class CRJob extends CRBase {
         if (artifacts != null ? !CollectionUtils.isEqualCollection(this.artifacts, that.artifacts) : that.artifacts != null) {
             return false;
         }
-        if (pluggable_artifacts != null ? !CollectionUtils.isEqualCollection(this.pluggable_artifacts, that.pluggable_artifacts) : that.pluggable_artifacts != null) {
-            return false;
-        }
         if (tasks != null ? this.tasks.size() != that.tasks.size() : that.tasks != null) {
             return false;
         }
@@ -212,7 +196,6 @@ public class CRJob extends CRBase {
         result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
         result = 31 * result + (resources != null ? resources.hashCode() : 0);
         result = 31 * result + (artifacts != null ? artifacts.hashCode() : 0);
-        result = 31 * result + (pluggable_artifacts != null ? pluggable_artifacts.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         result = 31 * result + (elastic_profile_id != null ? elastic_profile_id.hashCode() : 0);
         result = 31 * result + (run_instance_count != null ? run_instance_count.hashCode() : 0);
@@ -274,10 +257,6 @@ public class CRJob extends CRBase {
 
     public Collection<CRPropertyGenerator> getArtifactPropertiesGenerators() {
         return properties;
-    }
-
-    public Collection<CRPluggableArtifact> getPluggableArtifacts() {
-        return pluggable_artifacts;
     }
 
     public void setArtifactPropertiesGenerators(Collection<CRPropertyGenerator> artifactPropertiesGenerators) {

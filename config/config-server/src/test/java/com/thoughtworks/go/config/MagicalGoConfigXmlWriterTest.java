@@ -282,7 +282,7 @@ public class MagicalGoConfigXmlWriterTest {
                         + "    <jobs>\n"
                         + "      <job name=\"functional\">\n"
                         + "        <artifacts>\n"
-                        + "          <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "          <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"file\" />\n"
                         + "        </artifacts>\n"
                         + "      </job>\n"
                         + "    </jobs>\n"
@@ -295,7 +295,7 @@ public class MagicalGoConfigXmlWriterTest {
                         + "  <jobs>\n"
                         + "    <job name=\"functional\">\n"
                         + "      <artifacts>\n"
-                        + "        <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "        <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"file\" />\n"
                         + "      </artifacts>\n"
                         + "    </job>\n"
                         + "  </jobs>\n"
@@ -305,7 +305,7 @@ public class MagicalGoConfigXmlWriterTest {
         assertThat(xmlWriter.toXmlPartial(build), is(
                 "<job name=\"functional\">\n"
                         + "  <artifacts>\n"
-                        + "    <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "    <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"file\" />\n"
                         + "  </artifacts>\n"
                         + "</job>"
         ));

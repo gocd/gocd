@@ -388,7 +388,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String buildXmlPartial =
                 "<job name=\"functional\">\n"
                         + "  <artifacts>\n"
-                        + "    <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "    <artifact type=\"plugin\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "  </artifacts>\n"
                         + "</job>";
         JobConfig build = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), JobConfig.class);
@@ -2484,7 +2484,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <jobs>\n"
                         + "        <job name=\"functional\">\n"
                         + "          <artifacts>\n"
-                        + "            <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "            <artifact type='file' src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "          </artifacts>\n"
                         + "        </job>\n"
                         + "      </jobs>\n"
@@ -3950,12 +3950,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "              </exec>\n" +
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
-                "              <pluggableArtifact id=\"installer\" storeId=\"s3\">\n" +
+                "              <artifact type=\"plugin\" id=\"installer\" storeId=\"s3\">\n" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
                 "                </property>\n" +
-                "              </pluggableArtifact>\n" +
+                "              </artifact>\n" +
                 "            </artifacts>\n" +
                 "          </job>\n" +
                 "        </jobs>\n" +
@@ -3971,148 +3971,6 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThat(artifactConfigs, hasSize(1));
         assertThat(artifactConfigs, contains(new ArtifactConfig("installer", "s3", create("filename", false, "foo.xml"))));
-    }
-
-    @Test
-    public void shouldNotDeserializePluggableArtifactConfigWhenIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <pluggableArtifact storeId=\"s3\">\n" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "              </pluggableArtifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
-
-        try {
-            ConfigMigrator.loadWithMigration(configXml);
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("\"Id\" is required for PluggableArtifact:"));
-        }
-    }
-
-    @Test
-    public void shouldNotDeserializePluggableArtifactConfigWhenStoreIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <pluggableArtifact id=\"installer\">\n" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "              </pluggableArtifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
-
-        try {
-            ConfigMigrator.loadWithMigration(configXml);
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("\"Store id\" is required for PluggableArtifact:"));
-        }
-    }
-
-    @Test
-    public void shouldNotDeserializePluggableArtifactConfigWhenStoreWithIdNotFound() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <pluggableArtifact id=\"installer\" storeId=\"s3\">\n" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "              </pluggableArtifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
-
-        try {
-            ConfigMigrator.loadWithMigration(configXml);
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Artifact store with id `s3` does not exist."));
-        }
     }
 
     private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {

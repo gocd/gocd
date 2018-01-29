@@ -30,22 +30,19 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import java.io.File;
 
 public class MaterialAgentFactory {
-    private ConsoleOutputStreamConsumer consumer;
     private File workingDirectory;
     private final AgentIdentifier agentIdentifier;
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
 
-    public MaterialAgentFactory(ConsoleOutputStreamConsumer consumer, File workingDirectory, AgentIdentifier agentIdentifier,
-                                PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-        this.consumer = consumer;
+    public MaterialAgentFactory(File workingDirectory, AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
         this.workingDirectory = workingDirectory;
         this.agentIdentifier = agentIdentifier;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
     }
 
-    public MaterialAgent createAgent(MaterialRevision revision) {
+    public MaterialAgent createAgent(MaterialRevision revision, ConsoleOutputStreamConsumer consumer) {
         Material material = revision.getMaterial();
         if (material instanceof DependencyMaterial) {
             return MaterialAgent.NO_OP;

@@ -44,13 +44,17 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
 
     @Override
     public void prepare() {
-        PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
-        Modification latestModification = revision.getLatestModification();
-        SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
-        File destinationFolder = material.workingDirectory(workingDirectory);
-        Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
-        if (!result.isSuccessful()) {
-            // handle
+        try {
+            PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
+            Modification latestModification = revision.getLatestModification();
+            SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
+            File destinationFolder = material.workingDirectory(workingDirectory);
+            Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
+            if (!result.isSuccessful()) {
+                // handle
+            }
+        } catch (Exception e) {
+
         }
         // handle messages
     }

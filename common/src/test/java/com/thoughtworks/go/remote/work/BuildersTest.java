@@ -43,7 +43,7 @@ public class BuildersTest {
                 new com.thoughtworks.go.domain.builder.StubBuilder(),
                 "");
 
-        Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null, null);
+        Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null);
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, "utf-8");
 
@@ -55,12 +55,12 @@ public class BuildersTest {
     public void shouldNotSetAsCurrentBuilderIfNotRun() throws Exception {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), null, "");
-        Builders builders = new Builders(Collections.singletonList(builder), null, null, null, null);
+        Builders builders = new Builders(Collections.singletonList(builder), null, null, null);
 
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, "utf-8");
 
-        Builders expected = new Builders(Collections.singletonList(builder), null, null, null, null);
+        Builders expected = new Builders(Collections.singletonList(builder), null, null, null);
         expected.setIsCancelled(true);
 
         assertThat(builders, is(expected));
@@ -70,7 +70,7 @@ public class BuildersTest {
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws Exception {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new StubBuilder(new RunIfConfigs(ANY));
-        Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null, null, null);
+        Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null, null);
         builders.build(environmentVariableContext, "utf-8");
         builders.cancel(environmentVariableContext, "utf-8");
     }

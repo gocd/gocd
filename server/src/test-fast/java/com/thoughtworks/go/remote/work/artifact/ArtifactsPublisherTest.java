@@ -46,8 +46,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -74,7 +74,7 @@ public class ArtifactsPublisherTest {
         registry = mock(PluginRequestProcessorRegistry.class);
         publisher = new StubGoPublisher();
 
-        artifactsPublisher = new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder);
+        artifactsPublisher = new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), workingFolder);
 
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
@@ -135,7 +135,7 @@ public class ArtifactsPublisherTest {
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src2.getName(), "test"));
         StubGoPublisher publisher = new StubGoPublisher();
 
-        new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans, env);
+        new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), workingFolder).publishArtifacts(artifactPlans, env);
 
         Map<File, String> expectedFiles = new HashMap<File, String>() {
             {
@@ -180,7 +180,7 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("image", "alpine")));
 
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
 
         assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles()), containsInAnyOrder("cd.go.s3.json", "cd.go.docker.json"));
@@ -195,7 +195,7 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env))).thenThrow(new RuntimeException("something"));
 
         try {
-            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                     .publishArtifacts(Arrays.asList(artifactPlan), env);
             fail("Should throw error for pluggable artifact [installers].");
         } catch (Exception e) {
@@ -221,8 +221,9 @@ public class ArtifactsPublisherTest {
 
         workingFolder.setWritable(false);
 
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(Arrays.asList(artifactPlan), env);
+
     }
 
     @Test
@@ -238,7 +239,7 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0")));
         try {
-            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                     .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
             fail("Should throw error for pluggable artifact [installers].");
         } catch (Exception e) {
@@ -278,7 +279,7 @@ public class ArtifactsPublisherTest {
 
         final GoPublisher publisher = mock(GoPublisher.class);
 
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(artifactPlans, env);
 
         InOrder inOrder = inOrder(publisher);
@@ -308,7 +309,7 @@ public class ArtifactsPublisherTest {
         final GoPublisher publisher = mock(GoPublisher.class);
 
         assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(artifactPlans, env);
         assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
     }
@@ -322,7 +323,7 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist")));
 
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(Arrays.asList(s3ArtifactPlan), env);
 
         InOrder inOrder = inOrder(registry, artifactExtension);

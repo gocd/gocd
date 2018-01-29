@@ -96,7 +96,7 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-        taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+        taskBuilder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
 
         assertThat(executeTaskCalled[0], is(1));
     }
@@ -248,7 +248,7 @@ public class PluggableTaskBuilderTest {
         };
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -271,7 +271,7 @@ public class PluggableTaskBuilderTest {
         };
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -287,7 +287,7 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
 
-        builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+        builder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
         assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
     }
 
@@ -299,7 +299,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
 
         try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+            builder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
@@ -314,7 +314,7 @@ public class PluggableTaskBuilderTest {
 
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
         try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
+            builder.build(goPublisher, variableContext, taskExtension, null, "utf-8");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));

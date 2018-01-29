@@ -24,13 +24,14 @@ describe("Dashboard", () => {
 
       expect(pipelineGroups.groups.length).toBe(1);
       expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);
-
+      expect(pipelineGroups.groups[0].canAdminister).toBe(pipelineGroupsData[0].can_administer);
+      expect(pipelineGroups.groups[0].path).toBe('/go/admin/pipelines#group-first');
       expect(pipelineGroups.groups[0].pipelines).toEqual(pipelineGroupsData[0].pipelines);
     });
 
     const pipelineGroupsData = [
       {
-        "_links":    {
+        "_links":         {
           "self": {
             "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
           },
@@ -38,8 +39,9 @@ describe("Dashboard", () => {
             "href": "https://api.go.cd/current/#pipeline-groups"
           }
         },
-        "name":      "first",
-        "pipelines": ["up42"]
+        "name":           "first",
+        "pipelines":      ["up42"],
+        "can_administer": true
       }
     ];
   });

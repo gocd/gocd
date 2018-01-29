@@ -18,18 +18,23 @@ const _        = require('lodash');
 const $        = require('jquery');
 const m        = require('mithril');
 const mrequest = require('helpers/mrequest');
+const VMRoutes = require('helpers/vm_routes');
+const Routes   = require('gen/js-routes');
 
 const PipelineInstance = require('models/dashboard/pipeline_instance');
 
 const Pipeline = function (info) {
-  this.name         = info.name;
-  this.settingsPath = info._links.settings_path.href;
-  this.historyPath  = info._links.self.href;
-  this.instances    = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance));
+  this.name = info.name;
+
+  this.canAdminister = info.can_administer;
+  this.settingsPath  = Routes.pipelineEditPath('pipelines', info.name, 'general');
+  this.quickEditPath = Routes.editAdminPipelineConfigPath(info.name);
+
+  this.historyPath = VMRoutes.pipelineHistoryPath(info.name);
+  this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance));
 
   const triggerPath = info._links.trigger.href;
-
-  this.xhrPost = (url) => {
+  this.xhrPost      = (url) => {
     const config = (xhr) => {
       xhr.setRequestHeader("Confirm", "true");
     };

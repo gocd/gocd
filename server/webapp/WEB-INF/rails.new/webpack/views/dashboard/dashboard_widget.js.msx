@@ -34,18 +34,23 @@ const DashboardWidget = {
     };
 
     attachClickEventToBody();
-    this.getPipelinesGroupView = (pipelineGroup, _index) => {
+    this.getPipelinesGroupView = (pipelineGroup) => {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
           <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
+                          isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
                           dropdown={vnode.attrs.vm.dropdown}/>
         );
       });
 
+      const title = (pipelineGroup.canAdminister)
+        ? (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>)
+        : (<span>{pipelineGroup.name}</span>);
+
       return (
         <div class="pipeline-group">
           <h2 class="pipeline-group_title">
-            <a href={"/go/foo"}> {pipelineGroup.name}</a>
+            {title}
           </h2>
           <ul class="pipeline-group_items">
             {pipelines}

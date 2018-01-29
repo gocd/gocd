@@ -13,13 +13,16 @@
 # limitations under the License.
 ##########################################################################
 JsRoutes.setup do |config|
-  config.prefix     = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
+  config.prefix = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
   config.camel_case = true
-  config.include    = [
+  config.include = [
     /analytics/,
     /^api_internal/,
     /^apiv\d/,
     /^admin_elastic_profile/,
-    /^admin_status_report/
+    /^admin_status_report/,
+    /^pipeline_groups/,
+    /^pipeline_edit/,
+    /^edit_admin_pipeline_config/
   ]
 end

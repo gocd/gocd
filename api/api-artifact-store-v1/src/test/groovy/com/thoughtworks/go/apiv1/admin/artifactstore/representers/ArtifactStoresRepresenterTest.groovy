@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.artifactstorev1
+package com.thoughtworks.go.apiv1.admin.artifactstore.representers
 
-import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.config.ArtifactStore
 import com.thoughtworks.go.config.ArtifactStores
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoresMapper
+import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.Test
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
@@ -31,8 +30,10 @@ class ArtifactStoresRepresenterTest {
       "doc" : ["href": "https://api.gocd.org/#artifact-stores"],
       "find": ["href": "http://test.host/go/api/admin/artifact_stores/:storeId"],
       "self": ["href": "http://test.host/go/api/admin/artifact_stores/s3"]
-    ], "id"     : "s3", "plugin_id": "cd.go.s3",
-    "properties": [["encrypted_value": "Dze7OVmEl9EhRzg9ty3VtA==", "key": "AccessKey"]]
+    ],
+    "id"        : "s3",
+    "plugin_id" : "cd.go.s3",
+    "properties": [["encrypted_value": "psVH+oJmIgirBOn/7YLrWQ==", "key": "AccessKey"]]
   ]
 
 
@@ -41,7 +42,9 @@ class ArtifactStoresRepresenterTest {
       "doc" : ["href": "https://api.gocd.org/#artifact-stores"],
       "find": ["href": "http://test.host/go/api/admin/artifact_stores/:storeId"],
       "self": ["href": "http://test.host/go/api/admin/artifact_stores/docker"]
-    ], "id"     : "docker", "plugin_id": "cd.go.docker",
+    ],
+    "id"        : "docker",
+    "plugin_id" : "cd.go.docker",
     "properties": [["key": "Username", "value": "admin"]]
   ]
 
@@ -63,18 +66,7 @@ class ArtifactStoresRepresenterTest {
       new ArtifactStore("s3", "cd.go.s3", create("AccessKey", true, "some-key"))
     )
 
-    def map = ArtifactStoresMapper.toJSON(artifactStores, new TestRequestContext())
+    def map = ArtifactStoresRepresenter.toJSON(artifactStores, new TestRequestContext())
     assertThat(map).isEqualTo(allArtifactStoresJSON)
-  }
-
-  @Test
-  void 'should deserialize json to artifact stores'() {
-    def artifactStores = new ArtifactStores(
-      new ArtifactStore("docker", "cd.go.docker", create("Username", false, "admin")),
-      new ArtifactStore("s3", "cd.go.s3", create("AccessKey", true, "some-key"))
-    )
-
-    def deserializedArtifactStores = ArtifactStoresMapper.fromJSON(allArtifactStoresJSON._embedded)
-    assertThat(deserializedArtifactStores).isEqualTo(artifactStores)
   }
 }

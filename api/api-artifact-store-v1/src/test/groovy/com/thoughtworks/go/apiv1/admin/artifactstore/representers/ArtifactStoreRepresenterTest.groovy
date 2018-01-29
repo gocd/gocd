@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.representers.config.artifactstorev1
+package com.thoughtworks.go.apiv1.admin.artifactstore.representers
 
-import cd.go.jrepresenter.TestRequestContext
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.ArtifactStore
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoreMapper
+import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.Test
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
@@ -38,7 +38,7 @@ class ArtifactStoreRepresenterTest {
   void 'should serialize to json'() {
     def artifactStore = new ArtifactStore("docker", "cd.go.docker", create("Username", false, "admin"))
 
-    def map = ArtifactStoreMapper.toJSON(artifactStore, new TestRequestContext())
+    def map = ArtifactStoreRepresenter.toJSON(artifactStore, new TestRequestContext())
 
     assertThat(map).isEqualTo(dockerArtifactStore)
   }
@@ -46,8 +46,8 @@ class ArtifactStoreRepresenterTest {
   @Test
   void 'should deserialize json to artifact stores'() {
     def artifactStore = new ArtifactStore("docker", "cd.go.docker", create("Username", false, "admin"))
-
-    def deserializedArtifactStore = ArtifactStoreMapper.fromJSON(dockerArtifactStore)
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(dockerArtifactStore)
+    def deserializedArtifactStore = ArtifactStoreRepresenter.fromJSON(jsonReader)
     assertThat(deserializedArtifactStore).isEqualTo(artifactStore)
   }
 }

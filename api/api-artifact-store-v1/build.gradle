@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
-  }
-}
-
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
 
 apply from: rootProject.file('buildSrc/junit5-support.gradle')
-apply from: rootProject.file('buildSrc/jrepresenter-support.gradle')
-
 
 dependencies {
   compile project(':config-api')

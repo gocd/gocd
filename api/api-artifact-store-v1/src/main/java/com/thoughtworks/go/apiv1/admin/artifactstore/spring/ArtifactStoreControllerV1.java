@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin.spring;
+package com.thoughtworks.go.apiv1.admin.artifactstore.spring;
 
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
-import com.thoughtworks.go.api.spring.SparkSpringController;
-import com.thoughtworks.go.apiv1.admin.ArtifactStoresControllerV1Delegate;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.admin.artifactstore.ArtifactStoresControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class ArtifactStoreControllerV1 implements SparkSpringController {
     private final ArtifactStoresControllerV1Delegate delegate;
 
     @Autowired
-    public ArtifactStoreControllerV1(ArtifactStoreService artifactStoreService, EntityHashingService entityHashingService, AuthenticationHelper authenticationHelper, Localizer localizer) {
+    public ArtifactStoreControllerV1(ArtifactStoreService artifactStoreService, EntityHashingService entityHashingService, ApiAuthenticationHelper authenticationHelper, Localizer localizer) {
         delegate = new ArtifactStoresControllerV1Delegate(artifactStoreService, entityHashingService, authenticationHelper, localizer);
     }
 

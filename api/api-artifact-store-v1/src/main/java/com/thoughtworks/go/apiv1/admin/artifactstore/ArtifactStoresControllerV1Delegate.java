@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin;
+package com.thoughtworks.go.apiv1.admin.artifactstore;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
-import com.thoughtworks.go.api.spring.AuthenticationHelper;
+import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.admin.artifactstore.representers.ArtifactStoreRepresenter;
+import com.thoughtworks.go.apiv1.admin.artifactstore.representers.ArtifactStoresRepresenter;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
@@ -30,8 +33,6 @@ import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoreMapper;
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoresMapper;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -39,16 +40,17 @@ import spark.Response;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.thoughtworks.go.api.util.HaltResponses.*;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.spark.RequestContext.requestContext;
 import static spark.Spark.*;
 
 public class ArtifactStoresControllerV1Delegate extends ApiController implements CrudController<ArtifactStore> {
     private final ArtifactStoreService artifactStoreService;
     private final EntityHashingService entityHashingService;
-    private final AuthenticationHelper authenticationHelper;
+    private final ApiAuthenticationHelper authenticationHelper;
     private final Localizer localizer;
 
-    public ArtifactStoresControllerV1Delegate(ArtifactStoreService artifactStoreService, EntityHashingService entityHashingService, AuthenticationHelper authenticationHelper, Localizer localizer) {
+    public ArtifactStoresControllerV1Delegate(ArtifactStoreService artifactStoreService, EntityHashingService entityHashingService, ApiAuthenticationHelper authenticationHelper, Localizer localizer) {
         super(ApiVersion.v1);
         this.artifactStoreService = artifactStoreService;
         this.entityHashingService = entityHashingService;
@@ -94,7 +96,7 @@ public class ArtifactStoresControllerV1Delegate extends ApiController implements
             return notModified(res);
         } else {
             setEtagHeader(res, etag);
-            return ArtifactStoresMapper.toJSON(artifactStores, requestContext(req));
+            return ArtifactStoresRepresenter.toJSON(artifactStores, requestContext(req));
         }
     }
 
@@ -151,7 +153,6 @@ public class ArtifactStoresControllerV1Delegate extends ApiController implements
         return entityHashingService.md5ForEntity(entityFromServer);
     }
 
-    @Override
     public boolean isRenameAttempt(ArtifactStore fromServer, ArtifactStore fromRequest) {
         return !fromServer.getId().equalsIgnoreCase(fromRequest.getId());
     }
@@ -168,12 +169,14 @@ public class ArtifactStoresControllerV1Delegate extends ApiController implements
 
     @Override
     public ArtifactStore getEntityFromRequestBody(Request req) {
-        return ArtifactStoreMapper.fromJSON(GsonTransformer.getInstance().fromJson(req.body(), Map.class), requestContext(req));
+        GsonTransformer gsonTransformer = GsonTransformer.getInstance();
+        JsonReader jsonReader = gsonTransformer.jsonReaderFrom(req.body());
+        return ArtifactStoreRepresenter.fromJSON(jsonReader);
     }
 
     @Override
     public Map jsonize(Request req, ArtifactStore artifactStore) {
-        return ArtifactStoreMapper.toJSON(artifactStore, requestContext(req));
+        return ArtifactStoreRepresenter.toJSON(artifactStore, requestContext(req));
     }
 
     private void haltIfEntityBySameNameInRequestExists(Request req, ArtifactStore artifactStore) {

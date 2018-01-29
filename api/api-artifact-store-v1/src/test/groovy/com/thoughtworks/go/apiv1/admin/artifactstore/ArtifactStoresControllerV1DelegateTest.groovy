@@ -14,30 +14,31 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin
+package com.thoughtworks.go.apiv1.admin.artifactstore
 
 import com.thoughtworks.go.api.ClearSingletonExtension
-import com.thoughtworks.go.api.ControllerTrait
-import com.thoughtworks.go.api.SecurityServiceTrait
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.AuthenticationHelper
-import com.thoughtworks.go.api.util.HaltMessages
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.apiv1.admin.artifactstore.representers.ArtifactStoreRepresenter
+import com.thoughtworks.go.apiv1.admin.artifactstore.representers.ArtifactStoresRepresenter
 import com.thoughtworks.go.config.ArtifactStore
 import com.thoughtworks.go.config.ArtifactStores
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.ArtifactStoreService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoreMapper
-import gen.com.thoughtworks.go.apiv1.admin.representers.ArtifactStoresMapper
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.util.HaltMessages.entityAlreadyExistsMessage
-import static com.thoughtworks.go.api.util.HaltMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -58,7 +59,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
 
   @Override
   ArtifactStoresControllerV1Delegate createControllerInstance() {
-    return new ArtifactStoresControllerV1Delegate(artifactStoreService, entityHashingService, new AuthenticationHelper(goConfigService, securityService), localizer)
+    return new ArtifactStoresControllerV1Delegate(artifactStoreService, entityHashingService, new ApiAuthenticationHelper(securityService, goConfigService), localizer)
   }
 
   @Nested
@@ -66,7 +67,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
     @Nested
     class Security implements SecurityTestTrait {
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow all with security disabled'() {
         disableSecurity()
 
@@ -74,7 +75,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void "should disallow anonymous users, with security enabled"() {
         enableSecurity()
         loginAsAnonymous()
@@ -84,7 +85,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow normal users, with security enabled'() {
         enableSecurity()
         loginAsUser()
@@ -93,7 +94,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow admin, with security enabled'() {
         enableSecurity()
         loginAsAdmin()
@@ -102,7 +103,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow pipeline group admin users, with security enabled'() {
         enableSecurity()
         loginAsGroupAdmin()
@@ -130,7 +131,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         loginAsAdmin()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should list all artifact stores'() {
         def expectedArtifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"))
         when(entityHashingService.md5ForEntity(expectedArtifactStores)).thenReturn("some-etag")
@@ -142,10 +143,10 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .isOk()
           .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(expectedArtifactStores, ArtifactStoresMapper)
+          .hasJsonBodySerializedWith(expectedArtifactStores, ArtifactStoresRepresenter)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render 304 if etag matches'() {
         def expectedArtifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"))
 
@@ -170,7 +171,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         when(artifactStoreService.findArtifactStore("foo")).thenReturn(new ArtifactStore("foo", "bar"))
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow all with security disabled'() {
         disableSecurity()
 
@@ -232,7 +233,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         this.result = new HttpLocalizedOperationResult()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render the artifact store of specified id'() {
         def artifactStore = new ArtifactStore('docker', 'cd.go.docker')
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
@@ -244,10 +245,10 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .isOk()
           .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreMapper)
+          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreRepresenter)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should return 404 if the artifact store does not exist'() {
         when(artifactStoreService.findArtifactStore('non-existent-artifact-store')).thenReturn(null)
 
@@ -255,11 +256,11 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltMessages.notFoundMessage())
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render 304 if etag matches'() {
         def artifactStore = new ArtifactStore('docker', 'cd.go.docker')
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
@@ -271,7 +272,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .hasContentType(controller.mimeType)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render 200 if etag does not match'() {
         def artifactStore = new ArtifactStore('docker', 'cd.go.docker')
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
@@ -282,7 +283,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .isOk()
           .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreMapper)
+          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreRepresenter)
       }
     }
   }
@@ -293,7 +294,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
     @Nested
     class Security implements SecurityTestTrait {
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow all with security disabled'() {
         disableSecurity()
 
@@ -301,7 +302,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       def 'should disallow anonymous users, with security enabled'() {
         enableSecurity()
         loginAsAnonymous()
@@ -311,7 +312,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       def 'should disallow normal users, with security enabled'() {
         enableSecurity()
         loginAsUser()
@@ -321,7 +322,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       def 'should allow admin, with security enabled'() {
         enableSecurity()
         loginAsAdmin()
@@ -331,7 +332,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       def 'should disallow pipeline group admin users, with security enabled'() {
         enableSecurity()
         loginAsGroupAdmin()
@@ -359,23 +360,23 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         loginAsAdmin()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should deserialize artifact store from given parameters'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'docker')
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('some-md5')
         when(artifactStoreService.findArtifactStore('docker')).thenReturn(null)
         doNothing().when(artifactStoreService).create(any(), any(), any())
 
-        postWithApiHeader(controller.controllerPath(), ArtifactStoreMapper.toJSON(artifactStore, requestContext))
+        postWithApiHeader(controller.controllerPath(), ArtifactStoreRepresenter.toJSON(artifactStore, requestContext))
 
         assertThatResponse()
           .isOk()
           .hasEtag('"some-md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreMapper)
+          .hasJsonBodySerializedWith(artifactStore, ArtifactStoreRepresenter)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should fail to save if there are validation errors'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'docker')
 
@@ -384,7 +385,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"))
         })
 
-        postWithApiHeader(controller.controllerPath(), ArtifactStoreMapper.toJSON(artifactStore, requestContext))
+        postWithApiHeader(controller.controllerPath(), ArtifactStoreRepresenter.toJSON(artifactStore, requestContext))
 
         assertThatResponse()
           .isUnprocessibleEntity()
@@ -392,7 +393,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .hasJsonMessage("ENTITY_CONFIG_VALIDATION_FAILED")
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should check for existence of artifact store with same id'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'skunkworks')
 
@@ -400,7 +401,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         expectedArtifactStore.addError('id', 'Artifact store ids should be unique. Artifact store with the same id exists.')
 
         when(artifactStoreService.findArtifactStore('docker')).thenReturn(artifactStore)
-        postWithApiHeader(controller.controllerPath(), ArtifactStoreMapper.toJSON(expectedArtifactStore, requestContext))
+        postWithApiHeader(controller.controllerPath(), ArtifactStoreRepresenter.toJSON(expectedArtifactStore, requestContext))
 
         verify(artifactStoreService, never()).create(any(), any(), any())
 
@@ -408,7 +409,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .isUnprocessibleEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("artifactStore", "docker"))
-          .hasJsonAtrribute('data', ArtifactStoreMapper.toJSON(expectedArtifactStore, requestContext))
+          .hasJsonAtrribute('data', ArtifactStoreRepresenter.toJSON(expectedArtifactStore, requestContext))
       }
     }
   }
@@ -436,17 +437,17 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-md5',
           'content-type': 'application/json'
-        ], ArtifactStoreMapper.toJSON(this.artifactStore, requestContext))
+        ], ArtifactStoreRepresenter.toJSON(this.artifactStore, requestContext))
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow all with security disabled'() {
         disableSecurity()
         makeHttpCall()
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow anonymous users, with security enabled'() {
         enableSecurity()
         loginAsAnonymous()
@@ -455,7 +456,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow normal users, with security enabled'() {
         enableSecurity()
         loginAsUser()
@@ -463,7 +464,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow admin, with security enabled'() {
         enableSecurity()
         loginAsAdmin()
@@ -471,7 +472,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow pipeline group admin users, with security enabled'() {
         enableSecurity()
         loginAsGroupAdmin()
@@ -488,7 +489,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         loginAsAdmin()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should not allow rename of artifact store id'() {
         ArtifactStore artifactStore = new ArtifactStore('foo', 'cd.go.docker')
 
@@ -509,24 +510,24 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertThatResponse()
           .isUnprocessibleEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(HaltMessages.renameOfEntityIsNotSupportedMessage("artifactStore"))
+          .hasJsonMessage(HaltApiMessages.renameOfEntityIsNotSupportedMessage("artifactStore"))
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should fail update if etag does not match'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'cd.go.docker')
 
         when(artifactStoreService.findArtifactStore('docker')).thenReturn(artifactStore)
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
 
-        putWithApiHeader(controller.controllerPath('/docker'), ['if-match': 'some-string'], ArtifactStoreMapper.toJSON(artifactStore, requestContext))
+        putWithApiHeader(controller.controllerPath('/docker'), ['if-match': 'some-string'], ArtifactStoreRepresenter.toJSON(artifactStore, requestContext))
 
         assertThatResponse()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(etagDoesNotMatch("artifactStore", "docker"))
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should proceed with update if etag matches'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'cd.go.docker')
         ArtifactStore newRole = new ArtifactStore('docker', 'docker')
@@ -535,13 +536,13 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
         when(entityHashingService.md5ForEntity(newRole)).thenReturn('new-md5')
 
-        putWithApiHeader(controller.controllerPath('/docker'), ['if-match': 'cached-md5'], ArtifactStoreMapper.toJSON((ArtifactStore) newRole, requestContext))
+        putWithApiHeader(controller.controllerPath('/docker'), ['if-match': 'cached-md5'], ArtifactStoreRepresenter.toJSON((ArtifactStore) newRole, requestContext))
 
         assertThatResponse()
           .isOk()
           .hasEtag('"new-md5"')
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(newRole, ArtifactStoreMapper)
+          .hasJsonBodySerializedWith(newRole, ArtifactStoreRepresenter)
       }
     }
   }
@@ -567,14 +568,14 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         deleteWithApiHeader(controller.controllerPath('/docker'))
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow all with security disabled'() {
         disableSecurity()
         makeHttpCall()
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow anonymous users, with security enabled'() {
         enableSecurity()
         loginAsAnonymous()
@@ -583,7 +584,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow normal users, with security enabled'() {
         enableSecurity()
         loginAsUser()
@@ -591,7 +592,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestNotAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should allow admin, with security enabled'() {
         enableSecurity()
         loginAsAdmin()
@@ -599,7 +600,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         assertRequestAuthorized()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should disallow pipeline group admin users, with security enabled'() {
         enableSecurity()
         loginAsGroupAdmin()
@@ -616,17 +617,17 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
         loginAsAdmin()
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should raise an error if artifactStore is not found'() {
         when(artifactStoreService.findArtifactStore('docker')).thenReturn(null)
         deleteWithApiHeader(controller.controllerPath('/docker'))
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltMessages.notFoundMessage())
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
           .hasContentType(controller.mimeType)
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render the success message on deleting a artifactStore'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'cd.go.docker')
         when(artifactStoreService.findArtifactStore('docker')).thenReturn(artifactStore)
@@ -644,7 +645,7 @@ class ArtifactStoresControllerV1DelegateTest implements SecurityServiceTrait, Co
           .hasJsonMessage('RESOURCE_DELETE_SUCCESSFUL')
       }
 
-      @org.junit.jupiter.api.Test
+      @Test
       void 'should render the validation errors on failure to delete'() {
         ArtifactStore artifactStore = new ArtifactStore('docker', 'cd.go.docker')
 

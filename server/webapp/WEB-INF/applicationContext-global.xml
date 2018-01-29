@@ -39,7 +39,7 @@
     <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.currentuser.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.backups.spring"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.artifactstore.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>
     <context:component-scan base-package="com.thoughtworks.go.domain"/>

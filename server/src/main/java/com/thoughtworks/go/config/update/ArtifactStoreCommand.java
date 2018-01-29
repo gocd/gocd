@@ -43,7 +43,7 @@ abstract class ArtifactStoreCommand extends PluginProfileCommand<ArtifactStore, 
     }
 
     @Override
-    protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
+    public ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
         return extension.validateArtifactStoreConfig(pluginId, configuration);
     }
 

@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const Routes = require('gen/js-routes');
-
-const PipelineGroup = function (info) {
-  this.name          = info.name;
-  this.path          = `${Routes.pipelineGroupsPath()}#group-${this.name}`;
-  this.canAdminister = info.can_administer;
-  this.pipelines     = info.pipelines;
+module.exports = {
+  pipelineHistoryPath: (pipelineName) => {
+    return `/go/tab/pipeline/history/${pipelineName}`;
+  }
 };
-
-const PipelineGroups = function (groups) {
-  this.groups = _.map(groups, (group) => new PipelineGroup(group));
-};
-
-module.exports = PipelineGroups;

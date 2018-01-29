@@ -22,8 +22,12 @@ describe("Dashboard", () => {
       const pipeline = new Pipeline(pipelineJson);
 
       expect(pipeline.name).toBe(pipelineJson.name);
-      expect(pipeline.settingsPath).toBe(pipelineJson._links.settings_path.href);
-      expect(pipeline.historyPath).toBe(pipelineJson._links.self.href);
+
+      expect(pipeline.canAdminister).toBe(true);
+      expect(pipeline.settingsPath).toBe(`/go/admin/pipelines/${pipelineJson.name}/general`);
+      expect(pipeline.quickEditPath).toBe(`/go/admin/pipelines/${pipelineJson.name}/edit`);
+
+      expect(pipeline.historyPath).toBe(`/go/tab/pipeline/history/${pipelineJson.name}`);
       expect(pipeline.instances.length).toEqual(pipelineJson._embedded.instances.length);
     });
 
@@ -59,6 +63,7 @@ describe("Dashboard", () => {
         "paused_by":    null,
         "pause_reason": null
       },
+      "can_administer":         true,
       "_embedded":              {
         "instances": [
           {
@@ -83,28 +88,28 @@ describe("Dashboard", () => {
               }
             },
             "label":        "1",
-            "scheduled_at":  "2017-11-10T07:25:28.539Z",
+            "scheduled_at": "2017-11-10T07:25:28.539Z",
             "triggered_by": "changes",
-            "build_cause": {
-              "approver": "",
-              "is_forced": false,
-              "trigger_message": "modified by GoCD Test User <devnull@example.com>",
+            "build_cause":  {
+              "approver":           "",
+              "is_forced":          false,
+              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
               "material_revisions": [
                 {
                   "material_type": "Git",
                   "material_name": "test-repo",
-                  "changed": true,
+                  "changed":       true,
                   "modifications": [
                     {
-                      "_links": {
+                      "_links":        {
                         "vsm": {
                           "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
                         }
                       },
-                      "user_name": "GoCD Test User <devnull@example.com>",
-                      "revision": "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                      "user_name":     "GoCD Test User <devnull@example.com>",
+                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
                       "modified_time": "2017-12-19T05:30:32.000Z",
-                      "comment": "Initial commit"
+                      "comment":       "Initial commit"
                     }
                   ]
                 }

@@ -25,6 +25,8 @@ require('foundation-sites');
 const dashboardViewModel = new DashboardVM();
 
 $(() => {
+  const dashboardElem          = $('#dashboard');
+  const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   $(document).foundation();
 
   const onSuccess = (dashboard) => {
@@ -32,6 +34,7 @@ $(() => {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          isQuickEditPageEnabled,
           vm: dashboardViewModel
         });
       }

@@ -21,13 +21,23 @@ const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget
 
 const PipelineHeaderWidget = {
   view: (vnode) => {
+    const pipeline = vnode.attrs.pipeline;
+    let settingsButton;
+
+    if (pipeline.canAdminister) {
+      const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
+      settingsButton     = (<a class={`pipeline_edit`} href={settingsPath}/>);
+    } else {
+      settingsButton = (<a class={`pipeline_edit disabled`}/>);
+    }
+
     return (
       <div class="pipeline_header">
-        <h3 class="pipeline_name"> {vnode.attrs.pipeline.name}</h3>
-        <a href="#" class="pipeline_history">History</a>
+        <h3 class="pipeline_name"> {pipeline.name}</h3>
+        <a href={pipeline.historyPath} class="pipeline_history">History</a>
         <div className="pipeline_actions">
-          <a class="pipeline_edit" href={vnode.attrs.pipeline.settingsPath}></a>
-          <button className="pipeline_locked"></button>
+          {settingsButton}
+          <button className="pipeline_locked"/>
         </div>
 
         <ul className="pipeline_operations">
@@ -66,7 +76,8 @@ const PipelineWidget = {
     return (
       <li class="pipeline-group_pipeline">
         <div class="pipeline">
-          <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}/>
+          <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
+                                isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
           <div className="pipeline_instances">
             {pipelineInstances}
           </div>

@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -77,14 +79,14 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetCapabilities() throws Exception {
-        String responseBody = "{\"supports_pipeline_analytics\":\"true\", \"supports_analytics_dashboard\":\"true\"}";
+        String responseBody = "{\"supports_pipeline_analytics\":\"true\", \"supported_analytics_dashboard_metrics\": [\"foo\"]}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
-        assertThat(capabilities.supportsPipelineAnalytics(), is(true));
-        assertThat(capabilities.supportsAnalyticsDashboard(), is(true));
+        assertTrue(capabilities.supportsPipelineAnalytics());
+        assertEquals(Collections.singletonList("foo"), capabilities.supportedAnalyticsDashboardMetrics());
     }
 
     @Test
@@ -119,9 +121,9 @@ public class AnalyticsExtensionTest {
         pluginInfo.setStaticAssetsPath("/assets/root");
         metadataStore.setPluginInfo(pluginInfo);
 
-        AnalyticsData dashboardAnalytics = analyticsExtension.getDashboardAnalytics(PLUGIN_ID);
+        AnalyticsData dashboardAnalytics = analyticsExtension.getDashboardAnalytics(PLUGIN_ID, "metric");
 
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"dashboard\"}");
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"dashboard\", \"data\": {\"metric\": \"metric\"}}");
 
         assertThat(dashboardAnalytics.getViewPath(), is("path/to/view"));
 

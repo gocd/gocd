@@ -26,6 +26,12 @@ import org.apache.commons.lang.StringUtils;
 public class AnalyticsData {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
+    public static class MissingRequiredKeyException extends RuntimeException {
+        MissingRequiredKeyException(String message) {
+            super(message);
+        }
+    }
+
     @Expose
     @SerializedName("data")
     String data;
@@ -50,7 +56,13 @@ public class AnalyticsData {
         return new com.thoughtworks.go.plugin.domain.analytics.AnalyticsData(data, viewPath);
     }
 
-    public boolean isValid() {
-        return (!StringUtils.isBlank(data) && !StringUtils.isBlank(viewPath));
+    public void validate() {
+        if (StringUtils.isBlank(data)) {
+            throw new MissingRequiredKeyException("Missing \"data\" key in analytics payload");
+        }
+
+        if (StringUtils.isBlank(viewPath)) {
+            throw new MissingRequiredKeyException("Missing \"view_path\" key in analytics payload");
+        }
     }
 }

@@ -21,6 +21,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Capabilities {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
@@ -29,16 +31,16 @@ public class Capabilities {
     private final boolean supportsPipelineAnalytics;
 
     @Expose
-    @SerializedName("supports_analytics_dashboard")
-    private final boolean supportsAnalyticsDashboard;
+    @SerializedName("supported_analytics_dashboard_metrics")
+    private final List<String> supportedAnalyticsDashboardMetrics;
 
-    public Capabilities(boolean supportsPipelineAnalytics, boolean supportsAnalyticsDashboard) {
+    public Capabilities(boolean supportsPipelineAnalytics, List<String> supportedAnalyticsDashboardMetrics) {
         this.supportsPipelineAnalytics = supportsPipelineAnalytics;
-        this.supportsAnalyticsDashboard = supportsAnalyticsDashboard;
+        this.supportedAnalyticsDashboardMetrics = supportedAnalyticsDashboardMetrics;
     }
 
-    public boolean supportsAnalyticsDashboard() {
-        return supportsAnalyticsDashboard;
+    public List<String> supportedAnalyticsDashboardMetrics() {
+        return supportedAnalyticsDashboardMetrics;
     }
 
     public boolean supportsPipelineAnalytics() {
@@ -54,6 +56,6 @@ public class Capabilities {
     }
 
     public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilities() {
-        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics, supportsAnalyticsDashboard);
+        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics, supportedAnalyticsDashboardMetrics);
     }
 }

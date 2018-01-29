@@ -29,9 +29,9 @@ public interface AnalyticsMessageConverter {
 
     AnalyticsData getAnalyticsFromResponseBody(String responseBody);
 
-    String getDashboardAnalyticsRequestBody();
+    String getDashboardAnalyticsRequestBody(String metric);
 
-    String getStaticAssets(String responseBody);
+    String getStaticAssetsFromResponseBody(String responseBody);
 
-    Image getImageResponseFromBody(String responseBody);
+    Image getImageFromResponseBody(String responseBody);
 }

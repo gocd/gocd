@@ -29,6 +29,7 @@ import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
@@ -107,9 +108,7 @@ public class AgentHTTPClientControllerTest {
         agentController.init();
         agentController.ping();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
-                any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension),
-                eq(scmExtension), eq(taskExtension), eq(artifactExtension));
+        verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 
@@ -123,9 +122,7 @@ public class AgentHTTPClientControllerTest {
         when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController.loop();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
-                any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()),
-                eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension), eq(artifactExtension));
+        verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
     }
 
     @Test
@@ -135,7 +132,7 @@ public class AgentHTTPClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension), eq(artifactExtension));
+        verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 
@@ -143,7 +140,7 @@ public class AgentHTTPClientControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null, null);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -184,6 +181,6 @@ public class AgentHTTPClientControllerTest {
                 packageRepositoryExtension,
                 scmExtension,
                 taskExtension,
-                artifactExtension, null);
+                artifactExtension, null, null);
     }
 }

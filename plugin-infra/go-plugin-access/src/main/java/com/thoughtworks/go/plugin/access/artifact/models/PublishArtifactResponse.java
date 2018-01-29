@@ -21,7 +21,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
 import java.util.Map;
 
 public class PublishArtifactResponse {
@@ -30,24 +29,16 @@ public class PublishArtifactResponse {
     public PublishArtifactResponse() {
     }
 
-    public PublishArtifactResponse(Map<String, Object> metadata, List<String> errors) {
+    public PublishArtifactResponse(Map<String, Object> metadata) {
         this.metadata = metadata;
-        this.errors = errors;
     }
 
     @Expose
     @SerializedName("metadata")
     private Map<String, Object> metadata;
-    @Expose
-    @SerializedName("errors")
-    private List<String> errors;
 
     public Map<String, Object> getMetadata() {
         return metadata;
-    }
-
-    public List<String> getErrors() {
-        return errors;
     }
 
     public static PublishArtifactResponse fromJSON(String json) {

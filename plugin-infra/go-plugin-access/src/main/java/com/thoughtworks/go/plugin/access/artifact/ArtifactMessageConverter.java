@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ArtifactMessageConverter {
-    String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory);
+    String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory);
 
     PublishArtifactResponse publishArtifactResponse(String responseBody);
 
@@ -41,7 +41,7 @@ public interface ArtifactMessageConverter {
 
     ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody);
 
-    String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, String artifactId, Map<String, Object> metadata, String agentWorkingDirectory);
+    String fetchArtifactMessage(ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory);
 
     Image getImageResponseFromBody(String responseBody);
 

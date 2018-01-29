@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
+import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -36,7 +37,6 @@ import org.mockito.ArgumentCaptor;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -45,8 +45,8 @@ import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -204,13 +204,12 @@ public class ArtifactExtensionTest {
         final String responseBody = "{\n" +
                 "  \"metadata\": {\n" +
                 "    \"artifact-version\": \"10.12.0\"\n" +
-                "  },\n" +
-                "  \"errors\": [\"foo\",\"bar\"]\n" +
+                "  }\n" +
                 "}";
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new HashMap<>(), "/temp");
+        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new ArtifactPlan("{\"id\":\"installer\",\"storeId\":\"docker\"}"), new ArtifactStore("docker", "cd.go.docker"), "/temp");
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -218,7 +217,14 @@ public class ArtifactExtensionTest {
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
 
         final String expectedJSON = "{\n" +
-                "  \"artifact_infos\": [],\n" +
+                "  \"artifact_plan\": {\n" +
+                "    \"id\": \"installer\",\n" +
+                "    \"storeId\": \"docker\"\n" +
+                "  },\n" +
+                "  \"artifact_store\": {\n" +
+                "    \"configuration\": {},\n" +
+                "    \"id\": \"docker\"\n" +
+                "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";
 
@@ -226,9 +232,6 @@ public class ArtifactExtensionTest {
 
         assertThat(response.getMetadata().size(), is(1));
         assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
-
-        assertThat(response.getErrors(), hasSize(2));
-        assertThat(response.getErrors(), contains("foo", "bar"));
     }
 
     @Test
@@ -291,7 +294,7 @@ public class ArtifactExtensionTest {
     public void shouldSubmitFetchArtifactRequest() throws JSONException {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
-        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), pluggableArtifactTask.getArtifactId(), Collections.singletonMap("Version", "10.12.0"), "/temp");
+        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -300,11 +303,8 @@ public class ArtifactExtensionTest {
                 "    \"Version\": \"10.12.0\"\n" +
                 "  },\n" +
                 "  \"store_configuration\": {},\n" +
-                "  \"fetch_artifact\": {\n" +
-                "    \"configuration\": {\n" +
+                "  \"fetch_artifact_configuration\": {\n" +
                 "      \"Filename\": \"build/libs/foo.jar\"\n" +
-                "    },\n" +
-                "    \"artifact_id\": \"artifactId\"\n" +
                 "  },\n" +
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";

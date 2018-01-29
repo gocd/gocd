@@ -55,7 +55,7 @@ public class AgentStatusReportingTest {
     @Test
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
@@ -64,7 +64,7 @@ public class AgentStatusReportingTest {
     @Test
     public void shouldReportCancelledWhenAgentCancelledBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null, null);
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
         work.cancel(environmentVariableContext, agentRuntimeInfo);
 
         assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));

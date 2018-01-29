@@ -23,6 +23,8 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
@@ -37,6 +39,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static java.lang.String.format;
 
 public class FetchPluggableArtifactBuilder extends Builder {
@@ -63,19 +66,21 @@ public class FetchPluggableArtifactBuilder extends Builder {
         this.metadataFileLocationOnServer = source;
     }
 
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         downloadMetadataFile(publisher);
-
         try {
+            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), new ArtifactRequestProcessor(publisher));
             final String message = format("[%s] Fetching pluggable artifact using plugin %s.", GoConstants.PRODUCT_NAME, artifactStore.getPluginId());
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 
-            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, artifactId, getMetadataFromFile(), agentWorkingDirectory());
+            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, getMetadataFromFile(artifactId), agentWorkingDirectory());
         } catch (Exception e) {
             publisher.taggedConsumeLine(TaggedStreamConsumer.ERR, e.getMessage());
             LOGGER.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            pluginRequestProcessorRegistry.removeProcessorFor(CONSOLE_LOG.requestName());
         }
     }
 
@@ -97,12 +102,13 @@ public class FetchPluggableArtifactBuilder extends Builder {
         return jobIdentifier.artifactLocator(metadataFileDest.getName());
     }
 
-    private Map<String, Object> getMetadataFromFile() throws IOException {
+    private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
         final String fileToString = FileUtils.readFileToString(metadataFileDest, StandardCharsets.UTF_8);
         LOGGER.debug(format("Reading metadata from file %s.", metadataFileDest.getAbsolutePath()));
         final Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
-        return new GsonBuilder().create().fromJson(fileToString, type);
+        final Map<String, Map> allArtifactsPerPlugin = new GsonBuilder().create().fromJson(fileToString, type);
+        return allArtifactsPerPlugin.get(artifactId);
     }
 
     public JobIdentifier getJobIdentifier() {

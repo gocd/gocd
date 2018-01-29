@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtens
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;
@@ -49,6 +50,7 @@ public class AgentControllerFactory {
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
     private final ArtifactExtension artifactExtension;
+    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final HttpService httpService;
     private final WebSocketClientHandler webSocketClientHandler;
     private final WebSocketSessionHandler sessionHandler;
@@ -68,7 +70,9 @@ public class AgentControllerFactory {
             PackageRepositoryExtension packageRepositoryExtension,
             SCMExtension scmExtension,
             TaskExtension taskExtension,
-            ArtifactExtension artifactExtension, HttpService httpService,
+            ArtifactExtension artifactExtension,
+            PluginRequestProcessorRegistry pluginRequestProcessorRegistry,
+            HttpService httpService,
             WebSocketClientHandler webSocketClientHandler,
             WebSocketSessionHandler sessionHandler,
             AgentHealthHolder agentHealthHolder) {
@@ -84,6 +88,7 @@ public class AgentControllerFactory {
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.artifactExtension = artifactExtension;
+        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
@@ -106,6 +111,7 @@ public class AgentControllerFactory {
                     scmExtension,
                     taskExtension,
                     artifactExtension,
+                    pluginRequestProcessorRegistry,
                     httpService,
                     webSocketClientHandler,
                     sessionHandler,
@@ -125,6 +131,7 @@ public class AgentControllerFactory {
                     scmExtension,
                     taskExtension,
                     artifactExtension,
+                    pluginRequestProcessorRegistry,
                     agentHealthHolder);
         }
     }

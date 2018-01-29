@@ -145,7 +145,7 @@ public class ArtifactPlanTest {
         assertThat(artifactPlans, containsInAnyOrder(
                 new ArtifactPlan(ArtifactType.file, "source", "destination"),
                 new ArtifactPlan(ArtifactType.unit, "test-source", "test-destination"),
-                new ArtifactPlan(ArtifactType.plugin, artifactConfig.toJSON())
+                new ArtifactPlan(artifactConfig.toJSON())
         ));
     }
 

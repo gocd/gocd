@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
@@ -37,16 +38,17 @@ public class Builders {
     private final DefaultGoPublisher goPublisher;
     private TaskExtension taskExtension;
     private final ArtifactExtension artifactExtension;
+    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private Builder currentBuilder = new NullBuilder();
     private transient boolean cancelStarted;
     private transient boolean cancelFinished;
 
-    public Builders(List<Builder> builders, DefaultGoPublisher goPublisher,
-                    TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public Builders(List<Builder> builders, DefaultGoPublisher goPublisher, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         this.builders = builders;
         this.goPublisher = goPublisher;
         this.taskExtension = taskExtension;
         this.artifactExtension = artifactExtension;
+        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
     public JobResult build(EnvironmentVariableContext environmentVariableContext) {
@@ -69,7 +71,7 @@ public class Builders {
                     String executeMessage = format("Task: %s", builder.getDescription());
                     goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
 
-                    builder.build(goPublisher, environmentVariableContext, taskExtension, artifactExtension);
+                    builder.build(goPublisher, environmentVariableContext, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
                 } catch (Exception e) {
                     result = taskStatus = JobResult.Failed;
                 }

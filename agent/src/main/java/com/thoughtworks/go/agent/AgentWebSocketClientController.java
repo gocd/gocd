@@ -29,10 +29,12 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtens
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
@@ -61,6 +63,7 @@ public class AgentWebSocketClientController extends AgentController {
     private final SslInfrastructureService sslInfrastructureService;
     private final GoArtifactsManipulator manipulator;
     private final ArtifactExtension artifactExtension;
+    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private HttpService httpService;
     private WebSocketClientHandler webSocketClientHandler;
     private WebSocketSessionHandler webSocketSessionHandler;
@@ -76,7 +79,7 @@ public class AgentWebSocketClientController extends AgentController {
                                           AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
                                           SystemEnvironment systemEnvironment, PluginManager pluginManager,
                                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension,
-                                          TaskExtension taskExtension, ArtifactExtension artifactExtension, HttpService httpService,
+                                          TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, HttpService httpService,
                                           WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler,
                                           AgentHealthHolder agentHealthHolder) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
@@ -87,6 +90,7 @@ public class AgentWebSocketClientController extends AgentController {
         this.taskExtension = taskExtension;
         this.sslInfrastructureService = sslInfrastructureService;
         this.artifactExtension = artifactExtension;
+        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.webSocketSessionHandler = webSocketSessionHandler;
@@ -130,11 +134,11 @@ public class AgentWebSocketClientController extends AgentController {
                 LOG.debug("Got work from server: [{}]", work.description());
                 runner = new JobRunner();
                 try {
-                    runner.run(work, agentIdentifier(),
+                    runner.run(work, new AgentWorkContext(agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
                             manipulator, getAgentRuntimeInfo(),
                             packageRepositoryExtension, scmExtension,
-                            taskExtension, artifactExtension);
+                            taskExtension, artifactExtension, pluginRequestProcessorRegistry));
                 } finally {
                     getAgentRuntimeInfo().idle();
                     updateServerAgentRuntimeInfo();

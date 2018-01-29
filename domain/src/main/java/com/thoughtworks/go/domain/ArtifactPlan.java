@@ -78,8 +78,8 @@ public class ArtifactPlan extends PersistentObject {
         setDest(dest);
     }
 
-    public ArtifactPlan(ArtifactType plugin, String pluggableArtifactConfigJson) {
-        artifactType = plugin;
+    public ArtifactPlan(String pluggableArtifactConfigJson) {
+        artifactType = ArtifactType.plugin;
         this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 
@@ -116,7 +116,11 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public void printArtifactInfo(StringBuilder builder) {
-        builder.append('[').append(getSrc()).append(']');
+        if (artifactType == ArtifactType.file || artifactType == ArtifactType.unit) {
+            builder.append('[').append(getSrc()).append(']');
+        } else {
+            builder.append('[').append(getPluggableArtifactConfiguration().get("id")).append(']');
+        }
     }
 
     public void publish(GoPublisher publisher, final File rootPath) {

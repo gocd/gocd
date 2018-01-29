@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.remote.work;
+package com.thoughtworks.go.remote.work.artifact;
 
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.google.gson.Gson;
 
-import java.io.Serializable;
+public class ConsoleLogMessage {
+    private String message;
+    private LogLevel logLevel;
 
-/**
- * Work that needs to be done by an agent.
- */
-public interface Work extends Serializable {
-    void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext);
+    public String getMessage() {
+        return message;
+    }
 
-    String description();
+    public LogLevel getLogLevel() {
+        return logLevel;
+    }
 
-    void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo);
+    public static ConsoleLogMessage fromJSON(String json) {
+        return new Gson().fromJson(json, ConsoleLogMessage.class);
+    }
+
+    enum LogLevel {
+        INFO, ERROR
+    }
 }

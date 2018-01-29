@@ -125,11 +125,11 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
+    public PublishArtifactResponse publishArtifact(String pluginId, ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans, agentWorkingDirectory);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactPlan, artifactStore, agentWorkingDirectory);
             }
 
             @Override
@@ -191,11 +191,11 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
 
-    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, String artifactId, Map<String, Object> metadata, String agentWorkingDirectory) {
+    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, artifactId, metadata, agentWorkingDirectory);
+                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
             }
         });
     }

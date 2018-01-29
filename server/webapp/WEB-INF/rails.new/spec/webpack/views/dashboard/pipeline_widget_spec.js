@@ -154,14 +154,14 @@ describe("Dashboard Pipeline Widget", () => {
   });
 
   it("should render pipeline name", () => {
-    expect($root.find('.pipeline-name')).toContainText('up42');
+    expect($root.find('.pipeline_name')).toContainText('up42');
   });
 
   it("should render pipeline settings icon", () => {
-    expect($root.find('.edit-pipeline')).toBeInDOM();
+    expect($root.find('.pipeline_edit')).toBeInDOM();
   });
 
   it("should render pipeline instances", () => {
-    expect($root.find('.pipeline-instance')).toBeInDOM();
+    expect($root.find('.pipeline_instances')).toBeInDOM();
   });
 });

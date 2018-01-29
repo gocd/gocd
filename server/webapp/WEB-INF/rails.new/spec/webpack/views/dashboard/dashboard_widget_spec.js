@@ -199,7 +199,7 @@ describe("Dashboard Widget", () => {
   it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
     const dashboard   = $root.find('.pipeline_wrapper');
     const changesLink = $root.find('.info a')[1];
-    const changes     = dashboard.find('.material-changes');
+    const changes     = dashboard.find('.material_changes');
 
     expect(changes).toHaveClass('hide');
     $(changesLink).click();

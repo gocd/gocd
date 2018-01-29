@@ -140,7 +140,7 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it('should contain a link to overview of stage details page of the stage that triggered the pipeline', () => {
-      const pipelineDependencyLink = $root.find('.modified-by a').get(0);
+      const pipelineDependencyLink = $root.find('.modified_by a').get(0);
       expect(pipelineDependencyLink.href).toEqual(pipelineRevisionJson.modifications[0]._links.stage_details_url.href);
     });
 

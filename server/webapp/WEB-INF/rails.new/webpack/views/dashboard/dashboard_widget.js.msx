@@ -43,13 +43,13 @@ const DashboardWidget = {
       });
 
       return (
-        <div class="pipeline-group-wrapper">
-          <div class="pipeline-group">
-            <h2 class="pipeline-group-title"> {pipelineGroup.name}</h2>
-            <div>
-              {pipelines}
-            </div>
-          </div>
+        <div class="pipeline-group">
+          <h2 class="pipeline-group_title">
+            <a href={"/go/foo"}> {pipelineGroup.name}</a>
+          </h2>
+          <ul class="pipeline-group_items">
+            {pipelines}
+          </ul>
         </div>
       );
     };

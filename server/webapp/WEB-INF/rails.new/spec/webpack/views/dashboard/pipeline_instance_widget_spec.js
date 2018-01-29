@@ -118,12 +118,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render instance label", () => {
-    expect($root.find('.instance-label')).toContainText('Instance: 1');
+    expect($root.find('.pipeline_instance-label')).toContainText('Instance: 1');
   });
 
   it("should render triggered by information", () => {
-    expect($root.find('.instance-details')).toContainText(`${  pipelineInstanceJson.triggered_by }`);
-    expect($root.find('.instance-details')).toContainText(`on ${ new Date(pipelineInstanceJson.scheduled_at).toString()}`);
+    expect($root.find('.pipeline_instance-details')).toContainText(`${  pipelineInstanceJson.triggered_by }`);
+    expect($root.find('.pipeline_instance-details')).toContainText(`on ${ new Date(pipelineInstanceJson.scheduled_at).toString()}`);
   });
 
   it("should render compare link", () => {
@@ -144,7 +144,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
   it("should show changes once changes link is clicked", () => {
     const links         = $root.find('.info a');
     const changesLink   = links.get(1);
-    const changesWidget = $root.find('.material-changes');
+    const changesWidget = $root.find('.material_changes');
     expect(changesWidget).toBeInDOM();
     expect(changesWidget).toHaveClass('hide');
 
@@ -162,11 +162,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
     expect(compareLink.href).toEqual(pipelineInstanceJson._links.vsm_url.href);
   });
 
-  it("should render the latest stage", () => {
-    expect($root.find('.latest-stage')).toContainText('Failed: up42_stage');
-  });
-
   it("should render stages instance", () => {
-    expect($root.find('.stages-instance')).toBeInDOM();
+    expect($root.find('.pipeline_stages')).toBeInDOM();
+    expect($root.find('.pipeline_stage')).toBeInDOM();
   });
 });

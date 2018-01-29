@@ -16,29 +16,31 @@
 
 package com.thoughtworks.go.spark;
 
-import org.apache.commons.lang.text.StrSubstitutor;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 
 public class RequestContext {
 
     private final String host;
     private final int port;
     private final String protocol;
+    private final SystemEnvironment systemEnvironment;
 
     public RequestContext(RequestContext requestContext) {
         this.host = requestContext.host;
         this.port = requestContext.port;
         this.protocol = requestContext.protocol;
+        this.systemEnvironment = requestContext.systemEnvironment;
     }
 
     public RequestContext(String protocol, String host, int port) {
         this.host = host;
         this.port = protocol.equalsIgnoreCase("https") && port == 443 || protocol.equals("http") && port == 80 ? -1 : port;
         this.protocol = protocol;
+        this.systemEnvironment = new SystemEnvironment();
     }
 
     public static RequestContext requestContext(Request req) {
@@ -54,16 +56,7 @@ public class RequestContext {
         }
     }
 
-    public Link buildWithNamedArgs(String name, String template, Map<String, Object> args) {
-        try {
-            String href = StrSubstitutor.replace(template, args);
-            return getLink(name, href);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private Link getLink(String name, String href) throws MalformedURLException {
-        return new Link(name, new URL(protocol, host, port, href).toExternalForm());
+        return new Link(name, new URL(protocol, host, port, systemEnvironment.getWebappContextPath() +  href).toExternalForm());
     }
 }

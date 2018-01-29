@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,7 @@ public class CurrentUserControllerDelegate extends ApiController {
 
     @Override
     public String controllerBasePath() {
-        return "/api/current_user";
+        return Routes.CurrentUser.BASE;
     }
 
     @Override

@@ -16,30 +16,27 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Map;
 
 public class PipelineDependencyModificationRepresenter {
 
-    private static final String VSM_HREF = "/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}";
-    private static final String STAGE_DETAIL_TAB_HREF = "/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}";
-
     public static Map toJSON(Modification model, RequestContext requestContext, DependencyMaterialRevision latestRevision) {
         return new JsonWriter(requestContext)
 
-                .addLink("vsm", VSM_HREF, ImmutableMap.of(
-                        "pipeline_name", latestRevision.getPipelineName(),
-                        "pipeline_counter", latestRevision.getPipelineCounter()))
-                .addLink("stage_details_url", STAGE_DETAIL_TAB_HREF, ImmutableMap.of(
-                        "pipeline_name", latestRevision.getPipelineName(),
-                        "pipeline_counter", latestRevision.getPipelineCounter(),
-                        "stage_name", latestRevision.getStageName(),
-                        "stage_counter", latestRevision.getStageCounter()))
+                .addLink("vsm", Routes.PipelineInstance.vsm(
+                        latestRevision.getPipelineName(),
+                        latestRevision.getPipelineCounter()))
+                .addLink("stage_details_url", Routes.Stage.stageDetailTab(
+                        latestRevision.getPipelineName(),
+                        latestRevision.getPipelineCounter(),
+                        latestRevision.getStageName(),
+                        latestRevision.getStageCounter()))
 
                 .addIfNotNull("revision", model.getRevision())
                 .addIfNotNull("modified_time", model.getModifiedTime())

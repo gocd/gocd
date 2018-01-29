@@ -27,7 +27,7 @@ public interface EncryptedValueRepresenter {
         return new JsonWriter(requestContext)
 
                 .addDocLink("https://api.gocd.org/#encryption")
-                .addLink("self", "/go/api/admin/encrypt")
+                .addLink("self", "/api/admin/encrypt")
 
                 .add("encrypted_value", encryptedValue).getAsMap();
     }

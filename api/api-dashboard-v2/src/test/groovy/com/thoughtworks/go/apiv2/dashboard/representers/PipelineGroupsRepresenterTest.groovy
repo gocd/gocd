@@ -49,7 +49,7 @@ class PipelineGroupsRepresenterTest {
     def actual_json = PipelineGroupsRepresenter.toJSON([pipeline_group1, pipeline_group2], new TestRequestContext(), user)
 
     assertThatJson(actual_json._links).isEqualTo([
-      self: [href: "http://test.host/api/dashboard"],
+      self: [href: "http://test.host/go/api/dashboard"],
       doc : [href: "https://api.go.cd/current/#dashboard"]
     ])
 

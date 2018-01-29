@@ -23,6 +23,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceMod
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedHashMap;
@@ -36,13 +37,13 @@ public class PipelineRepresenter {
     private static JsonWriter addLinks(GoDashboardPipeline model, JsonWriter jsonWriter) {
         String pipelineName = model.name().toString();
         ImmutableMap<String, Object> args = ImmutableMap.of("pipeline_name", pipelineName);
-        return jsonWriter.addLink("self", "/api/pipelines/${pipeline_name}/history", args)
-                .addDocLink("https://api.go.cd/current/#pipelines")
-                .addLink("settings_path", "/admin/pipelines/${pipeline_name}/general", args)
-                .addLink("trigger", "/api/pipelines/${pipeline_name}/schedule", args)
-                .addLink("trigger_with_options", "/api/pipelines/${pipeline_name}/schedule", args)
-                .addLink("pause", "/api/pipelines/${pipeline_name}/pause", args)
-                .addLink("unpause", "/api/pipelines/${pipeline_name}/unpause", args);
+        return jsonWriter.addLink("self", Routes.Pipeline.history(pipelineName))
+                .addDocLink(Routes.Pipeline.DOC)
+                .addLink("settings_path", Routes.Pipeline.settings(pipelineName))
+                .addLink("trigger", Routes.Pipeline.schedule(pipelineName))
+                .addLink("trigger_with_options", Routes.Pipeline.schedule(pipelineName))
+                .addLink("pause", Routes.Pipeline.pause(pipelineName))
+                .addLink("unpause", Routes.Pipeline.unpause(pipelineName));
     }
 
     public static Map<String, Object> toJSON(GoDashboardPipeline model, RequestContext requestContext, Username username) {

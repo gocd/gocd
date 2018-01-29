@@ -35,10 +35,10 @@ class PipelineInstanceRepresenterTest {
 
     def expectedJson = [
       _links: [
-        self       : [href: 'http://test.host/api/pipelines/p1/instance/0'],
-        compare_url: [href: 'http://test.host/compare/p1/-1/with/0'],
-        history_url: [href: 'http://test.host/api/pipelines/p1/history'],
-        vsm_url    : [href: 'http://test.host/pipelines/value_stream_map/p1/0']
+        self       : [href: 'http://test.host/go/api/pipelines/p1/instance/0'],
+        compare_url: [href: 'http://test.host/go/compare/p1/-1/with/0'],
+        history_url: [href: 'http://test.host/go/api/pipelines/p1/history'],
+        vsm_url    : [href: 'http://test.host/go/pipelines/value_stream_map/p1/0']
       ],
     ]
 
@@ -93,7 +93,7 @@ class PipelineInstanceRepresenterTest {
                                    [
                                      _links       : [
                                        vsm: [
-                                         href: 'http://test.host/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/9fdcf27f16eadc362733328dd481d8a2c29915e1'
+                                         href: 'http://test.host/go/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/9fdcf27f16eadc362733328dd481d8a2c29915e1'
                                        ]],
                                      user_name    : 'user2',
                                      email_address: 'email2',
@@ -104,7 +104,7 @@ class PipelineInstanceRepresenterTest {
                                    [
                                      _links       : [
                                        vsm: [
-                                         href: 'http://test.host/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/eef77acd79809fc14ed82b79a312648d4a2801c6']
+                                         href: 'http://test.host/go/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/eef77acd79809fc14ed82b79a312648d4a2801c6']
                                      ],
                                      user_name    : 'user1',
                                      email_address: 'email1',
@@ -119,10 +119,10 @@ class PipelineInstanceRepresenterTest {
                                  modifications: [
                                    [_links        : [
                                      vsm              : [
-                                       href: 'http://test.host/pipelines/value_stream_map/up1/1'
+                                       href: 'http://test.host/go/pipelines/value_stream_map/up1/1'
                                      ],
                                      stage_details_url: [
-                                       href: 'http://test.host/pipelines/up1/1/first/1'
+                                       href: 'http://test.host/go/pipelines/up1/1/first/1'
                                      ]
                                    ],
                                     revision      : 'up1/1/first/1',

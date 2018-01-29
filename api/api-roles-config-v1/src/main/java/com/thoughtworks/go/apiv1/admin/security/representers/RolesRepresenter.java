@@ -20,6 +20,7 @@ package com.thoughtworks.go.apiv1.admin.security.representers;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
 public class RolesRepresenter {
 
     private static JsonWriter addLinks(JsonWriter jsonWriter) {
-        return jsonWriter.addLink("self", "/go/api/admin/security/roles")
-                .addDocLink("https://api.gocd.org/#roles")
-                .addLink("find", "/go/api/admin/security/roles/:role_name");
+        return jsonWriter.addLink("self", Routes.Roles.BASE)
+                .addDocLink(Routes.Roles.DOC)
+                .addLink("find", Routes.Roles.find());
     }
 
     public static Map toJSON(List<Role> roles, RequestContext requestContext) {

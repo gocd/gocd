@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
@@ -45,7 +46,7 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
 
     @Override
     public String controllerBasePath() {
-        return "/api/pipelines";
+        return Routes.Pipeline.BASE;
     }
 
     @Override
@@ -56,11 +57,11 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("/:pipeline_name/pause", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
-            before("/:pipeline_name/unpause", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
 
-            post("/:pipeline_name/pause", mimeType, this::pause, GsonTransformer.getInstance());
-            post("/:pipeline_name/unpause", mimeType, this::unpause, GsonTransformer.getInstance());
+            post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause, GsonTransformer.getInstance());
+            post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause, GsonTransformer.getInstance());
 
             exception(RecordNotFoundException.class, this::notFound);
         });

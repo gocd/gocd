@@ -38,7 +38,7 @@ class StageRepresenterTest {
     def json = StageRepresenter.toJSON(stageInstance, new TestRequestContext(), "pipeline-name", "2")
     def expectedJson = [
       _links        : [
-        self: [href: 'http://test.host/api/stages/pipeline-name/2/stage2/2']
+        self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage2/2']
       ],
       name          : 'stage2',
       status        : StageState.Building,
@@ -46,7 +46,7 @@ class StageRepresenterTest {
       scheduled_at  : date,
       previous_stage: [
         _links      : [
-          self: [href: 'http://test.host/api/stages/pipeline-name/2/stage1/1']
+          self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage1/1']
         ],
         name        : 'stage1',
         status      : StageState.Unknown,
@@ -64,7 +64,7 @@ class StageRepresenterTest {
 
     def expectedJson = [
       _links        : [
-        self: [href: 'http://test.host/api/stages/pipeline-name/23/stage2/2']
+        self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
       ],
       name          : 'stage2',
       status        : StageState.Unknown,

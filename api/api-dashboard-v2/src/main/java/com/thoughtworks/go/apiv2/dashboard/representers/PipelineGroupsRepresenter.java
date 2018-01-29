@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,8 @@ public class PipelineGroupsRepresenter {
 
     public static Map toJSON(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {
         return new JsonWriter(requestContext)
-                .addLink("self", "/api/dashboard")
-                .addDocLink("https://api.go.cd/current/#dashboard")
+                .addLink("self", Routes.Dashboard.SELF)
+                .addDocLink(Routes.Dashboard.DOC)
 
                 .addEmbedded("pipeline_groups", getPipelineGroups(pipelineGroups, requestContext, username))
                 .addEmbedded("pipelines", getPipelines(pipelineGroups, requestContext, username))

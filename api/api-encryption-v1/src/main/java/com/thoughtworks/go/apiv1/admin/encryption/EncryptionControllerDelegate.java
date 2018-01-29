@@ -31,6 +31,7 @@ import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRep
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.isomorphism.util.TokenBucket;
 import org.isomorphism.util.TokenBuckets;
@@ -66,7 +67,7 @@ public class EncryptionControllerDelegate extends ApiController {
 
     @Override
     public String controllerBasePath() {
-        return "/api/admin/encrypt";
+        return Routes.Encrypt.BASE;
     }
 
     @Override

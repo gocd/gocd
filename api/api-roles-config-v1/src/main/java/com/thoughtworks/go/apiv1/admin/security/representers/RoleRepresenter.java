@@ -17,7 +17,6 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
 import java.util.Map;
@@ -35,9 +35,9 @@ import java.util.Map;
 public class RoleRepresenter {
 
     private static void addLinks(Role model, JsonWriter jsonWriter) {
-        jsonWriter.addDocLink("https://api.gocd.org/#roles");
-        jsonWriter.addLink("self", "/go/api/admin/security/roles/${role_name}", ImmutableMap.of("role_name", model.getName()));
-        jsonWriter.addLink("find", "/go/api/admin/security/roles/:role_name");
+        jsonWriter.addDocLink(Routes.Roles.DOC);
+        jsonWriter.addLink("self", Routes.Roles.name(model.getName().toString()));
+        jsonWriter.addLink("find", Routes.Roles.find());
     }
 
     public static Map toJSON(Role role, RequestContext requestContext) {

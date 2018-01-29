@@ -41,7 +41,7 @@ class PipelineGroupRepresenterTest {
       href: 'https://api.go.cd/current/#pipeline-groups'
     ],
     self: [
-      href: 'http://test.host/api/config/pipeline_groups'
+      href: 'http://test.host/go/api/config/pipeline_groups'
     ]
   ]
 

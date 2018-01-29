@@ -18,6 +18,7 @@ package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import spark.Request;
 import spark.Response;
@@ -35,14 +36,14 @@ public class PluginImagesControllerDelegate implements SparkController, Controll
 
     @Override
     public String controllerBasePath() {
-        return "/api/plugin_images";
+        return Routes.PluginImages.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            get("/:plugin_id/:hash", this::show);
-            head("/:plugin_id/:hash", this::show);
+            get(Routes.PluginImages.PLUGIN_ID_HASH_PATH, this::show);
+            head(Routes.PluginImages.PLUGIN_ID_HASH_PATH, this::show);
         });
     }
 

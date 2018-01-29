@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
@@ -48,7 +49,7 @@ public class DashboardControllerDelegate extends ApiController {
 
     @Override
     public String controllerBasePath() {
-        return "/api/dashboard";
+        return Routes.Dashboard.SELF;
     }
 
     @Override

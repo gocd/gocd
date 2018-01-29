@@ -29,10 +29,10 @@ class UserSummaryRepresenterTest {
 
     assertThat(actualJson).isEqualTo([
       _links    : [
-        self        : [href: 'http://test.host/api/users/jdoe'],
-        find        : [href: 'http://test.host/api/users/:login_name'],
+        self        : [href: 'http://test.host/go/api/users/jdoe'],
+        find        : [href: 'http://test.host/go/api/users/:login_name'],
         doc         : [href: 'https://api.gocd.org/#users'],
-        current_user: [href: 'http://test.host/api/current_user'],
+        current_user: [href: 'http://test.host/go/api/current_user'],
       ],
       login_name: 'jdoe'
     ])

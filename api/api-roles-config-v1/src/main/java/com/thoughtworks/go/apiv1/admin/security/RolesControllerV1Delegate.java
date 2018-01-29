@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -72,9 +73,9 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             get("", mimeType, this::index, GsonTransformer.getInstance());
             post("", mimeType, this::create, GsonTransformer.getInstance());
 
-            get("/:role_name", mimeType, this::show, GsonTransformer.getInstance());
-            put("/:role_name", mimeType, this::update, GsonTransformer.getInstance());
-            delete("/:role_name", mimeType, this::destroy, GsonTransformer.getInstance());
+            get(Routes.Roles.NAME_PATH, mimeType, this::show, GsonTransformer.getInstance());
+            put(Routes.Roles.NAME_PATH, mimeType, this::update, GsonTransformer.getInstance());
+            delete(Routes.Roles.NAME_PATH, mimeType, this::destroy, GsonTransformer.getInstance());
 
             exception(InvalidPluginTypeException.class, (ex, req, res) -> {
                 res.body(this.messageJson(ex));
@@ -87,7 +88,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public String controllerBasePath() {
-        return "/api/admin/security/roles";
+        return Routes.Roles.BASE;
     }
 
     public Object index(Request req, Response res) throws InvalidPluginTypeException {

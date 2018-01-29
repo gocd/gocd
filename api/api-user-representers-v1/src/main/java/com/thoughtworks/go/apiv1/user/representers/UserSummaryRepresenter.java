@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.apiv1.user.representers;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Map;
 
@@ -33,10 +33,10 @@ public class UserSummaryRepresenter {
     }
 
     private static JsonWriter addLinks(String loginName, JsonWriter jsonWriter) {
-        return jsonWriter.addDocLink("https://api.gocd.org/#users")
-                .addLink("self", "/api/users/${loginName}", ImmutableMap.of("loginName", loginName))
-                .addLink("find", "/api/users/${loginName}", ImmutableMap.of("loginName", ":login_name"))
-                .addLink("current_user", "/api/current_user");
+        return jsonWriter.addDocLink(Routes.UserSummary.DOC)
+                .addLink("self", Routes.UserSummary.self(loginName))
+                .addLink("find", Routes.UserSummary.find())
+                .addLink("current_user", Routes.UserSummary.CURRENT_USER);
     }
 
 }

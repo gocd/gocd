@@ -52,11 +52,6 @@ public class JsonWriter {
         return this;
     }
 
-    public JsonWriter addLink(String name, String hrefTemplate, Map<String, Object> args) {
-        links.add(requestContext.buildWithNamedArgs(name, hrefTemplate, args));
-        return this;
-    }
-
     public JsonWriter addLink(String name, String href) {
         links.add(requestContext.build(name, href));
         return this;

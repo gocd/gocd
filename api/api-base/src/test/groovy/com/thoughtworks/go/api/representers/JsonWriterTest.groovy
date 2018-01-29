@@ -78,17 +78,7 @@ class JsonWriterTest {
     jsonWriter.addLink("self", "/api/foo/bar")
 
     assertThat(jsonWriter.getAsMap()).isEqualTo([_links: [
-      self: [href: "http://test.host/api/foo/bar"]
-    ]])
-  }
-
-  @Test
-  void "should add link with named params"() {
-    def jsonWriter = new JsonWriter(new TestRequestContext())
-    jsonWriter.addLink("self", "/api/pipelines/\${pipeline_name}/history", [pipeline_name: "foo"])
-
-    assertThat(jsonWriter.getAsMap()).isEqualTo([_links: [
-      self: [href: "http://test.host/api/pipelines/foo/history"]
+      self: [href: "http://test.host/go/api/foo/bar"]
     ]])
   }
 

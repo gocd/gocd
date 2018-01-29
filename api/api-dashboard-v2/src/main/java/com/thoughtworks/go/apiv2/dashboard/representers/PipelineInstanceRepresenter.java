@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 import java.util.Map;
@@ -28,25 +28,12 @@ import static java.util.stream.Collectors.toList;
 
 public class PipelineInstanceRepresenter {
 
-    private static final String SELF_HREF = "/api/pipelines/${pipeline_name}/instance/${pipeline_counter}";
-    private static final String COMPARE_HREF = "/compare/${pipeline_name}/${from_counter}/with/${to_counter}";
-    private static final String HISTORY_HREF = "/api/pipelines/${pipeline_name}/history";
-    private static final String VSM_HREF = "/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}";
-
     private static JsonWriter addLinks(JsonWriter jsonWriter, PipelineInstanceModel model) {
         return jsonWriter
-                .addLink("self", SELF_HREF, ImmutableMap.of(
-                        "pipeline_name", model.getName(),
-                        "pipeline_counter", model.getCounter()))
-                .addLink("compare_url", COMPARE_HREF, ImmutableMap.of(
-                        "pipeline_name", model.getName(),
-                        "from_counter", model.getCounter() - 1,
-                        "to_counter", model.getCounter()))
-                .addLink("history_url", HISTORY_HREF, ImmutableMap.of(
-                        "pipeline_name", model.getName()))
-                .addLink("vsm_url", VSM_HREF, ImmutableMap.of(
-                        "pipeline_name", model.getName(),
-                        "pipeline_counter", model.getCounter()));
+                .addLink("self", Routes.Pipeline.instance(model.getName(), model.getCounter()))
+                .addLink("compare_url", Routes.PipelineInstance.compare(model.getName(), model.getCounter() - 1, model.getCounter()))
+                .addLink("history_url", Routes.Pipeline.history(model.getName()))
+                .addLink("vsm_url", Routes.PipelineInstance.vsm(model.getName(), model.getCounter()));
     }
 
 

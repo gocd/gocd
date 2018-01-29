@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
@@ -46,7 +47,7 @@ public class BackupsControllerDelegate extends ApiController {
 
     @Override
     public String controllerBasePath() {
-        return "/api/backups";
+        return Routes.Backups.BASE;
     }
 
     @Override

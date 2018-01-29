@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Map;
 
@@ -30,11 +30,7 @@ public class ModificationRepresenter {
 
     public static Map toJSON(Modification model, RequestContext requestContext, Material material) {
         return new JsonWriter(requestContext)
-
-                .addLink("vsm", VSM_HREF, ImmutableMap.of(
-                        "material_fingerprint", material.getFingerprint(),
-                        "revision", model.getRevision()))
-
+                .addLink("vsm", Routes.Materials.vsm(material.getFingerprint(), model.getRevision()))
                 .addIfNotNull("user_name", model.getUserName())
                 .addIfNotNull("email_address", model.getEmailAddress())
                 .addIfNotNull("revision", model.getRevision())

@@ -45,13 +45,13 @@ class PipelineRepresenterTest {
     def json = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
     assertThatJson(json).isEqualTo([
       _links                : [
-        self                : [href: 'http://test.host/api/pipelines/pipeline_name/history'],
+        self                : [href: 'http://test.host/go/api/pipelines/pipeline_name/history'],
         doc                 : [href: 'https://api.go.cd/current/#pipelines'],
-        settings_path       : [href: 'http://test.host/admin/pipelines/pipeline_name/general'],
-        trigger             : [href: 'http://test.host/api/pipelines/pipeline_name/schedule'],
-        trigger_with_options: [href: 'http://test.host/api/pipelines/pipeline_name/schedule'],
-        unpause             : [href: 'http://test.host/api/pipelines/pipeline_name/unpause'],
-        pause               : [href: 'http://test.host/api/pipelines/pipeline_name/pause'],
+        settings_path       : [href: 'http://test.host/go/admin/pipelines/pipeline_name/general'],
+        trigger             : [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
+        trigger_with_options: [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
+        unpause             : [href: 'http://test.host/go/api/pipelines/pipeline_name/unpause'],
+        pause               : [href: 'http://test.host/go/api/pipelines/pipeline_name/pause'],
       ],
       _embedded             : [
         instances: [

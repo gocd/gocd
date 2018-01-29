@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
@@ -39,7 +40,7 @@ public class RolesControllerDelegate implements SparkController {
 
     @Override
     public String controllerBasePath() {
-        return "/admin/security/roles";
+        return Routes.Roles.BASE;
     }
 
     @Override

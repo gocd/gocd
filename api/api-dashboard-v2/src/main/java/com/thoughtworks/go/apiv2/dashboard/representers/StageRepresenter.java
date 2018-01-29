@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Map;
 
@@ -30,11 +30,7 @@ public class StageRepresenter {
     public static Map toJSON(StageInstanceModel model, RequestContext requestContext,
                              String pipelineName, String pipelineCounter) {
         JsonWriter jsonWriter = new JsonWriter(requestContext)
-                .addLink("self", SELF_HREF, ImmutableMap.of(
-                        "pipeline_name", pipelineName,
-                        "stage_name", model.getName(),
-                        "pipeline_counter", pipelineCounter,
-                        "stage_counter", model.getCounter()))
+                .addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()))
 
                 .add("name", model.getName())
                 .add("status", model.getState())

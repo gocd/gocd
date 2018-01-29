@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class BackupRepresenter {
     public static Map<String, Object> toJSON(ServerBackup backup, RequestContext requestContext) {
         return new JsonWriter(requestContext)
 
-                .addDocLink("https://api.gocd.org/#backups")
+                .addDocLink(Routes.Backups.DOC)
 
                 .add("time", backup.getTime())
                 .add("path", backup.getPath())

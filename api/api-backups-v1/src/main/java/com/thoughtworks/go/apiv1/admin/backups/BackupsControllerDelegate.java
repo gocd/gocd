@@ -24,16 +24,21 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.ServerBackup;
+import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static spark.Spark.*;
 
 public class BackupsControllerDelegate extends ApiController {
+    private static final HeaderConstraint HEADER_CONSTRAINT = new HeaderConstraint(new SystemEnvironment());
+
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final BackupService backupService;
     private final Localizer localizer;
@@ -56,9 +61,6 @@ public class BackupsControllerDelegate extends ApiController {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
-
             before("", this::verifyConfirmHeader);
             before("/*", this::verifyConfirmHeader);
 
@@ -76,5 +78,11 @@ public class BackupsControllerDelegate extends ApiController {
             return BackupRepresenter.toJSON(backup, RequestContext.requestContext(request));
         }
         return renderHTTPOperationResult(result, response, localizer);
+    }
+
+    private void verifyConfirmHeader(Request request, Response response) {
+        if (!HEADER_CONSTRAINT.isSatisfied(request.raw())) {
+            throw haltBecauseConfirmHeaderMissing();
+        }
     }
 }

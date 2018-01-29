@@ -17,10 +17,12 @@
 package com.thoughtworks.go.api
 
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
+import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.api.util.MessageJson
 import com.thoughtworks.go.spark.HttpRequestBuilder
 import com.thoughtworks.go.spark.mocks.MockHttpServletRequest
 import com.thoughtworks.go.spark.mocks.MockHttpServletResponse
+import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +30,7 @@ import spark.HaltException
 import spark.Request
 import spark.RequestResponseFactory
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.jsonContentTypeExpected
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode
 
 class ApiControllerTest {
@@ -63,12 +66,30 @@ class ApiControllerTest {
             RequestResponseFactory.create(response)
           )
         }).as("${method} should not blow up").doesNotThrowAnyException()
-        MockHttpServletResponseAssert.assertThat(response).isOk().as("${method} response should be ok")
+        MockHttpServletResponseAssert.assertThat(response)
+          .as("${method} response should be ok")
+          .isOk()
       }
     }
 
     @Test
-    void 'should not blow up if empty put/post/patch requests do not have a content type'() {
+    void 'should not blow up if empty put/post/patch requests do not have a content type and contain an confirm header'() {
+      ['put', 'post', 'patch'].each { method ->
+        def response = new MockHttpServletResponse()
+        assertThatCode({
+          baseController.verifyContentType(
+            RequestResponseFactory.create(HttpRequestBuilder."${method.toUpperCase()}"().withHeaders(['X-GoCD-Confirm': SecureRandom.hex()]).build()) as Request,
+            RequestResponseFactory.create(response)
+          )
+        })
+          .as("${method} should not blow up with empty body and confirm header present")
+          .doesNotThrowAnyException()
+        MockHttpServletResponseAssert.assertThat(response).isOk().as("${method} response should be ok with empty body")
+      }
+    }
+
+    @Test
+    void 'should blow up if empty put/post/patch requests do not have a content type or a confirm header'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({
@@ -76,8 +97,11 @@ class ApiControllerTest {
             RequestResponseFactory.create(HttpRequestBuilder."${method.toUpperCase()}"().build()) as Request,
             RequestResponseFactory.create(response)
           )
-        }).as("${method} should not blow up with empty body").doesNotThrowAnyException()
-        MockHttpServletResponseAssert.assertThat(response).isOk().as("${method} response should be ok with empty body")
+        })
+          .as("${method} should blow up")
+          .isInstanceOf(HaltException)
+          .hasFieldOrPropertyWithValue("statusCode", 400)
+          .hasFieldOrPropertyWithValue("body", MessageJson.create(HaltApiMessages.confirmHeaderMissing()))
       }
     }
 
@@ -114,13 +138,13 @@ class ApiControllerTest {
             RequestResponseFactory.create(request),
             null
           )
-        }).isInstanceOf(HaltException)
-          .hasFieldOrPropertyWithValue("statusCode", 415)
-          .hasFieldOrPropertyWithValue("body", MessageJson.create("You must specify a 'Content-Type' of 'application/json'"))
+        })
           .as("${method} should not blow up")
+          .isInstanceOf(HaltException)
+          .hasFieldOrPropertyWithValue("statusCode", 415)
+          .hasFieldOrPropertyWithValue("body", MessageJson.create(jsonContentTypeExpected()))
       }
     }
-
 
     @Test
     void 'should blow up if chunked put/post/patch requests has a body with no content type'() {
@@ -136,13 +160,13 @@ class ApiControllerTest {
             RequestResponseFactory.create(request),
             RequestResponseFactory.create(response)
           )
-        }).isInstanceOf(HaltException)
+        })
+          .as("${method} should blow up")
+          .isInstanceOf(HaltException)
           .hasFieldOrPropertyWithValue("statusCode", 415)
-          .hasFieldOrPropertyWithValue("body", MessageJson.create("You must specify a 'Content-Type' of 'application/json'"))
-          .as("${method} should not blow up")
+          .hasFieldOrPropertyWithValue("body", MessageJson.create(jsonContentTypeExpected()))
       }
     }
-
 
     @Test
     void 'should not blow up if chunked put/post/patch requests has a body with json content type'() {
@@ -160,7 +184,9 @@ class ApiControllerTest {
             RequestResponseFactory.create(response)
           )
         }).as("${method} should not blow up with empty body").doesNotThrowAnyException()
-        MockHttpServletResponseAssert.assertThat(response).isOk().as("${method} response should be ok with empty body")
+        MockHttpServletResponseAssert.assertThat(response)
+          .as("${method} response should be ok with empty body")
+          .isOk()
       }
     }
   }

@@ -21,6 +21,7 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.api.representers.JsonReader;
 import spark.ResponseTransformer;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
@@ -63,6 +64,10 @@ public class GsonTransformer implements ResponseTransformer {
     }
 
     public <T> T fromJson(String string, Class<T> classOfT) {
+        return GSON.fromJson(string, classOfT);
+    }
+
+    public <T> T fromJson(String string, Type classOfT) {
         return GSON.fromJson(string, classOfT);
     }
 

@@ -56,7 +56,7 @@ class PluginRoleConfigRepresenterTest {
 
   @Test
   void shouldGenerateJSON() {
-    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext());
+    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext())
 
     assertThat(map).isEqualTo(this.map)
   }

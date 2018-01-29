@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import static java.lang.String.format;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.domain.Username;
@@ -28,9 +26,11 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static java.lang.String.format;
+
 /**
  * @understands forced unlocking of pipeline by a user
- *
+ * <p>
  * unlock belongs in PipelineLockService but had to be pulled into a separate service
  * because of circular dependency between CachedCurrentActivityService and PipelineLockService
  * (unlock still is in PipelineLockService, the unlock here does necessary validity checks
@@ -56,7 +56,7 @@ public class PipelineUnlockApiService {
     public void unlock(String pipelineName, Username username, OperationResult result) {
         if (canUnlock(pipelineName, username, result)) {
             pipelineLockService.unlock(pipelineName);
-            result.ok("pipeline lock released for " + pipelineName);
+            result.ok("Pipeline lock released for " + pipelineName);
         }
     }
 
@@ -80,16 +80,19 @@ public class PipelineUnlockApiService {
 
     private boolean isUnlockable(String pipelineName, OperationResult result) {
         if (!goConfigService.isLockable(pipelineName)) {
-            result.notAcceptable(format("no lock exists within the pipeline configuration for %s", pipelineName), HealthStateType.general(HealthStateScope.GLOBAL));
+            String msg = format("No lock exists within the pipeline configuration for %s", pipelineName);
+            result.conflict(msg, msg, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
         StageIdentifier stageIdentifier = pipelineLockService.lockedPipeline(pipelineName);
         if (stageIdentifier == null) {
-            result.notAcceptable("lock exists within the pipeline configuration but no pipeline instance is currently in progress", HealthStateType.general(HealthStateScope.GLOBAL));
+            String msg = "Lock exists within the pipeline configuration but no pipeline instance is currently in progress";
+            result.conflict(msg, msg, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
         if (currentActivityService.isAnyStageActive(stageIdentifier.pipelineIdentifier())) {
-            result.notAcceptable("locked pipeline instance is currently running (one of the stages is in progress)", HealthStateType.general(HealthStateScope.GLOBAL));
+            String message = "Locked pipeline instance is currently running (one of the stages is in progress)";
+            result.conflict(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
         return true;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
+ * Modifications Copyright 2018 ThoughtWorks, Inc.
+ */
 
 
 package com.thoughtworks.go.spark.mocks;
 
-import org.springframework.mock.web.DelegatingServletInputStream;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockRequestDispatcher;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
@@ -369,7 +367,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
             return new DelegatingServletInputStream(new ByteArrayInputStream(this.chunkedContent));
         }
         else {
-            return null;
+            return new DelegatingServletInputStream(new ByteArrayInputStream(new byte[0]));
         }
     }
 
@@ -922,7 +920,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return isRequestedSessionIdFromURL();
     }
 
-    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+    public boolean authenticate(HttpServletResponse response) {
         return (this.userPrincipal != null && this.remoteUser != null && this.authType != null);
     }
 
@@ -930,24 +928,24 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new ServletException("Username-password authentication not supported - override the login method");
     }
 
-    public void logout() throws ServletException {
+    public void logout() {
         this.userPrincipal = null;
         this.remoteUser = null;
         this.authType = null;
     }
 
     @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
+    public Collection<Part> getParts() {
         return null;
     }
 
     @Override
-    public Part getPart(String name) throws IOException, ServletException {
+    public Part getPart(String name) {
         return null;
     }
 
     @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
         return null;
     }
 

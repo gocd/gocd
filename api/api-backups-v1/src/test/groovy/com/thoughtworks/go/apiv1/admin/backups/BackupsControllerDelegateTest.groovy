@@ -140,7 +140,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
       void 'bails if confirm header is set to non true value'() {
         enableSecurity()
         loginAsAdmin()
-        postWithApiHeader(controller.controllerBasePath(), [confirm: 'foo'])
+        postWithApiHeader(controller.controllerBasePath(), [confirm: 'foo'], null)
         assertThatResponse()
           .isBadRequest()
           .hasContentType(controller.mimeType)

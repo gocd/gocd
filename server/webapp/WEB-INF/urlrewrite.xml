@@ -50,8 +50,8 @@
     </rule>
 
     <rule>
-        <name>Spark pipeline pause/unpause API</name>
-        <from>^/api/pipelines/([^/]+)/(pause|unpause)</from>
+        <name>Spark pipeline pause/unpause/unlock API</name>
+        <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock)</from>
         <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
         <condition type="method">POST</condition>
         <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>

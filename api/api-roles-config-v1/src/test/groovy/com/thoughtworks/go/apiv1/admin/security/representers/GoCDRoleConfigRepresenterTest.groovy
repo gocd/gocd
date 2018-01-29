@@ -44,8 +44,8 @@ class GoCDRoleConfigRepresenterTest {
 
   @Test
   void shouldGenerateJSON() {
-    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext());
-    JsonFluentAssert.assertThatJson(map).isEqualTo(this.map);
+    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext())
+    JsonFluentAssert.assertThatJson(map).isEqualTo(this.map)
   }
 
   @Test

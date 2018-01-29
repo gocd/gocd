@@ -41,10 +41,10 @@ import static org.mockito.MockitoAnnotations.initMocks
 class DashboardControllerDelegateTest implements SecurityServiceTrait, ControllerTrait<DashboardControllerDelegate> {
 
   @Mock
-  private GoDashboardService goDashboardService;
+  private GoDashboardService goDashboardService
 
   @Mock
-  private PipelineSelectionsService pipelineSelectionsService;
+  private PipelineSelectionsService pipelineSelectionsService
 
   @BeforeEach
   void setup() {

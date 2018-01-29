@@ -40,7 +40,7 @@ class PipelineRepresenterTest {
   void 'renders pipeline with hal representation'() {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(Long.valueOf(1))
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
     def json = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
     assertThatJson(json).isEqualTo([
@@ -86,7 +86,7 @@ class PipelineRepresenterTest {
 
       actualJson.remove("_links")
       actualJson.remove("_embedded")
-      def expectedJson = pipelines_hash();
+      def expectedJson = pipelines_hash()
       expectedJson.can_operate = true
       assertThatJson(actualJson).isEqualTo(expectedJson)
     }

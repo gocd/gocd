@@ -20,6 +20,7 @@ package com.thoughtworks.go.api;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -78,6 +79,11 @@ public interface ControllerMethods {
     default Map<String, Object> renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
         response.status(result.httpCode());
         return Collections.singletonMap("message", result.message(localizer));
+    }
+
+    default Map<String, Object> renderHTTPOperationResult(HttpOperationResult result, Response response) {
+        response.status(result.httpCode());
+        return Collections.singletonMap("message", result.message());
     }
 
 }

@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.api;
 
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
@@ -34,7 +34,6 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
-    private static final HeaderConstraint HEADER_CONSTRAINT = new HeaderConstraint(new SystemEnvironment());
 
     protected final ApiVersion apiVersion;
     protected final String mimeType;
@@ -53,23 +52,19 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return MessageJson.create(ex.getMessage());
     }
 
-    protected void verifyConfirmHeader(Request request, Response response) {
-        if (!HEADER_CONSTRAINT.isSatisfied(request.raw())) {
-            throw haltBecauseConfirmHeaderMissing();
-        }
-    }
-
-    protected void verifyContentType(Request request, Response response) {
+    protected void verifyContentType(Request request, Response response) throws IOException {
         if (!UPDATE_HTTP_METHODS.contains(request.requestMethod().toUpperCase())) {
             return;
         }
 
-        if (request.contentLength() >= 1 && !isJsonContentType(request)) {
-            throw haltBecauseJsonContentTypeExpected();
-        }
+        boolean requestHasBody = request.contentLength() >= 1 || request.raw().getInputStream().available() >= 1 || "chunked".equalsIgnoreCase(request.headers("Transfer-Encoding"));
 
-        if ("chunked".equalsIgnoreCase(request.headers("Transfer-Encoding")) && !isJsonContentType(request)) {
-            throw haltBecauseJsonContentTypeExpected();
+        if (requestHasBody) {
+            if (!isJsonContentType(request)) {
+                throw haltBecauseJsonContentTypeExpected();
+            }
+        } else if (request.headers().stream().noneMatch(headerName -> headerName.toLowerCase().equals("x-gocd-confirm"))) {
+            throw haltBecauseConfirmHeaderMissing();
         }
     }
 
@@ -89,13 +84,13 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return mimeType;
     }
 
-    protected Map readRequestBodyAsJSON(Request req) {
-        Map map = GsonTransformer.getInstance().fromJson(req.body(), Map.class);
+    protected Map<String, Object> readRequestBodyAsJSON(Request req) {
+        Map<String, Object> map = GsonTransformer.getInstance().fromJson(req.body(), new TypeToken<Map<String, Object>>() {
+        }.getType());
         if (map == null) {
             return Collections.emptyMap();
         }
         return map;
     }
-
 
 }

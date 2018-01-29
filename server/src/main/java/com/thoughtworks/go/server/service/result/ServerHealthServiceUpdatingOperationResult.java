@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
- * @understands how to report results of common operations to the user 
+ * @understands how to report results of common operations to the user
  * @deprecated Use LocalizedOperationResult interface instead
  */
 public class ServerHealthServiceUpdatingOperationResult implements OperationResult {

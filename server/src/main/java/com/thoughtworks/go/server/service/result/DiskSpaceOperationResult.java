@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands updating server health information relating to disk space

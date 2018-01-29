@@ -183,7 +183,7 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
 
       @Override
       void makeHttpCall() {
-        patchWithApiHeader(controller.controllerBasePath(), null as Object)
+        patchWithApiHeader(controller.controllerBasePath(), [:])
       }
     }
 

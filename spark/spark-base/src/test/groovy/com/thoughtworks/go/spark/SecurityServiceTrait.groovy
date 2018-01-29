@@ -125,7 +125,7 @@ trait SecurityServiceTrait {
     String displayName = "Jon Doe ${hex}"
     GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName, "password", true, true, true, true, new GrantedAuthority[0], null)
     Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
+    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null)
     SecurityContextHolder.getContext().setAuthentication(authentication)
     username
   }

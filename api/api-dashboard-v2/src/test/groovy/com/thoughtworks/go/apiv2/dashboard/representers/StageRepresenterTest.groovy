@@ -59,7 +59,7 @@ class StageRepresenterTest {
 
   @Test
   void 'renders stages without previous stage with hal representation'() {
-    def stageInstance = new StageInstanceModel('stage2', '2', StageResult. Cancelled, new StageIdentifier('pipeline-name', 23, 'stage', '2'));
+    def stageInstance = new StageInstanceModel('stage2', '2', StageResult. Cancelled, new StageIdentifier('pipeline-name', 23, 'stage', '2'))
     def json = StageRepresenter.toJSON(stageInstance, new TestRequestContext(), 'pipeline-name', '23')
 
     def expectedJson = [

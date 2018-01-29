@@ -22,7 +22,11 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelinePauseService
+import com.thoughtworks.go.server.service.PipelineUnlockApiService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.serverhealth.HealthStateScope
+import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -44,11 +48,13 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
   }
 
   @Mock
-  private PipelinePauseService pipelinePauseService
+  PipelinePauseService pipelinePauseService
+  @Mock
+  PipelineUnlockApiService pipelineUnlockApiService
 
   @Override
   PipelineOperationsControllerV1Delegate createControllerInstance() {
-    new PipelineOperationsControllerV1Delegate(pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), localizer)
+    new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, new ApiAuthenticationHelper(securityService, goConfigService), localizer)
   }
 
   @Nested
@@ -152,7 +158,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(3)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName))
           return result
         }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -195,7 +201,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(3)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName))
           return result
         }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -289,7 +295,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       }
 
       @Test
-      void 'should pause a pipeline'() {
+      void 'should unpause a pipeline'() {
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
@@ -310,7 +316,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName))
           return result
         }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -353,7 +359,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName))
           return result
         }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -366,5 +372,160 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       }
     }
   }
+
+  @Nested
+  class Unlock {
+    private String pipelineName = "up42"
+    @Nested
+    class Security implements SecurityTestTrait {
+
+      @Test
+      void 'should allow all with security disabled'() {
+        disableSecurity()
+
+        makeHttpCall()
+        assertRequestAuthorized()
+      }
+
+      @Test
+      void "should disallow anonymous users, with security enabled"() {
+        enableSecurity()
+        loginAsAnonymous()
+
+        makeHttpCall()
+
+        assertRequestNotAuthorized()
+      }
+
+      @Test
+      void 'should disallow normal users, with security enabled'() {
+        enableSecurity()
+        loginAsUser()
+
+        makeHttpCall()
+        assertRequestNotAuthorized()
+      }
+
+      @Test
+      void 'should allow admin, with security enabled'() {
+        enableSecurity()
+        loginAsAdmin()
+
+        makeHttpCall()
+        assertRequestAuthorized()
+      }
+
+      @Test
+      void 'should allow pipeline group admin users, with security enabled'() {
+        enableSecurity()
+        loginAsGroupAdmin()
+
+        makeHttpCall()
+        assertRequestAuthorized()
+      }
+
+      @Test
+      void 'should allow pipeline group operate users, with security enabled'() {
+        enableSecurity()
+        loginAsGroupOperateUser()
+
+        makeHttpCall()
+        assertRequestAuthorized()
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "unlock"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should unlock a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(2)
+          result.ok("unlocked!")
+          return result
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("unlocked!")
+      }
+
+      @Test
+      void 'should show errors occurred while pausing a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(2)
+          result.conflict("pipeline is not locked", "pipeline is not locked", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
+          return result
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+
+        assertThatResponse()
+          .isConflict()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("pipeline is not locked")
+      }
+    }
+
+    @Nested
+    class AsPipelineGroupOperateUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser()
+      }
+
+      @Test
+      void 'should unlock a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(2)
+          result.ok("unlocked!")
+          return result
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("unlocked!")
+      }
+
+      @Test
+      void 'should show errors occurred while unlocking a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(2)
+          result.conflict("pipeline is not locked", "pipeline is not locked", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
+          return result
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+
+        assertThatResponse()
+          .isConflict()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("pipeline is not locked")
+      }
+    }
+  }
+
 }
 

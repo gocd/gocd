@@ -77,6 +77,8 @@ public class Routes {
         public static final String DOC = "https://api.go.cd/current/#pipelines";
         public static final String PAUSE_PATH = "/:pipeline_name/pause";
         public static final String UNPAUSE_PATH = "/:pipeline_name/unpause";
+        public static final String UNLOCK_PATH = "/:pipeline_name/unlock";
+
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
         public static final String HISTORY_PATH = "/:pipeline_name/history";
         public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";
@@ -95,6 +97,10 @@ public class Routes {
 
         public static String unpause(String pipelineName) {
             return BASE + UNPAUSE_PATH.replaceAll(":pipeline_name", pipelineName);
+        }
+
+        public static String unlock(String pipelineName) {
+            return BASE + UNLOCK_PATH.replaceAll(":pipeline_name", pipelineName);
         }
 
         public static String instance(String pipelineName, int pipelineCounter) {

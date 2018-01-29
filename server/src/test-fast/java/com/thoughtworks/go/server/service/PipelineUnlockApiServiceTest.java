@@ -60,7 +60,7 @@ public class PipelineUnlockApiServiceTest {
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
         assertThat(result.httpCode(), is(200));
-        assertThat(result.message(), is("pipeline lock released for pipeline-name"));
+        assertThat(result.message(), is("Pipeline lock released for pipeline-name"));
         verify(pipelineLockService).unlock("pipeline-name");
     }
 
@@ -86,8 +86,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(406));
-        assertThat(result.message(), is("no lock exists within the pipeline configuration for pipeline-name"));
+        assertThat(result.httpCode(), is(409));
+        assertThat(result.message(), is("No lock exists within the pipeline configuration for pipeline-name"));
         Mockito.verify(pipelineLockService, never()).unlock(Mockito.any(String.class));
     }
 
@@ -100,8 +100,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(406));
-        assertThat(result.message(), is("lock exists within the pipeline configuration but no pipeline instance is currently in progress"));
+        assertThat(result.httpCode(), is(409));
+        assertThat(result.message(), is("Lock exists within the pipeline configuration but no pipeline instance is currently in progress"));
     }
 
 
@@ -116,8 +116,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(406));
-        assertThat(result.message(), is("locked pipeline instance is currently running (one of the stages is in progress)"));
+        assertThat(result.httpCode(), is(409));
+        assertThat(result.message(), is("Locked pipeline instance is currently running (one of the stages is in progress)"));
     }
 
     @Test public void unlockShouldSetResultToNotAuthorizedWhenUserDoesNotHaveOperatePermissions() throws Exception {

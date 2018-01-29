@@ -33,9 +33,8 @@ class ArtifactStoresRepresenterTest {
     ],
     "id"        : "s3",
     "plugin_id" : "cd.go.s3",
-    "properties": [["encrypted_value": "psVH+oJmIgirBOn/7YLrWQ==", "key": "AccessKey"]]
+    "properties": [["encrypted_value": create("AccessKey", true, "some-key").getEncryptedValue(), "key": "AccessKey"]]
   ]
-
 
   def dockerArtifactStore = [
     "_links"    : [

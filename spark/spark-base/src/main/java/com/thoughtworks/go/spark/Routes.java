@@ -19,6 +19,7 @@ package com.thoughtworks.go.spark;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static java.lang.String.format;
 
 public class Routes {
 
@@ -154,4 +155,15 @@ public class Routes {
         }
     }
 
+
+    public static class ArtifactStores {
+        public static final String BASE = "/api/admin/artifact_stores";
+        public static final String DOC = "https://api.gocd.org/#artifact-stores";
+        public static final String NAME_PATH = ":storeId";
+        public static final String FIND = format("%s/%s", BASE, NAME_PATH);
+
+        public static String name(String name) {
+            return format("%s/%s", BASE, name);
+        }
+    }
 }

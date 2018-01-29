@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.admin.artifactstore.representers;
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,9 @@ import java.util.stream.Collectors;
 
 public class ArtifactStoresRepresenter {
     private static JsonWriter addLinks(JsonWriter jsonWriter) {
-        return jsonWriter.addLink("self", "/go/api/admin/artifact_stores")
-                .addDocLink("https://api.gocd.org/#artifact-stores")
-                .addLink("find", "/go/api/admin/artifact_stores/:storeId");
+        return jsonWriter.addLink("self", Routes.ArtifactStores.BASE)
+                .addDocLink(Routes.ArtifactStores.DOC)
+                .addLink("find", Routes.ArtifactStores.FIND);
     }
 
     public static Map toJSON(List<ArtifactStore> artifactStores, RequestContext requestContext) {

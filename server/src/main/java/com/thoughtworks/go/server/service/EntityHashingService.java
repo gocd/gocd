@@ -65,6 +65,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new SecurityAuthConfigListener());
         goConfigService.register(new ConfigRepoListener());
         goConfigService.register(new RoleConfigListener());
+        goConfigService.register(new ArtifactStoreListener());
     }
 
     @Override
@@ -132,6 +133,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getFromCache(cacheKey, pluginSettings);
     }
 
+    public String md5ForEntity(ArtifactStore artifactStore) {
+        String cacheKey = cacheKey(artifactStore, artifactStore.getId());
+        return getFromCache(cacheKey, artifactStore);
+    }
+
     private String cacheKey(Object domainObject, CaseInsensitiveString name) {
         return cacheKey(domainObject, name.toLower());
     }
@@ -190,6 +196,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         List<String> md5s = new ArrayList<>();
         for (Role role : roles) {
             md5s.add(md5ForEntity(role));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
+    public String md5ForEntity(ArtifactStores artifactStores) {
+        List<String> md5s = new ArrayList<>();
+        for (ArtifactStore artifactStore : artifactStores) {
+            md5s.add(md5ForEntity(artifactStore));
         }
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
@@ -261,6 +275,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(Role entity) {
             removeFromCache(entity, entity.getName());
+        }
+    }
+
+    private class ArtifactStoreListener extends EntityConfigChangedListener<ArtifactStore> {
+        @Override
+        public void onEntityConfigChange(ArtifactStore entity) {
+            removeFromCache(entity, entity.getId());
         }
     }
 }

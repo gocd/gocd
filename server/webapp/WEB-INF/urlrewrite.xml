@@ -76,9 +76,21 @@
     </rule>
 
     <rule>
-        <name>Spark Current User API</name>
+        <name>Spark Backup API</name>
         <from>^/api/backup$</from>
         <to last="true">/spark/api/backup</to>
+    </rule>
+
+    <rule>
+        <name>Spark Artifact Store API Index API</name>
+        <from>^/api/admin/artifact_stores</from>
+        <to last="true">/spark/api/admin/artifact_stores</to>
+    </rule>
+
+    <rule>
+        <name>Spark Artifact Store API</name>
+        <from>^/api/admin/artifact_stores/(.*)$</from>
+        <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>
     </rule>
 
     <rule>

@@ -172,7 +172,7 @@ public class RoleConfigCommandTest {
         }
 
         @Override
-        public void update(CruiseConfig preprocessedConfig) throws Exception {
+        public void update(CruiseConfig modifiedConfig) throws Exception {
 
         }
     }

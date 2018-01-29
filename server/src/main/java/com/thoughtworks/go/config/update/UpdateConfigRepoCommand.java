@@ -44,8 +44,8 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand implements Entity
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        ConfigReposConfig configRepos = preprocessedConfig.getConfigRepos();
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        ConfigReposConfig configRepos = modifiedConfig.getConfigRepos();
         configRepos.replace(configRepos.getConfigRepo(repoIdToUpdate), newConfigRepo);
     }
 

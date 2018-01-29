@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.List;
 import java.util.Set;
 
 @ConfigTag("artifactStores")
@@ -36,5 +37,14 @@ public class ArtifactStores extends PluginProfiles<ArtifactStore> implements Val
             }
         }
         return artifactStores;
+    }
+
+    public ArtifactStores getArtifactStores() {
+        return this;
+    }
+
+    public void setArtifactStores(List<ArtifactStore> artifactStores) {
+        this.clear();
+        this.addAll(artifactStores);
     }
 }

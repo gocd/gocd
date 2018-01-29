@@ -162,4 +162,12 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
         result = 31 * result + (storeId != null ? storeId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "PluggableArtifactConfig{" +
+                "id='" + id + '\'' +
+                ", storeId='" + storeId + '\'' +
+                '}';
+    }
 }

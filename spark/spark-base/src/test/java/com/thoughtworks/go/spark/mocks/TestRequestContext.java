@@ -21,7 +21,7 @@ import com.thoughtworks.go.spark.RequestContext;
 public class TestRequestContext extends RequestContext {
 
     public TestRequestContext() {
-        super("http", "test.host", 80);
+        super("http", "test.host", 80, "/go");
     }
 
 }

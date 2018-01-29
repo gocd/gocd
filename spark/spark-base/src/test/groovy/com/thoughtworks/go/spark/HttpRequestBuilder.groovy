@@ -29,6 +29,7 @@ class HttpRequestBuilder {
 
   private MockHttpServletRequest request
   private static final Gson GSON = new Gson()
+  private static final CONTEXT_PATH = "/go"
 
   private HttpRequestBuilder() {
     this.request = new MockHttpServletRequest()
@@ -40,8 +41,9 @@ class HttpRequestBuilder {
 
   static HttpRequestBuilder GET(String path = '/') {
     def builder = new HttpRequestBuilder().withMethod('GET')
-    URIBuilder uri = new URIBuilder(path)
+    URIBuilder uri = new URIBuilder(CONTEXT_PATH + path)
     builder.request.serverName = 'test.host'
+    builder.request.contextPath = CONTEXT_PATH
     builder.request.parameters = splitQuery(uri)
     builder.request.requestURI = uri.getPath()
     builder.request.queryString = URLEncodedUtils.format(uri.getQueryParams(), StandardCharsets.UTF_8)

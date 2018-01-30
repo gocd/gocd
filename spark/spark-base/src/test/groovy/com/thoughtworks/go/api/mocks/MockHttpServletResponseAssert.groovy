@@ -86,7 +86,7 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return this
   }
 
-  MockHttpServletResponseAssert hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
+  MockHttpServletResponseAssert  hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(GSON.toJson(representer.toJSON(expected, new TestRequestContext())))
     return this
   }

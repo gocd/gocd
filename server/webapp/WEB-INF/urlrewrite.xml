@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Spark Server Health Messages API</name>
+        <from>^/api/server_health_messages</from>
+        <to last="true">/spark/api/server_health_messages</to>
+    </rule>
+
+    <rule>
         <name>Spark Roles Config SPA</name>
         <from>^/admin/security/roles$</from>
         <condition type="parameter" name="spark">true</condition>

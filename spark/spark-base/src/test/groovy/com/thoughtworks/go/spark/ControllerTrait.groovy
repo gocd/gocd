@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*
 
 trait ControllerTrait<T extends SparkController> {
 
-  private T controller
+  private T _controller
   Filter prefilter
   MockHttpServletRequest request
   MockHttpServletResponse response
@@ -133,10 +133,10 @@ trait ControllerTrait<T extends SparkController> {
   }
 
   T getController() {
-    if (controller == null) {
-      controller = spy(createControllerInstance())
+    if (_controller == null) {
+      _controller = spy(createControllerInstance())
     }
-    return controller
+    return _controller
   }
 
   MockHttpServletResponseAssert assertThatResponse() {

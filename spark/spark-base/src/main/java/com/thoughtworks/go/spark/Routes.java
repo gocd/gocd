@@ -160,4 +160,7 @@ public class Routes {
         }
     }
 
+    public class ServerHealthMessages {
+        public static final String BASE = "/api/server_health_messages";
+    }
 }

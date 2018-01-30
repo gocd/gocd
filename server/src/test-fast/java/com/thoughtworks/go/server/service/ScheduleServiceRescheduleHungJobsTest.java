@@ -51,7 +51,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
 
     @Test
     public void shouldNotQueryForBuildWhenThereAreNoLiveAgents() {
-        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null));
+        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null, null));
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
         verify(jobInstanceService, times(0)).findHungJobs(any());
@@ -84,10 +84,10 @@ public class ScheduleServiceRescheduleHungJobsTest {
     }
 
     private AgentInstances activities() {
-        final AgentInstances activities = new AgentInstances(null);
+        final AgentInstances activities = new AgentInstances(null, null);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment));
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment, null));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment, null));
         return activities;
     }
 

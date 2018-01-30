@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -40,6 +41,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -70,16 +72,16 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
-        AgentInstances instances = new AgentInstances(null);
+        AgentInstances instances = new AgentInstances(mock(AgentStatusChangeListener.class));
 
         AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false);
         AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux", false);
         AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false);
 
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, systemEnvironment);
+        AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, systemEnvironment, mock(AgentStatusChangeListener.class));
         instances.add(instance1);
-        instances.add(AgentInstance.createFromLiveAgent(agent2, systemEnvironment));
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(agent3, systemEnvironment);
+        instances.add(AgentInstance.createFromLiveAgent(agent2, systemEnvironment, mock(AgentStatusChangeListener.class)));
+        AgentInstance instance3 = AgentInstance.createFromLiveAgent(agent3, systemEnvironment, mock(AgentStatusChangeListener.class));
         instances.add(instance3);
 
         List<AgentInstance> agents = instances.filter(Arrays.asList("uuid-1", "uuid-3"));
@@ -112,7 +114,7 @@ public class AgentInstancesTest {
     @Test
     public void shouldFindAgentsByItHostName() throws Exception {
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, idle, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, idle, AgentInstanceMother.building());
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("ghost-name");
         assertThat(byHostname, is(idle));
@@ -120,7 +122,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnNullAgentsWhenHostNameIsNotFound() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(idle);
         agentInstances.add(building);
 
@@ -130,9 +132,9 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() throws Exception {
-        AgentInstance agent = AgentInstance.createFromConfig(new AgentConfig("uuid20", "CCeDev01", "10.18.5.20"), systemEnvironment);
-        AgentInstance duplicatedAgent = AgentInstance.createFromConfig(new AgentConfig("uuid21", "CCeDev01", "10.18.5.20"), systemEnvironment);
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, agent, duplicatedAgent);
+        AgentInstance agent = AgentInstance.createFromConfig(new AgentConfig("uuid20", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
+        AgentInstance duplicatedAgent = AgentInstance.createFromConfig(new AgentConfig("uuid21", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agent, duplicatedAgent);
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("CCeDev01");
         assertThat(byHostname, is(agent));
@@ -140,7 +142,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldAddAgentIntoMemoryAfterAgentIsManuallyAddedInConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null);
+        AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
         AgentConfig agentConfig = new AgentConfig("uuid20", "CCeDev01", "10.18.5.20");
         agentInstances.sync(new Agents(agentConfig));
 
@@ -150,7 +152,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, idle, building);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, idle, building);
 
         Agents oneAgentIsRemoved = new Agents(new AgentConfig("uuid2", "CCeDev01", "10.18.5.1"));
 
@@ -162,7 +164,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldSyncAgent() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building(), idle);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building(), idle);
 
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
         agentConfig.setDisabled(true);
@@ -175,7 +177,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldNotRemovePendingAgentDuringSync() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(pending);
         Agents agents = new Agents();
 
@@ -188,7 +190,7 @@ public class AgentInstancesTest {
     @Test
     public void agentHostnameShouldBeUnique() {
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(null);
+        AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
         agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
         agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
     }
@@ -196,7 +198,7 @@ public class AgentInstancesTest {
     @Test(expected = MaxPendingAgentsLimitReachedException.class)
     public void registerShouldErrorOutIfMaxPendingAgentsLimitIsReached() {
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.pending());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.pending());
         when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
 
         agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
@@ -205,14 +207,14 @@ public class AgentInstancesTest {
     @Test
     public void shouldRemovePendingAgentThatIsTimedOut() {
         when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
-        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, pending, building, disabled);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, pending, building, disabled);
         agentInstances.refresh();
         assertThat(agentInstances.findAgentAndRefreshStatus("uuid4"), is(instanceOf(NullAgentInstance.class)));
     }
 
     @Test
     public void shouldSupportConcurrentOperations() throws Exception {
-        final AgentInstances agentInstances = new AgentInstances(null);
+        final AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
 
         // register 100 agents
         for (int i = 0; i < 100; i++) {

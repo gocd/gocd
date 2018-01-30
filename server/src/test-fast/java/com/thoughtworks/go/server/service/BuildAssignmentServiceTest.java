@@ -88,8 +88,8 @@ public class BuildAssignmentServiceTest {
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
-        elasticAgentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment());
-        regularAgentInstance = AgentInstance.createFromConfig(AgentMother.approvedAgent(), new SystemEnvironment());
+        elasticAgentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment(), null);
+        regularAgentInstance = AgentInstance.createFromConfig(AgentMother.approvedAgent(), new SystemEnvironment(), null);
         elasticProfile1 = new ElasticProfile(elasticProfileId1, elasticAgent.getElasticPluginId());
         elasticProfile2 = new ElasticProfile(elasticProfileId2, elasticAgent.getElasticPluginId());
         jobPlans = new ArrayList<>();

@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -62,16 +62,21 @@ public class AgentConfigServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
-            @Override
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-            }
-        });
+        agentInstances = new AgentInstances(getAgentStatusChangeListener());
 
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
+    }
+
+    private AgentStatusChangeListener getAgentStatusChangeListener() {
+        return new AgentStatusChangeListener() {
+            @Override
+            public void onAgentStatusChange(AgentInstance agentInstance) {
+
+            }
+        };
     }
 
     @After
@@ -101,8 +106,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig2 = new AgentConfig("UUID2", "remote-host2", "50.40.30.22");
         agentConfig1.disable();
         agentConfig2.disable();
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
 
         GoConfigDao.CompositeConfigCommand command = agentConfigService.commandForDeletingAgents(fromConfigFile1, fromConfigFile2);
 
@@ -118,7 +123,7 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldDeleteAgentFromConfigFileGivenUUID() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "test1", "192.168.0.1");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "test2", "192.168.0.2");
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
 
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
@@ -133,7 +138,7 @@ public class AgentConfigServiceIntegrationTest {
     @Test
     public void shouldRemoveAgentFromEnvironmentBeforeDeletingAgent() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "hostname", "127.0.0.1");
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
 
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "hostname", "127.0.0.1");
@@ -193,8 +198,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
         agentConfig1.disable();
         agentConfig2.disable();
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
 
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
@@ -217,8 +222,8 @@ public class AgentConfigServiceIntegrationTest {
         agentConfig1.disable();
         agentConfig2.disable();
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -330,7 +335,7 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         agentConfig.disable();
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance);
 
         agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
@@ -356,8 +361,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -386,8 +391,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -419,7 +424,7 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotUpdateResourcesOnElasticAgents() throws Exception {
         AgentConfig elasticAgent = AgentMother.elasticAgent();
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment());
+        AgentInstance agentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance);
 
         agentConfigService.addAgent(elasticAgent, Username.ANONYMOUS);
@@ -445,8 +450,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -479,8 +484,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -515,8 +520,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -555,8 +560,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -589,8 +594,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -629,8 +634,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -659,8 +664,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
@@ -689,8 +694,8 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
 
-        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), getAgentStatusChangeListener());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), getAgentStatusChangeListener());
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 

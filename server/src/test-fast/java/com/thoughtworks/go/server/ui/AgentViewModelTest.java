@@ -177,7 +177,7 @@ public class AgentViewModelTest {
         agentConfig.addError(AgentConfig.IP_ADDRESS, "bad ip");
         resourceConfig1.addError(ResourceConfig.NAME, "bad name for resource1");
         resourceConfig2.addError(ResourceConfig.NAME, "bad name for resource2");
-        AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class)));
+        AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class), null));
         assertThat(model.errors().isEmpty(), is(false));
         assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource1"), is(true));

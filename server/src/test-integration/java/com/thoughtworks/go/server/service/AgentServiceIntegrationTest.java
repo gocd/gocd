@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
+import com.thoughtworks.go.server.messaging.plugin.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -104,7 +105,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentService getAgentService(AgentInstances agentInstances) {
-        return new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService);
+        return new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier());
     }
 
     @Test
@@ -295,7 +296,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldUpdateAgentStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -310,7 +311,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -339,7 +340,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier());
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -358,7 +359,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier());
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -391,7 +392,7 @@ public class AgentServiceIntegrationTest {
         EmailSender mailSender = mock(EmailSender.class);
 
         agentDao.associateCookie(instance.getAgentIdentifier(), "rotten-cookie");
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier());
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -412,7 +413,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance pending = AgentInstanceMother.pending();
         AgentInstance building = AgentInstanceMother.building();
         AgentInstance denied = AgentInstanceMother.disabled();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), idle, pending, building, denied));
 
         assertThat(agentService.agents().size(), is(4));
 
@@ -740,7 +741,7 @@ public class AgentServiceIntegrationTest {
         createEnvironment("uat");
         EnvironmentConfig environment = environmentConfigService.named("uat");
         environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied);
+        AgentInstances instances = new AgentInstances(new SystemEnvironment(), idle, pending, building, denied);
         AgentService agentService = getAgentService(instances);
 
         AgentsViewModel agents = agentService.registeredAgents();
@@ -1150,5 +1151,21 @@ public class AgentServiceIntegrationTest {
 
     private Set<String> getEnvironments(String uuid) {
         return environmentConfigService.environmentsFor(uuid);
+    }
+
+    private AgentStatusChangeNotifier agentStatusChangeNotifier() {
+        return new MockAgentStatusChangeNotifier();
+    }
+
+    private class MockAgentStatusChangeNotifier extends AgentStatusChangeNotifier {
+
+        public MockAgentStatusChangeNotifier() {
+            super(null, null);
+        }
+
+        @Override
+        public void onAgentStatusChange(AgentInstance agentInstance) {
+
+        }
     }
 }

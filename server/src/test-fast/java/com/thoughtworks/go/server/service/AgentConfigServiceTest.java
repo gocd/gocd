@@ -52,7 +52,7 @@ public class AgentConfigServiceTest {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false);
-        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
+        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
         agentConfigService.enableAgents(Username.ANONYMOUS, instance);
         shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(new AgentConfigService.AddAgentCommand(agentConfig)));
     }
@@ -67,11 +67,11 @@ public class AgentConfigServiceTest {
     @Test
     public void shouldEnableMultipleAgents() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Unknown, "cookie", false);
-        AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
+        AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
         AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
         agentConfig.disable();
-        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
         when(goConfigService.hasAgent(fromConfigFile.getUuid())).thenReturn(true);
         when(goConfigService.hasAgent(pending.getUuid())).thenReturn(false);
 
@@ -91,7 +91,7 @@ public class AgentConfigServiceTest {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
         agentConfig.disable();
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
         when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
         when(goConfigService.hasAgent(agentConfig.getUuid())).thenReturn(true);
         agentConfigService.enableAgents(Username.ANONYMOUS, instance);

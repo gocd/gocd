@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -28,6 +27,7 @@ import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.messaging.plugin.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -62,6 +62,7 @@ public class AgentService {
     private final EnvironmentConfigService environmentConfigService;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
+    private AgentStatusChangeNotifier agentStatusChangeNotifier;
     private final AgentDao agentDao;
 
     private AgentInstances agentInstances;
@@ -71,17 +72,15 @@ public class AgentService {
     @Autowired
     public AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
                         SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
-                        final EmailSender emailSender) {
-        this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService);
-        this.agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-            }
-        });
+                        final EmailSender emailSender, AgentStatusChangeNotifier agentStatusChangeNotifier) {
+        this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService,
+                agentStatusChangeNotifier);
+        this.agentInstances = new AgentInstances(agentStatusChangeNotifier);
     }
 
     AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, AgentInstances agentInstances,
                  EnvironmentConfigService environmentConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
-                 ServerHealthService serverHealthService) {
+                 ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
         this.systemEnvironment = systemEnvironment;
         this.agentConfigService = agentConfigService;
         this.environmentConfigService = environmentConfigService;
@@ -90,6 +89,7 @@ public class AgentService {
         this.agentDao = agentDao;
         this.uuidGenerator = uuidGenerator;
         this.serverHealthService = serverHealthService;
+        this.agentStatusChangeNotifier = agentStatusChangeNotifier;
     }
 
     public void initialize() {
@@ -175,7 +175,7 @@ public class AgentService {
 
         AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
         if (agentConfig != null) {
-            return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+            return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeNotifier);
         }
         return null;
     }

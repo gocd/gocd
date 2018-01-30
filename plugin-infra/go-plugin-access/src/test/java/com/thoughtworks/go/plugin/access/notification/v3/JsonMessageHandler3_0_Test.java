@@ -19,11 +19,11 @@ package com.thoughtworks.go.plugin.access.notification.v3;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,10 +34,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
@@ -273,6 +270,34 @@ public class JsonMessageHandler3_0_Test {
         messageHandler.requestMessageForNotify(new Pipeline());
     }
 
+    @Test
+    public void shouldConstructAgentNotificationRequestMessage() throws Exception {
+        Date transition_time = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(AgentConverter.DATE_PATTERN);
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String time = simpleDateFormat.format(transition_time);
+
+        AgentNotificationData agentNotificationData = new AgentNotificationData("agent_uuid", "agent_hostname",
+                "elastic_agent_id", "127.0.0.1", "rh", "100",
+                "enabled", "building", "building", transition_time);
+
+        String expected = "{\n" +
+                "    \"agent_config_state\": \"enabled\",\n" +
+                "    \"agent_state\": \"building\",\n" +
+                "    \"build_state\": \"building\",\n" +
+                "    \"elastic_agent_id\": \"elastic_agent_id\",\n" +
+                "    \"free_space\": \"100\",\n" +
+                "    \"host_name\": \"agent_hostname\",\n" +
+                "    \"ip_address\": \"127.0.0.1\",\n" +
+                "    \"operating_system\": \"rh\",\n" +
+                "    \"uuid\": \"agent_uuid\",\n" +
+                "    \"transition_time\": \""+ time + "\"\n" +
+                "}\n";
+
+        String message = messageHandler.requestMessageForNotify(agentNotificationData);
+
+        JSONAssert.assertEquals(expected, message, JSONCompareMode.NON_EXTENSIBLE);
+    }
 
     private void assertSuccessResult(Result result, List<String> messages) {
         assertThat(result.isSuccessful(), is(true));

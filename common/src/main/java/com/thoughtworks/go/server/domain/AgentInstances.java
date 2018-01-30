@@ -19,10 +19,10 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -40,15 +40,15 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     private SystemEnvironment systemEnvironment;
     private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<>();
-    private AgentRuntimeStatus.ChangeListener changeListener;
+    private AgentStatusChangeListener agentStatusChangeListener;
 
-    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener) {
-        this.changeListener = changeListener;
+    public AgentInstances(AgentStatusChangeListener agentStatusChangeListener) {
+        this.agentStatusChangeListener = agentStatusChangeListener;
         this.systemEnvironment = new SystemEnvironment();
     }
 
-    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, SystemEnvironment systemEnvironment, AgentInstance... agentInstances) {
-        this(changeListener);
+    public AgentInstances(SystemEnvironment systemEnvironment, AgentInstance... agentInstances) {
+        this(null);
         this.systemEnvironment = systemEnvironment;
         for (AgentInstance agentInstance : agentInstances) {
             this.add(agentInstance);
@@ -77,7 +77,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstance findAgentAndRefreshStatus(String uuid) {
         AgentInstance agentInstance = loadAgentInstance(uuid);
-        agentInstance.refresh(changeListener);
+        agentInstance.refresh();
         return agentInstance;
     }
 
@@ -99,7 +99,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances allAgents() {
-        AgentInstances agents = new AgentInstances(changeListener);
+        AgentInstances agents = new AgentInstances(agentStatusChangeListener);
         for (AgentInstance agent : currentInstances()) {
             agents.add(agent);
         }
@@ -108,7 +108,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstances findRegisteredAgents() {
         this.refresh();
-        AgentInstances registered = new AgentInstances(changeListener);
+        AgentInstances registered = new AgentInstances(agentStatusChangeListener);
         synchronized (agentInstances) {
             for (AgentInstance agentInstance : this) {
                 if (agentInstance.getStatus().isRegistered()) {
@@ -120,7 +120,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances findDisabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(changeListener);
+        AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
         for (AgentInstance agentInstance : currentInstances()) {
             if (agentInstance.isDisabled()){
                 agentInstances.add(agentInstance);
@@ -130,7 +130,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances findEnabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(changeListener);
+        AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
         for (AgentInstance agentInstance : currentInstances()) {
             if (agentInstance.getStatus().isEnabled()) {
                 agentInstances.add(agentInstance);
@@ -163,7 +163,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public void refresh() {
         for (AgentInstance instance : currentInstances()) {
-            instance.refresh(this.changeListener);
+            instance.refresh();
         }
         for (AgentInstance agentInstance : agentsToRemove()) {
             removeAgent(agentInstance.agentConfig().getUuid());
@@ -188,7 +188,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             if (agentInstances.containsKey(uuid)) {
                 agentInstances.get(uuid).syncConfig(agentInConfig);
             } else {
-                agentInstances.put(uuid, AgentInstance.createFromConfig(agentInConfig, new SystemEnvironment()));
+                agentInstances.put(uuid, AgentInstance.createFromConfig(agentInConfig, new SystemEnvironment(), agentStatusChangeListener));
             }
         }
 
@@ -217,7 +217,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             if(isMaxPendingAgentsLimitReached()) {
                 throw new MaxPendingAgentsLimitReachedException(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED));
             }
-            agentInstance = AgentInstance.createFromLiveAgent(info, systemEnvironment);
+            agentInstance = AgentInstance.createFromLiveAgent(info, systemEnvironment, agentStatusChangeListener);
             this.add(agentInstance);
         }
         agentInstance.update(info);
@@ -230,8 +230,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
         return pendingAgentsCount >= maxPendingAgentsAllowed;
     }
-
-
 
     public void updateAgentRuntimeInfo(AgentRuntimeInfo info) {
         AgentInstance instance = this.findAgentAndRefreshStatus(info.getUUId());

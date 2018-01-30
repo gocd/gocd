@@ -20,6 +20,7 @@ describe "/shared/_pipeline.html.erb" do
   include PipelineModelMother
 
   before do
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     allow(view).to receive(:go_config_service).and_return(@go_config_service = double('go_config_service'))
     allow(@go_config_service).to receive(:getTrackingToolFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
   end

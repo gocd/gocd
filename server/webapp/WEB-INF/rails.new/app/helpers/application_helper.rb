@@ -510,7 +510,7 @@ module ApplicationHelper
   end
 
   def with_analytics_dashboard_support(&block)
-    return unless block_given?
+    return unless block_given? && is_user_an_admin?
 
     yield if supports_analytics_dashboard?
   end

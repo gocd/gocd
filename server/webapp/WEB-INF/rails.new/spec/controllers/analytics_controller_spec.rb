@@ -30,7 +30,7 @@ describe AnalyticsController do
 
   describe 'authorization' do
     before(:each) do
-      login_as_user
+      login_as_admin
       allow_current_user_to_access_pipeline('pipeline_name')
     end
 
@@ -52,7 +52,7 @@ describe AnalyticsController do
 
   describe 'analytics dashboard' do
     before(:each) do
-      login_as_user
+      login_as_admin
     end
 
     it 'should include the plugin ids in the SPA skeleton' do
@@ -94,7 +94,7 @@ describe AnalyticsController do
 
   describe 'pipeline' do
     before(:each) do
-      login_as_user
+      login_as_admin
       allow_current_user_to_access_pipeline('pipeline_name')
     end
 

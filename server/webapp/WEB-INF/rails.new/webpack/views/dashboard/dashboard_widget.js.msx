@@ -28,7 +28,7 @@ const DashboardWidget = {
     const attachClickEventToBody = () => {
       const body = $("body");
       body.click(() => {
-        vnode.attrs.vm.dropdown.hideAllDropDowns();
+        vnode.attrs.vm.dropdown.hideAll();
         m.redraw();
       });
     };

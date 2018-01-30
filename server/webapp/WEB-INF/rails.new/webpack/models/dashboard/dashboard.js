@@ -35,6 +35,10 @@ const Dashboard = function (json) {
     return pipelines.pipelines;
   };
 
+  this.allPipelineNames = () => {
+    return Object.keys(pipelines.pipelines);
+  };
+
   this.findPipeline = (pipelineName) => {
     return pipelines.find(pipelineName);
   };

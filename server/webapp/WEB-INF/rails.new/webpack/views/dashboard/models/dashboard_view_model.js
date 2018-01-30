@@ -15,49 +15,42 @@
  */
 
 const Stream = require('mithril/stream');
+const _      = require('lodash');
 
-const VM = () => {
+const VM = (allPipelines) => {
   const dropdownStates = {};
 
   const viewModel = {
     dropdown: {
-
-      create(dropDownName) {
-        if (!dropdownStates[dropDownName]) {
-          dropdownStates[dropDownName] = Stream(false);
-        }
-
-        return dropdownStates[dropDownName];
+      create: (name) => {
+        dropdownStates[name] = Stream(false);
       },
 
-      hide(dropDownName) {
-        viewModel.dropdown.create(dropDownName)(false);
+      isDropDownOpen: (name) => dropdownStates[name](),
+
+      toggle: (name) => {
+        viewModel.dropdown.hideAllExcept(name);
+        dropdownStates[name](!dropdownStates[name]());
       },
 
-      hideAllDropDowns() {
-        for (const item in dropdownStates) {
-          dropdownStates[item](false);
-        }
+      hideAllExcept: (name) => {
+        _.each(_.keys(dropdownStates), (key) => (key !== name) && dropdownStates[key](false));
       },
 
-      hideOtherDropdowns(dropDownName) {
-        for (const item in dropdownStates) {
-          if (item !== dropDownName) {
-            this.hide(item);
-          }
-        }
+      hideAll: () => {
+        _.each(_.keys(dropdownStates), (name) => dropdownStates[name](false));
       },
 
-      toggleDropDownState(dropDownName) {
-        dropdownStates[dropDownName](!dropdownStates[dropDownName]());
-        this.hideOtherDropdowns(dropDownName);
-      },
-
-      isDropDownOpen(dropDownName) {
-        return this.create(dropDownName)();
-      }
+      //used by tests
+      size: () => _.keys(dropdownStates).length
     }
   };
+
+  const initialize = (allPipelines) => {
+    _.each(allPipelines, viewModel.dropdown.create);
+  };
+
+  initialize(allPipelines);
   return viewModel;
 };
 

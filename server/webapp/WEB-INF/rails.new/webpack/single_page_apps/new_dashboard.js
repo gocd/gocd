@@ -22,14 +22,14 @@ const DashboardWidget = require('views/dashboard/dashboard_widget');
 
 require('foundation-sites');
 
-const dashboardViewModel = new DashboardVM();
-
 $(() => {
   const dashboardElem          = $('#dashboard');
   const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   $(document).foundation();
 
   const onSuccess = (dashboard) => {
+    const dashboardViewModel = new DashboardVM(dashboard.allPipelineNames());
+
     const component = {
       view() {
         return m(DashboardWidget, {

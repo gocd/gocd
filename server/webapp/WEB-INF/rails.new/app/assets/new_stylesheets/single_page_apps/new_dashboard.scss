@@ -29,6 +29,8 @@
 $passed: #1ec659;
 $failed: #fc131b;
 $building: #fed34e;
+$pipeline_header_bg: #e0e0e0;
+$pipeline_icons_size: 16px;
 
 //animation
 
@@ -84,7 +86,7 @@ $building: #fed34e;
 
 .dashboard {
   margin-top: 50px;
-  padding:    0 20px 50px;
+  padding:    20px 20px 50px;
 }
 
 .pipeline-group {
@@ -92,11 +94,12 @@ $building: #fed34e;
 }
 
 .pipeline-group_title {
-  background:  image_url('g9/icons/icon_pipelinegroup_24.png') no-repeat 0 -1px;
-  padding:     0 0 0 45px;
-  font-size:   25px;
-  font-weight: 600;
-  line-height: 40px;
+  background:    image_url('g9/icons/icon_pipeline_group.png') no-repeat 5px center;
+  padding:       0 0 0 38px;
+  font-size:     25px;
+  font-weight:   600;
+  line-height:   25px;
+  margin-bottom: 20px;
 }
 
 .pipeline-group_items {
@@ -122,13 +125,14 @@ $building: #fed34e;
 .pipeline_header {
   @include clearfix;
   padding:       10px 15px;
-  border-bottom: 1px dotted #333;
+  border-radius: 5px 5px 0 0;
+  background:    $pipeline_header_bg;
 }
 
 .pipeline_name {
-  font-size:     17px;
-  font-weight:   500;
-  width:         195px;
+  font-size:     15px;
+  font-weight:   600;
+  width:         190px;
   margin:        0;
   white-space:   nowrap;
   overflow:      hidden;
@@ -143,7 +147,7 @@ $building: #fed34e;
 .pipeline_actions {
   position: absolute;
   right:    10px;
-  top:      6px;
+  top:      9px;
 }
 
 .pipeline_locked {
@@ -151,7 +155,7 @@ $building: #fed34e;
   overflow:  hidden;
   width:     25px;
   height:    25px;
-  font-size: 20px;
+  font-size: $pipeline_icons_size;
   color:     #555;
   &:hover {
     color: #000;
@@ -166,7 +170,7 @@ $building: #fed34e;
   overflow:  hidden;
   width:     25px;
   height:    25px;
-  font-size: 20px;
+  font-size: $pipeline_icons_size;
   color:     #555;
   &:hover {
     color: #000;
@@ -179,7 +183,6 @@ $building: #fed34e;
 .pipeline_pause-message {
   font-size:   12px;
   clear:       both;
-  text-align:  right;
   line-height: 14px;
 }
 
@@ -193,8 +196,8 @@ $building: #fed34e;
 }
 
 .pipeline_instance-label {
-  font-size:   14px;
-  font-weight: 600;
+  font-size:   15px;
+  font-weight: 500;
 }
 
 .more_info {
@@ -319,6 +322,7 @@ $building: #fed34e;
     &.failed {
       @include icon-before($failed-icon, 12px, 0);
       background: $failed;
+      color:      #fff;
     }
     &.failing {
       @extend %building;
@@ -342,25 +346,48 @@ $building: #fed34e;
   }
 }
 
+.pipeline_message {
+  border:        1px solid #ccc;
+  background:    #fff;
+  font-size:     12px;
+  padding:       1px 10px;
+  margin-top:    5px;
+  border-radius: 3px;
+  p {
+    margin: 0;
+  }
+  &.success {
+    border:     1px solid #1fc75954;
+    background: #1fc75929;
+  }
+  &.error {
+    border:     1px solid #c71f1f52;
+    background: #c71f1f54;
+  }
+}
+
 //operations buttons
 
 .pipeline_operations {
   list-style-type: none;
   margin:          10px 0 0 0;
-  float:           right;
   padding:         0;
   li {
-    display: inline-block;
+    display:     inline-block;
+    margin-left: 2px;
+    &:first-child {
+      margin-left: 0;
+    }
   }
 }
 
 .btn {
-  border:      1px solid #ccc;
-  background:  #fff;
-  width:       40px;
-  height:      25px;
-  margin-left: 2px;
-  transition:  all 0.2s ease-in-out;
+  border:     1px solid #ccc;
+  background: #fff;
+  width:      40px;
+  height:     25px;
+  transition: all 0.2s ease-in-out;
+
   &:focus, &:active {
     outline: 0;
   }

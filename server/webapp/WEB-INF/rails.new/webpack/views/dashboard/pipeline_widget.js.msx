@@ -39,7 +39,9 @@ const PipelineHeaderWidget = {
           {settingsButton}
           <button className="pipeline_locked"/>
         </div>
-
+        <div class="pipeline_message success">
+          <p>Pipeline up42 paused successfully.</p>
+        </div>
         <ul className="pipeline_operations">
           <li>
             <button className="btn play"></button>

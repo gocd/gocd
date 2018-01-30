@@ -89,8 +89,8 @@ public class ArtifactsPublisherTest {
     public void shouldMergeTestReportFilesAndUploadResult() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
         new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test1", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test2", "test"));
 
         final File firstTestFolder = prepareTestFolder(workingFolder, "test1");
         final File secondTestFolder = prepareTestFolder(workingFolder, "test2");
@@ -107,8 +107,8 @@ public class ArtifactsPublisherTest {
     public void shouldReportErrorWithTestArtifactSrcWhenUploadFails() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
         new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test1", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test2", "test"));
 
         prepareTestFolder(workingFolder, "test1");
         prepareTestFolder(workingFolder, "test2");
@@ -126,11 +126,11 @@ public class ArtifactsPublisherTest {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
         final File src1 = TestFileUtil.createTestFolder(workingFolder, "src1");
         TestFileUtil.createTestFile(src1, "test.txt");
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName(), "dest"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src1.getName(), "dest"));
         final File src2 = TestFileUtil.createTestFolder(workingFolder, "src2");
         TestFileUtil.createTestFile(src1, "test.txt");
 
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src2.getName(), "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src2.getName(), "test"));
         StubGoPublisher publisher = new StubGoPublisher();
 
         new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans);
@@ -151,7 +151,7 @@ public class ArtifactsPublisherTest {
         final File testFile1 = TestFileUtil.createTestFile(src1, "test1.txt");
         final File testFile2 = TestFileUtil.createTestFile(src1, "test2.txt");
         final File testFile3 = TestFileUtil.createTestFile(src1, "readme.pdf");
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName() + "/*", "dest"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src1.getName() + "/*", "dest"));
 
         artifactsPublisher.publishArtifacts(artifactPlans);
 
@@ -262,8 +262,8 @@ public class ArtifactsPublisherTest {
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
         List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(ArtifactType.file, "installer.zip", "dist"),
-                new ArtifactPlan(ArtifactType.unit, "testreports.xml", "testreports"),
+                new ArtifactPlan(ArtifactPlanType.file, "installer.zip", "dist"),
+                new ArtifactPlan(ArtifactPlanType.unit, "testreports.xml", "testreports"),
                 artifactPlan
         );
 
@@ -290,8 +290,8 @@ public class ArtifactsPublisherTest {
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
         List<ArtifactPlan> artifactPlans = Arrays.asList(
-                new ArtifactPlan(ArtifactType.file, "installer.zip", "dist"),
-                new ArtifactPlan(ArtifactType.unit, "testreports.xml", "testreports"),
+                new ArtifactPlan(ArtifactPlanType.file, "installer.zip", "dist"),
+                new ArtifactPlan(ArtifactPlanType.unit, "testreports.xml", "testreports"),
                 artifactPlan
         );
 

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.remote.work.artifact;
 
 import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.domain.MergedTestArtifactPlan;
 
 import java.util.ArrayList;
@@ -29,14 +29,14 @@ public class ArtifactPlanFilter {
         MergedTestArtifactPlan testArtifactPlan = null;
         final List<ArtifactPlan> mergedPlans = new ArrayList<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
-            if (artifactPlan.getArtifactType().isTest()) {
+            if (artifactPlan.getArtifactPlanType().isTest()) {
                 if (testArtifactPlan == null) {
                     testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
                     mergedPlans.add(testArtifactPlan);
                 } else {
                     testArtifactPlan.add(artifactPlan);
                 }
-            } else if (artifactPlan.getArtifactType() == ArtifactType.file) {
+            } else if (artifactPlan.getArtifactPlanType() == ArtifactPlanType.file) {
                 mergedPlans.add(artifactPlan);
             }
         }
@@ -46,7 +46,7 @@ public class ArtifactPlanFilter {
     public List<ArtifactPlan> getPluggableArtifactPlans(List<ArtifactPlan> artifactPlans) {
         final ArrayList<ArtifactPlan> pluggableArtifactPlans = new ArrayList<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
-            if (artifactPlan.getArtifactType() == ArtifactType.plugin) {
+            if (artifactPlan.getArtifactPlanType() == ArtifactPlanType.plugin) {
                 pluggableArtifactPlans.add(artifactPlan);
             }
         }

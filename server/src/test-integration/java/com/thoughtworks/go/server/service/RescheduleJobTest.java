@@ -189,10 +189,10 @@ public class RescheduleJobTest {
             ArtifactPlan newArtifactPlan = newJobPlan.getArtifactPlans().get(i);
             ArtifactPlan oldArtifactPlan = oldJobPlan.getArtifactPlans().get(i);
             assertThat(newArtifactPlan.getId(), is(not(oldArtifactPlan.getId())));
-            assertThat(newArtifactPlan.getArtifactType(), is(oldArtifactPlan.getArtifactType()));
+            assertThat(newArtifactPlan.getArtifactPlanType(), is(oldArtifactPlan.getArtifactPlanType()));
             assertThat(newArtifactPlan.getSrc(), is(oldArtifactPlan.getSrc()));
             assertThat(newArtifactPlan.getDest(), is(oldArtifactPlan.getDest()));
-            assertThat(newArtifactPlan.getArtifactType(), is(oldArtifactPlan.getArtifactType()));
+            assertThat(newArtifactPlan.getArtifactPlanType(), is(oldArtifactPlan.getArtifactPlanType()));
             assertThat(ReflectionUtil.getField(newArtifactPlan, "buildId"), is(newJobPlan.getJobId()));
         }
 

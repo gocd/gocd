@@ -221,11 +221,11 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     @Override
-    public List<ArtifactPlan> getArtifactPlansOfType(final ArtifactType file) {
+    public List<ArtifactPlan> getArtifactPlansOfType(final ArtifactPlanType artifactPlanType) {
         return getArtifactPlans().stream().filter(new Predicate<ArtifactPlan>() {
             @Override
             public boolean test(ArtifactPlan artifactPlan) {
-                return artifactPlan.getArtifactType() == file;
+                return artifactPlan.getArtifactPlanType() == artifactPlanType;
             }
         }).collect(Collectors.toList());
     }

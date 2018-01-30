@@ -88,7 +88,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldSaveArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         artifactPlan.setBuildId(jobInstance.getId());
 
         // Act
@@ -102,7 +102,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -118,7 +118,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlanWithTypeUnit() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, "src", "dest");
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactPlanType.unit, "src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -134,7 +134,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedTestArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, null, null);
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactPlanType.unit, null, null);
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -152,7 +152,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
         // Arrange
         JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
         JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
 
         // Act
         ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(firstJobInstance.getId(), artifactPlan);
@@ -178,7 +178,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     @Test
     public void shouldDeleteArtifactPlans() throws Exception {
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         artifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(artifactPlan);
         List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());

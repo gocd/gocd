@@ -115,7 +115,7 @@ public class BuildComposer {
     private BuildCommand uploadArtifacts() {
         List<BuildCommand> commands = new ArrayList<>();
         for (ArtifactPlan ap : assignment.getArtifactPlans()) {
-            commands.add(uploadArtifact(ap.getSrc(), ap.getDest(), ap.getArtifactType().isTest())
+            commands.add(uploadArtifact(ap.getSrc(), ap.getDest(), ap.getArtifactPlanType().isTest())
                     .setWorkingDirectory(workingDirectory()));
         }
 
@@ -128,7 +128,7 @@ public class BuildComposer {
     private BuildCommand generateTestReport() {
         List<String> srcs = new ArrayList<>();
         for (ArtifactPlan ap : assignment.getArtifactPlans()) {
-            if (ap.getArtifactType() == ArtifactType.unit) {
+            if (ap.getArtifactPlanType() == ArtifactPlanType.unit) {
                 srcs.add(ap.getSrc());
             }
         }

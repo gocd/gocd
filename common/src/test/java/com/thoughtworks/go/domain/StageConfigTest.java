@@ -199,9 +199,9 @@ public class StageConfigTest {
 
     @Test
     public void shouldReturnTrueIfStageHasTests() {
-        StageConfig stageWithTests = StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.unit);
+        StageConfig stageWithTests = StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test);
 
-        StageConfig stageWithoutTests = StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.file);
+        StageConfig stageWithoutTests = StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build);
         assertThat(stageWithTests.hasTests(), is(true));
         assertThat(stageWithoutTests.hasTests(), is(false));
     }

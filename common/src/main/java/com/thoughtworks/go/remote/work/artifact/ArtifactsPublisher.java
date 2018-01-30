@@ -19,7 +19,7 @@ package com.thoughtworks.go.remote.work.artifact;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
@@ -67,7 +67,7 @@ public class ArtifactsPublisher implements Serializable {
             if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
                 LOGGER.info("Pluggable metadata folder is empty.");
             } else if (pluggableArtifactFolder != null) {
-                mergedPlans.add(0, new ArtifactPlan(ArtifactType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
+                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
             }
 
             for (ArtifactPlan artifactPlan : mergedPlans) {

@@ -326,7 +326,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "cardlist", true).artifactConfigs();
         assertThat(cardListArtifacts.size(), is(1));
         Artifact artifactPlan = cardListArtifacts.get(0);
-        assertThat(artifactPlan.getArtifactType(), is(ArtifactType.unit));
+        assertThat(artifactPlan.getArtifactType(), is(ArtifactType.test));
     }
 
     @Test

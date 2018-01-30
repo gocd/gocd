@@ -36,6 +36,10 @@ public class AgentInstanceMother {
         return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), systemEnvironment);
     }
 
+    public static AgentInstance localInstance(SystemEnvironment systemEnvironment, String uuid, String hostname) {
+        return AgentInstance.createFromConfig(new AgentConfig(uuid, hostname, "127.0.0.1"), systemEnvironment);
+    }
+
     public static AgentInstance idle()  {
         return idle(new Date(), "CCeDev01");
     }

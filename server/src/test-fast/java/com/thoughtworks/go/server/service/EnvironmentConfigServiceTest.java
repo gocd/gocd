@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;

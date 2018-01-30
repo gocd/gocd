@@ -212,9 +212,8 @@ Go::Application.routes.draw do
         get ":name/edit/#{action}" => "environments#edit_#{action}", constraints: ENVIRONMENT_NAME_CONSTRAINT, as: "environment_edit_#{action}"
       end
     end
-    get ":name/show" => 'environments#show', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :environment_show
   end
-  match "environments(.:format)" => 'environments#index', defaults: {:format => :html}, via: [:post, :get], as: :environments
+  get "environments(.:format)" => 'environments#index', defaults: {:format => :html}, as: :environments
 
   scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', :path => {:value => "v1"}) do

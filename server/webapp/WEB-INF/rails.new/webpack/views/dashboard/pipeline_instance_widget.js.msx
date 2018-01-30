@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-const m                     = require('mithril');
+const m      = require('mithril');
+const moment = require("moment");
+require("moment-duration-format");
 const StagesInstanceWidget  = require('views/dashboard/stages_instance_widget');
 const MaterialChangesWidget = require('views/dashboard/material_changes_widget');
 
@@ -36,6 +38,9 @@ const PipelineInstanceWidget = {
     const instance     = vnode.attrs.instance;
     const dropdown     = vnode.attrs.dropdown;
     const pipelineName = vnode.attrs.pipelineName;
+    const scheduledAt  = moment(new Date(instance.scheduledAt))
+      .format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
+
     return (
       <div class="pipeline_instance">
         <label class="pipeline_instance-label">Instance: {instance.label} </label>
@@ -50,7 +55,7 @@ const PipelineInstanceWidget = {
         </div>
         <div class="pipeline_instance-details">
           <div>{instance.triggeredBy}</div>
-          <div>on on 30 Jan 2018 at 09:43:25 Local Time</div>
+          <div>{scheduledAt}</div>
         </div>
         <StagesInstanceWidget stages={instance.stages}/>
       </div>

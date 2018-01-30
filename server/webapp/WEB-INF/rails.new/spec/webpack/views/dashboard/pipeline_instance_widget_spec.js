@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 describe("Dashboard Pipeline Instance Widget", () => {
-  const m = require("mithril");
-
+  const m      = require("mithril");
+  const moment = require("moment");
+  require("moment-duration-format");
   const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
   const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
@@ -122,8 +123,9 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render triggered by information", () => {
-    expect($root.find('.pipeline_instance-details')).toContainText(`${ pipelineInstanceJson.triggered_by }`);
-    expect($root.find('.pipeline_instance-details')).toContainText('on 10 Nov 2017 at 12:55:28 Local Time');
+    expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${ pipelineInstanceJson.triggered_by }`);
+    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
+    expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
   it("should render compare link", () => {

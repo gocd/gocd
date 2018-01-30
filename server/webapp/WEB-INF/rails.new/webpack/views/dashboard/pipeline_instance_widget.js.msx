@@ -38,8 +38,7 @@ const PipelineInstanceWidget = {
     const instance     = vnode.attrs.instance;
     const dropdown     = vnode.attrs.dropdown;
     const pipelineName = vnode.attrs.pipelineName;
-    const scheduledAt  = moment(new Date(instance.scheduledAt))
-      .format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
+    const scheduledAt  = moment(new Date(instance.scheduledAt)).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
 
     return (
       <div class="pipeline_instance">

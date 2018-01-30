@@ -507,7 +507,7 @@ h4 {
     }
   }
   .pipelines_selector {
-    width:      auto;
+    width:      370px;
     position:   relative;
     margin-top: 3px;
   }
@@ -569,11 +569,11 @@ h1.entity_title {
       #pipeline-search {
         margin-right:  0px;
         height:        30px;
+        line-height:   16px;
         box-shadow:    none;
         border-radius: 3px 0px 0 3px;
         padding-left:  10px;
         border:        1px solid $border-color;
-
       }
     }
     .count {

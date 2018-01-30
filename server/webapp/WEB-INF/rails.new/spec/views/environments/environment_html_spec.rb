@@ -20,6 +20,7 @@ describe "/environments/_environment.html.erb" do
   include PipelineModelMother
 
   before do
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     date = org.joda.time.DateTime.new.toDate
 
     @stages_for_pipeline_1 = PipelineHistoryMother.stagePerJob("blahStage", [PipelineHistoryMother.job(JobState::Building, JobResult::Unknown, date),

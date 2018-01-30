@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="106"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="105"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -535,7 +535,12 @@
     <xsd:all>
       <xsd:element ref="environmentvariables" minOccurs="0" maxOccurs="1"/>
       <xsd:element minOccurs="0" name="tasks" type="tasksType"/>
-      <xsd:element minOccurs="0" name="artifacts" type="artifactsType"/>
+      <xsd:element minOccurs="0" name="artifacts" type="artifactsType">
+        <xsd:unique name="uniquePluggableArtifactId">
+          <xsd:selector xpath="pluggableArtifact"/>
+          <xsd:field xpath="@id"/>
+        </xsd:unique>
+      </xsd:element>
       <xsd:element minOccurs="0" name="resources" type="resourcesType"/>
       <xsd:element minOccurs="0" name="tabs" type="tabsType">
         <xsd:unique name="uniqueTabsName">
@@ -721,29 +726,45 @@
   </xsd:complexType>
   <xsd:complexType name="artifactsType">
     <xsd:sequence>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="artifact" type="artifactType"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" ref="artifactType"/>
     </xsd:sequence>
   </xsd:complexType>
 
+  <xsd:complexType name="abstractArtifactType" abstract="true"/>
+
+  <xsd:complexType name="testType">
+    <xsd:complexContent mixed="false">
+      <xsd:extension base="abstractArtifactType">
+        <xsd:attributeGroup ref="genericArtifactAttributeGroup"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
   <xsd:complexType name="artifactType">
-    <xsd:sequence>
-      <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
-    </xsd:sequence>
+    <xsd:complexContent mixed="false">
+      <xsd:extension base="abstractArtifactType">
+        <xsd:attributeGroup ref="genericArtifactAttributeGroup"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="pluggableArtifactType">
+    <xsd:complexContent mixed="false">
+      <xsd:extension base="abstractArtifactType">
+        <xsd:sequence>
+          <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="nameType" use="required"/>
+        <xsd:attribute name="storeId" type="nameType" use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element abstract="true" name="artifactType" type="abstractArtifactType"/>
+  <xsd:element name="test" substitutionGroup="artifactType" type="testType"/>
+  <xsd:element name="artifact" substitutionGroup="artifactType" type="artifactType"/>
+  <xsd:element name="pluggableArtifact" substitutionGroup="artifactType" type="pluggableArtifactType"/>
+  <xsd:attributeGroup name="genericArtifactAttributeGroup">
     <xsd:attribute name="src" type="xsd:string"/>
     <xsd:attribute name="dest" type="filePathType"/>
-    <xsd:attribute name="id" type="nameType"/>
-    <xsd:attribute name="storeId" type="nameType"/>
-    <xsd:attribute name="type" use="required">
-      <xsd:simpleType>
-        <xsd:restriction base="xsd:string">
-          <xsd:enumeration value="build"/>
-          <xsd:enumeration value="test"/>
-          <xsd:enumeration value="plugin"/>
-        </xsd:restriction>
-      </xsd:simpleType>
-    </xsd:attribute>
-  </xsd:complexType>
-  <xsd:element name="artifact" type="artifactType"/>
+  </xsd:attributeGroup>
   <xsd:complexType name="templatesType">
     <xsd:sequence>
       <xsd:element minOccurs="1" maxOccurs="unbounded" name="pipeline">
@@ -1084,3 +1105,4 @@
     <xsd:attribute name="secure" type="xsd:boolean"/>
   </xsd:complexType>
 </xsd:schema>
+

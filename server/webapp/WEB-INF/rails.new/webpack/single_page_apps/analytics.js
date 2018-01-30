@@ -21,6 +21,7 @@
   const $ = require("jquery");
 
   require("foundation-sites");
+  require('helpers/server_health_messages_helper');
 
   const PluginEndpoint     = require('rails-shared/plugin-endpoint');
   const VersionUpdater     = require('models/shared/version_updater');

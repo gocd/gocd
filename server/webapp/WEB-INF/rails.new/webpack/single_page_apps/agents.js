@@ -26,7 +26,7 @@ const PluginInfos    = require('models/shared/plugin_infos');
 const AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
-
+require('helpers/server_health_messages_helper');
 $(() => {
   new VersionUpdater().update();
   const $agentElem = $('#agents');

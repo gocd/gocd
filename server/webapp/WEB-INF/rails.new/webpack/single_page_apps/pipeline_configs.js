@@ -27,6 +27,7 @@ const SCMs                 = require('models/pipeline_configs/scms');
 const ElasticProfiles      = require('models/elastic_profiles/elastic_profiles');
 const VersionUpdater       = require('models/shared/version_updater');
 require('foundation-sites');
+require('helpers/server_health_messages_helper');
 
 $(() => {
   const pipelineConfigElem = $('#pipeline-config');

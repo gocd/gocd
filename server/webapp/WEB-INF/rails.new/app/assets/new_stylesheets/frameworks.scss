@@ -24,6 +24,8 @@
 @import 'fonts';
 @import 'footer';
 
+@import "shared/server_health_messages";
+
 .tooltip-question-mark {
   @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
     margin-left:  10px;

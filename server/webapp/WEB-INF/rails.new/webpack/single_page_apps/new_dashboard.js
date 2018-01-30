@@ -21,6 +21,7 @@ const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
 
 require('foundation-sites');
+require('helpers/server_health_messages_helper');
 
 $(() => {
   const dashboardElem          = $('#dashboard');

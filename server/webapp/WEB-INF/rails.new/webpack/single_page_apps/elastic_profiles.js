@@ -21,6 +21,7 @@ const ElasticProfilesWidget = require('views/elastic_profiles/elastic_profiles_w
 const PluginInfos           = require('models/shared/plugin_infos');
 const VersionUpdater        = require('models/shared/version_updater');
 require('foundation-sites');
+require('helpers/server_health_messages_helper');
 
 $(() => {
   $(document).foundation();

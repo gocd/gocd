@@ -21,6 +21,7 @@ const PluginsWidget  = require('views/plugins/plugins_widget');
 const PluginInfos    = require('models/shared/plugin_infos');
 const VersionUpdater = require('models/shared/version_updater');
 require('foundation-sites');
+require('helpers/server_health_messages_helper');
 
 $(() => {
   $(document).foundation();

@@ -13,28 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../shared/mixins';
-@import '../shared/common';
-@import '../shared/go-variables';
-@import '../shared/header';
-@import '../shared/alert';
 
-@import "font-awesome-sprockets";
-@import "font-awesome";
 
-.analytics-container {
-  height:          88vh;
-  display:         flex;
-  flex-wrap:       wrap;
-  justify-content: center;
-  overflow:        scroll;
+const moment = require("moment");
+require("moment-duration-format");
 
-  iframe {
-    flex-grow:  1;
-    flex-basis: auto;
-    min-width:  calc(44vh * 5 / 3);
-    min-height: 44vh;
-    max-width:  calc(60vh * 5 / 3);
-    border:     0;
-  }
-}
+module.exports = function (time) {
+  return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
+};

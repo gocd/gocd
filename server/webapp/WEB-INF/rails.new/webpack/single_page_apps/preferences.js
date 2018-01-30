@@ -79,6 +79,7 @@
 
     // boilerplate to init menus and check for updates
     $(document).foundation();
+    require('helpers/server_health_messages_helper');
     new VersionUpdater().update();
   });
 

@@ -45,7 +45,11 @@ CrudMixins.Index = (options) => {
     });
 
     const didFulfill = (data, _textStatus, _jqXHR) => {
-      deferred.resolve(type.fromJSON(_.get(data, dataPath)));
+      if (s.isBlank(dataPath)){
+        deferred.resolve(type.fromJSON(data));
+      } else {
+        deferred.resolve(type.fromJSON(_.get(data, dataPath)));
+      }
     };
 
     const didReject = (jqXHR, _textStatus, _errorThrown) => {

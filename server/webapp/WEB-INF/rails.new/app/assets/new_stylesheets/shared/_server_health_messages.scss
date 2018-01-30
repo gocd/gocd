@@ -1,0 +1,57 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "go-variables";
+
+.server-health-status {
+  margin:         10px;
+  padding-bottom: 10px;
+  border-bottom:  1px dotted $border-color;
+
+  &.warning .detail {
+    border-left: $building 5px solid;
+  }
+
+  &.error .detail {
+    border-left: $failed 5px solid;
+  }
+
+  .message {
+    display:     inline-block;
+    font-size:   13px;
+    font-weight: 600;
+  }
+
+  .timestamp {
+    display:      inline-block;
+    font-size:    13px;
+    font-weight:  600;
+    padding-left: 5px;
+  }
+
+  .detail {
+    font-size:    13px;
+    margin-top:   5px;
+    padding-left: 5px;
+  }
+
+  .timestamp:before {
+    content: '[';
+  }
+  .timestamp:after {
+    content: ']';
+  }
+
+}

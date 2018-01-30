@@ -21,7 +21,7 @@ const PluginInfos    = require('models/shared/plugin_infos');
 const AuthConfigs    = require('models/auth_configs/auth_configs');
 const VersionUpdater = require('models/shared/version_updater');
 require('foundation-sites');
-
+require('helpers/server_health_messages_helper');
 $(() => {
   new VersionUpdater().update();
 

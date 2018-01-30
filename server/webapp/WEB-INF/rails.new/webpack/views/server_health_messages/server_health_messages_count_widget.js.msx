@@ -1,0 +1,71 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m             = require('mithril');
+const Modal         = require('views/shared/new_modal');
+const timeFormatter = require('helpers/time_formatter');
+
+const HealthMessageWidget = {
+  view(vnode) {
+    return (
+      <div class={`server-health-status ${vnode.attrs.message.level.toLowerCase()}`}>
+        <div class="message">{vnode.attrs.message.message}</div>
+        <div class="timestamp">{timeFormatter(vnode.attrs.message.time)}</div>
+        <div class="detail">{vnode.attrs.message.detail}</div>
+      </div>
+    );
+  }
+};
+
+const ServerHealthMessagesCountWidget = {
+  oninit(vnode) {
+    const modal = new Modal({
+      size:    'large',
+      title:   'Error and warning messages',
+      body:    () => (
+        <div>
+          {
+            vnode.attrs.serverHealthMessages().collect((msg) => {
+              return <HealthMessageWidget message={msg}/>;
+            })
+          }
+        </div>),
+      onclose: () => modal.destroy(),
+      buttons: [
+        {
+          text:    "OK",
+          class:   'close',
+          onclick: () => {
+            modal.destroy();
+          }
+        }
+      ]
+    });
+
+    this.openServerHealthMessagesModal = () => {
+      modal.render();
+    };
+  },
+
+  view(vnode) {
+    return (
+      <a
+        onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>{vnode.attrs.serverHealthMessages().summaryMessage()}</a>
+    );
+  }
+};
+
+module.exports = ServerHealthMessagesCountWidget;

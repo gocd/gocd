@@ -119,6 +119,19 @@ $menu-hover: #3e3d3d;
       }
     }
 
+    &#server-health-messages {
+      @include icon-before($failed-icon, $margin: 0);
+      position:         relative;
+      background-color: darken($failed, 20%);
+      padding-left:     10px;
+      &:before {
+        position:  absolute;
+        left:      7px;
+        top:       12px;
+        font-size: 16px;
+      }
+    }
+
     &.current-user {
       @include icon-before($type: user);
       padding-left: 10px;

@@ -24,8 +24,11 @@
     const url = Stream();
     const view = Stream();
     const data = Stream();
+    const errors = Stream();
 
     function load() {
+      errors(null);
+
       $.ajax({
         url: url(),
         type: "GET",
@@ -33,11 +36,14 @@
       }).done((r) => {
         data(r.data);
         view(r.view_path);
+      }).fail((xhr) => {
+        errors(xhr.responseText);
+      }).always(() => {
         callback();
       });
     }
 
-    return {url, view, data, load};
+    return {url, view, data, load, errors};
   }
 
   module.exports = Frame;

@@ -22,8 +22,10 @@
 
   const PluginiFrameWidget = {
     oncreate(vnode) {
-      vnode.dom.onload = () => {
-        PluginEndpoint.init(vnode.dom.contentWindow, {
+      const iframe = vnode.dom.firstChild;
+
+      iframe.onload = () => {
+        PluginEndpoint.init(iframe.contentWindow, {
           uid: vnode.attrs.uid,
           pluginId: vnode.attrs.pluginId,
           data: vnode.attrs.model.data()
@@ -34,8 +36,13 @@
     },
 
     view(vnode) {
-      const attrs = {src: vnode.attrs.model.view()};
-      return <iframe sandbox="allow-scripts" {...attrs}></iframe>;
+      const model = vnode.attrs.model;
+      const attrs = {src: model.view()};
+      const errorAttrs = model.errors() ? {"data-error-text": model.errors()} : {};
+
+      return <div class="frame-container" {...errorAttrs}>
+        <iframe sandbox="allow-scripts" {...attrs}></iframe>
+      </div>;
     }
   };
 

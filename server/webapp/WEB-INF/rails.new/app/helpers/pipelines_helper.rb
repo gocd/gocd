@@ -99,7 +99,7 @@ module PipelinesHelper
   end
 
   def with_pipeline_analytics_support(&block)
-    return unless block_given? && security_service.isUserAdmin(current_user)
+    return unless block_given? && is_user_an_admin?
 
     default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |plugin|
       if plugin.getCapabilities().supportsPipelineAnalytics()

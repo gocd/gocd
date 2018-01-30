@@ -17,7 +17,7 @@
 const _                = require('lodash');
 const MaterialRevision = require('models/dashboard/material_revision');
 
-const StageInstance    = function (json) {
+const StageInstance = function (json) {
   this.name       = json.name;
   this.status     = json.status;
   this.isBuilding = () => json.status === 'Building';
@@ -25,7 +25,7 @@ const StageInstance    = function (json) {
 
 const PipelineInstance = function (info) {
   this.label       = info.label;
-  this.scheduledAt = new Date(info.scheduled_at);
+  this.scheduledAt = info.scheduled_at;
   this.triggeredBy = info.triggered_by;
 
   this.vsmPath     = info._links.vsm_url.href;

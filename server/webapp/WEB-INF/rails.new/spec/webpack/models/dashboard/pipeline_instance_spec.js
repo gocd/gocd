@@ -23,7 +23,7 @@ describe("Dashboard", () => {
 
       expect(pipelineInstance.label).toBe(pipelineInstanceJson.label);
 
-      expect(pipelineInstance.scheduledAt).toEqual(new Date(pipelineInstanceJson.scheduled_at));
+      expect(pipelineInstance.scheduledAt).toEqual(pipelineInstanceJson.scheduled_at);
       expect(pipelineInstance.triggeredBy).toEqual(pipelineInstanceJson.triggered_by);
 
       expect(pipelineInstance.vsmPath).toEqual(pipelineInstanceJson._links.vsm_url.href);

@@ -21,12 +21,11 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import org.slf4j.Logger;
 import org.jdom2.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -135,6 +134,10 @@ public class MagicalGoConfigXmlWriter {
         return Namespace.getNamespace(annotation.namespacePrefix(), annotation.namespaceURI());
     }
 
+    private static Namespace namespaceFor(AttributeAwareConfigTag annotation) {
+        return Namespace.getNamespace(annotation.namespacePrefix(), annotation.namespaceURI());
+    }
+
     private static void write(Object o, Element element, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
         for (XmlFieldWithValue xmlFieldWithValue : allFields(o, configCache, registry)) {
             if (xmlFieldWithValue.isDefault() && !xmlFieldWithValue.alwaysWrite()) {
@@ -235,6 +238,12 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
+        final AttributeAwareConfigTag attributeAwareConfigTag = annotationFor(aClass, AttributeAwareConfigTag.class);
+
+        if (attributeAwareConfigTag != null) {
+            return new Element(attributeAwareConfigTag.value(), namespaceFor(attributeAwareConfigTag));
+        }
+
         ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
         if (configTag == null)
             throw bomb(format("Cannot get config tag for {0}", aClass));

@@ -38,7 +38,7 @@ const PipelineInstanceWidget = {
     const pipelineName = vnode.attrs.pipelineName;
     return (
       <div class="pipeline_instance">
-        <div class="pipeline_instance-label">Instance: {instance.label} </div>
+        <label class="pipeline_instance-label">Instance: {instance.label} </label>
         <div class="more_info">
           <ul class="info">
             <li><a href={instance.comparePath}> Compare </a></li>
@@ -50,7 +50,7 @@ const PipelineInstanceWidget = {
         </div>
         <div class="pipeline_instance-details">
           <div>{instance.triggeredBy}</div>
-          <div>on {instance.scheduledAt.toString()}</div>
+          <div>on on 30 Jan 2018 at 09:43:25 Local Time</div>
         </div>
         <StagesInstanceWidget stages={instance.stages}/>
       </div>

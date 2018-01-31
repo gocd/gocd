@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-const _        = require('lodash');
-const $        = require('jquery');
-const m        = require('mithril');
-const mrequest = require('helpers/mrequest');
-const VMRoutes = require('helpers/vm_routes');
-const Routes   = require('gen/js-routes');
+const _           = require('lodash');
+const $           = require('jquery');
+const m           = require('mithril');
+const mrequest    = require('helpers/mrequest');
+const VMRoutes    = require('helpers/vm_routes');
+const SparkRoutes = require('helpers/spark_routes');
+const Routes      = require('gen/js-routes');
 
 const PipelineInstance = require('models/dashboard/pipeline_instance');
 
 const Pipeline = function (info) {
-  this.name = info.name;
+  const self = this;
+  this.name  = info.name;
 
   this.canAdminister = info.can_administer;
   this.settingsPath  = Routes.pipelineEditPath('pipelines', info.name, 'general');
@@ -33,38 +35,36 @@ const Pipeline = function (info) {
   this.historyPath = VMRoutes.pipelineHistoryPath(info.name);
   this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance));
 
-  const triggerPath = info._links.trigger.href;
-  this.xhrPost      = (url) => {
-    const config = (xhr) => {
-      xhr.setRequestHeader("Confirm", "true");
-    };
+  this.isPaused    = info.pause_info.paused;
+  this.pausedBy    = info.pause_info.paused_by;
+  this.pausedCause = info.pause_info.pause_reason;
 
+  const config = (xhr) => {
+    xhr.setRequestHeader("X-GoCD-Confirm", "true");
+    mrequest.xhrConfig.forVersion('v1')(xhr);
+  };
+
+  this.unpause = () => {
     return $.Deferred(function () {
       const deferred = this;
 
       const jqXHR = $.ajax({
         method:     'POST',
-        url,
+        url:        SparkRoutes.pipelineUnpausePath(self.name),
         timeout:    mrequest.timeout,
         beforeSend: config
       });
 
-      jqXHR.then((data, _textStatus, _jqXHR) => {
+      jqXHR.then((data) => {
         deferred.resolve(data);
       });
 
-      jqXHR.fail(({responseJSON}, _textStatus, _error) => {
-        // todo: handle trigger failure
-        deferred.reject(responseJSON);
+      jqXHR.fail((res) => {
+        deferred.reject(res);
       });
 
       jqXHR.always(m.redraw);
-
     }).promise();
-  };
-
-  this.trigger = () => {
-    return this.xhrPost(triggerPath());
   };
 };
 

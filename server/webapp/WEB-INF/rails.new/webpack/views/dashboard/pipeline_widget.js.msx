@@ -19,6 +19,54 @@ const _ = require('lodash');
 
 const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
 
+const PipelineOperationsWidget = {
+  oninit(vnode) {
+    const self              = vnode.state;
+    const operationMessages = vnode.attrs.operationMessages;
+    const pipeline          = vnode.attrs.pipeline;
+
+    self.unpause = () => {
+      pipeline.unpause().then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      });
+    };
+  },
+
+  view(vnode) {
+    const pipeline          = vnode.attrs.pipeline;
+    const operationMessages = vnode.attrs.operationMessages;
+
+    let pauseUnpauseButton, pausedMessage;
+    if (pipeline.isPaused) {
+      pauseUnpauseButton = (<button onclick={vnode.state.unpause} className="btn unpause"/>);
+      pausedMessage      = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
+    } else {
+      pauseUnpauseButton = (<button className="btn pause"/>);
+    }
+
+    let flashMessage;
+    if (operationMessages.messageFor(pipeline.name)) {
+      flashMessage = (<div class={`pipeline_message ${operationMessages.messageTypeFor(pipeline.name)}`}>
+        <p>{operationMessages.messageFor(pipeline.name)}</p>
+      </div>);
+    }
+
+    return (
+      <div>
+        {flashMessage}
+        <ul className="pipeline_operations">
+          <li><button className="btn play"/></li>
+          <li><button className="btn play_with_options"/></li>
+          <li>{pauseUnpauseButton}</li>
+        </ul>
+        <div className="pipeline_pause-message">{pausedMessage}</div>
+      </div>
+    );
+  }
+};
+
 const PipelineHeaderWidget = {
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
@@ -39,21 +87,9 @@ const PipelineHeaderWidget = {
           {settingsButton}
           <button className="pipeline_locked"/>
         </div>
-        <div class="pipeline_message success">
-          <p>Pipeline up42 paused successfully.</p>
-        </div>
-        <ul className="pipeline_operations">
-          <li>
-            <button className="btn play"></button>
-          </li>
-          <li>
-            <button className="btn play_with_options"></button>
-          </li>
-          <li>
-            <button className="btn pause"></button>
-          </li>
-        </ul>
-        <div className="pipeline_pause-message">Paused by admin (this is paused due to something)</div>
+        <PipelineOperationsWidget pipeline={pipeline}
+                                  operationMessages={vnode.attrs.vm.operationMessages}
+                                  dashboard={vnode.attrs.dashboard}/>
       </div>
     );
   }
@@ -70,7 +106,7 @@ const PipelineWidget = {
     const pipelineInstances = _.map(pipeline.instances, (instance) => {
       return (
         <PipelineInstanceWidget instance={instance}
-                                dropdown={vnode.attrs.dropdown}
+                                dropdown={vnode.attrs.vm.dropdown}
                                 pipelineName={pipeline.name}/>
       );
     });
@@ -79,6 +115,7 @@ const PipelineWidget = {
       <li class="pipeline-group_pipeline">
         <div class="pipeline">
           <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
+                                vm={vnode.attrs.vm}
                                 isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
           <div className="pipeline_instances">
             {pipelineInstances}

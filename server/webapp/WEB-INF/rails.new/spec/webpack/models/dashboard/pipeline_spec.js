@@ -15,8 +15,8 @@
  */
 
 describe("Dashboard", () => {
+  const Pipeline = require('models/dashboard/pipeline');
   describe('Pipeline Model', () => {
-    const Pipeline = require('models/dashboard/pipeline');
 
     it("should deserialize from json", () => {
       const pipeline = new Pipeline(pipelineJson);
@@ -29,113 +29,146 @@ describe("Dashboard", () => {
 
       expect(pipeline.historyPath).toBe(`/go/tab/pipeline/history/${pipelineJson.name}`);
       expect(pipeline.instances.length).toEqual(pipelineJson._embedded.instances.length);
-    });
 
-    const pipelineJson = {
-      "_links":                 {
-        "self":                 {
-          "href": "http://localhost:8153/go/api/pipelines/up42/history"
-        },
-        "doc":                  {
-          "href": "https://api.go.cd/current/#pipelines"
-        },
-        "settings_path":        {
-          "href": "http://localhost:8153/go/admin/pipelines/up42/general"
-        },
-        "trigger":              {
-          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-        },
-        "trigger_with_options": {
-          "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-        },
-        "pause":                {
-          "href": "http://localhost:8153/go/api/pipelines/up42/pause"
-        },
-        "unpause":              {
-          "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
-        }
-      },
-      "name":                   "up42",
-      "last_updated_timestamp": 1510299695473,
-      "locked":                 false,
-      "pause_info":             {
-        "paused":       false,
-        "paused_by":    null,
-        "pause_reason": null
-      },
-      "can_administer":         true,
-      "_embedded":              {
-        "instances": [
-          {
-            "_links":       {
-              "self":            {
-                "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-              },
-              "doc":             {
-                "href": "https://api.go.cd/current/#get-pipeline-instance"
-              },
-              "history_url":     {
-                "href": "http://localhost:8153/go/api/pipelines/up42/history"
-              },
-              "vsm_url":         {
-                "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-              },
-              "compare_url":     {
-                "href": "http://localhost:8153/go/compare/up42/0/with/1"
-              },
-              "build_cause_url": {
-                "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
-              }
-            },
-            "label":        "1",
-            "scheduled_at": "2017-11-10T07:25:28.539Z",
-            "triggered_by": "changes",
-            "build_cause":  {
-              "approver":           "",
-              "is_forced":          false,
-              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-              "material_revisions": [
-                {
-                  "material_type": "Git",
-                  "material_name": "test-repo",
-                  "changed":       true,
-                  "modifications": [
-                    {
-                      "_links":        {
-                        "vsm": {
-                          "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                        }
-                      },
-                      "user_name":     "GoCD Test User <devnull@example.com>",
-                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                      "modified_time": "2017-12-19T05:30:32.000Z",
-                      "comment":       "Initial commit"
-                    }
-                  ]
-                }
-              ]
-            },
-            "_embedded":    {
-              "stages": [
-                {
-                  "_links":       {
-                    "self": {
-                      "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                    },
-                    "doc":  {
-                      "href": "https://api.go.cd/current/#get-stage-instance"
-                    }
-                  },
-                  "name":         "up42_stage",
-                  "status":       "Failed",
-                  "approved_by":  "changes",
-                  "scheduled_at": "2017-11-10T07:25:28.539Z"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    };
+      expect(pipeline.isPaused).toBe(true);
+      expect(pipeline.pausedBy).toBe("admin");
+      expect(pipeline.pausedCause).toBe("under construction");
+    });
   });
+
+  describe("Pipeline Operations", () => {
+    describe("Unpause", () => {
+      it('should unpause a pipeline with appropriate headers', () => {
+        jasmine.Ajax.withMock(() => {
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unpause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": `Pipeline '${pipelineJson.name}' paused successfully.`}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          const successCallback = jasmine.createSpy();
+
+          const pipeline = new Pipeline(pipelineJson);
+          pipeline.unpause().then(successCallback);
+
+          expect(successCallback).toHaveBeenCalled();
+
+          const request = jasmine.Ajax.requests.mostRecent();
+          expect(request.method).toBe('POST');
+          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unpause`);
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+        });
+      });
+    });
+  });
+
+  const pipelineJson = {
+    "_links":                 {
+      "self":                 {
+        "href": "http://localhost:8153/go/api/pipelines/up42/history"
+      },
+      "doc":                  {
+        "href": "https://api.go.cd/current/#pipelines"
+      },
+      "settings_path":        {
+        "href": "http://localhost:8153/go/admin/pipelines/up42/general"
+      },
+      "trigger":              {
+        "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+      },
+      "trigger_with_options": {
+        "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+      },
+      "pause":                {
+        "href": "http://localhost:8153/go/api/pipelines/up42/pause"
+      },
+      "unpause":              {
+        "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
+      }
+    },
+    "name":                   "up42",
+    "last_updated_timestamp": 1510299695473,
+    "locked":                 false,
+    "pause_info":             {
+      "paused":       true,
+      "paused_by":    "admin",
+      "pause_reason": "under construction"
+    },
+    "can_administer":         true,
+    "_embedded":              {
+      "instances": [
+        {
+          "_links":       {
+            "self":            {
+              "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
+            },
+            "doc":             {
+              "href": "https://api.go.cd/current/#get-pipeline-instance"
+            },
+            "history_url":     {
+              "href": "http://localhost:8153/go/api/pipelines/up42/history"
+            },
+            "vsm_url":         {
+              "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
+            },
+            "compare_url":     {
+              "href": "http://localhost:8153/go/compare/up42/0/with/1"
+            },
+            "build_cause_url": {
+              "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
+            }
+          },
+          "label":        "1",
+          "scheduled_at": "2017-11-10T07:25:28.539Z",
+          "triggered_by": "changes",
+          "build_cause":  {
+            "approver":           "",
+            "is_forced":          false,
+            "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+            "material_revisions": [
+              {
+                "material_type": "Git",
+                "material_name": "test-repo",
+                "changed":       true,
+                "modifications": [
+                  {
+                    "_links":        {
+                      "vsm": {
+                        "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                      }
+                    },
+                    "user_name":     "GoCD Test User <devnull@example.com>",
+                    "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                    "modified_time": "2017-12-19T05:30:32.000Z",
+                    "comment":       "Initial commit"
+                  }
+                ]
+              }
+            ]
+          },
+          "_embedded":    {
+            "stages": [
+              {
+                "_links":       {
+                  "self": {
+                    "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
+                  },
+                  "doc":  {
+                    "href": "https://api.go.cd/current/#get-stage-instance"
+                  }
+                },
+                "name":         "up42_stage",
+                "status":       "Failed",
+                "approved_by":  "changes",
+                "scheduled_at": "2017-11-10T07:25:28.539Z"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  };
 });

@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.domain.materials.git;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.DateUtils;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GitModificationParser {
     private LinkedList<Modification> modifications = new LinkedList<>();
@@ -64,7 +65,7 @@ public class GitModificationParser {
         Matcher commentMatcher = COMMENT_PATTERN.matcher(line);
         if (commentMatcher.matches()) {
             Modification last = modifications.getLast();
-            String comment = last.getComment();
+            String comment = Optional.ofNullable(last.getComment()).orElse("");
             if (!comment.isEmpty()) comment += "\n";
             last.setComment(comment + commentMatcher.group(1));
        }

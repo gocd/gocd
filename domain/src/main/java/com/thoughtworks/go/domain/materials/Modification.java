@@ -16,21 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.ModificationVisitor;
 import com.thoughtworks.go.domain.PersistentObject;
@@ -38,6 +23,14 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * data structure for holding data about a single modification
@@ -57,8 +50,8 @@ public class Modification extends PersistentObject implements Comparable, Serial
     public static final Modification NEVER = new Modification(GoConstants.NEVER);
     public static final String ANONYMOUS = "anonymous";
 
-    private String userName = "";
-    private String comment = "";
+    private String userName;
+    private String comment;
     private String emailAddress;
     private String revision;
     private String additionalData;
@@ -78,7 +71,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public Modification(Date date, String revision, String pipelineLabel, Long pipelineId) {
-        this("Unknown", "Unknown", null, date, revision);
+        this(null, null, null, date, revision);
         this.pipelineLabel = pipelineLabel;
         this.pipelineId = pipelineId;
     }

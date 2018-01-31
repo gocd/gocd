@@ -33,7 +33,7 @@ public class PipelineXmlViewModelTest {
     public void shouldReturnProperXMLWhenTherAreNullAttributesOnAMaterial() {
         PipelineXmlViewModel.ScmXmlViewModel model = new PipelineXmlViewModel.ScmXmlViewModel(MaterialsMother.svnMaterial("url", "folder", null, null, false, null));
         DefaultElement materials = new DefaultElement("materials");
-        
+
         model.populateXml(materials, new Modifications(), mock(XmlWriterContext.class));
 
         assertThat(materials.selectSingleNode("./material/@username"), is(nullValue()));

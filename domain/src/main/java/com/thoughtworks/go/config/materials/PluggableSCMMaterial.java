@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
@@ -180,7 +181,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public void emailContent(StringBuilder content, Modification modification) {
         String scmDetails = getTypeForDisplay() + " : " + getDisplayName();
-        String revisionDetails = format("revision: %s, completed on %s\n%s", modification.getRevision(), modification.getModifiedTime(), modification.getComment());
+        String revisionDetails = format("revision: %s, completed on %s\n%s", modification.getRevision(), modification.getModifiedTime(), Optional.ofNullable(modification.getComment()).orElse(""));
         content.append(scmDetails).append('\n').append(revisionDetails);
     }
 

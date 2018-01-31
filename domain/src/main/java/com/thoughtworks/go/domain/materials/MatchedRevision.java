@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.util.Date;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.util.Date;
 
 /**
  * @understands a material revision which matches a search criteria
@@ -65,32 +65,29 @@ public class MatchedRevision {
     }
 
     @Override
-    public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return equals((MatchedRevision) that);
-    }
+        MatchedRevision that = (MatchedRevision) o;
 
-    private boolean equals(MatchedRevision that) {
-        if (!checkinTime.equals(that.checkinTime)) { return false; }
-        if (!comment.equals(that.comment)) { return false; }
-        if (!shortRevision.equals(that.shortRevision)) { return false; }
-        if (!longRevision.equals(that.longRevision)) { return false; }
-        if (!searchString.equals(that.searchString)) { return false; }
-        if (!user.equals(that.user)) { return false; }
-        return true;
+        if (searchString != null ? !searchString.equals(that.searchString) : that.searchString != null) return false;
+        if (shortRevision != null ? !shortRevision.equals(that.shortRevision) : that.shortRevision != null)
+            return false;
+        if (longRevision != null ? !longRevision.equals(that.longRevision) : that.longRevision != null) return false;
+        if (user != null ? !user.equals(that.user) : that.user != null) return false;
+        if (checkinTime != null ? !checkinTime.equals(that.checkinTime) : that.checkinTime != null) return false;
+        return comment != null ? comment.equals(that.comment) : that.comment == null;
     }
 
     @Override
     public int hashCode() {
-        int result = searchString.hashCode();
-        result = 31 * result + shortRevision.hashCode();
-        result = 31 * result + longRevision.hashCode();
-        result = 31 * result + user.hashCode();
-        result = 31 * result + checkinTime.hashCode();
-        result = 31 * result + comment.hashCode();
+        int result = searchString != null ? searchString.hashCode() : 0;
+        result = 31 * result + (shortRevision != null ? shortRevision.hashCode() : 0);
+        result = 31 * result + (longRevision != null ? longRevision.hashCode() : 0);
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (checkinTime != null ? checkinTime.hashCode() : 0);
+        result = 31 * result + (comment != null ? comment.hashCode() : 0);
         return result;
     }
 

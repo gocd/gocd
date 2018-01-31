@@ -228,7 +228,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     public boolean containsMyCheckin(Matcher matcher) {
         for (MaterialRevision materialRevision : this) {
             for (Modification modification : materialRevision.getModifications()) {
-                String fullComment = String.format("%s %s", modification.getUserName(), modification.getComment());
+                String fullComment = String.format("%s %s", modification.getUserName(), Optional.ofNullable(modification.getComment()).orElse(""));
                 if (matcher.matches(fullComment)) {
                     return true;
                 }

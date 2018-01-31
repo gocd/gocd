@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 
@@ -113,7 +114,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
                 String.format("revision: %s, modified by %s on %s", modification.getRevision(),
                         modification.getUserName(), modification.getModifiedTime()))
                 .append('\n')
-                .append(modification.getComment());
+                .append(Optional.ofNullable(modification.getComment()).orElse(""));
 
     }
 
@@ -185,8 +186,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     }
 
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {
-        return new MatchedRevision(searchString, getShortRevision(modification.getRevision()), modification.getRevision(), modification.getUserName(), modification.getModifiedTime(),
-                modification.getComment());
+        return new MatchedRevision(searchString, getShortRevision(modification.getRevision()), modification.getRevision(), modification.getUserName(), modification.getModifiedTime(), modification.getComment());
     }
 
     @Override

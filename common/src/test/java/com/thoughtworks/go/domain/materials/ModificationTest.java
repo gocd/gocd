@@ -51,11 +51,6 @@ public class ModificationTest {
         assertThat(modification.getUserDisplayName(), Is.is(Modification.ANONYMOUS));
     }
 
-    @Test public void shouldAssociateBlankCommentStringWithMaterialIfNull() throws Exception {
-        Modification modification = new Modification(new Date(), "foo", "MOCK_LABEL-12", null);
-        assertThat(modification.getComment(), is(not(nullValue())));
-    }
-
     @Test public void shouldAllowAdditionalData() throws Exception {
         String expected = "some additional data";
         Modification modification = new Modification("loser", "", null, new Date(), "rev-123", expected);

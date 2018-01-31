@@ -24,7 +24,6 @@ import spark.ResponseTransformer;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class GsonTransformer implements ResponseTransformer {
 
@@ -33,7 +32,7 @@ public class GsonTransformer implements ResponseTransformer {
             .setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation()
             .disableHtmlEscaping()
-            .registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, TimeZone.getTimeZone("UTC"))))
+            .registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false)))
             .create();
 
     private GsonTransformer() {

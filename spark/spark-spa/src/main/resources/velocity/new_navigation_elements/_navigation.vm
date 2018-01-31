@@ -48,6 +48,7 @@
   <div class="medium-6 columns">
     <div class="top-bar-right">
       <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
+        <li class="server-health-summary"><!-- filled in later by mithril --></li>
         <li><a href="https://gocd.org/help" target="_blank">Need Help?</a></li>
         #if(!$currentUser.anonymous)
           <li class="current-user">

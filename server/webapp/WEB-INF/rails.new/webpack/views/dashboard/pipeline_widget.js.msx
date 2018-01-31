@@ -68,15 +68,35 @@ const PipelineOperationsWidget = {
 };
 
 const PipelineHeaderWidget = {
+  oninit(vnode) {
+    const self              = vnode.state;
+    const operationMessages = vnode.attrs.vm.operationMessages;
+    const pipeline          = vnode.attrs.pipeline;
+
+    self.unlock = () => {
+      pipeline.unlock().then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      });
+    };
+  },
+
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     let settingsButton;
-
     if (pipeline.canAdminister) {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
       settingsButton     = (<a class={`pipeline_edit`} href={settingsPath}/>);
     } else {
       settingsButton = (<a class={`pipeline_edit disabled`}/>);
+    }
+
+    let pipelineLockButton;
+    if (pipeline.isLocked) {
+      pipelineLockButton = pipeline.canUnlock
+        ? (<button onclick={vnode.state.unlock} className="pipeline_locked"/>)
+        : (<button className="pipeline_locked disabled"/>);
     }
 
     return (
@@ -85,11 +105,10 @@ const PipelineHeaderWidget = {
         <a href={pipeline.historyPath} class="pipeline_history">History</a>
         <div className="pipeline_actions">
           {settingsButton}
-          <button className="pipeline_locked"/>
+          {pipelineLockButton}
         </div>
         <PipelineOperationsWidget pipeline={pipeline}
-                                  operationMessages={vnode.attrs.vm.operationMessages}
-                                  dashboard={vnode.attrs.dashboard}/>
+                                  operationMessages={vnode.attrs.vm.operationMessages}/>
       </div>
     );
   }

@@ -84,9 +84,7 @@ describe("Dashboard Pipeline Widget", () => {
           "pause_reason": "under construction"
         };
 
-        const dashboard  = {};
-        dashboard.reload = jasmine.createSpy();
-        mount(false, true, pauseInfo, dashboard);
+        mount(false, true, pauseInfo);
       });
 
       afterEach(unmount);
@@ -141,6 +139,79 @@ describe("Dashboard Pipeline Widget", () => {
         });
       });
     });
+
+    describe("Unlock", () => {
+      beforeEach(() => {
+        const lockInfo = {
+          "canUnlock": true,
+          "locked":    true
+        };
+        mount(false, true, undefined, lockInfo);
+      });
+
+      afterEach(unmount);
+
+      it("should render unlock pipeline button", () => {
+        expect($root.find('.pipeline_locked')).toBeInDOM();
+      });
+
+      it("should enable unlock pipeline button when user can unlock a pipeline", () => {
+        expect($root.find('.pipeline_locked')).not.toHaveClass('disabled');
+      });
+
+      it("should disable unlock pipeline button when user can not unlock a pipeline", () => {
+        unmount();
+        const lockInfo = {
+          "canUnlock": false,
+          "locked":    true
+        };
+
+        mount(false, true, undefined, lockInfo);
+        expect($root.find('.pipeline_locked')).toHaveClass('disabled');
+      });
+
+      it("should not render the pipeline flash message", () => {
+        expect($root.find('.pipeline_message')).not.toBeInDOM();
+        expect($root.find('.pipeline_message .success')).not.toBeInDOM();
+        expect($root.find('.pipeline_message .error')).not.toBeInDOM();
+      });
+
+      it("should unlock a pipeline", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' unlocked successfully.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("success");
+        });
+      });
+
+      it("should show error when unlocking a pipeline fails", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Can not unlock pipeline. Some stages of pipeline are in progress.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          409
+          });
+
+          simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("error");
+        });
+      });
+    });
   });
 
   describe("Pipeline Instances", () => {
@@ -152,7 +223,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, dashboard) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}) {
     const pipelineName = 'up42';
     pipelinesJson      = [{
       "_links":                 {
@@ -180,7 +251,8 @@ describe("Dashboard Pipeline Widget", () => {
       },
       "name":                   pipelineName,
       "last_updated_timestamp": 1510299695473,
-      "locked":                 false,
+      "locked":                 lockInfo.locked,
+      "can_unlock":             lockInfo.canUnlock,
       "can_administer":         canAdminister,
       "pause_info":             pauseInfo,
       "_embedded":              {
@@ -265,7 +337,6 @@ describe("Dashboard Pipeline Widget", () => {
       view() {
         return m(PipelineWidget, {
           pipeline,
-          dashboard,
           isQuickEditPageEnabled,
           vm: dashboardViewModel
         });

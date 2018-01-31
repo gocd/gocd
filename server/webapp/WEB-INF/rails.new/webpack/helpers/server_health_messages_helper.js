@@ -35,7 +35,7 @@ $(() => {
 
   createRepeater().start();
 
-  m.mount($('#server-health-messages').get(0), {
+  m.mount($('.server-health-summary').get(0), {
     view() {
       return m(ServerHealthMessagesCountWidget, {serverHealthMessages});
     }

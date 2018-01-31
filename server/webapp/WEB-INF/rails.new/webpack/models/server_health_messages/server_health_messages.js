@@ -16,19 +16,22 @@
 
 const CrudMixins = require('models/mixins/crud_mixins');
 const _          = require('lodash');
+const inflection = require('lodash-inflection');
 
 const ServerHealthMessages = function (messages) {
 
   const countErrors   = () => _.filter(messages, {level: 'ERROR'}).length;
   const countWarnings = () => _.filter(messages, {level: 'WARNING'}).length;
 
+  this.hasMessages = () => messages.length > 0;
+
   this.summaryMessage = () => {
     const messages = [];
     if (countErrors() > 0) {
-      messages.push(_.pluralize('error', countErrors(), true));
+      messages.push(inflection.pluralize('error', countErrors(), true));
     }
     if (countWarnings() > 0) {
-      messages.push(_.pluralize('warning', countWarnings(), true));
+      messages.push(inflection.pluralize('warning', countWarnings(), true));
     }
     return _.join(messages, ' and ');
   };

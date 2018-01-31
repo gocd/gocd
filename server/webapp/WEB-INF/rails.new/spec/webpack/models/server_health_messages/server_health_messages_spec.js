@@ -47,4 +47,16 @@ describe("ServerHealthMessages", () => {
 
     expect(messages.summaryMessage()).toEqual("2 warnings");
   });
+
+  it("should return true when there are messages", () => {
+    const messages = new ServerHealthMessages([{"level": "WARNING"}, {"level": "WARNING"}]);
+
+    expect(messages.hasMessages()).toBe(true);
+  });
+
+  it("should return false when there are no messages", () => {
+    const messages = new ServerHealthMessages([]);
+
+    expect(messages.hasMessages()).toBe(false);
+  });
 });

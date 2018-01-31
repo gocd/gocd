@@ -61,10 +61,12 @@ const ServerHealthMessagesCountWidget = {
   },
 
   view(vnode) {
-    return (
-      <a
-        onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>{vnode.attrs.serverHealthMessages().summaryMessage()}</a>
-    );
+    if (vnode.attrs.serverHealthMessages().hasMessages()) {
+      return (
+        <a
+          onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>{vnode.attrs.serverHealthMessages().summaryMessage()}</a>
+      );
+    }
   }
 };
 

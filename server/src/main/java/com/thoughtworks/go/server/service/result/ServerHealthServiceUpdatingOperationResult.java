@@ -98,6 +98,11 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
+    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+        error(message, description, healthStateType);
+    }
+
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

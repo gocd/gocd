@@ -76,7 +76,9 @@ class ServerHealthMessagesControllerDelegateTest implements SecurityServiceTrait
         def state = ServerHealthState.error("not enough disk space, halting scheduling", "There is not enough disk space on the artifact filesystem", HealthStateType.artifactsDiskFull())
         serverHealthService.update(state)
 
-        def etag = '"' + controller.etagFor(toArrayString({ ServerHealthMessagesRepresenter.toJSON(it, [state]) })) + '"'
+        def etag = '"' + controller.etagFor(toArrayString({
+          ServerHealthMessagesRepresenter.toJSON(it, [state])
+        })) + '"'
 
         getWithApiHeader(Routes.ServerHealthMessages.BASE, ['if-none-match': etag])
 

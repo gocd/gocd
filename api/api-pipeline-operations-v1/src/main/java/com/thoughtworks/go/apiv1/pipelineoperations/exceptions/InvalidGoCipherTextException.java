@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
+package com.thoughtworks.go.apiv1.pipelineoperations.exceptions;
 
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
-
-apply from: rootProject.file('buildSrc/junit5-support.gradle')
-
-
-dependencies {
-  compile project(':config:config-api')
-  compile project(':api:api-base')
-
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
-
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
+public class InvalidGoCipherTextException extends RuntimeException {
+    public InvalidGoCipherTextException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 }

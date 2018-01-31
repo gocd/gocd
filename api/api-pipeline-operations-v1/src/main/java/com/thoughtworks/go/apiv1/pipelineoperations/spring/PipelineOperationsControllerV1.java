@@ -19,10 +19,7 @@ package com.thoughtworks.go.apiv1.pipelineoperations.spring;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.pipelineoperations.PipelineOperationsControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PipelineHistoryService;
-import com.thoughtworks.go.server.service.PipelinePauseService;
-import com.thoughtworks.go.server.service.PipelineUnlockApiService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +30,7 @@ public class PipelineOperationsControllerV1 implements SparkSpringController {
 
     @Autowired
     public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService,
+                                          PipelineTriggerService pipelineTriggerService,
                                           ApiAuthenticationHelper apiAuthenticationHelper,
                                           Localizer localizer,
                                           PipelineUnlockApiService pipelineUnlockApiService,
@@ -42,6 +40,7 @@ public class PipelineOperationsControllerV1 implements SparkSpringController {
         this.delegate = new PipelineOperationsControllerV1Delegate(
             pipelinePauseService,
             pipelineUnlockApiService,
+            pipelineTriggerService,
             apiAuthenticationHelper,
             localizer,
             goConfigService,

@@ -70,8 +70,8 @@
     </rule>
 
     <rule>
-        <name>Spark pipeline pause/unpause/unlock/trigger_view API</name>
-        <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options)</from>
+        <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
+        <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
         <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
         <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
     </rule>

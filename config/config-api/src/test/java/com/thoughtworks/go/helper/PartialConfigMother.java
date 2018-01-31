@@ -17,12 +17,15 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public class PartialConfigMother {
     public static PartialConfig empty() {
@@ -42,6 +45,19 @@ public class PartialConfigMother {
 
     public static PartialConfig withPipeline(String name, RepoConfigOrigin repoOrigin) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
+        BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
+        pipes.setGroup("group");
+        PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
+        partialConfig.setOrigins(repoOrigin);
+        return partialConfig;
+    }
+
+    public static PartialConfig withPipelineMultipleMaterials(String name, RepoConfigOrigin repoOrigin) {
+        GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig();
+        gitMaterialConfig.setFolder("git");
+        SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
+        svnMaterialConfig.setFolder("svn");
+        PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name, new MaterialConfigs(gitMaterialConfig, svnMaterialConfig));
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
         pipes.setGroup("group");
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class BuildCauseProducerService {
         this.triggerMonitor = triggerMonitor;
     }
 
-    public void autoSchedulePipeline(String pipelineName, ServerHealthStateOperationResult result, long trackingId) {
+    public void autoSchedulePipeline(String pipelineName, OperationResult result, long trackingId) {
         schedulingPerformanceLogger.autoSchedulePipelineStart(trackingId, pipelineName);
 
         try {
@@ -142,13 +142,13 @@ public class BuildCauseProducerService {
         triggerMonitor.markPipelineAsCanBeTriggered(pipelineConfig);
     }
 
-    ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, ServerHealthStateOperationResult result, long trackingId) {
+    ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, OperationResult result, long trackingId) {
         final HashMap<String, String> stringStringHashMap = new HashMap<>();
         final HashMap<String, String> stringStringHashMap1 = new HashMap<>();
         return newProduceBuildCause(pipelineConfig, buildType, new ScheduleOptions(stringStringHashMap, stringStringHashMap1, new HashMap<>()), result, trackingId);
     }
 
-    ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, ScheduleOptions scheduleOptions, ServerHealthStateOperationResult result, long trackingId) {
+    ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, ScheduleOptions scheduleOptions, OperationResult result, long trackingId) {
         buildType.canProduce(pipelineConfig, schedulingChecker, serverHealthService, result);
         if (!result.canContinue()) {
             return result.getServerHealthState();
@@ -218,6 +218,7 @@ public class BuildCauseProducerService {
         } catch (Exception e) {
             String message = "Error while scheduling pipeline: " + pipelineName;
             LOGGER.error(message, e);
+            result.unprocessibleEntity(message, e.getMessage() != null ? e.getMessage() : message, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return showError(pipelineName, message, e.getMessage());
         }
     }
@@ -276,7 +277,7 @@ public class BuildCauseProducerService {
             this.scheduleOptions = scheduleOptions;
             pendingMaterials = new ConcurrentHashMap<>();
 
-            if (isConfigurationInMaterials()) {
+            if (this.pipelineConfig.isConfigDefinedRemotely()) {
                 // Then we must update config first and then continue as usual.
                 // it is also possible that config will disappear at update
                 RepoConfigOrigin configRepo = (RepoConfigOrigin) this.pipelineConfig.getOrigin();
@@ -284,13 +285,12 @@ public class BuildCauseProducerService {
                 configMaterial = materialConfigConverter.toMaterial(materialConfig);
                 pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), configMaterial);
             }
-            for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
-                pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
-            }
-        }
 
-        private boolean isConfigurationInMaterials() {
-            return this.pipelineConfig.isConfigOriginSameAsOneOfMaterials();
+            if (scheduleOptions.shouldPerformMDUBeforeScheduling()) {
+                for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
+                    pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
+                }
+            }
         }
 
         public void start(OperationResult result) {
@@ -306,9 +306,17 @@ public class BuildCauseProducerService {
                     return;
                 }
                 materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, this);
-                for (Material material : pendingMaterials.values()) {
-                    materialUpdateService.updateMaterial(material);
+                if (pendingMaterials.isEmpty()) {
+                    produceBuildCauseForPipeline(result, 0);
+                    if (!result.canContinue()) {
+                        return;
+                    }
+                } else {
+                    for (Material material : pendingMaterials.values()) {
+                        materialUpdateService.updateMaterial(material);
+                    }
                 }
+
                 result.accepted(format("Request to schedule pipeline %s accepted", pipelineConfig.name()), "", HealthStateType.general(HealthStateScope.forPipeline(
                         CaseInsensitiveString.str(pipelineConfig.name()))));
             } catch (RuntimeException e) {
@@ -369,11 +377,15 @@ public class BuildCauseProducerService {
             pendingMaterials.remove(material.getFingerprint());
 
             if (pendingMaterials.isEmpty()) {
-                materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
-                markPipelineAsCanBeTriggered(pipelineConfig);
-                if (!failed) {
-                    newProduceBuildCause(pipelineConfig, buildType, scheduleOptions, new ServerHealthStateOperationResult(), message.trackingId());
-                }
+                produceBuildCauseForPipeline(new ServerHealthStateOperationResult(), message.trackingId());
+            }
+        }
+
+        private void produceBuildCauseForPipeline(OperationResult result, long trackingId) {
+            materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
+            markPipelineAsCanBeTriggered(pipelineConfig);
+            if (!failed) {
+                newProduceBuildCause(pipelineConfig, buildType, scheduleOptions, result, trackingId);
             }
         }
 

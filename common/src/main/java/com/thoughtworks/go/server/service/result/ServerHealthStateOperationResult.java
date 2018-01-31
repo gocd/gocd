@@ -83,6 +83,11 @@ public class ServerHealthStateOperationResult implements OperationResult {
         error(message, description, type);
     }
 
+    @Override
+    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+        error(message, description, healthStateType);
+    }
+
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

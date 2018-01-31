@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter
+import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.config.EnvironmentVariablesConfig
 import com.thoughtworks.go.config.PipelineNotFoundException
 import com.thoughtworks.go.domain.JobResult
@@ -34,9 +35,13 @@ import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
+import com.thoughtworks.go.security.GoCipher
+import com.thoughtworks.go.server.domain.MaterialForScheduling
+import com.thoughtworks.go.server.domain.PipelineScheduleOptions
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
 import com.thoughtworks.go.server.service.PipelinePauseService
+import com.thoughtworks.go.server.service.PipelineTriggerService
 import com.thoughtworks.go.server.service.PipelineUnlockApiService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.HttpOperationResult
@@ -54,6 +59,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -65,6 +71,8 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
   PipelinePauseService pipelinePauseService
   @Mock
   PipelineUnlockApiService pipelineUnlockApiService
+  @Mock
+  PipelineTriggerService pipelineTriggerService
 
   @BeforeEach
   void setUp() {
@@ -73,7 +81,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
   @Override
   PipelineOperationsControllerV1Delegate createControllerInstance() {
-    new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, new ApiAuthenticationHelper(securityService, goConfigService), localizer, goConfigService, pipelineHistoryService)
+    new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthenticationHelper(securityService, goConfigService), localizer, goConfigService, pipelineHistoryService)
   }
 
   @Nested
@@ -338,7 +346,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isConflict()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("pipeline is not locked")
+          .hasJsonMessage("pipeline is not locked { pipeline is not locked }")
       }
     }
 
@@ -379,7 +387,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isConflict()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("pipeline is not locked")
+          .hasJsonMessage("pipeline is not locked { pipeline is not locked }")
       }
     }
   }
@@ -441,5 +449,178 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
     }
   }
 
+  @Nested
+  class Schedule {
+    private String pipelineName = "up42"
+    @Nested
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "schedule"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should schedule a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.ok("scheduled!")
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), ['X-GoCD-Confirm': true], '')
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("scheduled!")
+      }
+
+      @Test
+      void 'should schedule a pipeline with provided options'() {
+        def pipelineScheduleOptions = new PipelineScheduleOptions()
+        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(true);
+        def goCipher = new GoCipher()
+        pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(goCipher, "VAR1", "overridden_value", false))
+        pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(goCipher, "SEC_VAR1", "overridden_secure_value", true))
+        pipelineScheduleOptions.getMaterials().add(new MaterialForScheduling("repo1", "revision1"))
+        pipelineScheduleOptions.getMaterials().add(new MaterialForScheduling("repo2", "revision2"))
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.ok("scheduled!")
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), convertPipelineScheduleOptionsToJSON(pipelineScheduleOptions))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("scheduled!")
+      }
+
+      @Test
+      void 'should schedule a pipeline with encrypted variable'() {
+        def pipelineScheduleOptions = new PipelineScheduleOptions()
+        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
+        pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SEC_VAR1", new GoCipher().encrypt("ENCRYPTED")))
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.ok("scheduled!")
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), convertPipelineScheduleOptionsToJSON(pipelineScheduleOptions))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("scheduled!")
+      }
+
+      @Test
+      void 'should show errors occurred while schedule a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.conflict("pipeline is not scheduled", "reason", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
+
+        assertThatResponse()
+          .isConflict()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("pipeline is not scheduled { reason }")
+      }
+    }
+
+    @Nested
+    class AsPipelineGroupOperateUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser()
+      }
+
+      @Test
+      void 'should schedule a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.ok("scheduled!")
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("scheduled!")
+      }
+
+      @Test
+      void 'should show errors occurred while schedule a pipeline'() {
+        doAnswer({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArgument(3)
+          result.conflict("pipeline is not scheduled", "reason", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
+          return result
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
+
+        assertThatResponse()
+          .isConflict()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("pipeline is not scheduled { reason }")
+      }
+
+    }
+
+    private Map convertPipelineScheduleOptionsToJSON(PipelineScheduleOptions scheduleOptions) {
+
+      def scheduleOptionsJson = new HashMap<>()
+      def materials = new ArrayList<>()
+      def environmentVariables = new ArrayList<>()
+      for (MaterialForScheduling materialForScheduling : scheduleOptions.getMaterials()) {
+        def materialOptions = new HashMap()
+        materialOptions.put("fingerprint", materialForScheduling.getFingerprint())
+        materialOptions.put("revision", materialForScheduling.getRevision())
+        materials.add(materialOptions)
+      }
+      for (EnvironmentVariableConfig environmentVariable : scheduleOptions.getAllEnvironmentVariables()) {
+        def envVar = new HashMap<>()
+        envVar.put("name", environmentVariable.getName())
+        envVar.put("value", environmentVariable.getValue())
+        try {
+          envVar.put("encrypted_value", environmentVariable.getEncryptedValue())
+        } catch (Exception) {
+        }
+        envVar.put("secure", environmentVariable.isSecure())
+        environmentVariables.add(envVar)
+      }
+      scheduleOptionsJson.put("update_materials_before_scheduling", scheduleOptions.shouldPerformMDUBeforeScheduling())
+      scheduleOptionsJson.put("materials", materials)
+      scheduleOptionsJson.put("environment_variables", environmentVariables)
+      return scheduleOptionsJson;
+    }
+
+  }
 }
 

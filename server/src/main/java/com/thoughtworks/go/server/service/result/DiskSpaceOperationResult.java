@@ -97,6 +97,11 @@ public class DiskSpaceOperationResult implements OperationResult {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
+    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+        throw new RuntimeException("Not yet implemented");
+    }
+
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

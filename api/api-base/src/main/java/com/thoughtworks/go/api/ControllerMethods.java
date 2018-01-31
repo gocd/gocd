@@ -95,7 +95,7 @@ public interface ControllerMethods {
 
     default String renderHTTPOperationResult(HttpOperationResult result, Request request, Response response) throws IOException {
         response.status(result.httpCode());
-        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.message()));
+        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.fullMessage()));
     }
 
     default String writerForTopLevelObject(Request request, Response response, Consumer<OutputWriter> consumer) throws IOException {

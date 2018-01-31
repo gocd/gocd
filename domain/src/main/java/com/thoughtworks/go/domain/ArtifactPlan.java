@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.Artifact;
 import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
@@ -56,14 +56,14 @@ public class ArtifactPlan extends PersistentObject {
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(Artifact artifact) {
-        this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifact.getArtifactType());
-        if (artifact instanceof PluggableArtifactConfig) {
-            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifact).toJSON();
+    public ArtifactPlan(ArtifactConfig artifactConfig) {
+        this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifactConfig.getArtifactType());
+        if (artifactConfig instanceof PluggableArtifactConfig) {
+            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactConfig).toJSON();
         } else {
-            ArtifactConfig artifactConfig = (ArtifactConfig) artifact;
-            setSrc(artifactConfig.getSource());
-            setDest(artifactConfig.getDestination());
+            BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) artifactConfig;
+            setSrc(buildArtifactConfig.getSource());
+            setDest(buildArtifactConfig.getDestination());
         }
     }
 
@@ -223,8 +223,8 @@ public class ArtifactPlan extends PersistentObject {
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        for (Artifact artifact : artifactConfigs) {
-            artifactPlans.add(new ArtifactPlan(artifact));
+        for (ArtifactConfig artifactConfig : artifactConfigs) {
+            artifactPlans.add(new ArtifactPlan(artifactConfig));
         }
         return artifactPlans;
     }

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.parser;
 
@@ -33,6 +33,8 @@ import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.config.parser.GoConfigFieldLoader.fieldParser;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class GoConfigClassLoader<T> {
     private final ConfigUtil configUtil = new ConfigUtil("magic");
@@ -129,6 +131,9 @@ public class GoConfigClassLoader<T> {
     private boolean atElement() {
         AttributeAwareConfigTag attributeAwareConfigTag = annotationFor(aClass, AttributeAwareConfigTag.class);
         if (attributeAwareConfigTag != null) {
+            final String attribute = attributeAwareConfigTag.attribute();
+            bombIf(isBlank(attribute), format("Type '%s' has invalid configuration for @AttributeAwareConfigTag. It must have `attribute` with non blank value.", aClass.getName()));
+            bombIf(!hasAttribute(attribute), format("Expected attribute `%s` to be present for %s.", attribute, configUtil.elementOutput(e)));
             return configUtil.atTag(e, attributeAwareConfigTag.value());
         }
 
@@ -142,6 +147,10 @@ public class GoConfigClassLoader<T> {
         return configUtil.atTag(e, tag);
     }
 
+    private boolean hasAttribute(String attribute) {
+        return e.getAttribute(attribute) != null;
+    }
+
     private T createInstance() {
         return ConfigElementInstantiator.instantiateConfigElement(this.goCipher, typeToGenerate(e));
     }
@@ -153,7 +162,7 @@ public class GoConfigClassLoader<T> {
         }
         Class<T> type = (Class<T>) findConcreteType(e, aClass);
         if (type == null) {
-            bombIfNull(type, String.format("Unable to determine type to generate. Type: %s Element: %s", aClass.getName(), configUtil.elementOutput(e)));
+            bombIfNull(type, format("Unable to determine type to generate. Type: %s Element: %s", aClass.getName(), configUtil.elementOutput(e)));
         }
         return type;
     }

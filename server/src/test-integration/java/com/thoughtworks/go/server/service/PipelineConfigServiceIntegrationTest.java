@@ -371,15 +371,15 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactConfig artifactConfig = new ArtifactConfig("", "/foo");
-        artifactConfigs.add(artifactConfig);
+        BuildArtifactConfig buildArtifactConfig = new BuildArtifactConfig("", "/foo");
+        artifactConfigs.add(buildArtifactConfig);
         jobConfig.setArtifactConfigs(artifactConfigs);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(artifactConfig.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+        assertThat(buildArtifactConfig.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
     }
 
     @Test

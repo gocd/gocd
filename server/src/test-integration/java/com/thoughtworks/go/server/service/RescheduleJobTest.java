@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ public class RescheduleJobTest {
         dbHelper.cancelStage(stage);
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig("s1", "d1"), new ArtifactConfig("s2", "d2")));
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
         ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig(new ArtifactPropertyConfig("n1", "s1", "x1"), new ArtifactPropertyConfig("n2", "s2", "x2"));
         configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesConfig);
 

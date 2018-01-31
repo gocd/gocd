@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -516,7 +516,7 @@ public class PipelineConfigValidationTest {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName));
         jobConfig.addTask(new AntTask());
         jobConfig.addTask(new ExecTask("command", "", "workingDir"));
-        jobConfig.artifactConfigs().add(new ArtifactConfig("src", "dest"));
+        jobConfig.artifactConfigs().add(new BuildArtifactConfig("src", "dest"));
         jobConfig.addVariable("env1", "val1");
         jobConfig.addResourceConfig("powerful");
         JobConfigs jobConfigs = new JobConfigs(jobConfig);

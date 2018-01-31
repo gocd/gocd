@@ -264,7 +264,7 @@ public class CRJob extends CRBase {
         this.resources = resources;
     }
 
-    public Collection<CRArtifact> getArtifacts() {
+    public Collection<CRArtifact> getBuiltInArtifacts() {
         return artifacts;
     }
 

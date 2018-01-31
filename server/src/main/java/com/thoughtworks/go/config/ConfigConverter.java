@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -477,14 +477,14 @@ public class ConfigConverter {
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
         ArtifactConfigs artifactConfigs = jobConfig.artifactConfigs();
-        if (crJob.getArtifacts() != null) {
-            for (CRArtifact crArtifact : crJob.getArtifacts()) {
-                artifactConfigs.add(toArtifactConfig(crArtifact));
+        if (crJob.getBuiltInArtifacts() != null) {
+            for (CRArtifact crArtifact : crJob.getBuiltInArtifacts()) {
+                artifactConfigs.add(toBuiltInArtifactConfig(crArtifact));
             }
         }
 
-        if(crJob.getPluggableArtifacts() != null) {
-            for (CRPluggableArtifact crPluggableArtifact: crJob.getPluggableArtifacts()) {
+        if (crJob.getPluggableArtifacts() != null) {
+            for (CRPluggableArtifact crPluggableArtifact : crJob.getPluggableArtifacts()) {
                 artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
             }
         }
@@ -512,11 +512,11 @@ public class ConfigConverter {
         return jobConfig;
     }
 
-    public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
+    public BuildArtifactConfig toBuiltInArtifactConfig(CRArtifact crArtifact) {
         if (crArtifact.getType() == CRArtifactType.test) {
             return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
         }
-        return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+        return new BuildArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
     }
 
     public PluggableArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {

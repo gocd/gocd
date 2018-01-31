@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
@@ -135,7 +135,7 @@ public class ArtifactPlanTest {
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
-                new ArtifactConfig("source", "destination"),
+                new BuildArtifactConfig("source", "destination"),
                 new TestArtifactConfig("test-source", "test-destination"),
                 artifactConfig
         ));

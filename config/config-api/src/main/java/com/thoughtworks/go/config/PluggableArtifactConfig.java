@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,21 @@ import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-@ConfigTag("pluggableArtifact")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class PluggableArtifactConfig extends Configuration implements Artifact {
+@AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "plugin")
+public class PluggableArtifactConfig extends Configuration implements ArtifactConfig {
     private final ConfigErrors errors = new ConfigErrors();
-    @ConfigAttribute(value = "id", optional = false)
+
+    @ConfigAttribute(value = "id", allowNull = true)
     protected String id;
-    @ConfigAttribute(value = "storeId", optional = false)
+    @ConfigAttribute(value = "storeId", allowNull = true)
     private String storeId;
 
     public PluggableArtifactConfig() {
@@ -80,6 +82,11 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        validateMandatoryAttributes();
+        if (hasErrors()) {
+            return;
+        }
+
         super.validateUniqueness(getArtifactTypeValue());
         if (!new NameTypeValidator().isNameValid(storeId)) {
             errors.add("storeId", NameTypeValidator.errorMessage("pluggable artifact storeId", storeId));
@@ -98,26 +105,36 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
         }
     }
 
+    private void validateMandatoryAttributes() {
+        if (StringUtils.isBlank(this.id)) {
+            errors.add("id", "\"Id\" is required for PluggableArtifact");
+        }
+
+        if (StringUtils.isBlank(this.storeId)) {
+            errors.add("storeId", "\"Store id\" is required for PluggableArtifact");
+        }
+    }
+
     @Override
-    public void validateUniqueness(List<Artifact> existingArtifactList) {
-        for (Artifact existingArtifact : existingArtifactList) {
-            if (existingArtifact instanceof PluggableArtifactConfig) {
-                final PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) existingArtifact;
+    public void validateUniqueness(List<ArtifactConfig> existingArtifactConfigList) {
+        for (ArtifactConfig existingArtifactConfig : existingArtifactConfigList) {
+            if (existingArtifactConfig instanceof PluggableArtifactConfig) {
+                final PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) existingArtifactConfig;
 
                 if (this.getId().equalsIgnoreCase(pluggableArtifactConfig.getId())) {
                     this.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
-                    existingArtifact.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
+                    existingArtifactConfig.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
                 }
                 if (this.getStoreId().equalsIgnoreCase(pluggableArtifactConfig.getStoreId())) {
                     if (this.size() == pluggableArtifactConfig.size() && this.containsAll(pluggableArtifactConfig)) {
                         this.addError("id", "Duplicate pluggable artifacts  configuration defined.");
-                        existingArtifact.addError("id", "Duplicate pluggable artifacts  configuration defined.");
+                        existingArtifactConfig.addError("id", "Duplicate pluggable artifacts  configuration defined.");
                     }
                 }
                 return;
             }
         }
-        existingArtifactList.add(this);
+        existingArtifactConfigList.add(this);
     }
 
     public String toJSON() {

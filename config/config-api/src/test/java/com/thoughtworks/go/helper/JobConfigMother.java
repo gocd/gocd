@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,7 @@ public class JobConfigMother {
         job.setTimeout("100");
         job.setRunInstanceCount(3);
         job.artifactConfigs().clear();
-        job.artifactConfigs().add(new ArtifactConfig("target/dist.jar", "pkg"));
+        job.artifactConfigs().add(new BuildArtifactConfig("target/dist.jar", "pkg"));
         job.artifactConfigs().add(new TestArtifactConfig("target/reports/**/*Test.xml", "reports"));
         job.addTab("coverage", "Jcoverage/index.html");
         job.addTab("something", "something/path.html");
@@ -56,7 +56,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig("src", "dest"))));
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new BuildArtifactConfig("src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {

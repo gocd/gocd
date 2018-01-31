@@ -73,7 +73,7 @@ public class GoConfigClassLoaderTest {
     }
 
     @Test
-    public void shouldContinueParsingWhenElementHasValidAttributeAwareConfigTagAnnotation() {
+    public void shouldContinueParsingWhenConfigClassHasValidAttributeAwareConfigTagAnnotation() {
         final Element element = new Element("example");
         element.setAttribute("type", "example-type");
         when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
@@ -86,13 +86,12 @@ public class GoConfigClassLoaderTest {
     }
 
     @Test
-    public void shouldErrorOutWhenElementHasAttributeAwareConfigTagAnnotationButAttributeValueIsNotMatching() {
+    public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeValueIsNotMatching() {
         final Element element = new Element("example");
         element.setAttribute("type", "foo-bar");
         when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
-
 
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element: \n" +
@@ -102,16 +101,40 @@ public class GoConfigClassLoaderTest {
     }
 
     @Test
-    public void shouldErrorOutWhenElementHasAttributeAwareConfigTagAnnotationButAttributeIsNotPresent() {
+    public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsNotPresent() {
         final Element element = new Element("example");
         when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
 
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Expected attribute `type` to be present for \n\t<example />");
+
+        loader.parse();
+    }
+
+    @Test
+    public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsMissingInConfig() {
+        final Element element = new Element("example");
+        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
+
+        final GoConfigClassLoader<AttributeAwareConfigTagWithBlankAttributeValue> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagWithBlankAttributeValue.class, configCache, goCipher, registry, referenceElements);
 
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element: \n" +
-                "\t<example />");
+        thrown.expectMessage("Type 'com.thoughtworks.go.config.parser.AttributeAwareConfigTagWithBlankAttributeValue' has invalid configuration for @AttributeAwareConfigTag. It must have `attribute` with non blank value.");
+
+        loader.parse();
+    }
+
+    @Test
+    public void shouldErrorOutWhenAttributeAwareConfigTagHasAttributeWithBlankValue() {
+        final Element element = new Element("example");
+        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
+
+        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Expected attribute `type` to be present for \n\t<example />.");
 
         loader.parse();
     }
@@ -127,4 +150,8 @@ class ConfigWithConfigTagAnnotation {
 
 @AttributeAwareConfigTag(value = "example", attribute = "type", attributeValue = "example-type")
 class ConfigWithAttributeAwareConfigTagAnnotation {
+}
+
+@AttributeAwareConfigTag(value = "example", attribute = "", attributeValue = "example-type")
+class AttributeAwareConfigTagWithBlankAttributeValue {
 }

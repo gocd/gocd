@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,12 +107,12 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultArtifactsConfigMappings() {
-        List<Class<? extends Artifact>> artifacts = new ArrayList<>();
+        List<Class<? extends ArtifactConfig>> artifacts = new ArrayList<>();
         artifacts.add(TestArtifactConfig.class);
-        artifacts.add(ArtifactConfig.class);
+        artifacts.add(BuildArtifactConfig.class);
         artifacts.add(PluggableArtifactConfig.class);
 
-        assertThat(registry.implementersOf(Artifact.class), is(artifacts));
+        assertThat(registry.implementersOf(ArtifactConfig.class), is(artifacts));
     }
 
     @Test

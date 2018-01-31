@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -298,11 +298,11 @@ public class GoConfigMother {
         task.setWorkingDirectory(workingDir);
         job.addTask(task);
 
-        final ArtifactConfig artifactFile = new ArtifactConfig();
+        final BuildArtifactConfig artifactFile = new BuildArtifactConfig();
         artifactFile.setSource(filePath);
         job.artifactConfigs().add(artifactFile);
 
-        ArtifactConfig artifactDir = new ArtifactConfig();
+        BuildArtifactConfig artifactDir = new BuildArtifactConfig();
         artifactFile.setSource(directoryPath);
         job.artifactConfigs().add(artifactDir);
 

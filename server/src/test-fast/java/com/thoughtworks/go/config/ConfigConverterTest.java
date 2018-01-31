@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -786,20 +786,20 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsNull() {
-        ArtifactConfig artifactConfig = configConverter.toArtifactConfig(new CRArtifact("src", null));
-        assertThat(artifactConfig.getDestination(), is(""));
+        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", null));
+        assertThat(buildArtifactConfig.getDestination(), is(""));
     }
 
     @Test
     public void shouldConvertTestArtifactConfigWhenDestinationIsNull() {
-        ArtifactConfig artifactConfig = configConverter.toArtifactConfig(new CRArtifact("src", null, CRArtifactType.test));
-        assertThat(artifactConfig.getDestination(), is("testoutput"));
+        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", null, CRArtifactType.test));
+        assertThat(buildArtifactConfig.getDestination(), is("testoutput"));
     }
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsSet() {
-        ArtifactConfig artifactConfig = configConverter.toArtifactConfig(new CRArtifact("src", "dest"));
-        assertThat(artifactConfig.getDestination(), is("dest"));
+        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", "dest"));
+        assertThat(buildArtifactConfig.getDestination(), is("dest"));
     }
 
     @Test
@@ -834,7 +834,7 @@ public class ConfigConverterTest {
         assertThat(jobConfig.hasVariable("key"), is(true));
         assertThat(jobConfig.getTabs().first().getName(), is("tabname"));
         assertThat(jobConfig.resourceConfigs(), hasItem(new ResourceConfig("resource1")));
-        assertThat(jobConfig.artifactConfigs(), hasItem(new ArtifactConfig("src", "dest")));
+        assertThat(jobConfig.artifactConfigs(), hasItem(new BuildArtifactConfig("src", "dest")));
         assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertyConfig("name", "src", "path")));
         assertThat(jobConfig.isRunOnAllAgents(), is(false));
         assertThat(jobConfig.getRunInstanceCount(), is("5"));

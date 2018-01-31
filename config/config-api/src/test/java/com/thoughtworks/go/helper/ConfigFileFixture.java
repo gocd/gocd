@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
 
@@ -64,7 +64,7 @@ public final class ConfigFileFixture {
             + "              </agent>\n"
             + "            </agents>\n"
             + "         </cruise>";
-
+    
     //TODO: test reload if config file changed
     public static final String INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
@@ -105,7 +105,6 @@ public final class ConfigFileFixture {
                     + "</pipeline>\n"
                     + "</pipelines>\n"
                     + "</cruise>";
-
 
     public static final String WITH_3_AGENT_CONFIG =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
@@ -268,7 +267,7 @@ public final class ConfigFileFixture {
                     + "      <job name='cardlist' />\n"
                     + "      <job name='bluemonkeybutt'>\n"
                     + "        <artifacts>\n"
-                    + "          <test src='from' dest='to'/>\n"
+                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                     + "        </artifacts>\n"
                     + "      </job>\n"
                     + "    </jobs>\n"
@@ -293,7 +292,7 @@ public final class ConfigFileFixture {
                     + "    <jobs>\n"
                     + "      <job name='cardlist' timeout='5'>\n "
                     + "        <artifacts>\n"
-                    + "          <test src='from' dest='to'/>\n"
+                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                     + "        </artifacts>\n"
                     + "        <tasks>"
                     + "          <ant buildfile='src/evolve.build' target='all'/>"
@@ -436,7 +435,7 @@ public final class ConfigFileFixture {
                     + "             <ant buildfile='src/evolve.build' target='all' />"
                     + "         </tasks>"
                     + "         <artifacts>\n"
-                    + "             <artifact src='%s' />\n"
+                    + "             <artifact src='%s'/>\n"
                     + "         </artifacts>\n"
                     + "      </job>\n"
                     + "    </jobs>\n"
@@ -549,6 +548,7 @@ public final class ConfigFileFixture {
                     + "</pipeline>\n"
                     + "</pipelines>\n"
                     + "</cruise>";
+
     public static final String CONTAINS_MULTI_SAME_STATUS_RUN_IF = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n"
             + "  <server artifactsdir=\"artifacts\">\n"
@@ -642,8 +642,6 @@ public final class ConfigFileFixture {
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                     + "<server></server></cruise>";
 
-    public static final String OLD = "<cruise><server></server></cruise>";
-
     public static final String SERVER_WITH_ARTIFACTS_DIR = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
@@ -668,7 +666,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "        </jobs>\n"
@@ -879,7 +877,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "         <job name=\"unit\">\n"
@@ -917,7 +915,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "        </jobs>\n"
@@ -935,7 +933,7 @@ public final class ConfigFileFixture {
             + "    <jobs>\n"
             + "      <job name=\"functional\">\n"
             + "        <artifacts>\n"
-            + "          <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "          <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "        </artifacts>\n"
             + "      </job>\n"
             + "    </jobs>\n"
@@ -1345,7 +1343,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "        </jobs>\n"
@@ -1374,7 +1372,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "        </jobs>\n"
@@ -1400,7 +1398,7 @@ public final class ConfigFileFixture {
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
             + "           <artifacts>\n"
-            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+            + "             <artifact src=\"artifact1.xml\" dest=\"cruise-output\" type=\"build\"/>\n"
             + "           </artifacts>\n"
             + "         </job>\n"
             + "        </jobs>\n"
@@ -1680,7 +1678,7 @@ public final class ConfigFileFixture {
                 + "      <job name='cardlist' />\n"
                 + "      <job name='bluemonkeybutt'>\n"
                 + "        <artifacts>\n"
-                + "          <test src='from' dest='to'/>\n"
+                + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                 + "        </artifacts>\n"
                 + "      </job>\n"
                 + "    </jobs>\n"
@@ -1700,7 +1698,7 @@ public final class ConfigFileFixture {
                 + "      <job name='cardlist' />\n"
                 + "      <job name='bluemonkeybutt'>\n"
                 + "        <artifacts>\n"
-                + "          <test src='from' dest='to'/>\n"
+                + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                 + "        </artifacts>\n"
                 + "      </job>\n"
                 + "    </jobs>\n"
@@ -1720,7 +1718,7 @@ public final class ConfigFileFixture {
                 + "      <job name='cardlist' />\n"
                 + "      <job name='bluemonkeybutt'>\n"
                 + "        <artifacts>\n"
-                + "          <test src='from' dest='to'/>\n"
+                + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                 + "        </artifacts>\n"
                 + "      </job>\n"
                 + "    </jobs>\n"
@@ -1824,7 +1822,7 @@ public final class ConfigFileFixture {
                     + "      <job name='cardlist' />\n"
                     + "      <job name='bluemonkeybutt'>\n"
                     + "        <artifacts>\n"
-                    + "          <test src='from' dest='to'/>\n"
+                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                     + "        </artifacts>\n"
                     + "      </job>\n"
                     + "    </jobs>\n"
@@ -1845,7 +1843,7 @@ public final class ConfigFileFixture {
                     + "      <job name='cardlist' />\n"
                     + "      <job name='bluemonkeybutt'>\n"
                     + "        <artifacts>\n"
-                    + "          <test src='from' dest='to'/>\n"
+                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
                     + "        </artifacts>\n"
                     + "      </job>\n"
                     + "    </jobs>\n"
@@ -1963,35 +1961,6 @@ public final class ConfigFileFixture {
                     + "</vmms>\n"
                     + "</cruise>";
 
-    public static final String WITH_LOG_ARTIFACT_CONFIG =
-            "<cruise schemaVersion='50'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
-                    + "<pipelines>\n"
-                    + "<pipeline name='pipeline1'>\n"
-                    + "    <materials>\n"
-                    + "      <svn url =\"svnurl\"/>"
-                    + "    </materials>\n"
-                    + "  <stage name='mingle'>\n"
-                    + "    <jobs>\n"
-                    + "      <job name='cardlist' />\n"
-                    + "      <job name='bluemonkeybutt'>\n"
-                    + "        <artifacts>\n"
-                    + "          <log src='from1' />\n"
-                    + "          <log src='from2' dest='to2'/>\n"
-                    + "          <artifact src='from3'/>\n"
-                    + "          <artifact src='from4' dest='to4'/>\n"
-                    + "        </artifacts>\n"
-                    + "      </job>\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>\n"
-                    + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "    </agents>\n"
-                    + "</cruise>";
-
     public static CruiseConfig configWith(PipelineConfigs... pipelineConfigses) {
         return new BasicCruiseConfig(pipelineConfigses);
     }
@@ -2003,7 +1972,7 @@ public final class ConfigFileFixture {
         return new BasicCruiseConfig(configs);
     }
 
-    public static String configwithSecurity(String security) {
+    public static String configWithSecurity(String security) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "  <server artifactsdir=\"logs\">\n"

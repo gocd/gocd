@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,8 +308,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (Artifact artifact : artifactConfigs) {
-            if (artifact.getArtifactType().isTest()) {
+        for (ArtifactConfig artifactConfig : artifactConfigs) {
+            if (artifactConfig.getArtifactType().isTest()) {
                 return true;
             }
         }

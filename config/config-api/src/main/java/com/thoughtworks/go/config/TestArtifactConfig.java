@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,21 @@ import com.thoughtworks.go.domain.ArtifactType;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-@ConfigTag("test")
-public class TestArtifactConfig extends ArtifactConfig {
+@AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "test")
+public class TestArtifactConfig extends BuildArtifactConfig {
     public static final String TEST_PLAN_DISPLAY_NAME = "Test Artifact";
     public static final String TEST_OUTPUT_FOLDER = "testoutput";
 
     public TestArtifactConfig() {
-        super.setArtifactType(ArtifactType.unit);
     }
 
     public TestArtifactConfig(String src, String dest) {
-        super(ArtifactType.unit, src, dest);
+        super(src, dest);
+    }
+
+    @Override
+    public ArtifactType getArtifactType() {
+        return ArtifactType.test;
     }
 
     @Override

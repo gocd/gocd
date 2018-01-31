@@ -17,10 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -87,7 +84,7 @@ public class InvalidConfigMessageRemoverIntegrationTest {
         serverHealthService.update(ServerHealthState.warning("Invalid Configuration", "something",HealthStateType.general(HealthStateScope.forInvalidConfig())));
         InvalidConfigMessageRemover remover = new InvalidConfigMessageRemover(goConfigService, serverHealthService);
         remover.initialize();
-        assertThat(serverHealthService.getAllLogs().isEmpty(), is(false));
+        assertThat(serverHealthService.logs().isEmpty(), is(false));
         configHelper.addAgent("hostname", "uuid"); //Any change to the config file
         cachedGoConfig.forceReload();
         assertThat(serverHealthService.filterByScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));

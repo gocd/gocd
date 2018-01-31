@@ -36,10 +36,7 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -218,7 +215,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         Set<HealthStateScope> materialScopes = toHealthStateScopes(newCruiseConfig.getAllUniqueMaterials());
-        for (ServerHealthState state : serverHealthService.getAllLogs()) {
+        for (ServerHealthState state : serverHealthService.logs()) {
             HealthStateScope currentScope = state.getType().getScope();
             if (currentScope.isForMaterial() && !materialScopes.contains(currentScope)) {
                 serverHealthService.removeByScope(currentScope);

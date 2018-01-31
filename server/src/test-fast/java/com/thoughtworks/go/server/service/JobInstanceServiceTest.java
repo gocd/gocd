@@ -38,10 +38,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -397,11 +394,11 @@ public class JobInstanceServiceTest {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
-        assertThat(serverHealthService.getAllLogs().errorCount(), is(2));
+        assertThat(serverHealthService.logs().errorCount(), is(2));
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
                 null, pluginManager, serverHealthService);
         jobService.onConfigChange(new BasicCruiseConfig());
-        assertThat(serverHealthService.getAllLogs().errorCount(), is(0));
+        assertThat(serverHealthService.logs().errorCount(), is(0));
     }
 
     @Test
@@ -409,12 +406,12 @@ public class JobInstanceServiceTest {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
-        assertThat(serverHealthService.getAllLogs().errorCount(), is(2));
+        assertThat(serverHealthService.logs().errorCount(), is(2));
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
                 null, pluginManager, serverHealthService);
         JobInstanceService.PipelineConfigChangedListener pipelineConfigChangedListener = jobService.new PipelineConfigChangedListener();
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
-        assertThat(serverHealthService.getAllLogs().errorCount(), is(1));
-        assertThat(serverHealthService.getAllLogs().get(0).getType().getScope().getScope(), is("p2/s2/j2"));
+        assertThat(serverHealthService.logs().errorCount(), is(1));
+        assertThat(serverHealthService.logs().get(0).getType().getScope().getScope(), is("p2/s2/j2"));
     }
 }

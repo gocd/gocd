@@ -140,7 +140,7 @@ public class SCMMaterialSourceTest {
         schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
-        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.onConfigChange(mock(CruiseConfig.class));
         materials = source.materialsForUpdate();
@@ -155,7 +155,7 @@ public class SCMMaterialSourceTest {
         Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
-        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.onEntityConfigChange(mock(ConfigRepoConfig.class));
         Set<Material> materials = source.materialsForUpdate();
@@ -182,7 +182,7 @@ public class SCMMaterialSourceTest {
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(goConfigService.getCurrentConfig()).thenReturn(mock(CruiseConfig.class));
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
-        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));
         materials = source.materialsForUpdate();

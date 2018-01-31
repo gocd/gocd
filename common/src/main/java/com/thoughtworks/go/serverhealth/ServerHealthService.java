@@ -76,7 +76,7 @@ public class ServerHealthService {
     // called from spring timer
     public synchronized void onTimer(CruiseConfigProvider provider) {
         CruiseConfig currentConfig = provider.getCurrentConfig();
-        getAllValidLogs(currentConfig);
+        purgeStaleHealthMessages(currentConfig);
         LOG.debug("Recomputing material to pipeline mappings.");
 
         HashMap<ServerHealthState, Set<String>> erroredPipelines = new HashMap<>();
@@ -92,14 +92,9 @@ public class ServerHealthService {
         return pipelinesWithErrors.get(serverHealthState);
     }
 
-    public ServerHealthStates getAllValidLogs(CruiseConfig cruiseConfig) {
+    void purgeStaleHealthMessages(CruiseConfig cruiseConfig) {
         removeMessagesForElementsNoLongerInConfig(cruiseConfig);
         removeExpiredMessages();
-        return logs();
-    }
-
-    public ServerHealthStates getAllLogs() {
-        return logs();
     }
 
     @Deprecated // Remove once we get rid of SpringJUnitTestRunner
@@ -158,7 +153,7 @@ public class ServerHealthService {
     }
 
     public boolean containsError(HealthStateType type, HealthStateLevel level) {
-        ServerHealthStates allLogs = getAllLogs();
+        ServerHealthStates allLogs = logs();
         for (ServerHealthState log : allLogs) {
             if (log.getType().equals(type) && log.getLogLevel() == level) {
                 return true;

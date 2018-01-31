@@ -33,10 +33,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,7 +271,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        for (ServerHealthState state : serverHealthService.getAllLogs()) {
+        for (ServerHealthState state : serverHealthService.logs()) {
             HealthStateScope currentScope = state.getType().getScope();
             if (currentScope.isForJob()) {
                 serverHealthService.removeByScope(currentScope);
@@ -285,7 +282,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-            for (ServerHealthState state : serverHealthService.getAllLogs()) {
+            for (ServerHealthState state : serverHealthService.logs()) {
                 HealthStateScope currentScope = state.getType().getScope();
                 if (currentScope.isForJob()) {
                     String[] split = currentScope.getScope().split("/");

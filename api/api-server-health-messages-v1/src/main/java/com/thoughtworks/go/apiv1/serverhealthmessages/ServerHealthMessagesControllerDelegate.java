@@ -60,7 +60,7 @@ public class ServerHealthMessagesControllerDelegate extends ApiController {
     }
 
     public Object show(Request request, Response response) {
-        ServerHealthStates allLogs = serverHealthService.getAllLogs();
+        ServerHealthStates allLogs = serverHealthService.logs();
         return ServerHealthMessagesRepresenter.toJSON(allLogs, null);
     }
 }

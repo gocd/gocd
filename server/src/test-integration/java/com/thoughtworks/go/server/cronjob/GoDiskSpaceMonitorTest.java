@@ -21,10 +21,7 @@ import com.thoughtworks.go.fixture.ArtifactsDiskIsLow;
 import com.thoughtworks.go.fixture.DatabaseDiskIsFull;
 import com.thoughtworks.go.fixture.DatabaseDiskIsLow;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -249,7 +246,7 @@ public class GoDiskSpaceMonitorTest {
     }
 
     private ServerHealthState findByLogType(HealthStateType healthStateType) {
-        for (ServerHealthState serverHealthState : serverHealthService.getAllLogs()) {
+        for (ServerHealthState serverHealthState : serverHealthService.logs()) {
             if (serverHealthState.getType().equals(healthStateType)) {
                 return serverHealthState;
             }

@@ -34,10 +34,7 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -338,7 +335,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private List<ServerHealthState> findMessageFor(final HealthStateType type) {
-        return serverHealthService.getAllLogs().stream().filter(new Predicate<ServerHealthState>() {
+        return serverHealthService.logs().stream().filter(new Predicate<ServerHealthState>() {
             @Override
             public boolean test(ServerHealthState element) {
                 return element.getType().equals(type);
@@ -621,7 +618,7 @@ public class CachedGoConfigIntegrationTest {
 
         assertThat(cachedGoConfig.checkConfigFileValid().isValid(), Matchers.is(false));
 
-        List<ServerHealthState> serverHealthStates = serverHealthService.getAllLogs();
+        List<ServerHealthState> serverHealthStates = serverHealthService.logs();
         assertThat(serverHealthStates.isEmpty(), is(false));
         assertThat(serverHealthStates.contains(ServerHealthState.error(GoConfigService.INVALID_CRUISE_CONFIG_XML, "Error on line 1: Content is not allowed in prolog.", HealthStateType.invalidConfig())), is(true));
     }

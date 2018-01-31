@@ -6,11 +6,11 @@
       var div = document.createElement("div");
 
       PluginEndpoint.ensure();
-
       $(div).addClass("analytics-plugin").dialog({
         title: options.title || "Analytics",
         width: 760,
         height: 495,
+        modal: true,
         close: function(e, ui) {
           $(div).remove();
         }

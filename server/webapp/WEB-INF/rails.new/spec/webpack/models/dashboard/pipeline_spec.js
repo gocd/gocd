@@ -33,6 +33,9 @@ describe("Dashboard", () => {
       expect(pipeline.isPaused).toBe(true);
       expect(pipeline.pausedBy).toBe("admin");
       expect(pipeline.pausedCause).toBe("under construction");
+
+      expect(pipeline.isLocked).toBe(false);
+      expect(pipeline.canUnlock).toBe(true);
     });
   });
 
@@ -58,6 +61,33 @@ describe("Dashboard", () => {
           const request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('POST');
           expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unpause`);
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+        });
+      });
+    });
+
+    describe("Unlock", () => {
+      it('should unlock a pipeline with appropriate headers', () => {
+        jasmine.Ajax.withMock(() => {
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unlock`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": `Pipeline '${pipelineJson.name}' unlocked successfully.`}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          const successCallback = jasmine.createSpy();
+
+          const pipeline = new Pipeline(pipelineJson);
+          pipeline.unlock().then(successCallback);
+
+          expect(successCallback).toHaveBeenCalled();
+
+          const request = jasmine.Ajax.requests.mostRecent();
+          expect(request.method).toBe('POST');
+          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unlock`);
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
           expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
         });
@@ -92,6 +122,7 @@ describe("Dashboard", () => {
     "name":                   "up42",
     "last_updated_timestamp": 1510299695473,
     "locked":                 false,
+    "can_unlock":             true,
     "pause_info":             {
       "paused":       true,
       "paused_by":    "admin",

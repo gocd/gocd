@@ -39,18 +39,21 @@ const Pipeline = function (info) {
   this.pausedBy    = info.pause_info.paused_by;
   this.pausedCause = info.pause_info.pause_reason;
 
+  this.isLocked  = info.locked;
+  this.canUnlock = info.can_unlock;
+
   const config = (xhr) => {
     xhr.setRequestHeader("X-GoCD-Confirm", "true");
     mrequest.xhrConfig.forVersion('v1')(xhr);
   };
 
-  this.unpause = () => {
+  function postURL(url) {
     return $.Deferred(function () {
       const deferred = this;
 
       const jqXHR = $.ajax({
         method:     'POST',
-        url:        SparkRoutes.pipelineUnpausePath(self.name),
+        url,
         timeout:    mrequest.timeout,
         beforeSend: config
       });
@@ -65,6 +68,14 @@ const Pipeline = function (info) {
 
       jqXHR.always(m.redraw);
     }).promise();
+  }
+
+  this.unpause = () => {
+    return postURL(SparkRoutes.pipelineUnpausePath(self.name));
+  };
+
+  this.unlock = () => {
+    return postURL(SparkRoutes.pipelineUnlockPath(self.name));
   };
 };
 

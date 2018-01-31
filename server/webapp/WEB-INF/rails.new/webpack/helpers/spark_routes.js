@@ -21,5 +21,9 @@ module.exports = {
 
   pipelineUnpausePath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/unpause`;
+  },
+
+  pipelineUnlockPath: (pipelineName) => {
+    return `/go/api/pipelines/${pipelineName}/unlock`;
   }
 };

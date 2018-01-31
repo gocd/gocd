@@ -7,6 +7,7 @@
 
       PluginEndpoint.ensure();
 
+      $(".analytics-plugin").dialog("close");
       $(div).addClass("analytics-plugin").dialog({
         title: options.title || "Analytics",
         width: 760,

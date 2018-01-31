@@ -27,8 +27,7 @@ const PipelineInstanceWidget = {
     self.toggleChanges = (e) => {
       const dropdown     = vnode.attrs.dropdown;
       const pipelineName = vnode.attrs.pipelineName;
-      dropdown.create(pipelineName);
-      dropdown.toggleDropDownState(pipelineName);
+      dropdown.toggle(pipelineName);
       e.stopPropagation();
     };
   },

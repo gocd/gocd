@@ -99,14 +99,15 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const instance = new PipelineInstance(pipelineInstanceJson);
 
   beforeEach(() => {
-    const dashboardViewModel = new DashboardVM();
+    const pipelineName       = "dummy";
+    const dashboardViewModel = new DashboardVM([pipelineName]);
 
     m.mount(root, {
       view() {
         return m(PipelineInstanceWidget, {
           instance,
-          dropdown:     dashboardViewModel.dropdown,
-          pipelineName: "dummy"
+          dropdown: dashboardViewModel.dropdown,
+          pipelineName
         });
       }
     });

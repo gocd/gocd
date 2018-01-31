@@ -22,8 +22,6 @@ describe("Dashboard Pipeline Widget", () => {
 
   let $root, root, dashboardViewModel, pipelinesJson, pipeline;
   beforeEach(() => {
-    dashboardViewModel = new DashboardVM();
-
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
@@ -72,7 +70,8 @@ describe("Dashboard Pipeline Widget", () => {
   });
 
   function mount(isQuickEditPageEnabled = false, canAdminister = true) {
-    pipelinesJson = [{
+    const pipelineName = 'up42';
+    pipelinesJson      = [{
       "_links":                 {
         "self":                 {
           "href": "http://localhost:8153/go/api/pipelines/up42/history"
@@ -96,7 +95,7 @@ describe("Dashboard Pipeline Widget", () => {
           "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
         }
       },
-      "name":                   "up42",
+      "name":                   pipelineName,
       "last_updated_timestamp": 1510299695473,
       "locked":                 false,
       "can_administer":         canAdminister,
@@ -179,7 +178,9 @@ describe("Dashboard Pipeline Widget", () => {
       }
     }];
 
-    pipeline = new Pipelines(pipelinesJson).pipelines['up42'];
+    pipeline = new Pipelines(pipelinesJson).pipelines[pipelineName];
+
+    dashboardViewModel = new DashboardVM([pipelineName]);
 
     m.mount(root, {
       view() {

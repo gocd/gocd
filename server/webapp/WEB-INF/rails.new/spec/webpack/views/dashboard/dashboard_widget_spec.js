@@ -16,6 +16,7 @@
 describe("Dashboard Widget", () => {
   const m = require("mithril");
   const $ = require('jquery');
+  const _ = require('lodash');
 
   const DashboardWidget = require("views/dashboard/dashboard_widget");
   const Dashboard       = require('models/dashboard/dashboard');
@@ -87,11 +88,11 @@ describe("Dashboard Widget", () => {
   });
 
   function mount(canAdminister = true) {
-    dashboardJson            = {
+    dashboardJson = {
       "_embedded": {
         "pipeline_groups": [
           {
-            "_links":       {
+            "_links":         {
               "self": {
                 "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
               },
@@ -99,8 +100,8 @@ describe("Dashboard Widget", () => {
                 "href": "https://api.go.cd/current/#pipeline-groups"
               }
             },
-            "name":         "first",
-            "pipelines":    ["up42"],
+            "name":           "first",
+            "pipelines":      ["up42"],
             "can_administer": canAdminister
           }
         ],
@@ -213,8 +214,9 @@ describe("Dashboard Widget", () => {
         ]
       }
     };
+
     dashboard                = new Dashboard(dashboardJson);
-    const dashboardViewModel = new DashboardVM();
+    const dashboardViewModel = new DashboardVM(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
 
     m.mount(root, {
       view() {

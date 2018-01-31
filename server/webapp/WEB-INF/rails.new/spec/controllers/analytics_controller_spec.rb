@@ -115,17 +115,56 @@ describe AnalyticsController do
       expect(response_json['view_path']).to eq('/path/to/view')
       expect(response.content_type).to eq('application/json')
     end
+  end
+
+  describe 'job' do
+    before(:each) do
+      login_as_admin
+    end
+
+    it 'should render analytics for job' do
+      analytics_extension = instance_double('AnalyticsExtension')
+      analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new("job_analytics", "/path/to/view")
+      allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
+      allow(analytics_extension).to receive(:getJobAnalytics).with('com.tw.myplugin', { pipeline_name: "pipeline", stage_name: "stage", job_name: "job" }).and_return(analytics_data);
+
+      get :job, plugin_id: 'com.tw.myplugin', pipeline_name: "pipeline", stage_name: "stage", job_name: "job"
+
+      expect(response).to be_ok
+
+      response_json = JSON.parse(response.body)
+      expect(response_json['data']).to eq('job_analytics')
+      expect(response_json['view_path']).to eq('/path/to/view')
+      expect(response.content_type).to eq('application/json')
+    end
+  end
+
+  describe 'error handling' do
+    before(:each) do
+      login_as_admin
+      allow_current_user_to_access_pipeline('pipeline')
+    end
 
     it 'should render error template on error' do
       analytics_extension = instance_double('AnalyticsExtension')
-
-      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_raise(java.lang.Exception.new)
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
 
-      get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
+      allow(analytics_extension).to receive(:getPipelineAnalytics).and_raise(java.lang.Exception.new)
+      allow(analytics_extension).to receive(:getDashboardAnalytics).and_raise(java.lang.Exception.new)
+      allow(analytics_extension).to receive(:getJobAnalytics).and_raise(java.lang.Exception.new)
 
-      expect(response.code).to eq('500')
-      expect(response.body).to eq('Error generating analytics from plugin - com.tw.myplugin')
+      {
+        pipeline: { pipeline_name: "pipeline" },
+        job: { pipeline_name: "pipeline", stage_name: "stage", job_name: "job" },
+        dashboard: {metric: "foo"}
+      }.each do |action, params|
+        params[:plugin_id] = 'com.tw.myplugin'
+        get action, params
+
+
+        expect(response.code).to eq('500')
+        expect(response.body).to eq('Error generating analytics from plugin - com.tw.myplugin')
+      end
     end
   end
 end

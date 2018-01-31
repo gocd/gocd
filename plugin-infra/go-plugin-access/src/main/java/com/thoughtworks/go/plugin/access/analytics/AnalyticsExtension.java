@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 
@@ -68,6 +69,22 @@ public class AnalyticsExtension extends AbstractExtension {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsRequestBody(pipelineName);
+            }
+
+            @Override
+            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
+                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
+                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
+                return analyticsData;
+            }
+        });
+    }
+
+    public AnalyticsData getJobAnalytics(String pluginId, Map params) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getJobAnalyticsRequestBody(params);
             }
 
             @Override

@@ -19,13 +19,18 @@ package com.thoughtworks.go.plugin.access.analytics;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 
+import java.util.Map;
+
 public interface AnalyticsMessageConverter {
     String TYPE_PIPELINE = "pipeline";
+    String TYPE_JOB = "job";
     String TYPE_DASHBOARD = "dashboard";
 
     com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
     String getPipelineAnalyticsRequestBody(String pipelineName);
+
+    String getJobAnalyticsRequestBody(Map params);
 
     AnalyticsData getAnalyticsFromResponseBody(String responseBody);
 

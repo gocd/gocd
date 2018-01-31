@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const _ = require('lodash');
+const m                      = require('mithril');
+const Stream                 = require('mithril/stream');
+const _                      = require('lodash');
+const Modal                  = require('views/shared/new_modal');
+const PipelinePauseModalBody = require('views/dashboard/pipeline_pause_modal_body');
 
 const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
 
@@ -24,6 +27,9 @@ const PipelineOperationsWidget = {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.operationMessages;
     const pipeline          = vnode.attrs.pipeline;
+    const modalTitle        = `Pause pipeline ${pipeline.name}`;
+
+    self.pauseMessage = Stream();
 
     self.unpause = () => {
       vnode.attrs.doCancelPolling();
@@ -32,6 +38,43 @@ const PipelineOperationsWidget = {
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
       }).always(vnode.attrs.doRefreshImmediately);
+    };
+
+    function pausePipeline(modal) {
+      vnode.attrs.doCancelPolling();
+      const payload = {"pause_cause": self.pauseMessage()};
+      pipeline.pause(payload).then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      }).always(() => {
+        modal.destroy();
+        vnode.attrs.doRefreshImmediately();
+      });
+    }
+
+    self.showPopup = () => {
+      const modal = new Modal({
+        size:    'medium',
+        title:   modalTitle,
+        body:    () => (<PipelinePauseModalBody pipelineName={pipeline.name} message={self.pauseMessage}/>),
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          return [
+            {
+              text:    "OK",
+              class:   'save primary',
+              onclick: () => pausePipeline(modal)
+            },
+            {
+              text:    "CLOSE",
+              class:   'save secondary',
+              onclick: () => modal.destroy()
+            }
+          ];
+        }
+      });
+      modal.render();
     };
   },
 
@@ -44,7 +87,7 @@ const PipelineOperationsWidget = {
       pauseUnpauseButton = (<button onclick={vnode.state.unpause} className="btn unpause"/>);
       pausedMessage      = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
     } else {
-      pauseUnpauseButton = (<button className="btn pause"/>);
+      pauseUnpauseButton = (<button onclick={vnode.state.showPopup} className="btn pause"/>);
     }
 
     let flashMessage;

@@ -47,7 +47,7 @@ const Pipeline = function (info) {
     mrequest.xhrConfig.forVersion('v1')(xhr);
   };
 
-  function postURL(url) {
+  function postURL(url, data = {}) {
     return $.Deferred(function () {
       const deferred = this;
 
@@ -55,6 +55,7 @@ const Pipeline = function (info) {
         method:     'POST',
         url,
         timeout:    mrequest.timeout,
+        data:       JSON.stringify(data),
         beforeSend: config
       });
 
@@ -76,6 +77,10 @@ const Pipeline = function (info) {
 
   this.unlock = () => {
     return postURL(SparkRoutes.pipelineUnlockPath(self.name));
+  };
+
+  this.pause = (payload) => {
+    return postURL(SparkRoutes.pipelinePausePath(self.name), payload);
   };
 };
 

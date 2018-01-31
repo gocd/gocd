@@ -15,11 +15,14 @@
  */
 describe("Dashboard Pipeline Widget", () => {
   const m             = require("mithril");
+  const $             = require('jquery');
   const simulateEvent = require('simulate-event');
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
   const Pipelines      = require('models/dashboard/pipelines');
   const DashboardVM    = require("views/dashboard/models/dashboard_view_model");
+  const Modal          = require('views/shared/new_modal');
+
 
   let $root, root, dashboardViewModel, pipelinesJson, pipeline, doCancelPolling, doRefreshImmediately;
 
@@ -155,6 +158,102 @@ describe("Dashboard Pipeline Widget", () => {
       });
     });
 
+    describe("pause", () => {
+      beforeEach(() => {
+        const pauseInfo = {
+          "paused":       false,
+          "paused_by":    "admin",
+          "pause_reason": "under construction"
+        };
+
+        const dashboard  = {};
+        dashboard.reload = jasmine.createSpy();
+        mount(false, true, pauseInfo, dashboard);
+      });
+
+      afterEach(() => {
+        unmount();
+        Modal.destroyAll();
+      });
+
+      it("should render pause pipeline button", () => {
+        expect($root.find('.pause')).toBeInDOM();
+      });
+
+      it("should show modal to specify pause reason upon pausing a pipeline", () => {
+        const pauseButton = $root.find('.pause');
+
+        expect($('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate(pauseButton.get(0), 'click');
+        m.redraw();
+
+        expect($('.reveal:visible')).toBeInDOM();
+      });
+
+      it("should show appropriate header for popup modal upon pause button click", () => {
+        const pauseButton = $root.find('.pause');
+
+        simulateEvent.simulate(pauseButton.get(0), 'click');
+        m.redraw();
+
+        const modalTitle = $('.modal-title:visible');
+        expect(modalTitle).toHaveText(`Pause pipeline ${pipeline.name}`);
+      });
+
+      it("should pause a pipeline", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+          simulateEvent.simulate($root.find('.pause').get(0), 'click');
+          $('.reveal input').val("test");
+          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("success");
+        });
+      });
+
+      it("should not pause a pipeline", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          409
+          });
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+          simulateEvent.simulate($root.find('.pause').get(0), 'click');
+          $('.reveal input').val("test");
+          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("error");
+        });
+      });
+
+    });
+
     describe("Unlock", () => {
       beforeEach(() => {
         const lockInfo = {
@@ -240,6 +339,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
     });
   });
+
 
   describe("Pipeline Instances", () => {
     beforeEach(mount);

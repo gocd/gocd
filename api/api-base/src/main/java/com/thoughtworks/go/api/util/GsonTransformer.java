@@ -24,15 +24,17 @@ import spark.ResponseTransformer;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class GsonTransformer implements ResponseTransformer {
 
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation()
             .disableHtmlEscaping()
-            .registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false)))
+            .registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, UTC)))
             .create();
 
     private GsonTransformer() {

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 describe("Dashboard Pipeline Widget", () => {
-  const m = require("mithril");
+  const m             = require("mithril");
+  const simulateEvent = require('simulate-event');
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
   const Pipelines      = require('models/dashboard/pipelines');
@@ -26,50 +27,132 @@ describe("Dashboard Pipeline Widget", () => {
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(mount);
-  afterEach(unmount);
+  describe("Pipeline Header", () => {
+    beforeEach(mount);
+    afterEach(unmount);
 
-  it("should render pipeline name", () => {
-    expect($root.find('.pipeline_name')).toContainText('up42');
+    it("should render pipeline name", () => {
+      expect($root.find('.pipeline_name')).toContainText('up42');
+    });
+
+    it("should link history to pipeline history page", () => {
+      expect($root.find('.pipeline_header a')).toContainText('History');
+      const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
+      expect($root.find('.pipeline_header a').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+    });
+
+    it("should link to pipeline settings path", () => {
+      const expectedPath = pipeline.settingsPath;
+      expect($root.find('.pipeline_edit').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+    });
+
   });
 
-  it("should link history to pipeline history page", () => {
-    expect($root.find('.pipeline_header a')).toContainText('History');
-    const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
-    expect($root.find('.pipeline_header a').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+
+  describe("Pipeline Operations", () => {
+    describe("Settings", () => {
+      beforeEach(mount);
+      afterEach(unmount);
+
+      it("should not disable pipeline settings button for admin users", () => {
+        expect($root.find('.pipeline_edit')).not.toHaveClass("disabled");
+      });
+
+      it("should disable pipeline settings button for non admin users", () => {
+        unmount();
+        mount(true, false);
+        expect($root.find('.pipeline_edit')).toHaveClass("disabled");
+      });
+
+      it("should link to pipeline settings quick edit path when toggles are enabled", () => {
+        unmount();
+        mount(true);
+        const expectedPath = pipeline.quickEditPath;
+        expect($root.find('.pipeline_edit').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+      });
+
+      it("should render pipeline settings icon", () => {
+        expect($root.find('.pipeline_edit')).toBeInDOM();
+      });
+    });
+
+    describe("Unpause", () => {
+      beforeEach(() => {
+        const pauseInfo = {
+          "paused":       true,
+          "paused_by":    "admin",
+          "pause_reason": "under construction"
+        };
+
+        const dashboard  = {};
+        dashboard.reload = jasmine.createSpy();
+        mount(false, true, pauseInfo, dashboard);
+      });
+
+      afterEach(unmount);
+
+      it("should render unpause pipeline button", () => {
+        expect($root.find('.unpause')).toBeInDOM();
+      });
+
+      it("should render the pipeline pause message", () => {
+        expect($root.find('.pipeline_pause-message')).toContainText('Paused by admin (under construction)');
+      });
+
+      it("should not render the pipeline flash message", () => {
+        expect($root.find('.pipeline_message')).not.toBeInDOM();
+        expect($root.find('.pipeline_message .success')).not.toBeInDOM();
+        expect($root.find('.pipeline_message .error')).not.toBeInDOM();
+      });
+
+      it("should unpause a pipeline", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' unpaused successfully.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("success");
+        });
+      });
+
+      it("should show error when unpause a pipeline fails", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Can not unpuase pipeline. Pipeline '${pipeline.name}' is already unpaused.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          409
+          });
+
+          simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("error");
+        });
+      });
+    });
   });
 
-  it("should link to pipeline settings path", () => {
-    const expectedPath = pipeline.settingsPath;
-    expect($root.find('.pipeline_edit').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+  describe("Pipeline Instances", () => {
+    beforeEach(mount);
+    afterEach(unmount);
+
+    it("should render pipeline instances", () => {
+      expect($root.find('.pipeline_instances')).toBeInDOM();
+    });
   });
 
-  it("should not disable pipeline settings button for admin users", () => {
-    expect($root.find('.pipeline_edit')).not.toHaveClass("disabled");
-  });
-
-  it("should disable pipeline settings button for non admin users", () => {
-    unmount();
-    mount(true, false);
-    expect($root.find('.pipeline_edit')).toHaveClass("disabled");
-  });
-
-  it("should link to pipeline settings quick edit path when toggles are enabled", () => {
-    unmount();
-    mount(true);
-    const expectedPath = pipeline.quickEditPath;
-    expect($root.find('.pipeline_edit').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
-  });
-
-  it("should render pipeline settings icon", () => {
-    expect($root.find('.pipeline_edit')).toBeInDOM();
-  });
-
-  it("should render pipeline instances", () => {
-    expect($root.find('.pipeline_instances')).toBeInDOM();
-  });
-
-  function mount(isQuickEditPageEnabled = false, canAdminister = true) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, dashboard) {
     const pipelineName = 'up42';
     pipelinesJson      = [{
       "_links":                 {
@@ -99,11 +182,7 @@ describe("Dashboard Pipeline Widget", () => {
       "last_updated_timestamp": 1510299695473,
       "locked":                 false,
       "can_administer":         canAdminister,
-      "pause_info":             {
-        "paused":       false,
-        "paused_by":    null,
-        "pause_reason": null
-      },
+      "pause_info":             pauseInfo,
       "_embedded":              {
         "instances": [
           {
@@ -186,8 +265,9 @@ describe("Dashboard Pipeline Widget", () => {
       view() {
         return m(PipelineWidget, {
           pipeline,
+          dashboard,
           isQuickEditPageEnabled,
-          dropdown: dashboardViewModel.dropdown
+          vm: dashboardViewModel
         });
       }
     });

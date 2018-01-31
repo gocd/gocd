@@ -14,40 +14,78 @@
  * limitations under the License.
  */
 
+const m      = require('mithril');
 const Stream = require('mithril/stream');
 const _      = require('lodash');
 
 const VM = (allPipelines) => {
-  const dropdownStates = {};
+  const DROPDOWN_KEY                          = 'dropdown';
+  const FLASH_MESSAGE_KEY                     = 'flashMessage';
+  const FLASH_MESSAGE_TYPE_KEY                = 'flashMessageType';
+  const SUCCESS_TYPE                          = "success";
+  const FAILURE_TYPE                          = "error";
+  const MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS = 5000;
+
+  const pipelinesState = {};
 
   const viewModel = {
     dropdown: {
-      create: (name) => {
-        dropdownStates[name] = Stream(false);
-      },
-
-      isDropDownOpen: (name) => dropdownStates[name](),
+      isDropDownOpen: (name) => pipelinesState[name][DROPDOWN_KEY](),
 
       toggle: (name) => {
         viewModel.dropdown.hideAllExcept(name);
-        dropdownStates[name](!dropdownStates[name]());
+        pipelinesState[name][DROPDOWN_KEY](!pipelinesState[name][DROPDOWN_KEY]());
       },
 
       hideAllExcept: (name) => {
-        _.each(_.keys(dropdownStates), (key) => (key !== name) && dropdownStates[key](false));
+        _.each(_.keys(pipelinesState), (key) => (key !== name) && pipelinesState[key][DROPDOWN_KEY](false));
       },
 
       hideAll: () => {
-        _.each(_.keys(dropdownStates), (name) => dropdownStates[name](false));
+        _.each(_.keys(pipelinesState), (name) => pipelinesState[name][DROPDOWN_KEY](false));
+      },
+    },
+
+    operationMessages: {
+      messageFor: (name) => pipelinesState[name][FLASH_MESSAGE_KEY](),
+
+      messageTypeFor: (name) => pipelinesState[name][FLASH_MESSAGE_TYPE_KEY](),
+
+      success: (name, message) => {
+        pipelinesState[name][FLASH_MESSAGE_KEY](message);
+        pipelinesState[name][FLASH_MESSAGE_TYPE_KEY](SUCCESS_TYPE);
+        clearAfterTimeout(name);
       },
 
-      //used by tests
-      size: () => _.keys(dropdownStates).length
-    }
+      failure: (name, message) => {
+        pipelinesState[name][FLASH_MESSAGE_KEY](message);
+        pipelinesState[name][FLASH_MESSAGE_TYPE_KEY](FAILURE_TYPE);
+        clearAfterTimeout(name);
+      }
+    },
+
+    //used by tests
+    size: () => _.keys(pipelinesState).length
+  };
+
+  function clearAfterTimeout(name) {
+    setTimeout(() => {
+      pipelinesState[name][FLASH_MESSAGE_KEY](undefined);
+      pipelinesState[name][FLASH_MESSAGE_TYPE_KEY](undefined);
+      m.redraw();
+    }, MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS);
+  }
+
+  const create = (name) => {
+    pipelinesState[name] = {};
+
+    pipelinesState[name][DROPDOWN_KEY]           = Stream(false);
+    pipelinesState[name][FLASH_MESSAGE_KEY]      = Stream();
+    pipelinesState[name][FLASH_MESSAGE_TYPE_KEY] = Stream();
   };
 
   const initialize = (allPipelines) => {
-    _.each(allPipelines, viewModel.dropdown.create);
+    _.each(allPipelines, create);
   };
 
   initialize(allPipelines);

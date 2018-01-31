@@ -24,7 +24,7 @@ describe("Dashboard View Model", () => {
     it('should initialize dropdown states for all the pipelines', () => {
       dashboardVM = new DashboardVM(pipelineNames);
 
-      expect(dashboardVM.dropdown.size()).toEqual(2);
+      expect(dashboardVM.size()).toEqual(2);
     });
 
     it('should initialize dropdown states as close initially', () => {
@@ -59,6 +59,77 @@ describe("Dashboard View Model", () => {
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(true);
       dashboardVM.dropdown.hideAll();
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(false);
+    });
+  });
+
+  describe('Operation Messages', () => {
+    const pipelineNames = ['up42', 'up43'];
+
+    beforeEach(() => {
+      jasmine.clock().install();
+    });
+
+    afterEach(() => {
+      jasmine.clock().uninstall();
+    });
+
+    let dashboardVM;
+    it('should initialize pipeline operation messages states for all the pipelines', () => {
+      dashboardVM = new DashboardVM(pipelineNames);
+
+      expect(dashboardVM.size()).toEqual(2);
+    });
+
+    it('should initialize pipeline operation messages states as empty initially', () => {
+      dashboardVM = new DashboardVM(pipelineNames);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+    });
+
+    it('should set pipeline operation success messages', () => {
+      dashboardVM = new DashboardVM(pipelineNames);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+
+      const message = 'message';
+      dashboardVM.operationMessages.success('up42', message);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('success');
+    });
+
+
+    it('should set pipeline operation failure messages', () => {
+      dashboardVM = new DashboardVM(pipelineNames);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+
+      const message = 'message';
+      dashboardVM.operationMessages.failure('up42', message);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('error');
+    });
+
+    it('should clear message after timeout interval', () => {
+      dashboardVM = new DashboardVM(pipelineNames);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+
+      const message = 'message';
+      dashboardVM.operationMessages.failure('up42', message);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('error');
+
+      jasmine.clock().tick(5001);
+
+      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
     });
   });
 });

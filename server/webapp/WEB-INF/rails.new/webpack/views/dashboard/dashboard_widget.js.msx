@@ -39,7 +39,7 @@ const DashboardWidget = {
         return (
           <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
                           isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
-                          dropdown={vnode.attrs.vm.dropdown}/>
+                          vm={vnode.attrs.vm}/>
         );
       });
 

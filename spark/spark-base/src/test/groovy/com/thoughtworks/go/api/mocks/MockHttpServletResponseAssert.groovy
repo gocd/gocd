@@ -36,9 +36,12 @@ import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty
 
 class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServletResponseAssert, MockHttpServletResponse> {
   static private JsonSerializer<Date> dateSerializer = new JsonSerializer<Date>() {
+
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC")
+
     @Override
     JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-      return src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, TimeZone.getTimeZone("UTC")))
+      return src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, UTC))
     }
   }
 

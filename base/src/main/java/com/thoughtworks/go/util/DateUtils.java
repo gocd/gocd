@@ -30,6 +30,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class DateUtils {
 
     private static final DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     public static String formatISO8601(Date from) {
         return formatter.print(from.getTime());
@@ -71,7 +72,7 @@ public class DateUtils {
             //fall through and try and parse other ISO standard formats
         }
         try {
-            return dateFormatFor("yyyy-MM-dd'T'HH:mm:ss", "UTC").parse(date);
+            return dateFormatFor("yyyy-MM-dd'T'HH:mm:ss").parse(date);
         } catch (ParseException e) {
             throw bomb(e);
         }
@@ -116,9 +117,9 @@ public class DateUtils {
         return sb.toString();
     }
 
-    private static SimpleDateFormat dateFormatFor(String simpleDateFormat, String timeZone) {
+    private static SimpleDateFormat dateFormatFor(String simpleDateFormat) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(simpleDateFormat);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
+        dateFormat.setTimeZone(UTC);
         return dateFormat;
     }
 }

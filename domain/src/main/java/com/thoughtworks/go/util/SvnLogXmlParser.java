@@ -16,28 +16,24 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 
+import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 public class SvnLogXmlParser {
+
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     public List<Modification> parse(String svnLogOutput, String path, SAXBuilder builder) {
         try {
@@ -116,7 +112,7 @@ public class SvnLogXmlParser {
 
     public static DateFormat getOutDateFormatter() {
         DateFormat f = new SimpleDateFormat(SvnCommand.SVN_DATE_FORMAT_OUT);
-        f.setTimeZone(TimeZone.getTimeZone("GMT"));
+        f.setTimeZone(UTC);
         return f;
     }
 

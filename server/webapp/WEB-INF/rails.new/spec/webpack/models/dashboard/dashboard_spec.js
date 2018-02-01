@@ -70,7 +70,7 @@ describe("Dashboard", () => {
         });
 
         const successCallback = jasmine.createSpy().and.callFake((dashboard) => {
-          expect(dashboard.getPipelineGroups().length).toBe(1);
+          expect(Dashboard.fromJSON(dashboard).getPipelineGroups().length).toBe(1);
         });
 
         Dashboard.get().then(successCallback);

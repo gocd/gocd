@@ -331,7 +331,8 @@ describe("Dashboard Pipeline Widget", () => {
 
     pipeline = Pipelines.fromJSON(pipelinesJson).pipelines[pipelineName];
 
-    dashboardViewModel = new DashboardVM([pipelineName]);
+    dashboardViewModel = new DashboardVM();
+    dashboardViewModel.initialize([pipelineName]);
 
     m.mount(root, {
       view() {

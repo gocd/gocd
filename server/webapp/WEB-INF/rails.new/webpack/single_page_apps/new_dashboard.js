@@ -16,27 +16,52 @@
 
 const $               = require('jquery');
 const m               = require('mithril');
+const Stream          = require('mithril/stream');
 const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
+
+const VersionUpdater = require('models/shared/version_updater');
+const AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
 $(() => {
-  const dashboardElem          = $('#dashboard');
+  new VersionUpdater().update();
+  const dashboardElem = $('#dashboard');
+
+  const dashboardVM            = new DashboardVM();
   const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
+
   $(document).foundation();
 
-  const onSuccess = (dashboard) => {
-    const dashboardViewModel = new DashboardVM(dashboard.allPipelineNames());
+  let dashboard;
 
+  function onResponse(dashboardData) {
+    dashboard = Dashboard.fromJSON(dashboardData);
+    dashboardVM.initialize(dashboard.allPipelineNames());
+  }
+
+  function createRepeater() {
+    return new AjaxPoller(() => Dashboard.get()
+      .then(onResponse));
+  }
+
+  const repeater = Stream(createRepeater());
+
+  const renderView = () => {
     const component = {
       view() {
         return m(DashboardWidget, {
           dashboard,
           isQuickEditPageEnabled,
-          vm: dashboardViewModel
+          vm:                   dashboardVM,
+          //doCancelPolling:      () => repeater().stop(),
+          //doRefreshImmediately: () => {
+          //  repeater().stop();
+          //  repeater(createRepeater().start());
+          //}
         });
       }
     };
@@ -44,5 +69,5 @@ $(() => {
     m.mount($("#dashboard").get(0), component);
   };
 
-  Dashboard.get().then(onSuccess);
+  Dashboard.get().then(onResponse).then(repeater().start).then(renderView);
 });

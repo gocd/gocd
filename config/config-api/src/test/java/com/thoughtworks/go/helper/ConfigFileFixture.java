@@ -642,6 +642,8 @@ public final class ConfigFileFixture {
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                     + "<server></server></cruise>";
 
+    public static final String OLD = "<cruise><server></server></cruise>";
+
     public static final String SERVER_WITH_ARTIFACTS_DIR = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
@@ -1959,6 +1961,35 @@ public final class ConfigFileFixture {
                     + "<ami imageId='test' />\n"
                     + "</ec2>\n"
                     + "</vmms>\n"
+                    + "</cruise>";
+
+    public static final String WITH_LOG_ARTIFACT_CONFIG =
+            "<cruise schemaVersion='50'>\n"
+                    + "<server artifactsdir='artifactsDir' />"
+                    + "<pipelines>\n"
+                    + "<pipeline name='pipeline1'>\n"
+                    + "    <materials>\n"
+                    + "      <svn url =\"svnurl\"/>"
+                    + "    </materials>\n"
+                    + "  <stage name='mingle'>\n"
+                    + "    <jobs>\n"
+                    + "      <job name='cardlist' />\n"
+                    + "      <job name='bluemonkeybutt'>\n"
+                    + "        <artifacts>\n"
+                    + "          <log src='from1' />\n"
+                    + "          <log src='from2' dest='to2'/>\n"
+                    + "          <artifact src='from3'/>\n"
+                    + "          <artifact src='from4' dest='to4'/>\n"
+                    + "        </artifacts>\n"
+                    + "      </job>\n"
+                    + "    </jobs>\n"
+                    + "  </stage>\n"
+                    + "</pipeline>\n"
+                    + "</pipelines>\n"
+                    + "    <agents>\n"
+                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
+                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
+                    + "    </agents>\n"
                     + "</cruise>";
 
     public static CruiseConfig configWith(PipelineConfigs... pipelineConfigses) {

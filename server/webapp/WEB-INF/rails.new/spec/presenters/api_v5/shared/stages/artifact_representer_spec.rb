@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ApiV5::Shared::Stages::ArtifactRepresenter do
   it 'should serialize build artifact' do
-    presenter   = ApiV5::Shared::Stages::ArtifactRepresenter.new(ArtifactConfig.new('target/dist.jar', 'pkg'))
+    presenter   = ApiV5::Shared::Stages::ArtifactRepresenter.new(BuildArtifactConfig.new('target/dist.jar', 'pkg'))
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(build_artifact_hash)

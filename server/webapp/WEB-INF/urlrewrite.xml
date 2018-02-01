@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Trigger With Options View API</name>
+        <from>^/api/internal/trigger_with_options_view/(.*)$</from>
+        <to last="true">/spark/api/internal/trigger_with_options_view/${escape:$1}</to>
+    </rule>
+
+    <rule>
         <name>Spark Server Health Messages API</name>
         <from>^/api/server_health_messages</from>
         <to last="true">/spark/api/server_health_messages</to>

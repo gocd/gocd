@@ -163,4 +163,8 @@ public class Routes {
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }
+
+    public class TriggerWithOptionsView {
+        public static final String BASE = "/api/internal/trigger_with_options_view";
+    }
 }

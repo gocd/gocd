@@ -40,15 +40,14 @@ public class RequestContext {
     }
 
     public Link build(String name, String template, Object... args) {
+        return new Link(name, urlFor(template, args));
+    }
+
+    public String urlFor(String template, Object... args) {
         try {
-            String href = String.format(template, args);
-            return getLink(name, href);
+            return new URL(protocol, host, port, contextPath + String.format(template, args)).toExternalForm();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Link getLink(String name, String href) throws MalformedURLException {
-        return new Link(name, new URL(protocol, host, port, contextPath +  href).toExternalForm());
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class AgentStatusReportingTest {
 
@@ -37,9 +39,11 @@ public class AgentStatusReportingTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
+    private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
     @Before
     public void before() {
+        pluginRequestProcessorRegistry = mock(PluginRequestProcessorRegistry.class);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
@@ -55,7 +59,7 @@ public class AgentStatusReportingTest {
     @Test
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, pluginRequestProcessorRegistry));
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
@@ -64,7 +68,7 @@ public class AgentStatusReportingTest {
     @Test
     public void shouldReportCancelledWhenAgentCancelledBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, pluginRequestProcessorRegistry));
         work.cancel(environmentVariableContext, agentRuntimeInfo);
 
         assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));

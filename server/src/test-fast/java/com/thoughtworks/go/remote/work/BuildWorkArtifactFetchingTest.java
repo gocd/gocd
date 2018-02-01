@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DirHandler;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -39,6 +40,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class BuildWorkArtifactFetchingTest {
     public static final String PIPELINE_NAME = "pipeline1";
@@ -73,10 +75,12 @@ public class BuildWorkArtifactFetchingTest {
     private AgentIdentifier agentIdentifier;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private EnvironmentVariableContext environmentVariableContext;
+    private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
     @Before
     public void setUp() throws IOException {
         buildWorkingDirectory = new File("tmp");
+        pluginRequestProcessorRegistry = mock(PluginRequestProcessorRegistry.class);
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", AGENT_UUID);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
@@ -93,7 +97,7 @@ public class BuildWorkArtifactFetchingTest {
     public void shouldFailTheJobWhenFetchingArtifactFails() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
-        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, null));
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, pluginRequestProcessorRegistry));
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
@@ -107,7 +111,7 @@ public class BuildWorkArtifactFetchingTest {
     public void shouldTransitIntoFailedStatusWhenFetchingArtifactFailed() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
-        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, null));
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, pluginRequestProcessorRegistry));
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
@@ -120,7 +124,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubManipulator,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, null));
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null, null, pluginRequestProcessorRegistry));
 
         assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
     }

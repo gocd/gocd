@@ -41,7 +41,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
@@ -312,25 +311,6 @@ public class ArtifactsPublisherTest {
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
                 .publishArtifacts(artifactPlans, env);
         assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
-    }
-
-    @Test
-    public void shouldRegisterAndDeRegisterArtifactRequestProcessBeforeAndAfterPublishingPluggableArtifact() {
-        final ArtifactStore s3ArtifactStore = new ArtifactStore("s3", "cd.go.s3", create("access_key", false, "some-key"));
-        final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore);
-        final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
-
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString(), eq(env)))
-                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist")));
-
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, workingFolder)
-                .publishArtifacts(Arrays.asList(s3ArtifactPlan), env);
-
-        InOrder inOrder = inOrder(registry, artifactExtension);
-        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));
-        inOrder.verify(artifactExtension, times(1))
-                .publishArtifact("cd.go.s3", s3ArtifactPlan, s3ArtifactStore, workingFolder.getAbsolutePath(), env);
-        inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }
 
     private File prepareTestFolder(File workingFolder, String folderName) throws Exception {

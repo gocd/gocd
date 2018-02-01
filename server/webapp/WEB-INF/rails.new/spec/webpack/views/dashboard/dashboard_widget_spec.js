@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 describe("Dashboard Widget", () => {
-  const m = require("mithril");
-  const $ = require('jquery');
-  const _ = require('lodash');
-
+  const m               = require("mithril");
+  const $               = require('jquery');
+  const _               = require('lodash');
+  const simulateEvent   = require('simulate-event');
   const DashboardWidget = require("views/dashboard/dashboard_widget");
   const Dashboard       = require('models/dashboard/dashboard');
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
@@ -34,6 +34,32 @@ describe("Dashboard Widget", () => {
 
   it("should render dashboard pipelines header", () => {
     expect($root.find('.page-header')).toContainText('Pipelines');
+  });
+
+  it("should render dashboard pipeline search field", () => {
+    expect($root.find('.pipeline_search')).toBeInDOM();
+  });
+
+  it("should search for a pipeline", () => {
+    const searchField        = $root.find('#pipeline_search').get(0);
+    let pipelinesCountOnPage = $root.find('.pipeline');
+    expect(pipelinesCountOnPage).toHaveLength(1);
+
+    $(searchField).val('foo');
+    simulateEvent.simulate(searchField, 'input');
+
+    m.redraw();
+
+    pipelinesCountOnPage = $root.find('.pipeline');
+    expect(pipelinesCountOnPage).toHaveLength(0);
+
+    $(searchField).val('up42');
+    simulateEvent.simulate(searchField, 'input');
+
+    m.redraw();
+
+    pipelinesCountOnPage = $root.find('.pipeline');
+    expect(pipelinesCountOnPage).toHaveLength(1);
   });
 
   it("should render pipeline groups", () => {
@@ -215,7 +241,7 @@ describe("Dashboard Widget", () => {
       }
     };
 
-    dashboard                = new Dashboard(dashboardJson);
+    dashboard                = Dashboard.fromJSON(dashboardJson);
     const dashboardViewModel = new DashboardVM(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
 
     m.mount(root, {

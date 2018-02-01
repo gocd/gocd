@@ -21,13 +21,13 @@ describe("Dashboard", () => {
     const Pipeline  = require('models/dashboard/pipeline');
 
     it("should deserialize from json", () => {
-      const pipelines = new Pipelines(pipelinesData);
+      const pipelines = Pipelines.fromJSON(pipelinesData);
 
       expect(pipelines.size).toBe(1);
     });
 
     it("should find the pipeline", () => {
-      const pipelines = new Pipelines(pipelinesData);
+      const pipelines = Pipelines.fromJSON(pipelinesData);
 
       const pipelineName     = "up42";
       const actualPipeline   = pipelines.find(pipelineName);

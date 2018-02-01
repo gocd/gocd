@@ -132,4 +132,23 @@ describe("Dashboard View Model", () => {
       expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
     });
   });
+
+  describe('Search Text', () => {
+    let dashboardVM;
+    it('should initialize search text field', () => {
+      dashboardVM = new DashboardVM([]);
+
+      expect(dashboardVM.searchText()).toEqual('');
+    });
+
+    it('should create search text as a stream', () => {
+      dashboardVM = new DashboardVM([]);
+
+      expect(dashboardVM.searchText()).toEqual('');
+      const searchText = 'text for search';
+      dashboardVM.searchText(searchText);
+
+      expect(dashboardVM.searchText()).toEqual(searchText);
+    });
+  });
 });

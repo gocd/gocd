@@ -329,7 +329,7 @@ describe("Dashboard Pipeline Widget", () => {
       }
     }];
 
-    pipeline = new Pipelines(pipelinesJson).pipelines[pipelineName];
+    pipeline = Pipelines.fromJSON(pipelinesJson).pipelines[pipelineName];
 
     dashboardViewModel = new DashboardVM([pipelineName]);
 

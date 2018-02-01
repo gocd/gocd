@@ -17,19 +17,25 @@
 const _        = require('lodash');
 const Pipeline = require('models/dashboard/pipeline');
 
-const Pipelines = function (list) {
+const Pipelines = function (pipelines) {
   const self = this;
 
-  this.pipelines = _.reduce(list, (hash, pipeline) => {
+  self.pipelines = pipelines;
+
+  self.size = Object.keys(this.pipelines).length;
+
+  self.find = (pipelineName) => {
+    return self.pipelines[pipelineName];
+  };
+};
+
+Pipelines.fromJSON = (json) => {
+  const pipelines = _.reduce(json, (hash, pipeline) => {
     hash[pipeline.name] = new Pipeline(pipeline);
     return hash;
   }, {});
 
-  this.size = Object.keys(this.pipelines).length;
-
-  this.find = (pipelineName) => {
-    return self.pipelines[pipelineName];
-  };
+  return new Pipelines(pipelines);
 };
 
 module.exports = Pipelines;

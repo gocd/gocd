@@ -23,7 +23,10 @@ const PipelineWidget  = require('views/dashboard/pipeline_widget');
 
 const DashboardWidget = {
   oninit(vnode) {
-    ComponentMixins.HasViewModel.call(this);
+    const self     = vnode.state;
+    self.dashboard = vnode.attrs.dashboard;
+
+    ComponentMixins.HasViewModel.call(self);
 
     const attachClickEventToBody = () => {
       const body = $("body");
@@ -34,10 +37,10 @@ const DashboardWidget = {
     };
 
     attachClickEventToBody();
-    this.getPipelinesGroupView = (pipelineGroup) => {
+    self.getPipelinesGroupView = (pipelineGroup) => {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
-          <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
+          <PipelineWidget pipeline={self.dashboard.findPipeline(pipelineName)}
                           isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
                           vm={vnode.attrs.vm}/>
         );
@@ -61,14 +64,28 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const dashboard  = vnode.attrs.dashboard;
-    const groupsView = _.map(dashboard.getPipelineGroups(), vnode.state.getPipelinesGroupView);
+    const self = vnode.state;
+    const vm   = vnode.attrs.vm;
+
+    self.dashboard   = vnode.attrs.dashboard.filterBy(vm.searchText());
+    const groupsView = _.map(self.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
 
     return (
       <div class="pipeline_wrapper">
         <div class="header-panel">
           <header class="page-header">
-            <f.row>Pipelines</f.row>
+            <f.row>
+              <f.column>Pipelines</f.column>
+              <f.column>
+                <input type="text"
+                       oninput={m.withAttr("value", vm.searchText)}
+                       value={vm.searchText()}
+                       placeholder="Search for Pipeline"
+                       id="pipeline_search"
+                       class="pipeline_search"
+                />
+              </f.column>
+            </f.row>
           </header>
         </div>
         <div class="dashboard">

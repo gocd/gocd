@@ -29,6 +29,8 @@ const VM = (allPipelines) => {
   const pipelinesState = {};
 
   const viewModel = {
+    searchText: Stream(''),
+
     dropdown: {
       isDropDownOpen: (name) => pipelinesState[name][DROPDOWN_KEY](),
 

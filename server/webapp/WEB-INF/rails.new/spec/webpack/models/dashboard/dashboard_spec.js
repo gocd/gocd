@@ -21,7 +21,7 @@ describe("Dashboard", () => {
     const Pipelines      = require('models/dashboard/pipelines');
 
     it("should get pipeline groups", () => {
-      const dashboard = new Dashboard(dashboardData);
+      const dashboard = Dashboard.fromJSON(dashboardData);
 
       const expectedPipelineGroups = new PipelineGroups(dashboardData._embedded.pipeline_groups).groups;
       const actualPipelineGroups   = dashboard.getPipelineGroups();
@@ -30,7 +30,7 @@ describe("Dashboard", () => {
     });
 
     it("should get pipelines", () => {
-      const dashboard = new Dashboard(dashboardData);
+      const dashboard = Dashboard.fromJSON(dashboardData);
 
       const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
       const actualPipelines   = dashboard.getPipelines();
@@ -39,18 +39,26 @@ describe("Dashboard", () => {
     });
 
     it("should find the pipeline by pipeline name", () => {
-      const dashboard = new Dashboard(dashboardData);
+      const dashboard = Dashboard.fromJSON(dashboardData);
 
       const pipelineName     = "up42";
-      const expectedPipeline = new Pipelines(dashboardData._embedded.pipelines).find(pipelineName);
+      const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
       const actualPipeline   = dashboard.findPipeline(pipelineName);
 
       expect(actualPipeline.name).toEqual(expectedPipeline.name);
     });
 
-    //skipping test due to mocked data added into the model to verify the UI/UX changes
-    //todo: GaneshSPatil did this
-    xit('should get new dashboard json', () => {
+    it("it should filter dashboard provided filter text", () => {
+      const dashboard = Dashboard.fromJSON(dashboardData);
+
+      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+
+      expect(dashboard.filterBy("up").allPipelineNames()).toEqual(['up42']);
+      expect(dashboard.filterBy("42").allPipelineNames()).toEqual(['up42']);
+      expect(dashboard.filterBy("up42").allPipelineNames()).toEqual(['up42']);
+    });
+
+    it('should get new dashboard json', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/dashboard', undefined, 'GET').andReturn({
           responseText:    JSON.stringify(dashboardData),
@@ -151,28 +159,28 @@ describe("Dashboard", () => {
                     }
                   },
                   "label":        "1",
-                  "scheduled_at":  "2017-11-10T07:25:28.539Z",
+                  "scheduled_at": "2017-11-10T07:25:28.539Z",
                   "triggered_by": "changes",
-                  "build_cause": {
-                    "approver": "",
-                    "is_forced": false,
-                    "trigger_message": "modified by GoCD Test User <devnull@example.com>",
+                  "build_cause":  {
+                    "approver":           "",
+                    "is_forced":          false,
+                    "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
                     "material_revisions": [
                       {
                         "material_type": "Git",
                         "material_name": "test-repo",
-                        "changed": true,
+                        "changed":       true,
                         "modifications": [
                           {
-                            "_links": {
+                            "_links":        {
                               "vsm": {
                                 "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
                               }
                             },
-                            "user_name": "GoCD Test User <devnull@example.com>",
-                            "revision": "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                            "user_name":     "GoCD Test User <devnull@example.com>",
+                            "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
                             "modified_time": "2017-12-19T05:30:32.000Z",
-                            "comment": "Initial commit"
+                            "comment":       "Initial commit"
                           }
                         ]
                       }

@@ -17,15 +17,41 @@
 const _      = require('lodash');
 const Routes = require('gen/js-routes');
 
-const PipelineGroup = function (info) {
-  this.name          = info.name;
-  this.path          = `${Routes.pipelineGroupsPath()}#group-${this.name}`;
-  this.canAdminister = info.can_administer;
-  this.pipelines     = info.pipelines;
+const PipelineGroup = function (name, path, canAdminister, pipelines) {
+  const self = this;
+
+  this.name          = name;
+  this.path          = path;
+  this.canAdminister = canAdminister;
+  this.pipelines     = pipelines;
+
+  this.filterBy = (filterText) => {
+    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline, filterText));
+    if (filteredPipelines.length) {
+      return new PipelineGroup(self.name, self.path, self.canAdminister, filteredPipelines);
+    }
+  };
 };
 
+PipelineGroup.fromJSON = (json) => {
+  const path = `${Routes.pipelineGroupsPath()}#group-${json.name}`;
+  return new PipelineGroup(json.name, path, json.can_administer, json.pipelines);
+};
+
+
 const PipelineGroups = function (groups) {
-  this.groups = _.map(groups, (group) => new PipelineGroup(group));
+  const self  = this;
+  this.groups = groups;
+
+  this.filterBy = (filterText) => {
+    const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
+    return new PipelineGroups(filteredGroups);
+  };
+};
+
+PipelineGroups.fromJSON = (json) => {
+  const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
+  return new PipelineGroups(pipelineGroups);
 };
 
 module.exports = PipelineGroups;

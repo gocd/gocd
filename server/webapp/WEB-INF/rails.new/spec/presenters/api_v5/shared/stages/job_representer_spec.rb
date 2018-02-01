@@ -237,7 +237,7 @@ describe ApiV5::Shared::Stages::JobRepresenter do
 
       ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: artifacts })
       expect(job_config.artifactConfigs.map(&:destination)).to eq(%w(pkg testoutput))
-      expect(job_config.artifactConfigs.map(&:getArtifactType).map(&:to_s)).to eq(%w(file unit))
+      expect(job_config.artifactConfigs.map(&:getArtifactType).map(&:to_s)).to eq(%w(build test))
     end
 
     it 'should raise exception when invalid artifact type is passed' do

@@ -32,7 +32,7 @@ module ApiV5
         property :type, exec_context: :decorator, skip_parse: true
 
         def type
-          artifact.getArtifactType
+          artifact.getArtifactType.name
         end
 
         class << self

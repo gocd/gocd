@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
+import static com.thoughtworks.go.config.ArtifactConfig.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 import static org.apache.commons.lang.math.NumberUtils.toInt;
@@ -175,7 +175,7 @@ public class JobDetailPresentationModel {
     }
 
 
-    public String getIndexPageURL()  {
+    public String getIndexPageURL() {
         try {
             File testOutputFolder = artifactsService.findArtifact(job.getIdentifier(), TEST_OUTPUT_FOLDER);
 

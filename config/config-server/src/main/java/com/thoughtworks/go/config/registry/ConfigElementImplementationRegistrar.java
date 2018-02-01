@@ -50,7 +50,6 @@ public class ConfigElementImplementationRegistrar {
         registerBuiltinMaterials();
         registerBuiltinUserTypes();
         registerBuiltinConsoleOutputMatchers();
-        registerBuiltinArtifactTypes();
         registerRoleTypes();
     }
 
@@ -67,10 +66,6 @@ public class ConfigElementImplementationRegistrar {
         registry.registerView(FetchTask.class, new BuiltinTaskViewModelFactory("fetch"));
         registry.registerView(FetchPluggableArtifactTask.class, new BuiltinTaskViewModelFactory("fetch_pluggable_artifact"));
         registry.registerView(PluggableTask.class, new PluggableTaskViewModelFactory());
-    }
-
-    private void registerBuiltinArtifactTypes() {
-        registry.registerImplementer(Artifact.class, TestArtifactConfig.class, ArtifactConfig.class, PluggableArtifactConfig.class);
     }
 
     private void registerBuiltinConsoleOutputMatchers() {

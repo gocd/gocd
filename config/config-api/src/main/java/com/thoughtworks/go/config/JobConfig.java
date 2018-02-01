@@ -53,10 +53,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigSubtag
     private ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig();
 
-    @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
-    @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
-    @ConfigAttribute(value = "timeout", optional = true, allowNull = true) private String timeout;
-    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true) private String elasticProfileId;
+    @ConfigAttribute(value = "runOnAllAgents", optional = true)
+    private boolean runOnAllAgents = false;
+    @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true)
+    private String runInstanceCount;
+    @ConfigAttribute(value = "timeout", optional = true, allowNull = true)
+    private String timeout;
+    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true)
+    private String elasticProfileId;
 
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
@@ -70,13 +74,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     public static final String DEFAULT_TIMEOUT = "defaultTimeout";
     public static final String OVERRIDE_TIMEOUT = "overrideTimeout";
     public static final String NEVER_TIMEOUT = "neverTimeout";
-	public static final String RUN_TYPE = "runType";
-	public static final String RUN_SINGLE_INSTANCE = "runSingleInstance";
-	public static final String RUN_ON_ALL_AGENTS = "runOnAllAgents";
-	public static final String RUN_MULTIPLE_INSTANCE = "runMultipleInstance";
-	public static final String RUN_INSTANCE_COUNT = "runInstanceCount";
-	public static final String ELASTIC_PROFILE_ID = "elasticProfileId";
-	private static final String JOB_NAME_PATTERN = "[a-zA-Z0-9_\\-.]+";
+    public static final String RUN_TYPE = "runType";
+    public static final String RUN_SINGLE_INSTANCE = "runSingleInstance";
+    public static final String RUN_ON_ALL_AGENTS = "runOnAllAgents";
+    public static final String RUN_MULTIPLE_INSTANCE = "runMultipleInstance";
+    public static final String RUN_INSTANCE_COUNT = "runInstanceCount";
+    public static final String ELASTIC_PROFILE_ID = "elasticProfileId";
+    private static final String JOB_NAME_PATTERN = "[a-zA-Z0-9_\\-.]+";
     private static final Pattern JOB_NAME_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", JOB_NAME_PATTERN));
 
     public JobConfig() {
@@ -145,7 +149,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (variables != null ? !variables.equals(jobConfig.variables) : jobConfig.variables != null) return false;
         if (tasks != null ? !tasks.equals(jobConfig.tasks) : jobConfig.tasks != null) return false;
         if (tabs != null ? !tabs.equals(jobConfig.tabs) : jobConfig.tabs != null) return false;
-        if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null) return false;
+        if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null)
+            return false;
         if (artifactConfigs != null ? !artifactConfigs.equals(jobConfig.artifactConfigs) : jobConfig.artifactConfigs != null)
             return false;
         if (artifactPropertiesConfig != null ? !artifactPropertiesConfig.equals(jobConfig.artifactPropertiesConfig) : jobConfig.artifactPropertiesConfig != null)
@@ -234,27 +239,27 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.runOnAllAgents = runOnAllAgents;
     }
 
-	public boolean isRunMultipleInstanceType() {
-		return getRunInstanceCountValue() > 0;
-	}
+    public boolean isRunMultipleInstanceType() {
+        return getRunInstanceCountValue() > 0;
+    }
 
-	public Integer getRunInstanceCountValue() {
-		return runInstanceCount == null ? 0 : Integer.valueOf(runInstanceCount);
-	}
+    public Integer getRunInstanceCountValue() {
+        return runInstanceCount == null ? 0 : Integer.valueOf(runInstanceCount);
+    }
 
-	public String getRunInstanceCount() {
-		return runInstanceCount;
-	}
+    public String getRunInstanceCount() {
+        return runInstanceCount;
+    }
 
-	public void setRunInstanceCount(Integer runInstanceCount) {
-		setRunInstanceCount(Integer.toString(runInstanceCount));
-	}
+    public void setRunInstanceCount(Integer runInstanceCount) {
+        setRunInstanceCount(Integer.toString(runInstanceCount));
+    }
 
-	public void setRunInstanceCount(String runInstanceCount) {
-		this.runInstanceCount = runInstanceCount;
-	}
+    public void setRunInstanceCount(String runInstanceCount) {
+        this.runInstanceCount = runInstanceCount;
+    }
 
-	public boolean isInstanceOf(String jobInstanceName, boolean ignoreCase) {
+    public boolean isInstanceOf(String jobInstanceName, boolean ignoreCase) {
         return jobTypeConfig().isInstanceOf(jobInstanceName, ignoreCase, CaseInsensitiveString.str(jobName));
     }
 
@@ -265,9 +270,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private JobTypeConfig jobTypeConfig() {
         if (runOnAllAgents) {
             return new RunOnAllAgentsJobTypeConfig();
-		} else if (isRunMultipleInstanceType()) {
-			return new RunMultipleInstanceJobTypeConfig();
-		} else {
+        } else if (isRunMultipleInstanceType()) {
+            return new RunMultipleInstanceJobTypeConfig();
+        } else {
             return new SingleJobTypeConfig();
         }
     }
@@ -308,7 +313,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (Artifact artifact : artifactConfigs) {
+        for (ArtifactConfig artifact : artifactConfigs) {
             if (artifact.getArtifactType().isTest()) {
                 return true;
             }
@@ -378,7 +383,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId));
             }
         }
-        if (elasticProfileId != null && isBlank(elasticProfileId)){
+        if (elasticProfileId != null && isBlank(elasticProfileId)) {
             errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
         }
         for (ResourceConfig resourceConfig : resourceConfigs) {
@@ -404,7 +409,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         Map attributesMap = (Map) attributes;
-		if (attributesMap.containsKey(NAME)) {
+        if (attributesMap.containsKey(NAME)) {
             String nameString = (String) attributesMap.get(NAME);
             jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
         }
@@ -452,24 +457,24 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         }
     }
 
-	private void setJobRunTypeAttribute(Map attributesMap) {
-		if (attributesMap.containsKey(RUN_TYPE)) {
-			this.runOnAllAgents = false;
-			this.runInstanceCount = null;
+    private void setJobRunTypeAttribute(Map attributesMap) {
+        if (attributesMap.containsKey(RUN_TYPE)) {
+            this.runOnAllAgents = false;
+            this.runInstanceCount = null;
 
-			String jobRunType = (String) attributesMap.get(RUN_TYPE);
-			if (RUN_ON_ALL_AGENTS.equals(jobRunType)) {
-				this.runOnAllAgents = true;
-			} else if (RUN_MULTIPLE_INSTANCE.equals(jobRunType)) {
-				String runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
-				if (isBlank(runInstanceCount)) {
-					this.runInstanceCount = null;
-				} else {
-					this.runInstanceCount = runInstanceCount;
-				}
-			}
-		}
-	}
+            String jobRunType = (String) attributesMap.get(RUN_TYPE);
+            if (RUN_ON_ALL_AGENTS.equals(jobRunType)) {
+                this.runOnAllAgents = true;
+            } else if (RUN_MULTIPLE_INSTANCE.equals(jobRunType)) {
+                String runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
+                if (isBlank(runInstanceCount)) {
+                    this.runInstanceCount = null;
+                } else {
+                    this.runInstanceCount = runInstanceCount;
+                }
+            }
+        }
+    }
 
     public void validateNameUniqueness(Map<String, JobConfig> visitedConfigs) {
         if (isBlank(CaseInsensitiveString.str(name()))) return;
@@ -504,13 +509,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return timeout == null ? DEFAULT_TIMEOUT : timeout.equals("0") ? NEVER_TIMEOUT : OVERRIDE_TIMEOUT;
     }
 
-	public String getRunType() {
-		if (isRunOnAllAgents())
-			return RUN_ON_ALL_AGENTS;
-		if (isRunMultipleInstanceType())
-			return RUN_MULTIPLE_INSTANCE;
-		return RUN_SINGLE_INSTANCE;
-	}
+    public String getRunType() {
+        if (isRunOnAllAgents())
+            return RUN_ON_ALL_AGENTS;
+        if (isRunMultipleInstanceType())
+            return RUN_MULTIPLE_INSTANCE;
+        return RUN_SINGLE_INSTANCE;
+    }
 
     public void injectTasksForTest(Tasks tasks) {
         this.tasks = tasks;

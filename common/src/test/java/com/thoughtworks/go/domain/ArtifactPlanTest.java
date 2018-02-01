@@ -18,8 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
-import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -133,10 +131,10 @@ public class ArtifactPlanTest {
 
     @Test
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
-        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
+        final ArtifactConfig artifactConfig = new ArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
-                new ArtifactConfig("source", "destination"),
-                new TestArtifactConfig("test-source", "test-destination"),
+                new ArtifactConfig(ArtifactType.file, "source", "destination"),
+                new ArtifactConfig(ArtifactType.unit, "test-source", "test-destination"),
                 artifactConfig
         ));
 
@@ -151,7 +149,7 @@ public class ArtifactPlanTest {
 
     @Test
     public void shouldConvertPluggableArtifactConfigToArtifactPlans() {
-        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("ID", "StoreID", create("Foo", true, "Bar"), create("Baz", false, "Car"));
+        final ArtifactConfig artifactConfig = new ArtifactConfig("ID", "StoreID", create("Foo", true, "Bar"), create("Baz", false, "Car"));
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(artifactConfig);
 

@@ -84,7 +84,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void validate_shouldNotErrorWhenReferencingFilePipelineFromConfigRepositoryPipeline() {
         uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
         uppestStream.setOrigin(new FileConfigOrigin());
         downstream.setOrigin(new RepoConfigOrigin());
 
@@ -98,7 +98,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void validate_shouldNotErrorWhenReferencingConfigRepositoryPipelineFromConfigRepositoryPipeline() {
         uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
         uppestStream.setOrigin(new RepoConfigOrigin());
         downstream.setOrigin(new RepoConfigOrigin());
         config.setArtifactStores(new ArtifactStores(new ArtifactStore("s3", "foo.plugin")));
@@ -113,7 +113,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void validate_shouldNotErrorWhenReferencingFilePipelineFromFilePipeline() {
         uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         uppestStream.setOrigin(new FileConfigOrigin());
         downstream.setOrigin(new FileConfigOrigin());
@@ -221,7 +221,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void shouldBeValidWhenFetchArtifactIsFromAnyAncestorStage_onTheUpstreamPipeline() {
         uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "s3");
 
@@ -233,7 +233,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void shouldBeValidWhenFetchArtifactIsFromAnyAncestorStage_s_predecessorStage__onTheUpstreamPipeline() {
         uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "s3");
 
@@ -245,7 +245,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void should_NOT_BeValidWhenFetchArtifactIsFromAnyAncestorStage_s_successorStage_onTheUpstreamPipeline() {
         uppestStream.getStage("uppest-stage3").jobConfigByConfigName("uppest-job3").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage3"), new CaseInsensitiveString("uppest-job3"), "s3");
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
 
@@ -275,7 +275,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void should_BeValidWhen_hasAnAlternatePathToAncestor() {
         uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         PipelineConfig upstreamsPeer = config.pipelineConfigByName(new CaseInsensitiveString("upstreams_peer"));
         upstreamsPeer.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("uppest_stream", "uppest-stage1")));
@@ -296,7 +296,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void should_NOT_BeValidWhen_ImmediateParentDeclaredInPathFromAncestor_isNotAParentPipeline() {
         uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
         PipelineConfig upstreamsPeer = config.pipelineConfigByName(new CaseInsensitiveString("upstreams_peer"));
         upstreamsPeer.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("uppest_stream", "uppest-stage1")));
         upstreamsPeer.add(StageConfigMother.stageConfig("peer-stage", new JobConfigs(new JobConfig("peer-job"))));
@@ -331,7 +331,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void should_NOT_BeValidWhen_stageMayNotHaveRunViaTheGivenPath_evenThoughItMayHaveActuallyRunAccordingToAnAlternatePath() {
         uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
         PipelineConfig upstreamsPeer = config.pipelineConfigByName(new CaseInsensitiveString("upstreams_peer"));
         upstreamsPeer.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("uppest_stream", "uppest-stage1")));
         upstreamsPeer.add(StageConfigMother.stageConfig("peer-stage", new JobConfigs(new JobConfig("peer-job"))));
@@ -380,7 +380,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void shouldBeValidIfFetchArtifactUsingADependantPipeline() {
         upstream.getStage("up-stage1").jobConfigByConfigName("up-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("up-stage1"), new CaseInsensitiveString("up-job1"), "s3");
         task.validate(ConfigSaveValidationContext.forChain(config, downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
@@ -390,7 +390,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void shouldBeValidIfFetchArtifactUsingAStageBeforeCurrentInTheSamePipeline() {
         upstream.getStage("stage").jobConfigByConfigName("job").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
@@ -401,7 +401,7 @@ public class FetchPluggableArtifactTaskTest {
     @Test
     public void shouldBeValidIfFetchArtifactDoesNotSpecifyPipeline() {
         upstream.getStage("stage").jobConfigByConfigName("job").artifactConfigs()
-                .add(new PluggableArtifactConfig("s3", "cd.go.s3"));
+                .add(new ArtifactConfig("s3", "cd.go.s3"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 

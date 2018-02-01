@@ -62,9 +62,9 @@ public class FetchTaskBuilderTest {
         uppestStream.add(StageConfigMother.stageConfig("uppest-stage2", new JobConfigs(new JobConfig("uppest-job2"))));
         uppestStream.add(StageConfigMother.stageConfig("uppest-stage3", new JobConfigs(new JobConfig("uppest-job3"))));
         uppestStream.getStage("uppest-stage1").jobConfigByConfigName("uppest-job1").artifactConfigs()
-                .add(new PluggableArtifactConfig("installer", "s3"));
+                .add(new ArtifactConfig("installer", "s3"));
         uppestStream.getStage("uppest-stage2").jobConfigByConfigName("uppest-job2").artifactConfigs()
-                .add(new PluggableArtifactConfig("installer", "s3"));
+                .add(new ArtifactConfig("installer", "s3"));
 
         PipelineConfig upstream = config.pipelineConfigByName(new CaseInsensitiveString("upstream"));
         upstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("uppest_stream", "uppest-stage2")));
@@ -284,7 +284,7 @@ public class FetchTaskBuilderTest {
     @Test
     public void FetchPluggableArtifactTask_shouldUseNameAndLabelFromPipelineWhenPipelineNameOfTaskIsEmpty() {
         final PipelineConfig cruise = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("cruise"));
-        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new PluggableArtifactConfig("installer", "s3"));
+        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new ArtifactConfig("installer", "s3"));
 
         FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(null, new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "installer");
         Pipeline pipeline = pipeline(LABEL);
@@ -396,7 +396,7 @@ public class FetchTaskBuilderTest {
     @Test
     public void FetchPluggableArtifactTask_describeForSamePipeline() {
         final PipelineConfig cruise = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("cruise"));
-        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new PluggableArtifactConfig("installer", "s3"));
+        cruise.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(new ArtifactConfig("installer", "s3"));
 
         FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(""), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "installer");
         fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline(LABEL), resolver);

@@ -280,7 +280,7 @@ describe ApiV3::Shared::Stages::JobRepresenter do
     job_config = JobConfig.new
     job_config.setRunInstanceCount(-2);
     plans      = ArtifactConfigs.new
-    plans.add(TestArtifactConfig.new(nil, '../foo'))
+    plans.add(ArtifactConfig.new(ArtifactType::unit, nil, '../foo'))
     job_config.setArtifactConfigs(plans)
     job_config.setTasks(com.thoughtworks.go.config.Tasks.new(FetchTask.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), nil, nil)))
     job_config.setTabs(com.thoughtworks.go.config.Tabs.new(com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/index.html'), com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/path.html')))

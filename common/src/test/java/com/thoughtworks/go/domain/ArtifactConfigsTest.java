@@ -18,8 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
-import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -40,8 +38,8 @@ public class ArtifactConfigsTest {
     public void shouldAddDuplicatedArtifactSoThatValidationKicksIn() throws Exception {
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         assertThat(artifactConfigs.size(), is(0));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
         assertThat(artifactConfigs.size(), is(2));
     }
 
@@ -50,11 +48,11 @@ public class ArtifactConfigsTest {
         HashMap<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
-        artifactPlan1.put("artifactTypeValue", TestArtifactConfig.TEST_PLAN_DISPLAY_NAME);
+        artifactPlan1.put("artifactTypeValue", "Test Artifact");
         HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
-        artifactPlan2.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan2.put("artifactTypeValue", "Build Artifact");
 
         List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
@@ -64,11 +62,8 @@ public class ArtifactConfigsTest {
         artifactConfigs.setConfigAttributes(artifactPlansList);
 
         assertThat(artifactConfigs.size(), is(2));
-        TestArtifactConfig plan = new TestArtifactConfig();
-        plan.setSource("blah");
-        plan.setDestination("something");
-        assertThat(artifactConfigs.get(0), is(plan));
-        assertThat(artifactConfigs.get(1), is(new ArtifactConfig("blah2", "something2")));
+        assertThat(artifactConfigs.get(0), is(new ArtifactConfig(ArtifactType.unit, "blah", "something")));
+        assertThat(artifactConfigs.get(1), is(new ArtifactConfig(ArtifactType.file, "blah2", "something2")));
     }
 
     @Test
@@ -76,16 +71,16 @@ public class ArtifactConfigsTest {
         HashMap<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
-        artifactPlan1.put("artifactTypeValue", TestArtifactConfig.TEST_PLAN_DISPLAY_NAME);
+        artifactPlan1.put("artifactTypeValue", "Test Artifact");
         HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
-        artifactPlan2.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan2.put("artifactTypeValue", "Build Artifact");
 
         HashMap<String, String> artifactPlan3 = new HashMap<>();
         artifactPlan3.put(SRC, "");
         artifactPlan3.put(DEST, "");
-        artifactPlan3.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan3.put("artifactTypeValue", "Build Artifact");
 
         List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
@@ -96,17 +91,14 @@ public class ArtifactConfigsTest {
         artifactConfigs.setConfigAttributes(artifactPlansList);
 
         assertThat(artifactConfigs.size(), is(2));
-        TestArtifactConfig plan = new TestArtifactConfig();
-        plan.setSource("blah");
-        plan.setDestination("something");
-        assertThat(artifactConfigs.get(0), is(plan));
-        assertThat(artifactConfigs.get(1), is(new ArtifactConfig("blah2", "something2")));
+        assertThat(artifactConfigs.get(0), is(new ArtifactConfig(ArtifactType.unit, "blah", "something")));
+        assertThat(artifactConfigs.get(1), is(new ArtifactConfig(ArtifactType.file, "blah2", "something2")));
     }
 
     @Test
     public void shouldClearAllArtifactsWhenTheMapIsNull() {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
 
         artifactConfigs.setConfigAttributes(null);
 
@@ -116,9 +108,9 @@ public class ArtifactConfigsTest {
     @Test
     public void shouldValidateTree() {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "../a"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "../a"));
 
         artifactConfigs.validateTree(null);
         assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
@@ -130,9 +122,9 @@ public class ArtifactConfigsTest {
 
     @Test
     public void shouldErrorOutWhenDuplicateArtifactConfigExists() {
-        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        artifactConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
 
         artifactConfigs.validate(null);
 
@@ -152,54 +144,54 @@ public class ArtifactConfigsTest {
     @Test
     public void getArtifactConfigs_shouldReturnBuiltinArtifactConfigs() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new ArtifactConfig("src", "dest"));
-        allConfigs.add(new ArtifactConfig("java", null));
-        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
-        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+        allConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        allConfigs.add(new ArtifactConfig(ArtifactType.file, "java", null));
+        allConfigs.add(new ArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new ArtifactConfig("docker", "cd.go.docker"));
 
         final List<ArtifactConfig> artifactConfigs = allConfigs.getArtifactConfigs();
 
         assertThat(artifactConfigs, hasSize(2));
         assertThat(artifactConfigs, containsInAnyOrder(
-                new ArtifactConfig("src", "dest"),
-                new ArtifactConfig("java", null)
+                new ArtifactConfig(ArtifactType.file, "src", "dest"),
+                new ArtifactConfig(ArtifactType.file, "java", null)
         ));
     }
 
     @Test
     public void getPluggableArtifactConfigs_shouldReturnPluggableArtifactConfigs() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new ArtifactConfig("src", "dest"));
-        allConfigs.add(new ArtifactConfig("java", null));
-        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
-        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+        allConfigs.add(new ArtifactConfig(ArtifactType.file, "src", "dest"));
+        allConfigs.add(new ArtifactConfig(ArtifactType.file, "java", null));
+        allConfigs.add(new ArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new ArtifactConfig("docker", "cd.go.docker"));
 
-        final List<PluggableArtifactConfig> artifactConfigs = allConfigs.getPluggableArtifactConfigs();
+        final List<ArtifactConfig> artifactConfigs = allConfigs.getPluggableArtifactConfigs();
 
         assertThat(artifactConfigs, hasSize(2));
         assertThat(artifactConfigs, containsInAnyOrder(
-                new PluggableArtifactConfig("s3", "cd.go.s3"),
-                new PluggableArtifactConfig("docker", "cd.go.docker")
+                new ArtifactConfig("s3", "cd.go.s3"),
+                new ArtifactConfig("docker", "cd.go.docker")
         ));
     }
 
     @Test
     public void findByArtifactId_shouldReturnPluggableArtifactConfigs() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
-        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+        allConfigs.add(new ArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new ArtifactConfig("docker", "cd.go.docker"));
 
-        final PluggableArtifactConfig s3 = allConfigs.findByArtifactId("s3");
-        assertThat(s3, is(new PluggableArtifactConfig("s3", "cd.go.s3")));
+        final ArtifactConfig s3 = allConfigs.findByArtifactId("s3");
+        assertThat(s3, is(new ArtifactConfig("s3", "cd.go.s3")));
     }
 
     @Test
     public void findByArtifactId_shouldReturnNullWhenPluggableArtifactConfigNotExistWithGivenId() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
-        allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
+        allConfigs.add(new ArtifactConfig("s3", "cd.go.s3"));
+        allConfigs.add(new ArtifactConfig("docker", "cd.go.docker"));
 
-        final PluggableArtifactConfig s3 = allConfigs.findByArtifactId("foo");
+        final ArtifactConfig s3 = allConfigs.findByArtifactId("foo");
         assertNull(s3);
     }
 }

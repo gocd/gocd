@@ -16,8 +16,11 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertFalse;
@@ -31,20 +34,38 @@ public class CRArtifactTest extends CRBaseTest<CRArtifact> {
     private final CRArtifact artifact;
     private final CRArtifact invalidNoSource;
 
+    private CRArtifact validArtifactWithNoConfiguration;
+    private CRArtifact validArtifactWithConfiguration;
+    private CRArtifact invalidArtifactWithNoId;
+    private CRArtifact invalidArtifactWithNoStoreId;
+    private CRArtifact invalidArtifactWithInvalidConfiguration;
+
     public CRArtifactTest()
     {
         artifact = new CRArtifact("src","dest",CRArtifactType.build);
         invalidNoSource = new CRArtifact(null,"dest",CRArtifactType.test);
+
+        validArtifactWithNoConfiguration = new CRArtifact("id", "storeId");
+        validArtifactWithConfiguration = new CRArtifact("id", "storeId", new CRConfigurationProperty("foo", "bar"));
+
+        invalidArtifactWithNoId = new CRArtifact(null, "storeId");
+        invalidArtifactWithNoStoreId = new CRArtifact("id", null);
+        invalidArtifactWithInvalidConfiguration = new CRArtifact("id", "storeId", new CRConfigurationProperty("foo", "bar", "baz"));
     }
 
     @Override
     public void addGoodExamples(Map<String, CRArtifact> examples) {
         examples.put("artifact",artifact);
+        examples.put("validArtifactWithNoConfiguration", validArtifactWithNoConfiguration);
+        examples.put("validArtifactWithConfiguration", validArtifactWithConfiguration);
     }
 
     @Override
     public void addBadExamples(Map<String, CRArtifact> examples) {
         examples.put("invalidNoSource",invalidNoSource);
+        examples.put("invalidArtifactWithNoId", invalidArtifactWithNoId);
+        examples.put("invalidArtifactWithNoStoreId", invalidArtifactWithNoStoreId);
+        examples.put("invalidArtifactWithInvalidConfiguration", invalidArtifactWithInvalidConfiguration);
     }
 
 
@@ -82,5 +103,37 @@ public class CRArtifactTest extends CRBaseTest<CRArtifact> {
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertFalse(errors.isEmpty());
+    }
+
+    @Test
+    public void shouldDeserializeWhenConfigurationIsNull() {
+        String json = "{\n" +
+                "              \"id\" : \"id\",\n" +
+                "              \"store_id\" : \"s3\",\n" +
+                "              \"type\": \"plugin\"\n" +
+                "            }";
+
+        CRArtifact crPluggableArtifact = gson.fromJson(json, CRArtifact.class);
+
+        Assert.assertThat(crPluggableArtifact.getId(), Matchers.is("id"));
+        assertThat(crPluggableArtifact.getType(), is(CRArtifactType.plugin));
+        Assert.assertThat(crPluggableArtifact.getStoreId(), Matchers.is("s3"));
+        Assert.assertNull(crPluggableArtifact.getConfiguration());
+    }
+
+    @Test
+    public void shouldDeserializePluggableArtifacts() {
+        String json = "{\n" +
+                "              \"id\" : \"id\",\n" +
+                "              \"store_id\" : \"s3\",\n" +
+                "              \"type\": \"plugin\",\n" +
+                "              \"configuration\": [{\"key\":\"image\", \"value\": \"gocd-agent\"}]" +
+                "            }";
+
+        CRArtifact crPluggableArtifact = gson.fromJson(json, CRArtifact.class);
+
+        Assert.assertThat(crPluggableArtifact.getId(), Matchers.is("id"));
+        Assert.assertThat(crPluggableArtifact.getStoreId(), Matchers.is("s3"));
+        Assert.assertThat(crPluggableArtifact.getConfiguration(), is(Arrays.asList(new CRConfigurationProperty("image", "gocd-agent"))));
     }
 }

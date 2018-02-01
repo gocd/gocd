@@ -1891,6 +1891,76 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f17")));
     }
 
+    @Test
+    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"104\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"some_stage\">"
+                + "             <jobs>"
+                + "             <job name=\"some_job\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact src='foo.txt' dest='cruise-output' />"
+                + "                     <artifact src='dir/**' dest='dir' />"
+                + "                     <artifact src='build' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 104);
+
+        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"build\"/>"));
+    }
+
+    @Test
+    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"104\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"some_stage\">"
+                + "             <jobs>"
+                + "             <job name=\"some_job\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <test src='foo.txt' dest='cruise-output' />"
+                + "                     <test src='dir/**' dest='dir' />"
+                + "                     <test src='build' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 104);
+
+        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"build\"/>"));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

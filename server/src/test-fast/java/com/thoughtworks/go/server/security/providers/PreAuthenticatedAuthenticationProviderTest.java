@@ -89,7 +89,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldAuthenticateUserAgainstTheSpecifiedPlugin() throws Exception {
+    public void authenticate_shouldAuthenticateUserAgainstTheSpecifiedPlugin()  {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         SecurityAuthConfig githubConfig = new SecurityAuthConfig("github", pluginId);
         PluginRoleConfig adminRole = new PluginRoleConfig("admin", "github", new ConfigurationProperty());
@@ -104,32 +104,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_inCaseOfMultipleAuthConfigsShouldTryAuthenticatingUserAgainstEachAuthConfig() throws Exception {
-        Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
-        SecurityAuthConfig githubPublic = new SecurityAuthConfig("github_public", pluginId);
-        SecurityAuthConfig githubEnterprise = new SecurityAuthConfig("github_enterprise", pluginId);
-        PluginRoleConfig adminRole = new PluginRoleConfig("admin", githubPublic.getId(), new ConfigurationProperty());
-        PluginRoleConfig operatorRole = new PluginRoleConfig("operator", githubEnterprise.getId(), new ConfigurationProperty());
-
-        securityConfig.securityAuthConfigs().clear();
-        securityConfig.securityAuthConfigs().add(githubPublic);
-        securityConfig.securityAuthConfigs().add(githubEnterprise);
-        securityConfig.addRole(adminRole);
-        securityConfig.addRole(operatorRole);
-
-        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
-        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole))).thenReturn(new AuthenticationResponse(null, null));
-        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubEnterprise), Collections.singletonList(operatorRole))).thenReturn(new AuthenticationResponse(null, null));
-
-        Authentication authenticate = authenticationProvider.authenticate(authenticationToken);
-
-        verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole));
-        verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubEnterprise), Collections.singletonList(operatorRole));
-        assertNull(authenticate);
-    }
-
-    @Test
-    public void authenticate_inCaseOfMultipleAuthConfigsOnSuccessfulAuthenticationShouldNotTryAuthenticatingUserUsingRemainingAuthConfig() throws Exception {
+    public void authenticate_inCaseOfMultipleAuthConfigsOnSuccessfulAuthenticationShouldNotTryAuthenticatingUserUsingRemainingAuthConfig()  {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         SecurityAuthConfig githubPublic = new SecurityAuthConfig("github_public", pluginId);
         SecurityAuthConfig githubEnterprise = new SecurityAuthConfig("github_enterprise", pluginId);
@@ -173,7 +148,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldAssignRolesToUser() throws Exception {
+    public void authenticate_shouldAssignRolesToUser()  {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
 
@@ -183,7 +158,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldReturnAuthenticationTokenOnSuccessfulAuthorization() throws Exception {
+    public void authenticate_shouldReturnAuthenticationTokenOnSuccessfulAuthorization()  {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
 
@@ -196,7 +171,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldReturnAuthTokenWithUserDetails() throws Exception {
+    public void authenticate_shouldReturnAuthTokenWithUserDetails()  {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
 
@@ -225,7 +200,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldSupportAuthenticationForPreAuthenticatedAuthenticationTokenOnly() throws Exception {
+    public void authenticate_shouldSupportAuthenticationForPreAuthenticatedAuthenticationTokenOnly()  {
         Authentication authenticate = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken("p", "c"));
 
         assertNull(authenticate);
@@ -234,7 +209,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldErrorOutInAbsenceOfCredentials() throws Exception {
+    public void authenticate_shouldErrorOutInAbsenceOfCredentials()  {
         thrown.expect(BadCredentialsException.class);
         thrown.expectMessage("No pre-authenticated credentials found in request.");
 
@@ -242,19 +217,19 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldHandleFailedAuthentication() throws Exception {
+    public void authenticate_shouldHandleFailedAuthentication()  {
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, Collections.singletonMap("access_token", "invalid_token"), pluginId);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse(null, null);
 
         when(authorizationExtension.authenticateUser(any(String.class), any(Map.class), any(List.class), any(List.class))).thenReturn(authenticationResponse);
+        thrown.expect(BadCredentialsException.class);
+        thrown.expectMessage("Unable to authenticate user using the external access token.");
 
-        PreAuthenticatedAuthenticationToken authenticate = (PreAuthenticatedAuthenticationToken) authenticationProvider.authenticate(authenticationToken);
-
-        assertNull(authenticate);
+        authenticationProvider.authenticate(authenticationToken);
     }
 
     @Test
-    public void authenticate_shouldAssignRoleBeforeGrantingAnAuthority() throws Exception {
+    public void authenticate_shouldAssignRoleBeforeGrantingAnAuthority()  {
         final InOrder inOrder = inOrder(pluginRoleService, authorityGranter);
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
@@ -266,7 +241,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_shouldPerformOperationInSequence() throws Exception {
+    public void authenticate_shouldPerformOperationInSequence()  {
         final InOrder inOrder = inOrder(authorizationExtension, pluginRoleService, authorityGranter, userService);
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);

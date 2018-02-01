@@ -74,10 +74,15 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private Authentication doAuthenticate(PreAuthenticatedAuthenticationToken preAuthToken) {
         String pluginId = preAuthToken.getPluginId();
 
-        AuthenticationResponse response = authenticateUser(preAuthToken);
+        AuthenticationResponse response = null;
+        try {
+            response = authenticateUser(preAuthToken);
+        } catch (Exception e) {
+            handleUnSuccessfulAuthentication(preAuthToken);
+        }
 
         if (!isAuthenticated(response)) {
-            return null;
+            handleUnSuccessfulAuthentication(preAuthToken);
         }
 
         validateUser(response.getUser());
@@ -94,6 +99,17 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
         result.setAuthenticated(true);
 
         return result;
+    }
+
+    private void handleUnSuccessfulAuthentication(PreAuthenticatedAuthenticationToken preAuthToken) {
+        removeAnyAssociatedPluginRolesFor(preAuthToken.getPrincipal());
+        throw new BadCredentialsException("Unable to authenticate user using the external access token.");
+    }
+
+    private void removeAnyAssociatedPluginRolesFor(UserDetails principal) {
+        if (principal != null) {
+            pluginRoleService.revokeAllRolesFor(principal.getUsername());
+        }
     }
 
     private AuthenticationResponse authenticateUser(PreAuthenticatedAuthenticationToken preAuthToken) {

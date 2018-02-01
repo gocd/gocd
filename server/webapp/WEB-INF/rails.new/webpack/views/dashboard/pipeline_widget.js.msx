@@ -26,11 +26,12 @@ const PipelineOperationsWidget = {
     const pipeline          = vnode.attrs.pipeline;
 
     self.unpause = () => {
+      vnode.attrs.doCancelPolling();
       pipeline.unpause().then((res) => {
         operationMessages.success(pipeline.name, res.message);
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
-      });
+      }).always(vnode.attrs.doRefreshImmediately);
     };
   },
 
@@ -57,8 +58,12 @@ const PipelineOperationsWidget = {
       <div>
         {flashMessage}
         <ul className="pipeline_operations">
-          <li><button className="btn play"/></li>
-          <li><button className="btn play_with_options"/></li>
+          <li>
+            <button className="btn play"/>
+          </li>
+          <li>
+            <button className="btn play_with_options"/>
+          </li>
           <li>{pauseUnpauseButton}</li>
         </ul>
         <div className="pipeline_pause-message">{pausedMessage}</div>
@@ -74,11 +79,12 @@ const PipelineHeaderWidget = {
     const pipeline          = vnode.attrs.pipeline;
 
     self.unlock = () => {
+      vnode.attrs.doCancelPolling();
       pipeline.unlock().then((res) => {
         operationMessages.success(pipeline.name, res.message);
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
-      });
+      }).always(vnode.attrs.doRefreshImmediately);
     };
   },
 
@@ -108,6 +114,8 @@ const PipelineHeaderWidget = {
           {pipelineLockButton}
         </div>
         <PipelineOperationsWidget pipeline={pipeline}
+                                  doCancelPolling={vnode.attrs.doCancelPolling}
+                                  doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                   operationMessages={vnode.attrs.vm.operationMessages}/>
       </div>
     );
@@ -134,6 +142,8 @@ const PipelineWidget = {
       <li class="pipeline-group_pipeline">
         <div class="pipeline">
           <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
+                                doCancelPolling={vnode.attrs.doCancelPolling}
+                                doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                 vm={vnode.attrs.vm}
                                 isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
           <div className="pipeline_instances">

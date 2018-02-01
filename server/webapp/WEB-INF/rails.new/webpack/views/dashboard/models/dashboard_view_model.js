@@ -18,7 +18,7 @@ const m      = require('mithril');
 const Stream = require('mithril/stream');
 const _      = require('lodash');
 
-const VM = (allPipelines) => {
+const VM = () => {
   const DROPDOWN_KEY                          = 'dropdown';
   const FLASH_MESSAGE_KEY                     = 'flashMessage';
   const FLASH_MESSAGE_TYPE_KEY                = 'flashMessageType';

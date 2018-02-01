@@ -51,7 +51,7 @@ describe("Dashboard View Model", () => {
       expect(dashboardVM.contains('up44')).toEqual(true);
     });
 
-    it('should remove the unknown pipelines from the VM', function () {
+    it('should remove the unknown pipelines from the VM', () => {
       dashboardVM.initialize(pipelineNames);
       expect(dashboardVM.size()).toEqual(2);
 

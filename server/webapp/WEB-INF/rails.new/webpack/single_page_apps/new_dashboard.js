@@ -57,11 +57,11 @@ $(() => {
           dashboard,
           isQuickEditPageEnabled,
           vm:                   dashboardVM,
-          //doCancelPolling:      () => repeater().stop(),
-          //doRefreshImmediately: () => {
-          //  repeater().stop();
-          //  repeater(createRepeater().start());
-          //}
+          doCancelPolling:      () => repeater().stop(),
+          doRefreshImmediately: () => {
+            repeater().stop();
+            repeater(createRepeater().start());
+          }
         });
       }
     };

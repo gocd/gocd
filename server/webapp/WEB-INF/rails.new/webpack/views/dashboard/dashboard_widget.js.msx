@@ -41,6 +41,8 @@ const DashboardWidget = {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
           <PipelineWidget pipeline={self.dashboard.findPipeline(pipelineName)}
+                          doCancelPolling={vnode.attrs.doCancelPolling}
+                          doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                           isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
                           vm={vnode.attrs.vm}/>
         );

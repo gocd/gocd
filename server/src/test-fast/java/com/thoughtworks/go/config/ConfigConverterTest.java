@@ -73,7 +73,6 @@ public class ConfigConverterTest {
     Collection<CRTab> tabs = new ArrayList<>();
     Collection<String> resources = new ArrayList<>();
     Collection<CRArtifact> artifacts = new ArrayList<>();
-    Collection<CRPluggableArtifact> pluggableArtifacts = new ArrayList<>();
     Collection<CRPropertyGenerator> artifactPropertiesGenerators = new ArrayList<>();
     List<CRTask> tasks = new ArrayList<>();
     ArrayList<String> authorizedRoles;

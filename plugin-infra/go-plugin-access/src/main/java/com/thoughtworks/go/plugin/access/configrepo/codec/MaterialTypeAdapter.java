@@ -20,25 +20,17 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 
 import java.lang.reflect.Type;
 
-public class MaterialTypeAdapter implements JsonDeserializer<CRMaterial>, JsonSerializer<CRMaterial>  {
+public class MaterialTypeAdapter extends TypeAdapter implements JsonDeserializer<CRMaterial>, JsonSerializer<CRMaterial>  {
 
     private static final String TYPE = "type";
 
     @Override
     public CRMaterial deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject jsonObject =  json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(TYPE);
-        String typeName = prim.getAsString();
-
-        Class<?> klass = classForName(typeName);
-        return context.deserialize(jsonObject, klass);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
     }
 
-    private String getTypeName(CRMaterial src) {
-        return src.typeName();
-    }
-
-    private Class<?> classForName(String typeName) {
+    @Override
+    protected Class<?> classForName(String typeName) {
         if(typeName.equals(CRDependencyMaterial.TYPE_NAME))
             return CRDependencyMaterial.class;
         if(typeName.equals(CRPackageMaterial.TYPE_NAME))

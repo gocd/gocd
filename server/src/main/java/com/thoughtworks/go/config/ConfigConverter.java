@@ -518,7 +518,7 @@ public class ConfigConverter {
                 CRPluggableArtifact crPluggableArtifact = (CRPluggableArtifact) crArtifact;
                 Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
                 ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
-                return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configProperties);
+                return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
 
             default:
                 throw new RuntimeException(String.format("Unsupported CR Artifact Type: %s.", crArtifact.getType()));

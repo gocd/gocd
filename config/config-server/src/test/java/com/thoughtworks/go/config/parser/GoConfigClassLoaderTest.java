@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.parser;
 
 import com.thoughtworks.go.config.AttributeAwareConfigTag;
+import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
@@ -138,6 +139,20 @@ public class GoConfigClassLoaderTest {
 
         loader.parse();
     }
+
+    @Test
+    public void shouldErrorOutWhenAttributeAwareConfigTagClassHasConfigAttributeWithSameName() {
+        final Element element = new Element("example");
+        element.setAttribute("type", "example-type");
+        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
+
+        final GoConfigClassLoader<AttributeAwareConfigTagHasConfigAttributeWithSameName> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagHasConfigAttributeWithSameName.class, configCache, goCipher, registry, referenceElements);
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Attribute `type` is not allowed in com.thoughtworks.go.config.parser.AttributeAwareConfigTagHasConfigAttributeWithSameName. You cannot use @ConfigAttribute  annotation with attribute name `type` when @AttributeAwareConfigTag is configured with same name.");
+
+        loader.parse();
+    }
 }
 
 class ConfigWithoutAnnotation {
@@ -154,4 +169,10 @@ class ConfigWithAttributeAwareConfigTagAnnotation {
 
 @AttributeAwareConfigTag(value = "example", attribute = "", attributeValue = "example-type")
 class AttributeAwareConfigTagWithBlankAttributeValue {
+}
+
+@AttributeAwareConfigTag(value = "example", attribute = "type", attributeValue = "example-type")
+class AttributeAwareConfigTagHasConfigAttributeWithSameName {
+    @ConfigAttribute("type")
+    private String type;
 }

@@ -19,7 +19,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public enum CRArtifactType {
     build,
-    test;
+    test,
+    external;
 
     public static CRArtifactType fromName(String artifactType) {
         try {

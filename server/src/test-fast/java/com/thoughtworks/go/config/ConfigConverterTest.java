@@ -115,14 +115,14 @@ public class ConfigConverterTest {
         environmentVariables.add(new CREnvironmentVariable("key", "value"));
         tabs.add(new CRTab("tabname", "tabpath"));
         resources.add("resource1");
-        artifacts.add(new CRArtifact("src", "dest"));
+        artifacts.add(new CRBuiltInArtifact("src", "dest"));
         artifactPropertiesGenerators.add(new CRPropertyGenerator("name", "src", "path"));
 
         tasks.add(new CRFetchArtifactTask(CRRunIf.failed, null,
                 "upstream", "stage", "job", "src", "dest", false));
 
         jobs.add(new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, pluggableArtifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 true, 5, 120, tasks));
 
         authorizedUsers.add("authUser");
@@ -786,25 +786,25 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsNull() {
-        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", null));
+        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig)configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null));
         assertThat(buildArtifactConfig.getDestination(), is(""));
     }
 
     @Test
     public void shouldConvertTestArtifactConfigWhenDestinationIsNull() {
-        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", null, CRArtifactType.test));
+        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.test));
         assertThat(buildArtifactConfig.getDestination(), is("testoutput"));
     }
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsSet() {
-        BuildArtifactConfig buildArtifactConfig = configConverter.toBuiltInArtifactConfig(new CRArtifact("src", "dest"));
+        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", "dest"));
         assertThat(buildArtifactConfig.getDestination(), is("dest"));
     }
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
-        PluggableArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId"));
+        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId"));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -813,7 +813,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
-        PluggableArtifactConfig pluggableArtifactConfig = configConverter.toPluggableArtifactConfig(new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("filename", "who-cares")));
+        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("filename", "who-cares")));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -825,7 +825,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertJob() {
         CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, pluggableArtifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 false, 5, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
@@ -845,7 +845,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertJobWhenHasElasticProfileId() {
         CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                null, "myprofile", artifacts, pluggableArtifacts, artifactPropertiesGenerators,
+                null, "myprofile", artifacts, artifactPropertiesGenerators,
                 false, 5, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
@@ -857,7 +857,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertJobWhenRunInstanceCountIsNotSpecified() {
         CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, pluggableArtifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 null, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
@@ -871,7 +871,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertJobWhenRunInstanceCountIsAll() {
         CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, pluggableArtifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 "all", 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);

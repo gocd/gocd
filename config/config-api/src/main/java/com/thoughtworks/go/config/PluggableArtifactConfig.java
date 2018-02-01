@@ -30,7 +30,7 @@ import java.util.List;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @ConfigCollection(value = ConfigurationProperty.class)
-@AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "plugin")
+@AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "external")
 public class PluggableArtifactConfig extends Configuration implements ArtifactConfig {
     private final ConfigErrors errors = new ConfigErrors();
 

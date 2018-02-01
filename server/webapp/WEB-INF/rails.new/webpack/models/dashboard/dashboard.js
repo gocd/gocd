@@ -56,7 +56,7 @@ Dashboard.get = () => {
     });
 
     jqXHR.then((data) => {
-      deferred.resolve(Dashboard.fromJSON(data));
+      deferred.resolve(data);
     });
 
     jqXHR.always(m.redraw);

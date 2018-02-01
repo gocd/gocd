@@ -67,7 +67,20 @@ const VM = (allPipelines) => {
     },
 
     //used by tests
-    size: () => _.keys(pipelinesState).length
+    size:     () => _.keys(pipelinesState).length,
+    contains: (name) => !_.isEmpty(pipelinesState[name]),
+
+    initialize: (pipelineNames) => {
+      const pipelinesKnownToVM       = _.keysIn(pipelinesState);
+      const pipelinesToRemoveFromVM  = _.difference(pipelinesKnownToVM, pipelineNames);
+      const newPipelinesNotKnownToVM = _.difference(pipelineNames, pipelinesKnownToVM);
+
+      _.each(pipelinesToRemoveFromVM, (name) => {
+        delete pipelinesState[name];
+      });
+
+      _.each(newPipelinesNotKnownToVM, create);
+    }
   };
 
   function clearAfterTimeout(name) {
@@ -78,19 +91,14 @@ const VM = (allPipelines) => {
     }, MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS);
   }
 
-  const create = (name) => {
+  function create(name) {
     pipelinesState[name] = {};
 
     pipelinesState[name][DROPDOWN_KEY]           = Stream(false);
     pipelinesState[name][FLASH_MESSAGE_KEY]      = Stream();
     pipelinesState[name][FLASH_MESSAGE_TYPE_KEY] = Stream();
-  };
+  }
 
-  const initialize = (allPipelines) => {
-    _.each(allPipelines, create);
-  };
-
-  initialize(allPipelines);
   return viewModel;
 };
 

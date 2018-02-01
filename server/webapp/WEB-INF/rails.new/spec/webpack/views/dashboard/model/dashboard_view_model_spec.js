@@ -17,33 +17,82 @@
 describe("Dashboard View Model", () => {
   const DashboardVM = require("views/dashboard/models/dashboard_view_model");
 
+  describe('initialize', () => {
+    let pipelineNames, dashboardVM;
+    beforeEach(() => {
+      pipelineNames = ['up42', 'up43'];
+      dashboardVM   = new DashboardVM();
+
+    });
+
+    it('should initialize VM with pipelines', () => {
+      dashboardVM.initialize(pipelineNames);
+      expect(dashboardVM.size()).toEqual(2);
+    });
+
+    it('should not initialize already initialized pipelines', () => {
+      dashboardVM.initialize(pipelineNames);
+      expect(dashboardVM.size()).toEqual(2);
+
+      expect(dashboardVM.contains('up42')).toEqual(true);
+      expect(dashboardVM.contains('up43')).toEqual(true);
+
+      dashboardVM.initialize(pipelineNames);
+      expect(dashboardVM.size()).toEqual(2);
+
+      expect(dashboardVM.contains('up42')).toEqual(true);
+      expect(dashboardVM.contains('up43')).toEqual(true);
+
+      dashboardVM.initialize(['up42', 'up43', 'up44']);
+      expect(dashboardVM.size()).toEqual(3);
+
+      expect(dashboardVM.contains('up42')).toEqual(true);
+      expect(dashboardVM.contains('up43')).toEqual(true);
+      expect(dashboardVM.contains('up44')).toEqual(true);
+    });
+
+    it('should remove the unknown pipelines from the VM', function () {
+      dashboardVM.initialize(pipelineNames);
+      expect(dashboardVM.size()).toEqual(2);
+
+      expect(dashboardVM.contains('up42')).toEqual(true);
+      expect(dashboardVM.contains('up43')).toEqual(true);
+      expect(dashboardVM.contains('up44')).toEqual(false);
+
+      dashboardVM.initialize(['up43', 'up44']);
+      expect(dashboardVM.size()).toEqual(2);
+
+      expect(dashboardVM.contains('up42')).toEqual(false);
+      expect(dashboardVM.contains('up43')).toEqual(true);
+      expect(dashboardVM.contains('up44')).toEqual(true);
+    });
+
+  });
+
   describe("Dropdown", () => {
-    const pipelineNames = ['up42', 'up43'];
+    let pipelineNames, dashboardVM;
+    beforeEach(() => {
+      pipelineNames = ['up42', 'up43'];
+      dashboardVM   = new DashboardVM();
+      dashboardVM.initialize(pipelineNames);
+    });
 
-    let dashboardVM;
     it('should initialize dropdown states for all the pipelines', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.size()).toEqual(2);
     });
 
     it('should initialize dropdown states as close initially', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(false);
       expect(dashboardVM.dropdown.isDropDownOpen('up43')).toEqual(false);
     });
 
     it('should toggle dropdown state', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(false);
       dashboardVM.dropdown.toggle('up42');
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(true);
     });
 
     it('should close all other dropdowns incase of a dropdown is toggled', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
       dashboardVM.dropdown.toggle('up42');
 
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(true);
@@ -54,7 +103,6 @@ describe("Dashboard View Model", () => {
     });
 
     it('should hide all dropdowns', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
       dashboardVM.dropdown.toggle('up42');
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(true);
       dashboardVM.dropdown.hideAll();
@@ -63,9 +111,11 @@ describe("Dashboard View Model", () => {
   });
 
   describe('Operation Messages', () => {
-    const pipelineNames = ['up42', 'up43'];
-
+    let pipelineNames, dashboardVM;
     beforeEach(() => {
+      pipelineNames = ['up42', 'up43'];
+      dashboardVM   = new DashboardVM();
+      dashboardVM.initialize(pipelineNames);
       jasmine.clock().install();
     });
 
@@ -73,23 +123,16 @@ describe("Dashboard View Model", () => {
       jasmine.clock().uninstall();
     });
 
-    let dashboardVM;
     it('should initialize pipeline operation messages states for all the pipelines', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.size()).toEqual(2);
     });
 
     it('should initialize pipeline operation messages states as empty initially', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
       expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
     });
 
     it('should set pipeline operation success messages', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
       expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
 
@@ -102,8 +145,6 @@ describe("Dashboard View Model", () => {
 
 
     it('should set pipeline operation failure messages', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
       expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
 
@@ -115,8 +156,6 @@ describe("Dashboard View Model", () => {
     });
 
     it('should clear message after timeout interval', () => {
-      dashboardVM = new DashboardVM(pipelineNames);
-
       expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
       expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
 
@@ -134,16 +173,14 @@ describe("Dashboard View Model", () => {
   });
 
   describe('Search Text', () => {
-    let dashboardVM;
-    it('should initialize search text field', () => {
-      dashboardVM = new DashboardVM([]);
+    const dashboardVM = new DashboardVM();
+    dashboardVM.initialize([]);
 
+    it('should initialize search text field', () => {
       expect(dashboardVM.searchText()).toEqual('');
     });
 
     it('should create search text as a stream', () => {
-      dashboardVM = new DashboardVM([]);
-
       expect(dashboardVM.searchText()).toEqual('');
       const searchText = 'text for search';
       dashboardVM.searchText(searchText);

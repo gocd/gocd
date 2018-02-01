@@ -100,7 +100,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
   beforeEach(() => {
     const pipelineName       = "dummy";
-    const dashboardViewModel = new DashboardVM([pipelineName]);
+    const dashboardViewModel = new DashboardVM();
+    dashboardViewModel.initialize([pipelineName]);
 
     m.mount(root, {
       view() {

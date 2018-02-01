@@ -242,7 +242,8 @@ describe("Dashboard Widget", () => {
     };
 
     dashboard                = Dashboard.fromJSON(dashboardJson);
-    const dashboardViewModel = new DashboardVM(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
+    const dashboardViewModel = new DashboardVM();
+    dashboardViewModel.initialize(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
 
     m.mount(root, {
       view() {

@@ -38,11 +38,17 @@ public abstract class AbstractAuthenticationHelper {
         this.goConfigService = goConfigService;
     }
 
+    protected abstract HaltException renderUnauthorizedResponse();
+
     public void checkUserAnd401(Request req, Response res) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
 
+        checkNonAnonymousUser(req, res);
+    }
+
+    public void checkNonAnonymousUser(Request req, Response res) {
         if (currentUsername().isAnonymous()) {
             throw renderUnauthorizedResponse();
         }
@@ -53,8 +59,6 @@ public abstract class AbstractAuthenticationHelper {
             throw renderUnauthorizedResponse();
         }
     }
-
-    protected abstract HaltException renderUnauthorizedResponse();
 
     public void checkPipelineGroupOperateUserAnd401(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
@@ -76,6 +80,16 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkAnyAdminUserAnd401(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
+            throw renderUnauthorizedResponse();
+        }
+    }
+
     private String findPipelineGroupName(Request request) {
         String groupName = request.params("group");
         if (StringUtils.isBlank(groupName)) {
@@ -90,15 +104,5 @@ public abstract class AbstractAuthenticationHelper {
 
     protected CaseInsensitiveString currentUserLoginName() {
         return currentUsername().getUsername();
-    }
-
-    public void checkAnyAdminUserAnd401(Request request, Response response) {
-        if (!securityService.isSecurityEnabled()) {
-            return;
-        }
-
-        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
-            throw renderUnauthorizedResponse();
-        }
     }
 }

@@ -62,8 +62,8 @@ public class CurrentUserControllerDelegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
+            before("/*", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
 
             get("", mimeType, this::show, GsonTransformer.getInstance());
             head("", mimeType, this::show, GsonTransformer.getInstance());

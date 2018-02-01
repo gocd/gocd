@@ -103,6 +103,7 @@ trait SecurityServiceTrait {
   }
 
   void disableSecurity() {
+    SecurityContextHolder.getContext().setAuthentication(null)
     when(securityService.isSecurityEnabled()).thenReturn(false)
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }

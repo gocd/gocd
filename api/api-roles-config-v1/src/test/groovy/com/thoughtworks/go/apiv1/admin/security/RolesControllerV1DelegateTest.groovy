@@ -27,6 +27,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -65,52 +66,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -194,50 +150,10 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
   @Nested
   class Show {
     @Nested
-    class Security implements SecurityTestTrait {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       @BeforeEach
       void setUp() {
         when(roleConfigService.findRole("foo")).thenReturn(new RoleConfig("foo"))
-      }
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      def 'should disallow anonymous users, with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      def 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      def 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      def 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
       }
 
       @Override
@@ -321,55 +237,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      def 'should disallow anonymous users, with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      def 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      def 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-
-        assertRequestAuthorized()
-      }
-
-      @Test
-      def 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() { return "create" }
@@ -446,7 +314,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
   @Nested
   class Update {
     @Nested
-    class Security implements SecurityTestTrait {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       PluginRoleConfig roleConfig = new PluginRoleConfig('blackbird', 'skunkworks')
 
       @BeforeEach
@@ -467,46 +335,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           'If-Match'    : 'cached-md5',
           'content-type': 'application/json'
         ], RoleRepresenter.toJSON(this.roleConfig, requestContext))
-      }
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow anonymous users, with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-        makeHttpCall()
-        assertRequestNotAuthorized()
       }
     }
 
@@ -531,8 +359,8 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           'content-type': 'application/json'
         ]
         def body = [
-          name: 'blackbird',
-          type: 'plugin',
+          name      : 'blackbird',
+          type      : 'plugin',
           attributes: [:]
         ]
 
@@ -581,7 +409,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
   @Nested
   class Destroy {
     @Nested
-    class Security implements SecurityTestTrait {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       PluginRoleConfig roleConfig = new PluginRoleConfig('blackbird', 'skunkworks')
 
       @BeforeEach
@@ -597,46 +425,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
       @Override
       void makeHttpCall() {
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
-      }
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow anonymous users, with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-        makeHttpCall()
-        assertRequestNotAuthorized()
       }
     }
 

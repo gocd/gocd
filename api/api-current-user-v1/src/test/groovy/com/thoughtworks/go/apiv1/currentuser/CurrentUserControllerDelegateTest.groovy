@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NonAnonymousUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.util.TriState
@@ -51,42 +52,7 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
   @Nested
   class Show {
     @Nested
-    class Security implements SecurityTestTrait {
-      @Test
-      void 'should allow nobody with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-
-      @Test
-      void 'should not allow anonymous with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin users with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow normal users with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -136,45 +102,10 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
     }
   }
 
-
   @Nested
   class Update {
     @Nested
-    class Security implements SecurityTestTrait {
-      @Test
-      void 'should allow nobody with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should not allow anonymous with security enabled'() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin users with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow normal users with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

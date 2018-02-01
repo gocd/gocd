@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
 
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -30,52 +30,7 @@ class RolesControllerDelegateTest implements ControllerTrait<RolesControllerDele
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

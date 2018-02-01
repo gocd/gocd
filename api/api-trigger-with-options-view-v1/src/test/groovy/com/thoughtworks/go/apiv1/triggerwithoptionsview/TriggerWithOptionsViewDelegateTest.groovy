@@ -35,6 +35,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import com.thoughtworks.go.server.service.PipelineHistoryService
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -50,35 +51,7 @@ class TriggerWithOptionsViewDelegateTest implements ControllerTrait<TriggerWithO
   class Index {
 
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
+    class Security implements PipelineGroupOperateUserSecurity, SecurityTestTrait {
 
       @Override
       String getControllerMethodUnderTest() {

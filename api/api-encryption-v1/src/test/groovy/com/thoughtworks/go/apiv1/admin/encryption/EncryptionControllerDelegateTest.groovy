@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter
 import com.thoughtworks.go.security.GoCipher
+import com.thoughtworks.go.spark.AnyAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.bouncycastle.crypto.InvalidCipherTextException
@@ -27,9 +28,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.errorWhileEncryptingMessage
-import static com.thoughtworks.go.api.util.HaltApiMessages.missingJsonProperty
-import static com.thoughtworks.go.api.util.HaltApiMessages.rateLimitExceeded
+import static com.thoughtworks.go.api.util.HaltApiMessages.*
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.spy
 
@@ -40,61 +39,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow template admin users, with security enabled'() {
-        enableSecurity()
-        loginAsTemplateAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, AnyAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

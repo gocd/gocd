@@ -60,8 +60,8 @@ public class TriggerWithOptionsViewDelegate extends ApiController {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
 
             get("/:pipeline_name", this::index, GsonTransformer.getInstance());
 

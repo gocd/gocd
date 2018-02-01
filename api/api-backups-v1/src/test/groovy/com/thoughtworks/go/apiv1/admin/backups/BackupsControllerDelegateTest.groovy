@@ -23,6 +23,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
@@ -40,52 +41,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should disallow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

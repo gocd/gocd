@@ -23,6 +23,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.serverhealth.ServerHealthService
 import com.thoughtworks.go.serverhealth.ServerHealthState
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
@@ -40,33 +41,7 @@ class ServerHealthMessagesControllerDelegateTest implements SecurityServiceTrait
   @Nested
   class Show {
     @Nested
-    class Security implements SecurityTestTrait {
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements NormalUserSecurity, SecurityTestTrait {
 
       @Override
       String getControllerMethodUnderTest() {

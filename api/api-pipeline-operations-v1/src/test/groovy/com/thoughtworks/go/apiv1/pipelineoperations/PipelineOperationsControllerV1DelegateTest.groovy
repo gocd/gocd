@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -61,61 +62,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
   class Pause {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group operate users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupOperateUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -219,61 +166,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
   class Unpause {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group operate users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupOperateUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -377,61 +270,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
   class Unlock {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait {
-
-      @Test
-      void 'should allow all with security disabled'() {
-        disableSecurity()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void "should disallow anonymous users, with security enabled"() {
-        enableSecurity()
-        loginAsAnonymous()
-
-        makeHttpCall()
-
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should disallow normal users, with security enabled'() {
-        enableSecurity()
-        loginAsUser()
-
-        makeHttpCall()
-        assertRequestNotAuthorized()
-      }
-
-      @Test
-      void 'should allow admin, with security enabled'() {
-        enableSecurity()
-        loginAsAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group admin users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupAdmin()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
-
-      @Test
-      void 'should allow pipeline group operate users, with security enabled'() {
-        enableSecurity()
-        loginAsGroupOperateUser()
-
-        makeHttpCall()
-        assertRequestAuthorized()
-      }
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

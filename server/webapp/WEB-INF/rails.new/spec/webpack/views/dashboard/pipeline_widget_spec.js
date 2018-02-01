@@ -21,9 +21,12 @@ describe("Dashboard Pipeline Widget", () => {
   const Pipelines      = require('models/dashboard/pipelines');
   const DashboardVM    = require("views/dashboard/models/dashboard_view_model");
 
-  let $root, root, dashboardViewModel, pipelinesJson, pipeline;
+  let $root, root, dashboardViewModel, pipelinesJson, pipeline, doCancelPolling, doRefreshImmediately;
+
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
+    doCancelPolling      = jasmine.createSpy();
+    doRefreshImmediately = jasmine.createSpy();
+    [$root, root]        = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
@@ -114,7 +117,13 @@ describe("Dashboard Pipeline Widget", () => {
             status:          200
           });
 
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
           simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
 
           expect($root.find('.pipeline_message')).toContainText(responseMessage);
           expect($root.find('.pipeline_message')).toHaveClass("success");
@@ -132,7 +141,13 @@ describe("Dashboard Pipeline Widget", () => {
             status:          409
           });
 
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
           simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
 
           expect($root.find('.pipeline_message')).toContainText(responseMessage);
           expect($root.find('.pipeline_message')).toHaveClass("error");
@@ -187,7 +202,13 @@ describe("Dashboard Pipeline Widget", () => {
             status:          200
           });
 
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
           simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
 
           expect($root.find('.pipeline_message')).toContainText(responseMessage);
           expect($root.find('.pipeline_message')).toHaveClass("success");
@@ -205,7 +226,13 @@ describe("Dashboard Pipeline Widget", () => {
             status:          409
           });
 
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
           simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
 
           expect($root.find('.pipeline_message')).toContainText(responseMessage);
           expect($root.find('.pipeline_message')).toHaveClass("error");
@@ -339,6 +366,8 @@ describe("Dashboard Pipeline Widget", () => {
         return m(PipelineWidget, {
           pipeline,
           isQuickEditPageEnabled,
+          doCancelPolling,
+          doRefreshImmediately,
           vm: dashboardViewModel
         });
       }

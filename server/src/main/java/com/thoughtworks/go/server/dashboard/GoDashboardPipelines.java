@@ -16,23 +16,25 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import java.util.List;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+
+import java.util.HashMap;
 
 public class GoDashboardPipelines {
-    private List<GoDashboardPipeline> orderedEntries;
+    private HashMap<CaseInsensitiveString, GoDashboardPipeline> pipelines;
     private long lastUpdatedTimeStamp;
 
-    public GoDashboardPipelines(List<GoDashboardPipeline> orderedEntries, TimeStampBasedCounter timeStampBasedCounter) {
-        this.orderedEntries = orderedEntries;
+    public GoDashboardPipelines(HashMap<CaseInsensitiveString, GoDashboardPipeline> pipelines, TimeStampBasedCounter timeStampBasedCounter) {
+        this.pipelines = pipelines;
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
-    }
-
-    public List<GoDashboardPipeline> orderedEntries() {
-        return orderedEntries;
     }
 
     public long lastUpdatedTimeStamp() {
         return lastUpdatedTimeStamp;
+    }
+
+    public GoDashboardPipeline find(CaseInsensitiveString name) {
+        return pipelines.get(name);
     }
 }
 

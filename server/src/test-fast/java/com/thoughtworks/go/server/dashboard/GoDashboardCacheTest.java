@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
@@ -40,34 +38,34 @@ public class GoDashboardCacheTest {
     }
 
     @Test
-    public void shouldNotBeAbleToGetAPipelineWhichDoesNotExist() throws Exception {
-        assertNull(cache.get(cis("pipeline1")));
+    public void shouldNotBeAbleToGetAPipelineWhichDoesNotExist() {
+        assertNull(cache.allEntries().find(cis("pipeline1")));
     }
 
     @Test
-    public void shouldBeAbleToPutAndGetAPipeline() throws Exception {
+    public void shouldBeAbleToPutAndGetAPipeline() {
         GoDashboardPipeline expectedPipeline = pipeline("pipeline1");
 
         cache.put(expectedPipeline);
-        GoDashboardPipeline actualPipeline = cache.get(cis("pipeline1"));
+        GoDashboardPipeline actualPipeline = cache.allEntries().find(cis("pipeline1"));
 
         assertThat(expectedPipeline, is(sameInstance(actualPipeline)));
     }
 
     @Test
-    public void shouldBeAbleToReplaceAnItemInCache() throws Exception {
+    public void shouldBeAbleToReplaceAnItemInCache() {
         GoDashboardPipeline somePipelineWhichWillBeReplaced = pipeline("pipeline1");
         GoDashboardPipeline expectedPipeline = pipeline("pipeline1");
 
         cache.put(somePipelineWhichWillBeReplaced);
         cache.put(expectedPipeline);
-        GoDashboardPipeline actualPipeline = cache.get(cis("pipeline1"));
+        GoDashboardPipeline actualPipeline = cache.allEntries().find(cis("pipeline1"));
 
         assertThat(expectedPipeline, is(sameInstance(actualPipeline)));
     }
 
     @Test
-    public void shouldBeAbleToClearExistingCacheAndReplaceAllItemsInIt() throws Exception {
+    public void shouldBeAbleToClearExistingCacheAndReplaceAllItemsInIt() {
         GoDashboardPipeline pipeline1 = pipeline("pipeline1");
         GoDashboardPipeline pipeline2 = pipeline("pipeline2");
         GoDashboardPipeline pipeline3 = pipeline("pipeline3");
@@ -82,46 +80,11 @@ public class GoDashboardCacheTest {
 
         cache.replaceAllEntriesInCacheWith(asList(pipeline3, newPipeline4, pipeline5));
 
-        assertThat(cache.get(cis("pipeline1")), is(nullValue()));
-        assertThat(cache.get(cis("pipeline2")), is(nullValue()));
-        assertThat(cache.get(cis("pipeline3")), is(sameInstance(pipeline3)));
-        assertThat(cache.get(cis("pipeline4")), is(sameInstance(newPipeline4)));
-        assertThat(cache.get(cis("pipeline5")), is(sameInstance(pipeline5)));
-    }
-
-    @Test
-    public void shouldProvideAnOrderedListOfAllItemsInCache() throws Exception {
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2");
-        GoDashboardPipeline pipeline3 = pipeline("pipeline3");
-
-        cache.replaceAllEntriesInCacheWith(asList(pipeline1, pipeline2, pipeline3));
-        List<GoDashboardPipeline> allPipelines = cache.allEntriesInOrder().orderedEntries();
-
-        assertThat(allPipelines.size(), is(3));
-        assertThat(allPipelines.get(0), is(sameInstance(pipeline1)));
-        assertThat(allPipelines.get(1), is(sameInstance(pipeline2)));
-        assertThat(allPipelines.get(2), is(sameInstance(pipeline3)));
-    }
-
-    @Test
-    public void shouldContainChangedEntryInOrderedListAfterAPut() throws Exception {
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group1");
-        GoDashboardPipeline newPipeline2 = pipeline("pipeline2", "group2");
-        GoDashboardPipeline pipeline3 = pipeline("pipeline3");
-
-        cache.replaceAllEntriesInCacheWith(asList(pipeline1, pipeline2, pipeline3));
-        List<GoDashboardPipeline> allPipelinesBeforePut = cache.allEntriesInOrder().orderedEntries();
-        assertThat(allPipelinesBeforePut.get(1), is(sameInstance(pipeline2)));
-
-        cache.put(newPipeline2);
-        List<GoDashboardPipeline> allPipelinesAfterPut = cache.allEntriesInOrder().orderedEntries();
-
-        assertThat(allPipelinesAfterPut.size(), is(3));
-        assertThat(allPipelinesAfterPut.get(0), is(sameInstance(pipeline1)));
-        assertThat(allPipelinesAfterPut.get(1), is(sameInstance(newPipeline2)));
-        assertThat(allPipelinesAfterPut.get(2), is(sameInstance(pipeline3)));
+        assertThat(cache.allEntries().find(cis("pipeline1")), is(nullValue()));
+        assertThat(cache.allEntries().find(cis("pipeline2")), is(nullValue()));
+        assertThat(cache.allEntries().find(cis("pipeline3")), is(sameInstance(pipeline3)));
+        assertThat(cache.allEntries().find(cis("pipeline4")), is(sameInstance(newPipeline4)));
+        assertThat(cache.allEntries().find(cis("pipeline5")), is(sameInstance(pipeline5)));
     }
 
     private CaseInsensitiveString cis(String value) {

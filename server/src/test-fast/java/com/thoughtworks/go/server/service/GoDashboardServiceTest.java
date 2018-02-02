@@ -30,26 +30,20 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.util.Clock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardServiceTest {
@@ -61,6 +55,8 @@ public class GoDashboardServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private FeatureToggleService featureToggleService;
+    @Mock
+    private GoDashboardPipelines pipelines;
 
     private GoDashboardService service;
 
@@ -75,6 +71,7 @@ public class GoDashboardServiceTest {
         config = configMother.defaultCruiseConfig();
         Toggles.initializeWith(featureToggleService);
         when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(true);
+        when(cache.allEntries()).thenReturn(this.pipelines);
         service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
     }
 
@@ -235,7 +232,7 @@ public class GoDashboardServiceTest {
 
     private void addPipelinesToCache(GoDashboardPipeline... pipelines) {
         for (GoDashboardPipeline pipeline : pipelines) {
-            when(cache.get(pipeline.name())).thenReturn(pipeline);
+            when(this.pipelines.find(pipeline.name())).thenReturn(pipeline);
         }
     }
 }

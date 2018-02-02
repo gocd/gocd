@@ -19,7 +19,10 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /* Understands how to cache CcTray statuses, for every stage and job (project). */
 @Component
@@ -38,7 +41,7 @@ public class CcTrayCache {
         this.orderedEntries = new ArrayList<>();
     }
 
-    public ProjectStatus get(String projectName) {
+    ProjectStatus get(String projectName) {
         return cache.get(projectName);
     }
 
@@ -52,7 +55,7 @@ public class CcTrayCache {
         cacheHasChanged();
     }
 
-    public void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
+    void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
         this.cache.clear();
         this.cache.putAll(createReplacementItems(projectStatuses));
         cacheHasChanged();

@@ -59,7 +59,7 @@ class PipelineInstanceRepresenterTest {
     actualJson.remove("_embedded")
 
     assertThatJson(actualJson).isEqualTo([
-      label       : 'g1', scheduled_at: date,
+      label       : 'g1', counter: 5, scheduled_at: date,
       triggered_by: 'Triggered by Anonymous',
       build_cause : [approver          : 'anonymous',
                      is_forced         : true,
@@ -134,7 +134,7 @@ class PipelineInstanceRepresenterTest {
     ]
 
     assertThatJson(actualJson).isEqualTo(
-      [label: 'g1', scheduled_at: date, triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
+      [label: 'g1', counter: 5, scheduled_at: date, triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
 
   }
 }

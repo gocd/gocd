@@ -23,6 +23,7 @@ JsRoutes.setup do |config|
     /^admin_status_report/,
     /^pipeline_groups/,
     /^pipeline_edit/,
-    /^edit_admin_pipeline_config/
+    /^edit_admin_pipeline_config/,
+    /stage_detail_tab/
   ]
 end

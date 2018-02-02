@@ -21,6 +21,7 @@ describe("Dashboard Material Changes Widget", () => {
   const PipelineInstance      = require('models/dashboard/pipeline_instance');
 
   let $root, root;
+  const pipelineName = 'up42';
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -51,6 +52,7 @@ describe("Dashboard Material Changes Widget", () => {
       }
     },
     "label":        "1",
+    "counter":      "1",
     "scheduled_at": "2017-11-10T07:25:28.539Z",
     "triggered_by": "changes",
     "build_cause":  {
@@ -90,6 +92,7 @@ describe("Dashboard Material Changes Widget", () => {
             }
           },
           "name":         "up42_stage",
+          "counter":      "1",
           "status":       "Failed",
           "approved_by":  "changes",
           "scheduled_at": "2017-11-10T07:25:28.539Z"
@@ -98,7 +101,7 @@ describe("Dashboard Material Changes Widget", () => {
     }
   };
 
-  const instance = new PipelineInstance(pipelineInstanceJson);
+  const instance = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
   beforeEach(() => {
 

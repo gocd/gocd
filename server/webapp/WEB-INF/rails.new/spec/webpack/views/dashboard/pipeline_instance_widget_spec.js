@@ -49,6 +49,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
       }
     },
     "label":        "1",
+    "counter":      "1",
     "scheduled_at": "2017-11-10T07:25:28.539Z",
     "triggered_by": "changes",
     "build_cause":  {
@@ -88,6 +89,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
             }
           },
           "name":         "up42_stage",
+          "counter":      "1",
           "status":       "Failed",
           "approved_by":  "changes",
           "scheduled_at": "2017-11-10T07:25:28.539Z"
@@ -96,7 +98,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
     }
   };
 
-  const instance = new PipelineInstance(pipelineInstanceJson);
+  const pipelineName = 'up42';
+  const instance     = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
   beforeEach(() => {
     const pipelineName       = "dummy";

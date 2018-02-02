@@ -33,7 +33,7 @@ const Pipeline = function (info) {
   this.quickEditPath = Routes.editAdminPipelineConfigPath(info.name);
 
   this.historyPath = VMRoutes.pipelineHistoryPath(info.name);
-  this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance));
+  this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance, info.name));
 
   this.isPaused    = info.pause_info.paused;
   this.pausedBy    = info.pause_info.paused_by;

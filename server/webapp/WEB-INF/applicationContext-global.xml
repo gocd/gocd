@@ -41,6 +41,7 @@
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.backups.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.serverhealthmessages.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.triggerwithoptionsview.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.materialsearch.spring"/>
 
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>

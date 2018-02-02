@@ -167,4 +167,8 @@ public class Routes {
     public class TriggerWithOptionsView {
         public static final String BASE = "/api/internal/trigger_with_options_view";
     }
+
+    public class MaterialSearch {
+        public static final String BASE = "/api/internal/material_search";
+    }
 }

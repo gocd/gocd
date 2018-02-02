@@ -119,13 +119,13 @@ describe AnalyticsController do
     it 'should render error template on error' do
       analytics_extension = instance_double('AnalyticsExtension')
 
-      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_raise(java.lang.Exception.new("Halp! Got and error!"))
+      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_raise(java.lang.Exception.new)
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
 
       get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
 
       expect(response.code).to eq('500')
-      expect(response.body).to eq("Halp! Got and error!")
+      expect(response.body).to eq('Error generating analytics from plugin - com.tw.myplugin')
     end
   end
 end

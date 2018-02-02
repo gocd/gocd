@@ -40,6 +40,7 @@ public class PipelineInstanceRepresenter {
     public static Map toJSON(PipelineInstanceModel model, RequestContext requestContext) {
         return addLinks(new JsonWriter(requestContext), model)
                 .add("label", model.getLabel())
+                .add("counter", model.getCounter())
                 .add("triggered_by", model.getApprovedByForDisplay())
                 .add("scheduled_at", model.getScheduledDate())
                 .add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext))

@@ -33,6 +33,7 @@ public class StageRepresenter {
                 .addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()))
 
                 .add("name", model.getName())
+                .add("counter", model.getCounter())
                 .add("status", model.getState())
                 .add("approved_by", model.getApprovedBy())
                 .add("scheduled_at", model.getScheduledDate());

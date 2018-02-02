@@ -41,6 +41,7 @@ class StageRepresenterTest {
         self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage2/2']
       ],
       name          : 'stage2',
+      counter       : '2',
       status        : StageState.Building,
       approved_by   : 'go-user',
       scheduled_at  : date,
@@ -49,6 +50,7 @@ class StageRepresenterTest {
           self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage1/1']
         ],
         name        : 'stage1',
+        counter       : '1',
         status      : StageState.Unknown,
         approved_by : null,
         scheduled_at: null,
@@ -59,17 +61,18 @@ class StageRepresenterTest {
 
   @Test
   void 'renders stages without previous stage with hal representation'() {
-    def stageInstance = new StageInstanceModel('stage2', '2', StageResult. Cancelled, new StageIdentifier('pipeline-name', 23, 'stage', '2'))
+    def stageInstance = new StageInstanceModel('stage2', '2', StageResult.Cancelled, new StageIdentifier('pipeline-name', 23, 'stage', '2'))
     def json = StageRepresenter.toJSON(stageInstance, new TestRequestContext(), 'pipeline-name', '23')
 
     def expectedJson = [
-      _links        : [
+      _links      : [
         self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
       ],
-      name          : 'stage2',
-      status        : StageState.Unknown,
-      approved_by   : null,
-      scheduled_at  : null
+      name        : 'stage2',
+      counter     : '2',
+      status      : StageState.Unknown,
+      approved_by : null,
+      scheduled_at: null
     ]
     JsonFluentAssert.assertThatJson(json).isEqualTo(expectedJson)
   }

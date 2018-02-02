@@ -14,22 +14,76 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
+const _      = require('lodash');
+const m      = require('mithril');
 const Stream = require('mithril/stream');
 const Repeat = require('repeat');
 
-const AjaxPoller = function (fn) {
-  const currentXHR = Stream();
-  const repeater   = Repeat((repeatAgain) => {
-    fn(currentXHR).always(() => {
-      repeatAgain();
-      currentXHR(null);
-      m.redraw();
-    });
-  });
+// Set the name of the hidden property and the change event for visibility
+let hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  hidden           = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden           = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden           = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
 
-  this.start = function ({intervalSeconds = 10, inSeconds = 0} = {}) {
-    repeater.every(intervalSeconds, 'sec').start.in(inSeconds, 'sec');
+const defaultOptions = {intervalSeconds: 10, inSeconds: 0, visibilityBackoffFactor: 4};
+
+const AjaxPoller = function (args = {}) {
+  let options;
+  if (_.isFunction(args)) {
+    options = _.assign({}, defaultOptions, {fn: args});
+  } else {
+    options = _.assign({}, defaultOptions, args);
+  }
+
+
+  const self       = this;
+  const currentXHR = Stream();
+  let repeater;
+
+  function createRepeater() {
+    return Repeat((repeatAgain) => {
+      options.fn(currentXHR).always(() => {
+        repeatAgain();
+        currentXHR(null);
+        m.redraw();
+      });
+    });
+  }
+
+  function currentPollInterval() {
+    if (document[hidden]) {
+      return options.intervalSeconds * options.visibilityBackoffFactor;
+    } else {
+      return options.intervalSeconds;
+    }
+  }
+
+  const handleVisibilityChange = () => {
+    self.stop();
+    repeater = createRepeater();
+    repeater.every(currentPollInterval(), 'sec').start.in(options.inSeconds, 'sec');
+  };
+
+  const doesBrowserSupportPageVisibilityAPI = () => {
+    return (typeof document.hidden !== "undefined");
+  };
+
+  this.start = function () {
+    repeater = createRepeater();
+
+    repeater.every(currentPollInterval(), 'sec').start.in(options.inSeconds, 'sec');
+    if (doesBrowserSupportPageVisibilityAPI()) {
+      document.addEventListener(visibilityChange, handleVisibilityChange, false);
+    } else {
+      console.warn("Browser doesn't support the Page Visibility API!"); //eslint-disable-line
+    }
     return this;
   };
 

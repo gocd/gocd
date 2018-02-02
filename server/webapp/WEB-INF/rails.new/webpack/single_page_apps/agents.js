@@ -57,7 +57,7 @@ $(() => {
   const currentRepeater  = Stream(createRepeater());
   const sortOrder        = Stream(new SortOrder());
 
-  const onResponse        = (pluginInfos) => {
+  const onResponse = (pluginInfos) => {
     const component = {
       view() {
         return m(AgentsWidget, {
@@ -67,11 +67,11 @@ $(() => {
           permanentMessage,
           showSpinner,
           sortOrder,
-          pluginInfos: typeof pluginInfos === "string" ? Stream() : Stream(pluginInfos.filterByType('elastic-agent')),
+          pluginInfos:          typeof pluginInfos === "string" ? Stream() : Stream(pluginInfos.filterByType('elastic-agent')),
           doCancelPolling:      () => currentRepeater().stop(),
           doRefreshImmediately: () => {
             currentRepeater().stop();
-            currentRepeater(createRepeater().start());
+            currentRepeater().start();
           }
         });
       }

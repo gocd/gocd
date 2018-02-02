@@ -105,8 +105,10 @@ describe("Dashboard View Model", () => {
     it('should hide all dropdowns', () => {
       dashboardVM.dropdown.toggle('up42');
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(true);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43')).toEqual(false);
       dashboardVM.dropdown.hideAll();
       expect(dashboardVM.dropdown.isDropDownOpen('up42')).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43')).toEqual(false);
     });
   });
 

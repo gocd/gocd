@@ -40,11 +40,17 @@ const VM = () => {
       },
 
       hideAllExcept: (name) => {
-        _.each(_.keys(pipelinesState), (key) => (key !== name) && pipelinesState[key][DROPDOWN_KEY](false));
+        _.each(_.keys(pipelinesState), (key) => {
+          if (key !== name) {
+            pipelinesState[key][DROPDOWN_KEY](false);
+          }
+        });
       },
 
       hideAll: () => {
-        _.each(_.keys(pipelinesState), (name) => pipelinesState[name][DROPDOWN_KEY](false));
+        _.each(_.keys(pipelinesState), (name) => {
+          pipelinesState[name][DROPDOWN_KEY](false);
+        });
       },
     },
 

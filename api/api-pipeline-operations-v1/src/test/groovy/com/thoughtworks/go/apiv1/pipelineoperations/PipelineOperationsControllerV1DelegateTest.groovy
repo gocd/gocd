@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv1.pipelineoperations
 
-import com.thoughtworks.go.api.ClearSingletonExtension
+import com.thoughtworks.go.spark.ClearSingleton
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.i18n.LocalizedMessage
@@ -41,7 +41,6 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.MockitoAnnotations.initMocks
 
-@ExtendWith(ClearSingletonExtension.class)
 class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<PipelineOperationsControllerV1Delegate> {
   @BeforeEach
   void setUp() {

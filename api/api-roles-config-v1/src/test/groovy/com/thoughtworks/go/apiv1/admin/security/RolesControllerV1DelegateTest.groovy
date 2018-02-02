@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.admin.security
 
-import com.thoughtworks.go.api.ClearSingletonExtension
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
@@ -33,7 +32,6 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
@@ -44,7 +42,6 @@ import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-@ExtendWith(ClearSingletonExtension.class)
 class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<RolesControllerV1Delegate> {
 
   @BeforeEach

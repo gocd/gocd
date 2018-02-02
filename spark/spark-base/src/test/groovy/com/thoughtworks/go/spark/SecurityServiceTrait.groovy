@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.server.util.UserHelper
 import com.thoughtworks.go.spark.util.SecureRandom
+import org.junit.jupiter.api.AfterEach
 import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
 import org.springframework.security.providers.TestingAuthenticationToken
@@ -108,7 +109,6 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }
 
-
   void loginAsTemplateAdmin() {
     Username username = loginAsRandomUser()
 
@@ -137,5 +137,10 @@ trait SecurityServiceTrait {
 
   CaseInsensitiveString currentUserLoginName() {
     return currentUsername().getUsername()
+  }
+
+  @AfterEach
+  void logout() {
+    SecurityContextHolder.getContext().setAuthentication(null)
   }
 }

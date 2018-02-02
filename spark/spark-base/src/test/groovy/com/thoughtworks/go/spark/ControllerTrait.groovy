@@ -152,6 +152,12 @@ trait ControllerTrait<T extends SparkController> {
     })
   }
 
+  @BeforeEach
+  @AfterEach
+  void clearSingletons() {
+    ClearSingleton.clearSingletons()
+  }
+
   @AfterEach
   void destroyPrefilter() {
     getPrefilter().destroy()

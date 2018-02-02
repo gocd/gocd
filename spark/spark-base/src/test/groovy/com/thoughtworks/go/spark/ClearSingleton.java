@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.spark;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
@@ -30,22 +30,9 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.security.context.SecurityContextHolder;
 
-public class ClearSingletonExtension implements BeforeAllCallback, AfterAllCallback {
-
-    @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        clearSingletons();
-    }
-
-    @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
-        clearSingletons();
-    }
+public class ClearSingleton {
 
     public static void clearSingletons() {
         AnalyticsMetadataStore.instance().clear();

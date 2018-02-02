@@ -15,23 +15,28 @@
  */
 
 const _                = require('lodash');
+const Routes           = require('gen/js-routes');
 const MaterialRevision = require('models/dashboard/material_revision');
 
-const StageInstance = function (json) {
-  this.name       = json.name;
-  this.status     = json.status;
-  this.isBuilding = () => json.status === 'Building';
+const StageInstance = function (json, pipelineName, pipelineCounter) {
+  this.name               = json.name;
+  this.counter            = json.counter;
+  this.status             = json.status;
+  this.stageDetailTabPath = Routes.stageDetailTabPath(pipelineName, pipelineCounter, json.name, json.counter);
+  this.isBuilding         = () => json.status === 'Building';
 };
 
-const PipelineInstance = function (info) {
-  this.label       = info.label;
-  this.scheduledAt = info.scheduled_at;
-  this.triggeredBy = info.triggered_by;
+const PipelineInstance = function (info, pipelineName) {
+  this.pipelineName = pipelineName;
+  this.label        = info.label;
+  this.counter      = info.counter;
+  this.scheduledAt  = info.scheduled_at;
+  this.triggeredBy  = info.triggered_by;
 
   this.vsmPath     = info._links.vsm_url.href;
   this.comparePath = info._links.compare_url.href;
 
-  this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage));
+  this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
 
   this.materialRevisions = _.map(info.build_cause.material_revisions, (revision) => new MaterialRevision(revision));
 

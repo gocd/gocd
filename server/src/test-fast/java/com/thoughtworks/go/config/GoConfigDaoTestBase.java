@@ -375,7 +375,7 @@ public abstract class GoConfigDaoTestBase {
             cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
             fail();
         } catch (Exception e) {
-            assertContains(e.toString(), "'type' is not allowed");
+            assertContains(e.toString(), "Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration.");
         }
     }
 
@@ -398,7 +398,7 @@ public abstract class GoConfigDaoTestBase {
             } catch (Exception e) {
                 assertThat(logger.getLog(),
                         containsString(
-                                "'type' is not allowed to appear in element 'test'."));
+                                "Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration."));
             }
         }
     }

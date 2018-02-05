@@ -1999,9 +1999,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 104);
 
-        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
-        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"dir/**\" dest=\"dir\"/>"));
-        assertThat(migratedContent, containsString("<artifact type=\"file\" src=\"build\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"build\"/>"));
     }
 
     @Test
@@ -2034,9 +2034,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 104);
 
-        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
-        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"dir/**\" dest=\"dir\"/>"));
-        assertThat(migratedContent, containsString("<artifact type=\"unit\" src=\"build\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"build\"/>"));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

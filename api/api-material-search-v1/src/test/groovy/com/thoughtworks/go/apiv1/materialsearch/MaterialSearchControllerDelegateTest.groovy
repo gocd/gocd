@@ -93,20 +93,34 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
   }
 
   @Test
-  void 'should render result when not found'() {
+  void 'should render 404 when pipeline or fingerprint is not found'() {
     when(materialService.searchRevisions(any(), any(), any(), any(), any())).then({ InvocationOnMock invocation ->
       HttpLocalizedOperationResult result = invocation.getArguments().last()
-      result.notFound(LocalizedMessage.materialWithFingerPrintNotFound("pipeline-name", "fingerprint"),
-        HealthStateType.general(HealthStateScope.forPipeline("pipeline-name")))
+      result.notFound(LocalizedMessage.materialWithFingerPrintNotFound("some-pipeline", "foo"),
+        HealthStateType.general(HealthStateScope.forPipeline("some-pipeline")))
     })
-    when(localizer.localize(LocalizedKeyValueMessage.MATERIAL_WITH_FINGERPRINT_NOT_FOUND, "pipeline-name", "fingerprint"))
-      .thenReturn("No results")
+    when(localizer.localize(LocalizedKeyValueMessage.MATERIAL_WITH_FINGERPRINT_NOT_FOUND, "some-pipeline", "foo"))
+      .thenReturn("The pipeline 'some-pipeline' does not contain material with fingerprint 'foo'")
 
     getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))
 
     assertThatResponse()
       .isNotFound()
       .hasContentType(controller.mimeType)
-      .hasJsonMessage("No results")
+      .hasJsonMessage("The pipeline 'some-pipeline' does not contain material with fingerprint 'foo'")
+  }
+
+  @Test
+  void 'should render empty list when no search results are found'() {
+    when(materialService.searchRevisions(eq("some-pipeline") as String, eq("foo") as String, eq("abc") as String,
+      ArgumentMatchers.any() as Username, ArgumentMatchers.any() as LocalizedOperationResult))
+      .thenReturn([])
+
+    getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))
+
+    assertThatResponse()
+      .isOk()
+      .hasContentType(controller.mimeType)
+      .hasJsonBody([])
   }
 }

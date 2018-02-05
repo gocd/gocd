@@ -42,19 +42,6 @@
     </rule>
 
     <rule>
-        <name>Spark Roles Config SPA</name>
-        <from>^/admin/security/roles$</from>
-        <condition type="parameter" name="spark">true</condition>
-        <to last="true">/spark/admin/security/roles</to>
-    </rule>
-
-    <rule>
-        <name>Spark Security Auth Configs API Index API</name>
-        <from>^/api/admin/security/roles</from>
-        <to last="true">/spark/api/admin/security/roles</to>
-    </rule>
-
-    <rule>
         <name>Spark Dashboard API</name>
         <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
         <from>^/api/dashboard</from>
@@ -62,9 +49,24 @@
     </rule>
 
     <rule>
-        <name>Spark Security Auth Configs API</name>
+        <name>Roles Config SPA</name>
+        <from>^/admin/security/roles$</from>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/admin/security/roles</to>
+    </rule>
+
+    <rule>
+        <name>Spark Security Role Configs API Index API</name>
+        <from>^/api/admin/security/roles</from>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/admin/security/roles</to>
+    </rule>
+
+    <rule>
+        <name>Spark Security Role Configs API</name>
         <from>^/api/admin/security/roles/(.*)$</from>
-        <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/admin/security/roles/${escape:$1}</to>
     </rule>
 
     <rule>
@@ -76,27 +78,31 @@
     </rule>
 
     <rule>
-        <name>Spark Plugin Images</name>
+        <name>Plugin Images</name>
         <from>^/api/plugin_images/(.*)$</from>
-        <to last="true">/spark/api/plugin_images/$1</to>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluginImagesApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/plugin_images/$1</to>
     </rule>
 
     <rule>
-        <name>Spark Encryption API</name>
+        <name>Encryption API</name>
         <from>^/api/admin/encrypt</from>
-        <to last="true">/spark/api/admin/encrypt</to>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="encryptionApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/admin/encrypt</to>
     </rule>
 
     <rule>
-        <name>Spark Current User API</name>
-        <from>^/api/current_users$</from>
-        <to last="true">/spark/api/current_user</to>
+        <name>Current User API</name>
+        <from>^/api/current_user$</from>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="currentUserApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/current_user</to>
     </rule>
 
     <rule>
-        <name>Spark Current User API</name>
-        <from>^/api/backup$</from>
-        <to last="true">/spark/api/backup</to>
+        <name>Backup API</name>
+        <from>^/api/backups$</from>
+        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="backupApi"/>
+        <to last="true">/%{attribute:sparkOrRails}/api/backups</to>
     </rule>
 
     <rule>
@@ -173,13 +179,6 @@
     </rule>
 
     <rule>
-        <name>Rails Security Auth Config UI</name>
-        <from>^/admin/security/roles$</from>
-        <to last="true">/rails/admin/security/roles</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
         <name>Rails UI</name>
         <note>
             Prepends 'rails/' to Rails urls, so that the request does not go through Java at all
@@ -210,13 +209,6 @@
         <name>Rails Users Show and Delete API</name>
         <from>^/api/users/(.*)$</from>
         <to last="true">/rails/api/users/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Current User API</name>
-        <from>^/api/current_users$</from>
-        <to last="true">/rails/api/current_user</to>
         <set name="rails_bound">true</set>
     </rule>
 
@@ -261,21 +253,6 @@
         <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
         <set name="rails_bound">true</set>
     </rule>
-
-    <rule>
-        <name>Rails Security Roles API Index API</name>
-        <from>^/api/admin/security/roles</from>
-        <to last="true">/rails/api/admin/security/roles</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Security Roles API</name>
-        <from>^/api/admin/security/roles/(.*)$</from>
-        <to last="true">/rails/api/admin/security/roles/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
 
     <rule>
         <name>Rails API</name>

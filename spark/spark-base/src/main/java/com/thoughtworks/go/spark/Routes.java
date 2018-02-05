@@ -171,4 +171,8 @@ public class Routes {
     public class MaterialSearch {
         public static final String BASE = "/api/internal/material_search";
     }
+
+    public class RolesSPA {
+        public static final String BASE = "/admin/security/roles";
+    }
 }

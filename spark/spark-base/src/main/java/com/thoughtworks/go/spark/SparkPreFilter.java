@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.spark;
 
-import com.thoughtworks.go.spark.spring.Application;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.spark.spring.Application;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import spark.servlet.SparkApplication;
@@ -42,19 +41,13 @@ public class SparkPreFilter extends SparkFilter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) req;
-        if (Toggles.isToggleOn(Toggles.SPARK_ROUTER_ENABLED_KEY)) {
-            if (request.getRequestURI().startsWith("/go/spark/api/") && !request.getRequestURI().startsWith("/go/spark/api/plugin_images") && noApiVersionInAcceptHeader((HttpServletRequest) req)) {
-                render404((HttpServletResponse) resp);
-                return;
-            }
-            String url = request.getRequestURI().replaceAll("^/go/spark/", "/go/");
-            servletHelper.getRequest(request).setRequestURI(url);
-            super.doFilter(req, resp, chain);
-        } else {
-            String url = request.getRequestURI().replaceAll("^/go/spark/", "/rails/");
-            req.setAttribute("rails_bound", true);
-            req.getRequestDispatcher(url).forward(req, resp);
+        if (request.getRequestURI().startsWith("/go/spark/api/") && !request.getRequestURI().startsWith("/go/spark/api/plugin_images") && noApiVersionInAcceptHeader((HttpServletRequest) req)) {
+            render404((HttpServletResponse) resp);
+            return;
         }
+        String url = request.getRequestURI().replaceAll("^/go/spark/", "/go/");
+        servletHelper.getRequest(request).setRequestURI(url);
+        super.doFilter(req, resp, chain);
     }
 
     private void render404(HttpServletResponse response) throws IOException {

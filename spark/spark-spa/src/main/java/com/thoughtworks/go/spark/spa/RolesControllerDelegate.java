@@ -40,7 +40,7 @@ public class RolesControllerDelegate implements SparkController {
 
     @Override
     public String controllerBasePath() {
-        return Routes.Roles.BASE;
+        return Routes.RolesSPA.BASE;
     }
 
     @Override

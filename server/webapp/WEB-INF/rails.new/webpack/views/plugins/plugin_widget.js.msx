@@ -49,7 +49,7 @@ const PluginWidget = {
     }
 
     const statusReport = pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport();
-    const settingsIcon = pluginInfo.suportsPluginSettings();
+    const settingsIcon = pluginInfo.supportsPluginSettings();
 
     actionIcons = (<div class="plugin-actions">
     </div>);

@@ -70,8 +70,8 @@ describe Admin::JobsController, "view" do
       end
 
       it "should display errors on artifact" do
-        error = config_error(ArtifactConfig::SRC, "Source is wrong")
-        error.add(ArtifactConfig::DEST, "Dest is wrong")
+        error = config_error(BuildArtifactConfig::SRC, "Source is wrong")
+        error.add(BuildArtifactConfig::DEST, "Dest is wrong")
         set(@artifact1, "errors", error)
 
         get :edit, :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s

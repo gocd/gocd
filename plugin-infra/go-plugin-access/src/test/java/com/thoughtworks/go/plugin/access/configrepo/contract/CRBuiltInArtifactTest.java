@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import org.junit.Test;
 
@@ -74,14 +75,9 @@ public class CRBuiltInArtifactTest extends CRBaseTest<CRBuiltInArtifact> {
                 "      \"destination\": \"res1\",\n" +
                 "      \"type\": \"bla\"\n" +
                 "    }";
-        CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
-        CRBuiltInArtifact crBuiltInArtifact = (CRBuiltInArtifact) deserializedValue;
 
-        assertThat(crBuiltInArtifact.getSource(),is("test"));
-        assertThat(crBuiltInArtifact.getDestination(),is("res1"));
-        assertNull(crBuiltInArtifact.getType());
-
-        ErrorCollection errors = deserializedValue.getErrors();
-        assertFalse(errors.isEmpty());
+        thrown.expect(JsonParseException.class);
+        thrown.expectMessage("Invalid or unknown task type 'bla'");
+        gson.fromJson(json,CRArtifact.class);
     }
 }

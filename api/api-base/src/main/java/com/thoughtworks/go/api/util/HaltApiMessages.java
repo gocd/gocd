@@ -64,8 +64,16 @@ public abstract class HaltApiMessages {
         return String.format("Could not read property '%s' as a JsonObject", property);
     }
 
+    public static String propertyIsNotAJsonStringArray(String property) {
+        return String.format("Could not read property '%s' as a JsonArray containing string", property);
+    }
+
     public static String propertyIsNotAJsonArray(String property) {
         return String.format("Could not read property '%s' as a JsonArray", property);
+    }
+
+    public static String propertyIsNotAJsonBoolean(String property) {
+        return String.format("Could not read property '%s' as a Boolean", property);
     }
 
     public static String missingJsonProperty(String property) {

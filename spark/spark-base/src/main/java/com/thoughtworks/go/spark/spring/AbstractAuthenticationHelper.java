@@ -105,4 +105,8 @@ public abstract class AbstractAuthenticationHelper {
     protected CaseInsensitiveString currentUserLoginName() {
         return currentUsername().getUsername();
     }
+
+    public boolean securityEnabled() {
+        return securityService.isSecurityEnabled();
+    }
 }

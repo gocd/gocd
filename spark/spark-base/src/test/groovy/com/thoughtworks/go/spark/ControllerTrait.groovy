@@ -17,7 +17,10 @@
 package com.thoughtworks.go.spark
 
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.i18n.Localizer
+import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.util.UserHelper
 import com.thoughtworks.go.spark.mocks.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,6 +42,7 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
+  HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder();
   Localizer localizer = mock(Localizer.class)
 
   void get(String path) {
@@ -106,17 +110,21 @@ trait ControllerTrait<T extends SparkController> {
   }
 
   void sendRequest(String httpVerb, String path, Map<String, String> headers, Object requestBody) {
-    HttpRequestBuilder builder = HttpRequestBuilder."${httpVerb.toUpperCase()}"(path).withHeaders(headers)
+    httpRequestBuilder.withPath(path).withMethod(httpVerb).withHeaders(headers)
 
     if (requestBody != null) {
       if (requestBody instanceof String) {
-        builder.withJsonBody((String) requestBody)
+        httpRequestBuilder.withJsonBody((String) requestBody)
       } else {
-        builder.withJsonBody((Object) requestBody)
+        httpRequestBuilder.withJsonBody((Object) requestBody)
       }
     }
 
-    request = builder.build()
+    if (!currentUsername().isAnonymous()) {
+      httpRequestBuilder.withSessionAttr(UserHelper.getSessionKeyForUserId(), currentUserLoginId())
+    }
+
+    request = httpRequestBuilder.build()
     response = new MockHttpServletResponse()
 
     getPrefilter().doFilter(request, response, null)
@@ -161,5 +169,21 @@ trait ControllerTrait<T extends SparkController> {
   @AfterEach
   void destroyPrefilter() {
     getPrefilter().destroy()
+  }
+
+  Username currentUsername() {
+    return UserHelper.getUserName()
+  }
+
+  CaseInsensitiveString currentUserLoginName() {
+    return currentUsername().getUsername()
+  }
+
+  Long currentUserLoginId() {
+    if (currentUsername().isAnonymous()) {
+      return null
+    }
+
+    currentUsername().hashCode()
   }
 }

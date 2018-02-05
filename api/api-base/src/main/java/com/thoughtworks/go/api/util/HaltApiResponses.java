@@ -60,8 +60,16 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonArray(property)));
     }
 
+    public static HaltException haltBecausePropertyIsNotAJsonBoolean(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonBoolean(property)));
+    }
+
     public static HaltException haltBecausePropertyIsNotAJsonObject(String property) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonObject(property)));
+    }
+
+    public static HaltException haltBecausePropertyIsNotAJsonStringArray(String property) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonStringArray(property)));
     }
 
     public static HaltException haltBecauseMissingJsonProperty(String property) {

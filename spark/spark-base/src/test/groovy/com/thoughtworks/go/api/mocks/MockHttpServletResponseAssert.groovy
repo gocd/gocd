@@ -21,6 +21,9 @@ import com.google.gson.internal.bind.util.ISO8601Utils
 import com.thoughtworks.go.spark.mocks.MockHttpServletResponse
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
+import org.apache.commons.lang.builder.EqualsBuilder
+import org.apache.commons.lang.builder.ReflectionToStringBuilder
+import org.apache.commons.lang.builder.ToStringStyle
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.internal.Failures
 import org.assertj.core.util.Arrays
@@ -28,6 +31,7 @@ import org.assertj.core.util.Objects
 
 import javax.activation.MimeType
 import javax.activation.MimeTypeParseException
+import javax.servlet.http.Cookie
 import java.lang.reflect.Type
 
 import static org.apache.commons.lang.StringUtils.isNotBlank
@@ -88,17 +92,15 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return this
   }
 
-  MockHttpServletResponseAssert  hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
+  MockHttpServletResponseAssert hasJsonBodySerializedWith(Object expected, Class representer) throws UnsupportedEncodingException {
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(GSON.toJson(representer.toJSON(expected, new TestRequestContext())))
     return this
   }
-
 
   MockHttpServletResponseAssert hasJsonAtrribute(String attribute, Object object) {
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).node(attribute).isEqualTo(object)
     return this
   }
-
 
   MockHttpServletResponseAssert hasJsonMessage(String message) throws UnsupportedEncodingException {
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).node("message").isEqualTo(message)
@@ -184,5 +186,23 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
 
   MockHttpServletResponseAssert isInternalServerError() {
     return hasStatus(500)
+  }
+
+  MockHttpServletResponseAssert hasCookie(String path, String name, String value, int maxAge, boolean secured, boolean httpOnly) {
+    def actualCookie = actual.getCookie(name)
+
+    Cookie expectedCookie = new Cookie(name, value)
+    expectedCookie.domain = ""
+    expectedCookie.path = path
+    expectedCookie.maxAge = maxAge
+    expectedCookie.secure = secured
+    expectedCookie.httpOnly = httpOnly
+
+    if (!EqualsBuilder.reflectionEquals(expectedCookie, actualCookie)) {
+      this.as("cookie")
+
+      throw Failures.instance().failure(info, shouldBeEqual(ReflectionToStringBuilder.toString(actualCookie, ToStringStyle.MULTI_LINE_STYLE), ReflectionToStringBuilder.toString(expectedCookie, ToStringStyle.MULTI_LINE_STYLE), info.representation()))
+    }
+    return this
   }
 }

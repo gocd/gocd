@@ -17,10 +17,15 @@
 package com.thoughtworks.go.api.representers;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 
@@ -59,6 +64,16 @@ public class JsonReader {
         return Optional.empty();
     }
 
+    public Optional<Boolean> optBoolean(String property) {
+        if (jsonObject.has(property)) {
+            try {
+                return Optional.of(jsonObject.getAsJsonPrimitive(property).getAsBoolean());
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonBoolean(property);
+            }
+        }
+        return Optional.empty();
+    }
 
     public Optional<JsonReader> optJsonObject(String property) {
         if (jsonObject.has(property)) {
@@ -71,7 +86,6 @@ public class JsonReader {
         return Optional.empty();
     }
 
-
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
                 .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
@@ -83,5 +97,21 @@ public class JsonReader {
 
     public void readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {
         optJsonArray(key).ifPresent(setterMethod);
+    }
+
+    public Optional<List<String>> readStringArrayIfPresent(String property) {
+        if (jsonObject.has(property)) {
+            try {
+                Spliterator<JsonElement> iterator = jsonObject.getAsJsonArray(property).spliterator();
+                return Optional.of(
+                        StreamSupport.stream(iterator, false)
+                                .map(JsonElement::getAsString)
+                                .collect(Collectors.toList()));
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonStringArray(property);
+            }
+        }
+
+        return Optional.empty();
     }
 }

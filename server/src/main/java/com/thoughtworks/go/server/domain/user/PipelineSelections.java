@@ -95,7 +95,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return isInCurrentSelection;
     }
 
-    private List<String> pipelineList() {
+    public List<String> pipelineList() {
         return pipelines;
     }
 

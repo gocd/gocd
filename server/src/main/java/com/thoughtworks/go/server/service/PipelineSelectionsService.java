@@ -82,14 +82,11 @@ public class PipelineSelectionsService {
     }
 
     private PipelineSelections getPersistedPipelineSelections(String id, Long userId) {
-        PipelineSelections pipelineSelections = null;
         if (goConfigService.isSecurityEnabled()) {
-            pipelineSelections = pipelineRepository.findPipelineSelectionsByUserId(userId);
+            return pipelineRepository.findPipelineSelectionsByUserId(userId);
+        } else {
+            return pipelineRepository.findPipelineSelectionsById(id);
         }
-        if (pipelineSelections == null) {
-            pipelineSelections = pipelineRepository.findPipelineSelectionsById(id);
-        }
-        return pipelineSelections;
     }
 
     public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {

@@ -22,6 +22,7 @@ import org.apache.http.NameValuePair
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.client.utils.URLEncodedUtils
 
+import javax.servlet.http.Cookie
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -31,8 +32,18 @@ class HttpRequestBuilder {
   private static final Gson GSON = new Gson()
   private static final CONTEXT_PATH = "/go"
 
-  private HttpRequestBuilder() {
+  HttpRequestBuilder() {
     this.request = new MockHttpServletRequest()
+  }
+
+  HttpRequestBuilder withPath(String path) {
+    URIBuilder uri = new URIBuilder(CONTEXT_PATH + path)
+    request.serverName = 'test.host'
+    request.contextPath = CONTEXT_PATH
+    request.parameters = splitQuery(uri)
+    request.requestURI = uri.getPath()
+    request.queryString = URLEncodedUtils.format(uri.getQueryParams(), StandardCharsets.UTF_8)
+    return this
   }
 
   MockHttpServletRequest build() {
@@ -40,34 +51,35 @@ class HttpRequestBuilder {
   }
 
   static HttpRequestBuilder GET(String path = '/') {
-    def builder = new HttpRequestBuilder().withMethod('GET')
-    URIBuilder uri = new URIBuilder(CONTEXT_PATH + path)
-    builder.request.serverName = 'test.host'
-    builder.request.contextPath = CONTEXT_PATH
-    builder.request.parameters = splitQuery(uri)
-    builder.request.requestURI = uri.getPath()
-    builder.request.queryString = URLEncodedUtils.format(uri.getQueryParams(), StandardCharsets.UTF_8)
+    def builder = new HttpRequestBuilder().withMethod('GET').withPath(path)
     return builder
   }
 
   static HttpRequestBuilder HEAD(String path = '/') {
-    return GET(path).withMethod('HEAD')
+    return new HttpRequestBuilder().withMethod('HEAD').withPath(path)
   }
 
   static HttpRequestBuilder PUT(String path = '/') {
-    return GET(path).withMethod('PUT')
+    return new HttpRequestBuilder().withMethod('PUT').withPath(path)
   }
 
   static HttpRequestBuilder POST(String path = '/') {
-    return GET(path).withMethod('POST')
+    return new HttpRequestBuilder().withMethod('POST').withPath(path)
   }
 
   static HttpRequestBuilder PATCH(String path = '/') {
-    return GET(path).withMethod('PATCH')
+    return new HttpRequestBuilder().withMethod('PATCH').withPath(path)
   }
 
   static HttpRequestBuilder DELETE(String path = '/') {
-    return GET(path).withMethod('DELETE')
+    return new HttpRequestBuilder().withMethod('DELETE').withPath(path)
+  }
+
+  HttpRequestBuilder withCookies(Cookie... cookies) {
+    def existingCookies = request.getCookies() ? Arrays.asList(request.getCookies()) : []
+    existingCookies += cookies.toList()
+    request.setCookies(existingCookies as Cookie[])
+    return this
   }
 
   HttpRequestBuilder withHeaders(Map<String, String> map) {
@@ -107,9 +119,15 @@ class HttpRequestBuilder {
     return params
   }
 
-  private HttpRequestBuilder withMethod(String method) {
+  HttpRequestBuilder withMethod(String method) {
     request.method = method.toUpperCase()
     this
   }
+
+  HttpRequestBuilder withSessionAttr(String name, Object value) {
+    request.getSession().setAttribute(name, value)
+    this
+  }
+
 
 }

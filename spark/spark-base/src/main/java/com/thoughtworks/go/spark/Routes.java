@@ -175,4 +175,8 @@ public class Routes {
     public class RolesSPA {
         public static final String BASE = "/admin/security/roles";
     }
+
+    public class PipelineSelection {
+        public static final String BASE = "/api/internal/pipeline_selection";
+    }
 }

@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Spark pipeline selection internal API</name>
+        <from>^/api/internal/pipeline_selection$</from>
+        <to last="true">/spark/api/internal/pipeline_selection</to>
+    </rule>
+
+    <rule>
         <name>Material Search API</name>
         <from>^/api/internal/material_search$</from>
         <to last="true">/spark/api/internal/material_search</to>

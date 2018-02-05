@@ -35,7 +35,10 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -276,16 +279,16 @@ public class PipelineSelectionsServiceTest {
     }
 
     @Test
-    public void shouldReturnPersistedPipelineSelectionsAgainstCookieId_WhenSecurityIsEnabled_AndUserSelectionsDoesNotExist() {
+    public void shouldReturnPersistedPipelineSelectionsAgainstUserId_WhenSecurityIsEnabled_AndUserSelectionsDoesNotExist() {
         User user = getUser("loser", 10L);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig("pipeline1"), pipelineConfig("pipeline2"), pipelineConfig("pipelineX"), pipelineConfig("pipeline3")));
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
+        PipelineSelections pipelineSelectionsForCookie = new PipelineSelections(Arrays.asList("pipeline2"));
 
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
-        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(pipelineSelections);
+        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(pipelineSelectionsForCookie);
 
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", user.getId()), is(pipelineSelections));
+        assertThat(pipelineSelectionsService.getSelectedPipelines("1", user.getId()), is(PipelineSelections.ALL));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

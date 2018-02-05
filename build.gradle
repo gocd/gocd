@@ -447,6 +447,7 @@ task compileAll { compileAllTask ->
   group LifecycleBasePlugin.BUILD_GROUP
   allprojects.collect { Project prj ->
     compileAll.dependsOn(prj.getTasks().withType(JavaCompile))
+    compileAll.dependsOn(prj.getTasks().withType(GroovyCompile))
   }
 }
 

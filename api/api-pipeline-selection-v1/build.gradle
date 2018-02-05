@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.spark.util;
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
-import java.util.Random;
+apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
-public class SecureRandom {
+dependencies {
+  compile project(':api:api-base')
 
-    public static String hex(int length) {
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() < length) {
-            sb.append(Integer.toHexString(random.nextInt()));
-        }
-        return sb.toString();
-    }
-
-    public static String hex() {
-        return hex(16);
-    }
-
-    public static long longNumber() {
-        return new Random().nextLong();
-    }
-
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
 }

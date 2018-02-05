@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
-import com.thoughtworks.go.server.util.UserHelper
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.AfterEach
 import org.springframework.security.GrantedAuthority
@@ -129,14 +128,6 @@ trait SecurityServiceTrait {
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null)
     SecurityContextHolder.getContext().setAuthentication(authentication)
     username
-  }
-
-  Username currentUsername() {
-    return UserHelper.getUserName()
-  }
-
-  CaseInsensitiveString currentUserLoginName() {
-    return currentUsername().getUsername()
   }
 
   @AfterEach

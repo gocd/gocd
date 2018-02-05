@@ -19,18 +19,26 @@ const f = require('helpers/form_helper');
 
 const PipelinePauseModalBody = {
   view(vnode) {
-    const pipelineName  = vnode.attrs.pipelineName;
-    const pauseMessage  = vnode.attrs.message;
-    const updateMessage = (message) => {
-      pauseMessage(message);
+    const pauseMessage = vnode.attrs.message;
+    const ENTER_KEY_CODE = 13;
+
+    const updateMessage  = (message) => pauseMessage(message);
+    const handleEnterKey = (e) => {
+      if (e.keyCode === ENTER_KEY_CODE) {
+        vnode.attrs.pauseCallback(vnode.attrs.pipeline);
+        vnode.attrs.modal.destroy();
+        return;
+      }
     };
 
     return (<div>
       <f.input oninput={m.withAttr("value", updateMessage)}
                value={pauseMessage()}
                label={[
-                 <span class="required">Specify a reason for pausing schedule on pipeline {pipelineName}</span>,
+                 <span class="required">Specify a reason for pausing schedule on pipeline {vnode.attrs.pipeline.name}</span>,
                ]}
+               onkeydown={handleEnterKey}
+               autofocus
       />
     </div>);
   }

@@ -3952,7 +3952,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "              </exec>\n" +
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
-                "              <artifact id=\"installer\" storeId=\"s3\" type=\"plugin\">\n" +
+                "              <artifact id=\"installer\" storeId=\"s3\" type=\"external\">\n" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
@@ -4006,7 +4006,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "              </exec>\n" +
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
-                "              <artifact type=\"plugin\" storeId=\"s3\">\n" +
+                "              <artifact type=\"external\" storeId=\"s3\">\n" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
@@ -4059,7 +4059,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "              </exec>\n" +
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
-                "              <artifact type=\"plugin\" id=\"installer\">\n" +
+                "              <artifact type=\"external\" id=\"installer\">\n" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
@@ -4097,7 +4097,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "              </exec>\n" +
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
-                "              <artifact type=\"plugin\" id=\"installer\" storeId=\"s3\">\n" +
+                "              <artifact type=\"external\" id=\"installer\" storeId=\"s3\">\n" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +

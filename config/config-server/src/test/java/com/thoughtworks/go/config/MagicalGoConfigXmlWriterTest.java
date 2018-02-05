@@ -1166,7 +1166,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         assertThat(actualXML, containsString("<artifact type=\"build\" src=\"build/libs/*.jar\" dest=\"dist\" />"));
         assertThat(actualXML, containsString("<artifact type=\"test\" src=\"test-result/*\" dest=\"reports\" />"));
-        assertThat(actualXML, containsString("<artifact type=\"plugin\" id=\"installers\" storeId=\"s3\" />"));
+        assertThat(actualXML, containsString("<artifact type=\"external\" id=\"installers\" storeId=\"s3\" />"));
     }
 
     private ConfigurationProperty getConfigurationProperty(String key, boolean isSecure, String value) {

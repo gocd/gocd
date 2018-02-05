@@ -28,10 +28,9 @@
   {else}
     <span>Not yet assigned</span>
   {/if}
-
   #if ( $elasticProfilePluginId && $userHasAdministratorRights )
     {if build.build_assigned_date != -1}
-    <a href="$req.getContextPath()/admin/status_reports/$elasticProfilePluginId/${build.agent}?job_id=${build.id}"
+    <a href="$req.getContextPath()/admin/status_reports/$elasticProfilePluginId/${elasticAgentId}?job_id=${build.id}"
        class="btn-primary btn-small status-report-btn-small">Check Agent Status</a>
     {else}
     <a href="$req.getContextPath()/admin/status_reports/$elasticProfilePluginId/unassigned?job_id=${build.id}"

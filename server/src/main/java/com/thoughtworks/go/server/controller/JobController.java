@@ -16,11 +16,15 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.Tabs;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
@@ -28,7 +32,6 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,10 +119,10 @@ public class JobController {
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
 
         JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
-        return getModelAndView(instance, elasticProfilePluginId(instance));
+        return getModelAndView(instance);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail, String elasticProfilePluginId) throws Exception {
+    private ModelAndView getModelAndView(JobInstance jobDetail) throws Exception {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);
@@ -127,26 +130,34 @@ public class JobController {
         data.put("l", localizer);
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
-        if (StringUtils.isNotBlank(elasticProfilePluginId)) {
-            data.put("elasticProfilePluginId", elasticProfilePluginId);
-        }
+        addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);
     }
 
-    private String elasticProfilePluginId(JobInstance jobInstance) {
-        JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(jobInstance.getId());
+    private void addElasticAgentInfo(JobInstance jobInstance, Map data) {
+        final AgentConfig agentConfig = goConfigService.agentByUuid(jobInstance.getAgentUuid());
+        if (!jobInstance.currentStatus().isActive()) {
+            return;
+        }
+
+        if (agentConfig != null && agentConfig.isElastic()) {
+            data.put("elasticProfilePluginId", agentConfig.getElasticPluginId());
+            data.put("elasticAgentId", agentConfig.getElasticAgentId());
+            return;
+        }
+
+        final JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(jobInstance.getId());
         if (jobAgentMetadata == null) {
-            return null;
+            return;
         }
 
-        String pluginId = jobAgentMetadata.elasticProfile().getPluginId();
-        if (elasticAgentMetadataStore.getPluginInfo(pluginId).supportsStatusReport() && jobInstance.currentStatus().isActive()) {
-            return pluginId;
+        final String pluginId = jobAgentMetadata.elasticProfile().getPluginId();
+        final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo != null && pluginInfo.supportsStatusReport()) {
+            data.put("elasticProfilePluginId", pluginId);
+            return;
         }
-
-        return null;
     }
-
 
     @ErrorHandler
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) throws Exception {

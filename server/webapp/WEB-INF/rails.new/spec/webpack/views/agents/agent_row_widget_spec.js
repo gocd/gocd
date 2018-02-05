@@ -80,7 +80,7 @@ describe("Agent Row Widget", () => {
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    let hostname      = $(information[2]).find('.content');
+    const hostname      = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('in-john.local');
     expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
@@ -93,7 +93,7 @@ describe("Agent Row Widget", () => {
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    let hostname      = $(information[2]).find('.content');
+    const hostname      = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
     expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/${allAgents.lastAgent().elasticAgentId()}`);
@@ -106,7 +106,7 @@ describe("Agent Row Widget", () => {
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    let hostname      = $(information[2]).find('.content');
+    const hostname      = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
     expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);

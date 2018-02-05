@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
@@ -183,7 +184,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldHaveTheElasticProfilePluginId() throws Exception {
+    public void jobDetailModel_shouldHaveTheElasticProfilePluginIdWhenAgentIsNotAssigned() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
@@ -200,36 +201,58 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginInAbsenceOfJobAgentMetaData() throws Exception {
+    public void jobDetailModel_shouldHaveTheElasticPluginIdAndElasticAgentIdWhenAgentIsAssigned() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
+        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
+        agentConfig.setElasticAgentId("elastic_agent_id");
+        agentConfig.setElasticPluginId("plugin_id");
+        goConfigService.agents().add(agentConfig);
+
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+        assertThat(modelAndView.getModel().get("elasticProfilePluginId"), is("plugin_id"));
+        assertThat(modelAndView.getModel().get("elasticAgentId"), is("elastic_agent_id"));
     }
 
     @Test
-    public void jobDetailModel_shouldNotHaveElasticProfileForACompletedJob() throws Exception {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginIdAndElasticAgentIdWhenAgentIsNotElasticAgent() throws Exception {
+        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(true)));
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
+        goConfigService.agents().add(agentConfig);
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
         assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+        assertNull(modelAndView.getModel().get("elasticAgentId"));
+    }
+
+    @Test
+    public void jobDetailModel_shouldNotHaveElasticPluginIdAndElasticAgentIdForACompletedJob() throws Exception {
+        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Stage stage = pipeline.getFirstStage();
+        JobInstance job = stage.getFirstJob();
+
+        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
+        agentConfig.setElasticAgentId("elastic_agent_id");
+        agentConfig.setElasticPluginId("plugin_id");
+        goConfigService.agents().add(agentConfig);
+
+        ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
+                stage.getName(), String.valueOf(stage.getCounter()), job.getName());
+
+        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+        assertNull(modelAndView.getModel().get("elasticAgentId"));
     }
 
     private JobDetailPresentationModel presenter(ModelAndView modelAndView) {
         return (JobDetailPresentationModel) modelAndView.getModel().get("presenter");
     }
-
 }

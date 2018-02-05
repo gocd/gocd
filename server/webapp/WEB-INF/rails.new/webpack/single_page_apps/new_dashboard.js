@@ -60,7 +60,7 @@ $(() => {
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => {
             repeater().stop();
-            repeater(createRepeater().start());
+            repeater().start();
           }
         });
       }

@@ -72,6 +72,14 @@ describe("Dashboard Widget", () => {
     pipelinesCountOnPage = $root.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
+    $(searchField).val('UP43');
+    simulateEvent.simulate(searchField, 'input');
+
+    m.redraw();
+
+    pipelinesCountOnPage = $root.find('.pipeline');
+    expect(pipelinesCountOnPage).toHaveLength(1);
+
     $(searchField).val('up');
     simulateEvent.simulate(searchField, 'input');
 

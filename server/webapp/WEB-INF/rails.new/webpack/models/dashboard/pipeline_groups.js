@@ -26,7 +26,7 @@ const PipelineGroup = function (name, path, canAdminister, pipelines) {
   this.pipelines     = pipelines;
 
   this.filterBy = (filterText) => {
-    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline, filterText));
+    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
     if (filteredPipelines.length) {
       return new PipelineGroup(self.name, self.path, self.canAdminister, filteredPipelines);
     }

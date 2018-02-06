@@ -354,26 +354,53 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not pause a pipeline", () => {
-        const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
-        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
-          responseText:    JSON.stringify({"message": responseMessage}),
-          responseHeaders: {
-            'Content-Type': 'application/vnd.go.cd.v1+json'
-          },
-          status:          409
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          409
+          });
+          expect(doCancelPolling).not.toHaveBeenCalled();
+          expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+          simulateEvent.simulate($root.find('.pause').get(0), 'click');
+          $('.reveal input').val("test");
+          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+          expect(doCancelPolling).toHaveBeenCalled();
+          expect(doRefreshImmediately).toHaveBeenCalled();
+
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("error");
         });
-        expect(doCancelPolling).not.toHaveBeenCalled();
-        expect(doRefreshImmediately).not.toHaveBeenCalled();
+      });
 
-        simulateEvent.simulate($root.find('.pause').get(0), 'click');
-        $('.reveal input').val("test");
-        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+      it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
+        jasmine.Ajax.withMock(() => {
+          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": responseMessage}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
 
-        expect(doCancelPolling).toHaveBeenCalled();
-        expect(doRefreshImmediately).toHaveBeenCalled();
+          simulateEvent.simulate($root.find('.pause').get(0), 'click');
+          expect($('.reveal:visible')).toBeInDOM();
+          const pausePopupTextBox = $('.reveal input');
+          pausePopupTextBox.val("test");
+          const keydownEvent   = $.Event("keydown");
+          keydownEvent.keyCode = 13;
+          pausePopupTextBox.trigger(keydownEvent);
 
-        expect($root.find('.pipeline_message')).toContainText(responseMessage);
-        expect($root.find('.pipeline_message')).toHaveClass("error");
+          expect($('.reveal:visible')).not.toBeInDOM();
+          expect($root.find('.pipeline_message')).toContainText(responseMessage);
+          expect($root.find('.pipeline_message')).toHaveClass("success");
+        });
       });
 
     });

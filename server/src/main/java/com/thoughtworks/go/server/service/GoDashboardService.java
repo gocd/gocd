@@ -23,10 +23,7 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import com.thoughtworks.go.server.dashboard.GoDashboardCache;
-import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
+import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -51,12 +48,13 @@ public class GoDashboardService {
     }
 
     public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username user) {
+        GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
 
         goConfigService.groups().accept(new PipelineGroupVisitor() {
             @Override
             public void visit(PipelineConfigs group) {
-                GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user);
+                GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user, allPipelines);
                 if (dashboardPipelineGroup.hasPipelines()) {
                     pipelineGroups.add(dashboardPipelineGroup);
                 }
@@ -90,15 +88,15 @@ public class GoDashboardService {
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
     }
 
-    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user) {
-        GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup));
+    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user, GoDashboardPipelines allPipelines) {
+        GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
             pipelineGroup.accept(new PiplineConfigVisitor() {
                 @Override
                 public void visit(PipelineConfig pipelineConfig) {
                     if (pipelineSelections.includesPipeline(pipelineConfig)) {
-                        goDashboardPipelineGroup.addPipeline(cache.get(pipelineConfig.getName()));
+                        goDashboardPipelineGroup.addPipeline(allPipelines.find(pipelineConfig.getName()));
                     }
                 }
             });
@@ -106,9 +104,9 @@ public class GoDashboardService {
         return goDashboardPipelineGroup;
     }
 
-    private Permissions resolvePermissionsForPipelineGroup(PipelineConfigs pipelineGroup) {
+    private Permissions resolvePermissionsForPipelineGroup(PipelineConfigs pipelineGroup, GoDashboardPipelines allPipelines) {
         for (PipelineConfig pipelineConfig : pipelineGroup) {
-            GoDashboardPipeline goDashboardPipeline = cache.get(pipelineConfig.getName());
+            GoDashboardPipeline goDashboardPipeline = allPipelines.find(pipelineConfig.getName());
             if (goDashboardPipeline != null) {
                 return goDashboardPipeline.permissions();
             }

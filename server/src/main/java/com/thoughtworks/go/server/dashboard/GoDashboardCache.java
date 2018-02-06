@@ -20,7 +20,10 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /* Understands how to cache dashboard statuses, for every pipeline. */
 @Component
@@ -39,11 +42,7 @@ public class GoDashboardCache {
     public GoDashboardCache(TimeStampBasedCounter timeStampBasedCounter) {
         this.timeStampBasedCounter = timeStampBasedCounter;
         cache = new LinkedHashMap<>();
-        dashboardPipelines = new GoDashboardPipelines(new ArrayList<>(), timeStampBasedCounter);
-    }
-
-    public GoDashboardPipeline get(CaseInsensitiveString pipelineName) {
-        return cache.get(pipelineName);
+        dashboardPipelines = new GoDashboardPipelines(new HashMap<>(), timeStampBasedCounter);
     }
 
     public void put(GoDashboardPipeline pipeline) {
@@ -57,12 +56,12 @@ public class GoDashboardCache {
         cacheHasChanged();
     }
 
-    public GoDashboardPipelines allEntriesInOrder() {
+    public GoDashboardPipelines allEntries() {
         return dashboardPipelines;
     }
 
     private void cacheHasChanged() {
-        dashboardPipelines = new GoDashboardPipelines(new ArrayList<>(cache.values()), timeStampBasedCounter);
+        dashboardPipelines = new GoDashboardPipelines(new HashMap<>(cache), timeStampBasedCounter);
     }
 
     private Map<CaseInsensitiveString, GoDashboardPipeline> createMapFor(List<GoDashboardPipeline> pipelines) {

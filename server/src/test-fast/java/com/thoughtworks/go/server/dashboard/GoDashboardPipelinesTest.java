@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dashboard;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -30,7 +31,7 @@ public class GoDashboardPipelinesTest {
     public void shouldSetLastUpdatedTime() {
         TimeStampBasedCounter provider = mock(TimeStampBasedCounter.class);
         when(provider.getNext()).thenReturn(100L);
-        GoDashboardPipelines goDashboardPipelines = new GoDashboardPipelines(Arrays.asList(), provider);
+        GoDashboardPipelines goDashboardPipelines = new GoDashboardPipelines(new HashMap<>(), provider);
         assertThat(goDashboardPipelines.lastUpdatedTimeStamp(), is(100L));
     }
 }

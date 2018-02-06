@@ -286,6 +286,7 @@ describe("Dashboard Widget", () => {
             "name":                   "up42",
             "last_updated_timestamp": 1510299695473,
             "locked":                 false,
+            "can_pause":              true,
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,
@@ -419,6 +420,7 @@ describe("Dashboard Widget", () => {
             "last_updated_timestamp": 1510299695473,
             "locked":                 true,
             "can_unlock":             true,
+            "can_pause":              true,
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,

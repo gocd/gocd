@@ -78,14 +78,14 @@ const PipelineOperationsWidget = {
     const pipeline          = vnode.attrs.pipeline;
     const operationMessages = vnode.attrs.operationMessages;
 
-    let pauseUnpauseButton, pausedMessage;
+    let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
     if (pipeline.isPaused) {
-      pauseUnpauseButton = (
-        <button onclick={vnode.state.unpause.bind(vnode.state, pipeline)} className="btn unpause"/>);
-      pausedMessage      = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
+      pauseUnpauseClass   = `btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
+      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
-      pauseUnpauseButton = (
-        <button onclick={vnode.state.showPopup.bind(vnode.state, pipeline)} className="btn pause"/>);
+      pauseUnpauseClass   = `btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPopup.bind(vnode.state, pipeline);
     }
 
     let flashMessage;
@@ -99,13 +99,9 @@ const PipelineOperationsWidget = {
       <div>
         {flashMessage}
         <ul className="pipeline_operations">
-          <li>
-            <button className="btn play"/>
-          </li>
-          <li>
-            <button className="btn play_with_options"/>
-          </li>
-          <li>{pauseUnpauseButton}</li>
+          <li><button className="btn play"/></li>
+          <li><button className="btn play_with_options"/></li>
+          <li><button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/></li>
         </ul>
         <div className="pipeline_pause-message">{pausedMessage}</div>
       </div>

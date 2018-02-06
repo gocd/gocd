@@ -38,6 +38,7 @@ const Pipeline = function (info) {
   this.isPaused    = info.pause_info.paused;
   this.pausedBy    = info.pause_info.paused_by;
   this.pausedCause = info.pause_info.pause_reason;
+  this.canPause    = info.can_pause;
 
   this.isLocked  = info.locked;
   this.canUnlock = info.can_unlock;

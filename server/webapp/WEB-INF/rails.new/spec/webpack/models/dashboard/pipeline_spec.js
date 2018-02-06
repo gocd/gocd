@@ -42,6 +42,7 @@ describe("Dashboard", () => {
       expect(pipeline.isPaused).toBe(true);
       expect(pipeline.pausedBy).toBe("admin");
       expect(pipeline.pausedCause).toBe("under construction");
+      expect(pipeline.canPause).toBe(true);
 
       expect(pipeline.isLocked).toBe(false);
       expect(pipeline.canUnlock).toBe(true);
@@ -172,6 +173,7 @@ describe("Dashboard", () => {
       "can_unlock":             true,
       "pause_info":             pauseInfo,
       "can_administer":         true,
+      "can_pause":              true,
       "_embedded":              {
         "instances": [
           {

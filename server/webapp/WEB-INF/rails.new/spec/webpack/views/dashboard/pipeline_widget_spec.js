@@ -15,6 +15,7 @@
  */
 describe("Dashboard Pipeline Widget", () => {
   const m             = require("mithril");
+  const _             = require("lodash");
   const $             = require('jquery');
   const simulateEvent = require('simulate-event');
 
@@ -83,8 +84,9 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     describe("Unpause", () => {
+      let pauseInfo;
       beforeEach(() => {
-        const pauseInfo = {
+        pauseInfo = {
           "paused":       true,
           "paused_by":    "admin",
           "pause_reason": "under construction"
@@ -97,6 +99,24 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should render unpause pipeline button", () => {
         expect($root.find('.unpause')).toBeInDOM();
+      });
+
+      it('should disable pause button for non admin users', () => {
+        unmount();
+        mount(false, true, pauseInfo, undefined, false);
+
+        expect($root.find('.unpause')).toHaveClass('disabled');
+      });
+
+      it('should add onclick handler for admin users', () => {
+        expect(_.isFunction($root.find('.unpause').get(0).onclick)).toBe(true);
+      });
+
+      it('should not add onclick handler for non admin users', () => {
+        unmount();
+        mount(false, true, pauseInfo, undefined, false);
+
+        expect(_.isFunction($root.find('.unpause').get(0).onclick)).toBe(false);
       });
 
       it("should render the pipeline pause message", () => {
@@ -159,15 +179,17 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     describe("pause", () => {
+      let pauseInfo, dashboard;
       beforeEach(() => {
-        const pauseInfo = {
+        pauseInfo = {
           "paused":       false,
           "paused_by":    "admin",
           "pause_reason": "under construction"
         };
 
-        const dashboard  = {};
+        dashboard        = {};
         dashboard.reload = jasmine.createSpy();
+
         mount(false, true, pauseInfo, dashboard);
       });
 
@@ -178,6 +200,24 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should render pause pipeline button", () => {
         expect($root.find('.pause')).toBeInDOM();
+      });
+
+      it('should disable pause button for non admin users', () => {
+        unmount();
+        mount(false, true, pauseInfo, dashboard, false);
+
+        expect($root.find('.pause')).toHaveClass('disabled');
+      });
+
+      it('should add onclick handler for admin users', () => {
+        expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(true);
+      });
+
+      it('should not add onclick handler for non admin users', () => {
+        unmount();
+        mount(false, true, pauseInfo, dashboard, false);
+
+        expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(false);
       });
 
       it("should show modal to specify pause reason upon pausing a pipeline", () => {
@@ -350,7 +390,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true) {
     const pipelineName = 'up42';
     pipelinesJson      = [{
       "_links":                 {
@@ -381,6 +421,7 @@ describe("Dashboard Pipeline Widget", () => {
       "locked":                 lockInfo.locked,
       "can_unlock":             lockInfo.canUnlock,
       "can_administer":         canAdminister,
+      "can_pause":              canPause,
       "pause_info":             pauseInfo,
       "_embedded":              {
         "instances": [

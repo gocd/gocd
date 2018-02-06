@@ -26,12 +26,9 @@ const PipelineOperationsWidget = {
   oninit(vnode) {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.operationMessages;
-    const pipeline          = vnode.attrs.pipeline;
-    const modalTitle        = `Pause pipeline ${pipeline.name}`;
+    self.pauseMessage       = Stream();
 
-    self.pauseMessage = Stream();
-
-    self.unpause = () => {
+    self.unpause = (pipeline) => {
       vnode.attrs.doCancelPolling();
       pipeline.unpause().then((res) => {
         operationMessages.success(pipeline.name, res.message);
@@ -40,23 +37,19 @@ const PipelineOperationsWidget = {
       }).always(vnode.attrs.doRefreshImmediately);
     };
 
-    function pausePipeline(modal) {
+    self.pause = (pipeline) => {
       vnode.attrs.doCancelPolling();
-      const payload = {"pause_cause": self.pauseMessage()};
-      pipeline.pause(payload).then((res) => {
+      pipeline.pause({"pause_cause": self.pauseMessage()}).then((res) => {
         operationMessages.success(pipeline.name, res.message);
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
-      }).always(() => {
-        modal.destroy();
-        vnode.attrs.doRefreshImmediately();
-      });
-    }
+      }).always(vnode.attrs.doRefreshImmediately);
+    };
 
-    self.showPopup = () => {
+    self.showPopup = (pipeline) => {
       const modal = new Modal({
         size:    'medium',
-        title:   modalTitle,
+        title:   `Pause pipeline ${pipeline.name}`,
         body:    () => (<PipelinePauseModalBody pipelineName={pipeline.name} message={self.pauseMessage}/>),
         onclose: () => modal.destroy(),
         buttons: () => {
@@ -64,7 +57,10 @@ const PipelineOperationsWidget = {
             {
               text:    "OK",
               class:   'save primary',
-              onclick: () => pausePipeline(modal)
+              onclick: () => {
+                self.pause(pipeline);
+                modal.destroy();
+              }
             },
             {
               text:    "CLOSE",
@@ -84,10 +80,12 @@ const PipelineOperationsWidget = {
 
     let pauseUnpauseButton, pausedMessage;
     if (pipeline.isPaused) {
-      pauseUnpauseButton = (<button onclick={vnode.state.unpause} className="btn unpause"/>);
+      pauseUnpauseButton = (
+        <button onclick={vnode.state.unpause.bind(vnode.state, pipeline)} className="btn unpause"/>);
       pausedMessage      = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
     } else {
-      pauseUnpauseButton = (<button onclick={vnode.state.showPopup} className="btn pause"/>);
+      pauseUnpauseButton = (
+        <button onclick={vnode.state.showPopup.bind(vnode.state, pipeline)} className="btn pause"/>);
     }
 
     let flashMessage;
@@ -156,7 +154,7 @@ const PipelineHeaderWidget = {
           {settingsButton}
           {pipelineLockButton}
         </div>
-        <PipelineOperationsWidget pipeline={pipeline}
+        <PipelineOperationsWidget pipeline={vnode.attrs.pipeline}
                                   doCancelPolling={vnode.attrs.doCancelPolling}
                                   doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                   operationMessages={vnode.attrs.vm.operationMessages}/>

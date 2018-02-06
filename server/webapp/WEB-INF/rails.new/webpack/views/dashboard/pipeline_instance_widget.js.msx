@@ -21,19 +21,7 @@ const StagesInstanceWidget  = require('views/dashboard/stages_instance_widget');
 const MaterialChangesWidget = require('views/dashboard/material_changes_widget');
 
 const PipelineInstanceWidget = {
-  oninit: (vnode) => {
-    const self = vnode.state;
-
-    self.toggleChanges = (e) => {
-      const dropdown     = vnode.attrs.dropdown;
-      const pipelineName = vnode.attrs.pipelineName;
-      dropdown.toggle(pipelineName);
-      e.stopPropagation();
-    };
-  },
-
   view: (vnode) => {
-    const ctrl         = vnode.state;
     const instance     = vnode.attrs.instance;
     const dropdown     = vnode.attrs.dropdown;
     const pipelineName = vnode.attrs.pipelineName;
@@ -45,7 +33,10 @@ const PipelineInstanceWidget = {
         <div class="more_info">
           <ul class="info">
             <li><a href={instance.comparePath}> Compare </a></li>
-            <li><a onclick={ctrl.toggleChanges}><span class="changes"> Changes</span> </a></li>
+            <li><a onclick={(e) => {
+              dropdown.toggle(pipelineName);
+              e.stopPropagation();
+            }}><span class="changes"> Changes</span> </a></li>
             <li><a href={instance.vsmPath}> VSM </a></li>
           </ul>
           <MaterialChangesWidget materialRevisions={instance.materialRevisions}

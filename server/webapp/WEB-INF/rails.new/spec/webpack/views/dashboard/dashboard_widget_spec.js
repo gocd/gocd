@@ -116,6 +116,43 @@ describe("Dashboard Widget", () => {
     Modal.destroyAll();
   });
 
+  it("should show changes popup for a searched pipeline", () => {
+    const searchField = $root.find('#pipeline_search').get(0);
+    expect($root.find('.pipeline')).toHaveLength(2);
+
+    $(searchField).val('up42');
+    simulateEvent.simulate(searchField, 'input');
+    m.redraw();
+
+    expect($root.find('.pipeline')).toHaveLength(1);
+
+    const up42ChangesLink   = $root.find('.info a').get(1);
+    const up42ChangesWidget = $root.find('.material_changes');
+    expect(up42ChangesWidget).toBeInDOM();
+    expect(up42ChangesWidget).toHaveClass('hide');
+
+    up42ChangesLink.click();
+
+    expect(up42ChangesWidget).toBeInDOM();
+    expect(up42ChangesWidget).toHaveClass('show');
+
+    $(searchField).val('up43');
+    simulateEvent.simulate(searchField, 'input');
+    m.redraw();
+
+    expect($root.find('.pipeline')).toHaveLength(1);
+
+    const up43ChangesLink   = $root.find('.info a').get(1);
+    const up43ChangesWidget = $root.find('.material_changes');
+    expect(up43ChangesWidget).toBeInDOM();
+    expect(up43ChangesWidget).toHaveClass('hide');
+
+    up43ChangesLink.click();
+
+    expect(up43ChangesWidget).toBeInDOM();
+    expect(up43ChangesWidget).toHaveClass('show');
+  });
+
   it("should render pipeline groups", () => {
     const pipelineGroupsCount = dashboardJson._embedded.pipeline_groups.length;
     const pipelineGroups      = $root.find('.pipeline-group');
@@ -217,6 +254,31 @@ describe("Dashboard Widget", () => {
               "paused":       false,
               "paused_by":    null,
               "pause_reason": null
+            },
+            "build_cause":            {
+              "approver":           "",
+              "is_forced":          false,
+              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+              "material_revisions": [
+                {
+                  "material_type": "Git",
+                  "material_name": "test-repo",
+                  "changed":       true,
+                  "modifications": [
+                    {
+                      "_links":        {
+                        "vsm": {
+                          "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                        }
+                      },
+                      "user_name":     "GoCD Test User <devnull@example.com>",
+                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                      "modified_time": "2017-12-19T05:30:32.000Z",
+                      "comment":       "Initial commit"
+                    }
+                  ]
+                }
+              ]
             },
             "_embedded":              {
               "instances": [
@@ -324,6 +386,31 @@ describe("Dashboard Widget", () => {
               "paused":       false,
               "paused_by":    null,
               "pause_reason": null
+            },
+            "build_cause":            {
+              "approver":           "",
+              "is_forced":          false,
+              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+              "material_revisions": [
+                {
+                  "material_type": "Git",
+                  "material_name": "test-repo",
+                  "changed":       true,
+                  "modifications": [
+                    {
+                      "_links":        {
+                        "vsm": {
+                          "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                        }
+                      },
+                      "user_name":     "GoCD Test User <devnull@example.com>",
+                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                      "modified_time": "2017-12-19T05:30:32.000Z",
+                      "comment":       "Initial commit"
+                    }
+                  ]
+                }
+              ]
             },
             "_embedded":              {
               "instances": [

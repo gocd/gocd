@@ -32,6 +32,10 @@ public class Capabilities {
         return supportsPipelineAnalytics;
     }
 
+    public boolean supportsDashboardAnalytics() {
+        return this.supportedAnalyticsDashboardMetrics != null && this.supportedAnalyticsDashboardMetrics.size() > 0;
+    }
+
     public List<String> supportedAnalyticsDashboardMetrics() {
         return supportedAnalyticsDashboardMetrics;
     }

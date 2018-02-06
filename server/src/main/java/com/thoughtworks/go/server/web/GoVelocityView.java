@@ -127,7 +127,7 @@ public class GoVelocityView extends VelocityToolboxView {
     private boolean isSupportsAnalyticsDashboard() {
         for (Object obj : getPluginInfoFinder().allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
             AnalyticsPluginInfo info = (AnalyticsPluginInfo) obj;
-            if (info.getCapabilities().supportedAnalyticsDashboardMetrics().size() > 0) {
+            if (info.getCapabilities().supportsDashboardAnalytics()) {
                 return true;
             }
         }

@@ -89,4 +89,28 @@ describe("ServerHealthMessagesCountWidget", () => {
     simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .close').get(0), 'click');
   });
 
+  it('should trust html messages in modal', () => {
+    m.mount(root, {
+      view() {
+        return m(ServerHealthMessagesCountWidget, {
+          serverHealthMessages: Stream(new ServerHealthMessages([{
+            "message": "Test Message",
+            "detail":  "This is a <a href='http://example.com'>link</a>",
+            "level":   "ERROR",
+            "time":    "2018-01-30T07:34:43Z"
+          }]))
+        });
+      }
+    });
+    m.redraw(true);
+    simulateEvent.simulate($root.find('a').get(0), 'click');
+    m.redraw(true);
+
+    expect($('.new-modal-container .server-health-status .message:first')).toContainText("Test Message");
+    expect($('.new-modal-container .server-health-status .detail:first')).toContainHtml("This is a <a href='http://example.com'>link</a>");
+    expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(timeFormatter("2018-01-30T07:34:43Z"));
+
+    simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .close').get(0), 'click');
+  });
+
 });

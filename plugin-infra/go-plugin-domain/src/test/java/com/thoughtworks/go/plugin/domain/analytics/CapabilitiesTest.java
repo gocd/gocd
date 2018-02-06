@@ -39,4 +39,13 @@ public class CapabilitiesTest {
         assertNotEquals(capabilities, capabilities3);
         assertNotEquals(capabilities.hashCode(), capabilities3.hashCode());
     }
+
+    @Test
+    public void shouldSupportDashboardAnalyticsIfPluginListsSupportedAnalyticsDashboardMetrics() throws Exception {
+        assertTrue(new Capabilities(true, Collections.singletonList("foo")).supportsDashboardAnalytics());
+
+        assertFalse(new Capabilities(true, Collections.emptyList()).supportsDashboardAnalytics());
+
+        assertFalse(new Capabilities(true, null).supportsDashboardAnalytics());
+    }
 }

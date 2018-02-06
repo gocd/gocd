@@ -42,12 +42,12 @@
   });
 
   document.addEventListener("DOMContentLoaded", () => {
-    const main = document.querySelector("[data-plugin-ids]");
+    const main = document.querySelector("[data-supported-dashboard-metrics]");
 
     m.mount(main, {
       view() {
         const frames = [];
-        $.each($(main).data("plugin-ids"), (pluginId, metrics) => {
+        $.each($(main).data("supported-dashboard-metrics"), (pluginId, metrics) => {
           $.each(metrics, (idx, metric) => {
             const uid = `f-${pluginId}:${metric}:${idx}`;
 

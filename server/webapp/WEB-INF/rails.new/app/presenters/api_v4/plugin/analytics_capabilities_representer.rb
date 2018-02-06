@@ -20,7 +20,11 @@ module ApiV4
       alias_method :capabilities, :represented
 
       property :supports_pipeline_analytics
+      property :supported_dashboard_analytics_metrics, exec_context: :decorator
 
+      def supported_dashboard_analytics_metrics
+        capabilities.supportedAnalyticsDashboardMetrics() || []
+      end
     end
   end
 end

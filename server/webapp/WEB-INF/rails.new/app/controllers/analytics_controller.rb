@@ -24,9 +24,9 @@ class AnalyticsController < ApplicationController
 
   def index
     @view_title = 'Analytics'
-    @plugin_ids = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({})do |memo, plugin|
+    @supported_dashboard_metrics = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({})do |memo, plugin|
       key = plugin.getDescriptor().id()
-      memo[key] = plugin.getCapabilities().supportedAnalyticsDashboardMetrics() if plugin.getCapabilities().supportedAnalyticsDashboardMetrics().size() > 0
+      memo[key] = plugin.getCapabilities().supportedAnalyticsDashboardMetrics() if plugin.getCapabilities().supportsDashboardAnalytics()
       memo
     end
   end

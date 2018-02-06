@@ -63,6 +63,7 @@ describe AnalyticsController do
 
       allow(info).to receive(:getDescriptor).and_return(descriptor)
       allow(info).to receive(:getCapabilities).and_return(cap)
+      allow(cap).to receive(:supportsDashboardAnalytics).and_return(true)
       allow(cap).to receive(:supportedAnalyticsDashboardMetrics).and_return(["foo"])
 
       allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
@@ -71,7 +72,7 @@ describe AnalyticsController do
       get :index
 
       expect(response).to be_ok
-      expect(controller.instance_variable_get(:@plugin_ids)).to eq({"com.tw.myplugin" => ["foo"]})
+      expect(controller.instance_variable_get(:@supported_dashboard_metrics)).to eq({"com.tw.myplugin" => ["foo"]})
     end
 
     it 'should render the analytics data for the dashboard' do

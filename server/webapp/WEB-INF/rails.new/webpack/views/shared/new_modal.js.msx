@@ -57,24 +57,25 @@ const Modal = function (options) {
       };
     },
 
-    view (vnode) {
+    view(vnode) {
       return (
         <div class="reveal-overlay" style={{display: 'block'}}>
           <div class={`reveal ${  options.size ? options.size : ''}`}
                style={{display: 'block'}}>
 
-            <h4 class='modal-title'>{options.title}</h4>
+            <div class="modal-header">
+              <span class="modal-title">{options.title}</span>
+              <button class="close-button"
+                      aria-label="Close modal"
+                      type="button"
+                      onclick={vnode.state.close.bind(vnode, options.onclose, self.destroy)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
 
             <div class="modal-body">
               {options.body()}
             </div>
-
-            <button class="close-button"
-                    aria-label="Close modal"
-                    type="button"
-                    onclick={vnode.state.close.bind(vnode, options.onclose, self.destroy)}>
-              <span aria-hidden="true">&times;</span>
-            </button>
 
             <f.row class="modal-buttons" collapse>
               {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
@@ -93,11 +94,13 @@ const Modal = function (options) {
 
   this.render = function () {
     allModals[modalId] = this;
+    $('body').addClass("fixed");
     m.redraw();
   };
 
   this.destroy = function () {
     delete allModals[modalId];
+    $('body').removeClass("fixed");
     m.redraw();
   };
 };

@@ -117,9 +117,8 @@ const PipelineHeaderWidget = {
   oninit(vnode) {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.vm.operationMessages;
-    const pipeline          = vnode.attrs.pipeline;
 
-    self.unlock = () => {
+    self.unlock = (pipeline) => {
       vnode.attrs.doCancelPolling();
       pipeline.unlock().then((res) => {
         operationMessages.success(pipeline.name, res.message);
@@ -142,7 +141,7 @@ const PipelineHeaderWidget = {
     let pipelineLockButton;
     if (pipeline.isLocked) {
       pipelineLockButton = pipeline.canUnlock
-        ? (<button onclick={vnode.state.unlock} className="pipeline_locked"/>)
+        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} className="pipeline_locked"/>)
         : (<button className="pipeline_locked disabled"/>);
     }
 

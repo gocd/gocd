@@ -302,6 +302,7 @@ public class AgentWebSocketClientControllerTest {
         build.setPropertyBaseUrl("http://foo.bar/properties");
         build.setBuildLocator("build1");
         build.setBuildLocatorForDisplay("build1ForDisplay");
+        build.setConsoleLogCharset("utf-8");
         build.setBuildCommand(BuildCommand.compose(
                 BuildSessionBasedTestCase.execSleepScript(MAX_WAIT_IN_TEST / 1000),
                 BuildCommand.reportCurrentStatus(JobState.Building)));

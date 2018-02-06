@@ -16,7 +16,6 @@
 package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +52,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         Map<String, String> secrets = buildSession.getSecretSubstitutions();
         Set<String> leftSecrets = new HashSet<>(secrets.keySet());
 
-        CommandLine commandLine = createCommandLine(cmd);
+        CommandLine commandLine = createCommandLine(cmd, buildSession.getConsoleLogCharset());
 
         for (String arg : args) {
             if(secrets.containsKey(arg)) {
@@ -75,7 +74,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         return executeCommandLine(buildSession, commandLine, command.getExecInput()) == 0;
     }
 
-    private CommandLine createCommandLine(String cmd) {
+    private CommandLine createCommandLine(String cmd, String consoleLogCharset) {
         CommandLine commandLine;
         if (SystemUtils.IS_OS_WINDOWS) {
             commandLine = CommandLine.createCommandLine("cmd");
@@ -84,7 +83,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         } else {
             commandLine = CommandLine.createCommandLine(cmd);
         }
-        commandLine.withEncoding(new SystemEnvironment().consoleLogCharset());
+        commandLine.withEncoding(consoleLogCharset);
         return commandLine;
     }
 

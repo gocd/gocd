@@ -68,7 +68,7 @@ public class BuildSessionBasedTestCase {
                 agentIdentifier, statusReporter,
                 console,
                 StrLookup.mapLookup(buildVariables),
-                artifactsRepository, httpService, new TestingClock(), sandbox);
+                artifactsRepository, httpService, new TestingClock(), sandbox, "utf-8");
     }
 
     protected String buildInfo() {

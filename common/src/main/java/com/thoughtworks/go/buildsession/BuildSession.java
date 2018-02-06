@@ -57,6 +57,7 @@ public class BuildSession {
     private Clock clock;
     private final CountDownLatch doneLatch;
     private CountDownLatch cancelLatch;
+    private final String consoleLogCharset;
 
     private static Map<String, BuildCommandExecutor> executors = new HashMap<>();
 
@@ -81,7 +82,7 @@ public class BuildSession {
         executors.put("error", new ErrorCommandExecutor());
     }
 
-    public BuildSession(String buildId, AgentIdentifier agentIdentifier, BuildStateReporter buildStateReporter, TaggedStreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
+    public BuildSession(String buildId, AgentIdentifier agentIdentifier, BuildStateReporter buildStateReporter, TaggedStreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir, String consoleLogCharset) {
         this.buildId = buildId;
         this.agentIdentifier = agentIdentifier;
         this.buildStateReporter = buildStateReporter;
@@ -91,6 +92,7 @@ public class BuildSession {
         this.httpService = httpService;
         this.clock = clock;
         this.workingDir = workingDir;
+        this.consoleLogCharset = consoleLogCharset;
         this.envs = new HashMap<>();
         this.secretSubstitutions = new HashMap<>();
         this.buildResult = JobResult.Passed;
@@ -285,7 +287,7 @@ public class BuildSession {
 
     BuildSession newTestingSession(TaggedStreamConsumer console) {
         BuildSession buildSession = new BuildSession(
-                buildId, agentIdentifier, new UncaringBuildStateReport(), console, buildVariables, artifactsRepository, httpService, clock, workingDir);
+                buildId, agentIdentifier, new UncaringBuildStateReport(), console, buildVariables, artifactsRepository, httpService, clock, workingDir, consoleLogCharset);
         buildSession.cancelLatch = this.cancelLatch;
         return buildSession;
     }
@@ -311,7 +313,7 @@ public class BuildSession {
 
     private BuildSession newCancelSession() {
         return new BuildSession(buildId, agentIdentifier, new UncaringBuildStateReport(),
-                console, buildVariables, artifactsRepository, httpService, clock, workingDir);
+                console, buildVariables, artifactsRepository, httpService, clock, workingDir, consoleLogCharset);
     }
 
 
@@ -344,5 +346,9 @@ public class BuildSession {
 
     public AgentIdentifier getAgentIdentifier() {
         return agentIdentifier;
+    }
+
+    public String getConsoleLogCharset() {
+        return consoleLogCharset;
     }
 }

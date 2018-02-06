@@ -195,7 +195,7 @@ public class AgentWebSocketClientController extends AgentController {
                 buildConsole,
                 buildVariables,
                 artifactsRepository,
-                httpService, clock, new File("."));
+                httpService, clock, new File("."), buildSettings.getConsoleLogCharset());
 
         this.buildSession.set(build);
 

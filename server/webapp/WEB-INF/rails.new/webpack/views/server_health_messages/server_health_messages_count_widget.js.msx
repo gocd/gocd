@@ -24,7 +24,7 @@ const HealthMessageWidget = {
       <div class={`server-health-status ${vnode.attrs.message.level.toLowerCase()}`}>
         <div class="message">{vnode.attrs.message.message}</div>
         <div class="timestamp">{timeFormatter(vnode.attrs.message.time)}</div>
-        <div class="detail">{vnode.attrs.message.detail}</div>
+        <div class="detail">{m.trust(vnode.attrs.message.detail)}</div>
       </div>
     );
   }

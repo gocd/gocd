@@ -23,9 +23,11 @@ describe("Dashboard Widget", () => {
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
   const Modal           = require('views/shared/new_modal');
 
-  let $root, root, dashboard, dashboardJson;
+  let $root, root, dashboard, dashboardJson, doCancelPolling, doRefreshImmediately;
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
+    doCancelPolling      = jasmine.createSpy();
+    doRefreshImmediately = jasmine.createSpy();
+    [$root, root]        = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
@@ -151,6 +153,40 @@ describe("Dashboard Widget", () => {
 
     expect(up43ChangesWidget).toBeInDOM();
     expect(up43ChangesWidget).toHaveClass('show');
+  });
+
+
+  it("should unlock a searched pipeline", () => {
+    jasmine.Ajax.withMock(() => {
+      const responseMessage = `Pipeline 'up43' unlocked successfully.`;
+      jasmine.Ajax.stubRequest(`/go/api/pipelines/up43/unlock`, undefined, 'POST').andReturn({
+        responseText:    JSON.stringify({"message": responseMessage}),
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        },
+        status:          200
+      });
+
+      const searchField = $root.find('#pipeline_search').get(0);
+      expect($root.find('.pipeline')).toHaveLength(2);
+
+      $(searchField).val('up43');
+      simulateEvent.simulate(searchField, 'input');
+      m.redraw();
+
+      expect($root.find('.pipeline')).toHaveLength(1);
+
+      expect(doCancelPolling).not.toHaveBeenCalled();
+      expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+      simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+      expect(doCancelPolling).toHaveBeenCalled();
+      expect(doRefreshImmediately).toHaveBeenCalled();
+
+      expect($root.find('.pipeline_message')).toContainText(responseMessage);
+      expect($root.find('.pipeline_message')).toHaveClass("success");
+    });
   });
 
   it("should render pipeline groups", () => {
@@ -381,7 +417,8 @@ describe("Dashboard Widget", () => {
             },
             "name":                   "up43",
             "last_updated_timestamp": 1510299695473,
-            "locked":                 false,
+            "locked":                 true,
+            "can_unlock":             true,
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,
@@ -499,6 +536,8 @@ describe("Dashboard Widget", () => {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          doCancelPolling,
+          doRefreshImmediately,
           vm: dashboardViewModel
         });
       }

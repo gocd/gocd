@@ -19,11 +19,12 @@ const Routes           = require('gen/js-routes');
 const MaterialRevision = require('models/dashboard/material_revision');
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
-  this.name               = json.name;
-  this.counter            = json.counter;
-  this.status             = json.status;
-  this.stageDetailTabPath = Routes.stageDetailTabPath(pipelineName, pipelineCounter, json.name, json.counter);
-  this.isBuilding         = () => json.status === 'Building';
+  this.name                  = json.name;
+  this.counter               = json.counter;
+  this.status                = json.status;
+  this.stageDetailTabPath    = Routes.stageDetailTabPath(pipelineName, pipelineCounter, json.name, json.counter);
+  this.isBuilding            = () => json.status === 'Building';
+  this.isBuildingOrCompleted = () => json.status !== 'Unknown';
 };
 
 const PipelineInstance = function (info, pipelineName) {
@@ -39,19 +40,6 @@ const PipelineInstance = function (info, pipelineName) {
   this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
 
   this.materialRevisions = _.map(info.build_cause.material_revisions, (revision) => new MaterialRevision(revision));
-
-  this.latestStageInfo = () => {
-    const stages = this.stages;
-
-    for (let i = 0; i < stages.length; i++) {
-      if (stages[i].isBuilding()) {
-        return `${stages[i].status}: ${stages[i].name}`;
-      }
-    }
-
-    const lastStage = stages[stages.length - 1];
-    return `${lastStage.status}: ${lastStage.name}`;
-  };
 };
 
 module.exports = PipelineInstance;

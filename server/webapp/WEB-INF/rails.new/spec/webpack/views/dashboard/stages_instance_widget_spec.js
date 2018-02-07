@@ -103,7 +103,7 @@ describe("Dashboard Stages Instance Widget", () => {
           },
           "name":         "up42_stage2",
           "counter":      "1",
-          "status":       "Building",
+          "status":       "Unknown",
           "approved_by":  "changes",
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         }
@@ -134,14 +134,18 @@ describe("Dashboard Stages Instance Widget", () => {
     const stagesInstance = $root.find('.pipeline_stage');
 
     expect(stagesInstance.get(0)).toHaveClass('failed');
-    expect(stagesInstance.get(1)).toHaveClass('building');
+    expect(stagesInstance.get(1)).toHaveClass('unknown');
   });
 
   it("should link to stage details page", () => {
     const stagesInstance = $root.find('.pipeline_stage');
 
     expect(stagesInstance.get(0).href.indexOf(`/go/pipelines/up42/1/up42_stage/1`)).not.toEqual(-1);
-    expect(stagesInstance.get(1).href.indexOf(`/go/pipelines/up42/1/up42_stage2/1`)).not.toEqual(-1);
+  });
+
+  it("should not link to stage details page for stages with no run", () => {
+    expect($root.find('span.pipeline_stage')).toBeInDOM();
+    expect($root.find('span.pipeline_stage')).toHaveClass('unknown');
   });
 
   it("should show stage status on hover", () => {

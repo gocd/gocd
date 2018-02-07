@@ -18,17 +18,25 @@ const m = require("mithril");
 const f = require('helpers/form_helper');
 
 const PipelinePauseModalBody = {
+  oncreate(vnode) {
+    debugger;
+    const input = vnode.dom.querySelector('input');
+    if (input !== null) {
+      //workaround to make input.focus work on chrome
+      window.setTimeout(input.focus.bind(input), 10);
+    }
+  },
+  
   view(vnode) {
-    const pauseMessage = vnode.attrs.message;
-    const updateMessage  = (message) => pauseMessage(message);
+    const pauseMessage  = vnode.attrs.message;
 
     return (<div>
-      <f.input oninput={m.withAttr("value", updateMessage)}
+      <f.input oninput={m.withAttr("value", pauseMessage)}
                value={pauseMessage()}
                label={[
-                 <span class="required">Specify a reason for pausing schedule on pipeline {vnode.attrs.pipelineName}</span>,
+                 <span
+                   class="required">Specify a reason for pausing schedule on pipeline {vnode.attrs.pipelineName}</span>,
                ]}
-               autofocus
       />
     </div>);
   }

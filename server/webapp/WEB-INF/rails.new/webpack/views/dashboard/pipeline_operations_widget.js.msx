@@ -75,6 +75,10 @@ const PipelineOperationsWidget = {
               }
             }
           ];
+        },
+        enterKeyCallback: () => {
+          self.pause(pipeline);
+          modal.destroy();
         }
       });
       modal.render();

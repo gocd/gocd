@@ -19,14 +19,13 @@ const f = require('helpers/form_helper');
 
 const PipelinePauseModalBody = {
   oncreate(vnode) {
-    debugger;
     const input = vnode.dom.querySelector('input');
     if (input !== null) {
       //workaround to make input.focus work on chrome
       window.setTimeout(input.focus.bind(input), 10);
     }
   },
-  
+
   view(vnode) {
     const pauseMessage  = vnode.attrs.message;
 

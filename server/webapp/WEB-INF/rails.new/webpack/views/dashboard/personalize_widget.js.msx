@@ -1,0 +1,195 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                 = require('mithril');
+const Stream            = require('mithril/stream');
+const _                 = require('lodash');
+const PipelineSelection = require("models/dashboard/pipeline_selection");
+
+const PersonalizeWidget = {
+  oninit(vnode) {
+    const self            = vnode.state;
+    self.updateInProgress = Stream(false);
+
+    const setSelectionForAllPipelines = (isSelected) => {
+      const selections = vnode.attrs.pipelineSelection().selections;
+      _.each(_.keys(selections), (pipelineName) => {
+        selections[pipelineName](isSelected);
+      });
+    };
+
+    self.selectAll = () => {
+      setSelectionForAllPipelines(true);
+    };
+
+    self.selectNone = () => {
+      setSelectionForAllPipelines(false);
+    };
+
+    self.areAllPipelinesInState = (state) => {
+      const selections = vnode.attrs.pipelineSelection().selections;
+      return _.every(_.keys(selections), (pipelineName) => {
+        return (selections[pipelineName]() === state);
+      });
+    };
+
+
+    self.toggleBlacklist = () => {
+      const blacklist = vnode.attrs.pipelineSelection().blacklist;
+      blacklist(!blacklist());
+    };
+
+    self.togglePipelineSelection = (pipelineName) => {
+      const selection = vnode.attrs.pipelineSelection().selections[pipelineName];
+      selection(!selection());
+    };
+
+    const setPipelineSelection = (pipelineName, isSelected) => {
+      vnode.attrs.pipelineSelection().selections[pipelineName](isSelected);
+    };
+
+    self.togglePipelineGroupSelection = (groupName) => {
+      const currentCheckedState = self.isPipelineGroupChecked(groupName);
+
+      const allPipelines = vnode.attrs.pipelineSelection().pipelineGroups()[groupName];
+      _.each(allPipelines, (pipelineName) => {
+        setPipelineSelection(pipelineName, !currentCheckedState);
+      });
+    };
+
+    self.isPipelineGroupChecked = (groupName) => {
+      return _.every(vnode.attrs.pipelineSelection().pipelineGroups()[groupName], (pipelineName) => {
+        return vnode.attrs.pipelineSelection().selections[pipelineName]();
+      });
+    };
+
+    self.expandCollapseClassforGroup = (groupName) => {
+      return vnode.attrs.vm.isGroupExpanded(groupName) ? 'expanded' : 'close';
+    };
+
+    self.applySelectionFilter = () => {
+      self.updateInProgress(true);
+      vnode.attrs.pipelineSelection().update()
+        .then(vnode.attrs.doRefreshImmediately)
+        .always(() => {
+          self.updateInProgress(false);
+          m.redraw();
+        });
+    };
+
+    self.getPipelineGroupCheckboxes = (groupName, pipelines) => {
+      let pipelineCheckboxes, expandCollapseIcon;
+
+      if (vnode.attrs.vm.isGroupExpanded(groupName)) {
+        pipelineCheckboxes = _.map(pipelines, (pipelineName) => {
+          return (
+            <li class="hidden">
+              <input type="checkbox"
+                     class="pipeline-cb"
+                     id={`pipeline_${pipelineName}`}
+                     onclick={self.togglePipelineSelection.bind(self, pipelineName)}
+                     checked={vnode.attrs.pipelineSelection().selections[pipelineName]()}/>
+              <label for={`pipeline_${pipelineName}`}>{pipelineName}</label>
+            </li>
+          );
+        });
+
+        expandCollapseIcon = (<div class="expand-collapse-icon expanded"
+                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}>+</div>);
+      } else {
+        expandCollapseIcon = (<div class="expand-collapse-icon collapsed"
+                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}>-</div>);
+      }
+
+      return (
+        <section class="filter_group">
+          <h4 class={`filter_pipeline-group ${ self.expandCollapseClassforGroup(groupName)}`}>
+            {expandCollapseIcon}
+            <input type="checkbox"
+                   class="pgroup-cb"
+                   id={`pgroup_${groupName}`}
+                   onclick={self.togglePipelineGroupSelection.bind(self, groupName)}
+                   checked={self.isPipelineGroupChecked(groupName)}/>
+            <label for={`pgroup_${groupName}`}> {groupName} </label>
+          </h4>
+          <ul class="filter_pipeline-list">
+            {pipelineCheckboxes}
+          </ul>
+        </section>
+      );
+    };
+  },
+
+  view(vnode) {
+    const self              = vnode.state;
+    const pipelineSelection = vnode.attrs.pipelineSelection();
+
+    if (!pipelineSelection) {
+      return (<div class="personalize-spinner-container">
+        <div class="page-spinner"/>
+      </div>);
+    }
+
+    const pipelineGroupCheckboxes = (
+      <div class="filter_pipelines">
+        {
+          _.map(_.keys(pipelineSelection.pipelineGroups()), (groupName) => {
+            return self.getPipelineGroupCheckboxes(groupName, pipelineSelection.pipelineGroups()[groupName]);
+          })
+        }
+      </div>);
+
+    let mayBeSpinner, inProgressClass = '';
+    if (vnode.state.updateInProgress()) {
+      inProgressClass = 'page-save-in-progress';
+      mayBeSpinner    = (<div class="page-spinner"/>);
+    }
+
+    return (<div class={`filter_options`}>
+        <div class={inProgressClass}>
+          <header class="filter_header">
+            <h5> Select</h5>
+            <div class="selection">
+              <button class={`btn-select select-all ${ self.areAllPipelinesInState(true) ? 'selected' : ''}`}
+                      onclick={self.selectAll.bind(self)}>
+                All
+              </button>
+              <button class={`btn-select select-none ${ self.areAllPipelinesInState(false) ? 'selected' : ''}`}
+                      onclick={self.selectNone.bind(self)}>
+                None
+              </button>
+            </div>
+            <div class="recent-pipeline">
+              <input type="checkbox" id="show-newly-created-pipelines"
+                     checked={pipelineSelection.blacklist()}
+                     onclick={self.toggleBlacklist.bind(self)}/>
+              <label for="show-newly-created-pipelines">show recent pipelines</label>
+            </div>
+          </header>
+          {pipelineGroupCheckboxes}
+          <footer class="filter_footer">
+            <button class="btn-small btn-primary" onclick={self.applySelectionFilter.bind(self)}>
+              Apply
+            </button>
+          </footer>
+        </div>
+        {mayBeSpinner}
+      </div>
+    );
+  }
+};
+
+module.exports = PersonalizeWidget;

@@ -132,11 +132,11 @@ const PipelineOperationsWidget = {
 
     let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
     if (pipeline.isPaused) {
-      pauseUnpauseClass   = `btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pauseUnpauseClass   = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
       pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
-      pauseUnpauseClass   = `btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pauseUnpauseClass   = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
     }
 
@@ -157,11 +157,11 @@ const PipelineOperationsWidget = {
         {flashMessage}
         <ul className="pipeline_operations">
           <li>
-            <button class={`btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
+            <button class={`pipeline_btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
           </li>
           <li>
             <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
-                    class={`btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
+                    class={`pipeline_btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
           </li>
           <li>
             <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>

@@ -48,15 +48,39 @@ describe("Dashboard Widget", () => {
   afterEach(unmount);
 
   it("should render dashboard pipelines header", () => {
-    expect($root.find('.page-header')).toContainText('Pipelines');
+    expect($root.find('.page_header')).toContainText('Pipelines');
   });
 
   it("should render dashboard pipeline search field", () => {
-    expect($root.find('.pipeline_search')).toBeInDOM();
+    expect($root.find('.filter input')).toBeInDOM();
+  });
+
+  it("should render personalize view button", () => {
+    expect($root.find('.filter_btn')).toBeInDOM();
+  });
+
+  it("should show personalize view", () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
+        responseText:    JSON.stringify({}),
+        responseHeaders: {
+          ETag:           'etag',
+          'Content-Type': 'application/vnd.go.cd.v2+json'
+        },
+        status:          200
+      });
+
+      expect($root.find('.filter_options')).not.toBeInDOM();
+      $root.find('.filter_btn').click();
+      expect($root.find('.filter_options')).toBeInDOM();
+    });
+  });
+
+  xit("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
   });
 
   it("should search for a pipeline", () => {
-    const searchField        = $root.find('#pipeline_search').get(0);
+    const searchField        = $root.find('.pipeline-search').get(0);
     let pipelinesCountOnPage = $root.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
@@ -110,7 +134,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show appropriate modal for pausing a searched pipeline", () => {
-    const searchField = $root.find('#pipeline_search').get(0);
+    const searchField = $root.find('.pipeline-search').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -169,7 +193,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show changes popup for a searched pipeline", () => {
-    const searchField = $root.find('#pipeline_search').get(0);
+    const searchField = $root.find('.pipeline-search').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -206,7 +230,7 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      const searchField = $root.find('#pipeline_search').get(0);
+      const searchField = $root.find('.pipeline-search').get(0);
       expect($root.find('.pipeline')).toHaveLength(2);
 
       $(searchField).val('up43');

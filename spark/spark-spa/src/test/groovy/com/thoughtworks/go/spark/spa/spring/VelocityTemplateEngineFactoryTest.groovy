@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver
+import org.springframework.core.io.DefaultResourceLoader
 import spark.ModelAndView
 
 import static org.mockito.Mockito.mock
@@ -40,7 +40,7 @@ class VelocityTemplateEngineFactoryTest {
   void setUp() {
     initMocks(this)
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService))
-    engine = new VelocityTemplateEngineFactory(initialContextProvider, new PathMatchingResourcePatternResolver(getClass().getClassLoader()).getResources("classpath*:velocity"))
+    engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
   }
 

@@ -133,6 +133,11 @@ describe("Dashboard Pipeline Instance Widget", () => {
     expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
+  it("should show server triggered by information on hover", () => {
+    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
+    expect($root.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
+  });
+
   it("should render compare link", () => {
     const links       = $root.find('.info a');
     const compareLink = links.get(0);

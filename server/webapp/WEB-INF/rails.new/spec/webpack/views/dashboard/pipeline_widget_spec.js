@@ -112,6 +112,10 @@ describe("Dashboard Pipeline Widget", () => {
       expect($root.find('.pipeline_name')).toContainText('up42');
     });
 
+    it("should show pipeline name on hover", () => {
+      expect($root.find('.pipeline_name').get(0).title).toEqual('up42');
+    });
+
     it("should link history to pipeline history page", () => {
       expect($root.find('.pipeline_header>div>a')).toContainText('History');
       const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;

@@ -21,7 +21,10 @@ const StagesInstanceWidget = {
   view: (vnode) => {
     const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
-      return (<a href={stage.stageDetailTabPath} class={`pipeline_stage ${  stage.status.toLowerCase() }`}>
+      const stageStatus = `${stage.name} (${stage.status})`;
+      return (<a href={stage.stageDetailTabPath}
+                 class={`pipeline_stage ${  stage.status.toLowerCase() }`}
+                 title={stageStatus}>
         <span><span></span></span>
       </a>);
     });

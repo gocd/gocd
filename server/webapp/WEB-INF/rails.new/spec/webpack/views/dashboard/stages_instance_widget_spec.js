@@ -143,4 +143,13 @@ describe("Dashboard Stages Instance Widget", () => {
     expect(stagesInstance.get(0).href.indexOf(`/go/pipelines/up42/1/up42_stage/1`)).not.toEqual(-1);
     expect(stagesInstance.get(1).href.indexOf(`/go/pipelines/up42/1/up42_stage2/1`)).not.toEqual(-1);
   });
+
+  it("should show stage status on hover", () => {
+    const stages       = pipelineInstanceJson._embedded.stages;
+    const stage1Status = `${stages[0].name} (${stages[0].status})`;
+    const stage2Status = `${stages[1].name} (${stages[1].status})`;
+
+    expect($root.find('.pipeline_stage').get(0).title).toEqual(stage1Status);
+    expect($root.find('.pipeline_stage').get(1).title).toEqual(stage2Status);
+  });
 });

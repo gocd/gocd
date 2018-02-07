@@ -150,7 +150,7 @@ const PipelineHeaderWidget = {
 
     return (
       <div class="pipeline_header">
-        <h3 class="pipeline_name"> {pipeline.name} </h3>
+        <h3 class="pipeline_name" title={pipeline.name}> {pipeline.name} </h3>
         <div className="pipeline_actions">
           {settingsButton}
           {pipelineLockButton}

@@ -18,8 +18,8 @@ description = 'Metadata store for GoCD Plugins'
 
 dependencies {
   compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
-  compile project(':go-plugin-api')
-  compile project(':go-plugin-domain')
+  compile project(':plugin-infra:go-plugin-api')
+  compile project(':plugin-infra:go-plugin-domain')
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile project(':test-utils')
 }

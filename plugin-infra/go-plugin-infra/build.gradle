@@ -19,7 +19,7 @@ description = 'GoCD Plugin Infrastructure'
 dependencies {
   compile project(':base')
   compile project(':util')
-  compile project(':go-plugin-activator')
+  compile project(':plugin-infra:go-plugin-activator')
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
   compile(group: 'commons-digester', name: 'commons-digester', version: '1.8') {

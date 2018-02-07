@@ -48,11 +48,11 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
-  packagingInDefaultFilesDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
+  packagingInDefaultFilesDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
-  packagingInLibDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
+  packagingInLibDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
-  packagingInLibDir(project(path: ':go-plugin-activator')) {
+  packagingInLibDir(project(path: ':plugin-infra:go-plugin-activator')) {
     transitive = false
   }
   packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
@@ -211,7 +211,7 @@ task fatJar(type: Jar) {
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
-  from("${project(':config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
+  from("${project(':config:config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
   from(h2dbZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(h2deltasZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(defaultCommandSnippetsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }

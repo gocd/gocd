@@ -120,13 +120,13 @@ sourceSets {
 dependencies {
   api project(':api').subprojects
   spark project(':spark').subprojects
-  compile project(':database')
-  compile project(':config-server')
-  compile project(':go-plugin-access')
+  compile project(':addon-api:database')
+  compile project(':config:config-server')
+  compile project(':plugin-infra:go-plugin-access')
   compile project(':common')
   compile project(':rack_hack')
 
-  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
+  copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData project(':test-agent')
@@ -205,8 +205,8 @@ dependencies {
   testCompile group: 'org.mozilla', name: 'rhino', version: project.versions.rhino
   testCompile group: 'jmock', name: 'jmock-cglib', version: '1.1.0'
   testCompile project(path: ':common', configuration: 'testOutput')
-  testCompile project(path: ':config-server', configuration: 'testOutput')
-  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':config:config-server', configuration: 'testOutput')
+  testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':test-utils')
   testCompile project(':jetty9')
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
@@ -344,7 +344,7 @@ task copyAgentJarsToServerDir(type: Copy) {
 task copyAgentSideJarsToServerDir(dependsOn: [copyAgentJarsToServerDir, copyTestDataJarsToServerDir])
 
 task prepareNoRails {
-  dependsOn = [cleanDb, prepareDb, ':go-plugin-activator:jar', copyAgentJarsToServerDir]
+  dependsOn = [cleanDb, prepareDb, ':plugin-infra:go-plugin-activator:jar', copyAgentJarsToServerDir]
 }
 
 task prepare {
@@ -558,11 +558,11 @@ task war(type: Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
+  from("${project(':config:config-server').sourceSets.main.resources}/cruise-config.xsd") {
     into '/'
   }
 
-  from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
+  from(project.project(':config:config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
   from("messages/message.properties") { into('/') }
 
   from({ compileAssets }) { into '/WEB-INF/rails.new/public/assets' }

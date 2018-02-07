@@ -205,6 +205,9 @@ allprojects {
 }
 
 subprojects {
+  if (!project.childProjects.isEmpty()) {
+    return
+  }
   apply plugin: 'base'
   apply plugin: "com.github.hierynomus.license"
 
@@ -534,7 +537,6 @@ task sparkTestJacocoReport(type: JacocoReport, group: 'Coverage reports') { Jaco
   }
 }
 
-
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
@@ -547,20 +549,6 @@ task newApi {
     project.mkdir(moduleDir)
     project.mkdir(basePackage)
     project.mkdir("${basePackage}/spring")
-
-    def settingsFile = file('settings.gradle').getText('utf-8')
-
-    def newSettingsFile = settingsFile.readLines().collect { line ->
-      if (line =~ /include ':api:/) {
-        def projectNames = (project(':api').subprojects).collect { subPrj -> subPrj.path }
-        projectNames << ":api:${newProjectName}"
-        projectNames.sort(true)
-        projectNames.unique(true)
-
-        line = "include ${projectNames.collect { name -> "'${name}'" }.join(", ")} // this line is managed by the `newApi` task"
-      }
-      line
-    }
 
     file("${moduleDir}/build.gradle").withWriter { out ->
       def contents =
@@ -666,6 +654,34 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
-    file('settings.gradle').write(newSettingsFile.join('\n'))
+    file('settings.gradle').withWriter { out ->
+
+      def contents =
+        """
+          /*
+           * Copyright ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           */
+        """
+
+      out.println(contents.stripIndent().trim())
+      out.println("")
+      out.println("rootProject.name = 'gocd'")
+      out.println("")
+      def existingProjects = rootProject.allprojects.findAll {prj -> prj.childProjects.isEmpty()}.collect { it.path }
+      def newProjects = existingProjects + [":api:${newProjectName}"]
+      newProjects.sort().unique().each { out.println  "include '${it}'" }
+    }
   }
 }

@@ -22,9 +22,9 @@ apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 
 dependencies {
-  compile project(':config-api')
+  compile project(':config:config-api')
   compile project(':api:api-base')
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':config:config-api', configuration: 'testOutput')
 }

@@ -17,14 +17,14 @@
 description = 'API to configure/access cruise-config.xml'
 
 dependencies {
-  compile project(':config-api')
+  compile project(':config:config-api')
   compile project(':common')
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit) {
     exclude(group: 'org.apache.httpcomponents')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
-  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 }

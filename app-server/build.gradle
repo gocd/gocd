@@ -31,7 +31,7 @@ dependencies {
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   testCompile project(':common')
-  testCompile project(':config-server')
-  testCompile project(':config-api')
+  testCompile project(':config:config-server')
+  testCompile project(':config:config-api')
   testCompile project(':test-utils')
 }

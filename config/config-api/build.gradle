@@ -17,8 +17,8 @@
 description = 'GoCD Config API'
 dependencies {
   compile project(':util')
-  compile project(':plugin-metadata-store')
-  compile project(':go-plugin-domain')
+  compile project(':plugin-infra:plugin-metadata-store')
+  compile project(':plugin-infra:go-plugin-domain')
   compile project(':db')
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'

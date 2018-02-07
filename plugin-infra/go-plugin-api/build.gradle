@@ -17,7 +17,7 @@
 description = 'Interfaces necessary for GoCD to access plugins'
 
 dependencies {
-  compile project(':go-plugin-api-internal')
+  compile project(':plugin-infra:go-plugin-api-internal')
   testCompile group: 'junit', name: 'junit', version: project.versions.junit
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

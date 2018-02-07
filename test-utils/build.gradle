@@ -42,7 +42,7 @@ dependencies {
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test-agent')
-  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
+  copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
 }
 

@@ -36,7 +36,7 @@ dependencies {
   compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
 
   testCompile project(path: ':common', configuration: 'testOutput')
-  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
 
   extractedAtTopLevel project(':agent-process-launcher')

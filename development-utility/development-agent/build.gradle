@@ -25,7 +25,7 @@ configurations {
 dependencies {
   compile project(':agent')
   compile project(':util')
-  copyOnly project(':go-plugin-activator')
+  copyOnly project(':plugin-infra:go-plugin-activator')
 }
 
 def generatedResourcesOutput = file("resources-generated")

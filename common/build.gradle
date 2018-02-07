@@ -29,14 +29,14 @@ integrationTest {
 }
 
 dependencies {
-  compile project(':config-api')
+  compile project(':config:config-api')
   compile project(':commandline')
   compile project(':domain')
-  compile project(':go-plugin-access')
+  compile project(':plugin-infra:go-plugin-access')
   compile group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
-  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert)
   testCompile project(':test-utils')

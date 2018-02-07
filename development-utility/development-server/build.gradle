@@ -42,7 +42,7 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
-  copyOnly project(':go-plugin-activator')
+  copyOnly project(':plugin-infra:go-plugin-activator')
 }
 
 def generatedResourcesOutput = file("resources-generated")

@@ -17,7 +17,7 @@
 description = 'Bootloader for GoCD Plugins'
 
 dependencies {
-  compile project(':go-plugin-api')
+  compile project(':plugin-infra:go-plugin-api')
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
   testCompile group: 'junit', name: 'junit', version: project.versions.junit
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest

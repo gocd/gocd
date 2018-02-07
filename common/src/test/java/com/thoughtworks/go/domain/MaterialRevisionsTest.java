@@ -492,6 +492,7 @@ public class MaterialRevisionsTest {
     public void shouldPopulateEnvironmentVariablesForEachOfTheMaterialsWithTheValueForChangedFlag(){
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         MaterialRevisions revisions = new MaterialRevisions();
+        revisions.addRevision(new MaterialRevision(MaterialsMother.hgMaterial("empty-dest-and-no-name", null), true, ModificationsMother.multipleModificationList()));
         revisions.addRevision(new MaterialRevision(MaterialsMother.hgMaterial("url", "hg-folder1"), true, ModificationsMother.multipleModificationList()));
         revisions.addRevision(new MaterialRevision(MaterialsMother.hgMaterial("url", "hg-folder2"), false, ModificationsMother.multipleModificationList()));
         revisions.addRevision(new MaterialRevision(MaterialsMother.dependencyMaterial("p1", "s1"), true, ModificationsMother.changedDependencyMaterialRevision("p3", 1, "1", "s", 1, new Date()).getModifications()));
@@ -500,8 +501,10 @@ public class MaterialRevisionsTest {
         revisions.addRevision(new MaterialRevision(MaterialsMother.pluggableSCMMaterial("scm2", "scm2name"), false, ModificationsMother.multipleModificationList()));
         revisions.addRevision(new MaterialRevision(MaterialsMother.packageMaterial("repo1", "repo1name", "pkg1", "pkg1name"), true, ModificationsMother.multipleModificationList()));
         revisions.addRevision(new MaterialRevision(MaterialsMother.packageMaterial("repo2", "repo2name", "pkg2", "pkg2name"), false, ModificationsMother.multipleModificationList()));
+
         revisions.populateEnvironmentVariables(context, null);
 
+        assertThat(context.getProperty("GO_MATERIAL__HAS_CHANGED"), is("true"));
         assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER1_HAS_CHANGED"), is("true"));
         assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER2_HAS_CHANGED"), is("false"));
         assertThat(context.getProperty("GO_MATERIAL_P1_HAS_CHANGED"), is("true"));

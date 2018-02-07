@@ -154,8 +154,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
             return escapeEnvironmentVariable(this.name.toUpper());
         }
 
-        String scrubbedFolder = escapeEnvironmentVariable(folder);
-        return StringUtils.isEmpty(scrubbedFolder) ? null : scrubbedFolder;
+        return escapeEnvironmentVariable(folder);
     }
 
     public String getFolder() {

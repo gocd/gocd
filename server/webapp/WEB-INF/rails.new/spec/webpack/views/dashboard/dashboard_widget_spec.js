@@ -163,7 +163,6 @@ describe("Dashboard Widget", () => {
     expect(up43ChangesWidget).toHaveClass('show');
   });
 
-
   it("should unlock a searched pipeline", () => {
     jasmine.Ajax.withMock(() => {
       const responseMessage = `Pipeline 'up43' unlocked successfully.`;
@@ -205,21 +204,23 @@ describe("Dashboard Widget", () => {
     expect(pipelineGroups.get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
-  it("should link pipeline group title to pipeline group index page for admin users", () => {
+  it("should render pipeline group title", () => {
+    expect($root.find('.pipeline-group_title span').get(0)).toContainText("pipeline group");
+    expect($root.find('.pipeline-group_title strong').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+  });
+
+  it("should show pipeline group settings icon which links to pipeline group index page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
     const title = $root.find('.pipeline-group_title a').get(0);
-
-    expect(title.text).toEqual(pipelineGroupJSON.name);
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
-  it("should not link pipeline group title to pipeline group index page for non admin users", () => {
+  it("should show disabled pipeline group settings icon for non admin users", () => {
     unmount();
     mount(false);
 
-    const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
-    expect($root.find('.pipeline-group_title span')).toContainText(pipelineGroupJSON.name);
+    expect($root.find('.pipeline-group_title a')).toHaveClass('disabled');
   });
 
   it("should render pipelines within each pipeline group", () => {

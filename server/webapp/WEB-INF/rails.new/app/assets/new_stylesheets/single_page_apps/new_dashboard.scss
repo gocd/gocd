@@ -85,8 +85,8 @@ $pipeline_icons_size: 16px;
 }
 
 .dashboard {
-  margin-top: 50px;
-  padding:    20px 20px 50px;
+  margin-top: 60px;
+  padding:    20px 30px 50px;
 }
 
 .pipeline_search {
@@ -100,19 +100,35 @@ $pipeline_icons_size: 16px;
 }
 
 .pipeline-group_title {
-  background:    image_url('g9/icons/icon_pipeline_group.png') no-repeat 5px center;
-  padding:       0 0 0 38px;
-  font-size:     25px;
+  padding:       0;
+  position:      relative;
+  border-bottom: 1px solid #ccc;
+  font-size:     22px;
   font-weight:   600;
   line-height:   25px;
   margin-bottom: 20px;
+  span {
+    position:    absolute;
+    font-size:   12px;
+    color:       #666;
+    font-weight: normal;
+    top:         -19px;
+  }
+
+  strong {
+    font-weight: 400;
+  }
+}
+
+.pipeline-group_edit-config {
+  margin-left: 10px;
 }
 
 .pipeline-group_items {
   display:         flex;
   flex-wrap:       wrap;
   list-style-type: none;
-  margin:          0;
+  margin:          0 0 0 -5px;
   padding:         0;
 }
 
@@ -148,6 +164,8 @@ $pipeline_icons_size: 16px;
 .pipeline_history {
   text-decoration: underline;
   font-size:       13px;
+  float:           right;
+  margin-top:      10px;
 }
 
 .pipeline_actions {
@@ -171,7 +189,7 @@ $pipeline_icons_size: 16px;
   }
 }
 
-.pipeline_edit {
+.edit_config {
   @include icon-before($type: gear);
   overflow:  hidden;
   width:     25px;
@@ -193,7 +211,7 @@ $pipeline_icons_size: 16px;
 }
 
 .pipeline_instance {
-  padding:    10px 0;
+  padding:    10px 0 0;
   border-top: 1px dotted #ccc;
   margin:     0 15px;
   &:first-child {
@@ -201,9 +219,15 @@ $pipeline_icons_size: 16px;
   }
 }
 
+.no_instance {
+  margin:    25px 15px;
+  font-size: 13px;
+}
+
 .pipeline_instance-label {
   font-size:   15px;
   font-weight: 500;
+  line-height: normal;
 }
 
 .more_info {
@@ -228,8 +252,9 @@ $pipeline_icons_size: 16px;
   }
   .info {
     list-style-type: none;
-    margin:          5px 0;
+    margin:          0;
     padding:         0;
+    line-height:     normal;
     li {
       display:     inline-block;
       border-left: 1px solid #ccc;
@@ -311,13 +336,13 @@ $pipeline_icons_size: 16px;
   flex-wrap:       wrap;
   justify-content: flex-start;
   list-style-type: none;
-  margin:          10px 0 10px -2px;
+  margin:          5px 0 10px -4px;
   padding:         0;
   .pipeline_stage {
     width:       34px;
     height:      16px;
     line-height: 13px;
-    margin:      2px;
+    margin:      5px;
     text-align:  center;
 
     &.passed {
@@ -378,6 +403,7 @@ $pipeline_icons_size: 16px;
   list-style-type: none;
   margin:          10px 0 0 0;
   padding:         0;
+  float:           left;
   li {
     display:     inline-block;
     margin-left: 2px;

@@ -81,7 +81,7 @@ const PipelineOperationsWidget = {
     let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
     if (pipeline.isPaused) {
       pauseUnpauseClass   = `btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
-      pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause})`;
+      pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
       pauseUnpauseClass   = `btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;

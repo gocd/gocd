@@ -22,11 +22,17 @@ const StagesInstanceWidget = {
     const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
       const stageStatus = `${stage.name} (${stage.status})`;
-      return (<a href={stage.stageDetailTabPath}
-                 class={`pipeline_stage ${  stage.status.toLowerCase() }`}
-                 title={stageStatus}>
-        <span><span></span></span>
-      </a>);
+
+      if (stage.isBuildingOrCompleted()) {
+        return (<a href={stage.stageDetailTabPath}
+                   class={`pipeline_stage ${  stage.status.toLowerCase() }`}
+                   title={stageStatus}>
+          <span><span></span></span>
+        </a>);
+      }
+
+      return (<span class={`pipeline_stage ${  stage.status.toLowerCase() }`}
+                    title={stageStatus}/>);
     });
 
     return (

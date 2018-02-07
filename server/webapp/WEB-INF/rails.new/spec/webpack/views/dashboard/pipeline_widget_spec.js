@@ -197,6 +197,18 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.pipeline_pause-message')).toContainText('Paused by admin (under construction)');
       });
 
+      it("should not render null in case of no pipeline pause message", () => {
+        unmount();
+        pauseInfo = {
+          "paused":       true,
+          "paused_by":    "admin",
+          "pause_reason": null
+        };
+
+        mount(false, true, pauseInfo, undefined, false);
+        expect($root.find('.pipeline_pause-message')).toContainText('Paused by admin ()');
+      });
+
       it("should not render the pipeline flash message", () => {
         expect($root.find('.pipeline_message')).not.toBeInDOM();
         expect($root.find('.pipeline_message .success')).not.toBeInDOM();

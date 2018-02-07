@@ -69,7 +69,7 @@ const DashboardWidget = {
     const self = vnode.state;
     const vm   = vnode.attrs.vm;
 
-    self.dashboard   = vnode.attrs.dashboard.filterBy(vm.searchText());
+    self.dashboard   = vnode.attrs.dashboard.filterBy(vm.searchText().toLowerCase());
     const groupsView = _.map(self.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
 
     return (

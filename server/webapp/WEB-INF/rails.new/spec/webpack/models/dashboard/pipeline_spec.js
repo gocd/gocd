@@ -16,6 +16,8 @@
 
 describe("Dashboard", () => {
   const Pipeline = require('models/dashboard/pipeline');
+  require('jasmine-jquery');
+
   let pipelineJson;
   beforeEach(() => {
     const defaultPipelineJson = {
@@ -43,6 +45,8 @@ describe("Dashboard", () => {
       expect(pipeline.pausedBy).toBe("admin");
       expect(pipeline.pausedCause).toBe("under construction");
       expect(pipeline.canPause).toBe(true);
+
+      expect(pipeline.canOperate).toBe(true);
 
       expect(pipeline.isLocked).toBe(false);
       expect(pipeline.canUnlock).toBe(true);
@@ -139,8 +143,38 @@ describe("Dashboard", () => {
         });
       });
     });
-  });
 
+    describe("Trigger With Options View", () => {
+      it('should fetch information for triggering a pipeline with options', () => {
+        jasmine.Ajax.withMock(() => {
+          jasmine.Ajax.stubRequest(`/go/api/internal/trigger_with_options_view/${pipelineJson.name}`, undefined, 'GET').andReturn({
+            responseText:    JSON.stringify(triggerWithOptionsViewJson),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          const successCallback = jasmine.createSpy().and.callFake((info) => {
+            expect(info.materials.length).toBe(triggerWithOptionsViewJson.materials.length);
+            expect(info.plainTextVariables.length).toBe(triggerWithOptionsViewJson.environment_variables.length);
+            expect(info.secureVariables.length).toBe(triggerWithOptionsViewJson.secure_environment_variables.length);
+          });
+
+          const pipeline = new Pipeline(pipelineJson);
+          pipeline.viewInformationForTriggerWithOptions().then(successCallback);
+
+          expect(successCallback).toHaveBeenCalled();
+
+          const request = jasmine.Ajax.requests.mostRecent();
+          expect(request.method).toBe('GET');
+          expect(request.url).toBe(`/go/api/internal/trigger_with_options_view/${pipelineJson.name}`);
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+        });
+      });
+    });
+  });
 
   const pipelineJsonFor = (pauseInfo) => {
     return {
@@ -173,6 +207,7 @@ describe("Dashboard", () => {
       "can_unlock":             true,
       "pause_info":             pauseInfo,
       "can_administer":         true,
+      "can_operate":            true,
       "can_pause":              true,
       "_embedded":              {
         "instances": [
@@ -249,5 +284,42 @@ describe("Dashboard", () => {
         ]
       }
     };
+  };
+
+  const triggerWithOptionsViewJson = {
+    "environment_variables":        [
+      {
+        "name":  "version",
+        "value": "asdf"
+      },
+      {
+        "name":  "foobar",
+        "value": "asdf"
+      }
+    ],
+    "secure_environment_variables": [
+      {
+        "name":  "secure1",
+        "value": "****"
+      },
+      {
+        "name":  "highly secure",
+        "value": "****"
+      }
+    ],
+
+    "materials": [
+      {
+        "type":        "Git",
+        "name":        "https://github.com/ganeshspatil/gocd",
+        "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
+        "revision":    {
+          "date":              "2018-02-08T04:32:11Z",
+          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
+          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
+        }
+      }
+    ]
   };
 });

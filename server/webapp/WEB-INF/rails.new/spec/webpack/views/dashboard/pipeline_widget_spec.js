@@ -464,8 +464,59 @@ describe("Dashboard Pipeline Widget", () => {
         });
       });
     });
-  });
 
+    describe("Trigger With Options", () => {
+      beforeEach(mount);
+
+      afterEach(() => {
+        unmount();
+        Modal.destroyAll();
+      });
+
+      it("should render trigger with options pipeline button", () => {
+        expect($root.find('.play_with_options')).toBeInDOM();
+      });
+
+      it('should disable pause button for non admin users', () => {
+        unmount();
+        mount(false, true, {}, {}, false, false);
+
+        expect($root.find('.play_with_options')).toHaveClass('disabled');
+      });
+
+      it('should add onclick handler for admin users', () => {
+        expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(true);
+      });
+
+      it('should not add onclick handler for non admin users', () => {
+        unmount();
+        mount(false, true, {}, {}, false, false);
+
+        expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
+      });
+
+      it("should show modal to specify trigger options for a pipeline", () => {
+        const triggerWithOptionsButton = $root.find('.play_with_options');
+
+        expect($('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate(triggerWithOptionsButton.get(0), 'click');
+        m.redraw();
+
+        expect($('.reveal:visible')).toBeInDOM();
+      });
+
+      it("should show appropriate header for trigger with options popup modal", () => {
+        const pauseButton = $root.find('.play_with_options');
+
+        simulateEvent.simulate(pauseButton.get(0), 'click');
+        m.redraw();
+
+        const modalTitle = $('.modal-title:visible');
+        expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
+      });
+    });
+  });
 
   describe("Pipeline Instances", () => {
     it("should render pipeline instances", () => {
@@ -491,7 +542,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true) {
     const pipelineName = 'up42';
 
     pipelinesJson = [{
@@ -523,6 +574,7 @@ describe("Dashboard Pipeline Widget", () => {
       "locked":                 lockInfo.locked,
       "can_unlock":             lockInfo.canUnlock,
       "can_administer":         canAdminister,
+      "can_operate":            canOperate,
       "can_pause":              canPause,
       "pause_info":             pauseInfo,
       "_embedded":              {
@@ -534,6 +586,11 @@ describe("Dashboard Pipeline Widget", () => {
 
     dashboardViewModel = new DashboardVM();
     dashboardViewModel.initialize([pipelineName]);
+
+    //stub trigger_with_options api call
+    pipeline.viewInformationForTriggerWithOptions = () => {
+      return Promise.resolve({});
+    };
 
     m.mount(root, {
       view() {

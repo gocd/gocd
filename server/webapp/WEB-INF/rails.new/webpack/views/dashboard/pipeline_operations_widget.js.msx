@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-const m                      = require('mithril');
-const Stream                 = require('mithril/stream');
-const Modal                  = require('views/shared/new_modal');
-const PipelinePauseModalBody = require('views/dashboard/pipeline_pause_modal_body');
+const m                                   = require('mithril');
+const Stream                              = require('mithril/stream');
+const Modal                               = require('views/shared/new_modal');
+const PipelinePauseModalBody              = require('views/dashboard/pipeline_pause_modal_body');
+const TriggerWithOptionsVM                = require('views/dashboard/models/trigger_with_options_vm');
+const PipelineTriggerWithOptionsModalBody = require('views/dashboard/pipeline_trigger_with_options_modal_body');
 
 const PipelineOperationsWidget = {
   oninit(vnode) {
@@ -43,7 +45,7 @@ const PipelineOperationsWidget = {
       }).always(vnode.attrs.doRefreshImmediately);
     };
 
-    self.showPopup = (pipeline) => {
+    self.showPausePopup = (pipeline) => {
       const modal = new Modal({
         size:    'medium',
         title:   `Pause pipeline ${pipeline.name}`,
@@ -69,6 +71,47 @@ const PipelineOperationsWidget = {
       });
       modal.render();
     };
+
+    self.triggerWithOptionsVM   = Stream(new TriggerWithOptionsVM());
+    self.triggerWithOptionsInfo = Stream();
+
+    self.showTriggerWithOptionsPopup = (pipeline) => {
+      pipeline.viewInformationForTriggerWithOptions().then((info) => {
+        self.triggerWithOptionsInfo(info);
+        self.triggerWithOptionsVM().initialize(info);
+      }).then(m.redraw);
+
+      const modal = new Modal({
+        size:    'small',
+        title:   `${pipeline.name} - Trigger`,
+        body:    () => (<PipelineTriggerWithOptionsModalBody vm={self.triggerWithOptionsVM}
+                                                             triggerWithOptionsInfo={self.triggerWithOptionsInfo}/>),
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          return [
+            {
+              text:    "Trigger Pipeline",
+              class:   'save primary',
+              onclick: () => {
+                self.triggerWithOptionsInfo(undefined);
+                self.triggerWithOptionsVM(new TriggerWithOptionsVM());
+                modal.destroy();
+              }
+            },
+            {
+              text:    "CLOSE",
+              class:   'save secondary',
+              onclick: () => {
+                self.triggerWithOptionsInfo(undefined);
+                self.triggerWithOptionsVM(new TriggerWithOptionsVM());
+                modal.destroy();
+              }
+            }
+          ];
+        }
+      });
+      modal.render();
+    };
   },
 
   view(vnode) {
@@ -82,7 +125,7 @@ const PipelineOperationsWidget = {
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
       pauseUnpauseClass   = `btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
-      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPopup.bind(vnode.state, pipeline);
+      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
     }
 
     let flashMessage;
@@ -92,15 +135,21 @@ const PipelineOperationsWidget = {
       </div>);
     }
 
+    let canOperateClass = '';
+    if (!pipeline.canOperate) {
+      canOperateClass = 'disabled';
+    }
+
     return (
       <div>
         {flashMessage}
         <ul className="pipeline_operations">
           <li>
-            <button className="btn play"/>
+            <button class={`btn play ${canOperateClass}`}/>
           </li>
           <li>
-            <button className="btn play_with_options"/>
+            <button onclick={pipeline.canOperate && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
+                    class={`btn play_with_options ${canOperateClass}`}/>
           </li>
           <li>
             <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>

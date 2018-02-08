@@ -496,3 +496,123 @@ $pipeline_icons_size: 16px;
     }
   }
 }
+
+//trigger with options
+
+$h-tab__head_width: 100%;
+$h-tab__container_width: 500px;
+
+$v-tab__head_width: 125px;
+$v-tab__container_width: 500px;
+
+$border-color: #ccc;
+$border-color-active: #94399e;
+$tab-hover-bg: #f5f5f5;
+$tab-head-color: #333;
+$tab-bg: #e5e5e5;
+$active-tab: #94399e;
+
+.h-tab {
+  display:         flex;
+  flex-direction:  column;
+  justify-content: flex-start;
+}
+
+.h-tab_tab-head {
+  display:        flex;
+  flex-direction: row;
+  margin:         0 0 30px 0;
+  padding:        0;
+  list-style:     none;
+  width:          $h-tab__head_width;
+  li {
+    font-size:     16px;
+    margin:        0 0 1px 0;
+    cursor:        pointer;
+    padding:       0 20px;
+    height:        32px;
+    line-height:   31px;
+    color:         $tab-head-color;
+    border-bottom: 0;
+    overflow:      hidden;
+    position:      relative;
+    &:hover {
+      border-bottom: 3px solid $tab-hover-bg;
+      color:         #000;
+    }
+    &.active {
+      border-bottom:    3px solid $border-color-active;
+      background-color: #fff;
+      color:            $active-tab;
+      display:          block;
+    }
+  }
+
+  .h-tab_container {
+    width:      $h-tab__container_width;
+    min-height: 200px;
+  }
+
+  .h-tab_content {
+    padding: 10px 20px;
+    display: none;
+    > :first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.v-tab {
+  display: flex;
+}
+
+.v-tab_tab-head {
+  margin:     0;
+  padding:    0;
+  float:      left;
+  list-style: none;
+  height:     32px;
+  width:      $v-tab__head_width;
+  li {
+    // float: left;
+    margin:        0 0 1px 0;
+    cursor:        pointer;
+    padding:       0 10%;
+    height:        32px;
+    line-height:   31px;
+    color:         $tab-head-color;
+    border-bottom: 0;
+    overflow:      hidden;
+    position:      relative;
+    width:         80%;
+    &:hover {
+      background-color: $tab-hover-bg;
+      color:            #000;
+    }
+    &.active {
+      border-right:     3px solid $border-color-active;
+      background-color: #fff;
+      color:            $active-tab;
+      display:          block;
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.v-tab_container {
+  border-left: 1px solid $border-color;
+  float:       left;
+  width:       $v-tab__container_width;
+  min-height:  132px;
+}
+
+.v-tab_content {
+  padding: 10px 20px;
+  display: none;
+  > :first-child {
+    margin-top: 0;
+  }
+}

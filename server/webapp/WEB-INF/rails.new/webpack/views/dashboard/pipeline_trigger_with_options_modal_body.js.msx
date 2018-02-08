@@ -1,0 +1,83 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require('mithril');
+
+const MaterialsForTriggerWidget = require('views/dashboard/materials_for_trigger_widget');
+
+const PipelineTriggerWithOptionsModalBody = {
+  oninit(vnode) {
+    const self = vnode.state;
+
+    self.visibilityClassForTab = (tabKey) => {
+      return vnode.attrs.vm().isTabSelected(tabKey) ? 'active' : '';
+    };
+
+    self.visibilityClassForContent = (tabKey) => {
+      return vnode.attrs.vm().isTabSelected(tabKey) ? '' : 'hidden';
+    };
+  },
+
+
+  view(vnode) {
+    const self = vnode.state;
+    const vm   = vnode.attrs.vm();
+    const info = vnode.attrs.triggerWithOptionsInfo;
+
+    if (!info()) {
+      return (<div class="page-spinner"/>);
+    }
+
+    const materialsKey = vm.MATERIALS_TAB_KEY;
+    const envKey       = vm.ENVIRONMENT_VARIABLES_TAB_KEY;
+    const secureEnvKey = vm.SECURE_ENVIRONMENT_VARIABLES_TAB_KEY;
+
+    return (
+      <div class="h-tab pipeline_trigger-with-options">
+        <ul class="h-tab_tab-head pipeline_options-heading">
+          <li class={self.visibilityClassForTab(materialsKey)}
+              onclick={vm.selectTab.bind(vm, materialsKey)} rel="pipeline_materials-section">
+            Materials
+          </li>
+          <li class={self.visibilityClassForTab(envKey)}
+              onclick={vm.selectTab.bind(vm, envKey)} rel="pipeline_envvars-section">
+            Environment variables
+          </li>
+          <li class={self.visibilityClassForTab(secureEnvKey)}
+              onclick={vm.selectTab.bind(vm, secureEnvKey)} rel="pipeline_secure-envvars-section">
+            Secure Environment variables
+          </li>
+        </ul>
+
+        <div class="h-tab_container pipeline_options-body">
+          <div id="pipeline_materials-section" class={`h-tab_content ${self.visibilityClassForContent(materialsKey)}`}>
+            <MaterialsForTriggerWidget/>
+          </div>
+          <div id="pipeline_envvars-section"
+               class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
+            <p>Environment Variables Section</p>
+          </div>
+          <div id="pipeline_secure-envvars-section"
+               class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
+            <p>Secure Environment Variables Section</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = PipelineTriggerWithOptionsModalBody;

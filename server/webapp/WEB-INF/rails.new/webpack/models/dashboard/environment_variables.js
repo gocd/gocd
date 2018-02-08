@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-module.exports = {
-  pipelinePausePath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/pause`;
-  },
+const _      = require('lodash');
+const Stream = require('mithril/stream');
 
-  pipelineUnpausePath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/unpause`;
-  },
-
-  pipelineUnlockPath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/unlock`;
-  },
-
-  pipelineTriggerWithOptionsViewPath: (pipelineName) => {
-    return `/go/api/internal/trigger_with_options_view/${pipelineName}`;
-  }
+const EnvironmentVariable = function (name, value) {
+  this.name  = Stream(name);
+  this.value = Stream(value);
 };
+
+EnvironmentVariable.fromJSON = (json) => {
+  return new EnvironmentVariable(json.name, json.value);
+};
+
+const EnvironmentVariables    = {};
+EnvironmentVariables.fromJSON = (json) => {
+  return _.map(json, (variable) => EnvironmentVariable.fromJSON(variable));
+};
+
+module.exports = EnvironmentVariables;

@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-module.exports = {
-  pipelinePausePath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/pause`;
-  },
 
-  pipelineUnpausePath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/unpause`;
-  },
+const m = require('mithril');
 
-  pipelineUnlockPath: (pipelineName) => {
-    return `/go/api/pipelines/${pipelineName}/unlock`;
-  },
-
-  pipelineTriggerWithOptionsViewPath: (pipelineName) => {
-    return `/go/api/internal/trigger_with_options_view/${pipelineName}`;
+const MaterialsForTriggerWidget = {
+  view(_vnode) {
+    return (<div>Materials Section</div>);
   }
 };
+
+module.exports = MaterialsForTriggerWidget;
+

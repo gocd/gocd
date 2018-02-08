@@ -22,7 +22,8 @@ const VMRoutes    = require('helpers/vm_routes');
 const SparkRoutes = require('helpers/spark_routes');
 const Routes      = require('gen/js-routes');
 
-const PipelineInstance = require('models/dashboard/pipeline_instance');
+const PipelineInstance       = require('models/dashboard/pipeline_instance');
+const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
 const Pipeline = function (info) {
   const self = this;
@@ -42,6 +43,8 @@ const Pipeline = function (info) {
 
   this.isLocked  = info.locked;
   this.canUnlock = info.can_unlock;
+
+  this.canOperate = info.can_operate;
 
   const config = (xhr) => {
     xhr.setRequestHeader("X-GoCD-Confirm", "true");
@@ -82,6 +85,25 @@ const Pipeline = function (info) {
 
   this.pause = (payload) => {
     return postURL(SparkRoutes.pipelinePausePath(self.name), payload);
+  };
+
+  this.viewInformationForTriggerWithOptions = () => {
+    return $.Deferred(function () {
+      const deferred = this;
+
+      const jqXHR = $.ajax({
+        method:     'GET',
+        url:        SparkRoutes.pipelineTriggerWithOptionsViewPath(self.name),
+        timeout:    mrequest.timeout,
+        beforeSend: config
+      });
+
+      jqXHR.then((data) => {
+        deferred.resolve(TriggerWithOptionsInfo.fromJSON(data));
+      });
+
+      jqXHR.always(m.redraw);
+    }).promise();
   };
 };
 

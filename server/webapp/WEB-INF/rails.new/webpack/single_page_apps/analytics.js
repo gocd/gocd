@@ -23,11 +23,12 @@
   require("foundation-sites");
   require('helpers/server_health_messages_helper');
 
-  const PluginEndpoint     = require('rails-shared/plugin-endpoint');
-  const VersionUpdater     = require('models/shared/version_updater');
-  const Frame              = require('models/analytics/frame');
-  const PluginiFrameWidget = require('views/analytics/plugin_iframe_widget');
-  const Routes             = require('gen/js-routes');
+  const PluginEndpoint           = require('rails-shared/plugin-endpoint');
+  const VersionUpdater           = require('models/shared/version_updater');
+  const Frame                    = require('models/analytics/frame');
+  const AnalyticsDashboardHeader = require('views/analytics/header');
+  const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
+  const Routes                   = require('gen/js-routes');
 
   const models = {};
 
@@ -47,6 +48,7 @@
     m.mount(main, {
       view() {
         const frames = [];
+        frames.push(m(AnalyticsDashboardHeader));
         $.each($(main).data("supported-dashboard-metrics"), (pluginId, metrics) => {
           $.each(metrics, (idx, metric) => {
             const uid = `f-${pluginId}:${metric}:${idx}`;

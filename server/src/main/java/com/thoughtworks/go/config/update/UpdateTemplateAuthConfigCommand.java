@@ -41,7 +41,7 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
     public boolean isValid(CruiseConfig preprocessedConfig) {
         TemplatesConfig templates = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
-        preprocessedTemplateConfig.validateTemplateAuth(new DelegatingValidationContext(ConfigSaveValidationContext.forChain(preprocessedConfig, templates)) {
+        preprocessedTemplateConfig.getAuthorization().validateTree(new DelegatingValidationContext(ConfigSaveValidationContext.forChain(preprocessedConfig, templates)) {
             @Override
             public boolean shouldNotCheckRole() {
                 return false;

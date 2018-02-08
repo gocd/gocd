@@ -220,6 +220,22 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return result;
     }
 
+    public void validateTree(ValidationContext validationContext) {
+        for (Admin admin : getAdminsConfig()) {
+            admin.validate(validationContext);
+            this.getAdminsConfig().errors().addAll(admin.errors());
+        }
+        for (Admin admin : getViewConfig()) {
+            admin.validate(validationContext);
+            this.getViewConfig().errors().addAll(admin.errors());
+        }
+
+        for (Admin admin : getOperationConfig()) {
+            admin.validate(validationContext);
+            this.getOperationConfig().errors().addAll(admin.errors());
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         return;
     }

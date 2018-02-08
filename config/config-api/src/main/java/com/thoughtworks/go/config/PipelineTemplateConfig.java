@@ -150,23 +150,12 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     public void validate(ValidationContext validationContext) {
         validateTemplateName();
         validateStageNameUniqueness();
-        validateTemplateAuth(new DelegatingValidationContext(validationContext) {
+        this.getAuthorization().validateTree(new DelegatingValidationContext(validationContext) {
             @Override
             public boolean shouldNotCheckRole() {
                 return false;
             }
         });
-    }
-
-    public void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
-        for (Admin admin : getAuthorization().getAdminsConfig()) {
-            admin.validate(validationContextWhichChecksForRole);
-            authorization.getAdminsConfig().errors().addAll(admin.errors());
-        }
-        for (Admin admin : getAuthorization().getViewConfig()) {
-            admin.validate(validationContextWhichChecksForRole);
-            authorization.getViewConfig().errors().addAll(admin.errors());
-        }
     }
 
     public void validateStageConfig(ValidationContext validationContext) {

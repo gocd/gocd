@@ -33,7 +33,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseDeprecatedConfirmHeaderMissing;
 import static spark.Spark.*;
 
 public class BackupsControllerDelegate extends ApiController {
@@ -82,7 +82,7 @@ public class BackupsControllerDelegate extends ApiController {
 
     private void verifyConfirmHeader(Request request, Response response) {
         if (!HEADER_CONSTRAINT.isSatisfied(request.raw())) {
-            throw haltBecauseConfirmHeaderMissing();
+            throw haltBecauseDeprecatedConfirmHeaderMissing();
         }
     }
 }

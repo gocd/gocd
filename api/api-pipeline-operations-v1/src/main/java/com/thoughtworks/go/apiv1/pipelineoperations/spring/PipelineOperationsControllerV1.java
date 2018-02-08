@@ -17,11 +17,13 @@
 package com.thoughtworks.go.apiv1.pipelineoperations.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.server.service.PipelineUnlockApiService;
-import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.apiv1.pipelineoperations.PipelineOperationsControllerV1Delegate;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
+import com.thoughtworks.go.server.service.PipelineUnlockApiService;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +32,21 @@ public class PipelineOperationsControllerV1 implements SparkSpringController {
     private PipelineOperationsControllerV1Delegate delegate;
 
     @Autowired
-    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer, PipelineUnlockApiService pipelineUnlockApiService) {
-        this.delegate = new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, apiAuthenticationHelper, localizer);
+    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService,
+                                          ApiAuthenticationHelper apiAuthenticationHelper,
+                                          Localizer localizer,
+                                          PipelineUnlockApiService pipelineUnlockApiService,
+                                          GoConfigService goConfigService,
+                                          PipelineHistoryService pipelineHistoryService) {
+
+        this.delegate = new PipelineOperationsControllerV1Delegate(
+                pipelinePauseService,
+                pipelineUnlockApiService,
+                apiAuthenticationHelper,
+                localizer,
+                goConfigService,
+                pipelineHistoryService
+        );
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.deprecatedConfirmHeaderMissing
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -89,7 +90,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
         assertThatResponse()
           .isBadRequest()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Missing required header 'Confirm' with value 'true'")
+          .hasJsonMessage(deprecatedConfirmHeaderMissing())
       }
 
       @Test
@@ -100,7 +101,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
         assertThatResponse()
           .isBadRequest()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Missing required header 'Confirm' with value 'true'")
+          .hasJsonMessage(deprecatedConfirmHeaderMissing())
       }
     }
   }

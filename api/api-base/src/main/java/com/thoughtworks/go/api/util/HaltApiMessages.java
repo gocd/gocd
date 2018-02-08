@@ -52,8 +52,12 @@ public abstract class HaltApiMessages {
         return "You must specify a 'Content-Type' of 'application/json'";
     }
 
-    public static String confirmHeaderMissing() {
+    public static String deprecatedConfirmHeaderMissing() {
         return "Missing required header 'Confirm' with value 'true'";
+    }
+
+    public static String confirmHeaderMissing() {
+        return "Missing required header 'X-GoCD-Confirm' with value 'true'";
     }
 
     public static String propertyIsNotAJsonString(String property) {

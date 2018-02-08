@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.triggerwithoptionsview.representers
+package com.thoughtworks.go.apiv1.pipelineoperations.representers
 
 import com.thoughtworks.go.config.EnvironmentVariablesConfig
 import com.thoughtworks.go.domain.JobResult
@@ -28,6 +28,7 @@ import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
+import com.thoughtworks.go.spark.mocks.TestRequestContext
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Test
 
@@ -40,20 +41,26 @@ class TriggerWithOptionsViewRepresenterTest {
     stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()))
     stages.addFutureStage("unit2", false)
 
-    PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, "bob"), stages)
+    PipelineInstanceModel model = PipelineInstanceModel.createPipeline("my-pipeline", -1, "label", BuildCause.createWithModifications(revisions, "bob"), stages)
     model.setMaterialConfigs(MaterialConfigsMother.defaultSvnMaterialConfigsWithUrl("http://example.com/svn/project"))
 
     EnvironmentVariablesConfig variables = EnvironmentVariablesConfigMother.environmentVariables()
 
-    def actualJson = TriggerWithOptionsViewRepresenter.toJSON(new TriggerOptions(variables, model), null)
+    def actualJson = TriggerWithOptionsViewRepresenter.toJSON(new TriggerOptions(variables, model), new TestRequestContext())
     JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
+      _links     : [
+        "doc"     : ["href": "https://api.go.cd/current/#pipeline-trigger-options"],
+        "self"    : ["href": "http://test.host/go/api/pipelines/my-pipeline/trigger_options"],
+        "schedule": ["href": "http://test.host/go/api/pipelines/my-pipeline/schedule"]
+      ],
       "variables": [
-        ["name": "MULTIPLE_LINES", "secure": true, "value": "****"],
+        ["name": "MULTIPLE_LINES", "secure": true],
         ["name": "COMPLEX", "secure": false, "value": "This has very <complex> data"]
       ],
       "materials": [
         [
-          "type"       : "Subversion", "name": "http___example.com_svn_project",
+          "type"       : "Subversion",
+          "name"       : "http___example.com_svn_project",
           "fingerprint": "f5f52bd94f0eaed410d7ca7843e0d8c693b2d6daf91fe037d55b566e862dcdae",
           "folder"     : "svnDir",
           "revision"   : [

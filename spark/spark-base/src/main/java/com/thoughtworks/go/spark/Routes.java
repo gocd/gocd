@@ -75,9 +75,12 @@ public class Routes {
     public static class Pipeline {
         public static final String BASE = "/api/pipelines";
         public static final String DOC = "https://api.go.cd/current/#pipelines";
+        public static final String DOC_TRIGGER_OPTIONS = "https://api.go.cd/current/#pipeline-trigger-options";
+
         public static final String PAUSE_PATH = "/:pipeline_name/pause";
         public static final String UNPAUSE_PATH = "/:pipeline_name/unpause";
         public static final String UNLOCK_PATH = "/:pipeline_name/unlock";
+        public static final String TRIGGER_OPTIONS_PATH = "/:pipeline_name/trigger_options";
 
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
         public static final String HISTORY_PATH = "/:pipeline_name/history";
@@ -85,6 +88,10 @@ public class Routes {
 
         public static String history(String pipelineName) {
             return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName);
+        }
+
+        public static String triggerOptions(String pipelineName) {
+            return BASE + TRIGGER_OPTIONS_PATH.replaceAll(":pipeline_name", pipelineName);
         }
 
         public static String schedule(String pipelineName) {
@@ -162,10 +169,6 @@ public class Routes {
 
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
-    }
-
-    public class TriggerWithOptionsView {
-        public static final String BASE = "/api/internal/trigger_with_options_view";
     }
 
     public class MaterialSearch {

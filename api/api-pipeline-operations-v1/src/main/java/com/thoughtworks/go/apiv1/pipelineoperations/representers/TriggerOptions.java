@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.triggerwithoptionsview.representers;
+package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;

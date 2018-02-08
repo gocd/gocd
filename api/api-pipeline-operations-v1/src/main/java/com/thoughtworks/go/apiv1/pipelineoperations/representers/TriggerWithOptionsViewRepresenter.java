@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.triggerwithoptionsview.representers;
+package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
 import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,13 +31,24 @@ import java.util.stream.Collectors;
 
 public class TriggerWithOptionsViewRepresenter {
     public static Map<String, Object> toJSON(TriggerOptions triggerOptions, RequestContext requestContext) {
-        List<Map<String, Object>> variablesJson = triggerOptions.getVariables().stream().map(env -> new JsonWriter(null)
-                .add("name", env.getName())
-                .add("secure", env.isSecure())
-                .addIfNotNull("value", env.getDisplayValue())
-                .getAsMap()).collect(Collectors.toList());
+        List<Map<String, Object>> variablesJson = triggerOptions.getVariables().stream().map(env -> {
+            JsonWriter writer = new JsonWriter(null)
+                    .add("name", env.getName())
+                    .add("secure", env.isSecure());
+
+            if (!env.isSecure()) {
+                writer.addIfNotNull("value", env.getDisplayValue());
+            }
+
+            return writer.getAsMap();
+        }).collect(Collectors.toList());
 
         return new JsonWriter(requestContext)
+
+                .addDocLink(Routes.Pipeline.DOC_TRIGGER_OPTIONS)
+                .addLink("self", Routes.Pipeline.triggerOptions(triggerOptions.getPipelineInstanceModel().getName()))
+                .addLink("schedule", Routes.Pipeline.schedule(triggerOptions.getPipelineInstanceModel().getName()))
+
                 .add("variables", variablesJson)
                 .add("materials", materials(triggerOptions.getPipelineInstanceModel()))
                 .getAsMap();

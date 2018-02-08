@@ -1,0 +1,116 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                      = require('mithril');
+const Stream                 = require('mithril/stream');
+const Modal                  = require('views/shared/new_modal');
+const PipelinePauseModalBody = require('views/dashboard/pipeline_pause_modal_body');
+
+const PipelineOperationsWidget = {
+  oninit(vnode) {
+    const self              = vnode.state;
+    const operationMessages = vnode.attrs.operationMessages;
+    self.pauseMessage       = Stream();
+
+    self.unpause = (pipeline) => {
+      vnode.attrs.doCancelPolling();
+      pipeline.unpause().then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      }).always(vnode.attrs.doRefreshImmediately);
+    };
+
+    self.pause = (pipeline) => {
+      vnode.attrs.doCancelPolling();
+      pipeline.pause({"pause_cause": self.pauseMessage()}).then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      }).always(vnode.attrs.doRefreshImmediately);
+    };
+
+    self.showPopup = (pipeline) => {
+      const modal = new Modal({
+        size:    'medium',
+        title:   `Pause pipeline ${pipeline.name}`,
+        body:    () => (<PipelinePauseModalBody pipelineName={pipeline.name} message={self.pauseMessage}/>),
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          return [
+            {
+              text:    "OK",
+              class:   'save primary',
+              onclick: () => {
+                self.pause(pipeline);
+                modal.destroy();
+              }
+            },
+            {
+              text:    "CLOSE",
+              class:   'save secondary',
+              onclick: () => modal.destroy()
+            }
+          ];
+        }
+      });
+      modal.render();
+    };
+  },
+
+  view(vnode) {
+    const pipeline          = vnode.attrs.pipeline;
+    const operationMessages = vnode.attrs.operationMessages;
+
+    let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
+    if (pipeline.isPaused) {
+      pauseUnpauseClass   = `btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
+      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
+    } else {
+      pauseUnpauseClass   = `btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPopup.bind(vnode.state, pipeline);
+    }
+
+    let flashMessage;
+    if (operationMessages.messageFor(pipeline.name)) {
+      flashMessage = (<div class={`pipeline_message ${operationMessages.messageTypeFor(pipeline.name)}`}>
+        <p>{operationMessages.messageFor(pipeline.name)}</p>
+      </div>);
+    }
+
+    return (
+      <div>
+        {flashMessage}
+        <ul className="pipeline_operations">
+          <li>
+            <button className="btn play"/>
+          </li>
+          <li>
+            <button className="btn play_with_options"/>
+          </li>
+          <li>
+            <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
+          </li>
+        </ul>
+        <a href={pipeline.historyPath} class="pipeline_history">History</a>
+        <div className="pipeline_pause-message">{pausedMessage}</div>
+      </div>
+    );
+  }
+};
+
+module.exports = PipelineOperationsWidget;

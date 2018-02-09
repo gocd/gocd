@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 describe("Plugin iFrame Widget", () => {
-  const $      = require("jquery");
   const m      = require('mithril');
   const Stream = require('mithril/stream');
   require('jasmine-jquery');
@@ -46,14 +45,14 @@ describe("Plugin iFrame Widget", () => {
 
     mount(model, 'some-plugin', 'some-uid');
 
-    expect($('iframe[src="/some/path"]').attr('sandbox')).toEqual('allow-scripts');
+    expect($root.find('iframe[src="/some/path"]').attr('sandbox')).toEqual('allow-scripts');
   });
 
   const mount = (model, pluginId, uid) => {
     m.mount(root, {
       view() {
         return m(PluginiFrameWidget, {
-          model: model,
+          model,
           pluginId,
           uid
         });

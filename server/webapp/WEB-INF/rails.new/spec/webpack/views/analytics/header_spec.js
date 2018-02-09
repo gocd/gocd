@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 describe("Analytics Dashboard Header", () => {
-  const $      = require("jquery");
   const m      = require('mithril');
   require('jasmine-jquery');
 
@@ -32,7 +31,7 @@ describe("Analytics Dashboard Header", () => {
 
   it('should have show a big header', () => {
     mount();
-    expect($(".header-panel h1")).toHaveText('Analytics');
+    expect($root.find(".header-panel h1")).toHaveText('Analytics');
   });
 
   const mount = () => {

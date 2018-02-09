@@ -13,33 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../shared/mixins';
-@import '../shared/common';
-@import '../shared/go-variables';
-@import '../shared/header';
-@import '../shared/alert';
 
-@import "font-awesome-sprockets";
-@import "font-awesome";
+(function() {
+  "use strict";
 
-.analytics-container {
-  height:          80vh;
-  display:         flex;
-  flex-wrap:       wrap;
-  justify-content: center;
-  overflow:        scroll;
-  margin-top:      40px;
+  const m = require("mithril");
 
-  h1 {
-    font-weight: 600;
-  }
+  const AnalyticsDashboardHeader = {
+    view(vnode) { // eslint-disable-line no-unused-vars
+      return (
+        <div class="header-panel">
+          <header class="page-header">
+            <div class="row expanded">
+              <div class="columns medium-5 large-5">
+                <h1>Analytics</h1>
+              </div>
+            </div>
+          </header>
+        </div>
+      );
+    }
+  };
 
-  iframe {
-    flex-grow:  1;
-    flex-basis: auto;
-    min-width:  calc(44vh * 5 / 3);
-    min-height: 44vh;
-    max-width:  calc(60vh * 5 / 3);
-    border:     0;
-  }
-}
+  module.exports = AnalyticsDashboardHeader;
+
+})();

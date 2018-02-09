@@ -354,53 +354,70 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not pause a pipeline", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          409
-          });
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.pause').get(0), 'click');
-          $('.reveal input').val("test");
-          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("error");
+        const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
         });
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        $('.reveal input').val("test");
+        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
       });
 
       it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          simulateEvent.simulate($root.find('.pause').get(0), 'click');
-          expect($('.reveal:visible')).toBeInDOM();
-          const pausePopupTextBox = $('.reveal input');
-          pausePopupTextBox.val("test");
-          const keydownEvent   = $.Event("keydown");
-          keydownEvent.keyCode = 13;
-          pausePopupTextBox.trigger(keydownEvent);
-
-          expect($('.reveal:visible')).not.toBeInDOM();
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("success");
+        const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
         });
+
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        expect($('.reveal:visible')).toBeInDOM();
+        const pausePopupTextBox = $('.reveal input');
+        pausePopupTextBox.val("test");
+        const keydownEvent = $.Event("keydown");
+        keydownEvent.key   = "Enter";
+        pausePopupTextBox.trigger(keydownEvent);
+
+        expect($('.reveal:visible')).not.toBeInDOM();
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
+      });
+
+      it("should close pause popup when escape is pressed", () => {
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        expect($('.reveal:visible')).toBeInDOM();
+        const keydownEvent = $.Event("keydown");
+        keydownEvent.key   = "Escape";
+        $('body').trigger(keydownEvent);
+        expect($('.reveal:visible')).not.toBeInDOM();
+      });
+
+      it("should not retain text entered when the pause popup is closed", () => {
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        expect($('.reveal:visible')).toBeInDOM();
+        let pausePopupTextBox = $('.reveal input');
+        pausePopupTextBox.val("test");
+        $('.reveal .secondary').trigger('click');
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        pausePopupTextBox = $('.reveal input');
+
+        expect(pausePopupTextBox).toHaveValue("");
       });
 
     });

@@ -51,37 +51,38 @@ const PipelineOperationsWidget = {
 
     self.showPausePopup = (pipeline) => {
       const modal = new Modal({
-        size:    'medium',
-        title:   `Pause pipeline ${pipeline.name}`,
-        body:    () => (<PipelinePauseModalBody pipelineName={pipeline.name} message={self.pauseMessage}/>),
-        onclose: () => modal.destroy(),
-        buttons: () => {
+        size:             'medium',
+        title:            `Pause pipeline ${pipeline.name}`,
+        body:             () => (<PipelinePauseModalBody pipelineName={pipeline.name} message={self.pauseMessage}/>),
+        onclose:          () => self.destroyPausePopup(modal),
+        buttons:          () => {
           return [
             {
               text:    "OK",
               class:   'save primary',
               onclick: () => {
                 self.pause(pipeline);
-                self.pauseMessage('');
-                modal.destroy();
+                self.destroyPausePopup(modal);
               }
             },
             {
               text:    "CLOSE",
               class:   'save secondary',
-              onclick: () => {
-                modal.destroy();
-                self.pauseMessage('');
-              }
+              onclick: () => self.destroyPausePopup(modal)
             }
           ];
         },
         enterKeyCallback: () => {
           self.pause(pipeline);
-          modal.destroy();
+          self.destroyPausePopup(modal);
         }
       });
       modal.render();
+    };
+
+    self.destroyPausePopup = (modal) => {
+      self.pauseMessage("");
+      modal.destroy();
     };
 
     self.triggerWithOptionsVM   = Stream(new TriggerWithOptionsVM());

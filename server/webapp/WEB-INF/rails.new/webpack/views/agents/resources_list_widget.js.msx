@@ -79,13 +79,13 @@ const ResourcesListWidget = {
     const resourcesDropdownClass = "agent-button-group-dropdown resource-dropdown ";
 
     const spinner = (
-      <div class={`${resourcesDropdownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+      <div class={`${resourcesDropdownClass} spinner-container`} onclick={vnode.state.closeDropdown}>
         <div class='page-spinner'/>
       </div>
     );
 
     if (vnode.attrs.resourcesFetchError()) {
-      return (<div class={`${resourcesDropdownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+      return (<div class={`${resourcesDropdownClass} spinner-container`} onclick={vnode.state.closeDropdown}>
         <f.alert>{vnode.attrs.resourcesFetchError()}</f.alert>
       </div>);
     }
@@ -95,7 +95,7 @@ const ResourcesListWidget = {
     }
 
     return (
-      <div class={`${resourcesDropdownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+      <div class={`${resourcesDropdownClass} spinner-container`} onclick={vnode.state.closeDropdown}>
         <ul class="resources-items">
 
           {

@@ -52,13 +52,13 @@ const EnvironmentsListWidget = {
     let environmentDropDownClass = "agent-button-group-dropdown env-dropdown ";
 
     const spinner = (
-      <div class={`${environmentDropDownClass} empty-container`} onclick={ctrl.closeDropdown}>
+      <div class={`${environmentDropDownClass} spinner-container`} onclick={ctrl.closeDropdown}>
         <div class='page-spinner'/>
       </div>
     );
 
     if (args.environmentsFetchError()) {
-      return (<div class={`${environmentDropDownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+      return (<div class={`${environmentDropDownClass} spinner-container`} onclick={vnode.state.closeDropdown}>
         <f.alert>{vnode.attrs.environmentsFetchError()}</f.alert>
       </div>);
     }

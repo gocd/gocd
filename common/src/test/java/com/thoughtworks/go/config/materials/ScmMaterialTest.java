@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.DummyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,9 +33,15 @@ import java.util.Date;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ScmMaterialTest {
-    DummyMaterial material = new DummyMaterial();
+    private DummyMaterial material;
+
+    @Before
+    public void setUp() throws Exception {
+        material = new DummyMaterial();
+    }
 
     @Test
     public void shouldSmudgePasswordForDescription() throws Exception{
@@ -90,7 +97,7 @@ public class ScmMaterialTest {
         context = new EnvironmentVariableContext();
         material.setName( new CaseInsensitiveString("dummy"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
-        assertThat(context.getProperty("GO_PROPERTY_" + material.getName().toUpper()), is("value"));
+        assertThat(context.getProperty("GO_PROPERTY_DUMMY"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
     }
 
@@ -103,7 +110,7 @@ public class ScmMaterialTest {
         context = new EnvironmentVariableContext();
         material.setFolder("foo_dir");
         material.setVariableWithName(context, "value", "GO_PROPERTY");
-        assertThat(context.getProperty("GO_PROPERTY_" + material.getFolder().toUpperCase()), is("value"));
+        assertThat(context.getProperty("GO_PROPERTY_FOO_DIR"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
     }
 
@@ -127,7 +134,15 @@ public class ScmMaterialTest {
 
     @Test
     public void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() throws Exception {
-        ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch");
         assertThat(material.supportsDestinationFolder(), is(true));
+    }
+
+    @Test
+    public void shouldGetMaterialNameForEnvironmentMaterial(){
+        assertThat(material.getMaterialNameForEnvironmentVariable(), is(""));
+        material.setFolder("dest-folder");
+        assertThat(material.getMaterialNameForEnvironmentVariable(), is("DEST_FOLDER"));
+        material.setName(new CaseInsensitiveString("some-material"));
+        assertThat(material.getMaterialNameForEnvironmentVariable(), is("SOME_MATERIAL"));
     }
 }

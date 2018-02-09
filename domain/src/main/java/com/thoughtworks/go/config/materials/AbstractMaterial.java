@@ -27,6 +27,8 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.util.*;
 
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
+
 /**
  * @understands material configuration
  */
@@ -52,6 +54,12 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public CaseInsensitiveString getName() {
         return name;
     }
+
+    @Override
+    public String getMaterialNameForEnvironmentVariable() {
+        return escapeEnvironmentVariable(getName().toUpper());
+    }
+
 
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {

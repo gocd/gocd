@@ -32,6 +32,8 @@ public interface Material extends Serializable {
 
     //-- DB and config behaviour
 
+    String getMaterialNameForEnvironmentVariable();
+
     String getFolder();
 
     CaseInsensitiveString getName();

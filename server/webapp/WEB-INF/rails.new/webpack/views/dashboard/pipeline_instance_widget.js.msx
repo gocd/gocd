@@ -43,6 +43,7 @@ const PipelineInstanceWidget = {
             <li><a href={instance.vsmPath}> VSM </a></li>
           </ul>
           <MaterialChangesWidget materialRevisions={instance.materialRevisions}
+                                 trackingTool={vnode.attrs.trackingTool}
                                  isChangeVisible={dropdown.isDropDownOpen(pipelineName)}/>
         </div>
         <div class="pipeline_instance-details">

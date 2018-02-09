@@ -34,7 +34,8 @@ const PipelineWidget = {
         return (
           <PipelineInstanceWidget instance={instance}
                                   dropdown={vnode.attrs.vm.dropdown}
-                                  pipelineName={pipeline.name}/>
+                                  pipelineName={pipeline.name}
+                                  trackingTool={pipeline.trackingTool}/>
         );
       });
     } else {

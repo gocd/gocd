@@ -17,6 +17,8 @@
 const m = require('mithril');
 const _ = require('lodash');
 
+const CommentWidget = require('views/dashboard/comment_render_widget');
+
 const PipelineModificationWidget = (modification) => {
   return (<div class="modifications">
       <div class="item modified_by">
@@ -32,13 +34,14 @@ const PipelineModificationWidget = (modification) => {
   );
 };
 
-const SCMModificationWidget = (modification) => {
+const SCMModificationWidget = (modification, trackingTool) => {
+
   return (<div class="modifications">
     <div class="item modified_by">
       <span>{modification.username}</span>
       <span>{modification.modifiedTime.toString()}</span>
     </div>
-    <div class="item comment"><p>{modification.comment}</p></div>
+    <CommentWidget text={modification.comment} trackingTool={trackingTool}/>
     <div class="item revision">
       <span class="revision_id wrapped_word">{modification.revision}</span> -
       <span><a href={modification.vsmPath}> VSM </a></span>
@@ -50,18 +53,19 @@ const MaterialRevisionWidget = {
   oninit(_vnode) {
     const self = this;
 
-    self.renderAppropriateChanges = (revision) => {
+    self.renderAppropriateChanges = (revision, trackingTool) => {
       const modificationWidget = revision.isDependencyMaterial() ? PipelineModificationWidget : SCMModificationWidget;
 
       return _.map(revision.modifications, (modification) => {
-        return modificationWidget(modification);
+        return modificationWidget(modification, trackingTool);
       });
     };
   },
 
   view(vnode) {
     const revision     = vnode.attrs.revision;
-    const revisionView = vnode.state.renderAppropriateChanges(revision);
+    const trackingTool = vnode.attrs.trackingTool;
+    const revisionView = vnode.state.renderAppropriateChanges(revision, trackingTool);
     const changed      = revision.changed ? "changed" : "";
 
     return (<div class={`revisions ${changed}`}>

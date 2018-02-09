@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
@@ -45,6 +46,7 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -366,6 +368,32 @@ public class GoDashboardCurrentStateLoaderTest {
 
         verify(pipelineSqlMapDao).loadActivePipelineInstancesFor("pipeline1");
         verifyNoMoreInteractions(pipelineSqlMapDao);
+    }
+
+    @Test
+    public void shouldAddTrackingToolInfoWhenLoadingAllPipelines() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        TrackingTool trackingTool = new TrackingTool("http://example.com/${ID}", "\\d+");
+        p1Config.setTrackingTool(trackingTool);
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        List<GoDashboardPipeline> models = loader.allPipelines(config);
+
+        assertThat(models.get(0).getTrackingTool(), is(Optional.of(trackingTool)));
+    }
+
+    @Test
+    public void shouldAddTrackingToolInfoWhenLoadingAPipeline() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        TrackingTool trackingTool = new TrackingTool("http://example.com/${ID}", "\\d+");
+        p1Config.setTrackingTool(trackingTool);
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+        when(pipelineSqlMapDao.loadActivePipelineInstancesFor(str(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
+
+        assertThat(model.getTrackingTool(), is(Optional.of(trackingTool)));
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

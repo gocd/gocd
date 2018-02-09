@@ -17,21 +17,30 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
+
+import java.util.Optional;
 
 /* Represents a pipeline on the dashboard. Cacheable, since the permissions are not specific to a user. */
 public class GoDashboardPipeline {
     private final PipelineModel pipelineModel;
     private final Permissions permissions;
     private final String groupName;
+    private final TrackingTool trackingTool;
     private final long lastUpdatedTimeStamp;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
+        this.trackingTool = trackingTool;
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
+    }
+
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter) {
+        this(pipelineModel, permissions, groupName, null, timeStampBasedCounter);
     }
 
     public String groupName() {
@@ -44,6 +53,10 @@ public class GoDashboardPipeline {
 
     public Permissions permissions() {
         return permissions;
+    }
+
+    public Optional<TrackingTool> getTrackingTool() {
+        return Optional.ofNullable(trackingTool);
     }
 
     public CaseInsensitiveString name() {

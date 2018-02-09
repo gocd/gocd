@@ -52,6 +52,11 @@ public class JsonWriter {
         return this;
     }
 
+    public JsonWriter addOptional(String propertyName, Optional<?> value) {
+        value.ifPresent(val -> properties.put(propertyName, val));
+        return this;
+    }
+
     public JsonWriter addLink(String name, String href) {
         links.add(requestContext.build(name, href));
         return this;

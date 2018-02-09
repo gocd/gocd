@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv2.dashboard.representers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.config.security.users.NoOne
@@ -41,7 +42,8 @@ class PipelineRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(Long.valueOf(1))
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
-    def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
+    def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
+      permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter)
     def json = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
     assertThatJson(json).isEqualTo([
       _links                : [
@@ -69,7 +71,11 @@ class PipelineRepresenterTest {
       can_operate           : false,
       can_administer        : false,
       can_unlock            : false,
-      can_pause             : false
+      can_pause             : false,
+      tracking_tool         : [
+        "regex": "##\\d+",
+        "link" : "http://example.com/\${ID}"
+      ]
     ])
   }
 
@@ -120,6 +126,7 @@ class PipelineRepresenterTest {
       assertThatJson(actualJson).isEqualTo(expectedJson)
     }
   }
+
   private static def expectedEmbeddedPipeline(PipelineInstanceModel pipelineInstanceModel) {
     PipelineInstanceRepresenter.toJSON(pipelineInstanceModel, new TestRequestContext())
   }

@@ -31,7 +31,7 @@ const MaterialRevisionsWidget = {
     const ctrl              = vnode.state;
     const showClass         = vnode.attrs.isChangeVisible ? "show" : "hide";
     const materialRevisions = _.map(vnode.attrs.materialRevisions, (revision) => {
-      return (<MaterialRevisionWidget revision={revision}/>);
+      return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
     });
 
     return (<div class={`material_changes ${showClass}`} onclick={ctrl.disableCloseWhenClicked}>

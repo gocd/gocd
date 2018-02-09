@@ -45,6 +45,8 @@ const Pipeline = function (info) {
 
   this.canOperate = info.can_operate;
 
+  this.trackingTool = info.tracking_tool;
+
   const config = (xhr) => {
     xhr.setRequestHeader("X-GoCD-Confirm", "true");
     mrequest.xhrConfig.forVersion('v1')(xhr);

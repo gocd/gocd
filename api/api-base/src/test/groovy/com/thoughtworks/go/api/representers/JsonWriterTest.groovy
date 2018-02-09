@@ -48,6 +48,22 @@ class JsonWriterTest {
   }
 
   @Test
+  void "should add Optional property if present"() {
+    def jsonWriter = new JsonWriter(new TestRequestContext())
+    jsonWriter.addOptional("foo", Optional.of("some-value"))
+
+    assertThat(jsonWriter.getAsMap()).isEqualTo([foo: "some-value"])
+  }
+
+  @Test
+  void "should not add Optional property if empty"() {
+    def jsonWriter = new JsonWriter(new TestRequestContext())
+    jsonWriter.addOptional("foo", Optional.empty())
+
+    assertThat(jsonWriter.getAsMap()).isEqualTo([:])
+  }
+
+  @Test
   void "should add an embedded list"() {
     def jsonWriter = new JsonWriter(new TestRequestContext())
     jsonWriter.addEmbedded("stages", [

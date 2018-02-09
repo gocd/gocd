@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -58,6 +59,7 @@ public class PipelineRepresenter {
                 .add("can_administer", model.canBeAdministeredBy(usernameString))
                 .add("can_unlock", model.canBeOperatedBy(usernameString))
                 .add("can_pause", model.canBeOperatedBy(usernameString))
+                .addOptional("tracking_tool", getTrackingToolInfo(model))
                 .addEmbedded("instances", getInstances(model, requestContext))
                 .getAsMap();
     }
@@ -76,5 +78,13 @@ public class PipelineRepresenter {
         pauseInfoJSON.put("paused_by", StringUtils.isBlank(pausedInfo.getPauseBy()) ? null : pausedInfo.getPauseBy());
         pauseInfoJSON.put("pause_reason", StringUtils.isBlank(pausedInfo.getPauseCause()) ? null : pausedInfo.getPauseCause());
         return pauseInfoJSON;
+    }
+
+    private static Optional<Map> getTrackingToolInfo(GoDashboardPipeline model) {
+        return model.getTrackingTool()
+                .map(trackingTool -> new JsonWriter(null)
+                        .add("regex", trackingTool.getRegex())
+                        .add("link", trackingTool.getLink())
+                        .getAsMap());
     }
 }

@@ -85,7 +85,8 @@ public class GoDashboardCurrentStateLoader {
                         Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
                         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activeInstances);
 
-                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), timeStampBasedCounter));
+                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(),
+                                pipelineConfig.getTrackingTool(), timeStampBasedCounter));
                     }
                 });
             }
@@ -100,7 +101,7 @@ public class GoDashboardCurrentStateLoader {
         Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activePipelineInstances);
 
-        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), timeStampBasedCounter);
+        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), pipelineConfig.getTrackingTool(), timeStampBasedCounter);
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {

@@ -502,7 +502,7 @@ $pipeline_icons_size: 16px;
 $h-tab__head_width: 100%;
 $h-tab__container_width: 500px;
 
-$v-tab__head_width: 125px;
+$v-tab__head_width: 200px;
 $v-tab__container_width: 500px;
 
 $border-color: #ccc;
@@ -611,8 +611,108 @@ $active-tab: #94399e;
 
 .v-tab_content {
   padding: 10px 20px;
-  display: none;
   > :first-child {
     margin-top: 0;
+  }
+}
+
+//material latest run
+
+$name-value_width: 450px;
+
+.name-value {
+  list-style-type: none;
+  width:           $name-value_width;
+}
+
+.name-value_pair {
+  border-bottom: 1px dotted #ccc;
+  display:       flex;
+
+  label {
+    padding:     5px 10px 3px 0;
+    min-width:   150px;
+    font-weight: 600;
+  }
+  > span {
+    padding: 5px 10px 3px 0;
+  }
+}
+
+.helper {
+  font-size:  13px;
+  padding:    5px 10px;
+  background: #999;
+  display:    block;
+}
+
+.commit_search {
+  position: relative;
+}
+
+.commits {
+  position:   absolute;
+  top:        42px;
+  left:       0;
+  background: #fff;
+}
+
+.commit_info {
+  list-style-type: none;
+  margin:          0;
+  padding:         0;
+  width:           550px;
+  border:          1px solid #ccc;
+  li {
+    border-bottom: 1px solid #ccc;
+    display:       block;
+    cursor:        pointer;
+    &:hover {
+      background: #e8fafa;
+      .info {
+        background: #e8fafa;
+      }
+    }
+  }
+  .info {
+    display:    flex;
+    padding:    5px 10px;
+    font-size:  12px;
+    background: #f5f5f5;
+    span {
+      padding:     0 5px;
+      white-space: nowrap;
+      &:before {
+        content:      "";
+        border-left:  1px dotted #333;
+        margin-right: 5px;
+      }
+      &:first-child {
+        padding-left: 0;
+        &:before {
+          border: 0;
+          margin: 0;
+
+        }
+      }
+    }
+  }
+  .commit_message {
+    padding:   5px 10px;
+    font-size: 12px;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.material-revision-search {
+  width:         250px;
+  height:        30px;
+  border:        1px solid #ccc;
+  border-radius: 3px;
+  padding:       3px 10px;
+  &::placeholder {
+    font-size: 12px;
   }
 }

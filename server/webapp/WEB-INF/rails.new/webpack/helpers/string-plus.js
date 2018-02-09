@@ -68,6 +68,19 @@ const mixins = {
     return value;
   },
 
+  camelCaser(_key, value) {
+    if (value && typeof value === 'object' && !_.isArray(value)) {
+      const replacement = {};
+      for (const k in value) {
+        if (Object.hasOwnProperty.call(value, k)) {
+          replacement[_.camelCase(k)] = value[k];
+        }
+      }
+      return replacement;
+    }
+    return value;
+  },
+
   uuid: function guid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)

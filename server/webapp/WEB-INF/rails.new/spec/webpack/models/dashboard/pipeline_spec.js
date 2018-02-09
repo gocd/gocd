@@ -143,37 +143,6 @@ describe("Dashboard", () => {
         });
       });
     });
-
-    describe("Trigger With Options View", () => {
-      it('should fetch information for triggering a pipeline with options', () => {
-        jasmine.Ajax.withMock(() => {
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/trigger_options`, undefined, 'GET').andReturn({
-            responseText:    JSON.stringify(triggerWithOptionsViewJson),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          const successCallback = jasmine.createSpy().and.callFake((info) => {
-            expect(info.materials.length).toBe(triggerWithOptionsViewJson.materials.length);
-            expect(info.plainTextVariables.length).toBe(2);
-            expect(info.secureVariables.length).toBe(2);
-          });
-
-          const pipeline = new Pipeline(pipelineJson);
-          pipeline.viewInformationForTriggerWithOptions().then(successCallback);
-
-          expect(successCallback).toHaveBeenCalled();
-
-          const request = jasmine.Ajax.requests.mostRecent();
-          expect(request.method).toBe('GET');
-          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/trigger_options`);
-          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
-        });
-      });
-    });
   });
 
   const pipelineJsonFor = (pauseInfo) => {
@@ -286,41 +255,4 @@ describe("Dashboard", () => {
     };
   };
 
-  const triggerWithOptionsViewJson = {
-    "variables": [
-      {
-        "name":   "version",
-        "secure": false,
-        "value":  "asdf"
-      },
-      {
-        "name":   "foobar",
-        "secure": false,
-        "value":  "asdf"
-      },
-      {
-        "name":   "secure1",
-        "secure": true,
-        "value":  "****"
-      },
-      {
-        "name":   "highly secure",
-        "secure": true,
-        "value":  "****"
-      }
-    ],
-    "materials": [
-      {
-        "type":        "Git",
-        "name":        "https://github.com/ganeshspatil/gocd",
-        "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
-        "revision":    {
-          "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
-          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
-          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
-        }
-      }
-    ]
-  };
 });

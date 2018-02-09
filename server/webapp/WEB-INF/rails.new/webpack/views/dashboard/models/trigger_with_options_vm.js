@@ -34,16 +34,24 @@ const TriggerWitHOptionsVM = function () {
       });
     },
 
+    isMaterialSelected: (materialName) => materialsState[materialName](),
+
+    selectMaterial: (materialName) => {
+      _.each(materialsState, (value, name) => {
+        (name === materialName) ? value(true) : value(false);
+      });
+    },
+
     initialize: (triggerWithOptionsInfo) => {
       tabsState[viewModel.MATERIALS_TAB_KEY]                    = Stream(true);
       tabsState[viewModel.ENVIRONMENT_VARIABLES_TAB_KEY]        = Stream(false);
       tabsState[viewModel.SECURE_ENVIRONMENT_VARIABLES_TAB_KEY] = Stream(false);
 
       _.each(triggerWithOptionsInfo.materials, (material) => {
-        materialsState[material] = Stream(false);
+        materialsState[material.name] = Stream(false);
       });
 
-      materialsState[triggerWithOptionsInfo.materials[0]](true);
+      materialsState[triggerWithOptionsInfo.materials[0].name](true);
     }
   };
 

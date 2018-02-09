@@ -1,0 +1,121 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m             = require('mithril');
+const _             = require('lodash');
+const timeFormatter = require('helpers/time_formatter');
+
+const MaterialInfoWidget = {
+  view(vnode) {
+    const material = vnode.attrs.material;
+
+    let comment = <em>never ran</em>;
+    let date    = <em>never ran</em>;
+    let lastRun = <em>never ran</em>;
+    let user    = <em>never ran</em>;
+
+    if (!_.isEmpty(material.revision)) {
+      comment = material.revision.comment ? material.revision.comment : <em>not specified</em>;
+      date    = material.revision.date ? timeFormatter(material.revision.date) : <em>not specified</em>;
+      lastRun = material.revision.lastRunRevision ? material.revision.lastRunRevision : <em>not specified</em>;
+      user    = material.revision.user ? material.revision.user : <em>not specified</em>;
+    }
+
+    const destination = material.destination ? <code>{material.destination}</code> : <em>not specified</em>;
+
+    return (
+      <div class={`v-tab_content ${vnode.attrs.visibilityClass} material-for-trigger`}>
+
+        <dl class="name-value">
+          <li class="name-value_pair meta">
+            <label>{material.type}</label>
+            <span>{material.name}</span>
+          </li>
+
+          <li class="name-value_pair destination">
+            <label>Destination</label>
+            <span>{destination}</span>
+          </li>
+
+          <li class="name-value_pair date">
+            <label>Date</label>
+            <span>{date}</span>
+          </li>
+
+          <li class="name-value_pair user">
+            <label>User</label>
+            <span>{user}</span>
+          </li>
+
+          <li class="name-value_pair comment">
+            <label>Comment</label>
+            <span>{comment}</span>
+          </li>
+
+          <li class="name-value_pair last-run-revision">
+            <label>Last run with</label>
+            <span>{lastRun}</span>
+          </li>
+
+          <li class="name-value_pair">
+            <label>Revision to trigger with</label>
+            <span class="commit_search">
+              <input type="text"
+                     class="material-revision-search"
+                     placeholder="Search by revision/SHA or comment or committer name"/>
+              <div class="commits">
+
+                <ul class="commit_info">
+                  <li>
+                    <div class="info">
+                      <span class="rev">6798897dfd</span>
+                      <span class="committer">naveenb@thoughtworks.com </span>
+                      <span class="time"> 1 day ago </span>
+                    </div>
+                    <div class="commit_message">
+                      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit quisquam,</p>
+                    </div>
+                  </li>
+                </ul>
+
+                <ul class="commit_info">
+                  <li>
+                    <div class="info">
+                      <span class="rev">6798897dfd</span>
+                      <span class="committer">naveenb@thoughtworks.com </span>
+                      <span class="time"> 2 day ago </span>
+                    </div>
+                    <div class="commit_message">
+                      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit quisquam,</p>
+                    </div>
+                  </li>
+                </ul>
+
+                <span class="helper">
+                  Last 5 commits listed in chronological order
+                </span>
+              </div>
+            </span>
+
+          </li>
+        </dl>
+      </div>
+    );
+  }
+};
+
+
+module.exports = MaterialInfoWidget;

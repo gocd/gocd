@@ -38,7 +38,11 @@ const PipelineTriggerWithOptionsModalBody = {
     const info = vnode.attrs.triggerWithOptionsInfo;
 
     if (!info()) {
-      return (<div class="page-spinner"/>);
+      return (
+        <div class="pipeline-trigger-with-options">
+          <div class="page-spinner"/>
+        </div>
+      );
     }
 
     const materialsKey = vm.MATERIALS_TAB_KEY;
@@ -46,32 +50,30 @@ const PipelineTriggerWithOptionsModalBody = {
     const secureEnvKey = vm.SECURE_ENVIRONMENT_VARIABLES_TAB_KEY;
 
     return (
-      <div class="h-tab pipeline_trigger-with-options">
+      <div class="h-tab pipeline-trigger-with-options">
         <ul class="h-tab_tab-head pipeline_options-heading">
           <li class={self.visibilityClassForTab(materialsKey)}
-              onclick={vm.selectTab.bind(vm, materialsKey)} rel="pipeline_materials-section">
+              onclick={vm.selectTab.bind(vm, materialsKey)}>
             Materials
           </li>
           <li class={self.visibilityClassForTab(envKey)}
-              onclick={vm.selectTab.bind(vm, envKey)} rel="pipeline_envvars-section">
+              onclick={vm.selectTab.bind(vm, envKey)}>
             Environment variables
           </li>
           <li class={self.visibilityClassForTab(secureEnvKey)}
-              onclick={vm.selectTab.bind(vm, secureEnvKey)} rel="pipeline_secure-envvars-section">
+              onclick={vm.selectTab.bind(vm, secureEnvKey)}>
             Secure Environment variables
           </li>
         </ul>
 
         <div class="h-tab_container pipeline_options-body">
-          <div id="pipeline_materials-section" class={`h-tab_content ${self.visibilityClassForContent(materialsKey)}`}>
-            <MaterialsForTriggerWidget/>
+          <div class={`h-tab_content ${self.visibilityClassForContent(materialsKey)}`}>
+            <MaterialsForTriggerWidget materials={info().materials} vm={vnode.attrs.vm}/>
           </div>
-          <div id="pipeline_envvars-section"
-               class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
+          <div class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
             <p>Environment Variables Section</p>
           </div>
-          <div id="pipeline_secure-envvars-section"
-               class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
+          <div class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
             <p>Secure Environment Variables Section</p>
           </div>
         </div>

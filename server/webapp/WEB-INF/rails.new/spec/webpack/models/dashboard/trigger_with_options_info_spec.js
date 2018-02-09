@@ -16,7 +16,6 @@
 
 describe("Dashboard", () => {
   describe('Trigger With Option Information Model', () => {
-
     const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
     it("should deserialize from json", () => {
@@ -25,6 +24,34 @@ describe("Dashboard", () => {
       expect(info.materials.length).toBe(json.materials.length);
       expect(info.plainTextVariables.length).toBe(2);
       expect(info.secureVariables.length).toBe(2);
+    });
+
+    it('should fetch trigger options for the specified pipeline name', () => {
+      const pipelineName = 'up42';
+
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineName}/trigger_options`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(json),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
+        });
+
+        const successCallback = jasmine.createSpy().and.callFake((info) => {
+          expect(info.materials.length).toBe(json.materials.length);
+          expect(info.plainTextVariables.length).toBe(2);
+          expect(info.secureVariables.length).toBe(2);
+        });
+
+        TriggerWithOptionsInfo.all(pipelineName).then(successCallback);
+        expect(successCallback).toHaveBeenCalled();
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('GET');
+        expect(request.url).toBe(`/go/api/pipelines/${pipelineName}/trigger_options`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+      });
     });
 
     const json = {

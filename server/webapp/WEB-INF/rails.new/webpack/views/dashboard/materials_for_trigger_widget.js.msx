@@ -16,10 +16,54 @@
 
 
 const m = require('mithril');
+const _ = require('lodash');
+
+const MaterialInfoWidget = require('views/dashboard/material_info_widget');
 
 const MaterialsForTriggerWidget = {
-  view(_vnode) {
-    return (<div>Materials Section</div>);
+  oninit(vnode) {
+    const self = vnode.state;
+
+    self.activeClassForMaterial = (materialName) => {
+      return vnode.attrs.vm().isMaterialSelected(materialName) ? 'active' : '';
+    };
+
+    self.getVisibilityClassForMaterialContent = (materialName) => {
+      return vnode.attrs.vm().isMaterialSelected(materialName) ? '' : 'hidden';
+    };
+  },
+
+  view(vnode) {
+    const self = vnode.state;
+    const vm   = vnode.attrs.vm();
+
+    const materialHeadings = _.map(vnode.attrs.materials, (material) => {
+      const name = material.name;
+
+      return (
+        <li class={self.activeClassForMaterial(name)}
+            onclick={vm.selectMaterial.bind(vm, name)}>
+          <div>{material.revision.lastRunRevision}</div>
+          <div>{material.name}</div>
+        </li>
+      );
+    });
+
+    const materialContents = _.map(vnode.attrs.materials, (material) => {
+      const visibilityClass = self.getVisibilityClassForMaterialContent(material.name);
+      return (<MaterialInfoWidget material={material} visibilityClass={visibilityClass}/>);
+    });
+
+    return (
+      <div class="v-tab">
+        <ul class="v-tab_tab-head">
+          {materialHeadings}
+        </ul>
+
+        <div class="v-tab_container">
+          {materialContents}
+        </div>
+      </div>);
   }
 };
 

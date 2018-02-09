@@ -52,42 +52,32 @@ describe("Dashboard Trigger With Options View Model", () => {
       expect(vm.isTabSelected(vm.ENVIRONMENT_VARIABLES_TAB_KEY)).toBe(true);
       expect(vm.isTabSelected(vm.SECURE_ENVIRONMENT_VARIABLES_TAB_KEY)).toBe(false);
     });
+
+    it("it should initialize vm with materials state", () => {
+      expect(vm.isMaterialSelected(json.materials[0].name)).toBe(true);
+      expect(vm.isMaterialSelected(json.materials[1].name)).toBe(false);
+    });
+
+    it("it should select a material", () => {
+      expect(vm.isMaterialSelected(json.materials[0].name)).toBe(true);
+      expect(vm.isMaterialSelected(json.materials[1].name)).toBe(false);
+
+      vm.selectMaterial(json.materials[1].name);
+
+      expect(vm.isMaterialSelected(json.materials[0].name)).toBe(false);
+      expect(vm.isMaterialSelected(json.materials[1].name)).toBe(true);
+    });
   });
 
   const json = {
-    "environment_variables":        [
-      {
-        "name":  "version",
-        "value": "asdf"
-      },
-      {
-        "name":  "foobar",
-        "value": "asdf"
-      }
-    ],
-    "secure_environment_variables": [
-      {
-        "name":  "secure1",
-        "value": "****"
-      },
-      {
-        "name":  "highly secure",
-        "value": "****"
-      }
-    ],
-
     "materials": [
       {
-        "type":        "Git",
-        "name":        "https://github.com/ganeshspatil/gocd",
-        "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
-        "revision":    {
-          "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
-          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
-          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
-        }
+        "name": "material1"
+      },
+      {
+        "name": "material2"
       }
     ]
   };
-});
+})
+;

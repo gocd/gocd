@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const _ = require('lodash');
-
-const Materials            = require('models/dashboard/materials');
+const _                    = require('lodash');
+const s                    = require('helpers/string-plus');
+const sparkRoutes          = require('helpers/spark_routes');
+const AjaxHelper           = require('helpers/ajax_helper');
 const EnvironmentVariables = require('models/dashboard/environment_variables');
 
 const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVariables) {
@@ -29,11 +30,19 @@ const isSecure    = (v) => v.secure;
 const isPlainText = (v) => !v.secure;
 
 TriggerWithOptionsInfo.fromJSON = (json) => {
-  const materials                     = Materials.fromJSON(json.materials);
+  const materials                     = JSON.parse(JSON.stringify(json.materials, s.camelCaser));
   const plainTextEnvironmentVariables = EnvironmentVariables.fromJSON(_.filter(json.variables, isPlainText));
   const secureEnvironmentVariables    = EnvironmentVariables.fromJSON(_.filter(json.variables, isSecure));
 
   return new TriggerWithOptionsInfo(materials, plainTextEnvironmentVariables, secureEnvironmentVariables);
+};
+
+TriggerWithOptionsInfo.all = function (pipelineName) {
+  return AjaxHelper.GET({
+    url:        sparkRoutes.pipelineTriggerWithOptionsViewPath(pipelineName),
+    type:       TriggerWithOptionsInfo,
+    apiVersion: 'v1',
+  });
 };
 
 module.exports = TriggerWithOptionsInfo;

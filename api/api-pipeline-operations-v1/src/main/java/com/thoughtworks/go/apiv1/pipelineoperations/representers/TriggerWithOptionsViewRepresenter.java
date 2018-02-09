@@ -83,7 +83,6 @@ public class TriggerWithOptionsViewRepresenter {
                 .addIfNotNull("user", revision.getLatestUser())
                 .addIfNotNull("comment", revision.getLatestComment())
                 .addIfNotNull("last_run_revision", revision.getLatestRevisionString())
-                .addIfNotNull("label", maybePipelineLabel)
                 .getAsMap();
     }
 }

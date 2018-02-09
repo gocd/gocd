@@ -504,7 +504,7 @@ public class MaterialRevisionsTest {
 
         revisions.populateEnvironmentVariables(context, null);
 
-        assertThat(context.getProperty("GO_MATERIAL__HAS_CHANGED"), is("true"));
+        assertThat(context.getProperty("GO_MATERIAL_HAS_CHANGED"), is("true"));
         assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER1_HAS_CHANGED"), is("true"));
         assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER2_HAS_CHANGED"), is("false"));
         assertThat(context.getProperty("GO_MATERIAL_P1_HAS_CHANGED"), is("true"));

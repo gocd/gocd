@@ -28,6 +28,6 @@ module.exports = {
   },
 
   pipelineTriggerWithOptionsViewPath: (pipelineName) => {
-    return `/go/api/internal/trigger_with_options_view/${pipelineName}`;
+    return `/go/api/pipelines/${pipelineName}/trigger_options`;
   }
 };

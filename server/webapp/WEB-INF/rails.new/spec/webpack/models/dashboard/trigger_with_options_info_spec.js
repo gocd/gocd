@@ -23,29 +23,31 @@ describe("Dashboard", () => {
       const info = TriggerWithOptionsInfo.fromJSON(json);
 
       expect(info.materials.length).toBe(json.materials.length);
-      expect(info.plainTextVariables.length).toBe(json.environment_variables.length);
-      expect(info.secureVariables.length).toBe(json.secure_environment_variables.length);
+      expect(info.plainTextVariables.length).toBe(2);
+      expect(info.secureVariables.length).toBe(2);
     });
 
     const json = {
-      "environment_variables":        [
+      "variables": [
         {
-          "name":  "version",
-          "value": "asdf"
+          "name":   "version",
+          "secure": false,
+          "value":  "asdf"
         },
         {
-          "name":  "foobar",
-          "value": "asdf"
-        }
-      ],
-      "secure_environment_variables": [
-        {
-          "name":  "secure1",
-          "value": "****"
+          "name":   "foobar",
+          "secure": false,
+          "value":  "asdf"
         },
         {
-          "name":  "highly secure",
-          "value": "****"
+          "name":   "secure1",
+          "secure": true,
+          "value":  "****"
+        },
+        {
+          "name":   "highly secure",
+          "secure": true,
+          "value":  "****"
         }
       ],
 

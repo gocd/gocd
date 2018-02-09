@@ -147,7 +147,7 @@ describe("Dashboard", () => {
     describe("Trigger With Options View", () => {
       it('should fetch information for triggering a pipeline with options', () => {
         jasmine.Ajax.withMock(() => {
-          jasmine.Ajax.stubRequest(`/go/api/internal/trigger_with_options_view/${pipelineJson.name}`, undefined, 'GET').andReturn({
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/trigger_options`, undefined, 'GET').andReturn({
             responseText:    JSON.stringify(triggerWithOptionsViewJson),
             responseHeaders: {
               'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -157,8 +157,8 @@ describe("Dashboard", () => {
 
           const successCallback = jasmine.createSpy().and.callFake((info) => {
             expect(info.materials.length).toBe(triggerWithOptionsViewJson.materials.length);
-            expect(info.plainTextVariables.length).toBe(triggerWithOptionsViewJson.environment_variables.length);
-            expect(info.secureVariables.length).toBe(triggerWithOptionsViewJson.secure_environment_variables.length);
+            expect(info.plainTextVariables.length).toBe(2);
+            expect(info.secureVariables.length).toBe(2);
           });
 
           const pipeline = new Pipeline(pipelineJson);
@@ -168,7 +168,7 @@ describe("Dashboard", () => {
 
           const request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('GET');
-          expect(request.url).toBe(`/go/api/internal/trigger_with_options_view/${pipelineJson.name}`);
+          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/trigger_options`);
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
           expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
         });
@@ -287,27 +287,28 @@ describe("Dashboard", () => {
   };
 
   const triggerWithOptionsViewJson = {
-    "environment_variables":        [
+    "variables": [
       {
-        "name":  "version",
-        "value": "asdf"
+        "name":   "version",
+        "secure": false,
+        "value":  "asdf"
       },
       {
-        "name":  "foobar",
-        "value": "asdf"
-      }
-    ],
-    "secure_environment_variables": [
-      {
-        "name":  "secure1",
-        "value": "****"
+        "name":   "foobar",
+        "secure": false,
+        "value":  "asdf"
       },
       {
-        "name":  "highly secure",
-        "value": "****"
+        "name":   "secure1",
+        "secure": true,
+        "value":  "****"
+      },
+      {
+        "name":   "highly secure",
+        "secure": true,
+        "value":  "****"
       }
     ],
-
     "materials": [
       {
         "type":        "Git",

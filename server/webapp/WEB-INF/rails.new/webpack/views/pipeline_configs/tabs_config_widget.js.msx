@@ -22,42 +22,43 @@ const ComponentMixins = require('helpers/mithril_component_mixins');
 const tt              = require('helpers/pipeline_configs/tooltips');
 
 const TabsConfigWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
     ComponentMixins.ManagesCollection.call(this, {
       as: 'Tab',
-      onInitialize () {
+      onInitialize() {
         this.changed();
       }
     });
   },
 
-  view (vnode) {
+  view(vnode) {
     return (
       <f.accordion accordionTitles={[(<span>Tabs<f.tooltip tooltip={{content: tt.tabs.main, size: 'small'}}/></span>)]}
                    accordionKeys={['job-tabs']}
                    selectedIndex={vnode.state.vmState('tabsSelected', Stream(-1))}
                    class="accordion-inner">
-        <div class='job-tabs position-tooltip'>
+        <div class="job-tabs position-tooltip">
           {vnode.state.map((tab) => {
             return (
-              <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
+              <f.row class="tab" data-tab-name={tab.name()} key={tab.uuid()}>
                 <f.column size={3}>
                   <f.input model={tab}
                            attrName="name"
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            validate
-                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.name, size: 'small'}} model={tab} attrName="name" />}
-                           placeholder="Tab name" />
+                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.name, size: 'small'}} model={tab}
+                                                    attrName="name"/>}
+                           placeholder="Tab name"/>
                 </f.column>
                 <f.column size={3}>
                   <f.input model={tab}
                            attrName="path"
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            validate="all"
-                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.path}} model={tab} attrName="path" />}
-                           placeholder="Path of artifact" />
+                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.path}} model={tab} attrName="path"/>}
+                           placeholder="Path of artifact"/>
                 </f.column>
                 <f.column size={3} end>
                   {vnode.state.removeLink.call(vnode.state, tab)}

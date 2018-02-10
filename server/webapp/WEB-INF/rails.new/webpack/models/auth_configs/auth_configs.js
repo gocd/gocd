@@ -59,7 +59,7 @@ AuthConfigs.AuthConfig = function (data) {
   this.validatePresenceOf('id');
   this.validatePresenceOf('pluginId');
   this.validateFormatOf('id', {
-    format:  /^[a-zA-Z0-9_\-]{1}[a-zA-Z0-9_\-.]*$/,
+    format:  /^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$/,
     message: 'Invalid id. This must be alphanumeric and can contain underscores and periods (however, it cannot start ' +
              'with a period). The maximum allowed length is 255 characters.'
   });

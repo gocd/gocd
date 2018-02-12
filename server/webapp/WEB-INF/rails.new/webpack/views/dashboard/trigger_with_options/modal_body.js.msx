@@ -17,10 +17,10 @@
 const m = require('mithril');
 const _ = require('lodash');
 
-const MaterialsForTriggerWidget  = require('views/dashboard/materials_for_trigger_widget');
-const EnvironmentVariablesWidget = require('views/dashboard/environment_variables_for_trigger_widget');
+const MaterialsForTriggerWidget  = require('views/dashboard/trigger_with_options/materials_widget');
+const EnvironmentVariablesWidget = require('views/dashboard/trigger_with_options/environment_variables_widget');
 
-const PipelineTriggerWithOptionsModalBody = {
+const ModalBody = {
   oninit(vnode) {
     const self = vnode.state;
 
@@ -107,4 +107,4 @@ const PipelineTriggerWithOptionsModalBody = {
   }
 };
 
-module.exports = PipelineTriggerWithOptionsModalBody;
+module.exports = ModalBody;

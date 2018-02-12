@@ -18,7 +18,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   const m = require("mithril");
 
   const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
-  const MaterialInfoWidget     = require("views/dashboard/material_info_widget");
+  const MaterialInfoWidget     = require("views/dashboard/trigger_with_options/material_info_widget");
   const timeFormatter          = require('helpers/time_formatter');
 
   let $root, root;

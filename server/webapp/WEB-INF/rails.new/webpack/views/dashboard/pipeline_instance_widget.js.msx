@@ -19,7 +19,7 @@ const _      = require('lodash');
 const moment = require("moment");
 require("moment-duration-format");
 const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget');
-const MaterialRevisionWidget = require('views/dashboard/material_revision_widget');
+const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/material_revision_widget');
 
 const PipelineInstanceWidget = {
   view: (vnode) => {

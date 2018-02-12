@@ -21,7 +21,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
   const TriggerWithOptionsVM   = require("views/dashboard/models/trigger_with_options_vm");
   const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
-  const MaterialForTriggerWidget = require("views/dashboard/materials_for_trigger_widget");
+  const MaterialForTriggerWidget = require("views/dashboard/trigger_with_options/materials_widget");
 
   let $root, root;
   beforeEach(() => {

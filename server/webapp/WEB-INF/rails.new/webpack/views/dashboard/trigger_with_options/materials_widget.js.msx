@@ -18,7 +18,7 @@
 const m = require('mithril');
 const _ = require('lodash');
 
-const MaterialInfoWidget = require('views/dashboard/material_info_widget');
+const MaterialInfoWidget = require('views/dashboard/trigger_with_options/material_info_widget');
 
 const MaterialsForTriggerWidget = {
   oninit(vnode) {

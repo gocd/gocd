@@ -17,7 +17,7 @@
 describe("Dashboard Material Revision Widget", () => {
   const m = require("mithril");
 
-  const MaterialRevisionWidget = require("views/dashboard/material_revision_widget");
+  const MaterialRevisionWidget = require("views/dashboard/trigger_with_options/material_revision_widget");
   const MaterialRevision       = require('models/dashboard/material_revision');
 
   let $root, root;

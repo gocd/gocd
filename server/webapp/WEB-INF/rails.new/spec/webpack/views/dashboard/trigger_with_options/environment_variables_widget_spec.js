@@ -19,7 +19,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
   const $             = require("jquery");
   const simulateEvent = require('simulate-event');
 
-  const EnvironmentVariablesWidget = require("views/dashboard/environment_variables_for_trigger_widget");
+  const EnvironmentVariablesWidget = require("views/dashboard/trigger_with_options/environment_variables_widget");
   const EnvironmentVariables       = require('models/dashboard/environment_variables');
 
   let $root, root;

@@ -22,7 +22,7 @@ const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_in
 const Modal                               = require('views/shared/new_modal');
 const PipelinePauseModalBody              = require('views/dashboard/pipeline_pause_modal_body');
 const TriggerWithOptionsVM                = require('views/dashboard/models/trigger_with_options_vm');
-const PipelineTriggerWithOptionsModalBody = require('views/dashboard/pipeline_trigger_with_options_modal_body');
+const PipelineTriggerWithOptionsModalBody = require('views/dashboard/trigger_with_options/modal_body');
 
 const PipelineOperationsWidget = {
   oninit(vnode) {

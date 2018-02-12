@@ -17,7 +17,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const m                           = require("mithril");
   const Stream                      = require("mithril/stream");
   const Modal                       = require('views/shared/new_modal');
-  const TriggerWithOptionsModalBody = require("views/dashboard/pipeline_trigger_with_options_modal_body");
+  const TriggerWithOptionsModalBody = require("views/dashboard/trigger_with_options/modal_body");
 
   const TriggerWithOptionsVM   = require('views/dashboard/models/trigger_with_options_vm');
   const TriggerWithOptionsInfo = require("models/dashboard/trigger_with_options_info");

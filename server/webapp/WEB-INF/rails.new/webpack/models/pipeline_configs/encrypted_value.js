@@ -31,7 +31,7 @@ const EncryptedValue = function (data) {
   const _isEncrypted   = Stream(_.has(data, 'cipherText'));
   const _canEdit       = Stream(!_isEncrypted());
 
-  this.value = function(...args) {
+  this.value = function (...args) {
     if (args.length) {
       if (this.isPlain()) {
         return _value(args[0]);
@@ -65,12 +65,20 @@ const EncryptedValue = function (data) {
 
   this.becomeSecure = () => {
     _isEncrypted(true);
+    this.preventEdit();
+  };
+
+  this.preventEdit = () => {
     _canEdit(false);
   };
 
   this.becomeUnSecure = () => {
     _isEncrypted(false);
     _canEdit(true);
+  };
+
+  this.getOriginal = () => {
+    return _originalValue();
   };
 
   this.resetToOriginal = function () {

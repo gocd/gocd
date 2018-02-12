@@ -25,20 +25,29 @@ describe("Dashboard", () => {
       expect(envVars.length).toBe(json.length);
 
       expect(envVars[0].name()).toBe(json[0].name);
-      expect(envVars[0].value()).toBe(json[0].value);
+      expect(envVars[0].value()).toEqual('');
 
       expect(envVars[1].name()).toBe(json[1].name);
       expect(envVars[1].value()).toBe(json[1].value);
     });
 
+    it("should make environment variable non editable by default", () => {
+      const envVars = EnvironmentVariables.fromJSON(json);
+
+      expect(envVars[0].isEditingValue()).toBe(false);
+      expect(envVars[1].isEditingValue()).toBe(true);
+    });
+
     const json = [
       {
-        "name":  "version",
-        "value": "asdf"
+        "name":   "version",
+        "secure": true,
+        "value":  "***"
       },
       {
-        "name":  "foobar",
-        "value": "asdf"
+        "name":   "foobar",
+        "secure": false,
+        "value":  "asdf"
       }
     ];
 

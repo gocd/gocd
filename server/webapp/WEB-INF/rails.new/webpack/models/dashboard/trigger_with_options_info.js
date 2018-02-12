@@ -31,10 +31,10 @@ const isPlainText = (v) => !v.secure;
 
 TriggerWithOptionsInfo.fromJSON = (json) => {
   const materials                     = JSON.parse(JSON.stringify(json.materials, s.camelCaser));
-  const plainTextEnvironmentVariables = EnvironmentVariables.fromJSON(_.filter(json.variables, isPlainText));
-  const secureEnvironmentVariables    = EnvironmentVariables.fromJSON(_.filter(json.variables, isSecure));
+  const plainTextVariables = EnvironmentVariables.fromJSON(_.filter(json.variables, isPlainText));
+  const secureVariables    = EnvironmentVariables.fromJSON(_.filter(json.variables, isSecure));
 
-  return new TriggerWithOptionsInfo(materials, plainTextEnvironmentVariables, secureEnvironmentVariables);
+  return new TriggerWithOptionsInfo(materials, plainTextVariables, secureVariables);
 };
 
 TriggerWithOptionsInfo.all = function (pipelineName) {

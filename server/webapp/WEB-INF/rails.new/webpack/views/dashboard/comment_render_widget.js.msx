@@ -15,50 +15,7 @@
  */
 
 const m = require('mithril');
-const _ = require('lodash');
-
-function renderComment(text, trackingTool) {
-  if (!trackingTool || !trackingTool.regex) {
-    return text;
-  }
-  let updatedComment = text;
-  try {
-    updatedComment = text.replace(new RegExp(trackingTool.regex, "g"), toLink);
-  } catch (e) {
-    return text;
-  }
-
-  return m.trust(updatedComment);
-
-  function firstMatchingGroup(matchResult) {
-    if (matchResult === null || matchResult.length === 0) {
-      return null;
-    }
-    for (let i = 1; i < matchResult.length; i++) {
-      if (matchResult[i]) {
-        return matchResult[i];
-      }
-    }
-    return null;
-  }
-
-  function hasGroups(regex) {
-    return (new RegExp(`${regex}|`)).exec('').length - 1;
-  }
-
-  function toLink(matchedWord) {
-    const trackingId = firstMatchingGroup(matchedWord.match(trackingTool.regex));
-    if (trackingId) {
-      const href = _.escape(trackingTool.link.replace("${ID}", trackingId));
-      return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
-    } else if (hasGroups(trackingTool.regex)) {
-      return matchedWord;
-    } else {
-      const href = _.escape(trackingTool.link.replace("${ID}", matchedWord));
-      return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
-    }
-  }
-}
+const renderComment = require('helpers/render_comment');
 
 const CommentRenderWidget = {
 
@@ -66,7 +23,7 @@ const CommentRenderWidget = {
     const text         = vnode.attrs.text;
     const trackingTool = vnode.attrs.trackingTool;
 
-    return (<div class="item comment"><p>{renderComment(text, trackingTool)}</p></div>);
+    return (<div class="item comment"><p>{m.trust(renderComment(text, trackingTool))}</p></div>);
   }
 };
 

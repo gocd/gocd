@@ -18,14 +18,13 @@
   "use strict";
 
   const m = require("mithril");
-  const PluginEndpoint = require("rails-shared/plugin-endpoint");
 
   const PluginiFrameWidget = {
     oncreate(vnode) {
       const iframe = vnode.dom.firstChild;
 
       iframe.onload = () => {
-        PluginEndpoint.init(iframe.contentWindow, {
+        vnode.attrs.init(iframe.contentWindow, {
           uid: vnode.attrs.uid,
           pluginId: vnode.attrs.pluginId,
           data: vnode.attrs.model.data()
@@ -36,9 +35,9 @@
     },
 
     view(vnode) {
-      const model = vnode.attrs.model;
-      const attrs = {src: model.view()};
-      const errorAttrs = model.errors() ? {"data-error-text": model.errors()} : {};
+      const model = vnode.attrs.model,
+        attrs = { src: model.view() },
+        errorAttrs = model.errors() ? { "data-error-text": model.errors() } : {};
 
       return <div class="frame-container" {...errorAttrs}>
         <iframe sandbox="allow-scripts" {...attrs}></iframe>

@@ -53,7 +53,7 @@ public class AuthorizationMetadataLoaderTest {
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
         when(infoBuilder.pluginInfoFor(descriptor)).thenReturn(pluginInfo);
@@ -80,7 +80,7 @@ public class AuthorizationMetadataLoaderTest {
     public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);
 
         metadataStore.setPluginInfo(pluginInfo);
 

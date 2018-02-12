@@ -86,7 +86,9 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
 
   this.hasErrors = () => this.status().state() === 'invalid';
 
-  this.suportsPluginSettings = () => !!this.pluginSettings;
+  this.supportsPluginSettings = function () {
+    return !!this.pluginSettings && this.pluginSettings().hasView() && this.pluginSettings().hasConfigurations();
+  };
 };
 
 PluginInfos.PluginInfo.ConfigRepo = function (data) {
@@ -130,6 +132,7 @@ PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInf
   pluginFileLocation: data.plugin_file_location,
   bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   packageSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.package_settings")),
   repositorySettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.repository_settings")),
   imageUrl:           _.get(data, '_links.image.href')
@@ -163,6 +166,7 @@ PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.
   pluginFileLocation: data.plugin_file_location,
   bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   scmSettings:        PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
   imageUrl:           _.get(data, '_links.image.href'),
 });

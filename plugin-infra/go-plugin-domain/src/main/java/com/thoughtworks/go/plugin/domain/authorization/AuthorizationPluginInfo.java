@@ -28,8 +28,8 @@ public class AuthorizationPluginInfo extends PluginInfo {
     private final Capabilities capabilities;
 
     public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings,
-                                   PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.AUTHORIZATION_EXTENSION, pluginSettings, image);
+                                   PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities) {
+        super(descriptor, PluginConstants.AUTHORIZATION_EXTENSION, null, image);
         this.authConfigSettings = authConfigSettings;
         this.roleSettings = roleSettings;
         this.capabilities = capabilities;

@@ -45,6 +45,119 @@ describe('PluginInfos', () => {
     expect(pluginInfos.countPluginInfo()).toBe(1);
     expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
   });
+
+  it("should check if plugin settings is supported", () => {
+    const withoutExtensionInfo = {
+      "id":               "github.pr",
+      "type":             "scm",
+      "status":           {
+        "state": "active"
+      },
+      "about":        {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      }
+    };
+
+    const withoutPluginSettingsProperty = {
+      "id":               "github.pr",
+      "type":             "scm",
+      "status":           {
+        "state": "active"
+      },
+      "about":        {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extension_info": {
+      }
+    };
+
+    const withoutPluginSettingsView = {
+      "id":               "github.pr",
+      "type":             "scm",
+      "status":           {
+        "state": "active"
+      },
+      "about":        {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extension_info": {
+        "plugin_settings": {
+          "configurations": [
+            {
+              "key": "instance_type",
+              "metadata": {
+                "secure": false,
+                "required": true
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const withoutPluginSettingsConfiguration = {
+      "id":               "github.pr",
+      "type":             "scm",
+      "status":           {
+        "state": "active"
+      },
+      "about":        {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extension_info": {
+        "plugin_settings": {
+          "view": {
+            "template": "plugin settings view"
+          }
+        }
+      }
+    };
+
+    const pluginInfoWithoutPluginSettings = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsProperty);
+    expect(pluginInfoWithoutPluginSettings.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutExtensionInfo = PluginInfos.PluginInfo.fromJSON(withoutExtensionInfo);
+    expect(pluginInfoWithoutExtensionInfo.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutPluginSettingsView = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsView);
+    expect(pluginInfoWithoutPluginSettingsView.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutPluginSettingsConfiguration = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsConfiguration);
+    expect(pluginInfoWithoutPluginSettingsConfiguration.supportsPluginSettings()).toBe(false);
+
+  });
   
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
@@ -283,6 +396,20 @@ describe('PluginInfos', () => {
                 }
               }
             ]
+          },
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "another-property",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "Plugin Settings View for package repository plugin"
+            }
           }
         }
       };
@@ -308,6 +435,14 @@ describe('PluginInfos', () => {
         "secure":           false,
         "display_name":     "Repository Url",
         "required":         true
+      });
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['another-property']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
       });
     });
   });
@@ -438,6 +573,20 @@ describe('PluginInfos', () => {
             "view":           {
               "template": "<div class=\"form_item_block\">\n    <label>URL:<span class=\"asterisk\">*</span></label>\n    <input type=\"text\" ng-model=\"url\" ng-required=\"true\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[url].$error.server\">{{ GOINPUTNAME[url].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Username:</label>\n    <input type=\"text\" ng-model=\"username\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[username].$error.server\">{{ GOINPUTNAME[username].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Password:</label>\n    <input type=\"password\" ng-model=\"password\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[password].$error.server\">{{ GOINPUTNAME[password].$error.server }}</span>\n</div>"
             }
+          },
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "another-property",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "Plugin Settings View for scm plugin GitHub PR builder"
+            }
           }
         }
       };
@@ -453,6 +602,15 @@ describe('PluginInfos', () => {
         "secure":           false,
         "required":         true
       });
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['another-property']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+
     });
   });
 

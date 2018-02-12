@@ -21,6 +21,15 @@ const Mixins = require('models/mixins/model_mixins');
 const PluggableInstanceSettings = function({viewTemplate, configurations}) {
   this.viewTemplate   = Stream(viewTemplate);
   this.configurations = Stream(configurations);
+
+  this.hasConfigurations = function () {
+    return !this.configurations().isEmptyConfiguration();
+  };
+
+  this.hasView = function () {
+    return !!this.viewTemplate();
+  };
+
 };
 
 PluggableInstanceSettings.fromJSON = (data = {}) => new PluggableInstanceSettings({

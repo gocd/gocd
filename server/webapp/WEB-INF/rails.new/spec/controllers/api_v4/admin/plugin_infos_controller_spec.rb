@@ -158,7 +158,7 @@ describe ApiV4::Admin::PluginInfosController do
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
       allPluginInfos = [com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil, nil),
+                        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, @plugin_settings),
                         com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, nil, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings),

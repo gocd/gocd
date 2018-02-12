@@ -32,7 +32,6 @@ import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -128,7 +127,7 @@ public class UserSearchServiceTest  {
     private void addPluginSupportingUserSearch(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
                 new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
-                new Capabilities(SupportedAuthType.Password, true, true), null);
+                new Capabilities(SupportedAuthType.Password, true, true));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

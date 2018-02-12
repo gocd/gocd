@@ -28,7 +28,9 @@ const Plain = {
               const hasChanged = variable.isDirtyValue();
               let mayBeOverridenText;
               if (hasChanged) {
-                mayBeOverridenText = (<div class="overridden-message"> Overriden. Default: <code>{variable.getOriginalValue()}</code></div>);
+                mayBeOverridenText = (
+                  <div class="overridden-message"> Overriden. Default: <code>{variable.getOriginalValue()}</code>
+                  </div>);
               }
 
               return (
@@ -68,7 +70,7 @@ const Secure = {
 
     return (
       <div class="environment-variables-tab-content">
-        <h3>Override secure environment and pipeline level123asdf variables</h3>
+        <h3>Override secure environment and pipeline level variables</h3>
         <ul class="environment-variables secure">
           {
             _.map(variables, (variable) => {

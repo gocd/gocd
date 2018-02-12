@@ -15,6 +15,7 @@
  */
 
 const m = require('mithril');
+const _ = require('lodash');
 
 const MaterialsForTriggerWidget  = require('views/dashboard/materials_for_trigger_widget');
 const EnvironmentVariablesWidget = require('views/dashboard/environment_variables_for_trigger_widget');
@@ -34,6 +35,8 @@ const PipelineTriggerWithOptionsModalBody = {
 
 
   view(vnode) {
+    let secureVarsTabContent, environmentVarsTabContent, secureVarsTab, environmentVarsTab;
+
     const self = vnode.state;
     const vm   = vnode.attrs.vm();
     const info = vnode.attrs.triggerWithOptionsInfo;
@@ -50,6 +53,37 @@ const PipelineTriggerWithOptionsModalBody = {
     const envKey       = vm.ENVIRONMENT_VARIABLES_TAB_KEY;
     const secureEnvKey = vm.SECURE_ENVIRONMENT_VARIABLES_TAB_KEY;
 
+    const showPlainTextVars = !_.isEmpty(info().plainTextVariables);
+    const showSecureVars    = !_.isEmpty(info().secureVariables);
+
+    if (showPlainTextVars) {
+      environmentVarsTab        = (
+        <li class={self.visibilityClassForTab(envKey)} onclick={vm.selectTab.bind(vm, envKey)}>
+          Environment variables
+        </li>
+      );
+      environmentVarsTabContent = (
+        <div class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
+          <EnvironmentVariablesWidget.Plain variables={info().plainTextVariables}/>
+        </div>
+      );
+
+    }
+
+    if (showSecureVars) {
+      secureVarsTab = (
+        <li class={self.visibilityClassForTab(secureEnvKey)} onclick={vm.selectTab.bind(vm, secureEnvKey)}>
+          Secure Environment variables
+        </li>
+      );
+
+      secureVarsTabContent = (
+        <div class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
+          <EnvironmentVariablesWidget.Secure variables={info().secureVariables}/>
+        </div>
+      );
+    }
+
     return (
       <div class="h-tab pipeline-trigger-with-options">
         <ul class="h-tab_tab-head pipeline_options-heading">
@@ -57,26 +91,16 @@ const PipelineTriggerWithOptionsModalBody = {
               onclick={vm.selectTab.bind(vm, materialsKey)}>
             Materials
           </li>
-          <li class={self.visibilityClassForTab(envKey)}
-              onclick={vm.selectTab.bind(vm, envKey)}>
-            Environment variables
-          </li>
-          <li class={self.visibilityClassForTab(secureEnvKey)}
-              onclick={vm.selectTab.bind(vm, secureEnvKey)}>
-            Secure Environment variables
-          </li>
+          {environmentVarsTab}
+          {secureVarsTab}
         </ul>
 
         <div class="h-tab_container pipeline_options-body">
           <div class={`h-tab_content ${self.visibilityClassForContent(materialsKey)}`}>
             <MaterialsForTriggerWidget materials={info().materials} vm={vnode.attrs.vm}/>
           </div>
-          <div class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
-            <EnvironmentVariablesWidget.Plain variables={info().plainTextVariables}/>
-          </div>
-          <div class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
-            <EnvironmentVariablesWidget.Secure variables={info().secureVariables}/>
-          </div>
+          {environmentVarsTabContent}
+          {secureVarsTabContent}
         </div>
       </div>
     );

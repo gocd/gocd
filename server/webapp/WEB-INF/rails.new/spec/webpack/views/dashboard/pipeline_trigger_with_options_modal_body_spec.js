@@ -91,16 +91,27 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     expect(secureEnvContent).toHaveClass('hidden');
   });
 
+
+  it('should not render the environment variables tab and content if no environment variables are present', () => {
+    triggerWithOptionsInfo(TriggerWithOptionsInfo.fromJSON({variables: [], materials: json.materials}));
+    vm.initialize(triggerWithOptionsInfo());
+    m.redraw();
+    const headings = $root.find('.pipeline_options-heading li');
+
+    expect(headings.length).toBe(1);
+    expect(headings.get(0)).toContainText('Materials');
+  });
+
   function mount() {
-    triggerWithOptionsInfo = TriggerWithOptionsInfo.fromJSON(json);
+    triggerWithOptionsInfo = Stream(TriggerWithOptionsInfo.fromJSON(json));
     vm                     = new TriggerWithOptionsVM();
-    vm.initialize(triggerWithOptionsInfo);
+    vm.initialize(triggerWithOptionsInfo());
 
     m.mount(root, {
       view() {
         return m(TriggerWithOptionsModalBody, {
-          triggerWithOptionsInfo: Stream(triggerWithOptionsInfo),
-          vm:                     Stream(vm)
+          triggerWithOptionsInfo,
+          vm: Stream(vm)
         });
       }
     });
@@ -114,27 +125,17 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   }
 
   const json = {
-    "environment_variables":        [
+    "variables": [
       {
-        "name":  "version",
-        "value": "asdf"
+        "name":   "version",
+        "secure": false,
+        "value":  "asdf"
       },
       {
-        "name":  "foobar",
-        "value": "asdf"
+        "name":   "foobar",
+        "secure": true
       }
     ],
-    "secure_environment_variables": [
-      {
-        "name":  "secure1",
-        "value": "****"
-      },
-      {
-        "name":  "highly secure",
-        "value": "****"
-      }
-    ],
-
     "materials": [
       {
         "type":        "Git",

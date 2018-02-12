@@ -89,6 +89,9 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         if (!link.contains("${ID}")) {
             configErrors.add(LINK, "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time.");
         }
+        if (!(link.startsWith("http://") || link.startsWith("https://"))) {
+            configErrors.add(LINK, "Link must be a URL starting with https:// or http://");
+        }
     }
 
     public ConfigErrors errors() {

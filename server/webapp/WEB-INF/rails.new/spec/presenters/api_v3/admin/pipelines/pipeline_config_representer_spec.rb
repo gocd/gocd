@@ -394,7 +394,7 @@ describe ApiV3::Admin::Pipelines::PipelineConfigRepresenter do
         type:   "generic", attributes: { url_pattern: "", regex: "" },
         errors: {
           regex: ["Regex should be populated"],
-          url_pattern:  ["Link should be populated", "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."]
+          url_pattern:  ["Link should be populated", "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time.", "Link must be a URL starting with https:// or http://"]
 
         }
       },

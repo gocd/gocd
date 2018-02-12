@@ -17,9 +17,11 @@
 package com.thoughtworks.go.server.messaging.plugin;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -28,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+
+import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -89,6 +93,7 @@ public class StageStatusPluginNotifierTest {
         when(stage.getIdentifier()).thenReturn(new StageIdentifier(pipelineName, 1, "stage", "1"));
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn("group1");
         when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter())).thenReturn(BuildCause.createManualForced());
+        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(PipelineConfigMother.createPipelineConfigWithStage(pipelineName, "stage"));
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
         verify(pluginNotificationQueue).post(captor.capture());
@@ -97,6 +102,7 @@ public class StageStatusPluginNotifierTest {
         assertThat(data.getStage(), is(stage));
         assertThat(data.getBuildCause(), is(BuildCause.createManualForced()));
         assertThat(data.getPipelineGroup(), is("group1"));
+        assertThat(data.getStages(), is(Collections.singletonList("stage")));
     }
 
     @Test
@@ -106,6 +112,7 @@ public class StageStatusPluginNotifierTest {
         when(stage.isReRun()).thenReturn(true);
         when(stage.getState()).thenReturn(StageState.Unknown);
         when(stage.getIdentifier()).thenReturn(new StageIdentifier("pipeline-name", 1, "stage", "1"));
+        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(new PipelineConfig());
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
@@ -119,6 +126,7 @@ public class StageStatusPluginNotifierTest {
         when(stage.isReRun()).thenReturn(false);
         when(stage.getState()).thenReturn(StageState.Passed);
         when(stage.getIdentifier()).thenReturn(new StageIdentifier("pipeline-name", 1, "stage", "1"));
+        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(new PipelineConfig());
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 

@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,10 +33,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
@@ -238,6 +234,7 @@ public class JsonMessageHandler3_0_Test {
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}],\n" +
+                "\"stages\": [\"stage-name\"],\n" +
                 "\t\t\"stage\": {\n" +
                 "\t\t\t\"name\": \"stage-name\",\n" +
                 "\t\t\t\"counter\": \"1\",\n" +
@@ -260,7 +257,7 @@ public class JsonMessageHandler3_0_Test {
                 "\t}\n" +
                 "}";
 
-        String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
+        String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group", Collections.singletonList("stage-name")));
         JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
     }
 

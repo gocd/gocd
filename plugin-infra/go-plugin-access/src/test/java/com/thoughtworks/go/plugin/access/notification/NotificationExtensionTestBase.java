@@ -137,7 +137,7 @@ public abstract class NotificationExtensionTestBase {
         Result response = new Result();
         String notificationName = "notification-name";
         String jsonResponse = "json-response";
-        StageNotificationData stageNotificationData = new StageNotificationData(new Stage(), BuildCause.createWithEmptyModifications(), "group");
+        StageNotificationData stageNotificationData = new StageNotificationData(new Stage(), BuildCause.createWithEmptyModifications(), "group", null);
         when(jsonMessageHandler().requestMessageForNotify(stageNotificationData)).thenReturn(jsonResponse);
         when(jsonMessageHandler().responseMessageForNotify(RESPONSE_BODY)).thenReturn(response);
 

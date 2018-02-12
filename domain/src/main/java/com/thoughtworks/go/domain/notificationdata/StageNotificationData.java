@@ -20,16 +20,19 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class StageNotificationData implements Serializable {
     private Stage stage;
     private BuildCause buildCause;
     private String pipelineGroup;
+    private List<String> stages;
 
-    public StageNotificationData(Stage stage, BuildCause buildCause, String pipelineGroup) {
+    public StageNotificationData(Stage stage, BuildCause buildCause, String pipelineGroup, List<String> stages) {
         this.stage = stage;
         this.buildCause = buildCause;
         this.pipelineGroup = pipelineGroup;
+        this.stages = stages;
     }
 
     public Stage getStage() {
@@ -42,5 +45,9 @@ public class StageNotificationData implements Serializable {
 
     public String getPipelineGroup() {
         return pipelineGroup;
+    }
+
+    public List<String> getStages() {
+        return stages;
     }
 }

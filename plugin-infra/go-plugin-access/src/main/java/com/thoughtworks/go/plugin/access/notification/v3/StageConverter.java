@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class StageConverter extends DataConverter<StageNotificationDTO> {
@@ -32,11 +33,13 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     private Stage stage;
     private final String pipelineGroup;
     private final BuildCause buildCause;
+    private final List<String> stages;
 
     public StageConverter(StageNotificationData stageNotificationData) {
         this.stage = stageNotificationData.getStage();
         this.pipelineGroup = stageNotificationData.getPipelineGroup();
         this.buildCause = stageNotificationData.getBuildCause();
+        stages = stageNotificationData.getStages();
     }
 
     @Override
@@ -44,7 +47,7 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
         String pipelineLabel = stage.getIdentifier().getPipelineLabel();
-        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
+        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO(), stages);
         return new StageNotificationDTO(pipeline);
     }
 

@@ -625,18 +625,47 @@ $name-value_width: 450px;
   width:           $name-value_width;
 }
 
+@mixin label() {
+  padding:     5px 10px 3px 0;
+  min-width:   150px;
+  font-weight: 600;
+}
+
 .name-value_pair {
   border-bottom: 1px dotted #ccc;
   display:       flex;
 
   label {
-    padding:     5px 10px 3px 0;
-    min-width:   150px;
-    font-weight: 600;
+    @include label;
   }
   > span {
     padding: 5px 10px 3px 0;
   }
+}
+
+.environment-variables-tab-content {
+
+  .environment-variables {
+    list-style-type: none;
+
+    li {
+      display: flex;
+    }
+
+    label {
+      @include label;
+    }
+
+    input {
+      display: inline-block;
+      width:   300px;
+    }
+
+    .override {
+      padding-left: 10px;
+    }
+  }
+
 }
 
 .helper {
@@ -716,3 +745,4 @@ $name-value_width: 450px;
     font-size: 12px;
   }
 }
+

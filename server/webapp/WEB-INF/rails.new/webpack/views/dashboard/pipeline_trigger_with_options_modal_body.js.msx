@@ -16,7 +16,8 @@
 
 const m = require('mithril');
 
-const MaterialsForTriggerWidget = require('views/dashboard/materials_for_trigger_widget');
+const MaterialsForTriggerWidget  = require('views/dashboard/materials_for_trigger_widget');
+const EnvironmentVariablesWidget = require('views/dashboard/environment_variables_for_trigger_widget');
 
 const PipelineTriggerWithOptionsModalBody = {
   oninit(vnode) {
@@ -71,10 +72,10 @@ const PipelineTriggerWithOptionsModalBody = {
             <MaterialsForTriggerWidget materials={info().materials} vm={vnode.attrs.vm}/>
           </div>
           <div class={`h-tab_content ${self.visibilityClassForContent(envKey)}`}>
-            <p>Environment Variables Section</p>
+            <EnvironmentVariablesWidget.Plain variables={info().plainTextVariables}/>
           </div>
           <div class={`h-tab_content ${self.visibilityClassForContent(secureEnvKey)}`}>
-            <p>Secure Environment Variables Section</p>
+            <EnvironmentVariablesWidget.Secure variables={info().secureVariables}/>
           </div>
         </div>
       </div>

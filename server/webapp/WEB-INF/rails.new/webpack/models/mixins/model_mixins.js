@@ -25,9 +25,9 @@ Mixins.HasUUID = function () {
 };
 
 Mixins.HasEncryptedAttribute = function (options) {
-  const _value          = options.attribute, name            = options.name, capitalizedName = _.upperFirst(name);
+  const _value = options.attribute, name = options.name, capitalizedName = _.upperFirst(name);
 
-  this[name] = function(...args) {
+  this[name] = function (...args) {
     return _value().value(...args);
   };
 
@@ -42,6 +42,8 @@ Mixins.HasEncryptedAttribute = function (options) {
   this[`isDirty${capitalizedName}`] = () => _value().isDirty();
 
   this[`isEditing${capitalizedName}`] = () => _value().isEditing();
+
+  this[`getOriginal${capitalizedName}`] = () => _value().getOriginal();
 
   this[`resetToOriginal${capitalizedName}`] = () => _value().resetToOriginal();
 
@@ -158,14 +160,14 @@ Mixins.fromJSONCollection = (options) => {
 };
 
 // copy of mithri's Stream without the toJSON on the getterSetter.
-Mixins.GetterSetter = (store) => function(...args) {
+Mixins.GetterSetter = (store) => function (...args) {
   if (args.length) {
     store = args[0];
   }
   return store;
 };
 
-Mixins.TogglingGetterSetter = (store) => function(...args) {
+Mixins.TogglingGetterSetter = (store) => function (...args) {
   if (args.length) {
     store(store() === args[0] ? undefined : args[0]);
   }

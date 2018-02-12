@@ -51,12 +51,12 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     expect($root.find('.material-for-trigger')).toBeInDOM();
   });
 
-  xit("should render environment variables section", () => {
-
+  it("should render environment variables section", () => {
+    expect($root.find('.environment-variables.plain')).toBeInDOM();
   });
 
-  xit("should render secure environment variables section", () => {
-    
+  it("should render secure environment variables section", () => {
+    expect($root.find('.environment-variables.secure')).toBeInDOM();
   });
 
   it("should show select materials tab by default", () => {

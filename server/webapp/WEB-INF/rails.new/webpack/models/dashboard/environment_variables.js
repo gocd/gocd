@@ -16,14 +16,30 @@
 
 const _      = require('lodash');
 const Stream = require('mithril/stream');
+const s      = require('helpers/string-plus');
 
-const EnvironmentVariable = function (name, value) {
-  this.name  = Stream(name);
-  this.value = Stream(value);
+const Mixins         = require('models/mixins/model_mixins');
+const EncryptedValue = require('models/pipeline_configs/encrypted_value');
+
+function plainOrCipherValue({secure, value}) {
+  if (secure) {
+    const encryptedValue = new EncryptedValue({cipherText: ''});
+    encryptedValue.preventEdit();
+    return encryptedValue;
+  } else {
+    return new EncryptedValue({clearText: s.defaultToIfBlank(value, '')});
+  }
+}
+
+const EnvironmentVariable = function ({name, value, secure} = {}) {
+  this.name          = Stream(name);
+  const _value       = Stream(plainOrCipherValue({secure, value}));
+
+  Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 };
 
 EnvironmentVariable.fromJSON = (json) => {
-  return new EnvironmentVariable(json.name, json.value);
+  return new EnvironmentVariable(json);
 };
 
 const EnvironmentVariables    = {};

@@ -50,11 +50,13 @@ describe("EncryptedValue", () => {
   });
 
   it("should be able to update the value when it is plain text", () => {
-    const encryptedValue = new EncryptedValue({clearText: 'password'});
+    const originalValue  = 'password';
+    const encryptedValue = new EncryptedValue({clearText: originalValue});
     encryptedValue.value('new-password');
 
     expect(encryptedValue.isPlain()).toBe(true);
     expect(encryptedValue.isSecure()).toBe(false);
+    expect(encryptedValue.getOriginal()).toBe(originalValue);
     expect(encryptedValue.value()).toBe('new-password');
     expect(encryptedValue.isDirty()).toBe(true);
   });

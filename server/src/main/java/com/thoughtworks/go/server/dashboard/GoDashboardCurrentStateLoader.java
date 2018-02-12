@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
@@ -84,9 +85,12 @@ public class GoDashboardCurrentStateLoader {
                     public void visit(PipelineConfig pipelineConfig) {
                         Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
                         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activeInstances);
-
-                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(),
-                                pipelineConfig.getTrackingTool(), timeStampBasedCounter));
+                        Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
+                        if (trackingTool.isPresent()) {
+                            pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), trackingTool.get(), timeStampBasedCounter));
+                        } else {
+                            pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), timeStampBasedCounter));
+                        }
                     }
                 });
             }
@@ -100,8 +104,12 @@ public class GoDashboardCurrentStateLoader {
 
         Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activePipelineInstances);
-
-        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), pipelineConfig.getTrackingTool(), timeStampBasedCounter);
+        Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
+        if (trackingTool.isPresent()) {
+            return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), trackingTool.get(), timeStampBasedCounter);
+        } else {
+            return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), timeStampBasedCounter);
+        }
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {

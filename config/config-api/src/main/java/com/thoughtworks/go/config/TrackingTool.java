@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Map;
-
 import com.thoughtworks.go.domain.CommentRenderer;
-import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Map;
 
 @ConfigTag("trackingtool")
 public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer {

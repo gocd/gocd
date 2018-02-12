@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
@@ -394,6 +391,32 @@ public class GoDashboardCurrentStateLoaderTest {
         GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
 
         assertThat(model.getTrackingTool(), is(Optional.of(trackingTool)));
+    }
+
+    @Test
+    public void shouldAddMingleConfigInfoWhenLoadingAllPipelines() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        MingleConfig mingleConfig = new MingleConfig("http://example.com/", "go-project");
+        p1Config.setMingleConfig(mingleConfig);
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        List<GoDashboardPipeline> models = loader.allPipelines(config);
+
+        assertThat(models.get(0).getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
+    }
+
+    @Test
+    public void shouldAddMingleConfigInfoWhenLoadingAPipeline() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        MingleConfig mingleConfig = new MingleConfig("http://example.com/", "go-project");
+        p1Config.setMingleConfig(mingleConfig);
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+        when(pipelineSqlMapDao.loadActivePipelineInstancesFor(str(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
+
+        assertThat(model.getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

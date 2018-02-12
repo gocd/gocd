@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.MqlCriteria;
+import com.thoughtworks.go.config.TrackingTool;
 import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,4 +134,11 @@ public class MingleConfigTest {
         assertThat(config.render(toRender), is(toRender));
     }
 
+    @Test
+    public void shouldGetMingleConfigAsTrackingTool() {
+        MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz", "go-project");
+        TrackingTool expectedTrackingTool = new TrackingTool("http://foo.bar:7019/baz/projects/go-project/cards/${ID}", "#(\\d+)");
+
+        assertThat(mingleConfig.asTrackingTool(), is(expectedTrackingTool));
+    }
 }

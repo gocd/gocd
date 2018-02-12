@@ -427,6 +427,16 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return trackingTool == null ? new TrackingTool() : trackingTool;
     }
 
+    public Optional<TrackingTool> getIntegratedTrackingTool() {
+        if (trackingTool != null && trackingTool.isDefined()) {
+            return Optional.of(trackingTool);
+        } else if (mingleConfig != null && mingleConfig.isDefined()) {
+            return Optional.of(mingleConfig.asTrackingTool());
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public void setTrackingTool(TrackingTool trackingTool) {
         this.trackingTool = trackingTool;
     }

@@ -592,6 +592,35 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldGetIntegratedTrackingToolWhenGenericTrackingToolIsDefined() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
+        TrackingTool trackingTool = new TrackingTool("http://example.com/${ID}", "Foo-(\\d+)");
+        pipelineConfig.setTrackingTool(trackingTool);
+        pipelineConfig.setMingleConfig(new MingleConfig());
+
+        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.of(trackingTool)));
+    }
+
+    @Test
+    public void shouldGetIntegratedTrackingToolWhenMingleTrackingToolIsDefined() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
+        MingleConfig mingleConfig = new MingleConfig("http://example.com", "go-project");
+        pipelineConfig.setTrackingTool(null);
+        pipelineConfig.setMingleConfig(mingleConfig);
+
+        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
+    }
+
+    @Test
+    public void shouldGetIntegratedTrackingToolWhenNoneIsDefined() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
+        pipelineConfig.setTrackingTool(null);
+        pipelineConfig.setMingleConfig(new MingleConfig());
+
+        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.empty()));
+    }
+
+    @Test
     public void shouldGetTheCorrectConfigurationType() {
         PipelineConfig pipelineConfigWithTemplate = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
         assertThat(pipelineConfigWithTemplate.getConfigurationType(), is(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE));

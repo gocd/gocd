@@ -55,6 +55,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
     private static final Pattern MINGLE_URL_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", MINGLE_URL_PATTERN));
     private static final String PROJECT_IDENTIFIER_PATTERN = "[^\\s]+";
     private static final Pattern PROJECT_IDENTIFIER_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", PROJECT_IDENTIFIER_PATTERN));
+    private static final String MINGLE_CARDS_PATH = "/projects/%s/cards/";
 
     public MingleConfig() {
     }
@@ -218,8 +219,17 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
 
     public String render(String text) {
         try {
-            String urlPart = urlFor(String.format("/projects/%s/cards/", projectIdentifier));
+            String urlPart = urlFor(String.format(MINGLE_CARDS_PATH, projectIdentifier));
             return new DefaultCommentRenderer(urlPart + "${ID}", "#(\\d+)").render(text);
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new RuntimeException("Could not construct the URL to generate the link.", e);
+        }
+    }
+
+    public TrackingTool asTrackingTool() {
+        try {
+            String urlPart = urlFor(String.format(MINGLE_CARDS_PATH, projectIdentifier));
+            return new TrackingTool(urlPart + "${ID}", "#(\\d+)");
         } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException("Could not construct the URL to generate the link.", e);
         }

@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import java.util.concurrent.TimeUnit
+
 import static com.thoughtworks.go.api.util.HaltApiMessages.*
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.spy
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.spy
 class EncryptionControllerDelegateTest implements SecurityServiceTrait, ControllerTrait<EncryptionControllerDelegate> {
   public static final int REQUESTS_PER_MINUTE = 10
   private GoCipher cipher = spy(new GoCipher())
+  TestingTicker ticker = new TestingTicker().useSystemClock()
 
   @Nested
   class Index {
@@ -95,12 +98,18 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
       @Nested
       class RateLimit {
+        @BeforeEach
+        void setUp() {
+          ticker.freeze()
+        }
+
         @Test
         void "should rate limit if requests per minute exceeds limit"() {
           loginAsAdmin()
+
           REQUESTS_PER_MINUTE.times { i ->
             postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
-            sleep(interval(REQUESTS_PER_MINUTE))
+            ticker.forward(interval(REQUESTS_PER_MINUTE) - 1, TimeUnit.MILLISECONDS)
             assertThatResponse()
               .isOk()
               .hasContentType(controller.mimeType)
@@ -124,7 +133,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
           loginAsAdmin()
           (REQUESTS_PER_MINUTE - 1).times { i ->
             postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
-            sleep(interval(REQUESTS_PER_MINUTE - 1))
+            ticker.forward(interval(REQUESTS_PER_MINUTE), TimeUnit.MILLISECONDS)
 
             assertThatResponse()
               .isOk()
@@ -159,6 +168,6 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
   @Override
   EncryptionControllerDelegate createControllerInstance() {
-    return new EncryptionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE)
+    return new EncryptionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE, ticker)
   }
 }

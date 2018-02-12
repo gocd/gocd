@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.admin.encryption;
 
 
+import com.google.common.base.Ticker;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.api.ApiController;
@@ -33,6 +34,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.isomorphism.util.FixedIntervalRefillStrategy;
 import org.isomorphism.util.TokenBucket;
 import org.isomorphism.util.TokenBuckets;
 import org.springframework.http.HttpStatus;
@@ -51,18 +53,18 @@ public class EncryptionControllerDelegate extends ApiController {
     private final long requestsPerMinute;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final Cache<Username, TokenBucket> rateLimiters;
+    private final Ticker ticker;
 
 
-    public EncryptionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, GoCipher cipher, long requestsPerMinute) {
+    public EncryptionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, GoCipher cipher, long requestsPerMinute, Ticker ticker) {
         super(ApiVersion.v1);
-
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.cipher = cipher;
         this.requestsPerMinute = requestsPerMinute;
         this.rateLimiters = CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build();
-
+        this.ticker = ticker;
     }
 
     @Override
@@ -102,7 +104,7 @@ public class EncryptionControllerDelegate extends ApiController {
         TokenBucket tokenBucket = rateLimiters.get(currentUsername(), () -> TokenBuckets.builder()
                 .withCapacity(requestsPerMinute)
                 .withInitialTokens(requestsPerMinute)
-                .withFixedIntervalRefillStrategy(requestsPerMinute, 1, TimeUnit.MINUTES)
+                .withRefillStrategy(new FixedIntervalRefillStrategy(ticker, requestsPerMinute, 1, TimeUnit.MINUTES))
                 .build());
 
         response.header("X-RateLimit-Limit", String.valueOf(requestsPerMinute));

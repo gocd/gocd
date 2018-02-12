@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv1.admin.encryption.spring;
 
+import com.google.common.base.Ticker;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
 import com.thoughtworks.go.security.GoCipher;
@@ -30,7 +31,7 @@ public class EncryptionController implements SparkSpringController {
 
     @Autowired
     public EncryptionController(ApiAuthenticationHelper apiAuthenticationHelper) {
-        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE);
+        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE, Ticker.systemTicker());
     }
 
     @Override

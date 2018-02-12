@@ -135,32 +135,22 @@ describe("Dashboard Widget", () => {
     m.redraw();
 
     expect($root.find('.pipeline')).toHaveLength(1);
+    expect($root.find('.material_changes')).not.toBeInDOM();
 
-    const up42ChangesLink   = $root.find('.info a').get(1);
-    const up42ChangesWidget = $root.find('.material_changes');
-    expect(up42ChangesWidget).toBeInDOM();
-    expect(up42ChangesWidget).toHaveClass('hide');
+    $root.find('.info a').get(1).click();
 
-    up42ChangesLink.click();
-
-    expect(up42ChangesWidget).toBeInDOM();
-    expect(up42ChangesWidget).toHaveClass('show');
+    expect($root.find('.material_changes')).toBeInDOM();
 
     $(searchField).val('up43');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
     expect($root.find('.pipeline')).toHaveLength(1);
+    expect($root.find('.material_changes')).not.toBeInDOM();
 
-    const up43ChangesLink   = $root.find('.info a').get(1);
-    const up43ChangesWidget = $root.find('.material_changes');
-    expect(up43ChangesWidget).toBeInDOM();
-    expect(up43ChangesWidget).toHaveClass('hide');
+    $root.find('.info a').get(1).click();
 
-    up43ChangesLink.click();
-
-    expect(up43ChangesWidget).toBeInDOM();
-    expect(up43ChangesWidget).toHaveClass('show');
+    expect($root.find('.material_changes')).toBeInDOM();
   });
 
   it("should unlock a searched pipeline", () => {
@@ -235,18 +225,16 @@ describe("Dashboard Widget", () => {
   it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
     const dashboard   = $root.find('.pipeline_wrapper');
     const changesLink = $root.find('.info a')[1];
-    const changes     = dashboard.find('.material_changes');
-
-    expect(changes).toHaveClass('hide');
+    expect(dashboard.find('.material_changes')).not.toBeInDOM();
     $(changesLink).click();
     m.redraw();
 
-    expect(changes).toHaveClass('show');
+    expect(dashboard.find('.material_changes')).toBeInDOM();
 
     $(dashboard).click();
     m.redraw();
 
-    expect(changes).toHaveClass('hide');
+    expect(dashboard.find('.material_changes')).not.toBeInDOM();
   });
 
   function mount(canAdminister = true) {

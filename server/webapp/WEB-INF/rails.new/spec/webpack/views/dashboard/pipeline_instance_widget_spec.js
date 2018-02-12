@@ -154,16 +154,11 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should show changes once changes link is clicked", () => {
-    const links         = $root.find('.info a');
-    const changesLink   = links.get(1);
-    const changesWidget = $root.find('.material_changes');
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('hide');
+    expect($root.find('.material_changes')).not.toBeInDOM();
 
-    changesLink.click();
+    $root.find('.info a').get(1).click();
 
-    expect(changesWidget).toBeInDOM();
-    expect(changesWidget).toHaveClass('show');
+    expect($root.find('.material_changes')).toBeInDOM();
   });
 
   it("should render vsm link", () => {

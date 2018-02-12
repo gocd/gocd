@@ -15,10 +15,11 @@
  */
 
 const m      = require('mithril');
+const _      = require('lodash');
 const moment = require("moment");
 require("moment-duration-format");
-const StagesInstanceWidget  = require('views/dashboard/stages_instance_widget');
-const MaterialChangesWidget = require('views/dashboard/material_changes_widget');
+const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget');
+const MaterialRevisionWidget = require('views/dashboard/material_revision_widget');
 
 const PipelineInstanceWidget = {
   view: (vnode) => {
@@ -29,6 +30,15 @@ const PipelineInstanceWidget = {
     const scheduledAt           = moment(new Date(instance.scheduledAt));
     const scheduledAtLocalTime  = scheduledAt.format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
     const scheduledAtServerTime = scheduledAt.format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
+    let dropdownWidget;
+
+    if (dropdown.isDropDownOpen(pipelineName)) {
+      dropdownWidget = <div class="material_changes" onclick={(e) => e.stopPropagation()}>
+        {_.map(instance.materialRevisions, (revision) => {
+          return (<MaterialRevisionWidget revision={revision}/>);
+        })}
+      </div>;
+    }
 
     return (
       <div class="pipeline_instance">
@@ -42,9 +52,7 @@ const PipelineInstanceWidget = {
             }}><span class="changes"> Changes</span> </a></li>
             <li><a href={instance.vsmPath}> VSM </a></li>
           </ul>
-          <MaterialChangesWidget materialRevisions={instance.materialRevisions}
-                                 trackingTool={vnode.attrs.trackingTool}
-                                 isChangeVisible={dropdown.isDropDownOpen(pipelineName)}/>
+          {dropdownWidget}
         </div>
         <div class="pipeline_instance-details">
           <div>{instance.triggeredBy}</div>

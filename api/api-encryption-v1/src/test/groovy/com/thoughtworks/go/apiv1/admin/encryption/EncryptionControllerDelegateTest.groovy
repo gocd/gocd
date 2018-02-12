@@ -101,6 +101,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         @BeforeEach
         void setUp() {
           ticker.freeze()
+          ticker.time = 0
         }
 
         @Test
@@ -110,10 +111,11 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
           REQUESTS_PER_MINUTE.times { i ->
             postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
             ticker.forward(interval(REQUESTS_PER_MINUTE) - 1, TimeUnit.MILLISECONDS)
+
             assertThatResponse()
               .isOk()
               .hasContentType(controller.mimeType)
-              .hasHeader("X-RateLimit-Limit", "10")
+              .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
               .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
@@ -122,7 +124,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
           assertThatResponse()
             .isTooManyRequests()
-            .hasHeader("X-RateLimit-Limit", "10")
+            .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
             .hasHeader("X-RateLimit-Remaining", "0")
             .hasContentType(controller.mimeType)
             .hasJsonMessage(rateLimitExceeded())
@@ -131,14 +133,15 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         @Test
         void "should service all requests when request rate is within limit"() {
           loginAsAdmin()
-          (REQUESTS_PER_MINUTE - 1).times { i ->
+
+          (REQUESTS_PER_MINUTE).times { i ->
             postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
-            ticker.forward(interval(REQUESTS_PER_MINUTE), TimeUnit.MILLISECONDS)
+            ticker.forward(interval(REQUESTS_PER_MINUTE) - 1, TimeUnit.MILLISECONDS)
 
             assertThatResponse()
               .isOk()
               .hasContentType(controller.mimeType)
-              .hasHeader("X-RateLimit-Limit", "10")
+              .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
               .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
@@ -153,8 +156,8 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
             assertThatResponse()
               .isOk()
               .hasContentType(controller.mimeType)
-              .hasHeader("X-RateLimit-Limit", "10")
-              .hasHeader("X-RateLimit-Remaining", "10")
+              .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
+              .hasHeader("X-RateLimit-Remaining", REQUESTS_PER_MINUTE.toString())
               .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
         }

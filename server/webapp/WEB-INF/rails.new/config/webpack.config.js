@@ -18,24 +18,25 @@
 
 'use strict';
 
-var fs          = require('fs');
-var fsExtra     = require('fs-extra');
-var _           = require('lodash');
-var process     = require('process');
-var path        = require('path');
-var webpack     = require('webpack');
-var StatsPlugin = require('stats-webpack-plugin');
+const fs          = require('fs');
+const fsExtra     = require('fs-extra');
+const _           = require('lodash');
+const process     = require('process');
+const path        = require('path');
+const webpack     = require('webpack');
+const StatsPlugin = require('stats-webpack-plugin');
+const HappyPack   = require('happypack');
 
-var singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
+const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
-var mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
-let mithrilPatchFileContentAsLines = fs.readFileSync(path.join(__dirname, '..', 'spec/webpack/patches/mithril.js'), 'utf8').split("\n");
+const mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
+const mithrilPatchFileContentAsLines = fs.readFileSync(path.join(__dirname, '..', 'spec/webpack/patches/mithril.js'), 'utf8').split("\n");
 
-let isMithrilVersionLine = function (line) {
+const isMithrilVersionLine = function (line) {
   return _.includes(line, 'm.version = ');
 };
 
-var mithrilVersionFromPatch = _.find(mithrilPatchFileContentAsLines, isMithrilVersionLine)
+const mithrilVersionFromPatch = _.find(mithrilPatchFileContentAsLines, isMithrilVersionLine)
   .split("=")[1].trim().replace(/"/g, "");
 
 if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
@@ -43,21 +44,25 @@ if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
 }
 
 module.exports = function (env) {
-  var production = (env && env.production === 'true');
-  var outputDir  = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
+  const production = (env && env.production === 'true');
+  const outputDir  = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
 
   console.log(`Generating assets in ${outputDir}`);
 
-  var entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), function (memo, file) {
-    var fileName     = path.basename(file);
-    var moduleName   = "single_page_apps/" + _.split(fileName, '.')[0];
+  const entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), (memo, file) => {
+    const fileName   = path.basename(file);
+    const moduleName = `single_page_apps/${  _.split(fileName, '.')[0]}`;
     memo[moduleName] = path.join(singlePageAppModuleDir, file);
     return memo;
   }, {});
 
-  var assetsDir = path.join(__dirname, '..', 'webpack');
+  const assetsDir = path.join(__dirname, '..', 'webpack');
 
-  var plugins = [];
+  const plugins = [];
+  plugins.push(new HappyPack({
+    loaders: ['babel-loader?cacheDirectory=true'],
+    threads: 4
+  }));
   plugins.push(new StatsPlugin('manifest.json', {
     chunkModules: false,
     source:       false,
@@ -71,15 +76,15 @@ module.exports = function (env) {
     "window.jQuery": "jquery"
   }));
   plugins.push(new webpack.optimize.CommonsChunkPlugin({
-    name:      "vendor-and-helpers.chunk",
-    filename:  production ? '[name]-[chunkhash].js' : '[name].js',
-    minChunks: function (module, _count) {
+    name:     "vendor-and-helpers.chunk",
+    filename: production ? '[name]-[chunkhash].js' : '[name].js',
+    minChunks(module, _count) {
       function isFromNPM() {
         return new RegExp(`node_modules`).test(module.resource);
       }
 
       function isInside() {
-        return fs.realpathSync(module.resource).indexOf(fs.realpathSync(path.join(assetsDir, ..._(Array.prototype.concat.apply([], arguments)).flattenDeep().compact().value()))) === 0;
+        return module.resource.indexOf(path.join(assetsDir, ..._(Array.prototype.concat.apply([], arguments)).flattenDeep().compact().value())) === 0;
       }
 
       return module.resource && (isFromNPM() || isInside('helpers') || isInside('gen') || isInside('models', 'shared') || isInside('models', 'mixins') || isInside('views', 'shared'));
@@ -99,7 +104,7 @@ module.exports = function (env) {
   }
 
 
-  var config = {
+  const config = {
     cache:     true,
     bail:      true,
     entry:     entries,
@@ -124,32 +129,13 @@ module.exports = function (env) {
       hot:    false,
       inline: false
     },
-    plugins:   plugins,
+    plugins,
     module:    {
       rules: [
         {
-          test:    /\.msx$/,
+          test:    /\.(msx|js)$/,
           exclude: /node_modules/,
-          use:     [
-            {
-              loader:  'babel-loader',
-              options: {
-                cacheDirectory: true
-              },
-            }
-          ]
-        },
-        {
-          test:    /\.js$/,
-          exclude: /node_modules/,
-          use:     [
-            {
-              loader:  'babel-loader',
-              options: {
-                cacheDirectory: true
-              },
-            }
-          ]
+          use:     'happypack/loader',
         }
       ]
     }
@@ -162,21 +148,21 @@ module.exports = function (env) {
 
     config.resolve.modules.push(path.join(__dirname, 'spec', 'webpack'));
 
-    var jasmineCore  = require('jasmine-core');
-    var jasmineFiles = jasmineCore.files;
+    const jasmineCore  = require('jasmine-core');
+    const jasmineFiles = jasmineCore.files;
 
-    var HtmlWebpackPlugin = require('html-webpack-plugin');
+    const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-    var jasmineIndexPage = {
+    const jasmineIndexPage = {
       inject:          true,
       xhtml:           true,
       filename:        '_specRunner.html',
       template:        path.join(__dirname, '..', 'spec', 'webpack', '_specRunner.html.ejs'),
-      jasmineJsFiles:  _.map(jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles), function (file) {
-        return '__jasmine/' + file;
+      jasmineJsFiles:  _.map(jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles), (file) => {
+        return `__jasmine/${  file}`;
       }),
-      jasmineCssFiles: _.map(jasmineFiles.cssFiles, function (file) {
-        return '__jasmine/' + file;
+      jasmineCssFiles: _.map(jasmineFiles.cssFiles, (file) => {
+        return `__jasmine/${  file}`;
       }),
       excludeChunks:   _.keys(entries)
     };
@@ -185,21 +171,21 @@ module.exports = function (env) {
 
     config.entry['specRoot'] = path.join(__dirname, '..', 'spec', 'webpack', 'specRoot.js');
 
-    var JasmineAssetsPlugin = function (options) {
+    const JasmineAssetsPlugin = function (options) {
       this.apply = function (compiler) {
-        compiler.plugin('emit', function (compilation, callback) {
-          var allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles).concat(jasmineFiles.cssFiles);
+        compiler.plugin('emit', (compilation, callback) => {
+          const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles).concat(jasmineFiles.cssFiles);
 
-          _.each(allJasmineAssets, function (asset) {
-            var file = path.join(jasmineFiles.path, asset);
+          _.each(allJasmineAssets, (asset) => {
+            const file = path.join(jasmineFiles.path, asset);
 
-            var contents = fs.readFileSync(file).toString();
+            const contents = fs.readFileSync(file).toString();
 
-            compilation.assets['__jasmine/' + asset] = {
-              source: function () {
+            compilation.assets[`__jasmine/${  asset}`] = {
+              source() {
                 return contents;
               },
-              size:   function () {
+              size() {
                 return contents.length;
               }
             };

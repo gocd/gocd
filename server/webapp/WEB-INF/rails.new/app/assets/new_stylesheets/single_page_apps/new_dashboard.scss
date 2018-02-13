@@ -266,10 +266,11 @@ $pipeline_icons_size: 16px;
       }
     }
     a {
-      display:     block;
-      padding:     0 7px;
-      font-size:   13px;
-      line-height: 13px;
+      display:         block;
+      padding:         0 7px;
+      font-size:       13px;
+      line-height:     13px;
+      text-decoration: underline;
     }
   }
 }
@@ -401,7 +402,7 @@ $pipeline_icons_size: 16px;
 
 .pipeline_operations {
   list-style-type: none;
-  margin:          10px 0 0 0;
+  margin:          5px 0 0 0;
   padding:         0;
   float:           left;
   li {

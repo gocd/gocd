@@ -71,7 +71,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     public Object show(Request request, Response response) {
         String fromCookie = request.cookie("selected_pipelines");
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(fromCookie, currentUserId(request));
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(fromCookie, currentUserId(request));
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(currentUsername());
 
         PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(selectedPipelines, pipelineConfigs);

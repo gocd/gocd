@@ -66,7 +66,7 @@ public class DashboardControllerDelegate extends ApiController {
         Long userId = currentUserId(request);
         Username userName = currentUsername();
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(selectedPipelinesCookie, userId);
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(selectedPipelinesCookie, userId);
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
 
         return PipelineGroupsRepresenter.toJSON(pipelineGroups, RequestContext.requestContext(request), userName);

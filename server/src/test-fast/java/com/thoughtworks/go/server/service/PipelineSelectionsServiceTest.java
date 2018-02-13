@@ -244,9 +244,9 @@ public class PipelineSelectionsServiceTest {
     public void shouldReturnPersistedPipelineSelectionsAgainstCookieId_WhenSecurityisDisabled() {
         PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
-        assertThat(pipelineSelectionsService.getSelectedPipelines("123", null), is(pipelineSelections));
-        assertThat(pipelineSelectionsService.getSelectedPipelines("", null), is(PipelineSelections.ALL));
-        assertThat(pipelineSelectionsService.getSelectedPipelines("345", null), is(PipelineSelections.ALL));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("123", null), is(pipelineSelections));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("", null), is(PipelineSelections.ALL));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("345", null), is(PipelineSelections.ALL));
     }
 
     @Test
@@ -260,8 +260,8 @@ public class PipelineSelectionsServiceTest {
 
         when(pipelineRepository.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
 
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", loser.getId()), is(pipelineSelections));
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("1", loser.getId()), is(pipelineSelections));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
     }
 
     @Test
@@ -275,7 +275,7 @@ public class PipelineSelectionsServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(null);
 
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
     }
 
     @Test
@@ -288,7 +288,7 @@ public class PipelineSelectionsServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(pipelineSelectionsForCookie);
 
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", user.getId()), is(PipelineSelections.ALL));
+        assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("1", user.getId()), is(PipelineSelections.ALL));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

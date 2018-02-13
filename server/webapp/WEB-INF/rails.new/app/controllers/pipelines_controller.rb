@@ -88,7 +88,7 @@ class PipelinesController < ApplicationController
   end
 
   def load_pipeline_related_information
-    @pipeline_selections = pipeline_selections_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
+    @pipeline_selections = pipeline_selections_service.getPersistedSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
     @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
     @pipeline_configs = pipeline_config_service.viewableGroupsFor(current_user)
   end

@@ -89,7 +89,7 @@ describe PipelinesController do
 
     it "should load the dashboard" do
 
-      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
       expect(@pipeline_config_service).to receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       expect(@security_service).to receive(:canCreatePipelines).with(@user).and_return(true)
@@ -110,7 +110,7 @@ describe PipelinesController do
       pipeline_group_models = java.util.ArrayList.new
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
 
-      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       expect(@pipeline_config_service).to receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
       expect(@security_service).to receive(:canCreatePipelines).with(@user).and_return(true)
@@ -124,7 +124,7 @@ describe PipelinesController do
       pipeline_group_models = java.util.ArrayList.new
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
 
-      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       expect(@security_service).to receive(:canCreatePipelines).with(@user).and_return(false)
       expect(@pipeline_config_service).to receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
@@ -139,7 +139,7 @@ describe PipelinesController do
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
       viewable_groups = PipelineConfigMother::createGroup("blah", [PipelineConfigMother::createPipelineConfig("pip1", "stage1", ["job1"].to_java(:string))].to_java('com.thoughtworks.go.config.PipelineConfig'))
 
-      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(pipeline_group_models)
       expect(@pipeline_config_service).to receive(:viewableGroupsFor).with(@user).and_return(viewable_groups)
 
@@ -330,7 +330,7 @@ describe PipelinesController do
 
   describe "set_tab_name" do
     it "should set tab name" do
-      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
       expect(@pipeline_config_service).to receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       expect(@security_service).to receive(:canCreatePipelines).with(@user).and_return(true)

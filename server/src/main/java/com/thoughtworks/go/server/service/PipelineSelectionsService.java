@@ -40,7 +40,7 @@ public class PipelineSelectionsService {
         this.clock = clock;
     }
 
-    public PipelineSelections getSelectedPipelines(String id, Long userId) {
+    public PipelineSelections getPersistedSelectedPipelines(String id, Long userId) {
         PipelineSelections pipelineSelections = getPersistedPipelineSelections(id, userId);
         if (pipelineSelections == null) {
             pipelineSelections = PipelineSelections.ALL;

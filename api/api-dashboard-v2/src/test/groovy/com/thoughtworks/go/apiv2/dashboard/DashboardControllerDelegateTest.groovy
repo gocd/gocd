@@ -68,7 +68,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-      when(pipelineSelectionsService.getSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
 
       getWithApiHeader(controller.controllerPath())
@@ -84,7 +84,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
     void 'should get empty json when dashboard is empty'() {
       def noPipelineGroups = []
       def pipelineSelections = PipelineSelections.ALL
-      when(pipelineSelectionsService.getSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
 
       loginAsUser()

@@ -126,6 +126,36 @@ describe("Dashboard Widget", () => {
     Modal.destroyAll();
   });
 
+  it("should clear the pause message after the modal is closed", () => {
+    jasmine.Ajax.withMock(() => {
+      const responseMessage = `Pipeline 'up42' paused successfully.`;
+      const pauseCause      = "test";
+
+      jasmine.Ajax.stubRequest(`/go/api/pipelines/up42/pause`, undefined, 'POST').andReturn({
+        responseText:    JSON.stringify({"message": responseMessage}),
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        },
+        status:          200
+      });
+
+      simulateEvent.simulate($root.find('.pause').get(0), 'click');
+      expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
+      $('.reveal input').val(pauseCause);
+      expect($('.reveal input')).toHaveValue(pauseCause);
+
+      simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+      expect($root.find('.pipeline_message')).toContainText(responseMessage);
+      expect($root.find('.pipeline_message')).toHaveClass("success");
+
+      simulateEvent.simulate($root.find('.pause').get(0), 'click');
+      expect($('.reveal input')).toHaveValue('');
+
+      Modal.destroyAll();
+    });
+  });
+
   it("should show changes popup for a searched pipeline", () => {
     const searchField = $root.find('#pipeline_search').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);

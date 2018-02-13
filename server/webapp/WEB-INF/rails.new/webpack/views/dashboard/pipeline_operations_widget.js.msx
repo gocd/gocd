@@ -61,13 +61,17 @@ const PipelineOperationsWidget = {
               class:   'save primary',
               onclick: () => {
                 self.pause(pipeline);
+                self.pauseMessage('');
                 modal.destroy();
               }
             },
             {
               text:    "CLOSE",
               class:   'save secondary',
-              onclick: () => modal.destroy()
+              onclick: () => {
+                modal.destroy();
+                self.pauseMessage('');
+              }
             }
           ];
         }

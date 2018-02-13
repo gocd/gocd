@@ -31,6 +31,13 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   });
 
   let info;
+  const searchVM = {
+    performSearch:    jasmine.createSpy('performSearch'),
+    searchText:       jasmine.createSpy('searchText'),
+    searchInProgress: jasmine.createSpy('searchInProgress'),
+    materialSearchResults: jasmine.createSpy('materialSearchResult')
+  };
+
   beforeEach(() => {
     info = TriggerWithOptionsInfo.fromJSON(json);
 
@@ -45,7 +52,8 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     m.mount(root, {
       view() {
         return m(MaterialInfoWidget, {
-          material
+          material,
+          searchVM
         });
       }
     });
@@ -89,7 +97,6 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     expect($root.find('.name-value .last-run-revision')).toContainText('never ran');
   });
 
-
   it("it should render material revision is missing content", () => {
     mount(info.materials[2]);
 
@@ -109,6 +116,10 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     expect($root.find('.name-value .last-run-revision')).toContainText('not specified');
   });
 
+  it('should render searched material revision spinner', () => {
+    mount(info.materials[0]);
+    expect($root.find('.commits')).toBeInDOM();
+  });
 
   const json = {
     "variables": [],

@@ -42,6 +42,22 @@ window.destroyDomElementForTest = function () {
   container.remove();
 };
 
+function blowUpAjaxFunction() {
+  fail("Ajax calls need to be stubbed!"); //eslint-disable-line no-undef
+}
+
+const realAjaxFunction = window.XMLHttpRequest;
+
+beforeEach(() => {
+  if (window.XMLHttpRequest !== blowUpAjaxFunction) {
+    window.XMLHttpRequest = blowUpAjaxFunction;
+  }
+});
+
+afterEach(() => {
+  window.XMLHttpRequest = realAjaxFunction;
+});
+
 beforeEach(() => {
   if ($('#mithril-component-container').length === 0) {
     const container = $('<div>').attr({id: 'mithril-component-container'}).hide();

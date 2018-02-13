@@ -18,11 +18,13 @@ describe("Dashboard Pipeline Widget", () => {
   const _             = require("lodash");
   const $             = require('jquery');
   const simulateEvent = require('simulate-event');
+  require('jasmine-ajax');
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
   const Pipelines      = require('models/dashboard/pipelines');
   const DashboardVM    = require("views/dashboard/models/dashboard_view_model");
   const Modal          = require('views/shared/new_modal');
+  const pipelineName   = 'up42';
 
   let pipelineInstances = [{
     "_links":       {
@@ -98,11 +100,15 @@ describe("Dashboard Pipeline Widget", () => {
   let $root, root, dashboardViewModel, pipelinesJson, pipeline, doCancelPolling, doRefreshImmediately;
 
   beforeEach(() => {
+    jasmine.Ajax.install();
     doCancelPolling      = jasmine.createSpy();
     doRefreshImmediately = jasmine.createSpy();
     [$root, root]        = window.createDomElementForTest();
   });
-  afterEach(window.destroyDomElementForTest);
+  afterEach(() => {
+    jasmine.Ajax.uninstall();
+    window.destroyDomElementForTest();
+  });
 
   describe("Pipeline Header", () => {
     beforeEach(mount);
@@ -216,51 +222,47 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should unpause a pipeline", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' unpaused successfully.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.unpause').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("success");
+        const responseMessage = `Pipeline '${pipeline.name}' unpaused successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
         });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when unpause a pipeline fails", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Can not unpuase pipeline. Pipeline '${pipeline.name}' is already unpaused.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          409
-          });
-
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.unpause').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("error");
+        const responseMessage = `Can not unpuase pipeline. Pipeline '${pipeline.name}' is already unpaused.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
         });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.unpause').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
       });
     });
 
@@ -328,54 +330,50 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should pause a pipeline", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.pause').get(0), 'click');
-          $('.reveal input').val("test");
-          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("success");
+        const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
         });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        $('.reveal input').val("test");
+        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
       });
 
       it("should not pause a pipeline", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          409
-          });
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.pause').get(0), 'click');
-          $('.reveal input').val("test");
-          simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("error");
+        const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
         });
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        $('.reveal input').val("test");
+        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
       });
 
     });
@@ -417,51 +415,47 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should unlock a pipeline", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Pipeline '${pipeline.name}' unlocked successfully.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("success");
+        const responseMessage = `Pipeline '${pipeline.name}' unlocked successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
         });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when unlocking a pipeline fails", () => {
-        jasmine.Ajax.withMock(() => {
-          const responseMessage = `Can not unlock pipeline. Some stages of pipeline are in progress.`;
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": responseMessage}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          409
-          });
-
-          expect(doCancelPolling).not.toHaveBeenCalled();
-          expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-          simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
-
-          expect(doCancelPolling).toHaveBeenCalled();
-          expect(doRefreshImmediately).toHaveBeenCalled();
-
-          expect($root.find('.pipeline_message')).toContainText(responseMessage);
-          expect($root.find('.pipeline_message')).toHaveClass("error");
+        const responseMessage = `Can not unlock pipeline. Some stages of pipeline are in progress.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
         });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
       });
     });
 
@@ -496,6 +490,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should show modal to specify trigger options for a pipeline", () => {
+        stubTriggerOptions(pipelineName);
         const triggerWithOptionsButton = $root.find('.play_with_options');
 
         expect($('.reveal:visible')).not.toBeInDOM();
@@ -543,8 +538,6 @@ describe("Dashboard Pipeline Widget", () => {
   });
 
   function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true) {
-    const pipelineName = 'up42';
-
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -609,5 +602,27 @@ describe("Dashboard Pipeline Widget", () => {
   function unmount() {
     m.mount(root, null);
     m.redraw();
+  }
+
+  function stubTriggerOptions(pipelineName) {
+    jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineName}/trigger_options`, undefined, 'GET').andReturn({
+      responseText:    JSON.stringify({
+        variables: [], materials: [{
+          "name":        "https://github.com/ganeshspatil/gocd",
+          "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
+          "revision":    {
+            "date":              "2018-02-08T04:32:11Z",
+            "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+            "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
+            "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
+          }
+        }]
+      }),
+      responseHeaders: {
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status:          200
+    });
+
   }
 });

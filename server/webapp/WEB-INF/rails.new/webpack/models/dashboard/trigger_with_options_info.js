@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+const Stream               = require('mithril/stream');
 const _                    = require('lodash');
 const s                    = require('helpers/string-plus');
 const sparkRoutes          = require('helpers/spark_routes');
@@ -30,7 +31,12 @@ const isSecure    = (v) => v.secure;
 const isPlainText = (v) => !v.secure;
 
 TriggerWithOptionsInfo.fromJSON = (json) => {
-  const materials                     = JSON.parse(JSON.stringify(json.materials, s.camelCaser));
+  const materials = JSON.parse(JSON.stringify(json.materials, s.camelCaser));
+
+  _.each(materials, (material) => {
+    material.selection = Stream();
+  });
+
   const plainTextVariables = EnvironmentVariables.fromJSON(_.filter(json.variables, isPlainText));
   const secureVariables    = EnvironmentVariables.fromJSON(_.filter(json.variables, isSecure));
 

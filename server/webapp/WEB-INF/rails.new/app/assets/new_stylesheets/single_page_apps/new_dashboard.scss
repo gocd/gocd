@@ -737,7 +737,8 @@ $name-value_width: 450px;
 }
 
 .material-revision-search {
-  width:         250px;
+  display:       inline-block;
+  width:         230px;
   height:        30px;
   border:        1px solid #ccc;
   border-radius: 3px;
@@ -745,5 +746,17 @@ $name-value_width: 450px;
   &::placeholder {
     font-size: 12px;
   }
+
 }
 
+.search-in-progress {
+  @include icon-before($type: spinner, $margin: 0);
+  @include animation(spin 1s linear infinite);
+  padding-left: 5px;
+
+  &:before {
+    @include animation(spin 1s linear infinite);
+
+    font-size: rem-calc(15px);
+  }
+}

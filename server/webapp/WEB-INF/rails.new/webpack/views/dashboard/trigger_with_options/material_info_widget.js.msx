@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-const m             = require('mithril');
-const _             = require('lodash');
-const timeFormatter = require('helpers/time_formatter');
+const m = require('mithril');
+const _ = require('lodash');
+
+const timeFormatter               = require('helpers/time_formatter');
+const MaterialSearchResultsWidget = require('views/dashboard/trigger_with_options/material_search_results_widget');
 
 const MaterialInfoWidget = {
+  oninit(vnode) {
+    vnode.attrs.searchVM.performSearch();
+  },
+
   view(vnode) {
     const material = vnode.attrs.material;
 
@@ -36,8 +42,10 @@ const MaterialInfoWidget = {
 
     const destination = material.destination ? <code>{material.destination}</code> : <em>not specified</em>;
 
+    const searchVM = vnode.attrs.searchVM;
+
     return (
-      <div class={`v-tab_content ${vnode.attrs.visibilityClass} material-for-trigger`}>
+      <div class={`v-tab_content material-for-trigger`}>
 
         <dl class="name-value">
           <li class="name-value_pair meta">
@@ -75,39 +83,14 @@ const MaterialInfoWidget = {
             <span class="commit_search">
               <input type="text"
                      class="material-revision-search"
-                     placeholder="Search by revision/SHA or comment or committer name"/>
-              <div class="commits">
+                     placeholder="Search by revision/SHA or comment or committer name"
+                     value={searchVM.searchText()}
+                     oninput={(e) => {
+                       searchVM.updateSearchText(e.target.value);
+                     }}/>
+              {searchVM.searchInProgress() ? <span class="search-in-progress"/> : null}
 
-                <ul class="commit_info">
-                  <li>
-                    <div class="info">
-                      <span class="rev">6798897dfd</span>
-                      <span class="committer">naveenb@thoughtworks.com </span>
-                      <span class="time"> 1 day ago </span>
-                    </div>
-                    <div class="commit_message">
-                      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit quisquam,</p>
-                    </div>
-                  </li>
-                </ul>
-
-                <ul class="commit_info">
-                  <li>
-                    <div class="info">
-                      <span class="rev">6798897dfd</span>
-                      <span class="committer">naveenb@thoughtworks.com </span>
-                      <span class="time"> 2 day ago </span>
-                    </div>
-                    <div class="commit_message">
-                      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit quisquam,</p>
-                    </div>
-                  </li>
-                </ul>
-
-                <span class="helper">
-                  Last 5 commits listed in chronological order
-                </span>
-              </div>
+              <MaterialSearchResultsWidget searchVM={searchVM}/>
             </span>
 
           </li>

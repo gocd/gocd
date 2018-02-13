@@ -97,7 +97,9 @@ const ModalBody = {
 
         <div class="h-tab_container pipeline_options-body">
           <div class={`h-tab_content ${self.visibilityClassForContent(materialsKey)}`}>
-            <MaterialsForTriggerWidget materials={info().materials} vm={vnode.attrs.vm}/>
+            <MaterialsForTriggerWidget materials={info().materials}
+                                       searchVM={vnode.attrs.searchVM}
+                                       vm={vnode.attrs.vm}/>
           </div>
           {environmentVarsTabContent}
           {secureVarsTabContent}

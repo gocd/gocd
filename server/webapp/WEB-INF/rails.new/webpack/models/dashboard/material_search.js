@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-const m             = require('mithril');
-const renderComment = require('helpers/render_comment');
+const sparkRoutes = require('helpers/spark_routes');
+const AjaxHelper  = require('helpers/ajax_helper');
 
-const CommentRenderWidget = {
+const MaterialSearch = {};
 
-  view(vnode) {
-    const text         = vnode.attrs.text;
-    const trackingTool = vnode.attrs.trackingTool;
-
-    return (<div class="item comment"><p>{m.trust(renderComment(text, trackingTool))}</p></div>);
-  }
+MaterialSearch.all = function (pipelineName, fingerprint, searchText) {
+  return AjaxHelper.GET({
+    url:        sparkRoutes.pipelineMaterialSearchPath(pipelineName, fingerprint, searchText),
+    apiVersion: 'v1',
+  });
 };
 
-module.exports = CommentRenderWidget;
+module.exports = MaterialSearch;

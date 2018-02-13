@@ -48,6 +48,15 @@ public class PipelineSelectionsService {
         return pipelineSelections;
     }
 
+    public PipelineSelections getSelectedPipelines(String id, Long userId){
+        PipelineSelections persistedPipelineSelections = getPersistedPipelineSelections(id, userId);
+        if(persistedPipelineSelections.isBlacklist()){
+            List<String> invertedPipelineSelections = invertSelections(persistedPipelineSelections.pipelineList());
+            return new PipelineSelections(invertedPipelineSelections, persistedPipelineSelections.lastUpdated(), persistedPipelineSelections.userId(), persistedPipelineSelections.isBlacklist());
+        }
+        return persistedPipelineSelections;
+    }
+
     public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
 

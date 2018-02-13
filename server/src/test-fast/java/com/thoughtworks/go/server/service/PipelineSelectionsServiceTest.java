@@ -291,6 +291,18 @@ public class PipelineSelectionsServiceTest {
         assertThat(pipelineSelectionsService.getPersistedSelectedPipelines("1", user.getId()), is(PipelineSelections.ALL));
     }
 
+    @Test
+    public void shouldReturnSelectedPipelinesRegardlessOfPersistedPipelineSelections() throws Exception {
+        User user = getUser("loser", 10L);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig("pipeline1"), pipelineConfig("pipeline2"), pipelineConfig("pipelineX"), pipelineConfig("pipeline3")));
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline2"));
+
+        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
+
+        assertThat(pipelineSelectionsService.getSelectedPipelines("1", user.getId()), is(pipelineSelections));
+    }
+
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));

@@ -15,6 +15,7 @@
  */
 
 
+const m        = require('mithril');
 const $        = require('jquery');
 const mrequest = require('helpers/mrequest');
 
@@ -35,6 +36,8 @@ function makeRequest({method, url, type, apiVersion, timeout = mrequest.timeout}
     };
 
     jqXHR.then(didFulfill, deferred.reject);
+
+    jqXHR.always(m.redraw);
   }).promise();
 
 }

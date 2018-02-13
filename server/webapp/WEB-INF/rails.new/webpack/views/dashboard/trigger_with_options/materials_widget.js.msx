@@ -28,8 +28,8 @@ const MaterialsForTriggerWidget = {
       return vnode.attrs.vm().isMaterialSelected(materialName) ? 'active' : '';
     };
 
-    self.getVisibilityClassForMaterialContent = (materialName) => {
-      return vnode.attrs.vm().isMaterialSelected(materialName) ? '' : 'hidden';
+    self.shouldMaterialContentBeVisible = (materialName) => {
+      return vnode.attrs.vm().isMaterialSelected(materialName);
     };
   },
 
@@ -49,9 +49,8 @@ const MaterialsForTriggerWidget = {
       );
     });
 
-    const materialContents = _.map(vnode.attrs.materials, (material) => {
-      const visibilityClass = self.getVisibilityClassForMaterialContent(material.name);
-      return (<MaterialInfoWidget material={material} visibilityClass={visibilityClass}/>);
+    const materialThatShouldBeVisible = _.find(vnode.attrs.materials, (material) => {
+      return self.shouldMaterialContentBeVisible(material.name);
     });
 
     return (
@@ -61,7 +60,9 @@ const MaterialsForTriggerWidget = {
         </ul>
 
         <div class="v-tab_container">
-          {materialContents}
+          <MaterialInfoWidget key={materialThatShouldBeVisible.name}
+                              material={materialThatShouldBeVisible}
+                              searchVM={vnode.attrs.searchVM[materialThatShouldBeVisible.name]}/>
         </div>
       </div>);
   }

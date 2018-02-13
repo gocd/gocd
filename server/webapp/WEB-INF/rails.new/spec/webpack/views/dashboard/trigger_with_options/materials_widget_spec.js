@@ -32,21 +32,40 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     window.destroyDomElementForTest();
   });
 
-  let vm, info;
+  let vm, info, searchVM;
   beforeEach(() => {
     vm   = new TriggerWithOptionsVM();
     info = TriggerWithOptionsInfo.fromJSON(json);
     vm.initialize(info);
 
+    searchVM = {
+      [json.materials[0].name]: {
+        performSearch:         jasmine.createSpy('performSearch'),
+        searchText:            jasmine.createSpy('searchText'),
+        searchInProgress:      jasmine.createSpy('searchInProgress'),
+        materialSearchResults: jasmine.createSpy('materialSearchResult'),
+        selectRevision:        jasmine.createSpy('selectRevision')
+      },
+      [json.materials[1].name]: {
+        performSearch:         jasmine.createSpy('performSearch'),
+        searchText:            jasmine.createSpy('searchText'),
+        searchInProgress:      jasmine.createSpy('searchInProgress'),
+        materialSearchResults: jasmine.createSpy('materialSearchResult'),
+        selectRevision:        jasmine.createSpy('selectRevision')
+      }
+    };
+
+
     m.mount(root, {
       view() {
         return m(MaterialForTriggerWidget, {
           materials: info.materials,
-          vm:        Stream(vm)
+          vm:        Stream(vm),
+          searchVM
         });
       }
     });
-    m.redraw(true);
+    m.redraw();
   });
 
   afterEach(() => {
@@ -66,13 +85,12 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     expect(headings.get(1)).toContainText(json.materials[1].name);
   });
 
-  it("it should render material info contents", () => {
+  it("it should render the first material info content", () => {
     const contents = $root.find('.v-tab_container .v-tab_content');
 
-    expect(contents).toHaveLength(json.materials.length);
+    expect(contents).toHaveLength(1);
 
     expect(contents.get(0)).toContainText(json.materials[0].name);
-    expect(contents.get(1)).toContainText(json.materials[1].name);
   });
 
   it("should show first material by default", () => {

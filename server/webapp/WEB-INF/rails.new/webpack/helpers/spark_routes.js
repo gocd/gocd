@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+const $ = require('jquery');
+
 module.exports = {
   pipelinePausePath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/pause`;
@@ -29,5 +31,14 @@ module.exports = {
 
   pipelineTriggerWithOptionsViewPath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/trigger_options`;
+  },
+
+  pipelineMaterialSearchPath: (pipelineName, fingerprint, searchText) => {
+    const queryString = $.param({
+      fingerprint,
+      pipeline_name: pipelineName, //eslint-disable-line camelcase
+      search_text:   searchText //eslint-disable-line camelcase
+    });
+    return `/go/api/internal/material_search?${queryString}`;
   }
 };

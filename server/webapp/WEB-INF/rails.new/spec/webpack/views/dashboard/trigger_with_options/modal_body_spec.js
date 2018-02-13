@@ -18,6 +18,8 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const Stream                      = require("mithril/stream");
   const Modal                       = require('views/shared/new_modal');
   const TriggerWithOptionsModalBody = require("views/dashboard/trigger_with_options/modal_body");
+  const SparkRoutes                 = require('helpers/spark_routes');
+  require('jasmine-ajax');
 
   const TriggerWithOptionsVM   = require('views/dashboard/models/trigger_with_options_vm');
   const TriggerWithOptionsInfo = require("models/dashboard/trigger_with_options_info");
@@ -29,7 +31,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   afterEach(window.destroyDomElementForTest);
 
   let triggerWithOptionsInfo, vm;
-
+  const pipelineName = 'up42';
   beforeEach(mount);
 
   afterEach(unmount);
@@ -103,15 +105,29 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   function mount() {
+    jasmine.Ajax.install();
+    stubMaterialSearch(json.materials[0].fingerprint);
+
     triggerWithOptionsInfo = Stream(TriggerWithOptionsInfo.fromJSON(json));
     vm                     = new TriggerWithOptionsVM();
     vm.initialize(triggerWithOptionsInfo());
+
+    const searchVM = {
+      [json.materials[0].name]: {
+        performSearch:         jasmine.createSpy('performSearch'),
+        searchText:            jasmine.createSpy('searchText'),
+        searchInProgress:      jasmine.createSpy('searchInProgress'),
+        materialSearchResults: jasmine.createSpy('materialSearchResult'),
+        selectRevision:        jasmine.createSpy('selectRevision')
+      }
+    };
 
     m.mount(root, {
       view() {
         return m(TriggerWithOptionsModalBody, {
           triggerWithOptionsInfo,
-          vm: Stream(vm)
+          vm: Stream(vm),
+          searchVM
         });
       }
     });
@@ -119,6 +135,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   }
 
   function unmount() {
+    jasmine.Ajax.uninstall();
     Modal.destroyAll();
     m.mount(root, null);
     m.redraw();
@@ -150,4 +167,14 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
       }
     ]
   };
+
+  function stubMaterialSearch(fingerprint) {
+    const url = SparkRoutes.pipelineMaterialSearchPath(pipelineName, fingerprint, "");
+
+    jasmine.Ajax.stubRequest(url, undefined, 'GET').andReturn({
+      status:          200,
+      responseText:    JSON.stringify([]),
+      responseHeaders: {'Content-Type': 'application/json'}
+    });
+  }
 });

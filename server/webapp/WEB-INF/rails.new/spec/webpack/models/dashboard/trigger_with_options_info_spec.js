@@ -16,6 +16,8 @@
 
 describe("Dashboard", () => {
   describe('Trigger With Option Information Model', () => {
+    const _ = require('lodash');
+
     const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
     it("should deserialize from json", () => {
@@ -24,6 +26,21 @@ describe("Dashboard", () => {
       expect(info.materials.length).toBe(json.materials.length);
       expect(info.plainTextVariables.length).toBe(2);
       expect(info.secureVariables.length).toBe(2);
+    });
+
+    it("should add material selection field for each material", () => {
+      const info = TriggerWithOptionsInfo.fromJSON(json);
+
+      expect(info.materials.length).toBe(json.materials.length);
+
+      _.each(info.materials, (material) => {
+        expect(_.isFunction(material.selection)).toBe(true);
+
+        const fingerprint = 'selection fingerprint';
+        material.selection(fingerprint);
+
+        expect(material.selection()).toBe(fingerprint);
+      });
     });
 
     it('should fetch trigger options for the specified pipeline name', () => {

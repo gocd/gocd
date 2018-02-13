@@ -24,12 +24,24 @@ describe("Dashboard Widget", () => {
   const Modal           = require('views/shared/new_modal');
 
   let $root, root, dashboard, dashboardJson, doCancelPolling, doRefreshImmediately;
+  const originalDebounce = _.debounce;
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
     doRefreshImmediately = jasmine.createSpy();
-    [$root, root]        = window.createDomElementForTest();
+
+    //override debounce function for tests to be called synchronously
+    spyOn(_, 'debounce').and.callFake((func) => {
+      return function () {
+        func.apply(this, arguments);
+      };
+    });
+
+    [$root, root] = window.createDomElementForTest();
   });
-  afterEach(window.destroyDomElementForTest);
+  afterEach(() => {
+    _.debounce = originalDebounce;
+    window.destroyDomElementForTest();
+  });
 
   beforeEach(mount);
 

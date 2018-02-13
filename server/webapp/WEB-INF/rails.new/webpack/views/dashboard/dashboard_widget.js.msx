@@ -15,6 +15,7 @@
  */
 
 const m               = require('mithril');
+const Stream          = require('mithril/stream');
 const _               = require('lodash');
 const $               = require('jquery');
 const f               = require('helpers/form_helper');
@@ -24,7 +25,18 @@ const PipelineWidget  = require('views/dashboard/pipeline_widget');
 const DashboardWidget = {
   oninit(vnode) {
     const self     = vnode.state;
-    self.dashboard = vnode.attrs.dashboard;
+    self.dashboard = Stream(vnode.attrs.dashboard);
+
+    const filterBySearchValue = _.debounce(() => {
+      self.dashboard(vnode.attrs.dashboard.filterBy(vnode.attrs.vm.searchText().toLowerCase()));
+      m.redraw();
+    }, 200);
+
+    self.searchTextUpdated = (e) => {
+      const filterText = e.target.value;
+      vnode.attrs.vm.searchText(filterText);
+      filterBySearchValue();
+    };
 
     ComponentMixins.HasViewModel.call(self);
 
@@ -40,7 +52,7 @@ const DashboardWidget = {
     self.getPipelinesGroupView = (pipelineGroup) => {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
-          <PipelineWidget pipeline={self.dashboard.findPipeline(pipelineName)}
+          <PipelineWidget pipeline={self.dashboard().findPipeline(pipelineName)}
                           doCancelPolling={vnode.attrs.doCancelPolling}
                           doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                           isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
@@ -68,11 +80,9 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const self = vnode.state;
-    const vm   = vnode.attrs.vm;
-
-    self.dashboard   = vnode.attrs.dashboard.filterBy(vm.searchText().toLowerCase());
-    const groupsView = _.map(self.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
+    const self       = vnode.state;
+    const vm         = vnode.attrs.vm;
+    const groupsView = _.map(self.dashboard().getPipelineGroups(), self.getPipelinesGroupView);
 
     return (
       <div class="pipeline_wrapper">
@@ -82,7 +92,7 @@ const DashboardWidget = {
               <f.column>Pipelines</f.column>
               <f.column>
                 <input type="text"
-                       oninput={m.withAttr("value", vm.searchText)}
+                       oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
                        value={vm.searchText()}
                        placeholder="Search for Pipeline"
                        id="pipeline_search"

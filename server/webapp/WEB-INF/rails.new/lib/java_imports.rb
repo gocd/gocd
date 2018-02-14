@@ -238,6 +238,8 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.support.toggle.Toggles unless defined? Toggles
   java_import com.thoughtworks.go.config.AuthConfig unless defined? AuthConfig
   java_import com.thoughtworks.go.config.AdminsConfig unless defined? AdminsConfig
+  java_import com.thoughtworks.go.config.ViewConfig unless defined? ViewConfig
+  java_import com.thoughtworks.go.config.OperationConfig unless defined? OperationConfig
   java_import com.thoughtworks.go.config.RunIfConfig unless defined? RunIfConfig
   java_import com.thoughtworks.go.domain.RunIfConfigs unless defined? RunIfConfigs
   java_import com.thoughtworks.go.plugin.api.task.TaskConfigProperty unless defined? TaskConfigProperty
@@ -264,6 +266,7 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.common.ValidationResult unless defined? ValidationResult
   java_import com.thoughtworks.go.plugin.domain.common.ValidationError unless defined? ValidationError
   java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
+  java_import com.thoughtworks.go.config.AdminRole unless defined? AdminRole
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension unless defined? ElasticAgentExtension
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore unless defined? ElasticAgentMetadataStore
   java_import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult unless defined? BulkDeletionFailureResult

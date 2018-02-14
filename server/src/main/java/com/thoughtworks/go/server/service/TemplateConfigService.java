@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
+import com.thoughtworks.go.config.update.UpdateTemplateAuthConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -113,6 +114,11 @@ public class TemplateConfigService {
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         validatePluggableTasks(templateConfig);
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService);
+        update(currentUser, result, command, templateConfig);
+    }
+
+    public void updateTemplateAuthConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final Authorization authorization, final LocalizedOperationResult result, String md5) {
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(templateConfig, authorization, currentUser, securityService, result, md5, entityHashingService);
         update(currentUser, result, command, templateConfig);
     }
 

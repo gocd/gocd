@@ -27,6 +27,8 @@ public class AdminUser implements Admin {
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
+    public static final String ADMIN = "users";
+
     public AdminUser() {
     }
 
@@ -60,7 +62,8 @@ public class AdminUser implements Admin {
     }
 
     public void addError(String message) {
-        errors().add("name", message);
+        errors().add(NAME, message); // Do not remove this - The old view for editing group authorization, template authorization makes use of it.
+        errors().add(ADMIN, message);
     }
 
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {

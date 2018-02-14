@@ -91,6 +91,7 @@ let ApprovalWidget = {
               <f.input model={vnode.attrs.approval().authorization()}
                        attrName="roles"
                        label="Roles"
+                       validate
                        oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), "roles")}
                        onremove={destroyAutoComplete("roles")} />
             </f.column>

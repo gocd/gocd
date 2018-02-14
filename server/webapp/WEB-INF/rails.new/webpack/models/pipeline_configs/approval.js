@@ -17,6 +17,7 @@
 const Stream = require('mithril/stream');
 const s      = require('string-plus');
 const Mixins = require('models/mixins/model_mixins');
+const Validatable    = require('models/mixins/validatable_mixin');
 
 const Approval = function({type, authorization}) {
   this.constructor.modelType = 'approval';
@@ -42,15 +43,15 @@ const Approval = function({type, authorization}) {
   };
 };
 
-Approval.AuthConfig = function({roles, users}) {
+Approval.AuthConfig = function(data) {
   this.constructor.modelType = 'approvalAuthorization';
   Mixins.HasUUID.call(this);
-
-  this.roles = s.withNewJSONImpl(Stream(s.defaultToIfBlank(roles, '')), s.stringToArray);
-  this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(users, '')), s.stringToArray);
+  Validatable.call(this, data);
+  this.roles = s.withNewJSONImpl(Stream(s.defaultToIfBlank(data.roles, '')), s.stringToArray);
+  this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(data.users, '')), s.stringToArray);
 };
 
-Approval.AuthConfig.fromJSON = ({roles, users}) => new Approval.AuthConfig({roles, users});
+Approval.AuthConfig.fromJSON = ({roles, users, errors}) => new Approval.AuthConfig({roles, users, errors});
 
 Approval.fromJSON = ({type, authorization}) => new Approval({
   type,

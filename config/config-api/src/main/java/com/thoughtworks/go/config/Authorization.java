@@ -190,6 +190,14 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         this.adminsConfig = adminsConfig;
     }
 
+    public void setViewConfig(ViewConfig viewConfig) {
+        this.viewConfig = viewConfig;
+    }
+
+    public void setOperationConfig(OperationConfig operationConfig) {
+        this.operationConfig = operationConfig;
+    }
+
     public void setAllowGroupAdmins(boolean allowGroupAdmins) {
         this.allowGroupAdmins = allowGroupAdmins;
     }
@@ -212,12 +220,32 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return result;
     }
 
+    public void validateTree(ValidationContext validationContext) {
+        for (Admin admin : getAdminsConfig()) {
+            admin.validate(validationContext);
+            this.getAdminsConfig().errors().addAll(admin.errors());
+        }
+        for (Admin admin : getViewConfig()) {
+            admin.validate(validationContext);
+            this.getViewConfig().errors().addAll(admin.errors());
+        }
+
+        for (Admin admin : getOperationConfig()) {
+            admin.validate(validationContext);
+            this.getOperationConfig().errors().addAll(admin.errors());
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         return;
     }
 
     public ConfigErrors errors() {
         return configErrors;
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     public void addError(String fieldName, String message) {

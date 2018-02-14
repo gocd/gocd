@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.config.Admin;
 public class AdminRole implements Admin {
     @ConfigValue private CaseInsensitiveString name;
     private ConfigErrors configErrors = new ConfigErrors();
-    public static final String NAME = "name";
+    public static final String ADMIN = "roles";
 
     public AdminRole() {
     }
@@ -63,7 +63,8 @@ public class AdminRole implements Admin {
     }
 
     public void addError(String message) {
-        errors().add(NAME, message);
+        errors().add(NAME, message); // Do not remove this - The old view for editing group authorization, template authorization makes use of it.
+        errors().add(ADMIN, message);
     }
 
     public boolean equals(Object o) {
@@ -93,7 +94,9 @@ public class AdminRole implements Admin {
         }
         SecurityConfig securityConfig = validationContext.getServerSecurityConfig();
         if (!securityConfig.isRoleExist(this.name)) {
+            // This is needed for the old UI while validating roles. Errors will be added on the name field.
             configErrors.add(NAME, String.format("Role \"%s\" does not exist.", this.name));
+            configErrors.add(ADMIN, String.format("Role \"%s\" does not exist.", this.name));
         }
     }
 

@@ -48,7 +48,7 @@ public class AgentStatusChangeNotifier implements AgentStatusChangeListener{
     private AgentNotificationData notificationDataFrom(AgentInstance agentInstance) {
         return new AgentNotificationData(agentInstance.getUuid(),
                 agentInstance.getHostname(),
-                elasticAgentId(agentInstance),
+                agentInstance.isElastic(),
                 agentInstance.getIpAddress(),
                 agentInstance.getOperatingSystem(),
                 agentInstance.freeDiskSpace().toString(),
@@ -61,9 +61,5 @@ public class AgentStatusChangeNotifier implements AgentStatusChangeListener{
 
     private boolean isAnyPluginInterestedInAgentStatus() {
         return notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);
-    }
-
-    private String elasticAgentId(AgentInstance agentInstance) {
-        return agentInstance.isElastic() ? agentInstance.elasticAgentMetadata().elasticAgentId() : null;
     }
 }

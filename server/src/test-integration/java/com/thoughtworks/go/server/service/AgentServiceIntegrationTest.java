@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -296,7 +297,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldUpdateAgentStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -311,7 +312,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -413,7 +414,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance pending = AgentInstanceMother.pending();
         AgentInstance building = AgentInstanceMother.building();
         AgentInstance denied = AgentInstanceMother.disabled();
-        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), idle, pending, building, denied));
+        AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied));
 
         assertThat(agentService.agents().size(), is(4));
 
@@ -421,6 +422,15 @@ public class AgentServiceIntegrationTest {
         assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
         assertThat(agentService.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
         assertThat(agentService.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
+    }
+
+    private AgentStatusChangeListener agentStatusChangeListener() {
+        return new AgentStatusChangeListener() {
+            @Override
+            public void onAgentStatusChange(AgentInstance agentInstance) {
+
+            }
+        };
     }
 
     @Test
@@ -741,7 +751,7 @@ public class AgentServiceIntegrationTest {
         createEnvironment("uat");
         EnvironmentConfig environment = environmentConfigService.named("uat");
         environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(new SystemEnvironment(), idle, pending, building, denied);
+        AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
         AgentService agentService = getAgentService(instances);
 
         AgentsViewModel agents = agentService.registeredAgents();

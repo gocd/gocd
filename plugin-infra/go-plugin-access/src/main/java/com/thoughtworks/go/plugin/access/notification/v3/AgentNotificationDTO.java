@@ -34,8 +34,8 @@ public class AgentNotificationDTO {
     private String hostName;
 
     @Expose
-    @SerializedName("elastic_agent_id")
-    private String elasticAgentId;
+    @SerializedName("is_elastic")
+    private boolean isElastic;
 
     @Expose
     @SerializedName("ip_address")
@@ -65,12 +65,14 @@ public class AgentNotificationDTO {
     @SerializedName("transition_time")
     private String transitionTime;
 
-    public AgentNotificationDTO(String uuid, String hostName, String elasticAgentId, String ipAddress,
+    private static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
+
+    public AgentNotificationDTO(String uuid, String hostName, boolean isElastic, String ipAddress,
                                 String operatingSystem, String freeSpace, String agentConfigState, String agentState,
                                 String buildState, Date transitionTime) {
         this.uuid = uuid;
         this.hostName = hostName;
-        this.elasticAgentId = elasticAgentId;
+        this.isElastic = isElastic;
         this.ipAddress = ipAddress;
         this.operatingSystem = operatingSystem;
         this.freeSpace = freeSpace;
@@ -86,7 +88,7 @@ public class AgentNotificationDTO {
         }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(AgentConverter.DATE_PATTERN);
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        simpleDateFormat.setTimeZone(UTC_TIMEZONE);
         return simpleDateFormat.format(date);
     }
 }

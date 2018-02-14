@@ -47,8 +47,8 @@ public class AgentInstances implements Iterable<AgentInstance> {
         this.systemEnvironment = new SystemEnvironment();
     }
 
-    public AgentInstances(SystemEnvironment systemEnvironment, AgentInstance... agentInstances) {
-        this(null);
+    public AgentInstances(SystemEnvironment systemEnvironment, AgentStatusChangeListener agentStatusChangeListener, AgentInstance... agentInstances) {
+        this(agentStatusChangeListener);
         this.systemEnvironment = systemEnvironment;
         for (AgentInstance agentInstance : agentInstances) {
             this.add(agentInstance);

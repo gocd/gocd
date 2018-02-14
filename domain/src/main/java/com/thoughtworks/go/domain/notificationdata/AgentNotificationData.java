@@ -22,7 +22,7 @@ import java.util.Date;
 public class AgentNotificationData implements Serializable {
     private final String uuid;
     private final String hostName;
-    private final String elasticAgentId;
+    private final boolean isElastic;
     private final String ipAddress;
     private final String operatingSystem;
     private final String freeSpace;
@@ -31,12 +31,12 @@ public class AgentNotificationData implements Serializable {
     private final String buildState;
     private final Date transitionTime;
 
-    public AgentNotificationData(String uuid, String hostName, String elasticAgentId, String ipAddress,
+    public AgentNotificationData(String uuid, String hostName, boolean isElastic, String ipAddress,
                                  String operatingSystem, String freeSpace, String agentConfigState, String agentState,
                                  String buildState, Date transitionTime) {
         this.uuid = uuid;
         this.hostName = hostName;
-        this.elasticAgentId = elasticAgentId;
+        this.isElastic = isElastic;
         this.ipAddress = ipAddress;
         this.operatingSystem = operatingSystem;
         this.freeSpace = freeSpace;
@@ -54,8 +54,8 @@ public class AgentNotificationData implements Serializable {
         return hostName;
     }
 
-    public String getElasticAgentId() {
-        return elasticAgentId;
+    public boolean isElastic() {
+        return isElastic;
     }
 
     public String getIpAddress() {

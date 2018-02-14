@@ -278,14 +278,14 @@ public class JsonMessageHandler3_0_Test {
         String time = simpleDateFormat.format(transition_time);
 
         AgentNotificationData agentNotificationData = new AgentNotificationData("agent_uuid", "agent_hostname",
-                "elastic_agent_id", "127.0.0.1", "rh", "100",
+                true, "127.0.0.1", "rh", "100",
                 "enabled", "building", "building", transition_time);
 
         String expected = "{\n" +
                 "    \"agent_config_state\": \"enabled\",\n" +
                 "    \"agent_state\": \"building\",\n" +
                 "    \"build_state\": \"building\",\n" +
-                "    \"elastic_agent_id\": \"elastic_agent_id\",\n" +
+                "    \"is_elastic\": true,\n" +
                 "    \"free_space\": \"100\",\n" +
                 "    \"host_name\": \"agent_hostname\",\n" +
                 "    \"ip_address\": \"127.0.0.1\",\n" +

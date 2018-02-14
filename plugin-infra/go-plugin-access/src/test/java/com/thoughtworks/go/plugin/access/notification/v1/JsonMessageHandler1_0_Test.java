@@ -275,7 +275,7 @@ public class JsonMessageHandler1_0_Test {
         thrown.expect(NotImplementedException.class);
         thrown.expectMessage(String.format("Converter for %s not supported", AgentNotificationData.class.getCanonicalName()));
 
-        messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, null,
+        messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, false,
                 null, null, null, null, null, null, null));
     }
 

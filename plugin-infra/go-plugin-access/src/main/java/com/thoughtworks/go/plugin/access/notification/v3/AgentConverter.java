@@ -32,7 +32,7 @@ public class AgentConverter extends DataConverter<AgentNotificationDTO> {
         return new AgentNotificationDTO(
                 agentNotificationData.getUuid(),
                 agentNotificationData.getHostName(),
-                agentNotificationData.getElasticAgentId(),
+                agentNotificationData.isElastic(),
                 agentNotificationData.getIpAddress(),
                 agentNotificationData.getOperatingSystem(),
                 agentNotificationData.getFreeSpace(),

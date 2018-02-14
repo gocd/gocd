@@ -32,8 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -70,7 +69,7 @@ public class AgentStatusChangeNotifierTest {
 
         assertThat(data.getUuid(), is(agentInstance.getUuid()));
         assertThat(data.getHostName(), is(agentInstance.getHostname()));
-        assertNull(data.getElasticAgentId());
+        assertFalse(data.isElastic());
         assertThat(data.getIpAddress(), is(agentInstance.getIpAddress()));
         assertThat(data.getFreeSpace(), is(agentInstance.freeDiskSpace().toString()));
         assertThat(data.getAgentConfigState(), is(agentInstance.getAgentConfigStatus().name()));
@@ -79,7 +78,7 @@ public class AgentStatusChangeNotifierTest {
     }
 
     @Test
-    public void shouldNotifyWithElasticAgentIdForElasticAgents() throws Exception {
+    public void shouldNotifyIfAgentIsElastic() throws Exception {
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setElasticAgentId("42");
@@ -97,7 +96,7 @@ public class AgentStatusChangeNotifierTest {
         assertThat(captor.getValue().getData() instanceof AgentNotificationData, is(true));
         AgentNotificationData data = (AgentNotificationData) captor.getValue().getData();
 
-        assertThat(data.getElasticAgentId(), is(agentRuntimeInfo.getElasticAgentId()));
+        assertTrue(data.isElastic());
     }
 
     @Test

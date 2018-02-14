@@ -56,6 +56,7 @@ public class AgentInstancesTest {
     private AgentInstance local;
     @Mock
     private SystemEnvironment systemEnvironment;
+    private AgentStatusChangeListener agentStatusChangeListener;
 
     @Before
     public void setUp() throws Exception {
@@ -68,6 +69,7 @@ public class AgentInstancesTest {
         AgentInstanceMother.updateOS(pending, "windows");
         disabled = AgentInstanceMother.disabled("10.18.5.4", systemEnvironment);
         local = AgentInstanceMother.local(systemEnvironment);
+        agentStatusChangeListener = mock(AgentStatusChangeListener.class);
     }
 
     @Test
@@ -114,7 +116,7 @@ public class AgentInstancesTest {
     @Test
     public void shouldFindAgentsByItHostName() throws Exception {
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, idle, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, AgentInstanceMother.building());
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("ghost-name");
         assertThat(byHostname, is(idle));
@@ -122,7 +124,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnNullAgentsWhenHostNameIsNotFound() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
         agentInstances.add(idle);
         agentInstances.add(building);
 
@@ -134,7 +136,7 @@ public class AgentInstancesTest {
     public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() throws Exception {
         AgentInstance agent = AgentInstance.createFromConfig(new AgentConfig("uuid20", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
         AgentInstance duplicatedAgent = AgentInstance.createFromConfig(new AgentConfig("uuid21", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agent, duplicatedAgent);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, agent, duplicatedAgent);
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("CCeDev01");
         assertThat(byHostname, is(agent));
@@ -152,7 +154,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, idle, building);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, building);
 
         Agents oneAgentIsRemoved = new Agents(new AgentConfig("uuid2", "CCeDev01", "10.18.5.1"));
 
@@ -164,7 +166,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldSyncAgent() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building(), idle);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building(), idle);
 
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
         agentConfig.setDisabled(true);
@@ -177,7 +179,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldNotRemovePendingAgentDuringSync() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
         agentInstances.add(pending);
         Agents agents = new Agents();
 
@@ -198,7 +200,7 @@ public class AgentInstancesTest {
     @Test(expected = MaxPendingAgentsLimitReachedException.class)
     public void registerShouldErrorOutIfMaxPendingAgentsLimitIsReached() {
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, AgentInstanceMother.pending());
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.pending());
         when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
 
         agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
@@ -207,7 +209,7 @@ public class AgentInstancesTest {
     @Test
     public void shouldRemovePendingAgentThatIsTimedOut() {
         when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, pending, building, disabled);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, pending, building, disabled);
         agentInstances.refresh();
         assertThat(agentInstances.findAgentAndRefreshStatus("uuid4"), is(instanceOf(NullAgentInstance.class)));
     }

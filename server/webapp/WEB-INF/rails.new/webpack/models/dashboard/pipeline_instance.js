@@ -28,6 +28,8 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
 };
 
 const PipelineInstance = function (info, pipelineName) {
+  const self = this;
+
   this.pipelineName = pipelineName;
   this.label        = info.label;
   this.counter      = info.counter;
@@ -37,9 +39,10 @@ const PipelineInstance = function (info, pipelineName) {
   this.vsmPath     = info._links.vsm_url.href;
   this.comparePath = info._links.compare_url.href;
 
-  this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
-
+  this.stages            = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
   this.materialRevisions = _.map(info.build_cause.material_revisions, (revision) => new MaterialRevision(revision));
+
+  this.isFirstStageInProgress = () => self.stages[0].isBuilding();
 };
 
 module.exports = PipelineInstance;

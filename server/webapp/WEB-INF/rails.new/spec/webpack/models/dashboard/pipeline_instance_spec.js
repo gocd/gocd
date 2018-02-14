@@ -44,6 +44,8 @@ describe("Dashboard", () => {
       expect(pipelineInstance.stages[0].isBuildingOrCompleted()).toEqual(true);
       expect(pipelineInstance.stages[1].isBuildingOrCompleted()).toEqual(false);
 
+      expect(pipelineInstance.isFirstStageInProgress()).toEqual(false);
+
       expect(pipelineInstance.materialRevisions.length).toEqual(1);
     });
 

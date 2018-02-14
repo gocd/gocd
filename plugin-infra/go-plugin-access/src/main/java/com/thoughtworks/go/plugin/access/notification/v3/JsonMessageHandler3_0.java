@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.notification.v3;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
 import com.thoughtworks.go.plugin.access.notification.JsonMessageHandler;
@@ -75,6 +76,9 @@ public class JsonMessageHandler3_0 implements JsonMessageHandler {
     private <T> DataConverter getConverter(T data) {
         if (data instanceof StageNotificationData) {
             return new StageConverter((StageNotificationData) data);
+        }
+        if (data instanceof AgentNotificationData) {
+            return new AgentConverter((AgentNotificationData) data);
         }
         throw new NotImplementedException(String.format("Converter for %s not supported", data.getClass().getCanonicalName()));
     }

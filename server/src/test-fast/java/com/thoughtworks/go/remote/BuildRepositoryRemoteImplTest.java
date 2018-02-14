@@ -66,7 +66,7 @@ public class BuildRepositoryRemoteImplTest {
     @Test
     public void shouldUpdateAgentServiceOnPing() {
         info.setStatus(AgentStatus.Cancelled);
-        when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment()));
+        when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null));
         AgentInstruction instruction = buildRepository.ping(info);
         assertThat(instruction.isShouldCancelJob(), is(true));
         verify(agentService).updateRuntimeInfo(info);

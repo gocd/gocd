@@ -43,8 +43,9 @@ public class NotificationExtension extends AbstractExtension {
 
     static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
+    public static final String AGENT_STATUS_CHANGE_NOTIFICATION = "agent-status";
 
-    static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
+    static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION, AGENT_STATUS_CHANGE_NOTIFICATION);
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 

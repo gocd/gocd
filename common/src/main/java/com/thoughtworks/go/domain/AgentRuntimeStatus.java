@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-
 /**
  * @understands live information about an agent
  */
@@ -52,9 +50,5 @@ public enum AgentRuntimeStatus {
             default:
                 return Unknown;
         }
-    }
-
-    public interface ChangeListener {
-        void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus);
     }
 }

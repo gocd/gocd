@@ -19,11 +19,13 @@ package com.thoughtworks.go.plugin.access.notification.v2;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -272,6 +274,14 @@ public class JsonMessageHandler2_0_Test {
         messageHandler.requestMessageForNotify(new Pipeline());
     }
 
+    @Test
+    public void shouldNotHandleAgentNotificationRequest() throws Exception {
+        thrown.expect(NotImplementedException.class);
+        thrown.expectMessage(String.format("Converter for %s not supported", AgentNotificationData.class.getCanonicalName()));
+
+        messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, false,
+                null, null, null, null, null, null, null));
+    }
 
     private void assertSuccessResult(Result result, List<String> messages) {
         assertThat(result.isSuccessful(), is(true));

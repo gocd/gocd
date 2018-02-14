@@ -85,35 +85,6 @@ public class AgentRuntimeInfoTest {
     }
 
     @Test
-    public void shouldNotifyStatusChangeListenerOnStatusUpdate() {
-        final AgentRuntimeStatus[] oldAndNewStatus = new AgentRuntimeStatus[2];
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
-
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-        assertThat(oldAndNewStatus[OLD_IDX], is(nullValue()));
-        agentRuntimeInfo.setRuntimeStatus(AgentRuntimeStatus.Building, new AgentRuntimeStatus.ChangeListener() {
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-                oldAndNewStatus[OLD_IDX] = runtimeInfo.getRuntimeStatus();
-                oldAndNewStatus[NEW_IDX] = newStatus;
-            }
-        });
-        assertThat(oldAndNewStatus[OLD_IDX], is(AgentRuntimeStatus.Idle));
-        assertThat(oldAndNewStatus[NEW_IDX], is(AgentRuntimeStatus.Building));
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Building));
-    }
-
-    @Test
-    public void shouldNotUpdateStatusWhenOldValueIsEqualToNewValue() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
-
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-        AgentRuntimeStatus.ChangeListener listener = mock(AgentRuntimeStatus.ChangeListener.class);
-        agentRuntimeInfo.setRuntimeStatus(AgentRuntimeStatus.Idle, listener);
-        verify(listener, never()).statusUpdateRequested(any(AgentRuntimeInfo.class), any(AgentRuntimeStatus.class));
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-    }
-
-    @Test
     public void shouldNotMatchRuntimeInfosWithDifferentOperatingSystems() {
         AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
         AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar", false);

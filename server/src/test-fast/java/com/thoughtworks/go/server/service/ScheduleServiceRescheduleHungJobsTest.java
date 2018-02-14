@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -51,7 +52,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
 
     @Test
     public void shouldNotQueryForBuildWhenThereAreNoLiveAgents() {
-        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null));
+        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(mock(AgentStatusChangeListener.class)));
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
         verify(jobInstanceService, times(0)).findHungJobs(any());
@@ -84,10 +85,11 @@ public class ScheduleServiceRescheduleHungJobsTest {
     }
 
     private AgentInstances activities() {
-        final AgentInstances activities = new AgentInstances(null);
+        AgentStatusChangeListener agentStatusChangeListener = mock(AgentStatusChangeListener.class);
+        final AgentInstances activities = new AgentInstances(agentStatusChangeListener);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment));
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment, agentStatusChangeListener));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment, agentStatusChangeListener));
         return activities;
     }
 

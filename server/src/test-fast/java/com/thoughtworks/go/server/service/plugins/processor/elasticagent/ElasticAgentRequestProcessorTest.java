@@ -70,7 +70,7 @@ public class ElasticAgentRequestProcessorTest {
         goPluginApiRequest.setRequestBody(extension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(Arrays.asList(agent)));
 
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
         when(agentService.findElasticAgent("foo", "docker")).thenReturn(agentInstance);
         processor.process(pluginDescriptor, goPluginApiRequest);
         verify(agentConfigService).disableAgents(processor.usernameFor(pluginDescriptor), agentInstance);
@@ -83,7 +83,7 @@ public class ElasticAgentRequestProcessorTest {
         goPluginApiRequest.setRequestBody(extension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(Arrays.asList(agent)));
 
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
         when(agentService.findElasticAgent("foo", "docker")).thenReturn(agentInstance);
         processor.process(pluginDescriptor, goPluginApiRequest);
         verify(agentConfigService).deleteAgents(processor.usernameFor(pluginDescriptor), agentInstance);

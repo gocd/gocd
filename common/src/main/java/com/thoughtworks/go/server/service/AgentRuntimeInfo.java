@@ -273,11 +273,8 @@ public class AgentRuntimeInfo implements Serializable {
         this.cookie = cookie;
     }
 
-    public void setRuntimeStatus(AgentRuntimeStatus runtimeStatus, AgentRuntimeStatus.ChangeListener changeListener) {
+    public void setRuntimeStatus(AgentRuntimeStatus runtimeStatus) {
         if (this.runtimeStatus != runtimeStatus) {
-            if (changeListener != null) {
-                changeListener.statusUpdateRequested(this, runtimeStatus);
-            }
             this.runtimeStatus = runtimeStatus;
         }
     }
@@ -291,7 +288,7 @@ public class AgentRuntimeInfo implements Serializable {
     public void updateSelf(AgentRuntimeInfo newRuntimeInfo) {
         this.buildingInfo = newRuntimeInfo.getBuildingInfo();
         if (newRuntimeInfo.isCancelled()) {
-            this.setRuntimeStatus(AgentRuntimeStatus.Cancelled, null);
+            this.setRuntimeStatus(AgentRuntimeStatus.Cancelled);
         }
         this.location = newRuntimeInfo.getLocation();
         this.usableSpace = newRuntimeInfo.getUsableSpace();

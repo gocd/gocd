@@ -17,11 +17,11 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -48,18 +48,22 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AgentInstanceTest {
     private SystemEnvironment systemEnvironment;
     public AgentConfig agentConfig;
     public AgentBuildingInfo defaultBuildingInfo;
     private static final String DEFAULT_IP_ADDRESS = "10.18.5.1";
+    private AgentStatusChangeListener agentStatusChangeListener;
 
     @Before
     public void setUp() {
         systemEnvironment = new SystemEnvironment();
         agentConfig = new AgentConfig("uuid2", "CCeDev01", DEFAULT_IP_ADDRESS);
         defaultBuildingInfo = new AgentBuildingInfo("pipeline", "buildLocator");
+        agentStatusChangeListener = mock(AgentStatusChangeListener.class);
     }
 
     @After
@@ -104,6 +108,91 @@ public class AgentInstanceTest {
     }
 
     @Test
+    public void shouldNotifyAgentChangeListenerOnUpdate() throws Exception {
+        AgentInstance idleAgent = AgentInstance.createFromConfig(agentConfig("abc"), new SystemEnvironment(), agentStatusChangeListener);
+
+        idleAgent.update(buildingRuntimeInfo());
+
+        verify(agentStatusChangeListener).onAgentStatusChange(idleAgent);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnAgentBuilding() throws Exception {
+        AgentInstance idleAgent = AgentInstance.createFromConfig(agentConfig("abc"), new SystemEnvironment(), agentStatusChangeListener);
+
+        idleAgent.building(new AgentBuildingInfo("running pipeline/stage/build", "buildLocator"));
+
+        verify(agentStatusChangeListener).onAgentStatusChange(idleAgent);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnCancel() throws Exception {
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig("abc"), new SystemEnvironment(), agentStatusChangeListener);
+
+        agentInstance.cancel();
+
+        verify(agentStatusChangeListener).onAgentStatusChange(agentInstance);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedMissing() throws Exception {
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig("abc"), new SystemEnvironment(), agentStatusChangeListener);
+
+        agentInstance.idle();
+        agentInstance.refresh();
+
+        assertThat(agentInstance.getStatus(), is(AgentStatus.Missing));
+        verify(agentStatusChangeListener, times(2)).onAgentStatusChange(agentInstance);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedLostContact() throws Exception {
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
+            public int getAgentConnectionTimeout() {
+                return -1;
+            }
+        }, agentStatusChangeListener);
+        assertThat(instance.getStatus(), is(AgentStatus.Missing));
+
+        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
+        instance.refresh();
+
+        assertThat(instance.getStatus(), is(AgentStatus.LostContact));
+        verify(agentStatusChangeListener, times(2)).onAgentStatusChange(instance);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnEnablingAgent() throws Exception {
+        AgentInstance instance = AgentInstanceMother.disabled();
+
+        AgentInstance disabledAgent = new AgentInstance(instance.agentConfig, instance.getType(), systemEnvironment, agentStatusChangeListener);
+
+        disabledAgent.enable();
+
+        verify(agentStatusChangeListener).onAgentStatusChange(disabledAgent);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnDisablingAgent() throws Exception {
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig("abc"), new SystemEnvironment(), agentStatusChangeListener);
+
+        agentInstance.deny();
+
+        verify(agentStatusChangeListener).onAgentStatusChange(agentInstance);
+    }
+
+    @Test
+    public void shouldNotifyAgentChangeListenerOnConfigSync() throws Exception {
+        AgentInstance instance = AgentInstanceMother.disabled();
+
+        AgentInstance agentInstance = new AgentInstance(instance.agentConfig, instance.getType(), systemEnvironment, agentStatusChangeListener);
+
+        agentInstance.syncConfig(agentConfig);
+
+        verify(agentStatusChangeListener).onAgentStatusChange(agentInstance);
+    }
+
+    @Test
     public void shouldUpdateAgentBackToIdleAfterCancelledTaskFinishes() throws Exception {
         AgentInstance cancelled = AgentInstanceMother.cancelled();
 
@@ -115,8 +204,8 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateTheIntsallLocation() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+    public void shouldUpdateTheInstallLocation() throws Exception {
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         String installPath = "/var/lib/GoServer";
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         newRuntimeInfo.setLocation(installPath);
@@ -127,7 +216,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateTheUsableSpace() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
 
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         newRuntimeInfo.setUsableSpace(1000L);
@@ -139,7 +228,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldAssignCertificateToApprovedAgent() {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
 
         Registration entry = agentInstance.assignCertification();
@@ -149,8 +238,8 @@ public class AgentInstanceTest {
     @Test
     public void shouldNotAssignCertificateToPendingAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false);
-        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
-        );
+        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
+                mock(AgentStatusChangeListener.class));
 
         Registration entry = agentInstance.assignCertification();
         assertThat(entry.getChain().length, is(0));
@@ -159,7 +248,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldInitializeTheLastHeardTimeWhenFirstPing() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         Date time = agentInstance.getLastHeardTime();
         assertThat(time, is(nullValue()));
         agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
@@ -169,7 +258,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateTheLastHeardTime() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         Date time = agentInstance.getLastHeardTime();
         Thread.sleep(1000);
@@ -180,7 +269,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateSupportBuildCommandProtocolFlag() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
         agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
@@ -192,7 +281,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateIPForPhysicalMachineWhenUpChanged() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
 
         assertThat(agentInstance.agentConfig().getIpAddress(), is("10.18.7.52"));
@@ -200,7 +289,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldCleanBuildingInfoWhenAgentIsIdle() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(buildingRuntimeInfo());
 
         agentInstance.update(idleRuntimeInfo());
@@ -215,7 +304,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateBuildingInfoWhenAgentIsBuilding() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         AgentBuildingInfo buildingInfo = new AgentBuildingInfo("running pipeline/stage/build", "buildLocator");
         agentRuntimeInfo.busy(buildingInfo);
@@ -225,7 +314,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldUpdateBuildingInfoWhenAgentIsBuildingWhenCancelled() throws Exception {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(buildingRuntimeInfo());
 
         agentInstance.update(cancelRuntimeInfo());
@@ -244,27 +333,27 @@ public class AgentInstanceTest {
     @Test
     public void shouldNotChangePendingAgentIpAddress() throws Exception {
         AgentInstance pending = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false),
-                systemEnvironment);
+                systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         assertThat(pending.isIpChangeRequired(info.getIpAdress()), is(false));
     }
 
     @Test
     public void shouldChangeIpWhenSameAgentIpChanged() throws Exception {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         assertThat(instance.isIpChangeRequired(info.getIpAdress()), is(true));
     }
 
     @Test
     public void shouldNotChangeIpWhenIpNotChanged() throws Exception {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         assertThat(instance.isIpChangeRequired(DEFAULT_IP_ADDRESS), is(false));
     }
 
     @Test
     public void shouldDefaultToMissingStatusWhenSyncAnApprovedAgent() throws Exception {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.syncConfig(agentConfig);
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
     }
@@ -272,22 +361,22 @@ public class AgentInstanceTest {
     @Test
     public void pendingAgentshouldNotBeRegistered() throws Exception {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
-        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
-        );
+        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
+                mock(AgentStatusChangeListener.class));
         assertThat(instance.isRegistered(), is(false));
     }
 
     @Test
     public void deniedAgentshouldBeRegistered() throws Exception {
         agentConfig.disable();
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
 
         assertThat(instance.isRegistered(), is(true));
     }
 
     @Test
     public void shouldBeRegisteredForIdleAgent() throws Exception {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.update(idleRuntimeInfo());
         assertThat(instance.isRegistered(), is(true));
     }
@@ -295,7 +384,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldBecomeIdleAfterApprove() throws Exception {
         AgentInstance instance = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false),
-                systemEnvironment);
+                systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.enable();
         instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(instance.getStatus(), is(AgentStatus.Idle));
@@ -303,10 +392,10 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldBeMissingWhenNeverHeardFromAnyAgent() {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
 
-        instance.refresh(null);
+        instance.refresh();
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
     }
 
@@ -316,11 +405,11 @@ public class AgentInstanceTest {
             public int getAgentConnectionTimeout() {
                 return -1;
             }
-        });
+        }, mock(AgentStatusChangeListener.class));
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
 
         instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        instance.refresh(null);
+        instance.refresh();
         assertThat(instance.getStatus(), is(AgentStatus.LostContact));
     }
 
@@ -331,10 +420,10 @@ public class AgentInstanceTest {
             public int getAgentConnectionTimeout() {
                 return -1;
             }
-        });
+        }, mock(AgentStatusChangeListener.class));
         instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Building, currentWorkingDirectory(), "cookie", false));
 
-        instance.refresh(null);
+        instance.refresh();
 
         assertThat(instance.getRuntimeStatus(), is(AgentRuntimeStatus.LostContact));
         assertThat(instance.getStatus(), is(AgentStatus.Disabled));
@@ -343,8 +432,8 @@ public class AgentInstanceTest {
     @Test
     public void shouldDenyPendingAgent() throws Exception {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
-        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
-        );
+        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
+                mock(AgentStatusChangeListener.class));
         instance.deny();
 
         assertThat(instance.getStatus(), is(AgentStatus.Disabled));
@@ -352,15 +441,15 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldBeLiveStatus() throws Exception {
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.update(idleRuntimeInfo());
-        instance.refresh(null);
+        instance.refresh();
         assertThat(instance.getStatus(), is(AgentStatus.Idle));
     }
 
     @Test
     public void shouldSyncIPWithConfig() {
-        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
 
         original.update(new AgentRuntimeInfo(new AgentIdentifier("CCeDev01", "10.18.5.2", "uuid2"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
 
@@ -369,7 +458,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldKeepOriginalStatusWhenAgentIsNotDenied() throws Exception {
-        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo(agentConfig));
 
         original.syncConfig(agentConfig);
@@ -378,7 +467,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldDenyAgentWhenAgentIsDeniedInConfigFile() throws Exception {
-        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 
         AgentConfig newAgentConfig = new AgentConfig(agentConfig.getUuid(), agentConfig.getHostname(), agentConfig.getIpAddress());
@@ -390,7 +479,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldDenyAgentWhenItIsNotBuilding() throws Exception {
-        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(idleRuntimeInfo());
 
         original.deny();
@@ -405,7 +494,7 @@ public class AgentInstanceTest {
             public long getAgentSizeLimit() {
                 return 100 * 1024 * 1024;
             }
-        });
+        }, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         long is110M = 110 * 1024 * 1024;
         newRuntimeInfo.setUsableSpace(is110M);
@@ -421,7 +510,7 @@ public class AgentInstanceTest {
             public long getAgentSizeLimit() {
                 return 100 * 1024 * 1024;
             }
-        });
+        }, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         long is90M = 90 * 1024 * 1024;
         newRuntimeInfo.setUsableSpace(is90M);
@@ -432,7 +521,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldBeAbleToDenyAgentWhenItIsBuilding() throws Exception {
-        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo runtimeInfo = buildingRuntimeInfo();
         original.update(runtimeInfo);
         assertThat(original.canDisable(), is(true));
@@ -444,8 +533,8 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldOrderByHostname() throws Exception {
-        AgentInstance agentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment);
-        AgentInstance agentB = new AgentInstance(new AgentConfig("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment);
+        AgentInstance agentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
+        AgentInstance agentB = new AgentInstance(new AgentConfig("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment, null);
 
         assertThat(agentA.compareTo(agentA), is(0));
         assertThat(agentA.compareTo(agentB), lessThan(0));
@@ -454,10 +543,10 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldNotBeEqualIfUuidIsNotEqual() throws Exception {
-        AgentInstance agentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment);
+        AgentInstance agentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
         AgentInstance copyOfAgentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"),
-                LOCAL, systemEnvironment);
-        AgentInstance agentB = new AgentInstance(new AgentConfig("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment);
+                LOCAL, systemEnvironment, null);
+        AgentInstance agentB = new AgentInstance(new AgentConfig("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment, null);
 
         assertThat(agentA, is(not(agentB)));
         assertThat(agentB, is(not(agentA)));
@@ -467,7 +556,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldBeAbleToDenyAgentThatIsRunningCancelledJob() {
         AgentConfig config = new AgentConfig("UUID", "A", "127.0.0.1");
-        AgentInstance agent = new AgentInstance(config, LOCAL, systemEnvironment);
+        AgentInstance agent = new AgentInstance(config, LOCAL, systemEnvironment, mock(AgentStatusChangeListener.class));
         agent.cancel();
         AgentBuildingInfo cancelled = agent.getBuildingInfo();
         assertThat(agent.canDisable(), is(true));
@@ -479,7 +568,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldReturnNullWhenNoMatchingJobs() throws Exception {
-        AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment);
+        AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment, null);
 
         JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<>());
         assertThat(matchingJob, is(nullValue()));
@@ -487,7 +576,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldReturnFirstMatchingJobPlan() throws Exception {
-        AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment);
+        AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment, null);
 
         List<JobPlan> plans = jobPlans("linux, svn", "linux, mercurial");
         JobPlan matchingJob = agentInstance.firstMatching(plans);
@@ -497,7 +586,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldReturnAJobPlanWithMatchingUuidSet() throws Exception {
         AgentConfig config = agentConfig("linux, mercurial");
-        AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment);
+        AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment, null);
 
         final JobPlan job = jobPlan("pipeline-name", "job-name", "resource", config.getUuid());
         JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<JobPlan>() {{
@@ -509,7 +598,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldNotReturnAJobWithMismatchedUuid() throws Exception {
         AgentConfig config = agentConfig("linux, mercurial");
-        AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment);
+        AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment, null);
 
         final JobPlan job = jobPlan("pipeline-name", "job-name", "linux", config.getUuid() + "-ensure-doesn't-match");
         JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<JobPlan>() {{
@@ -566,7 +655,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agentConfig.setElasticPluginId(elasticPluginId);
-        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
@@ -580,7 +669,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agentConfig.setElasticPluginId(elasticPluginId);
-        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", "elastic-plugin-id-2"));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
@@ -594,7 +683,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agentConfig.setElasticPluginId(elasticPluginId);
-        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setResources(asList(new Resource("r1")));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());

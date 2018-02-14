@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -171,6 +172,10 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     private AgentInstance agent(AgentConfig agentConfig) {
-        return AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        return AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), new AgentStatusChangeListener() {
+            @Override
+            public void onAgentStatusChange(AgentInstance agentInstance) {
+            }
+        });
     }
 }

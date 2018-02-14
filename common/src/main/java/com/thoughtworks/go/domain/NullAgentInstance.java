@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 public class NullAgentInstance extends AgentInstance {
     public NullAgentInstance(String agentUuid) {
 
-        super(NullAgent.createNullAgent(agentUuid), AgentType.REMOTE, new SystemEnvironment());
+        super(NullAgent.createNullAgent(agentUuid), AgentType.REMOTE, new SystemEnvironment(), null);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class NullAgentInstance extends AgentInstance {
     }
 
     @Override
-    public void refresh(final AgentRuntimeStatus.ChangeListener changeListener) {
+    public void refresh() {
     }
 
     @Override

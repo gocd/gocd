@@ -119,6 +119,21 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
   }
 
+  void loginAsPipelineViewUser() {
+    Username username = loginAsRandomUser()
+
+    when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.isUserGroupAdmin(username)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(false)
+    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
+    when(goConfigService.groups()).thenReturn(new PipelineGroups())
+    when(securityService.hasViewPermissionForPipeline(eq(username), any() as String)).thenReturn(true)
+  }
+
   private Username loginAsRandomUser() {
     def hex = SecureRandom.hex(20)
     String loginName = "jdoe-${hex}"

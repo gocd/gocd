@@ -56,6 +56,7 @@ describe("Dashboard", () => {
         "link":  "http://example.com/${ID}/"
       });
 
+      expect(pipeline.isFirstStageInProgress()).toBe(false);
     });
   });
 

@@ -147,9 +147,9 @@ const PipelineOperationsWidget = {
       </div>);
     }
 
-    let canOperateClass = '';
-    if (!pipeline.canOperate) {
-      canOperateClass = 'disabled';
+    let isTriggerDisabled = false;
+    if (!pipeline.canOperate || pipeline.isFirstStageInProgress() || pipeline.isLocked) {
+      isTriggerDisabled = true;
     }
 
     return (
@@ -157,11 +157,11 @@ const PipelineOperationsWidget = {
         {flashMessage}
         <ul className="pipeline_operations">
           <li>
-            <button class={`btn play ${canOperateClass}`}/>
+            <button class={`btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
           </li>
           <li>
-            <button onclick={pipeline.canOperate && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
-                    class={`btn play_with_options ${canOperateClass}`}/>
+            <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
+                    class={`btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
           </li>
           <li>
             <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>

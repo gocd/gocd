@@ -47,6 +47,15 @@ const Pipeline = function (info) {
 
   this.trackingTool = info.tracking_tool;
 
+  this.isFirstStageInProgress = () => {
+    for (let i = 0; i < self.instances.length; i++) {
+      if (self.instances[i].isFirstStageInProgress()) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const config = (xhr) => {
     xhr.setRequestHeader("X-GoCD-Confirm", "true");
     mrequest.xhrConfig.forVersion('v1')(xhr);

@@ -22,6 +22,19 @@ const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget')
 const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/material_revision_widget');
 
 const PipelineInstanceWidget = {
+  onupdate(vnode) {
+    this.adjustPositionOfPopup = () => {
+      const widthOfWindow           = window.innerWidth;
+      const popup                   = vnode.dom.querySelector('.material_changes');
+      const rightCoordinateOfWidget = popup? popup.getBoundingClientRect().right: 0;
+      if (rightCoordinateOfWidget > widthOfWindow) {
+        popup.style.right = '0px';
+      }
+    };
+
+    this.adjustPositionOfPopup();
+  },
+
   view: (vnode) => {
     const instance     = vnode.attrs.instance;
     const dropdown     = vnode.attrs.dropdown;

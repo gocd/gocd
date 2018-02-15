@@ -21,7 +21,8 @@ describe("Dashboard", () => {
     const Pipelines      = require('models/dashboard/pipelines');
 
     it("should get pipeline groups", () => {
-      const dashboard = Dashboard.fromJSON(dashboardData);
+      const dashboard = new Dashboard();
+      dashboard.initialize(dashboardData);
 
       const expectedPipelineGroups = new PipelineGroups(dashboardData._embedded.pipeline_groups).groups;
       const actualPipelineGroups   = dashboard.getPipelineGroups();
@@ -30,7 +31,8 @@ describe("Dashboard", () => {
     });
 
     it("should get pipelines", () => {
-      const dashboard = Dashboard.fromJSON(dashboardData);
+      const dashboard = new Dashboard();
+      dashboard.initialize(dashboardData);
 
       const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
       const actualPipelines   = dashboard.getPipelines();
@@ -39,7 +41,8 @@ describe("Dashboard", () => {
     });
 
     it("should find the pipeline by pipeline name", () => {
-      const dashboard = Dashboard.fromJSON(dashboardData);
+      const dashboard = new Dashboard();
+      dashboard.initialize(dashboardData);
 
       const pipelineName     = "up42";
       const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
@@ -49,13 +52,17 @@ describe("Dashboard", () => {
     });
 
     it("it should filter dashboard provided filter text", () => {
-      const dashboard = Dashboard.fromJSON(dashboardData);
+      const dashboard = new Dashboard();
+      dashboard.initialize(dashboardData);
 
       expect(dashboard.allPipelineNames()).toEqual(['up42']);
 
-      expect(dashboard.filterBy("up").allPipelineNames()).toEqual(['up42']);
-      expect(dashboard.filterBy("42").allPipelineNames()).toEqual(['up42']);
-      expect(dashboard.filterBy("up42").allPipelineNames()).toEqual(['up42']);
+      dashboard.searchText("up");
+      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+      dashboard.searchText("42");
+      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+      dashboard.searchText("up42");
+      expect(dashboard.allPipelineNames()).toEqual(['up42']);
     });
 
     it('should get new dashboard json', () => {
@@ -70,7 +77,9 @@ describe("Dashboard", () => {
         });
 
         const successCallback = jasmine.createSpy().and.callFake((dashboard) => {
-          expect(Dashboard.fromJSON(dashboard).getPipelineGroups().length).toBe(1);
+          const expected = new Dashboard();
+          expected.initialize(dashboard);
+          expect(expected.getPipelineGroups().length).toBe(1);
         });
 
         Dashboard.get().then(successCallback);

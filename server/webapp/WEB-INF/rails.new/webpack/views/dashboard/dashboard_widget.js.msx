@@ -27,19 +27,12 @@ const PipelineSelection   = require('models/dashboard/pipeline_selection');
 const DashboardWidget = {
   oninit(vnode) {
     const self               = vnode.state;
-    self.dashboard           = Stream(vnode.attrs.dashboard);
     self.pipelineSelection   = Stream();
     self.pipelineSelectionVM = new PipelineSelectionVM();
 
-    const filterBySearchValue = _.debounce(() => {
-      self.dashboard(vnode.attrs.dashboard.filterBy(vnode.attrs.vm.searchText().toLowerCase()));
-      m.redraw();
-    }, 200);
-
     self.searchTextUpdated = (e) => {
       const filterText = e.target.value;
-      vnode.attrs.vm.searchText(filterText);
-      filterBySearchValue();
+      vnode.attrs.dashboard.searchText(filterText);
     };
 
     ComponentMixins.HasViewModel.call(self);
@@ -47,7 +40,7 @@ const DashboardWidget = {
     self.getPipelinesGroupView = (pipelineGroup) => {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
-          <PipelineWidget pipeline={self.dashboard().findPipeline(pipelineName)}
+          <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
                           doCancelPolling={vnode.attrs.doCancelPolling}
                           doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                           isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
@@ -99,7 +92,7 @@ const DashboardWidget = {
   view(vnode) {
     const self       = vnode.state;
     const vm         = vnode.attrs.vm;
-    const groupsView = _.map(self.dashboard().getPipelineGroups(), self.getPipelinesGroupView);
+    const groupsView = _.map(vnode.attrs.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
 
     let personalizeView;
 
@@ -115,7 +108,7 @@ const DashboardWidget = {
           <div class="filter">
             <input type="text"
                    class="pipeline-search"
-                   value={vm.searchText()}
+                   value={vnode.attrs.dashboard.searchText()}
                    oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
                    placeholder="Search for pipeline"/>
             <button class="filter_btn"

@@ -30,8 +30,6 @@ const VM = () => {
   const personalizeViewState = Stream(false);
 
   const viewModel = {
-    searchText: Stream(''),
-
     personalizeView: {
       show: () => {
         personalizeViewState(true);

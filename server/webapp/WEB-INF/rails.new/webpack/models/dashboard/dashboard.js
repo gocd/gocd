@@ -16,33 +16,48 @@
 
 const $        = require('jquery');
 const m        = require('mithril');
+const _        = require('lodash');
+const Stream   = require('mithril/stream');
 const mrequest = require('helpers/mrequest');
 const Routes   = require('gen/js-routes');
 
 const PipelineGroups = require('models/dashboard/pipeline_groups');
 const Pipelines      = require('models/dashboard/pipelines');
 
-const Dashboard = function (pipelineGroups, pipelines) {
-  this.getPipelineGroups = () => pipelineGroups.groups;
+const Dashboard = function () {
+  let pipelineGroups, pipelines;
+  let filteredGroups;
+  const internalSearchText = Stream('');
 
-  this.getPipelines = () => pipelines.pipelines;
+  this.getPipelineGroups = () => filteredGroups.groups;
+  this.getPipelines      = () => pipelines.pipelines;
+  this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
+  this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
-  this.allPipelineNames = () => Object.keys(pipelines.pipelines);
+  this.initialize = (json) => {
+    pipelineGroups = PipelineGroups.fromJSON(json._embedded.pipeline_groups);
+    pipelines      = Pipelines.fromJSON(json._embedded.pipelines);
+    filteredGroups = pipelineGroups.filterBy(internalSearchText());
+  };
 
-  this.findPipeline = (pipelineName) => pipelines.find(pipelineName);
+  const performSearch = _.debounce(() => {
+    filteredGroups = pipelineGroups.filterBy(internalSearchText());
+    m.redraw();
+  }, 200);
 
-  //do not filter pipelines as it is accessed using pipeline group references
-  this.filterBy = (filterText) => new Dashboard(pipelineGroups.filterBy(filterText), pipelines);
+  //Stream API with filtering capability
+  this.searchText = (searchedBy) => {
+    if (searchedBy !== undefined) {
+      searchedBy = searchedBy.toLowerCase();
+      internalSearchText(searchedBy);
+      performSearch();
+    } else {
+      return internalSearchText();
+    }
+  };
 };
 
 Dashboard.API_VERSION = 'v2';
-
-Dashboard.fromJSON = (json) => {
-  const pipelineGroups = PipelineGroups.fromJSON(json._embedded.pipeline_groups);
-
-  const pipelines = Pipelines.fromJSON(json._embedded.pipelines);
-  return new Dashboard(pipelineGroups, pipelines);
-};
 
 Dashboard.get = () => {
   return $.Deferred(function () {

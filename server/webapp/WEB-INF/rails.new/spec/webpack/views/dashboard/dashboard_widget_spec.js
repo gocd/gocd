@@ -593,7 +593,9 @@ describe("Dashboard Widget", () => {
       }
     };
 
-    dashboard                = Dashboard.fromJSON(dashboardJson);
+    dashboard = new Dashboard();
+    dashboard.initialize(dashboardJson);
+
     const dashboardViewModel = new DashboardVM();
     dashboardViewModel.initialize(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
 

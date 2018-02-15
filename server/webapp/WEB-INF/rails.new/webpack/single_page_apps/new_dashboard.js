@@ -36,10 +36,10 @@ $(() => {
 
   $(document).foundation();
 
-  let dashboard;
+  const dashboard = new Dashboard();
 
   function onResponse(dashboardData) {
-    dashboard = Dashboard.fromJSON(dashboardData);
+    dashboard.initialize(dashboardData);
     dashboardVM.initialize(dashboard.allPipelineNames());
   }
 

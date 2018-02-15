@@ -121,13 +121,18 @@ $menu-hover: #3e3d3d;
 
     &.server-health-summary a {
       @include icon-before($failed-icon, $margin: 0);
-      position:         relative;
       background-color: darken($failed, 20%);
-      padding-left:     25px;
+      border-radius:    3px;
+      line-height:      25px;
+      margin-top:       1px;
+      padding-left:     30px;
+      padding-right:    11px;
+      position:         relative;
+
       &:before {
         position:  absolute;
-        left:      7px;
-        top:       12px;
+        left:      11px;
+        top:       4px;
         font-size: 16px;
       }
     }

@@ -105,18 +105,33 @@ h4 {
     float: right;
     .cruise_messages {
       position:    static;
-      padding-top: 9px;
+      padding-top: 7px;
       box-shadow:  none;
 
       a {
         border:           initial;
         border-radius:    4px;
-        background-color: #a50000;
-        font-weight:      700;
-        line-height:      11px;
+        background-color: darken($failed, 20%);
+        font-weight:      600;
+        line-height:      15px;
+        font-size:        12px;
+        margin-top:       1px;
+        padding:          5px 11px 5px 30px;
+        position:         relative;
+
+        @include icon-before($failed-icon, $margin: 0, $size: 16px);
+        background-image: none;
+
+        &:before {
+          left:      11px;
+          top:       4px;
+          font-size: 16px;
+          position:  absolute;
+        }
 
         span {
           line-height: 11px;
+          font-size:   12px;
         }
       }
     }
@@ -709,7 +724,7 @@ h1.entity_title {
 
 .selector_pipeline input {
   margin-top: 8px;
-  float: left;
+  float:      left;
 }
 
 //pipeline history
@@ -842,9 +857,8 @@ span.pipeline-buttons a.link_as_button {
 }
 
 .pipeline-instance-header {
-  font-size:      12px;
+  font-size: 12px;
 }
-
 
 //stage history
 
@@ -1287,15 +1301,13 @@ ul#pipeline_config_tree {
   }
 }
 
-
-
 .pipeline_header .analytics-link-wrapper .pipeline-analytics-icon {
-    margin-right: 12px;
-    padding: 0;
-    font-size: 16px;
-    color: $btn-hover;
-    cursor: pointer;
-  }
+  margin-right: 12px;
+  padding:      0;
+  font-size:    16px;
+  color:        $btn-hover;
+  cursor:       pointer;
+}
 
 .page_header a.agents-toggle-new-view {
   margin-top: 6px;
@@ -3873,4 +3885,85 @@ ul.entity_title {
 
 .status.details a {
   text-decoration: underline;
+}
+
+#MB_window {
+  border-radius: 3px;
+  @media screen and (min-width: 40em) {
+    width:     90% !important;
+    max-width: 75rem !important;
+  }
+
+  #MB_frame {
+    border-radius: 3px;
+  }
+
+  #MB_frame_right {
+    border-radius: 3px;
+  }
+
+  #MB_frame_content {
+    border-radius: 3px;
+  }
+
+  #MB_header {
+    padding:       13px 10px;
+    border-radius: 3px;
+    background:    #e0dfdf;
+  }
+
+  #MB_caption {
+    font-weight: 600;
+    font-size:   18px;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+    margin:      5px 0 5px 15px;
+    padding:     0;
+  }
+
+  #MB_close {
+    text-indent: 0;
+    color:       #8a8a8a;
+    font-weight: normal;
+    top:         11px;
+    right:       17px;
+
+    &:before {
+      font-size: 32px;
+      content:   '×';
+      width:     25px;
+      height:    25px;
+    }
+
+    background:  none;
+  }
+
+  .cruise_message_body {
+    padding: 5px 14px;
+
+    > .warning, > .error {
+      margin:         10px;
+      padding-bottom: 10px;
+      border-bottom:  1px dotted #ccc;
+      font-size:      14px;
+
+      .message {
+        font-size:   14px;
+        font-weight: 600;
+      }
+
+      .description {
+        font-size:    14px;
+        font-weight:  400;
+        border-width: 3px;
+      }
+    }
+
+    .warning .description {
+      border-left: #ffc11b 3px solid;
+    }
+
+    .error .description {
+      border-left: #fa2d2d 3px solid;
+    }
+  }
 }

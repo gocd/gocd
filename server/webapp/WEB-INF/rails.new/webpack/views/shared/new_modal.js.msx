@@ -80,7 +80,7 @@ const Modal = function (options) {
                style={{display: 'block'}}>
 
             <div class="modal-header">
-              <span class="modal-title">{options.title}</span>
+              <h5 class="modal-title">{options.title}</h5>
               <button class="close-button"
                       aria-label="Close modal"
                       type="button"

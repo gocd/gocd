@@ -21,11 +21,11 @@ const TimeFormatter = require('helpers/time_formatter');
 const HealthMessageWidget = {
   view(vnode) {
     return (
-      <div class={`server-health-status ${vnode.attrs.message.level.toLowerCase()}`}>
-        <div class="message">{vnode.attrs.message.message}</div>
-        <div class="timestamp">{TimeFormatter.format(vnode.attrs.message.time)}</div>
-        <div class="detail">{m.trust(vnode.attrs.message.detail)}</div>
-      </div>
+      <li class={`server-health-status ${vnode.attrs.message.level.toLowerCase()}`}>
+        <span class="message">{vnode.attrs.message.message}</span>
+        <span class="timestamp">{TimeFormatter.format(vnode.attrs.message.time)}</span>
+        <p class="detail">{m.trust(vnode.attrs.message.detail)}</p>
+      </li>
     );
   }
 };
@@ -36,13 +36,13 @@ const ServerHealthMessagesCountWidget = {
       size:    'large',
       title:   'Error and warning messages',
       body:    () => (
-        <div>
+        <ul class="server-health-statuses">
           {
             vnode.attrs.serverHealthMessages().collect((msg) => {
               return <HealthMessageWidget message={msg}/>;
             })
           }
-        </div>),
+        </ul>),
       onclose: () => modal.destroy(),
       buttons: [
         {

@@ -15,22 +15,28 @@
  */
 @import "go-variables";
 
+.server-health-statuses {
+  list-style-type: none;
+  margin:          0;
+  padding:         0;
+}
+
 .server-health-status {
   margin:         10px;
   padding-bottom: 10px;
   border-bottom:  1px dotted $border-color;
+  font-size:      14px;
 
   &.warning .detail {
-    border-left: $building 5px solid;
+    border-left: $building 3px solid;
   }
 
   &.error .detail {
-    border-left: $failed 5px solid;
+    border-left: $failed 3px solid;
   }
 
   .message {
     display:     inline-block;
-    font-size:   13px;
     font-weight: 600;
   }
 
@@ -42,9 +48,9 @@
   }
 
   .detail {
-    font-size:    13px;
-    margin-top:   5px;
-    padding-left: 5px;
+    margin-top:    5px;
+    padding-left:  10px;
+    margin-bottom: 0;
   }
 
   .timestamp:before {

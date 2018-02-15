@@ -23,6 +23,17 @@
     background:              #e0dfdf;
     border-top-right-radius: $global-border-radius;
     font-size:               rem-calc(16px);
+
+    .close-button {
+      right: 17px;
+      top:   11px;
+    }
+  }
+
+  .modal-title {
+    font-weight: 600;
+    font-size:   18px;
+    margin:      5px 0 5px 15px;
   }
 
   .modal-body {
@@ -37,7 +48,7 @@
   }
 
   .modal-buttons {
-    margin: 14px;
+    margin: 20px 14px 25px 25px;
     .button {
       margin: 0 1rem 0 0;
       &.in-progress {

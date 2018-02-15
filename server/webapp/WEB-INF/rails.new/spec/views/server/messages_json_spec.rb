@@ -29,8 +29,7 @@ describe "/server/messages.json.erb" do
     counts = json["cruise_message_counts"]["html"]
     body = json["cruise_message_body"]["html"]
 
-    expect(counts).to have_selector('.messages .error_count', text: "Errors: 1")
-    expect(counts).to have_selector('.messages .warning_count', text: "Warnings: 2")
+    expect(counts).to have_selector('.messages', text: "1 error and 2 warnings")
 
     Capybara.string(body).all('.error').tap do |errors|
       assert_message_and_desc errors[0], first.getMessageWithTimestamp(), 'first description'

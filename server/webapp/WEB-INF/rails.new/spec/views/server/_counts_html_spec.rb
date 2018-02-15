@@ -22,12 +22,6 @@ describe "/server/_counts.json.erb" do
     assign(:current_server_health_states, ServerHealthStates.new([]))
   end
 
-  it "should not render errors when error count is zero" do
-    render :partial => "server/counts.html.erb"
-
-    expect(response.body).to_not have_selector('.messages .error_count', "Errors: 0")
-  end
-
   it "should render warnings and errors if there are any in the header" do
     first = ServerHealthState.error("first error", "first description", HealthStateType.invalidConfig())
     second = ServerHealthState.error("second error", "second description", HealthStateType.invalidConfig())
@@ -37,10 +31,8 @@ describe "/server/_counts.json.erb" do
 
     render :partial => "server/counts.html.erb"
 
-    expect(response.body).to have_selector('a .messages .error_count', "Errors: 2")
-    expect(response.body).to have_selector('a .messages .warning_count', "Warnings: 1")
-    expect(response.body).to have_selector('.messages', /Errors: 2 &\s+ Warnings: 1/)
-    end
+    expect(response.body).to have_selector('a .messages', '2 errors and 1 warning')
+  end
 
   it "should render only errors if there are only errors in the header" do
     first = ServerHealthState.error("first error", "first description", HealthStateType.invalidConfig())
@@ -50,8 +42,7 @@ describe "/server/_counts.json.erb" do
 
     render :partial => "server/counts.html.erb"
 
-    expect(response.body).to have_selector('a .messages .error_count', "Errors: 2")
-    expect(response.body).to_not have_selector('.messages .warning_count')
+    expect(response.body).to have_selector('a .messages', "2 errors")
   end
 
   it "should render only warnings if there are only warnings in the header" do
@@ -61,14 +52,12 @@ describe "/server/_counts.json.erb" do
 
     render :partial => "server/counts.html.erb"
 
-    expect(response.body).to_not have_selector('.messages .error_count')
-    expect(response.body).to have_selector('a .messages .warning_count', "Warnings: 1")
+    expect(response.body).to have_selector('a .messages', "1 warning")
   end
 
   it "should not render errors and warnings when both are zero" do
     render :partial => "server/counts.html.erb"
 
-    expect(response.body).to_not have_selector('.messages .warning_count')
-    expect(response.body).to_not have_selector('.messages .error_count')
+    expect(response.body).to_not have_selector('a .messages')
   end
 end

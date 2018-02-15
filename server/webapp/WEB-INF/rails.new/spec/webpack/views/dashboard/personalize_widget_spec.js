@@ -211,4 +211,11 @@ describe("Dashboard Personalize Widget", () => {
     expect($root.find('#pipeline_up43')).toBeInDOM();
     expect($root.find('#pipeline_up44')).toBeInDOM();
   });
+
+  it('should not close the personalize dropdown when a click happens inside it', () => {
+    const personalizeDropdownDiv = $root.find('.filter_options');
+    expect(personalizeDropdownDiv).toBeInDOM();
+    personalizeDropdownDiv.click();
+    expect(personalizeDropdownDiv).toBeInDOM();
+  });
 });

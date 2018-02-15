@@ -71,7 +71,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
               "user_name":     "GoCD Test User <devnull@example.com>",
               "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
               "modified_time": "2017-12-19T05:30:32.000Z",
-              "comment":       "Initial commit"
+              "comment":       "Initial commit #1234"
             }
           ]
         }
@@ -111,6 +111,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
         return m(PipelineInstanceWidget, {
           instance,
           dropdown: dashboardViewModel.dropdown,
+          trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
           pipelineName
         });
       }
@@ -159,6 +160,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
     $root.find('.info a').get(1).click();
 
     expect($root.find('.material_changes')).toBeInDOM();
+    expect($root.find('.comment')).toHaveHtml("<p>Initial commit <a target='story_tracker' href='http://example.com/1234'>#1234</a></p>");
   });
 
   it("should render vsm link", () => {

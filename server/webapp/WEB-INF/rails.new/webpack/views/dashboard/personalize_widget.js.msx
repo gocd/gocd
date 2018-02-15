@@ -157,7 +157,7 @@ const PersonalizeWidget = {
       mayBeSpinner    = (<div class="page-spinner"/>);
     }
 
-    return (<div class={`filter_options`}>
+    return (<div class={`filter_options`} onclick={(e) => e.stopPropagation()}>
         <div class={inProgressClass}>
           <header class="filter_header">
             <h5> Select</h5>

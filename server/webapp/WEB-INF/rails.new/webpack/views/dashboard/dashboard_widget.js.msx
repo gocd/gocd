@@ -73,7 +73,7 @@ const DashboardWidget = {
       );
     };
 
-    self.togglePersonalizeDropdown = () => {
+    self.togglePersonalizeDropdown = (e) => {
       (vnode.attrs.vm.personalizeView.isOpen())
         ? self.pipelineSelection(undefined)
         : PipelineSelection.get().then((selection) => {
@@ -82,6 +82,7 @@ const DashboardWidget = {
         }).then(m.redraw);
 
       vnode.attrs.vm.personalizeView.toggle();
+      e.stopPropagation();
       m.redraw();
     };
 
@@ -89,6 +90,7 @@ const DashboardWidget = {
       const body = $("body");
       body.click(() => {
         vnode.attrs.vm.dropdown.hideAll();
+        vnode.attrs.vm.personalizeView.hide();
         m.redraw();
       });
     };

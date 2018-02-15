@@ -76,7 +76,22 @@ describe("Dashboard Widget", () => {
     });
   });
 
-  xit("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
+  it("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
+        responseText:    JSON.stringify({}),
+        responseHeaders: {
+          ETag:           'etag',
+          'Content-Type': 'application/vnd.go.cd.v2+json'
+        },
+        status:          200
+      });
+
+      $root.find('.filter_btn').click();
+      expect($root.find('.filter_options')).toBeInDOM();
+      $('body').click();
+      expect($root.find('.filter_options')).not.toBeInDOM();
+    });
   });
 
   it("should search for a pipeline", () => {

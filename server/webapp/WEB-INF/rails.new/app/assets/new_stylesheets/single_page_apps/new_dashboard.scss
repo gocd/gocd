@@ -1019,7 +1019,8 @@ $active-tab: #94399e;
       }
     }
     .rev {
-      @include ellipsis($width: 150px);
+      @include ellipsis($width: 100px);
+      min-width: 100px;
     }
 
     .committer {
@@ -1027,7 +1028,8 @@ $active-tab: #94399e;
     }
 
     .time {
-      @include ellipsis($width: 150px);
+      @include ellipsis($width: 220px);
+      min-width: 220px;
     }
   }
 

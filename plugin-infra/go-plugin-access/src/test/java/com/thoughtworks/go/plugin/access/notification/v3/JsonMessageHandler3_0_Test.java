@@ -36,7 +36,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -44,6 +43,8 @@ import static org.junit.Assert.fail;
 
 public class JsonMessageHandler3_0_Test {
     private JsonMessageHandler3_0 messageHandler;
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     @Before
     public void setUp() throws Exception {
@@ -100,14 +101,14 @@ public class JsonMessageHandler3_0_Test {
     @Test
     public void shouldConstructTheStageNotificationRequest() throws Exception {
         Pipeline pipeline = createPipeline();
-        String gitModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
-        String hgModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
-        String svnModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
-        String tfsModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
-        String p4ModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
-        String dependencyModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
-        String packageMaterialModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
-        String pluggableScmModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
+        String gitModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
+        String hgModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
+        String svnModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
+        String tfsModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
+        String p4ModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
+        String dependencyModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
+        String packageMaterialModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
+        String pluggableScmModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
         String expected = "{\n" +
                 "\t\"pipeline\": {\n" +
                 "\t\t\"name\": \"pipeline-name\",\n" +
@@ -242,13 +243,13 @@ public class JsonMessageHandler3_0_Test {
                 "\t\t\t\"approved-by\": \"changes\",\n" +
                 "\t\t\t\"state\": \"Passed\",\n" +
                 "\t\t\t\"result\": \"Passed\",\n" +
-                "\t\t\t\"create-time\": \"2011-07-13T19:43:37.100Z\",\n" +
-                "\t\t\t\"last-transition-time\": \"2011-07-13T19:43:37.100Z\",\n" +
+                "\t\t\t\"create-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "\t\t\t\"last-transition-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
                 "\t\t\t\"jobs\": [{\n" +
                 "\t\t\t\t\"name\": \"job-name\",\n" +
-                "\t\t\t\t\"schedule-time\": \"2011-07-13T19:43:37.100Z\",\n" +
-                "\t\t\t\t\"assign-time\": \"2011-07-13T19:43:37.100Z\",\n" +
-                "\t\t\t\t\"complete-time\": \"2011-07-13T19:43:37.100Z\",\n" +
+                "\t\t\t\t\"schedule-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "\t\t\t\t\"assign-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "\t\t\t\t\"complete-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
                 "\t\t\t\t\"state\": \"Completed\",\n" +
                 "\t\t\t\t\"result\": \"Passed\",\n" +
                 "\t\t\t\t\"agent-uuid\": \"uuid\"\n" +
@@ -330,7 +331,7 @@ public class JsonMessageHandler3_0_Test {
     }
 
     private Date getFixedDate() throws Exception {
-        return new SimpleDateFormat(DATE_PATTERN).parse("2011-07-13T19:43:37.100Z");
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse("2011-07-13T19:43:37.100+0530");
     }
 
     private Pipeline createPipeline() throws Exception {
@@ -352,5 +353,15 @@ public class JsonMessageHandler3_0_Test {
         job.getTransition(JobState.Assigned).setStateChangeTime(getFixedDate());
         job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
         return pipeline;
+    }
+
+    public static String dateToString(Date date) {
+        if (date != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
+            simpleDateFormat.setTimeZone(UTC);
+            return simpleDateFormat.format(date);
+        }
+
+        return "";
     }
 }

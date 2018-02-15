@@ -48,7 +48,7 @@ const PipelineInstanceWidget = {
     if (dropdown.isDropDownOpen(pipelineName)) {
       dropdownWidget = <div class="material_changes" onclick={(e) => e.stopPropagation()}>
         {_.map(instance.materialRevisions, (revision) => {
-          return (<MaterialRevisionWidget revision={revision}/>);
+          return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
         })}
       </div>;
     }

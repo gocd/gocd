@@ -82,7 +82,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="105"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="104"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>

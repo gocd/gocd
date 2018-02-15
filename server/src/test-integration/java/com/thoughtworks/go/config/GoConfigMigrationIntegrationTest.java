@@ -70,6 +70,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
+import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -1889,6 +1890,83 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("c46a08a7-921c-4e77-b748-6128975a3e7e")));
         assertThat(migratedContent, not(containsString("c46a08a7-921c-4e77-b748-6128975a3e7f")));
         assertThat(migratedContent, not(containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f17")));
+    }
+
+    @Test
+    public void shouldAddHttpPrefixToTrackingToolUrlsIfProtocolNotPresent() throws Exception {
+        String configXml = "<cruise schemaVersion='104'>\n" +
+                "<pipelines group='first'>" +
+                "    <pipeline name='up42'>\n" +
+                "      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
+                "      <materials>\n" +
+                "        <git url='test-repo' />\n" +
+                "      </materials>\n" +
+                "      <stage name='up42_stage'>\n" +
+                "        <jobs>\n" +
+                "          <job name='up42_job'>\n" +
+                "            <tasks>\n" +
+                "              <exec command='ls' />\n" +
+                "            </tasks>\n" +
+                "          </job>\n" +
+                "        </jobs>\n" +
+                "      </stage>\n" +
+                "    </pipeline>\n" +
+                "    <pipeline name='up43'>\n" +
+                "      <trackingtool link='https://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
+                "      <materials>\n" +
+                "        <git url='test-repo' />\n" +
+                "      </materials>\n" +
+                "      <stage name='up43_stage'>\n" +
+                "        <jobs>\n" +
+                "          <job name='up43_job'>\n" +
+                "            <tasks>\n" +
+                "              <exec command='ls' />\n" +
+                "            </tasks>\n" +
+                "          </job>\n" +
+                "        </jobs>\n" +
+                "      </stage>\n" +
+                "    </pipeline>\n" +
+                "  </pipelines>" +
+                "<pipelines group='second'>" +
+                "    <pipeline name='up12'>\n" +
+                "      <trackingtool link='http://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
+                "      <materials>\n" +
+                "        <git url='test-repo' />\n" +
+                "      </materials>\n" +
+                "      <stage name='up42_stage'>\n" +
+                "        <jobs>\n" +
+                "          <job name='up42_job'>\n" +
+                "            <tasks>\n" +
+                "              <exec command='ls' />\n" +
+                "            </tasks>\n" +
+                "          </job>\n" +
+                "        </jobs>\n" +
+                "      </stage>\n" +
+                "    </pipeline>\n" +
+                "    <pipeline name='up13'>\n" +
+                "      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
+                "      <materials>\n" +
+                "        <git url='test-repo' />\n" +
+                "      </materials>\n" +
+                "      <stage name='up43_stage'>\n" +
+                "        <jobs>\n" +
+                "          <job name='up43_job'>\n" +
+                "            <tasks>\n" +
+                "              <exec command='ls' />\n" +
+                "            </tasks>\n" +
+                "          </job>\n" +
+                "        </jobs>\n" +
+                "      </stage>\n" +
+                "    </pipeline>\n" +
+                "  </pipelines>" +
+                "</cruise>\n";
+
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 104);
+
+        assertThat(cruiseConfig.pipelines("first").findBy(str("up42")).getTrackingTool().getLink(), is("http://github.com/gocd/gocd/issues/${ID}"));
+        assertThat(cruiseConfig.pipelines("first").findBy(str("up43")).getTrackingTool().getLink(), is("https://github.com/gocd/gocd/issues/${ID}"));
+        assertThat(cruiseConfig.pipelines("second").findBy(str("up12")).getTrackingTool().getLink(), is("http://github.com/gocd/gocd/issues/${ID}"));
+        assertThat(cruiseConfig.pipelines("second").findBy(str("up13")).getTrackingTool().getLink(), is("http://github.com/gocd/gocd/issues/${ID}"));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

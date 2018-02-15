@@ -300,7 +300,24 @@ public class PipelineSelectionsServiceTest {
 
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
 
-        assertThat(pipelineSelectionsService.getSelectedPipelines("1", user.getId()), is(pipelineSelections));
+
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines("1", user.getId());
+        assertThat(selectedPipelines.isBlacklist(), is(true));
+        assertThat(selectedPipelines.pipelineList(), is(Arrays.asList("pipeline1", "pipelineX", "pipeline3")));
+    }
+
+    @Test
+    public void shouldReturnAllPipelinesWhenThereAreNoPreviouslyPersistedPipelineSelections() {
+        User user = getUser("loser", 10L);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig("pipeline1"), pipelineConfig("pipeline2"), pipelineConfig("pipelineX"), pipelineConfig("pipeline3")));
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        List<String> expectedPipelineList = Arrays.asList("pipeline1", "pipeline2", "pipelineX", "pipeline3");
+
+        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
+
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines("1", user.getId());
+        List<String> actualPipelineList = selectedPipelines.pipelineList();
+        assertThat(actualPipelineList, is(expectedPipelineList));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

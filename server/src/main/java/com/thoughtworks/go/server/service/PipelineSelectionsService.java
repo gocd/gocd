@@ -49,7 +49,7 @@ public class PipelineSelectionsService {
     }
 
     public PipelineSelections getSelectedPipelines(String id, Long userId){
-        PipelineSelections persistedPipelineSelections = getPersistedPipelineSelections(id, userId);
+        PipelineSelections persistedPipelineSelections = getPersistedSelectedPipelines(id, userId);
         if(persistedPipelineSelections.isBlacklist()){
             List<String> invertedPipelineSelections = invertSelections(persistedPipelineSelections.pipelineList());
             return new PipelineSelections(invertedPipelineSelections, persistedPipelineSelections.lastUpdated(), persistedPipelineSelections.userId(), persistedPipelineSelections.isBlacklist());

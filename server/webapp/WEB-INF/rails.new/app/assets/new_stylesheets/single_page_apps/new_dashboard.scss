@@ -781,12 +781,6 @@ body {
 
 //trigger with options
 
-$h-tab__head_width: 100%;
-$h-tab__container_width: 500px;
-
-$v-tab__head_width: 200px;
-$v-tab__container_width: 500px;
-
 $border-color: #ccc;
 $border-color-active: #94399e;
 $tab-hover-bg: #f5f5f5;
@@ -806,7 +800,7 @@ $active-tab: #94399e;
   margin:         0 0 30px 0;
   padding:        0;
   list-style:     none;
-  width:          $h-tab__head_width;
+  width:          100%;
   li {
     font-size:     16px;
     margin:        0 0 1px 0;
@@ -831,7 +825,7 @@ $active-tab: #94399e;
   }
 
   .h-tab_container {
-    width:      $h-tab__container_width;
+    width:      500px;
     min-height: 200px;
   }
 
@@ -854,19 +848,17 @@ $active-tab: #94399e;
   float:      left;
   list-style: none;
   height:     32px;
-  width:      $v-tab__head_width;
+  width:      250px;
   li {
-    // float: left;
     margin:        0 0 1px 0;
     cursor:        pointer;
-    padding:       0 10%;
+    //padding:       0 10%;
     height:        32px;
     line-height:   31px;
     color:         $tab-head-color;
     border-bottom: 0;
     overflow:      hidden;
     position:      relative;
-    width:         80%;
     &:hover {
       background-color: $tab-hover-bg;
       color:            #000;
@@ -878,6 +870,17 @@ $active-tab: #94399e;
       display:          block;
     }
   }
+
+  .last-run-revision {
+    @include ellipsis($width: 45%);
+    padding-left: 4%;
+    width:        48%;
+  }
+
+  .material-name {
+    @include ellipsis($width: 45%);
+    width: 48%;
+  }
 }
 
 .hidden {
@@ -887,7 +890,7 @@ $active-tab: #94399e;
 .v-tab_container {
   border-left: 1px solid $border-color;
   float:       left;
-  width:       $v-tab__container_width;
+  width:       100%;
   min-height:  132px;
 }
 
@@ -900,11 +903,9 @@ $active-tab: #94399e;
 
 //material latest run
 
-$name-value_width: 450px;
-
 .name-value {
   list-style-type: none;
-  width:           $name-value_width;
+  width:           80%;
 }
 
 @mixin label() {
@@ -919,9 +920,21 @@ $name-value_width: 450px;
 
   label {
     @include label;
+    width:     100px;
+    min-width: 100px;
   }
   > span {
     padding: 5px 10px 3px 0;
+  }
+
+  &.comment {
+    span {
+      @include ellipsis;
+      font-family: $font-family-monospace;
+      font-size:   12px;
+      height:      100px;
+      white-space: pre-wrap;
+    }
   }
 }
 
@@ -962,7 +975,6 @@ $name-value_width: 450px;
 }
 
 .commits {
-  position:   absolute;
   top:        42px;
   left:       0;
   background: #fff;
@@ -1003,17 +1015,29 @@ $name-value_width: 450px;
         &:before {
           border: 0;
           margin: 0;
-
         }
       }
     }
-  }
-  .commit_message {
-    padding:   5px 10px;
-    font-size: 12px;
-    p {
-      margin: 0;
+    .rev {
+      @include ellipsis($width: 150px);
     }
+
+    .committer {
+      @include ellipsis;
+    }
+
+    .time {
+      @include ellipsis($width: 150px);
+    }
+  }
+
+  .commit_message {
+    @include ellipsis;
+    font-family: $font-family-monospace;
+    font-size:   12px;
+    max-height:  60px;
+    padding:     5px 10px;
+    white-space: pre-wrap;
   }
 }
 

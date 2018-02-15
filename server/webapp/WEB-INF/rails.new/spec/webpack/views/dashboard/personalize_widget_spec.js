@@ -40,15 +40,21 @@ describe("Dashboard Personalize Widget", () => {
   };
 
   let pipelineSelection, vm;
+  let doRefreshImmediately, hideSelectionDropdown;
+
   beforeEach(() => {
-    pipelineSelection = Stream(PipelineSelection.fromJSON(json));
-    vm                = new PipelineSelectionVM();
+    pipelineSelection     = Stream(PipelineSelection.fromJSON(json));
+    vm                    = new PipelineSelectionVM();
+    doRefreshImmediately  = jasmine.createSpy('do-refresh-immediately');
+    hideSelectionDropdown = jasmine.createSpy('hide-selection');
     vm.initialize(pipelineSelection().pipelineGroups());
 
     m.mount(root, {
       view() {
         return m(PersonalizeWidget, {
           pipelineSelection,
+          doRefreshImmediately,
+          hideSelectionDropdown,
           vm
         });
       }
@@ -184,6 +190,30 @@ describe("Dashboard Personalize Widget", () => {
     $root.find('.btn-small.btn-primary').click();
 
     expect(selections.update).toHaveBeenCalled();
+  });
+
+  it('should close the dropdown on sucessfully appling the selection changes', () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'PUT').andReturn({
+        responseHeaders: {
+          ETag:           'etag',
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        },
+        status:          204
+      });
+
+      const selections = pipelineSelection();
+      pipelineSelection(selections);
+      m.redraw();
+
+      expect(doRefreshImmediately).not.toHaveBeenCalled();
+      expect(hideSelectionDropdown).not.toHaveBeenCalled();
+
+      $root.find('.btn-small.btn-primary').click();
+
+      expect(doRefreshImmediately).toHaveBeenCalled();
+      expect(hideSelectionDropdown).toHaveBeenCalled();
+    });
   });
 
   it('should expand first pipeline group by default', () => {

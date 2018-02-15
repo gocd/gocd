@@ -101,6 +101,7 @@ const DashboardWidget = {
     if (vm.personalizeView.isOpen()) {
       personalizeView = (<PersonalizeWidget pipelineSelection={vnode.state.pipelineSelection}
                                             doRefreshImmediately={vnode.attrs.doRefreshImmediately}
+                                            hideSelectionDropdown={vm.personalizeView.hide}
                                             vm={vnode.state.pipelineSelectionVM}/>);
     }
     return (

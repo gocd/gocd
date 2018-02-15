@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const Stream = require('mithril/stream');
-const _      = require('lodash');
+const m = require('mithril');
+const _ = require('lodash');
 
 const PersonalizeWidget = {
   oninit(vnode) {
-    const self            = vnode.state;
-    self.updateInProgress = Stream(false);
+    const self = vnode.state;
 
     const setSelectionForAllPipelines = (isSelected) => {
       const selections = vnode.attrs.pipelineSelection().selections;
@@ -80,13 +78,12 @@ const PersonalizeWidget = {
     };
 
     self.applySelectionFilter = () => {
-      self.updateInProgress(true);
       vnode.attrs.pipelineSelection().update()
-        .then(vnode.attrs.doRefreshImmediately)
-        .always(() => {
-          self.updateInProgress(false);
-          m.redraw();
-        });
+        .then(() => {
+          vnode.attrs.doRefreshImmediately();
+          vnode.attrs.hideSelectionDropdown();
+        })
+        .always(m.redraw);
     };
 
     self.getPipelineGroupCheckboxes = (groupName, pipelines) => {
@@ -151,41 +148,32 @@ const PersonalizeWidget = {
         }
       </div>);
 
-    let mayBeSpinner, inProgressClass = '';
-    if (vnode.state.updateInProgress()) {
-      inProgressClass = 'page-save-in-progress';
-      mayBeSpinner    = (<div class="page-spinner"/>);
-    }
-
     return (<div class={`filter_options`} onclick={(e) => e.stopPropagation()}>
-        <div class={inProgressClass}>
-          <header class="filter_header">
-            <h5> Select</h5>
-            <div class="selection">
-              <button class={`btn-select select-all ${ self.areAllPipelinesInState(true) ? 'selected' : ''}`}
-                      onclick={self.selectAll.bind(self)}>
-                All
-              </button>
-              <button class={`btn-select select-none ${ self.areAllPipelinesInState(false) ? 'selected' : ''}`}
-                      onclick={self.selectNone.bind(self)}>
-                None
-              </button>
-            </div>
-            <div class="recent-pipeline">
-              <input type="checkbox" id="show-newly-created-pipelines"
-                     checked={pipelineSelection.blacklist()}
-                     onclick={self.toggleBlacklist.bind(self)}/>
-              <label for="show-newly-created-pipelines">show recent pipelines</label>
-            </div>
-          </header>
-          {pipelineGroupCheckboxes}
-          <footer class="filter_footer">
-            <button class="btn-small btn-primary" onclick={self.applySelectionFilter.bind(self)}>
-              Apply
+        <header class="filter_header">
+          <h5> Select</h5>
+          <div class="selection">
+            <button class={`btn-select select-all ${ self.areAllPipelinesInState(true) ? 'selected' : ''}`}
+                    onclick={self.selectAll.bind(self)}>
+              All
             </button>
-          </footer>
-        </div>
-        {mayBeSpinner}
+            <button class={`btn-select select-none ${ self.areAllPipelinesInState(false) ? 'selected' : ''}`}
+                    onclick={self.selectNone.bind(self)}>
+              None
+            </button>
+          </div>
+          <div class="recent-pipeline">
+            <input type="checkbox" id="show-newly-created-pipelines"
+                   checked={pipelineSelection.blacklist()}
+                   onclick={self.toggleBlacklist.bind(self)}/>
+            <label for="show-newly-created-pipelines">show recent pipelines</label>
+          </div>
+        </header>
+        {pipelineGroupCheckboxes}
+        <footer class="filter_footer">
+          <button class="btn-small btn-primary" onclick={self.applySelectionFilter.bind(self)}>
+            Apply
+          </button>
+        </footer>
       </div>
     );
   }

@@ -35,9 +35,9 @@ const PipelineSelection = function (pipelineGroups, selections, blacklist) {
   this.update = () => {
     const allPipelines = self.selections;
     const selections   = [];
-    
-    _.keys(allPipelines).forEach((pipelineName) => {
-      if (allPipelines[pipelineName]()) {
+
+    _.each(allPipelines, (selection, pipelineName) => {
+      if (selection()) {
         selections.push(pipelineName);
       }
     });

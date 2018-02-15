@@ -201,10 +201,34 @@ public class PluginSettingsTest {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.addConfigurations(pluginInfo, configurationProperties);
 
-        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getSecurePluginSettingsProperties(pluginInfo);
+        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPropertiesWithEncryptedSecureValues(pluginInfo);
         assertThat(pluginSettingsProperties.size(), is(2));
         assertThat(pluginSettingsProperties.get(0), is(configProperty1));
         assertThat(pluginSettingsProperties.get(1), is(configProperty2));
+    }
+
+    @Test
+    public void getPropertiesWithEncryptedSecureValues_shouldCopyOverTheErrorForConfigProperties() throws InvalidCipherTextException {
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
+        pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty configProperty1 = new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"));
+        ConfigurationProperty configProperty2 = new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2")));
+
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(configProperty1);
+        configurationProperties.add(configProperty2);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, configurationProperties);
+        pluginSettings.getPluginSettingsProperties().get(0).addError("k1","error on k1");
+        pluginSettings.getPluginSettingsProperties().get(1).addError("k2","error on k2");
+
+        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPropertiesWithEncryptedSecureValues(pluginInfo);
+        assertThat(pluginSettingsProperties.get(0).errors().on("k1"), is("error on k1"));
+        assertThat(pluginSettingsProperties.get(1).errors().on("k2"), is("error on k2"));
     }
 
     private String toJSON(Map<String, String> map) {

@@ -47,7 +47,7 @@ module ApiV1
       end
 
       def configuration
-        plugin_settings.getSecurePluginSettingsProperties(represented[:plugin_info])
+        plugin_settings.getPropertiesWithEncryptedSecureValues(represented[:plugin_info])
       end
 
       def plugin_settings

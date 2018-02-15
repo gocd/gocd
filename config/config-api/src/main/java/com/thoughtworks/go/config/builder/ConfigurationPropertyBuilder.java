@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.builder;
 
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -26,7 +27,6 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class ConfigurationPropertyBuilder {
-
     private GoCipher cipher;
 
     public ConfigurationPropertyBuilder() {
@@ -67,6 +67,12 @@ public class ConfigurationPropertyBuilder {
             }
         }
 
+        return configurationProperty;
+    }
+
+    public ConfigurationProperty create(String key, String value, String encryptedValue, Boolean isSecure, ConfigErrors errors) {
+        final ConfigurationProperty configurationProperty = create(key, value, encryptedValue, isSecure);
+        configurationProperty.errors().addAll(errors);
         return configurationProperty;
     }
 

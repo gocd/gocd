@@ -29,7 +29,10 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PluginSettings {
     private static final String VALUE_KEY = "value";
@@ -70,7 +73,7 @@ public class PluginSettings {
         return map;
     }
 
-    public List<ConfigurationProperty> getSecurePluginSettingsProperties(PluginInfo pluginInfo) {
+    public List<ConfigurationProperty> getPropertiesWithEncryptedSecureValues(PluginInfo pluginInfo) {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
@@ -78,7 +81,7 @@ public class PluginSettings {
             for (ConfigurationProperty configurationProperty : settingsMap) {
                 PluginConfiguration pluginConfiguration = configPropertyFor(configurationProperty.getConfigKeyName(), pluginSettings);
                 if (pluginConfiguration != null && pluginConfiguration.isSecure()) {
-                    configurationProperties.add(builder.create(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue(), configurationProperty.getEncryptedValue(), true));
+                    configurationProperties.add(builder.create(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue(), configurationProperty.getEncryptedValue(), true, configurationProperty.errors()));
                 } else {
                     configurationProperties.add(configurationProperty);
                 }

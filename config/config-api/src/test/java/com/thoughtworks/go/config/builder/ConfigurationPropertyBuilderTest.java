@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config.builder;
 
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.security.GoCipher;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertThat;
 
 public class ConfigurationPropertyBuilderTest {
     @Test
-    public void shouldCreateConfigurationPropertyWithEncyrptedValueForSecureProperty() {
+    public void shouldCreateConfigurationPropertyWithEncryptedValueForSecureProperty() {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
@@ -38,7 +39,7 @@ public class ConfigurationPropertyBuilderTest {
     }
 
     @Test
-    public void shouldCreateWithEncyrptedValueForOnlyPlainTextInputForSecureProperty() throws Exception {
+    public void shouldCreateWithEncryptedValueForOnlyPlainTextInputForSecureProperty() throws Exception {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
@@ -108,5 +109,20 @@ public class ConfigurationPropertyBuilderTest {
 
         assertThat(property.getConfigurationValue().getValue(), is("value"));
         assertNull(property.getEncryptedConfigurationValue());
+    }
+
+    @Test
+    public void shouldCopyOverTheError_WhenErrorArePassedInParam() {
+        Property key = new Property("key");
+        key.with(Property.SECURE, false);
+
+        final ConfigErrors errors = new ConfigErrors();
+        errors.add("key", "Error on property");
+
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, false, errors);
+
+        assertThat(property.getConfigurationValue().getValue(), is("value"));
+        assertNull(property.getEncryptedConfigurationValue());
+        assertThat(property.errors().on("key"), is("Error on property"));
     }
 }

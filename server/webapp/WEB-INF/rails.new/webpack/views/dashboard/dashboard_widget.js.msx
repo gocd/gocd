@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const _               = require('lodash');
-const $               = require('jquery');
-const f               = require('helpers/form_helper');
-const ComponentMixins = require('helpers/mithril_component_mixins');
-const PipelineWidget  = require('views/dashboard/pipeline_widget');
+const m                   = require('mithril');
+const Stream              = require('mithril/stream');
+const _                   = require('lodash');
+const $                   = require('jquery');
+const ComponentMixins     = require('helpers/mithril_component_mixins');
+const PipelineWidget      = require('views/dashboard/pipeline_widget');
+const PersonalizeWidget   = require('views/dashboard/personalize_widget');
+const PipelineSelectionVM = require('views/dashboard/models/pipeline_selection_view_model');
+const PipelineSelection   = require('models/dashboard/pipeline_selection');
 
 const DashboardWidget = {
   oninit(vnode) {
-    const self     = vnode.state;
-    self.dashboard = Stream(vnode.attrs.dashboard);
+    const self               = vnode.state;
+    self.dashboard           = Stream(vnode.attrs.dashboard);
+    self.pipelineSelection   = Stream();
+    self.pipelineSelectionVM = new PipelineSelectionVM();
 
     const filterBySearchValue = _.debounce(() => {
       self.dashboard(vnode.attrs.dashboard.filterBy(vnode.attrs.vm.searchText().toLowerCase()));
@@ -40,15 +44,6 @@ const DashboardWidget = {
 
     ComponentMixins.HasViewModel.call(self);
 
-    const attachClickEventToBody = () => {
-      const body = $("body");
-      body.click(() => {
-        vnode.attrs.vm.dropdown.hideAll();
-        m.redraw();
-      });
-    };
-
-    attachClickEventToBody();
     self.getPipelinesGroupView = (pipelineGroup) => {
       const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
         return (
@@ -77,6 +72,28 @@ const DashboardWidget = {
         </div>
       );
     };
+
+    self.togglePersonalizeDropdown = () => {
+      (vnode.attrs.vm.personalizeView.isOpen())
+        ? self.pipelineSelection(undefined)
+        : PipelineSelection.get().then((selection) => {
+          self.pipelineSelection(selection);
+          self.pipelineSelectionVM.initialize(selection.pipelineGroups());
+        }).then(m.redraw);
+
+      vnode.attrs.vm.personalizeView.toggle();
+      m.redraw();
+    };
+
+    const attachClickEventToBody = () => {
+      const body = $("body");
+      body.click(() => {
+        vnode.attrs.vm.dropdown.hideAll();
+        m.redraw();
+      });
+    };
+
+    attachClickEventToBody();
   },
 
   view(vnode) {
@@ -84,23 +101,29 @@ const DashboardWidget = {
     const vm         = vnode.attrs.vm;
     const groupsView = _.map(self.dashboard().getPipelineGroups(), self.getPipelinesGroupView);
 
+    let personalizeView;
+
+    if (vm.personalizeView.isOpen()) {
+      personalizeView = (<PersonalizeWidget pipelineSelection={vnode.state.pipelineSelection}
+                                            doRefreshImmediately={vnode.attrs.doRefreshImmediately}
+                                            vm={vnode.state.pipelineSelectionVM}/>);
+    }
     return (
       <div class="pipeline_wrapper">
-        <div class="header-panel">
-          <header class="page-header">
-            <f.row>
-              <f.column>Pipelines</f.column>
-              <f.column>
-                <input type="text"
-                       oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
-                       value={vm.searchText()}
-                       placeholder="Search for Pipeline"
-                       id="pipeline_search"
-                       class="pipeline_search"
-                />
-              </f.column>
-            </f.row>
-          </header>
+        <div class="page_header">
+          <h1 class="page_title">Pipelines</h1>
+          <div class="filter">
+            <input type="text"
+                   class="pipeline-search"
+                   value={vm.searchText()}
+                   oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
+                   placeholder="Search for pipeline"/>
+            <button class="filter_btn"
+                    onclick={vnode.state.togglePersonalizeDropdown.bind(vnode.state)}>
+              Filter View <i class="fa fa-filter"/>
+            </button>
+          </div>
+          {personalizeView}
         </div>
         <div class="dashboard">
           {groupsView}

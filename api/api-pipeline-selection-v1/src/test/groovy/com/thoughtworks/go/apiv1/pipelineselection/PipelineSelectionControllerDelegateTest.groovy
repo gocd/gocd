@@ -126,7 +126,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         putWithApiHeader(controller.controllerBasePath(), payload)
 
         assertThatResponse()
-          .isOk()
+          .hasNoContent()
           .hasContentType(controller.mimeType)
           .hasNoBody()
       }
@@ -151,7 +151,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         putWithApiHeader(controller.controllerBasePath(), payload)
 
         assertThatResponse()
-          .isOk()
+          .hasNoContent()
           .hasContentType(controller.mimeType)
           .hasCookie("/go", "selected_pipelines", String.valueOf(recordId), 31536000, true, true)
           .hasNoBody()

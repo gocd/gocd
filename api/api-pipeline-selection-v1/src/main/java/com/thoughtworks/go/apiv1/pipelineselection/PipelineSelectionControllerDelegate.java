@@ -90,6 +90,9 @@ public class PipelineSelectionControllerDelegate extends ApiController {
         if (!apiAuthenticationHelper.securityEnabled()) {
             response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, true, true);
         }
+
+        response.status(204);
+
         return null;
     }
 }

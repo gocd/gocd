@@ -40,5 +40,9 @@ module.exports = {
       search_text:   searchText //eslint-disable-line camelcase
     });
     return `/go/api/internal/material_search?${queryString}`;
+  },
+
+    pipelineSelectionPath: () => {
+    return '/go/api/internal/pipeline_selection';
   }
 };

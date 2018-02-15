@@ -26,10 +26,27 @@ const VM = () => {
   const FAILURE_TYPE                          = "error";
   const MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS = 5000;
 
-  const pipelinesState = {};
+  const pipelinesState       = {};
+  const personalizeViewState = Stream(false);
 
   const viewModel = {
     searchText: Stream(''),
+
+    personalizeView: {
+      show: () => {
+        personalizeViewState(true);
+      },
+
+      hide: () => {
+        personalizeViewState(false);
+      },
+
+      toggle: () => {
+        personalizeViewState(!personalizeViewState());
+      },
+
+      isOpen: () => personalizeViewState()
+    },
 
     dropdown: {
       isDropDownOpen: (name) => pipelinesState[name][DROPDOWN_KEY](),

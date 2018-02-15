@@ -115,6 +115,10 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return hasStatus(200)
   }
 
+  MockHttpServletResponseAssert hasNoContent() {
+    return hasStatus(204)
+  }
+
   MockHttpServletResponseAssert isPreconditionFailed() {
     return hasStatus(412)
   }

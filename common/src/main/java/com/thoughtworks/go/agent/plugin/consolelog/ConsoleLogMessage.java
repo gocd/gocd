@@ -16,8 +16,13 @@
 
 package com.thoughtworks.go.agent.plugin.consolelog;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ConsoleLogMessage {
+    @SerializedName("message")
     private String message;
+
+    @SerializedName("logLevel")
     private LogLevel logLevel;
 
     public String getMessage() {

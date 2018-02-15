@@ -18,13 +18,16 @@ package com.thoughtworks.go.agent.plugin.consolelog.v1;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogMessage;
-import com.thoughtworks.go.agent.plugin.consolelog.ConsoleMessageConverter;
+import com.thoughtworks.go.agent.plugin.consolelog.JsonMessageHandler;
 
-public class ConsoleMessageConverterV1 implements ConsoleMessageConverter {
-
+public class JsonMessageHandlerV1 implements JsonMessageHandler {
     @Override
     public ConsoleLogMessage getConsoleLogMessage(String requestBody) {
-        return new Gson().fromJson(requestBody, ConsoleLogMessage.class);
+        return getConverter().toConsoleLogMessage(new Gson().fromJson(requestBody, ConsoleLogMessageDTO.class));
     }
-    
+
+    @Override
+    public ConsoleLogMessageConverterV1 getConverter() {
+        return new ConsoleLogMessageConverterV1();
+    }
 }

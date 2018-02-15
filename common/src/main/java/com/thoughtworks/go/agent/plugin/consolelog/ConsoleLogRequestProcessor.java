@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent.plugin.consolelog;
 
-import com.thoughtworks.go.agent.plugin.consolelog.v1.ConsoleMessageConverterV1;
+import com.thoughtworks.go.agent.plugin.consolelog.v1.JsonMessageHandlerV1;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -32,13 +32,13 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
-    private final HashMap<String, ConsoleMessageConverter> messageHandlerMap = new HashMap<>();
+    private final HashMap<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
     private static final List<String> goSupportedVersions = asList("1.0");
     private final GoPublisher goPublisher;
 
     public ConsoleLogRequestProcessor(GoPublisher goPublisher) {
         this.goPublisher = goPublisher;
-        messageHandlerMap.put("1.0", new ConsoleMessageConverterV1());
+        messageHandlerMap.put("1.0", new JsonMessageHandlerV1());
     }
 
     @Override
@@ -61,25 +61,21 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
     }
 
     private GoApiResponse processTaskPluginConsoleLogRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
-        final ConsoleLogMessage consoleLogMessage = converterFor(request.apiVersion()).getConsoleLogMessage(request.requestBody());
-        final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
-        return logToAgentConsole(consoleLogMessage.getLogLevel(), message, OUT, ERR);
+        return logToAgentConsole(pluginDescriptor, request, OUT, ERR);
     }
 
     private GoApiResponse processSCMPluginConsoleLogRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
-        final ConsoleLogMessage consoleLogMessage = converterFor(request.apiVersion()).getConsoleLogMessage(request.requestBody());
-        final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
-        return logToAgentConsole(consoleLogMessage.getLogLevel(), message, PREP, PREP_ERR);
+        return logToAgentConsole(pluginDescriptor, request, PREP, PREP_ERR);
     }
 
     private GoApiResponse processArtifactConsoleLogRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
-        final ConsoleLogMessage consoleLogMessage = converterFor(request.apiVersion()).getConsoleLogMessage(request.requestBody());
-        final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
-        return logToAgentConsole(consoleLogMessage.getLogLevel(), message, PUBLISH, PUBLISH_ERR);
+        return logToAgentConsole(pluginDescriptor, request, PUBLISH, PUBLISH_ERR);
     }
 
-    private GoApiResponse logToAgentConsole(LogLevel level, String message, String infoTag, String errorTag) {
-        switch (level) {
+    private GoApiResponse logToAgentConsole(GoPluginDescriptor pluginDescriptor, GoApiRequest request, String infoTag, String errorTag) {
+        final ConsoleLogMessage consoleLogMessage = messageHandler(request.apiVersion()).getConsoleLogMessage(request.requestBody());
+        final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
+        switch (consoleLogMessage.getLogLevel()) {
             case INFO:
                 goPublisher.taggedConsumeLine(infoTag, message);
                 break;
@@ -87,7 +83,7 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
                 goPublisher.taggedConsumeLine(errorTag, message);
                 break;
             default:
-                return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", level));
+                return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", consoleLogMessage.getLogLevel()));
         }
         return DefaultGoApiResponse.success(null);
     }
@@ -98,7 +94,7 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
         }
     }
 
-    private ConsoleMessageConverter converterFor(String apiVersion) {
+    private JsonMessageHandler messageHandler(String apiVersion) {
         return messageHandlerMap.get(apiVersion);
     }
 }

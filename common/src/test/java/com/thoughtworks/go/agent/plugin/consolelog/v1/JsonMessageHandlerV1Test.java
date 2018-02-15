@@ -21,14 +21,13 @@ import com.thoughtworks.go.agent.plugin.consolelog.LogLevel;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
-public class ConsoleMessageConverterV1Test {
+public class JsonMessageHandlerV1Test {
     @Test
     public void shouldDeserializeJsonWithInfoLogLevel() {
-        final ConsoleLogMessage consoleLogMessage = new ConsoleMessageConverterV1()
-                .getConsoleLogMessage("{\"logLevel\":\"INFO\",\"message\":\"This is info message.\"}");
+        final ConsoleLogMessage consoleLogMessage = new JsonMessageHandlerV1()
+                .getConsoleLogMessage("{\"logLevel\":\"info\",\"message\":\"This is info message.\"}");
 
         assertNotNull(consoleLogMessage);
         assertThat(consoleLogMessage.getLogLevel(), is(LogLevel.INFO));
@@ -37,11 +36,16 @@ public class ConsoleMessageConverterV1Test {
 
     @Test
     public void shouldDeserializeJsonWithErrorLogLevel() {
-        final ConsoleLogMessage consoleLogMessage = new ConsoleMessageConverterV1()
+        final ConsoleLogMessage consoleLogMessage = new JsonMessageHandlerV1()
                 .getConsoleLogMessage("{\"logLevel\":\"ERROR\",\"message\":\"This is error.\"}");
 
         assertNotNull(consoleLogMessage);
         assertThat(consoleLogMessage.getLogLevel(), is(LogLevel.ERROR));
         assertThat(consoleLogMessage.getMessage(), is("This is error."));
+    }
+
+    @Test
+    public void shouldGetConsoleLogMessageConverter() {
+        assertTrue(new JsonMessageHandlerV1().getConverter() instanceof ConsoleLogMessageConverterV1);
     }
 }

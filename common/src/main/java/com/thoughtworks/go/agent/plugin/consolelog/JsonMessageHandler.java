@@ -16,20 +16,10 @@
 
 package com.thoughtworks.go.agent.plugin.consolelog;
 
-public class ConsoleLogMessage {
-    private String message;
-    private LogLevel logLevel;
+import com.thoughtworks.go.agent.plugin.consolelog.v1.ConsoleLogMessageConverterV1;
 
-    public ConsoleLogMessage(String message, LogLevel logLevel) {
-        this.message = message;
-        this.logLevel = logLevel;
-    }
+public interface JsonMessageHandler {
+    ConsoleLogMessage getConsoleLogMessage(String requestBody);
 
-    public String getMessage() {
-        return message;
-    }
-
-    public LogLevel getLogLevel() {
-        return logLevel;
-    }
+    ConsoleLogMessageConverterV1 getConverter();
 }

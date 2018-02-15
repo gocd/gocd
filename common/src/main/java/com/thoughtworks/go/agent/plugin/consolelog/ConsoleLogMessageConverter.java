@@ -16,6 +16,6 @@
 
 package com.thoughtworks.go.agent.plugin.consolelog;
 
-public interface ConsoleMessageConverter {
-    ConsoleLogMessage getConsoleLogMessage(String requestBody);
+public interface ConsoleLogMessageConverter<DTO> {
+    ConsoleLogMessage toConsoleLogMessage(DTO dto);
 }

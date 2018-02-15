@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.agent.plugin.consolelog;
+package com.thoughtworks.go.agent.plugin.consolelog.v1;
 
-public class ConsoleLogMessage {
+import com.google.gson.annotations.SerializedName;
+
+public class ConsoleLogMessageDTO {
+    @SerializedName("message")
     private String message;
-    private LogLevel logLevel;
 
-    public ConsoleLogMessage(String message, LogLevel logLevel) {
-        this.message = message;
-        this.logLevel = logLevel;
-    }
+    @SerializedName("logLevel")
+    private String logLevel;
 
     public String getMessage() {
         return message;
     }
 
-    public LogLevel getLogLevel() {
+    public String getLogLevel() {
         return logLevel;
     }
 }

@@ -15,11 +15,9 @@
  */
 
 const _           = require('lodash');
-const $           = require('jquery');
-const m           = require('mithril');
-const mrequest    = require('helpers/mrequest');
 const VMRoutes    = require('helpers/vm_routes');
 const SparkRoutes = require('helpers/spark_routes');
+const AjaxHelper  = require('helpers/ajax_helper');
 const Routes      = require('gen/js-routes');
 
 const PipelineInstance = require('models/dashboard/pipeline_instance');
@@ -56,33 +54,8 @@ const Pipeline = function (info) {
     return false;
   };
 
-  const config = (xhr) => {
-    xhr.setRequestHeader("X-GoCD-Confirm", "true");
-    mrequest.xhrConfig.forVersion('v1')(xhr);
-  };
-
-  function postURL(url, data = {}) {
-    return $.Deferred(function () {
-      const deferred = this;
-
-      const jqXHR = $.ajax({
-        method:     'POST',
-        url,
-        timeout:    mrequest.timeout,
-        data:       JSON.stringify(data),
-        beforeSend: config
-      });
-
-      jqXHR.then((data) => {
-        deferred.resolve(data);
-      });
-
-      jqXHR.fail((res) => {
-        deferred.reject(res);
-      });
-
-      jqXHR.always(m.redraw);
-    }).promise();
+  function postURL(url, payload = {}) {
+    return AjaxHelper.POST({url, apiVersion: 'v1', payload});
   }
 
   this.unpause = () => {

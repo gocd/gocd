@@ -45,8 +45,9 @@ describe("Dashboard Material Search State Model", () => {
     });
 
     it("should select a revision for the material", () => {
-      const materialVM = vm[materials[0].name];
-      const revision   = 'foo';
+      const materialVM           = vm[materials[0].name];
+      materialVM.debouncedSearch = jasmine.createSpy('debounced-search');
+      const revision             = 'foo';
 
       expect(materialVM.searchText()).toBe('');
       expect(materials[0].selection()).toBe(undefined);

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-const $        = require('jquery');
-const m        = require('mithril');
-const _        = require('lodash');
-const Stream   = require('mithril/stream');
-const mrequest = require('helpers/mrequest');
-const Routes   = require('gen/js-routes');
+const _          = require('lodash');
+const m          = require('mithril');
+const Stream     = require('mithril/stream');
+const AjaxHelper = require('helpers/ajax_helper');
+const Routes     = require('gen/js-routes');
 
 const PipelineGroups = require('models/dashboard/pipeline_groups');
 const Pipelines      = require('models/dashboard/pipelines');
@@ -60,23 +59,10 @@ const Dashboard = function () {
 Dashboard.API_VERSION = 'v2';
 
 Dashboard.get = () => {
-  return $.Deferred(function () {
-    const deferred = this;
-
-    const jqXHR = $.ajax({
-      method:      'GET',
-      url:         Routes.apiv2ShowDashboardPath(), //eslint-disable-line camelcase
-      beforeSend:  mrequest.xhrConfig.forVersion(Dashboard.API_VERSION),
-      contentType: false
-    });
-
-    jqXHR.then((data) => {
-      deferred.resolve(data);
-    });
-
-    jqXHR.always(m.redraw);
-
-  }).promise();
+  return AjaxHelper.GET({
+    url:        Routes.apiv2ShowDashboardPath(), //eslint-disable-line camelcase
+    apiVersion: Dashboard.API_VERSION
+  });
 };
 
 module.exports = Dashboard;

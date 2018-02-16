@@ -19,16 +19,16 @@ const m        = require('mithril');
 const $        = require('jquery');
 const mrequest = require('helpers/mrequest');
 
-function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, contentType=false} = {}) {
+function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, contentType = false} = {}) {
   return $.Deferred(function () {
     const deferred = this;
 
     const jqXHR = $.ajax({
       method,
       url,
-      data: JSON.stringify(payload),
+      data:       JSON.stringify(payload),
       timeout,
-      beforeSend:  mrequest.xhrConfig.forVersion(apiVersion),
+      beforeSend: mrequest.xhrConfig.forVersion(apiVersion),
       contentType
     });
 
@@ -50,6 +50,10 @@ module.exports = class AjaxHelper {
 
   static PUT({url, apiVersion, timeout = mrequest.timeout, payload}) {
     return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, contentType: 'application/json'});
+  }
+
+  static POST({url, apiVersion, timeout = mrequest.timeout, payload}) {
+    return makeRequest({method: 'POST', url, apiVersion, timeout, payload, contentType: 'application/json'});
   }
 };
 

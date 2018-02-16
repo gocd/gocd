@@ -15,10 +15,26 @@
  */
 
 describe("Dashboard", () => {
+
   describe('Dashboard Model', () => {
-    const Dashboard      = require('models/dashboard/dashboard');
-    const PipelineGroups = require('models/dashboard/pipeline_groups');
-    const Pipelines      = require('models/dashboard/pipelines');
+    const _ = require('lodash');
+
+    const Dashboard        = require('models/dashboard/dashboard');
+    const PipelineGroups   = require('models/dashboard/pipeline_groups');
+    const Pipelines        = require('models/dashboard/pipelines');
+    const originalDebounce = _.debounce;
+
+    beforeAll(() => {
+      spyOn(_, 'debounce').and.callFake((func) => {
+        return function () {
+          func.apply(this, arguments);
+        };
+      });
+    });
+
+    afterAll(() => {
+      _.debounce = originalDebounce;
+    });
 
     it("should get pipeline groups", () => {
       const dashboard = new Dashboard();
@@ -55,14 +71,15 @@ describe("Dashboard", () => {
       const dashboard = new Dashboard();
       dashboard.initialize(dashboardData);
 
-      expect(dashboard.allPipelineNames()).toEqual(['up42']);
-
+      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
       dashboard.searchText("up");
-      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
       dashboard.searchText("42");
-      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
       dashboard.searchText("up42");
-      expect(dashboard.allPipelineNames()).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      dashboard.searchText("up42-some-more");
+      expect(dashboard.getPipelineGroups()).toEqual([]);
     });
 
     it('should get new dashboard json', () => {

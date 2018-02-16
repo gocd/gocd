@@ -19,18 +19,19 @@ const $ = require('jquery');
 const setHeaders = (xhr, version) => {
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.setRequestHeader("Accept", mrequest.versionHeader(version));
+  xhr.setRequestHeader("X-GoCD-Confirm", "true");
   const csrfToken = $('meta[name=csrf-token]').attr('content');
   if (csrfToken) {
     xhr.setRequestHeader('X-CSRF-Token', csrfToken);
   }
 };
 
-const mrequest   = {
-  timeout:       5000,
+const mrequest = {
+  timeout:   5000,
   versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;
   },
-  xhrConfig:     {
+  xhrConfig: {
     v1:         (xhr) => {
       setHeaders(xhr, 'v1');
     },

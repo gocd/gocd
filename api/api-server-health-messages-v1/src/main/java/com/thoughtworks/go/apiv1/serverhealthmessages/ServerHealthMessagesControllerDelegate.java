@@ -28,6 +28,9 @@ import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
+import java.util.List;
+import java.util.Map;
+
 import static spark.Spark.*;
 
 public class ServerHealthMessagesControllerDelegate extends ApiController {
@@ -61,6 +64,14 @@ public class ServerHealthMessagesControllerDelegate extends ApiController {
 
     public Object show(Request request, Response response) {
         ServerHealthStates allLogs = serverHealthService.logs();
-        return ServerHealthMessagesRepresenter.toJSON(allLogs, null);
+        List<Map<String, Object>> map = ServerHealthMessagesRepresenter.toJSON(allLogs, null);
+        String etag = etagFor(map);
+
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, etag);
+        return map;
     }
 }

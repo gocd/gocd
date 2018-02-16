@@ -26,6 +26,7 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -67,6 +68,17 @@ class ServerHealthMessagesControllerDelegateTest implements SecurityServiceTrait
           .isOk()
           .hasContentType(controller.mimeType)
           .hasJsonBodySerializedWith([state], ServerHealthMessagesRepresenter)
+      }
+
+      @Test
+      void 'should render 304 if content matches'() {
+        def etag = '"' + controller.etagFor(ServerHealthMessagesRepresenter.toJSON([], new TestRequestContext())) + '"'
+        getWithApiHeader(Routes.ServerHealthMessages.BASE, ['if-none-match': etag])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+          .hasNoBody()
       }
     }
   }

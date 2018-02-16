@@ -17,15 +17,18 @@
 package com.thoughtworks.go.api;
 
 
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -74,6 +77,14 @@ public interface ControllerMethods {
             return;
         }
         res.header("ETag", '"' + value + '"');
+    }
+
+    default String etagFor(Map map) {
+        return DigestUtils.md5Hex(GsonTransformer.getInstance().render(map));
+    }
+
+    default String etagFor(List list) {
+        return DigestUtils.md5Hex(GsonTransformer.getInstance().render(list));
     }
 
     default Map<String, Object> renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {

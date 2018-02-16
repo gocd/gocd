@@ -68,7 +68,14 @@ public class DashboardControllerDelegate extends ApiController {
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(selectedPipelinesCookie, userId);
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
+        Map map = PipelineGroupsRepresenter.toJSON(pipelineGroups, RequestContext.requestContext(request), userName);
+        String etag = etagFor(map);
 
-        return PipelineGroupsRepresenter.toJSON(pipelineGroups, RequestContext.requestContext(request), userName);
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, etag);
+        return map;
     }
 }

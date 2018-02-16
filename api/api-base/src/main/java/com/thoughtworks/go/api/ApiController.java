@@ -45,7 +45,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
 
     protected void setContentType(Request req, Response res) {
         res.raw().setCharacterEncoding("utf-8");
-        res.header("Content-Type", mimeType);
+        res.type(mimeType);
     }
 
     protected String messageJson(Exception ex) {

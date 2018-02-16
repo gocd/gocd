@@ -17,33 +17,35 @@
 package com.thoughtworks.go.apiv1.materialsearch.representers
 
 import com.thoughtworks.go.domain.materials.MatchedRevision
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class MatchedRevisionRepresenterTest {
 
   @Test
   void 'should create json'() {
-    def commitDate = new Date()
-    def pipelineDate = new Date();
+    def commitDate = new Date(10000)
+    def pipelineDate = new Date(20000)
     def matchedRevisions = [
       new MatchedRevision("abc", "9ea1cf", "9ea1cf0ae04be6088242a5b6275ed36eadfcf205", "username", commitDate, "commit message"),
       new MatchedRevision("abc", "pipeline/1/stage/1", pipelineDate, "label")
     ]
-    def actualJson = MatchedRevisionRepresenter.toJSON(matchedRevisions, new TestRequestContext());
+
+    def actualJson = toArrayString({ MatchedRevisionRepresenter.toJSON(it, matchedRevisions) })
 
     assertThatJson(actualJson).isEqualTo([
       [
         "revision": "9ea1cf0ae04be6088242a5b6275ed36eadfcf205",
         "user"    : "username",
-        "date"    : commitDate,
+        "date"    : jsonDate(commitDate),
         "comment" : "commit message"
       ],
       [
         "revision": "pipeline/1/stage/1",
-        "date"    : pipelineDate,
+        "date"    : jsonDate(pipelineDate),
         "comment" : "label"
       ]
     ])

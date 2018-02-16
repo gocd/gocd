@@ -20,18 +20,18 @@ package com.thoughtworks.go.apiv1.admin.backups;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
+
+import java.io.IOException;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseDeprecatedConfirmHeaderMissing;
 import static spark.Spark.*;
@@ -67,17 +67,17 @@ public class BackupsControllerDelegate extends ApiController {
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
 
-            post("", mimeType, this::create, GsonTransformer.getInstance());
+            post("", mimeType, this::create);
         });
     }
 
-    public Object create(Request request, Response response) {
+    public String create(Request request, Response response) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerBackup backup = backupService.startBackup(currentUsername(), result);
         if (result.isSuccessful()) {
-            return BackupRepresenter.toJSON(backup, RequestContext.requestContext(request));
+            return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
         }
-        return renderHTTPOperationResult(result, response, localizer);
+        return renderHTTPOperationResult(result, request, response, localizer);
     }
 
     private void verifyConfirmHeader(Request request, Response response) {

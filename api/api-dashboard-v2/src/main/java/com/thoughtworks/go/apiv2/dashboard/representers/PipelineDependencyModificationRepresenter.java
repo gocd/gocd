@@ -16,30 +16,28 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.Map;
 
 public class PipelineDependencyModificationRepresenter {
 
-    public static Map toJSON(Modification model, RequestContext requestContext, DependencyMaterialRevision latestRevision) {
-        return new JsonWriter(requestContext)
-
-                .addLink("vsm", Routes.PipelineInstance.vsm(
+    public static void toJSON(OutputWriter jsonOutputWriter, Modification model, DependencyMaterialRevision latestRevision) {
+        jsonOutputWriter
+            .addLinks((linksWriter) -> {
+                linksWriter
+                    .addLink("vsm", Routes.PipelineInstance.vsm(
                         latestRevision.getPipelineName(),
                         latestRevision.getPipelineCounter()))
-                .addLink("stage_details_url", Routes.Stage.stageDetailTab(
+                    .addLink("stage_details_url", Routes.Stage.stageDetailTab(
                         latestRevision.getPipelineName(),
                         latestRevision.getPipelineCounter(),
                         latestRevision.getStageName(),
-                        latestRevision.getStageCounter()))
-
-                .addIfNotNull("revision", model.getRevision())
-                .addIfNotNull("modified_time", model.getModifiedTime())
-                .addIfNotNull("pipeline_label", model.getPipelineLabel()).getAsMap();
+                        latestRevision.getStageCounter()));
+            })
+            .addIfNotNull("revision", model.getRevision())
+            .addIfNotNull("modified_time", model.getModifiedTime())
+            .addIfNotNull("pipeline_label", model.getPipelineLabel());
     }
 }

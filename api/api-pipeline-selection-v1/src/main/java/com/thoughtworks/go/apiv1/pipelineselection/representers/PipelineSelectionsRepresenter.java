@@ -16,38 +16,28 @@
 
 package com.thoughtworks.go.apiv1.pipelineselection.representers;
 
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PipelineSelectionsRepresenter {
-    public static Map<String, Object> toJSON(PipelineSelectionResponse pipelineSelectionResponse, RequestContext requestContext) {
-
-        return new JsonWriter(requestContext)
-                .add("selections", pipelineSelectionResponse.getSelectedPipelines().pipelineList())
-                .add("blacklist", pipelineSelectionResponse.getSelectedPipelines().isBlacklist())
-                .add("pipelines", pipelines(pipelineSelectionResponse, requestContext))
-                .getAsMap();
-    }
-
-    private static Map<String, Object> pipelines(PipelineSelectionResponse pipelineSelectionResponse, RequestContext requestContext) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-
-        pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
-            List<String> pipelineNames = pipelineConfigs.getPipelines().stream().map(PipelineConfig::getName).map(CaseInsensitiveString::toString).collect(Collectors.toList());
-            jsonWriter.add(pipelineConfigs.getGroup(), pipelineNames);
-        });
-
-        return jsonWriter.getAsMap();
+    public static void toJSON(OutputWriter writer, PipelineSelectionResponse pipelineSelectionResponse) {
+        writer.addChildList("selections", pipelineSelectionResponse.getSelectedPipelines().pipelineList())
+            .add("blacklist", pipelineSelectionResponse.getSelectedPipelines().isBlacklist())
+            .addChild("pipelines", pipelineGroupsWriter -> {
+                pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
+                        List<String> pipelineNames = pipelineConfigs.getPipelines().stream().map(PipelineConfig::getName).map(CaseInsensitiveString::toString).collect(Collectors.toList());
+                        pipelineGroupsWriter.addChildList(pipelineConfigs.getGroup(), pipelineNames);
+                    }
+                );
+            });
     }
 
     public static PipelineSelectionResponse fromJSON(JsonReader reader) {
@@ -56,4 +46,6 @@ public class PipelineSelectionsRepresenter {
 
         return new PipelineSelectionResponse(new PipelineSelections(selections, new Date(), -1L, blacklist), null);
     }
+
+
 }

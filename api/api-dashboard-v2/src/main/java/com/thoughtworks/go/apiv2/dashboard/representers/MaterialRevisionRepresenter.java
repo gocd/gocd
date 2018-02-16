@@ -16,29 +16,24 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.spark.RequestContext;
-
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
 
 public class MaterialRevisionRepresenter {
 
-    public static Map toJSON(MaterialRevision model, RequestContext requestContext) {
-        return new JsonWriter(requestContext)
-                .add("material_type", model.getMaterialType())
-                .add("material_name", model.getMaterialName())
-                .add("changed", model.isChanged())
-                .add("modifications", model.getModifications().stream().map(modification -> {
-                    if ("Pipeline".equals(model.getMaterial().getTypeForDisplay())) {
-                        //copied from ruby: not typesafe, can be improved
-                        return PipelineDependencyModificationRepresenter.toJSON(modification, requestContext, (DependencyMaterialRevision) model.getRevision());
-                    }
-                    return ModificationRepresenter.toJSON(modification, requestContext, model.getMaterial());
-                }).collect(toList())).getAsMap();
+    public static void toJSON(OutputWriter jsonOutputWriter, MaterialRevision model) {
+        jsonOutputWriter
+            .add("material_type", model.getMaterialType())
+            .add("material_name", model.getMaterialName())
+            .add("changed", model.isChanged())
+            .addChildList("modifications", listWriter -> model.getModifications().forEach(modification -> listWriter.addChild(childWriter -> {
+                if (model.getMaterial() instanceof DependencyMaterial) {
+                    PipelineDependencyModificationRepresenter.toJSON(jsonOutputWriter, modification, (DependencyMaterialRevision) model.getRevision());
+                } else {
+                    ModificationRepresenter.toJSON(jsonOutputWriter, modification, model.getMaterial());
+                }
+            })));
     }
-
 }

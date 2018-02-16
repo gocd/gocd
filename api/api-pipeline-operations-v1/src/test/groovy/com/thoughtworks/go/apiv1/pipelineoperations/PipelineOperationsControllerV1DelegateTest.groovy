@@ -424,7 +424,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(new TriggerOptions(variables, model), TriggerWithOptionsViewRepresenter.class)
+          .hasBodyWithJsonObject(new TriggerOptions(variables, model), TriggerWithOptionsViewRepresenter.class)
       }
 
       @Test

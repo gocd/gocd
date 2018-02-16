@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.api
 
+import com.google.gson.Gson
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
 import org.junit.jupiter.api.BeforeEach
@@ -37,7 +38,7 @@ trait SecurityTestTrait {
       Request req = invocation.arguments.first()
       Response res = invocation.arguments.last()
       res.status(99999)
-      return [message: reachedControllerMessage]
+      return new Gson().toJson([message: reachedControllerMessage])
     }).when(controller)."${controllerMethodUnderTest}"(any() as Request, any() as Response)
   }
 

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api.util;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+
 import static java.lang.String.format;
 
 public abstract class HaltApiMessages {
@@ -36,7 +38,11 @@ public abstract class HaltApiMessages {
         return String.format("Renaming of %s is not supported by this API.", entityType);
     }
 
-    public static String etagDoesNotMatch(String entityType, Object name) {
+    public static String etagDoesNotMatch(String entityType, CaseInsensitiveString name) {
+        return etagDoesNotMatch(entityType, name.toString());
+    }
+
+    public static String etagDoesNotMatch(String entityType, String name) {
         return String.format("Someone has modified the configuration for %s `%s'. Please update your copy of the config with the changes and try again.", entityType, name);
     }
 

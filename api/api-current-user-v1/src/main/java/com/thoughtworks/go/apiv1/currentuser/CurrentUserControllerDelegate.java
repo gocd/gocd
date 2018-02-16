@@ -20,12 +20,10 @@ package com.thoughtworks.go.apiv1.currentuser;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.user.representers.UserRepresenter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +31,7 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -64,27 +63,27 @@ public class CurrentUserControllerDelegate extends ApiController {
             before("", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
             before("/*", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
 
-            get("", mimeType, this::show, GsonTransformer.getInstance());
-            head("", mimeType, this::show, GsonTransformer.getInstance());
+            get("", mimeType, this::show);
+            head("", mimeType, this::show);
 
-            patch("", mimeType, this::update, GsonTransformer.getInstance());
+            patch("", mimeType, this::update);
         });
     }
 
-    public Object show(Request req, Response res) {
+    public String show(Request req, Response res) throws IOException {
         User user = userService.findUserByName(currentUserLoginName().toString());
-        Map map = UserRepresenter.toJSON(user, RequestContext.requestContext(req));
-        String etag = etagFor(map);
+        String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, user));
+        String etag = etagFor(json);
 
         if (fresh(req, etag)) {
             return notModified(res);
         }
 
         setEtagHeader(res, etag);
-        return map;
+        return json;
     }
 
-    public Object update(Request req, Response res) {
+    public String update(Request req, Response res) throws IOException {
         User user = userService.findUserByName(currentUserLoginName().toString());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -105,11 +104,11 @@ public class CurrentUserControllerDelegate extends ApiController {
         TriState emailMe = TriState.from(String.valueOf(map.get("email_me")));
         String email = (String) map.get("email");
 
-        user = userService.save(user, TriState.from(null), emailMe, email, checkinAliases, result);
+        User serializedUser = userService.save(user, TriState.from(null), emailMe, email, checkinAliases, result);
 
-        Map responseMap = UserRepresenter.toJSON(user, RequestContext.requestContext(req));
-        String etag = etagFor(responseMap);
+        String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, serializedUser));
+        String etag = etagFor(json);
         setEtagHeader(res, etag);
-        return responseMap;
+        return json;
     }
 }

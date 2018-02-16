@@ -17,30 +17,19 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RolesRepresenter {
 
-    private static JsonWriter addLinks(JsonWriter jsonWriter) {
-        return jsonWriter.addLink("self", Routes.Roles.BASE)
-                .addDocLink(Routes.Roles.DOC)
-                .addLink("find", Routes.Roles.find());
-    }
-
-    public static Map toJSON(List<Role> roles, RequestContext requestContext) {
-        List<Map> rolesArray = roles.stream()
-                .map(role -> RoleRepresenter.toJSON(role, requestContext))
-                .collect(Collectors.toList());
-
-        return addLinks(new JsonWriter(requestContext))
-                .addEmbedded("roles", rolesArray)
-                .getAsMap();
+    public static void toJSON(OutputWriter writer, List<Role> roles) {
+        writer.addLinks(
+            outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Roles.DOC)
+                .addLink("find", Routes.Roles.find())
+                .addLink("self", Routes.Roles.BASE))
+            .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("roles", rolesWriter -> roles.forEach(role -> rolesWriter.addChild(roleWriter -> RoleRepresenter.toJSON(roleWriter, role)))));
     }
 }

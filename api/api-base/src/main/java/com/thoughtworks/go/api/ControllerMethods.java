@@ -17,24 +17,29 @@
 package com.thoughtworks.go.api;
 
 
-import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.base.JsonOutputWriter;
+import com.thoughtworks.go.api.base.OutputListWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.spark.RequestContext;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 
 public interface ControllerMethods {
+
+    String NOTHING = "";
 
     default boolean fresh(Request req, String etagFromServer) {
         String etagFromClient = getIfNoneMatch(req);
@@ -62,9 +67,9 @@ public interface ControllerMethods {
         return etag.replaceAll("^\"(.*)\"$", "$1").replaceAll("(.*)(--(gzip|deflate))", "$1");
     }
 
-    default <ALWAYS_NULL> ALWAYS_NULL notModified(Response res) {
+    default String notModified(Response res) {
         res.status(304);
-        return null;
+        return NOTHING;
     }
 
     default void notFound(Exception ex, Request req, Response res) {
@@ -79,22 +84,40 @@ public interface ControllerMethods {
         res.header("ETag", '"' + value + '"');
     }
 
-    default String etagFor(Map map) {
-        return DigestUtils.md5Hex(GsonTransformer.getInstance().render(map));
+    default String etagFor(String str) {
+        return DigestUtils.md5Hex(str);
     }
 
-    default String etagFor(List list) {
-        return DigestUtils.md5Hex(GsonTransformer.getInstance().render(list));
-    }
-
-    default Map<String, Object> renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
+    default String renderHTTPOperationResult(HttpLocalizedOperationResult result, Request request, Response response, Localizer localizer) throws IOException {
         response.status(result.httpCode());
-        return Collections.singletonMap("message", result.message(localizer));
+        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.message(localizer)));
     }
 
-    default Map<String, Object> renderHTTPOperationResult(HttpOperationResult result, Response response) {
+    default String renderHTTPOperationResult(HttpOperationResult result, Request request, Response response) throws IOException {
         response.status(result.httpCode());
-        return Collections.singletonMap("message", result.message());
+        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.message()));
+    }
+
+    default String writerForTopLevelObject(Request request, Response response, Consumer<OutputWriter> consumer) throws IOException {
+        new JsonOutputWriter(response.raw().getWriter(), RequestContext.requestContext(request)).forTopLevelObject(consumer);
+        return NOTHING;
+    }
+
+    default String writerForTopLevelArray(Request request, Response response, Consumer<OutputListWriter> consumer) throws IOException {
+        new JsonOutputWriter(response.raw().getWriter(), RequestContext.requestContext(request)).forTopLevelArray(consumer);
+        return NOTHING;
+    }
+
+    default String jsonizeAsTopLevelObject(Request request, Consumer<OutputWriter> consumer) {
+        StringWriter writer = new StringWriter(1024);
+        new JsonOutputWriter(writer, RequestContext.requestContext(request)).forTopLevelObject(consumer);
+        return writer.toString();
+    }
+
+    default String jsonizeAsTopLevelArray(Request request, Consumer<OutputListWriter> consumer) {
+        StringWriter writer = new StringWriter(1024);
+        new JsonOutputWriter(writer, RequestContext.requestContext(request)).forTopLevelArray(consumer);
+        return writer.toString();
     }
 
 }

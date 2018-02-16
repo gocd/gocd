@@ -26,15 +26,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PipelineSelectionController implements SparkSpringController {
-  private final PipelineSelectionControllerDelegate delegate;
+    private final PipelineSelectionControllerDelegate delegate;
 
-  @Autowired
-  public PipelineSelectionController(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, PipelineConfigService pipelineConfigService) {
-    delegate = new PipelineSelectionControllerDelegate(apiAuthenticationHelper, pipelineSelectionsService, pipelineConfigService);
-  }
+    @Autowired
+    public PipelineSelectionController(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, PipelineConfigService pipelineConfigService) {
+        delegate = new PipelineSelectionControllerDelegate(apiAuthenticationHelper, pipelineSelectionsService, pipelineConfigService);
+    }
 
-  @Override
-  public void setupRoutes() {
-      delegate.setupRoutes();
-  }
+    @Override
+    public void setupRoutes() {
+        delegate.setupRoutes();
+    }
 }

@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Objects;
 
 public interface CrudController<Entity> extends ControllerMethods {
@@ -56,23 +56,29 @@ public interface CrudController<Entity> extends ControllerMethods {
 
     Entity getEntityFromRequestBody(Request req);
 
-    default Map handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) {
+    default String handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) throws IOException {
         if (result.isSuccessful()) {
             setEtagHeader(entity, res);
             return jsonize(req, entity);
         } else {
-            Map data = entity == null ? null : jsonize(req, entity);
             res.status(result.httpCode());
-            Map<Object, Object> response = new HashMap<>();
-            response.put("message", result.message(getLocalizer()));
-            if(data != null) {
-                response.put("data", data);
-            }
-            return response;
+
+            JsonNode jsonNode = entity == null ? null : jsonNode(req, entity);
+            return writerForTopLevelObject(req, res, writer -> {
+                    writer.add("message", result.message(getLocalizer()));
+
+                    if (jsonNode != null) {
+                        writer.add("data", jsonNode);
+                    }
+                }
+
+            );
         }
     }
 
-    Map jsonize(Request req, Entity entity);
+    String jsonize(Request req, Entity entity);
+
+    JsonNode jsonNode(Request req, Entity entity) throws IOException;
 
     default void setEtagHeader(Entity entity, Response res) {
         setEtagHeader(res, etagFor(entity));

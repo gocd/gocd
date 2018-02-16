@@ -16,20 +16,16 @@
 
 package com.thoughtworks.go.apiv1.admin.encryption.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.spark.RequestContext;
-
-import java.util.Map;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.spark.Routes;
 
 
 public interface EncryptedValueRepresenter {
-    static Map toJSON(String encryptedValue, RequestContext requestContext) {
-        return new JsonWriter(requestContext)
-
-                .addDocLink("https://api.gocd.org/#encryption")
-                .addLink("self", "/api/admin/encrypt")
-
-                .add("encrypted_value", encryptedValue).getAsMap();
+    static void toJSON(OutputWriter writer, String encryptedValue) {
+        writer.addLinks(outputLinkWriter ->
+            outputLinkWriter.addAbsoluteLink("doc", "https://api.gocd.org/#encryption").
+                addLink("self", Routes.Encrypt.BASE))
+            .add("encrypted_value", encryptedValue);
     }
 
 }

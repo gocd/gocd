@@ -16,42 +16,47 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputLinkWriter;
+import com.thoughtworks.go.api.base.OutputListWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
+import java.util.function.Consumer;
 
 public class PipelineInstanceRepresenter {
 
-    private static JsonWriter addLinks(JsonWriter jsonWriter, PipelineInstanceModel model) {
-        return jsonWriter
-                .addLink("self", Routes.Pipeline.instance(model.getName(), model.getCounter()))
+    public static void toJSON(OutputWriter jsonOutputWriter, PipelineInstanceModel model) {
+        jsonOutputWriter
+            .addLinks(addLinks(model))
+            .add("label", model.getLabel())
+            .add("counter", model.getCounter())
+            .add("triggered_by", model.getApprovedByForDisplay())
+            .add("scheduled_at", model.getScheduledDate())
+            .addChild("build_cause", childWriter -> {
+                BuildCauseRepresenter.toJSON(childWriter, model.getBuildCause());
+            })
+            .addChild("_embedded", childWriter -> {
+                childWriter.addChildList("stages", getStages(model));
+            });
+    }
+
+    private static Consumer<OutputLinkWriter> addLinks(PipelineInstanceModel model) {
+        return linkWriter -> {
+            linkWriter.addLink("self", Routes.Pipeline.instance(model.getName(), model.getCounter()))
                 .addLink("compare_url", Routes.PipelineInstance.compare(model.getName(), model.getCounter() - 1, model.getCounter()))
                 .addLink("history_url", Routes.Pipeline.history(model.getName()))
                 .addLink("vsm_url", Routes.PipelineInstance.vsm(model.getName(), model.getCounter()));
+        };
     }
 
-
-    public static Map toJSON(PipelineInstanceModel model, RequestContext requestContext) {
-        return addLinks(new JsonWriter(requestContext), model)
-                .add("label", model.getLabel())
-                .add("counter", model.getCounter())
-                .add("triggered_by", model.getApprovedByForDisplay())
-                .add("scheduled_at", model.getScheduledDate())
-                .add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext))
-                .addEmbedded("stages", getStages(model, requestContext))
-                .getAsMap();
+    private static Consumer<OutputListWriter> getStages(PipelineInstanceModel model) {
+        return writer -> {
+            model.getStageHistory().forEach(stage -> {
+                writer.addChild(childWriter -> {
+                    StageRepresenter.toJSON(childWriter, stage, model.getName(), String.valueOf(model.getCounter()));
+                });
+            });
+        };
     }
-
-    private static List<Map> getStages(PipelineInstanceModel model, RequestContext requestContext) {
-        return model.getStageHistory().stream()
-                .map(stage -> StageRepresenter.toJSON(stage, requestContext, model.getName(), String.valueOf(model.getCounter())))
-                .collect(toList());
-    }
-
 }

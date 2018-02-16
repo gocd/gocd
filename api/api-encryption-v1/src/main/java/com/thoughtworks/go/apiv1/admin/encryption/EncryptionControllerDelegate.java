@@ -31,7 +31,6 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.isomorphism.util.FixedIntervalRefillStrategy;
@@ -41,7 +40,7 @@ import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import java.util.Map;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -62,8 +61,8 @@ public class EncryptionControllerDelegate extends ApiController {
         this.cipher = cipher;
         this.requestsPerMinute = requestsPerMinute;
         this.rateLimiters = CacheBuilder.newBuilder()
-                .expireAfterAccess(1, TimeUnit.MINUTES)
-                .build();
+            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .build();
         this.ticker = ticker;
     }
 
@@ -85,7 +84,7 @@ public class EncryptionControllerDelegate extends ApiController {
 
             before("", mimeType, this::checkRateLimitAvailable);
 
-            post("", mimeType, this::encrypt, GsonTransformer.getInstance());
+            post("", mimeType, this::encrypt);
 
             exception(InvalidCipherTextException.class, (InvalidCipherTextException exception, Request request, Response response) -> {
                 response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -94,18 +93,21 @@ public class EncryptionControllerDelegate extends ApiController {
         });
     }
 
-    public Map encrypt(Request request, Response response) throws InvalidCipherTextException {
+    public String encrypt(Request request, Response response) throws InvalidCipherTextException, IOException {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         String value = jsonReader.getString("value");
-        return EncryptedValueRepresenter.toJSON(cipher.encrypt(value), RequestContext.requestContext(request));
+
+        String encrypt = cipher.encrypt(value);
+
+        return writerForTopLevelObject(request, response, writer -> EncryptedValueRepresenter.toJSON(writer, encrypt));
     }
 
     private void checkRateLimitAvailable(Request request, Response response) throws ExecutionException {
         TokenBucket tokenBucket = rateLimiters.get(currentUsername(), () -> TokenBuckets.builder()
-                .withCapacity(requestsPerMinute)
-                .withInitialTokens(requestsPerMinute)
-                .withRefillStrategy(new FixedIntervalRefillStrategy(ticker, requestsPerMinute, 1, TimeUnit.MINUTES))
-                .build());
+            .withCapacity(requestsPerMinute)
+            .withInitialTokens(requestsPerMinute)
+            .withRefillStrategy(new FixedIntervalRefillStrategy(ticker, requestsPerMinute, 1, TimeUnit.MINUTES))
+            .build());
 
         response.header("X-RateLimit-Limit", String.valueOf(requestsPerMinute));
         response.header("X-RateLimit-Remaining", String.valueOf(tokenBucket.getNumTokens()));

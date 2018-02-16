@@ -76,7 +76,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(backup, BackupRepresenter.class)
+          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
       }
     }
 

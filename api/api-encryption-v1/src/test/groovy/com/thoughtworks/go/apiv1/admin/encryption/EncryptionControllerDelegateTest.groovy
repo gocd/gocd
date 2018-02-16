@@ -70,7 +70,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+          .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
       }
 
       @Test
@@ -117,7 +117,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
-              .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
 
           postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
@@ -143,7 +143,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
-              .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
         }
 
@@ -158,7 +158,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", REQUESTS_PER_MINUTE.toString())
-              .hasJsonBodySerializedWith(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
           }
         }
 

@@ -16,24 +16,19 @@
 
 package com.thoughtworks.go.apiv1.admin.backups.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter;
 import com.thoughtworks.go.server.domain.ServerBackup;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.Map;
 
 public class BackupRepresenter {
 
-    public static Map<String, Object> toJSON(ServerBackup backup, RequestContext requestContext) {
-        return new JsonWriter(requestContext)
-
-                .addDocLink(Routes.Backups.DOC)
-
-                .add("time", backup.getTime())
-                .add("path", backup.getPath())
-                .add("user", UserSummaryRepresenter.toJSON(backup.getUsername(), requestContext)).getAsMap();
+    public static void toJSON(OutputWriter jsonOutputWriter, ServerBackup backup) {
+        jsonOutputWriter
+            .addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Backups.DOC))
+            .add("time", backup.getTime())
+            .add("path", backup.getPath())
+            .addChild("user", userWriter -> UserSummaryRepresenter.toJSON(userWriter, backup.getUsername()));
     }
 
 }

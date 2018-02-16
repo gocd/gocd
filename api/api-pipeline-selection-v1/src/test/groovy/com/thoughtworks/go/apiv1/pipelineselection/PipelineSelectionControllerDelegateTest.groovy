@@ -69,7 +69,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(new PipelineSelectionResponse(selections, pipelineConfigs), PipelineSelectionsRepresenter.class)
+          .hasBodyWithJsonObject(new PipelineSelectionResponse(selections, pipelineConfigs), PipelineSelectionsRepresenter.class)
       }
     }
 
@@ -100,7 +100,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(new PipelineSelectionResponse(selections, pipelineConfigs), PipelineSelectionsRepresenter.class)
+          .hasBodyWithJsonObject(new PipelineSelectionResponse(selections, pipelineConfigs), PipelineSelectionsRepresenter.class)
       }
     }
   }

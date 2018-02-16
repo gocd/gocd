@@ -19,9 +19,10 @@ package com.thoughtworks.go.apiv2.dashboard.representers
 import com.thoughtworks.go.apiv2.dashboard.PipelineModelMother
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -31,7 +32,7 @@ class PipelineInstanceRepresenterTest {
   void 'renders pipeline instance for pipeline that has never been executed with hal representation'() {
     def pipelineInstance = PipelineModelMother.pipeline_instance_model_empty("p1", "s1")
 
-    def json = PipelineInstanceRepresenter.toJSON(pipelineInstance, new TestRequestContext())
+    def json = toObject({ PipelineInstanceRepresenter.toJSON(it, pipelineInstance) })
 
     def expectedJson = [
       _links: [
@@ -51,20 +52,21 @@ class PipelineInstanceRepresenterTest {
     def instance = PipelineModelMother.pipeline_instance_model([name  : "p1", label: "g1", counter: 5,
                                                                 stages: [[name: "cruise", counter: "10", approved_by: "Anonymous"]]])
 
-    def date = instance.getScheduledDate()
+    def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance) })
 
-    def actualJson = PipelineInstanceRepresenter.toJSON(instance, new TestRequestContext())
 
     actualJson.remove("_links")
     actualJson.remove("_embedded")
 
-    assertThatJson(actualJson).isEqualTo([
-      label       : 'g1', counter: 5, scheduled_at: date,
+    def map = [
+      label       : 'g1', counter: 5, scheduled_at: jsonDate(instance.getScheduledDate()),
       triggered_by: 'Triggered by Anonymous',
       build_cause : [approver          : 'anonymous',
                      is_forced         : true,
                      trigger_message   : "Forced by anonymous",
-                     material_revisions: []]])
+                     material_revisions: []]]
+    assertThatJson(actualJson).isEqualTo(map)
+
   }
 
   @Test
@@ -79,7 +81,7 @@ class PipelineInstanceRepresenterTest {
 
     def date = instance.getScheduledDate()
 
-    def actualJson = PipelineInstanceRepresenter.toJSON(instance, new TestRequestContext())
+    def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance) })
 
     actualJson.remove("_links")
     actualJson.remove("_embedded")
@@ -98,7 +100,7 @@ class PipelineInstanceRepresenterTest {
                                      user_name    : 'user2',
                                      email_address: 'email2',
                                      revision     : '9fdcf27f16eadc362733328dd481d8a2c29915e1',
-                                     modified_time: materialRevisions.first().getModifications().first().getModifiedTime(),
+                                     modified_time: jsonDate(materialRevisions.first().getModifications().first().getModifiedTime()),
                                      comment      : 'comment2'
                                    ],
                                    [
@@ -109,7 +111,7 @@ class PipelineInstanceRepresenterTest {
                                      user_name    : 'user1',
                                      email_address: 'email1',
                                      revision     : 'eef77acd79809fc14ed82b79a312648d4a2801c6',
-                                     modified_time: materialRevisions.first().getModifications().last().getModifiedTime(),
+                                     modified_time: jsonDate(materialRevisions.first().getModifications().last().getModifiedTime()),
                                      comment      : 'comment1'
                                    ]]
                                 ],
@@ -126,7 +128,7 @@ class PipelineInstanceRepresenterTest {
                                      ]
                                    ],
                                     revision      : 'up1/1/first/1',
-                                    modified_time : materialRevisions.getMaterialRevision(1).getModifications().first().getModifiedTime(),
+                                    modified_time : jsonDate(materialRevisions.getMaterialRevision(1).getModifications().first().getModifiedTime()),
                                     pipeline_label: 'label'
                                    ]
                                  ]]
@@ -134,7 +136,6 @@ class PipelineInstanceRepresenterTest {
     ]
 
     assertThatJson(actualJson).isEqualTo(
-      [label: 'g1', counter: 5, scheduled_at: date, triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
-
+      [label: 'g1', counter: 5, scheduled_at: jsonDate(date), triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
   }
 }

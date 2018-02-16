@@ -24,13 +24,13 @@ import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.spark.util.SecureRandom
 import com.thoughtworks.go.util.Clock
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv2.dashboard.PipelineModelMother.pipeline_model
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -55,8 +55,11 @@ class PipelineGroupRepresenterTest {
     pipelineGroup.addPipeline(pipeline1)
     pipelineGroup.addPipeline(pipeline2)
 
-    def actual_json = PipelineGroupRepresenter.toJSON(pipelineGroup, new TestRequestContext(), new Username("someone"))
-    JsonFluentAssert.assertThatJson(actual_json).isEqualTo([
+    def username = new Username("someone")
+
+    def actualJson = toObjectString({ PipelineGroupRepresenter.toJSON(it, pipelineGroup, username) })
+
+    assertThatJson(actualJson).isEqualTo([
       _links        : expectedLinks,
       name          : 'group1',
       pipelines     : ['pipeline1', 'pipeline2'],
@@ -75,10 +78,11 @@ class PipelineGroupRepresenterTest {
     pipelineGroup.addPipeline(pipeline1)
     pipelineGroup.addPipeline(pipeline2)
 
-    def json = PipelineGroupRepresenter.toJSON(pipelineGroup, new TestRequestContext(),
-      new Username(new CaseInsensitiveString(SecureRandom.hex())))
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
-    JsonFluentAssert.assertThatJson(json).isEqualTo([
+    def actualJson = toObjectString({ PipelineGroupRepresenter.toJSON(it, pipelineGroup, username) })
+
+    assertThatJson(actualJson).isEqualTo([
       _links        : expectedLinks,
       name          : 'group1',
       pipelines     : ['pipeline1', 'pipeline2'],

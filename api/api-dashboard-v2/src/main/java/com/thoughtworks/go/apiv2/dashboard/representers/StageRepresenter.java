@@ -16,32 +16,27 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.Map;
 
 public class StageRepresenter {
 
-    private static final String SELF_HREF = "/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}";
-
-    public static Map toJSON(StageInstanceModel model, RequestContext requestContext,
-                             String pipelineName, String pipelineCounter) {
-        JsonWriter jsonWriter = new JsonWriter(requestContext)
-                .addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()))
-
-                .add("name", model.getName())
-                .add("counter", model.getCounter())
-                .add("status", model.getState())
-                .add("approved_by", model.getApprovedBy())
-                .add("scheduled_at", model.getScheduledDate());
+    public static void toJSON(OutputWriter jsonOutputWriter, StageInstanceModel model, String pipelineName, String pipelineCounter) {
+        jsonOutputWriter
+            .addLinks(linkWriter -> {
+                linkWriter.addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()));
+            })
+            .add("name", model.getName())
+            .add("counter", model.getCounter())
+            .add("status", model.getState().name())
+            .add("approved_by", model.getApprovedBy())
+            .add("scheduled_at", model.getScheduledDate());
 
         if (model.getPreviousStage() != null) {
-            jsonWriter.add("previous_stage", StageRepresenter.toJSON(model.getPreviousStage(), requestContext, pipelineName, pipelineCounter));
+            jsonOutputWriter.addChild("previous_stage", childWriter -> {
+                StageRepresenter.toJSON(childWriter, model.getPreviousStage(), pipelineName, pipelineCounter);
+            });
         }
-
-        return jsonWriter.getAsMap();
     }
 }

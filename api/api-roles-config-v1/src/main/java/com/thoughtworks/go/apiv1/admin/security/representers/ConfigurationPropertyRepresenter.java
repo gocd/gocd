@@ -17,47 +17,42 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 import com.google.gson.JsonParseException;
+import com.thoughtworks.go.api.base.OutputListWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class ConfigurationPropertyRepresenter {
-
-    public static List<Map> toJSON(List<ConfigurationProperty> configurationProperties, RequestContext requestContext) {
-        return configurationProperties.stream()
-                .map(configurationProperty -> ConfigurationPropertyRepresenter.toJSON(configurationProperty, requestContext))
-                .collect(Collectors.toList());
+    public static void toJSON(OutputListWriter propertiesWriter, List<ConfigurationProperty> configurationProperties) {
+        configurationProperties.forEach(configurationProperty -> {
+            if (configurationProperty == null) {
+                return;
+            }
+            propertiesWriter.addChild(propertyWriter -> toJSON(propertyWriter, configurationProperty));
+        });
     }
 
-    public static Map toJSON(ConfigurationProperty configurationProperty, RequestContext requestContext) {
-        if (configurationProperty == null) {
-            return null;
-        }
-        JsonWriter jsonWriter = new JsonWriter(requestContext);
-        jsonWriter.add("key", configurationProperty.getKey().getName());
+    public static void toJSON(OutputWriter writer, ConfigurationProperty configurationProperty) {
+        writer.add("key", configurationProperty.getKey().getName());
         if (!configurationProperty.isSecure() && !isBlank(configurationProperty.getConfigValue())) {
-            jsonWriter.add("value", configurationProperty.getConfigurationValue().getValue());
+            writer.add("value", configurationProperty.getConfigurationValue().getValue());
         }
         if (configurationProperty.isSecure() && !isBlank(configurationProperty.getEncryptedValue())) {
-            jsonWriter.add("encrypted_value", configurationProperty.getEncryptedValue());
+            writer.add("encrypted_value", configurationProperty.getEncryptedValue());
         }
         if (configurationProperty.hasErrors()) {
-            jsonWriter.add("errors", new ErrorGetter(new LinkedHashMap<String, String>() {{
+            writer.addChild("errors", errorWriter -> new ErrorGetter(new LinkedHashMap<String, String>() {{
                 put("encryptedValue", "encrypted_value");
                 put("configurationValue", "configuration_value");
                 put("configurationKey", "configuration_key");
-            }}).apply(configurationProperty, requestContext));
+            }}).toJSON(errorWriter, configurationProperty));
         }
-        return jsonWriter.getAsMap();
     }
 
     public static ConfigurationProperty fromJSON(JsonReader jsonReader) {
@@ -70,5 +65,4 @@ public class ConfigurationPropertyRepresenter {
             throw new JsonParseException("Could not parse configuration property");
         }
     }
-
 }

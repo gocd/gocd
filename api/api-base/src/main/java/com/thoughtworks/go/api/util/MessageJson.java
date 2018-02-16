@@ -16,19 +16,23 @@
 
 package com.thoughtworks.go.api.util;
 
-import java.util.LinkedHashMap;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.thoughtworks.go.api.base.JsonOutputWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
+
+import java.io.StringWriter;
 
 public class MessageJson {
 
     private final String message;
-    private final Object data;
+    private final JsonNode data;
 
-    private MessageJson(String message, Object data) {
+    private MessageJson(String message, JsonNode data) {
         this.message = message;
         this.data = data;
     }
 
-    public static String create(String message, Object data) {
+    public static String create(String message, JsonNode data) {
         return new MessageJson(message, data).toString();
     }
 
@@ -37,13 +41,14 @@ public class MessageJson {
     }
 
     public String toString() {
-        LinkedHashMap<String, Object> response = new LinkedHashMap<>();
-        response.put("message", message);
+        StringWriter buffer = new StringWriter(1024);
+        new JsonOutputWriter(buffer, null).forTopLevelObject((OutputWriter writer) -> {
+            writer.add("message", message);
+            if (data != null) {
+                writer.add("data", data);
+            }
+        });
 
-        if (data != null) {
-            response.put("data", data);
-        }
-
-        return GsonTransformer.getInstance().render(response);
+        return buffer.toString();
     }
 }

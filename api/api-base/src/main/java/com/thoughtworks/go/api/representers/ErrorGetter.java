@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.api.representers;
 
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.spark.RequestContext;
 
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
-public class ErrorGetter implements BiFunction<Validatable, RequestContext, Map> {
+public class ErrorGetter {
 
     private final Map<String, String> mapping;
 
@@ -32,19 +29,13 @@ public class ErrorGetter implements BiFunction<Validatable, RequestContext, Map>
         this.mapping = mapping;
     }
 
-    @Override
-    public Map apply(Validatable entity, RequestContext requestContext) {
-        LinkedHashMap<String, List<String>> transformedErrors = new LinkedHashMap<>();
-
-        for (Map.Entry<String, List<String>> entry : entity.errors().entrySet()) {
-            String transformedKey = mapping.get(entry.getKey());
+    public void toJSON(OutputWriter writer, Validatable entity) {
+        entity.errors().forEach((key, value) -> {
+            String transformedKey = mapping.get(key);
             if (transformedKey == null) {
-                transformedKey = entry.getKey();
+                transformedKey = key;
             }
-
-            transformedErrors.put(transformedKey, entry.getValue());
-        }
-
-        return transformedErrors;
+            writer.addChildList(transformedKey, value);
+        });
     }
 }

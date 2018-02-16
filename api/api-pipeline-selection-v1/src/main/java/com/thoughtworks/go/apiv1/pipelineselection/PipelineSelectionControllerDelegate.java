@@ -28,11 +28,11 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -63,22 +63,23 @@ public class PipelineSelectionControllerDelegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            get("", mimeType, this::show, GsonTransformer.getInstance());
-            put("", mimeType, this::update, GsonTransformer.getInstance());
+            get("", mimeType, this::show);
+            put("", mimeType, this::update);
         });
     }
 
-    public Object show(Request request, Response response) {
+    public String show(Request request, Response response) throws IOException {
         String fromCookie = request.cookie("selected_pipelines");
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(fromCookie, currentUserId(request));
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(currentUsername());
 
         PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(selectedPipelines, pipelineConfigs);
-        return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse, RequestContext.requestContext(request));
+
+        return writerForTopLevelObject(request, response, writer -> PipelineSelectionsRepresenter.toJSON(writer, pipelineSelectionResponse));
     }
 
-    public Object update(Request request, Response response) {
+    public String update(Request request, Response response) {
         String fromCookie = request.cookie("selected_pipelines");
 
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
@@ -92,7 +93,6 @@ public class PipelineSelectionControllerDelegate extends ApiController {
         }
 
         response.status(204);
-
-        return null;
+        return NOTHING;
     }
 }

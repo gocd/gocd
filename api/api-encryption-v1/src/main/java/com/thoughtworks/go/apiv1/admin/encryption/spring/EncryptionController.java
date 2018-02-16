@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EncryptionController implements SparkSpringController {
-    private final EncryptionControllerDelegate delegate;
     private static final int DEFAULT_REQUESTS_PER_MINUTE = 60;
+    private final EncryptionControllerDelegate delegate;
 
     @Autowired
     public EncryptionController(ApiAuthenticationHelper apiAuthenticationHelper) {

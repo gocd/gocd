@@ -17,18 +17,21 @@
 package com.thoughtworks.go.apiv1.user.representers
 
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.Assertions.assertThat
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class UserRepresenterTest {
 
   @Test
   void 'should serialize'() {
-    Map actualJson = UserRepresenter.toJSON(new User('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'] as String[], 'jdoe@example.com', true), new TestRequestContext())
 
-    assertThat(actualJson).isEqualTo([
+    def actualJson = toObjectString({
+      UserRepresenter.toJSON(it, new User('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'] as String[], 'jdoe@example.com', true))
+    })
+
+    assertThatJson(actualJson).isEqualTo([
       _links         : [
         self        : [href: 'http://test.host/go/api/users/jdoe'],
         find        : [href: 'http://test.host/go/api/users/:login_name'],

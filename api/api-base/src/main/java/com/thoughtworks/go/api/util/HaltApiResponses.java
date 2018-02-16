@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.api.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.http.HttpStatus;
 import spark.HaltException;
 
@@ -28,7 +30,7 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNAUTHORIZED.value(), MessageJson.create(unauthorizedMessage()));
     }
 
-    public static HaltException haltBecauseEntityAlreadyExists(Object jsonInRequestBody, String entityType, Object existingName) {
+    public static HaltException haltBecauseEntityAlreadyExists(JsonNode jsonInRequestBody, String entityType, Object existingName) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
     }
 
@@ -36,7 +38,11 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(renameOfEntityIsNotSupportedMessage(entityType)));
     }
 
-    public static HaltException haltBecauseEtagDoesNotMatch(String entityType, Object name) {
+    public static HaltException haltBecauseEtagDoesNotMatch(String entityType, CaseInsensitiveString name) {
+        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
+    }
+
+    public static HaltException haltBecauseEtagDoesNotMatch(String entityType, String name) {
         return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
 

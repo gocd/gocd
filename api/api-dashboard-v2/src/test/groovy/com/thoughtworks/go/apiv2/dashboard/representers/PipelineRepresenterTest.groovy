@@ -21,15 +21,14 @@ import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.config.security.users.NoOne
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.apiv2.dashboard.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.mock
@@ -40,24 +39,28 @@ class PipelineRepresenterTest {
   @Test
   void 'renders pipeline with hal representation'() {
     def counter = mock(Counter.class)
-    when(counter.getNext()).thenReturn(Long.valueOf(1))
+    when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
       permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter)
-    def json = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
+
     assertThatJson(json).isEqualTo([
       _links                : [
-        self                : [href: 'http://test.host/go/api/pipelines/pipeline_name/history'],
-        doc                 : [href: 'https://api.go.cd/current/#pipelines'],
-        trigger             : [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
-        trigger_with_options: [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
-        unpause             : [href: 'http://test.host/go/api/pipelines/pipeline_name/unpause'],
-        unlock              : [href: 'http://test.host/go/api/pipelines/pipeline_name/unlock'],
-        pause               : [href: 'http://test.host/go/api/pipelines/pipeline_name/pause'],
+        self    : [href: 'http://test.host/go/api/pipelines/pipeline_name/history'],
+        doc     : [href: 'https://api.go.cd/current/#pipelines'],
+        schedule: [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
+        unpause : [href: 'http://test.host/go/api/pipelines/pipeline_name/unpause'],
+        unlock  : [href: 'http://test.host/go/api/pipelines/pipeline_name/unlock'],
+        pause   : [href: 'http://test.host/go/api/pipelines/pipeline_name/pause'],
       ],
       _embedded             : [
         instances: [
-          expectedEmbeddedPipeline(pipeline.model().activePipelineInstances.first())
+          toObject({
+            PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.first())
+          })
         ]
       ],
       name                  : 'pipeline_name',
@@ -85,10 +88,12 @@ class PipelineRepresenterTest {
     @Test
     void 'user can operate a pipeline if user is pipeline_level operator'() {
       def counter = mock(Counter.class)
-      when(counter.getNext()).thenReturn(Long.valueOf(1))
+      when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
-      def actualJson = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
+      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+      def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
       actualJson.remove("_links")
       actualJson.remove("_embedded")
@@ -100,10 +105,13 @@ class PipelineRepresenterTest {
     @Test
     void 'user can administer a pipeline if user is admin of pipeline'() {
       def counter = mock(Counter.class)
-      when(counter.getNext()).thenReturn(Long.valueOf(1))
+      when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
-      def actualJson = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
+      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+      def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
+
       actualJson.remove("_links")
       actualJson.remove("_embedded")
       def expectedJson = pipelines_hash()
@@ -114,10 +122,13 @@ class PipelineRepresenterTest {
     @Test
     void 'user can unlock and pause a pipeline if user is operator of pipeline'() {
       def counter = mock(Counter.class)
-      when(counter.getNext()).thenReturn(Long.valueOf(1))
+      when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
-      def actualJson = PipelineRepresenter.toJSON(pipeline, new TestRequestContext(), new Username(new CaseInsensitiveString(SecureRandom.hex())))
+      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+      def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
+
       actualJson.remove("_links")
       actualJson.remove("_embedded")
       def expectedJson = pipelines_hash()
@@ -125,10 +136,6 @@ class PipelineRepresenterTest {
       expectedJson.can_pause = true
       assertThatJson(actualJson).isEqualTo(expectedJson)
     }
-  }
-
-  private static def expectedEmbeddedPipeline(PipelineInstanceModel pipelineInstanceModel) {
-    PipelineInstanceRepresenter.toJSON(pipelineInstanceModel, new TestRequestContext())
   }
 
   private static def pipelines_hash() {

@@ -50,7 +50,7 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
 
   @BeforeEach
   void setup() {
-    initMocks(this);
+    initMocks(this)
   }
 
   @Override
@@ -88,7 +88,7 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasJsonBodySerializedWith(matchedRevisions, MatchedRevisionRepresenter.class)
+        .hasBodyWithJsonArray(matchedRevisions, MatchedRevisionRepresenter.class)
     }
   }
 

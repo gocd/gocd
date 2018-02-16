@@ -19,20 +19,21 @@ package com.thoughtworks.go.apiv2.dashboard;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
+import org.apache.commons.codec.digest.DigestUtils;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -57,25 +58,25 @@ public class DashboardControllerDelegate extends ApiController {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("", this::verifyContentType);
-            get("", this::index, GsonTransformer.getInstance());
+            get("", this::index);
         });
     }
 
-    private Map index(Request request, Response response) {
+    private Object index(Request request, Response response) throws IOException {
         String selectedPipelinesCookie = request.cookie("selected_pipelines");
         Long userId = currentUserId(request);
         Username userName = currentUsername();
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(selectedPipelinesCookie, userId);
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
-        Map map = PipelineGroupsRepresenter.toJSON(pipelineGroups, RequestContext.requestContext(request), userName);
-        String etag = etagFor(map);
+        String etag = DigestUtils.md5Hex(pipelineGroups.stream().map(GoDashboardPipelineGroup::etag).collect(Collectors.joining("/")));
 
         if (fresh(request, etag)) {
             return notModified(response);
         }
 
         setEtagHeader(response, etag);
-        return map;
+
+        return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName)));
     }
 }

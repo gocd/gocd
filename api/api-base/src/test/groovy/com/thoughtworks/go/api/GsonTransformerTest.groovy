@@ -19,10 +19,6 @@ package com.thoughtworks.go.api
 import com.google.gson.JsonParseException
 import com.thoughtworks.go.api.util.GsonTransformer
 import org.junit.jupiter.api.Test
-import org.skyscreamer.jsonassert.JSONAssert
-
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType
 
@@ -30,33 +26,8 @@ class GsonTransformerTest {
   private GsonTransformer gsonTransformer = GsonTransformer.instance
 
   @Test
-  void shouldSerializeDateInParticularFormat() {
-    def date = Date.from(
-      Instant.ofEpochSecond(0)
-        .plus(12, ChronoUnit.HOURS)
-        .plus(13, ChronoUnit.MINUTES)
-        .plus(14, ChronoUnit.SECONDS)
-        .plus(1, ChronoUnit.DAYS)
-        .plus(30, ChronoUnit.DAYS)
-        .plus(365, ChronoUnit.DAYS)
-    )
-
-    JSONAssert.assertEquals(gsonTransformer.render([x: date]), '{"x": "1971-02-01T12:13:14Z"}', true)
-  }
-
-  @Test
-  void shouldNotEscapeHtml() {
-    JSONAssert.assertEquals(gsonTransformer.render([x: "<html>"]), '{"x": "<html>"}', true)
-  }
-
-  @Test
-  void shouldSerializeNulls() {
-    JSONAssert.assertEquals(gsonTransformer.render([x: null]), '{"x": null}', true)
-  }
-
-  @Test
   void shouldThrowJsonParseExceptionWhenReadingBadData() {
     assertThatExceptionOfType(JsonParseException.class)
-    .isThrownBy({gsonTransformer.jsonReaderFrom("bad-data")})
+      .isThrownBy({ gsonTransformer.jsonReaderFrom("bad-data") })
   }
 }

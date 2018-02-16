@@ -16,36 +16,24 @@
 
 package com.thoughtworks.go.api.util;
 
-import com.google.gson.*;
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.JsonReader;
-import spark.ResponseTransformer;
 
 import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
-public class GsonTransformer implements ResponseTransformer {
+public class GsonTransformer {
 
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-    private static final Gson GSON = new GsonBuilder()
-            .serializeNulls()
-            .setPrettyPrinting()
-            .excludeFieldsWithoutExposeAnnotation()
-            .disableHtmlEscaping()
-            .registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(ISO8601Utils.format(src, false, UTC)))
-            .create();
+    private static final Gson GSON = new GsonBuilder().create();
 
     private GsonTransformer() {
     }
 
-    @Override
-    public String render(Object model) {
-        if (model == null) {
-            return "";
-        }
-        return GSON.toJson(model);
+    public static GsonTransformer getInstance() {
+        return SingletonHolder.INSTANCE;
     }
 
     public JsonReader jsonReaderFrom(String string) {
@@ -70,10 +58,6 @@ public class GsonTransformer implements ResponseTransformer {
 
     public <T> T fromJson(String string, Type classOfT) {
         return GSON.fromJson(string, classOfT);
-    }
-
-    public static GsonTransformer getInstance() {
-        return SingletonHolder.INSTANCE;
     }
 
     private static class SingletonHolder {

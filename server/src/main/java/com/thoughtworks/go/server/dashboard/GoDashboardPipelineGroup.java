@@ -17,7 +17,15 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.security.Permissions;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.output.NullOutputStream;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +47,32 @@ public class GoDashboardPipelineGroup {
             pipelines.put(goDashboardPipeline.name().toString(), goDashboardPipeline);
         }
     }
+
+    public String etag() {
+        try {
+            MessageDigest digest = DigestUtils.getSha256Digest();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(new NullOutputStream(), digest));
+            outputStreamWriter.write(name);
+            outputStreamWriter.write("/");
+            outputStreamWriter.write(Integer.toString(permissions.hashCode()));
+            outputStreamWriter.write("[");
+
+            for (Map.Entry<String, GoDashboardPipeline> entry : pipelines.entrySet()) {
+                long lastUpdatedTimeStamp = entry.getValue().getLastUpdatedTimeStamp();
+                outputStreamWriter.write(entry.getKey());
+                outputStreamWriter.write(":");
+                outputStreamWriter.write(Long.toString(lastUpdatedTimeStamp));
+            }
+
+            outputStreamWriter.write("]");
+            outputStreamWriter.flush();
+
+            return Hex.encodeHexString(digest.digest());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
 
     public String getName() {
         return name;

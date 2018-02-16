@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv2.dashboard
 
-import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.mocks.TestRequestContext
+import org.apache.commons.codec.digest.DigestUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -73,11 +73,9 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
       getWithApiHeader(controller.controllerPath())
 
-      def expectedJsonBody = PipelineGroupsRepresenter.toJSON([pipelineGroup], new TestRequestContext(), currentUsername())
-
       assertThatResponse()
         .isOk()
-        .hasJsonBody(GsonTransformer.instance.render(expectedJsonBody))
+        .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername()), PipelineGroupsRepresenter)
     }
 
     @Test
@@ -89,9 +87,11 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
       when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
+      def pipelineGroups = [pipelineGroup]
+      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
 
-      def etag = '"' + controller.etagFor(PipelineGroupsRepresenter.toJSON([pipelineGroup], new TestRequestContext(), currentUsername())) + '"'
+
+      def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.hash() }.join("/")) + '"'
       getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
       assertThatResponse()
@@ -110,11 +110,9 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       loginAsUser()
       getWithApiHeader(controller.controllerPath())
 
-      def expectedJsonBody = PipelineGroupsRepresenter.toJSON(noPipelineGroups, new TestRequestContext(), currentUsername())
-
       assertThatResponse()
         .isOk()
-        .hasJsonBody(GsonTransformer.instance.render(expectedJsonBody))
+        .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername()), PipelineGroupsRepresenter)
     }
   }
 }

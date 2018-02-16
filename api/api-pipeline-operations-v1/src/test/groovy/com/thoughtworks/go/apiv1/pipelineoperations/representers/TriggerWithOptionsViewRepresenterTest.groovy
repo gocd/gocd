@@ -28,9 +28,11 @@ import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
-import com.thoughtworks.go.spark.mocks.TestRequestContext
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Test
+
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class TriggerWithOptionsViewRepresenterTest {
   @Test
@@ -46,8 +48,11 @@ class TriggerWithOptionsViewRepresenterTest {
 
     EnvironmentVariablesConfig variables = EnvironmentVariablesConfigMother.environmentVariables()
 
-    def actualJson = TriggerWithOptionsViewRepresenter.toJSON(new TriggerOptions(variables, model), new TestRequestContext())
-    JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
+    def actualJson = toObjectString({
+      TriggerWithOptionsViewRepresenter.toJSON(it, new TriggerOptions(variables, model))
+    })
+
+    assertThatJson(actualJson).isEqualTo([
       _links     : [
         "doc"     : ["href": "https://api.go.cd/current/#pipeline-trigger-options"],
         "self"    : ["href": "http://test.host/go/api/pipelines/my-pipeline/trigger_options"],
@@ -64,7 +69,7 @@ class TriggerWithOptionsViewRepresenterTest {
           "fingerprint": "f5f52bd94f0eaed410d7ca7843e0d8c693b2d6daf91fe037d55b566e862dcdae",
           "folder"     : "svnDir",
           "revision"   : [
-            "date"             : ModificationsMother.TWO_DAYS_AGO_CHECKIN,
+            "date"             : jsonDate(ModificationsMother.TWO_DAYS_AGO_CHECKIN),
             "user"             : "lgao",
             "comment"          : "Fixing the not checked in files",
             "last_run_revision": "revision"

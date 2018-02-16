@@ -16,27 +16,17 @@
 
 package com.thoughtworks.go.apiv1.user.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Map;
-
 public class UserSummaryRepresenter {
-    public static Map<String, Object> toJSON(String loginName, RequestContext requestContext) {
-        return getJsonWriter(loginName, requestContext).getAsMap();
-    }
-
-    public static JsonWriter getJsonWriter(String loginName, RequestContext requestContext) {
-        return addLinks(loginName, new JsonWriter(requestContext))
-                .add("login_name", loginName);
-    }
-
-    private static JsonWriter addLinks(String loginName, JsonWriter jsonWriter) {
-        return jsonWriter.addDocLink(Routes.UserSummary.DOC)
+    public static void toJSON(OutputWriter outputWriter, String loginName) {
+        outputWriter
+            .addLinks(outputLinkWriter -> outputLinkWriter
+                .addAbsoluteLink("doc", Routes.UserSummary.DOC)
                 .addLink("self", Routes.UserSummary.self(loginName))
                 .addLink("find", Routes.UserSummary.find())
-                .addLink("current_user", Routes.UserSummary.CURRENT_USER);
+                .addLink("current_user", Routes.UserSummary.CURRENT_USER))
+            .add("login_name", loginName);
     }
-
 }

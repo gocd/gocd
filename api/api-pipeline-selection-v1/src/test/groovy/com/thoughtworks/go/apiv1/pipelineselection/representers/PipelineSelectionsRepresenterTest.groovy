@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import spark.HaltException
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.util.HaltApiMessages.propertyIsNotAJsonBoolean
 import static com.thoughtworks.go.api.util.HaltApiMessages.propertyIsNotAJsonStringArray
 
@@ -47,7 +48,9 @@ class PipelineSelectionsRepresenterTest {
       group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
 
       List<PipelineConfigs> pipelineConfigs = [group1, group2]
-      def actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections, pipelineConfigs), null)
+
+      def actualJson = toObjectString({ PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(selections, pipelineConfigs)) })
+
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
         pipelines : [
           grp1: [],

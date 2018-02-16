@@ -26,9 +26,10 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+
+import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 
 class ServerHealthMessagesControllerDelegateTest implements SecurityServiceTrait, ControllerTrait<ServerHealthMessagesControllerDelegate> {
 
@@ -67,12 +68,16 @@ class ServerHealthMessagesControllerDelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith([state], ServerHealthMessagesRepresenter)
+          .hasBodyWithJsonArray([state], ServerHealthMessagesRepresenter)
       }
 
       @Test
       void 'should render 304 if content matches'() {
-        def etag = '"' + controller.etagFor(ServerHealthMessagesRepresenter.toJSON([], new TestRequestContext())) + '"'
+        def state = ServerHealthState.error("not enough disk space, halting scheduling", "There is not enough disk space on the artifact filesystem", HealthStateType.artifactsDiskFull())
+        serverHealthService.update(state)
+
+        def etag = '"' + controller.etagFor(toArrayString({ ServerHealthMessagesRepresenter.toJSON(it, [state]) })) + '"'
+
         getWithApiHeader(Routes.ServerHealthMessages.BASE, ['if-none-match': etag])
 
         assertThatResponse()

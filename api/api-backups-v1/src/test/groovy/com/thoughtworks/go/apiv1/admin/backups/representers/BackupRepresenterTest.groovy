@@ -18,26 +18,29 @@ package com.thoughtworks.go.apiv1.admin.backups.representers
 
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter
 import com.thoughtworks.go.server.domain.ServerBackup
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.Assertions.assertThat
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class BackupRepresenterTest {
   @Test
   void 'should serialize'() {
     def backup = new ServerBackup("/foo/bar", new Date(42), "bob")
 
-    Map<String, Object> actualJson = BackupRepresenter.toJSON(backup, new TestRequestContext())
+    def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 
     Map<String, Object> expectedJson = [
       _links: [
         doc: [href: 'https://api.gocd.org/#backups']
       ],
-      time  : new Date(42),
+      time  : jsonDate(new Date(42)),
       path  : "/foo/bar",
-      user  : UserSummaryRepresenter.toJSON("bob", new TestRequestContext())
+      user  : toObject({ UserSummaryRepresenter.toJSON(it, "bob") })
     ]
-    assertThat(actualJson).isEqualTo(expectedJson)
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 }

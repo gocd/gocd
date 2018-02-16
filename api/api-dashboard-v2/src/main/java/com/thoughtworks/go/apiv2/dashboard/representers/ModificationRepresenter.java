@@ -16,27 +16,22 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.Map;
 
 public class ModificationRepresenter {
 
-    private static final String VSM_HREF = "/materials/value_stream_map/${material_fingerprint}/${revision}";
-
-    public static Map toJSON(Modification model, RequestContext requestContext, Material material) {
-        return new JsonWriter(requestContext)
-                .addLink("vsm", Routes.Materials.vsm(material.getFingerprint(), model.getRevision()))
-                .addIfNotNull("user_name", model.getUserName())
-                .addIfNotNull("email_address", model.getEmailAddress())
-                .addIfNotNull("revision", model.getRevision())
-                .addIfNotNull("modified_time", model.getModifiedTime())
-                .addIfNotNull("comment", model.getComment())
-                .getAsMap();
+    public static void toJSON(OutputWriter jsonOutputWriter, Modification model, Material material) {
+        jsonOutputWriter
+            .addLinks(linksWriter -> {
+                linksWriter.addLink("vsm", Routes.Materials.vsm(material.getFingerprint(), model.getRevision()));
+            })
+            .addIfNotNull("user_name", model.getUserName())
+            .addIfNotNull("email_address", model.getEmailAddress())
+            .addIfNotNull("revision", model.getRevision())
+            .addIfNotNull("modified_time", model.getModifiedTime())
+            .addIfNotNull("comment", model.getComment());
     }
-
 }

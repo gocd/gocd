@@ -22,10 +22,10 @@ import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class PipelineGroupsRepresenterTest {
@@ -46,30 +46,24 @@ class PipelineGroupsRepresenterTest {
     pipeline_group1.addPipeline(pipeline2_in_group1)
     pipeline_group2.addPipeline(pipeline3_in_group2)
 
-    def actual_json = PipelineGroupsRepresenter.toJSON([pipeline_group1, pipeline_group2], new TestRequestContext(), user)
+    def actualJson = toObject({
+      PipelineGroupsRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], user))
+    })
 
-    assertThatJson(actual_json._links).isEqualTo([
+    assertThatJson(actualJson._links).isEqualTo([
       self: [href: "http://test.host/go/api/dashboard"],
       doc : [href: "https://api.go.cd/current/#dashboard"]
     ])
 
-    assertThatJson(actual_json._embedded.pipeline_groups).isEqualTo([
-      expected_embedded_pipeline_groups(pipeline_group1, user),
-      expected_embedded_pipeline_groups(pipeline_group2, user),
+    assertThatJson(actualJson._embedded.pipeline_groups).isEqualTo([
+      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group1, user) }),
+      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group2, user) }),
     ])
 
-    assertThatJson(actual_json._embedded.pipelines).isEqualTo([
-      expected_embedded_pipeline(pipeline1_in_group1, user),
-      expected_embedded_pipeline(pipeline2_in_group1, user),
-      expected_embedded_pipeline(pipeline3_in_group2, user),
+    assertThatJson(actualJson._embedded.pipelines).isEqualTo([
+      toObject({ PipelineRepresenter.toJSON(it, pipeline1_in_group1, user) }),
+      toObject({ PipelineRepresenter.toJSON(it, pipeline2_in_group1, user) }),
+      toObject({ PipelineRepresenter.toJSON(it, pipeline3_in_group2, user) }),
     ])
-  }
-
-  private static def expected_embedded_pipeline_groups(model, user) {
-    PipelineGroupRepresenter.toJSON(model, new TestRequestContext(), user)
-  }
-
-  private static def expected_embedded_pipeline(model, user) {
-    PipelineRepresenter.toJSON(model, new TestRequestContext(), user)
   }
 }

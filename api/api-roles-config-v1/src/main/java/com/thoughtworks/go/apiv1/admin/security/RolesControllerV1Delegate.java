@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
@@ -33,14 +35,12 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import java.util.Collections;
-import java.util.Map;
+import java.io.IOException;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
@@ -70,12 +70,12 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
 
-            get("", mimeType, this::index, GsonTransformer.getInstance());
-            post("", mimeType, this::create, GsonTransformer.getInstance());
+            get("", mimeType, this::index);
+            post("", mimeType, this::create);
 
-            get(Routes.Roles.NAME_PATH, mimeType, this::show, GsonTransformer.getInstance());
-            put(Routes.Roles.NAME_PATH, mimeType, this::update, GsonTransformer.getInstance());
-            delete(Routes.Roles.NAME_PATH, mimeType, this::destroy, GsonTransformer.getInstance());
+            get(Routes.Roles.NAME_PATH, mimeType, this::show);
+            put(Routes.Roles.NAME_PATH, mimeType, this::update);
+            delete(Routes.Roles.NAME_PATH, mimeType, this::destroy);
 
             exception(InvalidPluginTypeException.class, (ex, req, res) -> {
                 res.body(this.messageJson(ex));
@@ -91,7 +91,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         return Routes.Roles.BASE;
     }
 
-    public Object index(Request req, Response res) throws InvalidPluginTypeException {
+    public String index(Request req, Response res) throws InvalidPluginTypeException, IOException {
         String pluginType = req.queryParams("type");
         RolesConfig roles = roleConfigService.getRoles().ofType(pluginType);
         String etag = entityHashingService.md5ForEntity(roles);
@@ -100,22 +100,22 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(res, etag);
-            return RolesRepresenter.toJSON(roles, RequestContext.requestContext(req));
+            return writerForTopLevelObject(req, res, writer -> RolesRepresenter.toJSON(writer, roles));
         }
     }
 
-    public Object show(Request req, Response res) {
+    public String show(Request req, Response res) throws IOException {
         Role role = getEntityFromConfig(req.params("role_name"));
 
         if (isGetOrHeadRequestFresh(req, role)) {
             return notModified(res);
         } else {
             setEtagHeader(role, res);
-            return RoleRepresenter.toJSON(role, RequestContext.requestContext(req));
+            return writerForTopLevelObject(req, res, writer -> RoleRepresenter.toJSON(writer, role));
         }
     }
 
-    public Map create(Request req, Response res) {
+    public String create(Request req, Response res) throws IOException {
         Role role = getEntityFromRequestBody(req);
 
         haltIfEntityBySameNameInRequestExists(req, role);
@@ -126,7 +126,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         return handleCreateOrUpdateResponse(req, res, role, result);
     }
 
-    public Map update(Request req, Response res) {
+    public String update(Request req, Response res) throws IOException {
         Role roleFromServer = roleConfigService.findRole(req.params(":role_name"));
         Role roleFromRequest = getEntityFromRequestBody(req);
 
@@ -143,13 +143,13 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         return handleCreateOrUpdateResponse(req, res, roleFromRequest, result);
     }
 
-    public Map destroy(Request req, Response res) {
+    public String destroy(Request req, Response res) throws IOException {
         Role role = getEntityFromConfig(req.params("role_name"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         roleConfigService.delete(UserHelper.getUserName(), role, result);
 
-        res.status(result.httpCode());
-        return Collections.singletonMap("message", result.message(localizer));
+
+        return renderHTTPOperationResult(result, req, res, localizer);
     }
 
     @Override
@@ -173,21 +173,26 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public Role getEntityFromRequestBody(Request req) {
-        GsonTransformer gsonTransformer = GsonTransformer.getInstance();
-        JsonReader jsonReader = gsonTransformer.jsonReaderFrom(req.body());
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return RoleRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public Map jsonize(Request req, Role role) {
-        return RoleRepresenter.toJSON(role, RequestContext.requestContext(req));
+    public String jsonize(Request req, Role role) {
+        return jsonizeAsTopLevelObject(req, writer -> RoleRepresenter.toJSON(writer, role));
     }
 
-    private void haltIfEntityBySameNameInRequestExists(Request req, Role role) {
+    @Override
+    public JsonNode jsonNode(Request req, Role role) throws IOException {
+        String jsonize = jsonize(req, role);
+        return new ObjectMapper().readTree(jsonize);
+    }
+
+    private void haltIfEntityBySameNameInRequestExists(Request req, Role role) throws IOException {
         if (roleConfigService.findRole(role.getName().toString()) == null) {
             return;
         }
         role.addError("name", "Role names should be unique. Role with the same name exists.");
-        throw haltBecauseEntityAlreadyExists(jsonize(req, role), "role", role.getName());
+        throw haltBecauseEntityAlreadyExists(jsonNode(req, role), "role", role.getName());
     }
 }

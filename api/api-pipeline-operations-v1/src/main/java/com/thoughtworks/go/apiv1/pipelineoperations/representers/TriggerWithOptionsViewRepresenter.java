@@ -16,73 +16,52 @@
 
 package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 public class TriggerWithOptionsViewRepresenter {
-    public static Map<String, Object> toJSON(TriggerOptions triggerOptions, RequestContext requestContext) {
-        List<Map<String, Object>> variablesJson = triggerOptions.getVariables().stream().map(env -> {
-            JsonWriter writer = new JsonWriter(null)
-                    .add("name", env.getName())
-                    .add("secure", env.isSecure());
+    public static void toJSON(OutputWriter writer, TriggerOptions triggerOptions) {
+        PipelineInstanceModel pipelineInstanceModel = triggerOptions.getPipelineInstanceModel();
+        writer
+            .addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Pipeline.DOC_TRIGGER_OPTIONS)
+                .addLink("self", Routes.Pipeline.triggerOptions(pipelineInstanceModel.getName()))
+                .addLink("schedule", Routes.Pipeline.schedule(pipelineInstanceModel.getName())))
+            .addChildList("variables", outputListWriter -> triggerOptions.getVariables().forEach(env ->
+                outputListWriter.addChild(envWriter -> {
+                    envWriter
+                        .add("name", env.getName())
+                        .add("secure", env.isSecure());
 
-            if (!env.isSecure()) {
-                writer.addIfNotNull("value", env.getDisplayValue());
-            }
-
-            return writer.getAsMap();
-        }).collect(Collectors.toList());
-
-        return new JsonWriter(requestContext)
-
-                .addDocLink(Routes.Pipeline.DOC_TRIGGER_OPTIONS)
-                .addLink("self", Routes.Pipeline.triggerOptions(triggerOptions.getPipelineInstanceModel().getName()))
-                .addLink("schedule", Routes.Pipeline.schedule(triggerOptions.getPipelineInstanceModel().getName()))
-
-                .add("variables", variablesJson)
-                .add("materials", materials(triggerOptions.getPipelineInstanceModel()))
-                .getAsMap();
+                    if (!env.isSecure()) {
+                        envWriter.add("value", env.getValue());
+                    }
+                })
+            ))
+            .addChildList("materials", outputListWriter -> pipelineInstanceModel.getMaterials()
+                .forEach(material -> outputListWriter.addChild(material(material, pipelineInstanceModel.findCurrentMaterialRevisionForUI(material)))));
     }
 
-    private static List<Map<String, Object>> materials(PipelineInstanceModel pipelineInstanceModel) {
-        return pipelineInstanceModel.getMaterials().stream().map((MaterialConfig material) -> {
-            MaterialRevision revision = pipelineInstanceModel.findCurrentMaterialRevisionForUI(material);
-            return new JsonWriter(null)
-                    .add("type", material.getTypeForDisplay())
-                    .add("name", material.getDisplayName())
-                    .add("fingerprint", material.getFingerprint())
-                    .addIfNotNull("folder", material.getFolder())
-                    .add("revision", revision(material, revision))
-                    .getAsMap();
-        }).collect(Collectors.toList());
+    private static Consumer<OutputWriter> material(MaterialConfig material, MaterialRevision revision) {
+        return materialWriter ->
+            materialWriter.add("type", material.getTypeForDisplay())
+                .add("name", material.getDisplayName())
+                .add("fingerprint", material.getFingerprint())
+                .addIfNotNull("folder", material.getFolder())
+                .addChild("revision", materialRevision(revision));
     }
 
-    private static Map<String, Object> revision(MaterialConfig material, MaterialRevision revision) {
-        if (revision == null) {
-            return Collections.emptyMap();
-        }
-
-        String maybePipelineLabel = null;
-
-        if (material instanceof DependencyMaterialConfig) {
-            maybePipelineLabel = revision.getLatestModification().getPipelineLabel();
-        }
-
-        return new JsonWriter(null)
-                .addIfNotNull("date", revision.getDateOfLatestModification())
+    private static Consumer<OutputWriter> materialRevision(MaterialRevision revision) {
+        return revisionWriter -> {
+            revisionWriter.addIfNotNull("date", revision.getDateOfLatestModification())
                 .addIfNotNull("user", revision.getLatestUser())
                 .addIfNotNull("comment", revision.getLatestComment())
-                .addIfNotNull("last_run_revision", revision.getLatestRevisionString())
-                .getAsMap();
+                .addIfNotNull("last_run_revision", revision.getLatestRevisionString());
+
+        };
     }
 }

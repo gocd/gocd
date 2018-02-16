@@ -17,22 +17,18 @@
 package com.thoughtworks.go.apiv1.admin.security.representers;
 
 
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.representers.JsonWriter;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
-import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GoCDRoleConfigRepresenter {
 
-    public static Map toJSON(RoleConfig roleConfig, RequestContext requestContext) {
-        return new JsonWriter(requestContext)
-                .add("users", usersAsString(roleConfig))
-                .getAsMap();
+    public static void toJSON(OutputWriter attributeWriter, RoleConfig role) {
+        attributeWriter.addChildList("users", usersAsString(role));
     }
 
     public static RoleConfig fromJSON(JsonReader jsonReader) {

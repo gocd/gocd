@@ -16,28 +16,20 @@
 
 package com.thoughtworks.go.apiv1.serverhealthmessages.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.spark.RequestContext;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ServerHealthMessagesRepresenter {
 
-    public static List<Map<String, Object>> toJSON(Collection<ServerHealthState> healthStates, RequestContext requestContext) {
-        return healthStates.stream().map(healthState -> toJSON(healthState, requestContext)).collect(Collectors.toList());
+    public static void toJSON(OutputListWriter outputListWriter, Collection<ServerHealthState> healthStates) {
+        healthStates.forEach(healthState ->
+            outputListWriter.addChild(writer ->
+                writer.add("message", healthState.getMessage())
+                    .add("detail", healthState.getDescription())
+                    .add("level", healthState.getLogLevel().toString())
+                    .add("time", healthState.getTimestamp()))
+        );
     }
-
-    public static Map<String, Object> toJSON(ServerHealthState healthState, RequestContext requestContext) {
-        return new JsonWriter(null)
-                .add("message", healthState.getMessage())
-                .add("detail", healthState.getDescription())
-                .add("level", healthState.getLogLevel().toString())
-                .add("time", healthState.getTimestamp())
-                .getAsMap();
-    }
-
 }

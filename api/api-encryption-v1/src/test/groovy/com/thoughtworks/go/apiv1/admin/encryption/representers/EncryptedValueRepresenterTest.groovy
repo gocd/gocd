@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.apiv1.admin.encryption.representers
 
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class EncryptedValueRepresenterTest {
 
   @Test
   void 'should serialize'() {
-    def actual = EncryptedValueRepresenter.toJSON("foo", new TestRequestContext())
+    def actualJson = toObjectString({ EncryptedValueRepresenter.toJSON(it, "foo") })
 
     LinkedHashMap<String, Object> expected = [
       _links         : [
@@ -35,6 +35,6 @@ class EncryptedValueRepresenterTest {
       encrypted_value: 'foo'
     ]
 
-    assertThatJson(actual).isEqualTo(expected)
+    assertThatJson(actualJson).isEqualTo(expected)
   }
 }

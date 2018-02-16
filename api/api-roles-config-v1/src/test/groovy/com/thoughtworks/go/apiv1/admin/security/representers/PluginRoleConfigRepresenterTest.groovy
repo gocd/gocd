@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.domain.config.ConfigurationKey
@@ -24,7 +23,8 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
 import org.junit.Test
 
-import static org.assertj.core.api.Assertions.assertThat
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class PluginRoleConfigRepresenterTest {
   private final LinkedHashMap<String, Object> map = [
@@ -37,13 +37,13 @@ class PluginRoleConfigRepresenterTest {
     type      : 'plugin',
     attributes: [
       auth_config_id: "ldap",
-      properties: [
+      properties    : [
         [
-          key: "UserGroupMembershipAttribute",
+          key  : "UserGroupMembershipAttribute",
           value: "memberOf"
         ],
         [
-          key: "GroupIdentifiers",
+          key  : "GroupIdentifiers",
           value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
         ]
       ]
@@ -56,15 +56,15 @@ class PluginRoleConfigRepresenterTest {
 
   @Test
   void shouldGenerateJSON() {
-    Map map = RoleRepresenter.toJSON(roleConfig, new TestRequestContext())
+    def actualJson = toObjectString({ RoleRepresenter.toJSON(it, roleConfig) })
 
-    assertThat(map).isEqualTo(this.map)
+    assertThatJson(actualJson).isEqualTo(this.map)
   }
 
   @Test
   void shouldBuildObjectFromJson() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(map)
     def roleConfig = RoleRepresenter.fromJSON(jsonReader)
-    assertThat(roleConfig).isEqualTo(this.roleConfig)
+    assertThatJson(roleConfig).isEqualTo(this.roleConfig)
   }
 }

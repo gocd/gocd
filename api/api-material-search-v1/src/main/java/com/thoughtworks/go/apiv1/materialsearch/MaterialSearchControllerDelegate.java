@@ -20,7 +20,6 @@ package com.thoughtworks.go.apiv1.materialsearch;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepresenter;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
 import com.thoughtworks.go.i18n.Localizer;
@@ -30,9 +29,9 @@ import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
-import static com.thoughtworks.go.spark.RequestContext.requestContext;
 import static spark.Spark.*;
 
 public class MaterialSearchControllerDelegate extends ApiController {
@@ -62,20 +61,21 @@ public class MaterialSearchControllerDelegate extends ApiController {
             before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
             before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
 
-            get("", this::search, GsonTransformer.getInstance());
-            head("", this::search, GsonTransformer.getInstance());
+            get("", this::search);
+            head("", this::search);
         });
     }
 
-    public Object search(Request request, Response response) {
+    public String search(Request request, Response response) throws IOException {
         String pipelineName = request.queryParams("pipeline_name");
         String fingerprint = request.queryParams("fingerprint");
         String searchText = request.queryParamOrDefault("search_text", "");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MatchedRevision> matchedRevisions = materialService.searchRevisions(pipelineName, fingerprint, searchText, currentUsername(), result);
-        if(result.isSuccessful()) {
-            return MatchedRevisionRepresenter.toJSON(matchedRevisions, requestContext(request));
+        if (result.isSuccessful()) {
+            return writerForTopLevelArray(request, response, outputListWriter -> MatchedRevisionRepresenter.toJSON(outputListWriter, matchedRevisions));
+        } else {
+            return renderHTTPOperationResult(result, request, response, localizer);
         }
-        return renderHTTPOperationResult(result, response, localizer);
     }
 }

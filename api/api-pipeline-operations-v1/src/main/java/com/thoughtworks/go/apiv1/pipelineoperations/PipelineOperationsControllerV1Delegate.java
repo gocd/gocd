@@ -33,10 +33,11 @@ import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
+
+import java.io.IOException;
 
 import static spark.Spark.*;
 
@@ -76,46 +77,47 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
             before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
             before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
 
-            post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause, GsonTransformer.getInstance());
-            post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause, GsonTransformer.getInstance());
-            post(Routes.Pipeline.UNLOCK_PATH, mimeType, this::unlock, GsonTransformer.getInstance());
-            get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions, GsonTransformer.getInstance());
+            post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause);
+            post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause);
+            post(Routes.Pipeline.UNLOCK_PATH, mimeType, this::unlock);
+            get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
-    public Object pause(Request req, Response res) {
+    public String pause(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         String pipelineName = req.params("pipeline_name");
         String pauseCause = requestBody.optString("pause_cause").orElse(null);
         pipelinePauseService.pause(pipelineName, pauseCause, currentUsername(), result);
-        return renderHTTPOperationResult(result, res, localizer);
+        return renderHTTPOperationResult(result, req, res, localizer);
     }
 
-    public Object unpause(Request req, Response res) {
+    public String unpause(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String pipelineName = req.params("pipeline_name");
         pipelinePauseService.unpause(pipelineName, currentUsername(), result);
-        return renderHTTPOperationResult(result, res, localizer);
+        return renderHTTPOperationResult(result, req, res, localizer);
     }
 
-    public Object unlock(Request req, Response res) {
+    public String unlock(Request req, Response res) throws IOException {
         HttpOperationResult result = new HttpOperationResult();
         String pipelineName = req.params("pipeline_name");
         pipelineUnlockApiService.unlock(pipelineName, currentUsername(), result);
-        return renderHTTPOperationResult(result, res);
+        return renderHTTPOperationResult(result, req, res);
     }
 
-    public Object triggerOptions(Request request, Response response) {
+    public String triggerOptions(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
 
         EnvironmentVariablesConfig variables = goConfigService.variablesFor(pipelineName);
         PipelineInstanceModel pipelineInstanceModel = pipelineHistoryService.latest(pipelineName, currentUsername());
 
         TriggerOptions triggerOptions = new TriggerOptions(variables, pipelineInstanceModel);
-        return TriggerWithOptionsViewRepresenter.toJSON(triggerOptions, RequestContext.requestContext(request));
+
+        return writerForTopLevelObject(request, response, writer -> TriggerWithOptionsViewRepresenter.toJSON(writer, triggerOptions));
     }
 
 }

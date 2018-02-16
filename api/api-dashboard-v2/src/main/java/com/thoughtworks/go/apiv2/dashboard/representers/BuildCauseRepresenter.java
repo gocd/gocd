@@ -16,30 +16,16 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.spark.RequestContext;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BuildCauseRepresenter {
 
-    public static Map toJSON(BuildCause model, RequestContext requestContext) {
-        return new JsonWriter(requestContext)
-                .add("approver", model.getApprover())
-                .add("is_forced", model.isForced())
-                .add("trigger_message", model.getBuildCauseMessage())
-                .add("material_revisions", getMaterialRevisions(model, requestContext)).getAsMap();
+    public static void toJSON(OutputWriter jsonOutputWriter, BuildCause model) {
+        jsonOutputWriter
+            .add("approver", model.getApprover())
+            .add("is_forced", model.isForced())
+            .add("trigger_message", model.getBuildCauseMessage())
+            .addChildList("material_revisions", listWriter -> model.getMaterialRevisions().forEach(materialRevision -> listWriter.addChild(childWriter -> MaterialRevisionRepresenter.toJSON(childWriter, materialRevision))));
     }
-
-    private static List<Map> getMaterialRevisions(BuildCause model, RequestContext requestContext) {
-        List<Map> materialRevisions = new ArrayList<>();
-        model.getMaterialRevisions().forEach(materialRevision -> {
-            materialRevisions.add(MaterialRevisionRepresenter.toJSON(materialRevision, requestContext));
-        });
-        return materialRevisions;
-    }
-
 }

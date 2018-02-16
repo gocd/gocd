@@ -20,16 +20,12 @@ package com.thoughtworks.go.apiv1.serverhealthmessages;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.serverhealthmessages.representers.ServerHealthMessagesRepresenter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.spark.Routes;
 import spark.Request;
 import spark.Response;
-
-import java.util.List;
-import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -57,21 +53,21 @@ public class ServerHealthMessagesControllerDelegate extends ApiController {
             before("", apiAuthenticationHelper::checkUserAnd401);
             before("/*", apiAuthenticationHelper::checkUserAnd401);
 
-            get("", this::show, GsonTransformer.getInstance());
-            head("", this::show, GsonTransformer.getInstance());
+            get("", this::show);
+            head("", this::show);
         });
     }
 
-    public Object show(Request request, Response response) {
+    public String show(Request request, Response response) {
         ServerHealthStates allLogs = serverHealthService.logs();
-        List<Map<String, Object>> map = ServerHealthMessagesRepresenter.toJSON(allLogs, null);
-        String etag = etagFor(map);
+        String json = jsonizeAsTopLevelArray(request, outputListWriter -> ServerHealthMessagesRepresenter.toJSON(outputListWriter, allLogs));
+        String etag = etagFor(json);
 
         if (fresh(request, etag)) {
             return notModified(response);
         }
 
         setEtagHeader(response, etag);
-        return map;
+        return json;
     }
 }

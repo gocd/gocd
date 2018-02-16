@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -33,22 +33,28 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'it should serialize an unencrypted value if property type is unsecure'() {
       def configProperty = ConfigurationPropertyMother.create("user", false, "bob")
-      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
-      assertThatJson(map).isEqualTo([key: 'user', value: 'bob'])
+      def actualJson = toObjectString({
+        ConfigurationPropertyRepresenter.toJSON(it, configProperty)
+      })
+      assertThatJson(actualJson).isEqualTo([key: 'user', value: 'bob'])
     }
 
     @Test
     void 'it should serialize an encrypted value if property type is secure'() {
       def configProperty = ConfigurationPropertyMother.create("password", true, "p@ssw0rd")
-      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
-      assertThatJson(map).isEqualTo([key: 'password', encrypted_value: configProperty.getEncryptedValue()])
+      def actualJson = toObjectString({
+        ConfigurationPropertyRepresenter.toJSON(it, configProperty)
+      })
+      assertThatJson(actualJson).isEqualTo([key: 'password', encrypted_value: configProperty.getEncryptedValue()])
     }
 
     @Test
     void 'it should serialize property with null value'() {
       def configProperty = ConfigurationPropertyMother.createKeyOnly("Username")
-      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
-      assertThatJson(map).isEqualTo([key: 'Username'])
+      def actualJson = toObjectString({
+        ConfigurationPropertyRepresenter.toJSON(it, configProperty)
+      })
+      assertThatJson(actualJson).isEqualTo([key: 'Username'])
     }
 
     @Test
@@ -57,8 +63,8 @@ class ConfigurationPropertyRepresenterTest {
       configProperty.addError("encryptedValue", "blah")
       configProperty.addError("encryptedValue", "boo")
 
-      def map = ConfigurationPropertyRepresenter.toJSON(configProperty, new TestRequestContext())
-      assertThatJson(map).isEqualTo([key: 'user', value: 'bob', "errors": ["encrypted_value": ["blah", "boo"]]])
+      def actualJson = toObjectString({ ConfigurationPropertyRepresenter.toJSON(it, configProperty) })
+      assertThatJson(actualJson).isEqualTo([key: 'user', value: 'bob', "errors": ["encrypted_value": ["blah", "boo"]]])
     }
   }
 

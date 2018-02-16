@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NonAnonymousUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.util.TriState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
@@ -82,16 +82,18 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
       void 'should render current user'() {
         getWithApiHeader(controller.controllerBasePath())
 
+        def etag = '"' + controller.etagFor(toObjectString({ UserRepresenter.toJSON(it, user) })) + '"'
+
         assertThatResponse()
           .isOk()
-          .hasEtag('"' + controller.etagFor(UserRepresenter.toJSON(user, new TestRequestContext())) + '"')
+          .hasEtag(etag)
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(user, UserRepresenter.class)
+          .hasBodyWithJsonObject(user, UserRepresenter.class)
       }
 
       @Test
       void 'should render 304 if content matches'() {
-        def etag = '"' + controller.etagFor(UserRepresenter.toJSON(user, new TestRequestContext())) + '"'
+        def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, user) })) + '"'
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
         assertThatResponse()
@@ -147,16 +149,19 @@ class CurrentUserControllerDelegateTest implements ControllerTrait<CurrentUserCo
         }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
         patchWithApiHeader(controller.controllerBasePath(), data)
 
+        def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser) })) + '"'
+
         assertThatResponse()
           .isOk()
-          .hasEtag('"' + controller.etagFor(UserRepresenter.toJSON(newUser, new TestRequestContext())) + '"')
+          .hasEtag(etag)
           .hasContentType(controller.mimeType)
-          .hasJsonBodySerializedWith(newUser, UserRepresenter.class)
+          .hasBodyWithJsonObject(newUser, UserRepresenter.class)
       }
 
       @Test
       void 'should render 304 if content matches'() {
-        def etag = '"' + controller.etagFor(UserRepresenter.toJSON(user, new TestRequestContext())) + '"'
+        def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, user) })) + '"'
+
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
         assertThatResponse()

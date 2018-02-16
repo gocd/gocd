@@ -20,18 +20,22 @@ import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.serverhealth.ServerHealthState
 import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.Assertions.assertThat
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ServerHealthMessagesRepresenterTest {
 
   @Test
   void 'should serialize'() {
     def state = ServerHealthState.error("not enough disk space, halting scheduling", "There is not enough disk space on the artifact filesystem", HealthStateType.artifactsDiskFull())
-    assertThat(ServerHealthMessagesRepresenter.toJSON([state], null)).isEqualTo([[
-                                                                                   message: state.message,
-                                                                                   detail : state.description,
-                                                                                   level  : state.logLevel.toString(),
-                                                                                   time   : state.timestamp
-                                                                                 ]])
+    def actualJson = toArrayString({ ServerHealthMessagesRepresenter.toJSON(it, [state]) })
+
+    assertThatJson(actualJson).isEqualTo([[
+                                            message: state.message,
+                                            detail : state.description,
+                                            level  : state.logLevel.toString(),
+                                            time   : jsonDate(state.timestamp)
+                                          ]])
   }
 }

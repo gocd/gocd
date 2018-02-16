@@ -16,39 +16,32 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.api.representers.JsonWriter;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.spark.RequestContext;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PipelineGroupsRepresenter {
 
-    public static Map toJSON(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {
-        return new JsonWriter(requestContext)
-                .addLink("self", Routes.Dashboard.SELF)
-                .addDocLink(Routes.Dashboard.DOC)
+    public static void toJSON(OutputWriter jsonOutputWriter, DashboardFor dashboardFor) {
+        jsonOutputWriter
+            .addLinks(linksWriter -> linksWriter.addLink("self", Routes.Dashboard.SELF)
+                .addAbsoluteLink("doc", Routes.Dashboard.DOC))
+            .addChild("_embedded", childWriter -> {
+                childWriter
+                    .addChildList("pipeline_groups", listWriter -> {
+                        dashboardFor.getPipelineGroups().forEach(pipelineGroup -> {
+                            listWriter.addChild(childItemWriter -> {
+                                PipelineGroupRepresenter.toJSON(childItemWriter, pipelineGroup, dashboardFor.getUsername());
+                            });
+                        });
+                    })
 
-                .addEmbedded("pipeline_groups", getPipelineGroups(pipelineGroups, requestContext, username))
-                .addEmbedded("pipelines", getPipelines(pipelineGroups, requestContext, username))
-                .getAsMap();
+                    .addChildList("pipelines", listWriter -> {
+                        dashboardFor.getPipelineGroups().stream()
+                            .flatMap(pipelineGroup -> pipelineGroup.allPipelines().stream())
+                            .forEach(pipeline -> {
+                                listWriter.addChild(childItemWriter -> PipelineRepresenter.toJSON(childItemWriter, pipeline, dashboardFor.getUsername()));
+                            });
+                    });
+            });
     }
-
-    private static List<Map> getPipelines(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {
-        return pipelineGroups.stream()
-                .flatMap(pipelineGroup -> pipelineGroup.allPipelines().stream())
-                .map(pipeline -> PipelineRepresenter.toJSON(pipeline, requestContext, username))
-                .collect(Collectors.toList());
-    }
-
-    private static List<Map> getPipelineGroups(List<GoDashboardPipelineGroup> pipelineGroups, RequestContext requestContext, Username username) {
-        return pipelineGroups.stream()
-                .map(pipelineGroup -> PipelineGroupRepresenter.toJSON(pipelineGroup, requestContext, username))
-                .collect(Collectors.toList());
-    }
-
 }

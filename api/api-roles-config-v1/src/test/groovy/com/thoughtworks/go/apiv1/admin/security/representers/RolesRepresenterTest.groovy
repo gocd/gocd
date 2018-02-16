@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.apiv1.admin.security.representers
 
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
 import org.junit.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class RolesRepresenterTest {
@@ -64,7 +64,7 @@ class RolesRepresenterTest {
   ]
 
   private final LinkedHashMap<Object, Object> rolesList = [
-    _links: [
+    _links   : [
       doc : [href: 'https://api.gocd.org/#roles'],
       self: [href: 'http://test.host/go/api/admin/security/roles'],
       find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
@@ -81,14 +81,15 @@ class RolesRepresenterTest {
     new ConfigurationProperty(new ConfigurationKey("UserGroupMembershipAttribute"), new ConfigurationValue("memberOf")),
     new ConfigurationProperty(new ConfigurationKey("GroupIdentifiers"), new ConfigurationValue("ou=admins,ou=groups,ou=system,dc=example,dc=com")))
 
-  private final RoleConfig goCDRoleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
+  private
+  final RoleConfig goCDRoleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
 
   @Test
   void shouldGenerateJSON() {
     def roles = new RolesConfig(goCDRoleConfig, pluginRoleConfig)
-    Map map = RolesRepresenter.toJSON(roles, new TestRequestContext())
+    def actualJson = toObjectString({ RolesRepresenter.toJSON(it, roles) })
 
-    assertThatJson(map).isEqualTo(this.rolesList)
+    assertThatJson(actualJson).isEqualTo(this.rolesList)
   }
 
 }

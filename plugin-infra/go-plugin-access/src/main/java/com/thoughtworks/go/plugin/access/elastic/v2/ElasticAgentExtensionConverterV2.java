@@ -118,6 +118,15 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         return new ImageDeserializer().fromJSON(responseBody);
     }
 
+    public String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId) {
+        JsonObject jsonObject = new JsonObject();
+        if (identifier != null) {
+            jsonObject.add("job_identifier", jobIdentifierJson(identifier));
+        }
+        jsonObject.addProperty("elastic_agent_id", elasticAgentId);
+        return GSON.toJson(jsonObject);
+    }
+
     @Override
     public ValidationResult getValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);

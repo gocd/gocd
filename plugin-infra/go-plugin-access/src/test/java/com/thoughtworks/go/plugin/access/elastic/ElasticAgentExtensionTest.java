@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -69,6 +70,26 @@ public class ElasticAgentExtensionTest {
         assertThat(statusReport, is("foo"));
         assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));
         assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_STATUS_REPORT));
+    }
+
+    @Test
+    public void shouldMakeElasticAgentStatusReportCallForPluginsWhichSupportV2() throws Exception {
+        final GoPluginDescriptor.About about = new GoPluginDescriptor.About("ECS Plugin", "2.0", null, null, null, null);
+
+        final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
+
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, "ecs.plugin")).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion("ecs.plugin", Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
+        when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
+        when(pluginManager.submitTo(eq("ecs.plugin"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{\n" +
+                "\"view\": \"foo\"\n" +
+                "}"));
+
+        final String statusReport = new ElasticAgentExtension(pluginManager).getAgentStatusReport("ecs.plugin", new JobIdentifier(), "elastic-agent-id");
+
+        assertThat(statusReport, is("foo"));
+        assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));
+        assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_AGENT_STATUS_REPORT));
     }
 
     @Test

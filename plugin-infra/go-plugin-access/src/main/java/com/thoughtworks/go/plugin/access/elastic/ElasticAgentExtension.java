@@ -150,6 +150,21 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
+    public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getAgentStatusReportRequestBody(identifier, elasticAgentId);
+            }
+
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
+                return converter.getStatusReportView(responseBody);
+            }
+        });
+    }
+
     public Capabilities getCapabilities(String pluginId) {
         if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
             throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `Capabilities` endpoint is not supported in this version.", pluginId));

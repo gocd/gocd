@@ -31,6 +31,10 @@ const agentJobHistoryPath = function (uuid) {
   return `/go/agents/${  uuid  }/job_run_history`;
 };
 
+const agentStatusReportPath = function (elasticPluginId, elasticAgentId) {
+  return `/go/admin/status_reports/${ elasticPluginId }/${ elasticAgentId }`;
+};
+
 const createBuildDetailsDropDown = function (agent, args) {
   return (
     <BuildDetailsWidget agent={agent}
@@ -38,8 +42,24 @@ const createBuildDetailsDropDown = function (agent, args) {
   );
 };
 
+const getHostnameLink = function (isUserAdmin, agent, pluginInfos) {
+  if (!isUserAdmin) {
+    return (<span>{agent.hostname()}</span>);
+  }
+  if (!agent.isElasticAgent()) {
+    return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
+  }
+
+  if (pluginInfos && pluginInfos() && pluginInfos().findById(agent.elasticPluginId()).capabilities().supportsStatusReport()) {
+    return (<a href={agentStatusReportPath(agent.elasticPluginId(), agent.elasticAgentId())}>{agent.hostname()}</a>);
+  } else {
+    return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
+  }
+
+};
+
 const AgentRowWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     const args = vnode.attrs;
 
     this.buildDetailsClicked = function (name) {
@@ -52,7 +72,7 @@ const AgentRowWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
     const ctrl = vnode.state;
     const args = vnode.attrs;
 
@@ -65,7 +85,7 @@ const AgentRowWidget = {
     const pluginInfos     = args.pluginInfos;
     let selectAgentCheckbox;
     let elasticAgentIcon;
-    let hostnameLink      = <span>{agent.hostname()}</span>;
+    const hostnameLink      = getHostnameLink(args.isUserAdmin, agent, pluginInfos);
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
@@ -88,9 +108,6 @@ const AgentRowWidget = {
                class="select-agent"
                checked={args.checkBoxModel()}
                onclick={m.withAttr('checked', args.checkBoxModel)}/>
-      );
-      hostnameLink        = (
-        <a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>
       );
     }
 

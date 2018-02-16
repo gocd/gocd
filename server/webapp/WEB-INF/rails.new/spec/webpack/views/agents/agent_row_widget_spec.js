@@ -73,6 +73,45 @@ describe("Agent Row Widget", () => {
     expect($(information[2]).find('.content')).not.toContainElement('a');
   });
 
+  it('should contain link to job run history for normal agents', () => {
+    agents(allAgents);
+    const model = Stream(true);
+    mount(agents().firstAgent(), model, true);
+
+    const row         = $root.find('tr')[0];
+    const information = $(row).find('td');
+    const hostname      = $(information[2]).find('.content');
+
+    expect(hostname).toHaveText('in-john.local');
+    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
+  });
+
+  it('should contain link to agent status report page for elastic agents', () => {
+    agents(allAgents);
+    const model = Stream(true);
+    mount(agents().lastAgent(), model, true, true);
+
+    const row         = $root.find('tr')[0];
+    const information = $(row).find('td');
+    const hostname      = $(information[2]).find('.content');
+
+    expect(hostname).toHaveText('elastic-agent-hostname');
+    expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/${allAgents.lastAgent().elasticAgentId()}`);
+  });
+
+  it('should not contain link to agent status report page when plugin doesnt support status reports', () => {
+    agents(allAgents);
+    const model = Stream(true);
+    mount(agents().lastAgent(), model, true, false);
+
+    const row         = $root.find('tr')[0];
+    const information = $(row).find('td');
+    const hostname      = $(information[2]).find('.content');
+
+    expect(hostname).toHaveText('elastic-agent-hostname');
+    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
+  });
+
   it('should check the value based on the checkbox model', () => {
     agents(allAgents);
     const model = Stream(true);
@@ -131,14 +170,17 @@ describe("Agent Row Widget", () => {
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
-  const mount = (agent, model, isUserAdmin) => {
+  const mount = (agent, model, isUserAdmin, pluginSupportsStatusReport = false) => {
     m.mount(root, {
       view() {
         return m(AgentsRowWidget, {
           agent,
           'checkBoxModel': model,
           'dropdown':      agentsVM.dropdown,
-          isUserAdmin
+          isUserAdmin,
+          'pluginInfos':   () => ({
+            'findById': () => ({'capabilities': () => ({'supportsStatusReport': () => pluginSupportsStatusReport})})
+          })
         });
       }
     });
@@ -235,13 +277,54 @@ describe("Agent Row Widget", () => {
       "build_details":      {
         "_links":        {
           "job":      {
-            "href": "http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
+            "href": "https://ci.example.com/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
           },
           "stage":    {
-            "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
+            "href": "https://ci.example.com/go/pipelines/up42/2/up42_stage/1"
           },
           "pipeline": {
-            "href": "http://localhost:8153/go/tab/pipeline/history/up42"
+            "href": "https://ci.example.com/go/tab/pipeline/history/up42"
+          }
+        },
+        "pipeline_name": "up42",
+        "stage_name":    "up42_stage",
+        "job_name":      "up42_job"
+      }
+    },
+    {
+      "_links":             {
+        "self": {
+          "href": "https://ci.example.com/go/api/agents/96934a52-035e-4e79-acbf-da2238091edd"
+        },
+        "doc":  {
+          "href": "https://api.gocd.org/#agents"
+        },
+        "find": {
+          "href": "https://ci.example.com/go/api/agents/:uuid"
+        }
+      },
+      "uuid":               "agent-4",
+      "hostname":           "elastic-agent-hostname",
+      "ip_address":         "172.17.0.2",
+      "elastic_agent_id":   "elastic-agent-id",
+      "elastic_plugin_id":  "cd.go.contrib.elasticagent.kubernetes",
+      "sandbox":            "/go",
+      "operating_system":   "Alpine Linux v3.5",
+      "free_space":         14496362496,
+      "agent_config_state": "Enabled",
+      "agent_state":        "Building",
+      "environments":       [],
+      "build_state":        "Building",
+      "build_details":      {
+        "_links":        {
+          "job":      {
+            "href": "https://ci.example.com/go/tab/build/detail/up42/5/up42_stage/1/up42_job"
+          },
+          "stage":    {
+            "href": "https://ci.example.com/go/pipelines/up42/5/up42_stage/1"
+          },
+          "pipeline": {
+            "href": "https://ci.example.com/go/tab/pipeline/history/up42"
           }
         },
         "pipeline_name": "up42",

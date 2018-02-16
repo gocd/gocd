@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class StageConverter extends DataConverter<StageNotificationDTO> {
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private Stage stage;
     private final String pipelineGroup;
     private final BuildCause buildCause;
@@ -44,18 +43,23 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
         String pipelineLabel = stage.getIdentifier().getPipelineLabel();
-        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
+        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter,
+                pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
         return new StageNotificationDTO(pipeline);
     }
 
     private StageNotificationDTO.StageDTO createStageDTO() {
         ArrayList<StageNotificationDTO.JobDTO> jobs = new ArrayList<>();
         for (JobInstance job : stage.getJobInstances()) {
-            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(), job.getScheduledDate(), job.getAssignedDate(), job.getCompletedDate(), job.getState(), job.getResult(), job.getAgentUuid());
+            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(),
+                    DateUtil.dateToString(job.getScheduledDate()), DateUtil.dateToString(job.getAssignedDate()),
+                    DateUtil.dateToString(job.getCompletedDate()), job.getState(), job.getResult(), job.getAgentUuid());
             jobs.add(jobDTO);
         }
 
-        return new StageNotificationDTO.StageDTO(stage.getName(), stage.getCounter(), stage.getApprovalType(), stage.getApprovedBy(), stage.getState(), stage.getResult(), stage.getCreatedTime(), stage.getLastTransitionedTime(), jobs);
+        return new StageNotificationDTO.StageDTO(stage.getName(), stage.getCounter(), stage.getApprovalType(), stage.getApprovedBy(),
+                stage.getState(), stage.getResult(), DateUtil.dateToString(stage.getCreatedTime()),
+                DateUtil.dateToString(stage.getLastTransitionedTime()), jobs);
     }
 
     private ArrayList<StageNotificationDTO.MaterialRevisionDTO> createBuildCause(BuildCause buildCause) {
@@ -64,7 +68,8 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
             Map<String, Object> attributes = currentRevision.getMaterial().getAttributes(false);
             ArrayList<StageNotificationDTO.ModificationDTO> modifications = new ArrayList<>();
             for (Modification modification : currentRevision.getModifications()) {
-                modifications.add(new StageNotificationDTO.ModificationDTO(modification.getRevision(), modification.getModifiedTime(), modification.getAdditionalDataMap()));
+                modifications.add(new StageNotificationDTO.ModificationDTO(modification.getRevision(),
+                        DateUtil.dateToString(modification.getModifiedTime()), modification.getAdditionalDataMap()));
             }
             revisions.add(new StageNotificationDTO.MaterialRevisionDTO(attributes, currentRevision.isChanged(), modifications));
         }

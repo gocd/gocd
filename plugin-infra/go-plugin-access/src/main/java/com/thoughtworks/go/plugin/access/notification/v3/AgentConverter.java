@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.access.notification.DataConverter;
 
 public class AgentConverter extends DataConverter<AgentNotificationDTO> {
     private AgentNotificationData agentNotificationData;
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public AgentConverter(AgentNotificationData agentNotificationData) {
         this.agentNotificationData = agentNotificationData;
@@ -39,7 +38,7 @@ public class AgentConverter extends DataConverter<AgentNotificationDTO> {
                 agentNotificationData.getAgentConfigState(),
                 agentNotificationData.getAgentState(),
                 agentNotificationData.getBuildState(),
-                agentNotificationData.getTransitionTime()
+                DateUtil.dateToString(agentNotificationData.getTransitionTime())
                 );
     }
 }

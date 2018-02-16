@@ -24,9 +24,8 @@ import com.thoughtworks.go.plugin.access.notification.JsonMessageHandler;
 import com.thoughtworks.go.plugin.api.response.Result;
 import org.apache.commons.lang.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;

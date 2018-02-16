@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -98,9 +97,9 @@ public class StageNotificationDTO {
         @SerializedName("data")
         private HashMap<String, String> data;
 
-        public ModificationDTO(String revision, Date modifiedTime, HashMap<String, String> data) {
+        public ModificationDTO(String revision, String modifiedTime, HashMap<String, String> data) {
             this.revision = revision;
-            this.modifiedTime = dateToString(modifiedTime);
+            this.modifiedTime = modifiedTime;
             this.data = data;
         }
     }
@@ -134,15 +133,16 @@ public class StageNotificationDTO {
         @SerializedName("jobs")
         private List<JobDTO> jobs;
 
-        public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result, Timestamp createTime, Timestamp lastTransitionTime, List<JobDTO> jobs) {
+        public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result,
+                        String createTime, String lastTransitionTime, List<JobDTO> jobs) {
             this.name = name;
             this.counter = new Integer(counter).toString();
             this.approvalType = approvalType;
             this.approvedBy = approvedBy;
             this.state = state.toString();
             this.result = result.toString();
-            this.createTime = timestampToString(createTime);
-            this.lastTransitionTime = timestampToString(lastTransitionTime);
+            this.createTime = createTime;
+            this.lastTransitionTime = lastTransitionTime;
             this.jobs = jobs;
         }
     }
@@ -170,22 +170,14 @@ public class StageNotificationDTO {
         @SerializedName("agent-uuid")
         private String agentUuid;
 
-        public JobDTO(String name, Date scheduleTime, Date assignTime, Date completeTime, JobState state, JobResult result, String agentUuid) {
+        public JobDTO(String name, String scheduleTime, String assignTime, String completeTime, JobState state, JobResult result, String agentUuid) {
             this.name = name;
-            this.scheduleTime = dateToString(scheduleTime);
-            this.assignTime = dateToString(assignTime);
-            this.completeTime = dateToString(completeTime);
+            this.scheduleTime = scheduleTime;
+            this.assignTime = assignTime;
+            this.completeTime = completeTime;
             this.state = state.toString();
             this.result = result.toString();
             this.agentUuid = agentUuid;
         }
-    }
-
-    private static String timestampToString(Timestamp timestamp) {
-        return timestamp == null ? "" : new SimpleDateFormat(StageConverter.DATE_PATTERN).format(timestamp);
-    }
-
-    private static String dateToString(Date date) {
-        return date == null ? "" : new SimpleDateFormat(StageConverter.DATE_PATTERN).format(date);
     }
 }

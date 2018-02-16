@@ -20,10 +20,6 @@ package com.thoughtworks.go.plugin.access.notification.v3;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 public class AgentNotificationDTO {
     @Expose
     @SerializedName("uuid")
@@ -65,11 +61,9 @@ public class AgentNotificationDTO {
     @SerializedName("transition_time")
     private String transitionTime;
 
-    private static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
-
     public AgentNotificationDTO(String uuid, String hostName, boolean isElastic, String ipAddress,
                                 String operatingSystem, String freeSpace, String agentConfigState, String agentState,
-                                String buildState, Date transitionTime) {
+                                String buildState, String transitionTime) {
         this.uuid = uuid;
         this.hostName = hostName;
         this.isElastic = isElastic;
@@ -79,16 +73,6 @@ public class AgentNotificationDTO {
         this.agentConfigState = agentConfigState;
         this.agentState = agentState;
         this.buildState = buildState;
-        this.transitionTime = dateToString(transitionTime);
-    }
-
-    private static String dateToString(Date date) {
-        if (date == null) {
-            return "";
-        }
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(AgentConverter.DATE_PATTERN);
-        simpleDateFormat.setTimeZone(UTC_TIMEZONE);
-        return simpleDateFormat.format(date);
+        this.transitionTime = transitionTime;
     }
 }

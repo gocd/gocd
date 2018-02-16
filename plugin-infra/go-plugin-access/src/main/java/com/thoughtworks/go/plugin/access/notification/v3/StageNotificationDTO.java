@@ -97,9 +97,9 @@ public class StageNotificationDTO {
         @SerializedName("data")
         private HashMap<String, String> data;
 
-        public ModificationDTO(String revision, Date modifiedTime, HashMap<String, String> data) {
+        public ModificationDTO(String revision, String modifiedTime, HashMap<String, String> data) {
             this.revision = revision;
-            this.modifiedTime = JsonMessageHandler3_0.dateToString(modifiedTime);
+            this.modifiedTime = modifiedTime;
             this.data = data;
         }
     }
@@ -133,15 +133,16 @@ public class StageNotificationDTO {
         @SerializedName("jobs")
         private List<JobDTO> jobs;
 
-        public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result, Timestamp createTime, Timestamp lastTransitionTime, List<JobDTO> jobs) {
+        public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result,
+                        String createTime, String lastTransitionTime, List<JobDTO> jobs) {
             this.name = name;
             this.counter = new Integer(counter).toString();
             this.approvalType = approvalType;
             this.approvedBy = approvedBy;
             this.state = state.toString();
             this.result = result.toString();
-            this.createTime = JsonMessageHandler3_0.dateToString(createTime);
-            this.lastTransitionTime = JsonMessageHandler3_0.dateToString(lastTransitionTime);
+            this.createTime = createTime;
+            this.lastTransitionTime = lastTransitionTime;
             this.jobs = jobs;
         }
     }
@@ -169,11 +170,11 @@ public class StageNotificationDTO {
         @SerializedName("agent-uuid")
         private String agentUuid;
 
-        public JobDTO(String name, Date scheduleTime, Date assignTime, Date completeTime, JobState state, JobResult result, String agentUuid) {
+        public JobDTO(String name, String scheduleTime, String assignTime, String completeTime, JobState state, JobResult result, String agentUuid) {
             this.name = name;
-            this.scheduleTime = JsonMessageHandler3_0.dateToString(scheduleTime);
-            this.assignTime = JsonMessageHandler3_0.dateToString(assignTime);
-            this.completeTime = JsonMessageHandler3_0.dateToString(completeTime);
+            this.scheduleTime = scheduleTime;
+            this.assignTime = assignTime;
+            this.completeTime = completeTime;
             this.state = state.toString();
             this.result = result.toString();
             this.agentUuid = agentUuid;

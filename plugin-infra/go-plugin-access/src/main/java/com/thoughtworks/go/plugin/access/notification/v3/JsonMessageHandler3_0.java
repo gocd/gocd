@@ -31,9 +31,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class JsonMessageHandler3_0 implements JsonMessageHandler {
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
     @Override
     public List<String> responseMessageForNotificationsInterestedIn(String responseBody) {
         try {
@@ -92,16 +89,6 @@ public class JsonMessageHandler3_0 implements JsonMessageHandler {
 
     private Map parseResponseToMap(String responseBody) {
         return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
-    }
-
-    public static String dateToString(Date date) {
-        if (date != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
-            simpleDateFormat.setTimeZone(UTC);
-            return simpleDateFormat.format(date);
-        }
-
-        return "";
     }
 
     Result toResult(String responseBody) {

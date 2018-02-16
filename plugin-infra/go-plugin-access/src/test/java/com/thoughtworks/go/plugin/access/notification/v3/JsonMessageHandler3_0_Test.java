@@ -44,7 +44,7 @@ import static org.junit.Assert.fail;
 public class JsonMessageHandler3_0_Test {
     private JsonMessageHandler3_0 messageHandler;
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     @Before
     public void setUp() throws Exception {
@@ -110,152 +110,152 @@ public class JsonMessageHandler3_0_Test {
         String packageMaterialModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
         String pluggableScmModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
         String expected = "{\n" +
-                "\t\"pipeline\": {\n" +
-                "\t\t\"name\": \"pipeline-name\",\n" +
-                "\t\t\"label\": \"LABEL-1\",\n" +
-                "\t\t\"counter\": \"1\",\n" +
-                "\t\t\"group\": \"pipeline-group\",\n" +
-                "\t\t\"build-cause\": [{\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"git-configuration\": {\n" +
-                "\t\t\t\t\t\"shallow-clone\": false,\n" +
-                "\t\t\t\t\t\"branch\": \"branch\",\n" +
-                "\t\t\t\t\t\"url\": \"http://user:******@gitrepo.com\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"git\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+ gitModifiedTime +"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"type\": \"mercurial\",\n" +
-                "\t\t\t\t\"mercurial-configuration\": {\n" +
-                "\t\t\t\t\t\"url\": \"http://user:******@hgrepo.com\"\n" +
-                "\t\t\t\t}\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+hgModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"svn-configuration\": {\n" +
-                "\t\t\t\t\t\"check-externals\": false,\n" +
-                "\t\t\t\t\t\"url\": \"http://user:******@svnrepo.com\",\n" +
-                "\t\t\t\t\t\"username\": \"username\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"svn\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+svnModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"type\": \"tfs\",\n" +
-                "\t\t\t\t\"tfs-configuration\": {\n" +
-                "\t\t\t\t\t\"domain\": \"domain\",\n" +
-                "\t\t\t\t\t\"project-path\": \"project-path\",\n" +
-                "\t\t\t\t\t\"url\": \"http://user:******@tfsrepo.com\",\n" +
-                "\t\t\t\t\t\"username\": \"username\"\n" +
-                "\t\t\t\t}\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+tfsModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"perforce-configuration\": {\n" +
-                "\t\t\t\t\t\"view\": \"view\",\n" +
-                "\t\t\t\t\t\"use-tickets\": false,\n" +
-                "\t\t\t\t\t\"url\": \"127.0.0.1:1666\",\n" +
-                "\t\t\t\t\t\"username\": \"username\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"perforce\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+p4ModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"pipeline-configuration\": {\n" +
-                "\t\t\t\t\t\"pipeline-name\": \"pipeline-name\",\n" +
-                "\t\t\t\t\t\"stage-name\": \"stage-name\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"pipeline\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"pipeline-name/1/stage-name/1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+dependencyModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"plugin-id\": \"pluginid\",\n" +
-                "\t\t\t\t\"package-configuration\": {\n" +
-                "\t\t\t\t\t\"k3\": \"package-v1\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"repository-configuration\": {\n" +
-                "\t\t\t\t\t\"k1\": \"repo-v1\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"package\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+packageMaterialModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}, {\n" +
-                "\t\t\t\"material\": {\n" +
-                "\t\t\t\t\"plugin-id\": \"pluginid\",\n" +
-                "\t\t\t\t\"scm-configuration\": {\n" +
-                "\t\t\t\t\t\"k1\": \"v1\"\n" +
-                "\t\t\t\t},\n" +
-                "\t\t\t\t\"type\": \"scm\"\n" +
-                "\t\t\t},\n" +
-                "\t\t\t\"changed\": true,\n" +
-                "\t\t\t\"modifications\": [{\n" +
-                "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+pluggableScmModifiedTime+"\",\n" +
-                "\t\t\t\t\"data\": {}\n" +
-                "\t\t\t}]\n" +
-                "\t\t}],\n" +
-                "\t\t\"stage\": {\n" +
-                "\t\t\t\"name\": \"stage-name\",\n" +
-                "\t\t\t\"counter\": \"1\",\n" +
-                "\t\t\t\"approval-type\": \"success\",\n" +
-                "\t\t\t\"approved-by\": \"changes\",\n" +
-                "\t\t\t\"state\": \"Passed\",\n" +
-                "\t\t\t\"result\": \"Passed\",\n" +
-                "\t\t\t\"create-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "\t\t\t\"last-transition-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "\t\t\t\"jobs\": [{\n" +
-                "\t\t\t\t\"name\": \"job-name\",\n" +
-                "\t\t\t\t\"schedule-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "\t\t\t\t\"assign-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "\t\t\t\t\"complete-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "\t\t\t\t\"state\": \"Completed\",\n" +
-                "\t\t\t\t\"result\": \"Passed\",\n" +
-                "\t\t\t\t\"agent-uuid\": \"uuid\"\n" +
-                "\t\t\t}]\n" +
-                "\t\t}\n" +
-                "\t}\n" +
+                " \"pipeline\": {\n" +
+                "   \"name\": \"pipeline-name\",\n" +
+                "   \"label\": \"LABEL-1\",\n" +
+                "   \"counter\": \"1\",\n" +
+                "   \"group\": \"pipeline-group\",\n" +
+                "   \"build-cause\": [{\n" +
+                "     \"material\": {\n" +
+                "       \"git-configuration\": {\n" +
+                "         \"shallow-clone\": false,\n" +
+                "         \"branch\": \"branch\",\n" +
+                "         \"url\": \"http://user:******@gitrepo.com\"\n" +
+                "       },\n" +
+                "       \"type\": \"git\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+ gitModifiedTime +"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"type\": \"mercurial\",\n" +
+                "       \"mercurial-configuration\": {\n" +
+                "         \"url\": \"http://user:******@hgrepo.com\"\n" +
+                "       }\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+hgModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"svn-configuration\": {\n" +
+                "         \"check-externals\": false,\n" +
+                "         \"url\": \"http://user:******@svnrepo.com\",\n" +
+                "         \"username\": \"username\"\n" +
+                "       },\n" +
+                "       \"type\": \"svn\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+svnModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"type\": \"tfs\",\n" +
+                "       \"tfs-configuration\": {\n" +
+                "         \"domain\": \"domain\",\n" +
+                "         \"project-path\": \"project-path\",\n" +
+                "         \"url\": \"http://user:******@tfsrepo.com\",\n" +
+                "         \"username\": \"username\"\n" +
+                "       }\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+tfsModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"perforce-configuration\": {\n" +
+                "         \"view\": \"view\",\n" +
+                "         \"use-tickets\": false,\n" +
+                "         \"url\": \"127.0.0.1:1666\",\n" +
+                "         \"username\": \"username\"\n" +
+                "       },\n" +
+                "       \"type\": \"perforce\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+p4ModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"pipeline-configuration\": {\n" +
+                "         \"pipeline-name\": \"pipeline-name\",\n" +
+                "         \"stage-name\": \"stage-name\"\n" +
+                "       },\n" +
+                "       \"type\": \"pipeline\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"pipeline-name/1/stage-name/1\",\n" +
+                "       \"modified-time\": \""+dependencyModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"plugin-id\": \"pluginid\",\n" +
+                "       \"package-configuration\": {\n" +
+                "         \"k3\": \"package-v1\"\n" +
+                "       },\n" +
+                "       \"repository-configuration\": {\n" +
+                "         \"k1\": \"repo-v1\"\n" +
+                "       },\n" +
+                "       \"type\": \"package\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+packageMaterialModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }, {\n" +
+                "     \"material\": {\n" +
+                "       \"plugin-id\": \"pluginid\",\n" +
+                "       \"scm-configuration\": {\n" +
+                "         \"k1\": \"v1\"\n" +
+                "       },\n" +
+                "       \"type\": \"scm\"\n" +
+                "     },\n" +
+                "     \"changed\": true,\n" +
+                "     \"modifications\": [{\n" +
+                "       \"revision\": \"1\",\n" +
+                "       \"modified-time\": \""+pluggableScmModifiedTime+"\",\n" +
+                "       \"data\": {}\n" +
+                "     }]\n" +
+                "   }],\n" +
+                "   \"stage\": {\n" +
+                "     \"name\": \"stage-name\",\n" +
+                "     \"counter\": \"1\",\n" +
+                "     \"approval-type\": \"success\",\n" +
+                "     \"approved-by\": \"changes\",\n" +
+                "     \"state\": \"Passed\",\n" +
+                "     \"result\": \"Passed\",\n" +
+                "     \"create-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "     \"last-transition-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "     \"jobs\": [{\n" +
+                "       \"name\": \"job-name\",\n" +
+                "       \"schedule-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "       \"assign-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "       \"complete-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
+                "       \"state\": \"Completed\",\n" +
+                "       \"result\": \"Passed\",\n" +
+                "       \"agent-uuid\": \"uuid\"\n" +
+                "     }]\n" +
+                "   }\n" +
+                " }\n" +
                 "}";
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
@@ -274,7 +274,7 @@ public class JsonMessageHandler3_0_Test {
     @Test
     public void shouldConstructAgentNotificationRequestMessage() throws Exception {
         Date transition_time = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(AgentConverter.DATE_PATTERN);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String time = simpleDateFormat.format(transition_time);
 
@@ -357,7 +357,7 @@ public class JsonMessageHandler3_0_Test {
 
     public static String dateToString(Date date) {
         if (date != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
             simpleDateFormat.setTimeZone(UTC);
             return simpleDateFormat.format(date);
         }

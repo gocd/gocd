@@ -20,8 +20,6 @@ package com.thoughtworks.go.plugin.access.notification.v3;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-
 public class AgentNotificationDTO {
     @Expose
     @SerializedName("uuid")
@@ -65,7 +63,7 @@ public class AgentNotificationDTO {
 
     public AgentNotificationDTO(String uuid, String hostName, boolean isElastic, String ipAddress,
                                 String operatingSystem, String freeSpace, String agentConfigState, String agentState,
-                                String buildState, Date transitionTime) {
+                                String buildState, String transitionTime) {
         this.uuid = uuid;
         this.hostName = hostName;
         this.isElastic = isElastic;
@@ -75,6 +73,6 @@ public class AgentNotificationDTO {
         this.agentConfigState = agentConfigState;
         this.agentState = agentState;
         this.buildState = buildState;
-        this.transitionTime = JsonMessageHandler3_0.dateToString(transitionTime);
+        this.transitionTime = transitionTime;
     }
 }

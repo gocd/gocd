@@ -92,7 +92,7 @@ const PipelineOperationsWidget = {
       }).then(m.redraw);
 
       const modal = new Modal({
-        size:    'large',
+        size:    'small',
         title:   `${pipeline.name} - Trigger`,
         body:    () => (<PipelineTriggerWithOptionsModalBody vm={self.triggerWithOptionsVM}
                                                              searchVM={searchVM}

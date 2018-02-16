@@ -41,6 +41,7 @@ const MaterialSearchResultsWidget = {
 
     return (
       <div class="commits">
+        <span class="helper">{resultMessage}</span>
         <ul class="commit_info">
           {
             _.map(results, (result) => {
@@ -59,7 +60,6 @@ const MaterialSearchResultsWidget = {
             })
           }
         </ul>
-        <span class="helper">{resultMessage}</span>
       </div>
     );
   }

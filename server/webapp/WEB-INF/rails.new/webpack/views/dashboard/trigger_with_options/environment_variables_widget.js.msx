@@ -21,7 +21,7 @@ const Plain = {
   view(vnode) {
     return (
       <div class="environment-variables-tab-content">
-        <h3>Override environment and pipeline level variables</h3>
+        <p>Override environment and pipeline level variables</p>
         <ul class="environment-variables plain">
           {
             _.map(vnode.attrs.variables, (variable) => {
@@ -29,7 +29,8 @@ const Plain = {
               let mayBeOverridenText;
               if (hasChanged) {
                 mayBeOverridenText = (
-                  <div class="overridden-message"> Overriden. Default: <code>{variable.getOriginalValue()}</code>
+                  <div class="overridden-message">
+                    Overriden. Default: <code>{variable.getOriginalValue()}</code>
                   </div>);
               }
 
@@ -70,7 +71,7 @@ const Secure = {
 
     return (
       <div class="environment-variables-tab-content">
-        <h3>Override secure environment and pipeline level variables</h3>
+        <p>Override secure environment and pipeline level variables</p>
         <ul class="environment-variables secure">
           {
             _.map(variables, (variable) => {

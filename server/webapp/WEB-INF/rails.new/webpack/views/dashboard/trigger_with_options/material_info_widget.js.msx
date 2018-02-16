@@ -50,46 +50,47 @@ const MaterialInfoWidget = {
         <dl class="name-value">
           <li class="name-value_pair meta">
             <label>{material.type}</label>
-            <span>{material.name}</span>
+            <span class="value">{material.name}</span>
           </li>
 
           <li class="name-value_pair destination">
             <label>Destination</label>
-            <span>{destination}</span>
+            <span class="value">{destination}</span>
           </li>
 
           <li class="name-value_pair date">
             <label>Date</label>
-            <span>{date}</span>
+            <span class="value">{date}</span>
           </li>
 
           <li class="name-value_pair user">
             <label>User</label>
-            <span>{user}</span>
+            <span class="value">{user}</span>
           </li>
 
           <li class="name-value_pair comment">
             <label>Comment</label>
-            <span>{comment}</span>
+            <span class="value">{comment}</span>
           </li>
 
           <li class="name-value_pair last-run-revision">
             <label>Last run with</label>
-            <span>{lastRun}</span>
+            <span class="value">{lastRun}</span>
           </li>
 
           <li class="name-value_pair">
             <label>Revision to trigger with</label>
-            <span class="commit_search">
-              <input type="text"
-                     class="material-revision-search"
-                     placeholder="Search by revision/SHA or comment or committer name"
-                     value={searchVM.searchText()}
-                     oninput={(e) => {
-                       searchVM.updateSearchText(e.target.value);
-                     }}/>
+            <span class="commit_search value">
+              <span class="search-icon">
+                <input type="text"
+                       class="material-revision-search"
+                       placeholder="Search by revision/SHA or comment or committer name"
+                       value={searchVM.searchText()}
+                       oninput={(e) => {
+                         searchVM.updateSearchText(e.target.value);
+                       }}/>
+              </span>
               {searchVM.searchInProgress() ? <span class="search-in-progress"/> : null}
-
               <MaterialSearchResultsWidget searchVM={searchVM}/>
             </span>
 

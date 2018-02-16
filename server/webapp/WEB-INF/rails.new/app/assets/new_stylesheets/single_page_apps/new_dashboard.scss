@@ -36,6 +36,197 @@ $border: #ccc;
 $filter-width: 367px;
 $pipeline-list-height: 265px;
 
+// ---------------------  common styles ------------------------
+
+//vertical and horizontal tabs
+
+$border-color: #ccc;
+$border-color-active: #94399e;
+$tab-hover-bg: #f5f5f5;
+$tab-head-color: #333;
+$tab-bg: #e5e5e5;
+$active-tab: #94399e;
+
+.h-tab {
+  display:         flex;
+  flex-direction:  column;
+  justify-content: flex-start;
+}
+
+.h-tab_tab-head {
+  display:        flex;
+  flex-direction: row;
+  margin:         0 0 30px 0;
+  padding:        0;
+  list-style:     none;
+  width:          100%;
+  li {
+    font-size:     16px;
+    margin:        0 0 1px 0;
+    cursor:        pointer;
+    padding:       0 20px;
+    height:        32px;
+    line-height:   31px;
+    color:         $tab-head-color;
+    border-bottom: 0;
+    overflow:      hidden;
+    position:      relative;
+    &:hover {
+      border-bottom: 3px solid $tab-hover-bg;
+      color:         #000;
+    }
+    &.active {
+      border-bottom:    3px solid $border-color-active;
+      background-color: #fff;
+      color:            $active-tab;
+      display:          block;
+    }
+  }
+
+  .h-tab_container {
+    width:      500px;
+    min-height: 200px;
+  }
+
+  .h-tab_content {
+    padding: 10px 20px;
+    display: none;
+    > :first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.v-tab {
+  display: flex;
+}
+
+.v-tab_tab-head {
+  margin:     0;
+  padding:    0;
+  float:      left;
+  list-style: none;
+  height:     32px;
+  width:      250px;
+  li {
+    margin:        0 0 10px 0;
+    padding-right: 20px;
+    cursor:        pointer;
+    color:         $tab-head-color;
+    border-bottom: 0;
+    overflow:      hidden;
+    position:      relative;
+    &:hover {
+      background-color: $tab-hover-bg;
+      color:            #000;
+    }
+    &.active {
+      border-right:     3px solid $border-color-active;
+      background-color: #fff;
+      color:            $active-tab;
+      display:          block;
+    }
+  }
+
+}
+
+.hidden {
+  display: none;
+}
+
+.v-tab_container {
+  border-left: 1px solid $border-color;
+  float:       left;
+  width:       100%;
+  min-height:  132px;
+}
+
+.v-tab_content {
+  padding: 10px 20px;
+  > :first-child {
+    margin-top: 0;
+  }
+}
+
+//name value pair
+
+.name-value {
+  list-style-type: none;
+  width:           80%;
+}
+
+@mixin label() {
+  padding:     5px 10px 3px 0;
+  min-width:   150px;
+  font-weight: 600;
+}
+
+.name-value_pair {
+  border-bottom: 1px dotted #ccc;
+  display:       flex;
+  padding:       4px 0;
+
+  label {
+    @include label;
+  }
+  .value {
+    padding: 5px 10px 3px 0;
+  }
+}
+
+// new button styles
+
+$btn-primary: #943a9e;
+$btn-secondary: #666;
+$btn-default: #d6d5d5;
+
+.btn {
+  border:        1px solid transparent;
+  padding:       10px 20px;
+  border-radius: 3px;
+  font-weight:   600;
+  font-size:     16px;
+  box-shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.54);
+  margin:        10px;
+}
+
+.btn-small {
+  padding:       5px 10px;
+  border-radius: 3px;
+  font-weight:   600;
+  font-size:     14px;
+  box-shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.54);
+  margin:        10px;
+}
+
+.btn-primary {
+  background:   $btn-primary;
+  border-color: $btn-primary;
+  color:        #fff;
+}
+
+.btn-secondary {
+  background:   $btn-secondary;
+  border-color: $btn-secondary;
+  color:        #fff;
+}
+
+.btn-default {
+  background:   $btn-default;
+  border-color: $btn-default;
+  color:        #333;
+}
+
+.btn-link {
+  border:     0;
+  background: transparent;
+  color:      #333;
+  font-size:  16px;
+
+}
+
+// ---------------------  common styles end ------------------------
+
 //animation
 
 //building animation
@@ -781,168 +972,44 @@ body {
 
 //trigger with options
 
-$border-color: #ccc;
-$border-color-active: #94399e;
-$tab-hover-bg: #f5f5f5;
-$tab-head-color: #333;
-$tab-bg: #e5e5e5;
-$active-tab: #94399e;
+.pipeline-trigger-with-options {
+  padding: 30px;
 
-.h-tab {
-  display:         flex;
-  flex-direction:  column;
-  justify-content: flex-start;
-}
-
-.h-tab_tab-head {
-  display:        flex;
-  flex-direction: row;
-  margin:         0 0 30px 0;
-  padding:        0;
-  list-style:     none;
-  width:          100%;
-  li {
-    font-size:     16px;
-    margin:        0 0 1px 0;
-    cursor:        pointer;
-    padding:       0 20px;
-    height:        32px;
-    line-height:   31px;
-    color:         $tab-head-color;
-    border-bottom: 0;
-    overflow:      hidden;
-    position:      relative;
-    &:hover {
-      border-bottom: 3px solid $tab-hover-bg;
-      color:         #000;
-    }
-    &.active {
-      border-bottom:    3px solid $border-color-active;
-      background-color: #fff;
-      color:            $active-tab;
-      display:          block;
-    }
+  .last-run-revision .value {
+    @include ellipsis($width: 100%);
+    display: block;
+    width:   100%;
   }
 
-  .h-tab_container {
-    width:      500px;
-    min-height: 200px;
+  .material-name, .latest-revision {
+    @include ellipsis($width: 100%);
+    display: block;
+    width:   100%;
   }
 
-  .h-tab_content {
-    padding: 10px 20px;
-    display: none;
-    > :first-child {
-      margin-top: 0;
-    }
-  }
-}
-
-.v-tab {
-  display: flex;
-}
-
-.v-tab_tab-head {
-  margin:     0;
-  padding:    0;
-  float:      left;
-  list-style: none;
-  height:     32px;
-  width:      250px;
-  li {
-    margin:        0 0 1px 0;
-    cursor:        pointer;
-    //padding:       0 10%;
-    height:        32px;
-    line-height:   31px;
-    color:         $tab-head-color;
-    border-bottom: 0;
-    overflow:      hidden;
-    position:      relative;
-    &:hover {
-      background-color: $tab-hover-bg;
-      color:            #000;
-    }
-    &.active {
-      border-right:     3px solid $border-color-active;
-      background-color: #fff;
-      color:            $active-tab;
-      display:          block;
-    }
-  }
-
-  .last-run-revision {
-    @include ellipsis($width: 45%);
-    padding-left: 4%;
-    width:        48%;
-  }
-
-  .material-name {
-    @include ellipsis($width: 45%);
-    width: 48%;
-  }
-}
-
-.hidden {
-  display: none;
-}
-
-.v-tab_container {
-  border-left: 1px solid $border-color;
-  float:       left;
-  width:       100%;
-  min-height:  132px;
-}
-
-.v-tab_content {
-  padding: 10px 20px;
-  > :first-child {
-    margin-top: 0;
+  .name-value_pair label {
+    width: 150px;
   }
 }
 
 //material latest run
-
-.name-value {
-  list-style-type: none;
-  width:           80%;
+.material-for-trigger {
+  padding: 0 30px;
 }
 
-@mixin label() {
-  padding:     5px 10px 3px 0;
-  min-width:   150px;
-  font-weight: 600;
-}
-
-.name-value_pair {
-  border-bottom: 1px dotted #ccc;
-  display:       flex;
-
-  label {
-    @include label;
-    width:     100px;
-    min-width: 100px;
-  }
-  > span {
-    padding: 5px 10px 3px 0;
-  }
-
-  &.comment {
-    span {
-      @include ellipsis;
-      font-family: $font-family-monospace;
-      font-size:   12px;
-      height:      100px;
-      white-space: pre-wrap;
-    }
+.comment {
+  span {
+    @include ellipsis;
+    font-family: $font-family-monospace;
+    font-size:   12px;
+    white-space: pre-wrap;
   }
 }
 
 .environment-variables-tab-content {
-
   .environment-variables {
     list-style-type: none;
-
+    margin:          30px 0 0 0;
     li {
       display: flex;
     }
@@ -956,8 +1023,9 @@ $active-tab: #94399e;
       width:   300px;
     }
 
-    .override {
+    .override, .reset, .overridden-message {
       padding-left: 10px;
+      padding-top:  5px;
     }
   }
 
@@ -966,7 +1034,8 @@ $active-tab: #94399e;
 .helper {
   font-size:  13px;
   padding:    5px 10px;
-  background: #999;
+  background: #555;
+  color:      #fff;
   display:    block;
 }
 
@@ -977,6 +1046,8 @@ $active-tab: #94399e;
 .commits {
   top:        42px;
   left:       0;
+  position:   absolute;
+  right:      10px;
   background: #fff;
 }
 
@@ -1043,27 +1114,41 @@ $active-tab: #94399e;
   }
 }
 
+.search-icon {
+  @include icon-before($type: search);
+  position:   relative;
+  margin-top: 3px;
+
+  &:before {
+    position:  absolute;
+    left:      6px;
+    top:       -2px;
+    color:     $border-color;
+    font-size: 14px;
+  }
+}
+
 .material-revision-search {
   display:       inline-block;
-  width:         230px;
-  height:        30px;
+  width:         418px;
+  height:        35px;
   border:        1px solid #ccc;
   border-radius: 3px;
-  padding:       3px 10px;
+  padding:       3px 10px 3px 30px;
   &::placeholder {
     font-size: 12px;
   }
-
 }
 
 .search-in-progress {
   @include icon-before($type: spinner, $margin: 0);
   @include animation(spin 1s linear infinite);
-  padding-left: 5px;
+  position: absolute;
+  right:    -16px;
+  top:      10px;
 
   &:before {
     @include animation(spin 1s linear infinite);
-
     font-size: rem-calc(15px);
   }
 }

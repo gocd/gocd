@@ -58,6 +58,13 @@ describe("Dashboard", () => {
 
       expect(pipeline.isFirstStageInProgress()).toBe(false);
     });
+
+    it("should return counters for pipeline instances", () => {
+      const pipeline       = new Pipeline(pipelineJson);
+      const instanceCounters = pipeline.getInstanceCounters();
+      expect(instanceCounters.length).toEqual(1);
+      expect(instanceCounters).toEqual([1]);
+    });
   });
 
   describe("Pipeline Operations", () => {
@@ -213,7 +220,7 @@ describe("Dashboard", () => {
               }
             },
             "label":        "1",
-            "counter":      "1",
+            "counter":      1,
             "scheduled_at": "2017-11-10T07:25:28.539Z",
             "triggered_by": "changes",
             "build_cause":  {

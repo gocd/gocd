@@ -26,7 +26,7 @@ const PipelineInstanceWidget = {
     this.adjustPositionOfPopup = () => {
       const widthOfWindow           = window.innerWidth;
       const popup                   = vnode.dom.querySelector('.material_changes');
-      const rightCoordinateOfWidget = popup? popup.getBoundingClientRect().right: 0;
+      const rightCoordinateOfWidget = popup ? popup.getBoundingClientRect().right : 0;
       if (rightCoordinateOfWidget > widthOfWindow) {
         popup.style.right = '0px';
       }
@@ -36,16 +36,17 @@ const PipelineInstanceWidget = {
   },
 
   view: (vnode) => {
-    const instance     = vnode.attrs.instance;
-    const dropdown     = vnode.attrs.dropdown;
-    const pipelineName = vnode.attrs.pipelineName;
+    const instance        = vnode.attrs.instance;
+    const instanceCounter = instance.counter;
+    const dropdown        = vnode.attrs.dropdown;
+    const pipelineName    = vnode.attrs.pipelineName;
 
     const scheduledAt           = moment(new Date(instance.scheduledAt));
     const scheduledAtLocalTime  = scheduledAt.format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
     const scheduledAtServerTime = scheduledAt.format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
     let dropdownWidget;
 
-    if (dropdown.isDropDownOpen(pipelineName)) {
+    if (dropdown.isDropDownOpen(pipelineName, instanceCounter)) {
       dropdownWidget = <div class="material_changes" onclick={(e) => e.stopPropagation()}>
         {_.map(instance.materialRevisions, (revision) => {
           return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
@@ -60,7 +61,7 @@ const PipelineInstanceWidget = {
           <ul class="info">
             <li><a href={instance.comparePath}> Compare </a></li>
             <li><a onclick={(e) => {
-              dropdown.toggle(pipelineName);
+              dropdown.toggle(pipelineName, instanceCounter);
               e.stopPropagation();
             }}><span class="changes"> Changes</span> </a></li>
             <li><a href={instance.vsmPath}> VSM </a></li>

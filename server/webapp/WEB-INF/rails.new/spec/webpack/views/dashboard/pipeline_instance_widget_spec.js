@@ -16,9 +16,11 @@
 describe("Dashboard Pipeline Instance Widget", () => {
   const m      = require("mithril");
   const moment = require("moment");
+  const _      = require("lodash");
   require("moment-duration-format");
   const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
+  const Dashboard              = require('models/dashboard/dashboard');
   const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
 
   let $root, root;
@@ -102,15 +104,16 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const instance     = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
   beforeEach(() => {
-    const pipelineName       = "dummy";
     const dashboardViewModel = new DashboardVM();
-    dashboardViewModel.initialize([pipelineName]);
+    const dashboard          = new Dashboard();
+    dashboard.initialize(dashboardJsonForPipelines([pipelineName]));
+    dashboardViewModel.initialize(dashboard);
 
     m.mount(root, {
       view() {
         return m(PipelineInstanceWidget, {
           instance,
-          dropdown: dashboardViewModel.dropdown,
+          dropdown:     dashboardViewModel.dropdown,
           trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
           pipelineName
         });
@@ -160,7 +163,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
     $root.find('.info a').get(1).click();
 
     expect($root.find('.material_changes')).toBeInDOM();
-    expect($root.find('.comment')).toHaveHtml("<p>Initial commit <a target='story_tracker' href='http://example.com/1234'>#1234</a></p>");
+    expect($root.find('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
   });
 
   it("should render vsm link", () => {
@@ -175,4 +178,97 @@ describe("Dashboard Pipeline Instance Widget", () => {
     expect($root.find('.pipeline_stages')).toBeInDOM();
     expect($root.find('.pipeline_stage')).toBeInDOM();
   });
+
+  const dashboardJsonForPipelines = (pipelines) => {
+    return {
+      "_embedded": {
+        "pipeline_groups": [
+          {
+            "_links":         {
+              "self": {
+                "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
+              },
+              "doc":  {
+                "href": "https://api.go.cd/current/#pipeline-groups"
+              }
+            },
+            "name":           "first",
+            pipelines,
+            "can_administer": true
+          }
+        ],
+        "pipelines":       pipelinesJsonForPipelines(pipelines)
+      }
+    };
+  };
+
+  const pipelinesJsonForPipelines = (pipelineNames) => {
+    const pipelines = [];
+    _.each((pipelineNames), (pipelineName) => {
+      pipelines.push({
+        "_links":                 {
+          "self":                 {
+            "href": "http://localhost:8153/go/api/pipelines/up42/history"
+          },
+          "doc":                  {
+            "href": "https://api.go.cd/current/#pipelines"
+          },
+          "settings_path":        {
+            "href": "http://localhost:8153/go/admin/pipelines/up42/general"
+          },
+          "trigger":              {
+            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+          },
+          "trigger_with_options": {
+            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+          },
+          "pause":                {
+            "href": "http://localhost:8153/go/api/pipelines/up42/pause"
+          },
+          "unpause":              {
+            "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
+          }
+        },
+        "name":                   pipelineName,
+        "last_updated_timestamp": 1510299695473,
+        "locked":                 false,
+        "can_pause":              true,
+        "pause_info":             {
+          "paused":       false,
+          "paused_by":    null,
+          "pause_reason": null
+        },
+        "build_cause":            {
+          "approver":           "",
+          "is_forced":          false,
+          "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+          "material_revisions": [
+            {
+              "material_type": "Git",
+              "material_name": "test-repo",
+              "changed":       true,
+              "modifications": [
+                {
+                  "_links":        {
+                    "vsm": {
+                      "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                    }
+                  },
+                  "user_name":     "GoCD Test User <devnull@example.com>",
+                  "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                  "modified_time": "2017-12-19T05:30:32.000Z",
+                  "comment":       "Initial commit"
+                }
+              ]
+            }
+          ]
+        },
+        "_embedded":              {
+          "instances": [pipelineInstanceJson]
+        }
+      });
+    });
+
+    return pipelines;
+  };
 });

@@ -40,7 +40,7 @@ $(() => {
 
   function onResponse(dashboardData) {
     dashboard.initialize(dashboardData);
-    dashboardVM.initialize(dashboard.allPipelineNames());
+    dashboardVM.initialize(dashboard);
   }
 
   function createRepeater() {

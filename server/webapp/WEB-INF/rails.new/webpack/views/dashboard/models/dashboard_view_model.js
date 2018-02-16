@@ -47,26 +47,43 @@ const VM = () => {
     },
 
     dropdown: {
-      isDropDownOpen: (name) => pipelinesState[name][DROPDOWN_KEY](),
+      isDropDownOpen: (name, instanceCounter) => pipelinesState[name][DROPDOWN_KEY][instanceCounter](),
 
-      toggle: (name) => {
-        viewModel.dropdown.hideAllExcept(name);
-        pipelinesState[name][DROPDOWN_KEY](!pipelinesState[name][DROPDOWN_KEY]());
+      toggle: (name, instanceCounter) => {
+        viewModel.dropdown.hideAllExcept(name, instanceCounter);
+        pipelinesState[name][DROPDOWN_KEY][instanceCounter](!pipelinesState[name][DROPDOWN_KEY][instanceCounter]());
       },
 
-      hideAllExcept: (name) => {
-        _.each(_.keys(pipelinesState), (key) => {
-          if (key !== name) {
-            pipelinesState[key][DROPDOWN_KEY](false);
+      hideAllExcept: (name, instanceCounter) => {
+        const hideDropDownForOtherInstances = (name, instanceCounter) => {
+          _.each(pipelinesState[name][DROPDOWN_KEY], (_instanceCounterState, counter) => {
+            if (+(counter) !== instanceCounter) { //counter is a string
+              pipelinesState[name][DROPDOWN_KEY][counter](false);
+            }
+          });
+        };
+
+        _.each(pipelinesState, (_pipelineState, pipelineName) => {
+          if (pipelineName !== name) {
+            viewModel.dropdown.hide(pipelineName);
+          } else {
+            hideDropDownForOtherInstances(name, instanceCounter);
           }
         });
       },
 
-      hideAll: () => {
-        _.each(_.keys(pipelinesState), (name) => {
-          pipelinesState[name][DROPDOWN_KEY](false);
+      hide: (name) => {
+        _.each(pipelinesState[name][DROPDOWN_KEY], (instanceCounter) => {
+          //put inside curly braces because returning a false will exit the iteration early
+          instanceCounter(false);
         });
       },
+
+      hideAll: () => {
+        _.each(pipelinesState, (_pipelineState, name) => {
+          viewModel.dropdown.hide(name);
+        });
+      }
     },
 
     operationMessages: {
@@ -91,7 +108,8 @@ const VM = () => {
     size:     () => _.keys(pipelinesState).length,
     contains: (name) => !_.isEmpty(pipelinesState[name]),
 
-    initialize: (pipelineNames) => {
+    initialize: (dashboard) => {
+      const pipelineNames            = dashboard.allPipelineNames();
       const pipelinesKnownToVM       = _.keysIn(pipelinesState);
       const pipelinesToRemoveFromVM  = _.difference(pipelinesKnownToVM, pipelineNames);
       const newPipelinesNotKnownToVM = _.difference(pipelineNames, pipelinesKnownToVM);
@@ -100,7 +118,10 @@ const VM = () => {
         delete pipelinesState[name];
       });
 
-      _.each(newPipelinesNotKnownToVM, create);
+      _.each(newPipelinesNotKnownToVM, (name) => {
+        const instanceCounters = dashboard.findPipeline(name).getInstanceCounters();
+        create(name, instanceCounters);
+      });
     }
   };
 
@@ -112,10 +133,12 @@ const VM = () => {
     }, MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS);
   }
 
-  function create(name) {
-    pipelinesState[name] = {};
+  function create(name, instanceCounters) {
+    pipelinesState[name]          = {};
+    const instanceDropdownTracker = {};
+    _.each(instanceCounters, (counter) => instanceDropdownTracker[counter] = Stream(false));
 
-    pipelinesState[name][DROPDOWN_KEY]           = Stream(false);
+    pipelinesState[name][DROPDOWN_KEY]           = instanceDropdownTracker;
     pipelinesState[name][FLASH_MESSAGE_KEY]      = Stream();
     pipelinesState[name][FLASH_MESSAGE_TYPE_KEY] = Stream();
   }

@@ -612,7 +612,7 @@ describe("Dashboard Widget", () => {
     dashboard.initialize(dashboardJson);
 
     const dashboardViewModel = new DashboardVM();
-    dashboardViewModel.initialize(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
+    dashboardViewModel.initialize(dashboard);
 
     m.mount(root, {
       view() {

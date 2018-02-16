@@ -81,6 +81,26 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
     }
 
     @Test
+    void 'should render 304 if content matches'() {
+      loginAsUser()
+
+      def pipelineSelections = PipelineSelections.ALL
+      def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
+      pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
+      pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
+      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
+
+      def etag = '"' + controller.etagFor(PipelineGroupsRepresenter.toJSON([pipelineGroup], new TestRequestContext(), currentUsername())) + '"'
+      getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
+
+      assertThatResponse()
+        .isNotModified()
+        .hasContentType(controller.mimeType)
+        .hasNoBody()
+    }
+
+    @Test
     void 'should get empty json when dashboard is empty'() {
       def noPipelineGroups = []
       def pipelineSelections = PipelineSelections.ALL

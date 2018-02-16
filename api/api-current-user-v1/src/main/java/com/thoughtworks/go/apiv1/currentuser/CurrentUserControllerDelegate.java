@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import spark.Request;
 import spark.Response;
@@ -112,10 +111,5 @@ public class CurrentUserControllerDelegate extends ApiController {
         String etag = etagFor(responseMap);
         setEtagHeader(res, etag);
         return responseMap;
-    }
-
-
-    String etagFor(Map map) {
-        return DigestUtils.md5Hex(GsonTransformer.getInstance().render(map));
     }
 }

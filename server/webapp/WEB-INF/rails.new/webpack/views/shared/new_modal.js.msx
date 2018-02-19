@@ -40,13 +40,13 @@ const defaultOptions = {
 };
 
 const Modal = function (options) {
-  const self    = this;
-  const modalId = `modal-${  s.uuid()}`;
-  options       = _.assign({}, defaultOptions, options);
+  const self            = this;
+  const modalId         = `modal-${  s.uuid()}`;
+  options               = _.assign({}, defaultOptions, options);
 
   this.modalDialog = {
-    oninit () {
-      this.close = function (onclose, destroy, e) {
+    oninit (vnode) {
+      this.close = (onclose, destroy, e) => {
         if (onclose) {
           onclose(e);
         }
@@ -55,11 +55,27 @@ const Modal = function (options) {
           destroy();
         }
       };
+
+      this.handleEnterKey = (e) => {
+        if (e.key === "Enter") {
+          options.enterKeyCallback ? options.enterKeyCallback() : _.noop();
+        }
+      };
+
+      this.handleEscapeKey = () => {
+        $('body').on("keydown", (e) => {
+          if (e.key === "Escape") {
+            vnode.state.close(options.onclose, self.destroy, e);
+          }
+        });
+      };
+
+      this.handleEscapeKey();
     },
 
     view(vnode) {
       return (
-        <div class="reveal-overlay" style={{display: 'block'}}>
+        <div class="reveal-overlay" style={{display: 'block'}} onkeydown={vnode.state.handleEnterKey}>
           <div class={`reveal ${  options.size ? options.size : ''}`}
                style={{display: 'block'}}>
 

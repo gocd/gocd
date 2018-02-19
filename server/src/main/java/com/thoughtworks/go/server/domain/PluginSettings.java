@@ -79,7 +79,7 @@ public class PluginSettings {
             for (ConfigurationProperty property : configurationProperties) {
                 final PluginConfiguration configuration = configPropertyFor(property.getConfigKeyName(), pluginInfo);
                 if (configuration != null) {
-                    settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, configuration.isSecure()));
+                    settingsMap.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(), configuration.isSecure()));
                 }
             }
         }

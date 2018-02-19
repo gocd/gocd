@@ -42,23 +42,23 @@ public class ConfigurationPropertyBuilder {
             configurationProperty.addError("encryptedValue", "You may only specify `value` or `encrypted_value`, not both!");
 
             configurationProperty.setConfigurationValue(new ConfigurationValue(value));
-            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+            setEncryptedValue(encryptedValue, configurationProperty);
             return configurationProperty;
         }
 
         if (isSecure) {
             if (isNotBlank(encryptedValue)) {
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+                setEncryptedValue(encryptedValue, configurationProperty);
             }
 
             if (isNotBlank(value)) {
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encrypt(value)));
+                setEncryptedValue(encrypt(value), configurationProperty);
             }
 
         } else {
             if (isNotBlank(encryptedValue)) {
                 configurationProperty.addError("encryptedValue", "encrypted_value cannot be specified to a unsecured property.");
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+                setEncryptedValue(encryptedValue, configurationProperty);
             }
 
             if (value != null) {
@@ -73,6 +73,16 @@ public class ConfigurationPropertyBuilder {
         final ConfigurationProperty configurationProperty = create(key, value, encryptedValue, isSecure);
         configurationProperty.errors().addAll(errors);
         return configurationProperty;
+    }
+
+    private void setEncryptedValue(String encryptedValue, ConfigurationProperty configurationProperty) {
+        try {
+            cipher.decrypt(encryptedValue);
+        } catch (Exception e) {
+            configurationProperty.addError(configurationProperty.getConfigKeyName(), String.format("Encrypted value for %s is invalid. This usually happens when the cipher text is invalid.", configurationProperty.getConfigKeyName()));
+        }
+
+        configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
     }
 
     private String encrypt(String data) {

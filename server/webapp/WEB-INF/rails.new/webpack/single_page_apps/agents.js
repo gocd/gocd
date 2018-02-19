@@ -87,7 +87,7 @@ $(() => {
     sortOrder().initialize();
   };
 
-  PluginInfos.all().then(onResponse, onResponse);
+  PluginInfos.all(null, {type: 'elastic-agent'}).then(onResponse, onResponse);
 })
 ;
 

@@ -39,8 +39,6 @@ const PipelineHeaderWidget = {
     if (pipeline.canAdminister) {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} href={settingsPath}/>);
-    } else {
-      settingsButton = (<a class={`edit_config disabled`}/>);
     }
 
     let pipelineLockButton;

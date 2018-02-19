@@ -90,7 +90,7 @@ public class GoConfigPipelinePermissionsAuthority {
                         pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
                     } else if (hasNoAuthDefinedAtGroupLevel) {
                         AllowedUsers adminUsers = new AllowedUsers(admins, pipelineGroupAdminRoles);
-                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, adminUsers, adminUsers));
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, adminUsers, Everyone.INSTANCE));
                     }else {
                         AllowedUsers pipelineOperators = pipelineOperators(pipeline, admins, new AllowedUsers(operators, pipelineGroupOperatorRoles), rolesToUsers);
                         Permissions permissions = new Permissions(new AllowedUsers(viewers, pipelineGroupViewerRoles), new AllowedUsers(operators, pipelineGroupOperatorRoles), new AllowedUsers(admins, pipelineGroupAdminRoles), pipelineOperators);

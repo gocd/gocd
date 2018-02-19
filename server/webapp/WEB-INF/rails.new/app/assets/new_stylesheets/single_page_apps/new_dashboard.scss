@@ -638,6 +638,10 @@ body {
   font-size:       13px;
   float:           right;
   margin-top:      10px;
+
+  &.no_operation_buttons {
+    float: none;
+  }
 }
 
 .pipeline_actions {

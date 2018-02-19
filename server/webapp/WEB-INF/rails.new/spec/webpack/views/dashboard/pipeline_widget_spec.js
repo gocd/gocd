@@ -111,26 +111,37 @@ describe("Dashboard Pipeline Widget", () => {
   });
 
   describe("Pipeline Header", () => {
-    beforeEach(mount);
     afterEach(unmount);
 
     it("should render pipeline name", () => {
+      mount();
       expect($root.find('.pipeline_name')).toContainText('up42');
     });
 
     it("should show pipeline name on hover", () => {
+      mount();
       expect($root.find('.pipeline_name').get(0).title).toEqual('up42');
     });
 
     it("should link history to pipeline history page", () => {
+      mount();
       expect($root.find('.pipeline_header>div>a')).toContainText('History');
       const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
       expect($root.find('.pipeline_header>div>a').get(1).href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
     it("should link to pipeline settings path", () => {
+      mount();
       const expectedPath = pipeline.settingsPath;
       expect($root.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+    });
+
+    it("should align history link to the left if pipeline operation buttons aren't present", () => {
+      mount(false, false, {}, {}, false, false);
+      const historyLink      = $root.find('.pipeline_header>div>a');
+      const operationButtons = $root.find('.pipeline_operations');
+      expect(operationButtons).not.toBeInDOM();
+      expect(historyLink).toHaveClass("no_operation_buttons");
     });
 
   });
@@ -515,11 +526,11 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.play_with_options')).toBeInDOM();
       });
 
-      it('should disable trigger with options button for non admin users', () => {
+      it('should remove trigger with options button for view users', () => {
         unmount();
-        mount(false, true, {}, {}, false, false);
+        mount(false, false, {}, {}, false, false);
 
-        expect($root.find('.play_with_options')).toHaveClass('disabled');
+        expect($root.find('.play_with_options')).not.toBeInDOM();
       });
 
       it('should disable trigger with options button when first stage is in progress', () => {

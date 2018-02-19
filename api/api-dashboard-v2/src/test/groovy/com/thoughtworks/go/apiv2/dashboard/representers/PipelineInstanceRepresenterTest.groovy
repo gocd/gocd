@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
 import org.junit.jupiter.api.Test
 
+import java.text.SimpleDateFormat
+
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -59,14 +61,15 @@ class PipelineInstanceRepresenterTest {
     actualJson.remove("_embedded")
 
     def map = [
-      label       : 'g1', counter: 5, scheduled_at: jsonDate(instance.getScheduledDate()),
-      triggered_by: 'Triggered by Anonymous',
-      build_cause : [approver          : 'anonymous',
-                     is_forced         : true,
-                     trigger_message   : "Forced by anonymous",
-                     material_revisions: []]]
+      label                   : 'g1', counter: 5,
+      scheduled_at            : instance.getScheduledDate().getTime(),
+      scheduled_at_server_time: new SimpleDateFormat(PipelineInstanceRepresenter.SCHEDULED_AT_PATTERN).format(instance.getScheduledDate()),
+      triggered_by            : 'Triggered by Anonymous',
+      build_cause             : [approver          : 'anonymous',
+                                 is_forced         : true,
+                                 trigger_message   : "Forced by anonymous",
+                                 material_revisions: []]]
     assertThatJson(actualJson).isEqualTo(map)
-
   }
 
   @Test
@@ -135,7 +138,13 @@ class PipelineInstanceRepresenterTest {
                               ]
     ]
 
-    assertThatJson(actualJson).isEqualTo(
-      [label: 'g1', counter: 5, scheduled_at: jsonDate(date), triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
+    assertThatJson(actualJson).isEqualTo([
+      label                   : 'g1',
+      counter                 : 5,
+      scheduled_at            : date.getTime(),
+      scheduled_at_server_time: new SimpleDateFormat(PipelineInstanceRepresenter.SCHEDULED_AT_PATTERN).format(date),
+      triggered_by            : 'Triggered by Anonymous',
+      build_cause             : expectedBuildCause
+    ])
   }
 }

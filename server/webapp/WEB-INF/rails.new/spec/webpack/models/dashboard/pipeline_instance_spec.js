@@ -25,7 +25,7 @@ describe("Dashboard", () => {
       expect(pipelineInstance.label).toBe(pipelineInstanceJson.label);
       expect(pipelineInstance.counter).toBe(pipelineInstanceJson.counter);
 
-      expect(pipelineInstance.scheduledAt).toEqual(pipelineInstanceJson.scheduled_at);
+      expect(pipelineInstance.scheduledAt).toEqual(new Date(+pipelineInstanceJson.scheduled_at));
       expect(pipelineInstance.triggeredBy).toEqual(pipelineInstanceJson.triggered_by);
 
       expect(pipelineInstance.vsmPath).toEqual(pipelineInstanceJson._links.vsm_url.href);
@@ -50,7 +50,7 @@ describe("Dashboard", () => {
     });
 
     const pipelineInstanceJson = {
-      "_links":       {
+      "_links":                   {
         "self":            {
           "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
         },
@@ -70,11 +70,12 @@ describe("Dashboard", () => {
           "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
         }
       },
-      "label":        "1",
-      "counter":      "1",
-      "scheduled_at": "2017-11-10T07:25:28.539Z",
-      "triggered_by": "changes",
-      "build_cause":  {
+      "label":                    "1",
+      "counter":                  "1",
+      "scheduled_at":             "1519015244393",
+      "scheduled_at_server_time": "2017-11-10T07:25:28.539Z",
+      "triggered_by":             "changes",
+      "build_cause":              {
         "approver":           "",
         "is_forced":          false,
         "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
@@ -99,7 +100,7 @@ describe("Dashboard", () => {
           }
         ]
       },
-      "_embedded":    {
+      "_embedded":                {
         "stages": [
           {
             "_links":       {

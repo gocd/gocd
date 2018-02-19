@@ -132,6 +132,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
         assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
     }
 
@@ -148,6 +149,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
     }
 
     @Test
@@ -166,6 +168,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
         assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
     }
 
@@ -597,6 +600,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
         assertEveryoneIsAPartOf(pipelinePermissions.admins());
     }
 
@@ -618,11 +622,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Permissions pipeline1Permissions = permissions.get(new CaseInsensitiveString("pipeline1"));
         assertEveryoneIsAPartOf(pipeline1Permissions.viewers());
         assertEveryoneIsAPartOf(pipeline1Permissions.operators());
+        assertEveryoneIsAPartOf(pipeline1Permissions.pipelineOperators());
         assertEveryoneIsAPartOf(pipeline1Permissions.admins());
 
         Permissions pipeline2Permissions = permissions.get(new CaseInsensitiveString("pipeline2"));
         assertEveryoneIsAPartOf(pipeline2Permissions.viewers());
         assertEveryoneIsAPartOf(pipeline2Permissions.operators());
+        assertEveryoneIsAPartOf(pipeline2Permissions.pipelineOperators());
         assertEveryoneIsAPartOf(pipeline2Permissions.admins());
     }
 

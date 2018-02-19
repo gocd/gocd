@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
-import com.thoughtworks.go.domain.NullPlugin;
-import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
@@ -25,8 +23,8 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.service.PluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +42,13 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
 
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
 
-    private PluginSqlMapDao pluginSqlMapDao;
+    private PluginService pluginService;
     private final List<GoPluginExtension> extensions;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginSqlMapDao pluginSqlMapDao, List<GoPluginExtension> extensions) {
-        this.pluginSqlMapDao = pluginSqlMapDao;
+    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginService pluginService, List<GoPluginExtension> extensions) {
+        this.pluginService = pluginService;
         this.extensions = extensions;
         registry.registerProcessorFor(GET_PLUGIN_SETTINGS, this);
     }
@@ -77,18 +75,16 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     }
 
     private PluginSettings pluginSettingsFor(String pluginId) {
-        Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
-        if (!(plugin instanceof NullPlugin)) {
-            pluginSettings.populateSettingsMap(plugin);
+        final PluginSettings pluginSettings = pluginService.getPluginSettings(pluginId);
+        if (pluginSettings == null) {
+            return new PluginSettings(pluginId);
         }
-
         return pluginSettings;
     }
 
     private GoPluginExtension extensionFor(String pluginId) {
-        for(GoPluginExtension extension : extensions) {
-            if(extension.canHandlePlugin(pluginId)){
+        for (GoPluginExtension extension : extensions) {
+            if (extension.canHandlePlugin(pluginId)) {
                 return extension;
             }
         }

@@ -34,7 +34,6 @@ public class ConfigurationPropertyBuilder {
     }
 
     public ConfigurationProperty create(String key, String value, String encryptedValue, Boolean isSecure) {
-
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         configurationProperty.setConfigurationKey(new ConfigurationKey(key));
 
@@ -62,7 +61,7 @@ public class ConfigurationPropertyBuilder {
                 configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
             }
 
-            if (isNotBlank(value)) {
+            if (value != null) {
                 configurationProperty.setConfigurationValue(new ConfigurationValue(value));
             }
         }

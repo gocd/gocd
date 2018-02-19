@@ -16,28 +16,28 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
-import com.thoughtworks.go.domain.NullPlugin;
-import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
-import com.thoughtworks.go.util.json.JsonHelper;
+import com.thoughtworks.go.server.service.PluginService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -49,7 +49,7 @@ public class PluginSettingsRequestProcessorTest {
     @Mock
     private PluginRequestProcessorRegistry applicationAccessor;
     @Mock
-    private PluginSqlMapDao pluginSqlMapDao;
+    private PluginService pluginService;
     @Mock
     private JsonMessageHandler jsonMessageHandler;
 
@@ -68,13 +68,15 @@ public class PluginSettingsRequestProcessorTest {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
-        when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
+        when(pluginService.getPluginSettings("plugin-id-1")).thenReturn(
+                new PluginSettings("plugin-id-1")
+        );
 
-        when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(new NullPlugin());
+        when(pluginService.getPluginSettings("plugin-id-2")).thenReturn(null);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(PluginSettings.class);
 
-        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, Collections.singletonList(pluginExtension));
+        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginService, Collections.singletonList(pluginExtension));
         processor.getMessageHandlerMap().put("1.0", jsonMessageHandler);
     }
 
@@ -86,9 +88,14 @@ public class PluginSettingsRequestProcessorTest {
     @Test
     public void shouldGetPluginSettingsForPluginThatExistsInDB() {
         String PLUGIN_ID = "plugin-foo-id";
+        final PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.setPluginSettingsProperties(Arrays.asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("v2"))
+        ));
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(pluginSettings);
 
         String responseBody = "expected-response";
         Map<String, String> settingsMap = new HashMap<>();
@@ -112,7 +119,7 @@ public class PluginSettingsRequestProcessorTest {
         String requestBody = "expected-request";
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new NullPlugin());
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(null);
         when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(jsonMessageHandler.responseMessagePluginSettingsGet(any(PluginSettings.class))).thenReturn(null);
 
@@ -130,7 +137,7 @@ public class PluginSettingsRequestProcessorTest {
         String PLUGIN_ID = "plugin-foo-id";
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(new PluginSettings(PLUGIN_ID));
 
         when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(pluginExtension.pluginSettingsJSON(eq(PLUGIN_ID), any(Map.class))).thenThrow(RuntimeException.class);

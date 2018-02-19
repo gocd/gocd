@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
@@ -35,9 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 public class PluginSettings {
-    private static final String VALUE_KEY = "value";
-    private static final String ERRORS_KEY = "errors";
-
     private String pluginId;
     private List<ConfigurationProperty> settingsMap = new ArrayList<>();
     private boolean hasErrors = false;
@@ -58,36 +54,13 @@ public class PluginSettings {
         this.pluginId = pluginId;
     }
 
+    //used in settings.html.erb
     public Map<String, Map<String, String>> getSettingsMap() {
-        HashMap<String, Map<String, String>> map = new HashMap<>();
+        Map<String, Map<String, String>> map = new HashMap<>();
         for (ConfigurationProperty configurationProperty : settingsMap) {
-            HashMap<String, String> valuesAndErrors = new HashMap<>();
-            String settingsKey = configurationProperty.getConfigKeyName();
-            valuesAndErrors.put(VALUE_KEY, configurationProperty.getConfigValue());
-            List<String> errorsFor = configurationProperty.errors().getAllOn(settingsKey);
-            if (errorsFor != null) {
-                valuesAndErrors.put(ERRORS_KEY, errorsFor.toString());
-            }
-            map.put(settingsKey, valuesAndErrors);
+            map.putAll(configurationProperty.toMap(true));
         }
         return map;
-    }
-
-    public List<ConfigurationProperty> getPropertiesWithEncryptedSecureValues(PluginInfo pluginInfo) {
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
-        if (pluginInfo != null) {
-            ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-            PluggableInstanceSettings pluginSettings = pluginInfo.getPluginSettings();
-            for (ConfigurationProperty configurationProperty : settingsMap) {
-                PluginConfiguration pluginConfiguration = configPropertyFor(configurationProperty.getConfigKeyName(), pluginSettings);
-                if (pluginConfiguration != null && pluginConfiguration.isSecure()) {
-                    configurationProperties.add(builder.create(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue(), configurationProperty.getEncryptedValue(), true, configurationProperty.errors()));
-                } else {
-                    configurationProperties.add(configurationProperty);
-                }
-            }
-        }
-        return configurationProperties;
     }
 
     public List<ConfigurationProperty> getPluginSettingsProperties() {
@@ -104,13 +77,16 @@ public class PluginSettings {
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
             for (ConfigurationProperty property : configurationProperties) {
-                settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, false));
+                final PluginConfiguration configuration = configPropertyFor(property.getConfigKeyName(), pluginInfo);
+                if (configuration != null) {
+                    settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, configuration.isSecure()));
+                }
             }
         }
     }
 
-    private PluginConfiguration configPropertyFor(String configKeyName, PluggableInstanceSettings pluginSettings) {
-        return pluginSettings.getConfiguration(configKeyName);
+    private PluginConfiguration configPropertyFor(String configKeyName, PluginInfo pluginInfo) {
+        return pluginInfo.getPluginSettings().getConfiguration(configKeyName);
     }
 
     public boolean hasErrors() {
@@ -120,14 +96,18 @@ public class PluginSettings {
     public Map<String, String> getSettingsAsKeyValuePair() {
         Map<String, String> settingsAsKeyValuePair = new HashMap<>();
         for (ConfigurationProperty configurationProperty : settingsMap) {
-            settingsAsKeyValuePair.put(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue());
+            settingsAsKeyValuePair.put(configurationProperty.getConfigKeyName(), configurationProperty.getValue());
         }
         return settingsAsKeyValuePair;
     }
 
-    public void populateSettingsMap(Plugin plugin) {
+    public void populateSettingsMap(Plugin plugin, PluginInfo pluginInfo) {
+        final ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (String settingsKey : plugin.getAllConfigurationKeys()) {
-            settingsMap.add(new ConfigurationProperty(new ConfigurationKey(settingsKey), new ConfigurationValue(plugin.getConfigurationValue(settingsKey))));
+            final PluginConfiguration configuration = pluginInfo.getPluginSettings().getConfiguration(settingsKey);
+            if (configuration != null) {
+                settingsMap.add(builder.create(settingsKey, plugin.getConfigurationValue(settingsKey), null, configuration.isSecure()));
+            }
         }
     }
 
@@ -160,7 +140,7 @@ public class PluginSettings {
     public PluginSettingsConfiguration toPluginSettingsConfiguration() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         for (ConfigurationProperty configurationProperty : settingsMap) {
-            configuration.add(new PluginSettingsProperty(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue()));
+            configuration.add(new PluginSettingsProperty(configurationProperty.getConfigKeyName(), configurationProperty.getValue()));
         }
         return configuration;
     }

@@ -28,6 +28,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import static org.apache.commons.lang.StringUtils.*;
 
 @ConfigTag("property")
 public class ConfigurationProperty implements Serializable, Validatable {
+    private static final String VALUE_KEY = "value";
+    private static final String ERRORS_KEY = "errors";
 
     public static final String CONFIGURATION_KEY = "configurationKey";
     public static final String CONFIGURATION_VALUE = "configurationValue";
@@ -325,5 +328,19 @@ public class ConfigurationProperty implements Serializable, Validatable {
             configurationProperty.setConfigurationValue(new ConfigurationValue(value));
         }
         return configurationProperty;
+    }
+
+    public Map<String, Map<String, String>> toMap(boolean withErrors) {
+        final HashMap<String, String> propertiesAsMap = new HashMap<>();
+        propertiesAsMap.put(VALUE_KEY, isSecure() ? getEncryptedValue() : getValue());
+
+        if (withErrors) {
+            List<String> errorsOnConfigKey = errors().getAllOn(getConfigKeyName());
+            if (errorsOnConfigKey != null) {
+                propertiesAsMap.put(ERRORS_KEY, errorsOnConfigKey.toString());
+            }
+        }
+
+        return Collections.singletonMap(getConfigKeyName(), propertiesAsMap);
     }
 }

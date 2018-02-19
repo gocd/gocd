@@ -16,28 +16,29 @@
 
 package com.thoughtworks.go.domain.config;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.security.GoCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConfigurationPropertyTest {
 
@@ -160,7 +161,7 @@ public class ConfigurationPropertyTest {
         metadata.addConfiguration(new PackageConfiguration("fooKey", null));
         attributes.put(Configuration.METADATA, metadata);
 
-        configurationProperty.setConfigAttributes(attributes,null);
+        configurationProperty.setConfigAttributes(attributes, null);
 
         assertThat(configurationProperty.getConfigurationKey().getName(), is("fooKey"));
         assertThat(configurationProperty.getConfigurationValue().getValue(), is("fooValue"));
@@ -193,7 +194,7 @@ public class ConfigurationPropertyTest {
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
         attributes.put(ConfigurationProperty.IS_CHANGED, "0");
 
-        configurationProperty.setConfigAttributes(attributes,new SecureKeyInfoProvider() {
+        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
             @Override
             public boolean isSecure(String key) {
                 return secureKey.equals(key);
@@ -222,7 +223,7 @@ public class ConfigurationPropertyTest {
         encryptedValueMap.put("value", "encryptedValue");
         attributes.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValueMap);
 
-        configurationProperty.setConfigAttributes(attributes,new SecureKeyInfoProvider() {
+        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
             @Override
             public boolean isSecure(String key) {
                 return secureKey.equals(key);
@@ -245,7 +246,7 @@ public class ConfigurationPropertyTest {
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
 
-        configurationProperty.setConfigAttributes(attributes,null);
+        configurationProperty.setConfigAttributes(attributes, null);
 
         assertThat(configurationProperty.getConfigurationKey().getName(), is("fooKey"));
         assertThat(configurationProperty.getConfigurationValue().getValue(), is("fooValue"));
@@ -295,7 +296,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldValidateKeyUniqueness(){
+    public void shouldValidateKeyUniqueness() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
         HashMap<String, ConfigurationProperty> map = new HashMap<>();
         ConfigurationProperty original = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
@@ -311,5 +312,31 @@ public class ConfigurationPropertyTest {
     public void shouldGetMaskedStringIfConfigurationPropertyIsSecure() throws Exception {
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new EncryptedConfigurationValue("value")).getDisplayValue(), is("****"));
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")).getDisplayValue(), is("value"));
+    }
+
+    @Test
+    public void toMap_shouldConvertConfigPropertiesToMap() throws InvalidCipherTextException {
+        final ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        final ConfigurationProperty configurationProperty = builder.create("PASSWORD", "admin", null, true);
+        configurationProperty.addError("PASSWORD", "some-error");
+
+        final Map<String, Map<String, String>> map = configurationProperty.toMap(false);
+
+        assertThat(map.size(), is(1));
+        assertThat(map.get("PASSWORD"), hasEntry("value", new GoCipher().encrypt("admin")));
+        assertNull(map.get("PASSWORD").get("errors"));
+    }
+
+    @Test
+    public void toMap_shouldConvertConfigPropertiesToMapWithErrors() throws InvalidCipherTextException {
+        final ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        final ConfigurationProperty configurationProperty = builder.create("PASSWORD", "admin", null, true);
+        configurationProperty.addError("PASSWORD", "some-error");
+
+        final Map<String, Map<String, String>> map = configurationProperty.toMap(true);
+
+        assertThat(map.size(), is(1));
+        assertThat(map.get("PASSWORD"), hasEntry("value", new GoCipher().encrypt("admin")));
+        assertThat(map.get("PASSWORD"), hasEntry("errors", "[some-error]"));
     }
 }

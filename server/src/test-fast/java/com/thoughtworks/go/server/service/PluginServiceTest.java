@@ -31,9 +31,14 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +46,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -66,6 +73,8 @@ public class PluginServiceTest {
     private SecurityService securityService;
     @Mock
     private EntityHashingService entityHashingService;
+    @Mock
+    private DefaultPluginInfoFinder pluginInfoFinder;
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
@@ -99,8 +108,23 @@ public class PluginServiceTest {
         configuration2.add(new PluginSettingsProperty("p2-k3"));
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
+        when(pluginInfoFinder.pluginInfoFor("plugin-id-1")).thenReturn(pluginInfoWithProperties("p1-k1", "p1-k2", "p1-k3"));
+        when(pluginInfoFinder.pluginInfoFor("plugin-id-2")).thenReturn(pluginInfoWithProperties("p2-k1", "p2-k2", "p2-k3"));
+
         extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
-        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService);
+        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, pluginInfoFinder);
+    }
+
+    private PluginInfo pluginInfoWithProperties(String... keys) {
+        final List<PluginConfiguration> configurations = Arrays.stream(keys)
+                .map(new Function<String, PluginConfiguration>() {
+                    @Override
+                    public PluginConfiguration apply(String key) {
+                        return new PluginConfiguration(key, new Metadata(false, false));
+                    }
+                })
+                .collect(Collectors.toList());
+        return new PluginInfo(null, null, new PluggableInstanceSettings(configurations), null);
     }
 
     @Test

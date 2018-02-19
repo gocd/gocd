@@ -584,6 +584,17 @@ describe("Dashboard Pipeline Widget", () => {
         const modalTitle = $('.modal-title:visible');
         expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
       });
+
+      it("should disable button when pipeline is paused", () => {
+        unmount();
+        const pauseInfo = {
+          "paused":       true,
+          "paused_by":    null,
+          "pause_reason": null
+        };
+        mount(false, true, pauseInfo);
+        expect($root.find('.play_with_options')).toHaveClass('disabled');
+      });
     });
   });
 

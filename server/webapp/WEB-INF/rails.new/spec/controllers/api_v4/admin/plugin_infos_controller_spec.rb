@@ -32,54 +32,6 @@ describe ApiV4::Admin::PluginInfosController do
 
   end
 
-  describe "security" do
-    describe "show" do
-      it 'should allow anyone, with security disabled' do
-        disable_security
-        expect(controller).to allow_action(:get, :show)
-      end
-
-      it 'should disallow non-admin user, with security enabled' do
-        enable_security
-        login_as_user
-        expect(controller).to disallow_action(:get, :show, {:id => 'plugin_id'}).with(401, 'You are not authorized to perform this action.')
-      end
-
-      it 'should allow admin users, with security enabled' do
-        login_as_admin
-        expect(controller).to allow_action(:get, :show)
-      end
-
-      it 'should allow pipeline group admin users, with security enabled' do
-        login_as_group_admin
-        expect(controller).to allow_action(:get, :show)
-      end
-    end
-
-    describe "index" do
-      it 'should allow anyone, with security disabled' do
-        disable_security
-        expect(controller).to allow_action(:get, :index)
-      end
-
-      it 'should disallow non-admin user, with security enabled' do
-        enable_security
-        login_as_user
-        expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
-      end
-
-      it 'should allow admin users, with security enabled' do
-        login_as_admin
-        expect(controller).to allow_action(:get, :index)
-      end
-
-      it 'should allow pipeline group admin users, with security enabled' do
-        login_as_group_admin
-        expect(controller).to allow_action(:get, :index)
-      end
-    end
-  end
-
   describe "index" do
     before(:each) do
       login_as_group_admin

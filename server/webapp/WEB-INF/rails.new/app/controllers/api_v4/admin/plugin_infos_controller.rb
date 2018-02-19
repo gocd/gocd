@@ -30,10 +30,6 @@ module ApiV4
         PluginConstants.ARTIFACT_EXTENSION
       ]
 
-      java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo
-
-      before_action :check_admin_user_or_group_admin_user_and_401
-
       def index
         plugin_infos = default_plugin_info_finder.allPluginInfos(params[:type]).select do |pi|
           PLUGIN_TYPES_FOR_VERSION.include?(pi.getExtensionName())

@@ -40,7 +40,6 @@ public class PipelineRepresenter {
         ImmutableMap<String, Object> args = ImmutableMap.of("pipeline_name", pipelineName);
         return jsonWriter.addLink("self", Routes.Pipeline.history(pipelineName))
                 .addDocLink(Routes.Pipeline.DOC)
-                .addLink("settings_path", Routes.Pipeline.settings(pipelineName))
                 .addLink("trigger", Routes.Pipeline.schedule(pipelineName))
                 .addLink("trigger_with_options", Routes.Pipeline.schedule(pipelineName))
                 .addLink("pause", Routes.Pipeline.pause(pipelineName))

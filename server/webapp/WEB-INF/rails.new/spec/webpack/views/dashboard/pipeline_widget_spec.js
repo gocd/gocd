@@ -296,8 +296,6 @@ describe("Dashboard Pipeline Widget", () => {
 
         dashboard        = {};
         dashboard.reload = jasmine.createSpy();
-
-        mount(false, true, pauseInfo, dashboard);
       });
 
       afterEach(() => {
@@ -306,28 +304,29 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render pause pipeline button", () => {
+        mount(false, true, pauseInfo, dashboard);
         expect($root.find('.pause')).toBeInDOM();
       });
 
       it('should disable pause button for non admin users', () => {
-        unmount();
         mount(false, true, pauseInfo, dashboard, false);
 
         expect($root.find('.pause')).toHaveClass('disabled');
       });
 
       it('should add onclick handler for admin users', () => {
+        mount(false, true, pauseInfo, dashboard);
         expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(true);
       });
 
       it('should not add onclick handler for non admin users', () => {
-        unmount();
         mount(false, true, pauseInfo, dashboard, false);
 
         expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(false);
       });
 
       it("should show modal to specify pause reason upon pausing a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const pauseButton = $root.find('.pause');
 
         expect($('.reveal:visible')).not.toBeInDOM();
@@ -339,6 +338,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should show appropriate header for popup modal upon pause button click", () => {
+        mount(false, true, pauseInfo, dashboard);
         const pauseButton = $root.find('.pause');
 
         simulateEvent.simulate(pauseButton.get(0), 'click');
@@ -349,6 +349,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should pause a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -373,6 +374,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not pause a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -396,6 +398,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -419,6 +422,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should close pause popup when escape is pressed", () => {
+        mount(false, true, pauseInfo, dashboard);
         simulateEvent.simulate($root.find('.pause').get(0), 'click');
         expect($('.reveal:visible')).toBeInDOM();
         const keydownEvent = $.Event("keydown");
@@ -428,6 +432,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not retain text entered when the pause popup is closed", () => {
+        mount(false, true, pauseInfo, dashboard);
         simulateEvent.simulate($root.find('.pause').get(0), 'click');
         expect($('.reveal:visible')).toBeInDOM();
         let pausePopupTextBox = $('.reveal input');

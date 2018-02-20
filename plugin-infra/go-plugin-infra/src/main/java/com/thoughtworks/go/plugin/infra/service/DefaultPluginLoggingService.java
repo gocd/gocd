@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,21 @@ public class DefaultPluginLoggingService implements LoggingService {
     }
 
     @Override
+    public void debug(String pluginId, String loggerName, String message, Object arg) {
+        getLogger(pluginId, loggerName).debug(message, arg);
+    }
+
+    @Override
+    public void debug(String pluginId, String loggerName, String message, Object arg1, Object arg2) {
+        getLogger(pluginId, loggerName).debug(message, arg1, arg2);
+    }
+
+    @Override
+    public void debug(String pluginId, String loggerName, String message, Object... arguments) {
+        getLogger(pluginId, loggerName).debug(message, arguments);
+    }
+
+    @Override
     public void info(String pluginId, String loggerName, String message) {
         Logger logger = getLogger(pluginId, loggerName);
         logger.info(message);
@@ -60,6 +75,21 @@ public class DefaultPluginLoggingService implements LoggingService {
     @Override
     public void info(String pluginId, String loggerName, String message, Throwable throwable) {
         getLogger(pluginId, loggerName).info(message, throwable);
+    }
+
+    @Override
+    public void info(String pluginId, String loggerName, String message, Object arg) {
+        getLogger(pluginId, loggerName).info(message, arg);
+    }
+
+    @Override
+    public void info(String pluginId, String loggerName, String message, Object arg1, Object arg2) {
+        getLogger(pluginId, loggerName).info(message, arg1, arg2);
+    }
+
+    @Override
+    public void info(String pluginId, String loggerName, String message, Object... arguments) {
+        getLogger(pluginId, loggerName).info(message, arguments);
     }
 
     @Override
@@ -73,6 +103,21 @@ public class DefaultPluginLoggingService implements LoggingService {
     }
 
     @Override
+    public void warn(String pluginId, String loggerName, String message, Object arg) {
+        getLogger(pluginId, loggerName).warn(message, arg);
+    }
+
+    @Override
+    public void warn(String pluginId, String loggerName, String message, Object arg1, Object arg2) {
+        getLogger(pluginId, loggerName).warn(message, arg1, arg2);
+    }
+
+    @Override
+    public void warn(String pluginId, String loggerName, String message, Object... arguments) {
+        getLogger(pluginId, loggerName).warn(message, arguments);
+    }
+
+    @Override
     public void error(String pluginId, String loggerName, String message) {
         getLogger(pluginId, loggerName).error(message);
     }
@@ -80,6 +125,21 @@ public class DefaultPluginLoggingService implements LoggingService {
     @Override
     public void error(String pluginId, String loggerName, String message, Throwable throwable) {
         getLogger(pluginId, loggerName).error(message, throwable);
+    }
+
+    @Override
+    public void error(String pluginId, String loggerName, String message, Object arg) {
+        getLogger(pluginId, loggerName).error(message, arg);
+    }
+
+    @Override
+    public void error(String pluginId, String loggerName, String message, Object arg1, Object arg2) {
+        getLogger(pluginId, loggerName).error(message, arg1, arg2);
+    }
+
+    @Override
+    public void error(String pluginId, String loggerName, String message, Object... arguments) {
+        getLogger(pluginId, loggerName).error(message, arguments);
     }
 
     private Logger getLogger(String pluginId, String loggerName) {

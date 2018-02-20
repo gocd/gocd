@@ -77,8 +77,10 @@ const AjaxPoller = function (args = {}) {
 
   this.start = function () {
     repeater = createRepeater();
+    repeater.every(currentPollInterval(), 'sec')
+      .times(_.includes(window.location.search, 'auto_refresh=false') ? 1 : Infinity)
+      .start.in(options.inSeconds, 'sec');
 
-    repeater.every(currentPollInterval(), 'sec').start.in(options.inSeconds, 'sec');
     if (doesBrowserSupportPageVisibilityAPI()) {
       document.addEventListener(visibilityChange, handleVisibilityChange, false);
     } else {

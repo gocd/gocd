@@ -43,7 +43,8 @@ public class PipelineRepresenter {
                 .addLink("trigger", Routes.Pipeline.schedule(pipelineName))
                 .addLink("trigger_with_options", Routes.Pipeline.schedule(pipelineName))
                 .addLink("pause", Routes.Pipeline.pause(pipelineName))
-                .addLink("unpause", Routes.Pipeline.unpause(pipelineName));
+                .addLink("unpause", Routes.Pipeline.unpause(pipelineName))
+                .addLink("unlock", Routes.Pipeline.unlock(pipelineName));
     }
 
     public static Map<String, Object> toJSON(GoDashboardPipeline model, RequestContext requestContext, Username username) {

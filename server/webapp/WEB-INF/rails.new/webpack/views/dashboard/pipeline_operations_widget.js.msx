@@ -157,7 +157,11 @@ const PipelineOperationsWidget = {
       isTriggerDisabled = true;
     }
 
-    let operationRelatedButtons = "";
+    const pauseButton = (<li>
+      <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
+    </li>);
+
+    let operationRelatedButtons;
     if (pipeline.canAdminister || pipeline.canOperate) {
       operationRelatedButtons = (<ul className="pipeline_operations">
         <li>
@@ -167,13 +171,15 @@ const PipelineOperationsWidget = {
           <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
                   class={`pipeline_btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
         </li>
-        <li>
-          <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
-        </li>
+        {pauseButton}
+      </ul>);
+    } else if (pipeline.canPause) {
+      operationRelatedButtons = (<ul className="pipeline_operations">
+        {pauseButton}
       </ul>);
     }
 
-    const alignmentClass = (pipeline.canAdminister || pipeline.canOperate) ? '': 'no_operation_buttons';
+    const alignmentClass = (pipeline.canAdminister || pipeline.canOperate || pipeline.canPause) ? '' : 'no_operation_buttons';
 
     return (
       <div>

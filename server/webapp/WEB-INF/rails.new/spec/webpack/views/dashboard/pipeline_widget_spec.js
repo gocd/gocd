@@ -144,6 +144,14 @@ describe("Dashboard Pipeline Widget", () => {
       expect(historyLink).toHaveClass("no_operation_buttons");
     });
 
+    it("should only show pause button and right align history link if user can pause but not operate the pipeline", () => {
+      mount(false, false, {}, {}, true, false);
+      const pauseButton = $root.find('.pause');
+      const historyLink = $root.find('.pipeline_header>div>a');
+      expect(pauseButton).toBeInDOM();
+      expect(historyLink).not.toHaveClass('no_operation_buttons');
+    });
+
   });
 
 
@@ -515,26 +523,23 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     describe("Trigger With Options", () => {
-      beforeEach(mount);
-
       afterEach(() => {
         unmount();
         Modal.destroyAll();
       });
 
       it("should render trigger with options pipeline button", () => {
+        mount();
         expect($root.find('.play_with_options')).toBeInDOM();
       });
 
       it('should remove trigger with options button for view users', () => {
-        unmount();
         mount(false, false, {}, {}, false, false);
 
         expect($root.find('.play_with_options')).not.toBeInDOM();
       });
 
       it('should disable trigger with options button when first stage is in progress', () => {
-        unmount();
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
@@ -542,7 +547,6 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it('should not add onclick handler when first stage is in progess', () => {
-        unmount();
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
@@ -550,31 +554,30 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it('should disable trigger with options button when pipeline is locked', () => {
-        unmount();
         mount(false, true, undefined, {"locked": true});
 
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler pipeline is locked', () => {
-        unmount();
         mount(false, true, undefined, {"locked": true});
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
 
       it('should add onclick handler for admin users', () => {
+        mount();
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(true);
       });
 
       it('should not add onclick handler for non admin users', () => {
-        unmount();
         mount(false, true, {}, {}, false, false);
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
 
       it("should show modal to specify trigger options for a pipeline", () => {
+        mount();
         stubTriggerOptions(pipelineName);
         const triggerWithOptionsButton = $root.find('.play_with_options');
 
@@ -587,6 +590,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should show appropriate header for trigger with options popup modal", () => {
+        mount();
         const pauseButton = $root.find('.play_with_options');
 
         simulateEvent.simulate(pauseButton.get(0), 'click');
@@ -596,14 +600,14 @@ describe("Dashboard Pipeline Widget", () => {
         expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
       });
 
-      it("should disable button when pipeline is paused", () => {
-        unmount();
+      it("should disable trigger buttons when pipeline is paused", () => {
         const pauseInfo = {
           "paused":       true,
           "paused_by":    null,
           "pause_reason": null
         };
         mount(false, true, pauseInfo);
+        expect($root.find('.play')).toHaveClass('disabled');
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
     });

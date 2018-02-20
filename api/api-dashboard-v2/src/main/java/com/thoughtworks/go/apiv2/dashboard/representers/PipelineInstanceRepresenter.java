@@ -45,7 +45,6 @@ public class PipelineInstanceRepresenter {
                 .add("scheduled_at", model.getScheduledDate())
                 .add("build_cause", BuildCauseRepresenter.toJSON(model.getBuildCause(), requestContext))
                 .addEmbedded("stages", getStages(model, requestContext))
-                .add("_embedded", getStages(model, requestContext))
                 .getAsMap();
     }
 

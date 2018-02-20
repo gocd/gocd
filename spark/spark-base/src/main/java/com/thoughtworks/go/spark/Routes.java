@@ -115,12 +115,6 @@ public class Routes {
                     .replaceAll(":pipeline_name", pipelineName)
                     .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
         }
-
-        public static String settings(String pipelineName) {
-            return "/admin/pipelines/:pipeline_name/general"
-                    .replaceAll(":pipeline_name", pipelineName);
-        }
-
     }
 
     public static class PipelineInstance {

@@ -1243,7 +1243,8 @@ a.pagination-next
     margin-left: 1em;
 }
 .artifacts ul.artifacts,
-.artifacts .artifacts li{
+.artifacts .artifacts li,
+.files ul.artifacts li {
     float: none;
 }
 

@@ -91,7 +91,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
 
 
-      def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.hash() }.join("/")) + '"'
+      def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.etag() }.join("/")) + '"'
       getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
       assertThatResponse()

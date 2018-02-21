@@ -24,6 +24,7 @@ const PipelineGroups = require('models/dashboard/pipeline_groups');
 const Pipelines      = require('models/dashboard/pipelines');
 
 const Dashboard = function () {
+  const self               = this;
   let pipelineGroups, pipelines;
   let filteredGroups;
   const internalSearchText = Stream('');
@@ -40,9 +41,15 @@ const Dashboard = function () {
   };
 
   const performSearch = _.debounce(() => {
+    self._performRouting();
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
     m.redraw();
   }, 200);
+
+  //needed on model for stubbing in tests
+  this._performRouting = () => {
+    m.route.set(`/${internalSearchText()}`);
+  };
 
   //Stream API with filtering capability
   this.searchText = (searchedBy) => {

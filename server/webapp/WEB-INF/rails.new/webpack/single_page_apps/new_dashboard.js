@@ -66,7 +66,12 @@ $(() => {
       }
     };
 
-    m.mount($("#dashboard").get(0), component);
+    m.route($("#dashboard").get(0), '', {
+      '':             component,
+      '/:searchedBy': component
+    });
+
+    dashboard.searchText(m.route.param('searchedBy') || '');
   };
 
   Dashboard.get().then(onResponse).then(repeater().start).then(renderView);

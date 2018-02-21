@@ -24,6 +24,13 @@ describe("Dashboard", () => {
     const Pipelines        = require('models/dashboard/pipelines');
     const originalDebounce = _.debounce;
 
+    let dashboard;
+    beforeEach(() => {
+      dashboard = new Dashboard();
+      dashboard.initialize(dashboardData);
+      dashboard._performRouting = _.noop;
+    });
+
     beforeAll(() => {
       spyOn(_, 'debounce').and.callFake((func) => {
         return function () {
@@ -37,9 +44,6 @@ describe("Dashboard", () => {
     });
 
     it("should get pipeline groups", () => {
-      const dashboard = new Dashboard();
-      dashboard.initialize(dashboardData);
-
       const expectedPipelineGroups = new PipelineGroups(dashboardData._embedded.pipeline_groups).groups;
       const actualPipelineGroups   = dashboard.getPipelineGroups();
 
@@ -47,9 +51,6 @@ describe("Dashboard", () => {
     });
 
     it("should get pipelines", () => {
-      const dashboard = new Dashboard();
-      dashboard.initialize(dashboardData);
-
       const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
       const actualPipelines   = dashboard.getPipelines();
 
@@ -57,9 +58,6 @@ describe("Dashboard", () => {
     });
 
     it("should find the pipeline by pipeline name", () => {
-      const dashboard = new Dashboard();
-      dashboard.initialize(dashboardData);
-
       const pipelineName     = "up42";
       const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
       const actualPipeline   = dashboard.findPipeline(pipelineName);
@@ -68,9 +66,6 @@ describe("Dashboard", () => {
     });
 
     it("it should filter dashboard provided filter text", () => {
-      const dashboard = new Dashboard();
-      dashboard.initialize(dashboardData);
-
       expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
       dashboard.searchText("up");
       expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
@@ -80,6 +75,16 @@ describe("Dashboard", () => {
       expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
       dashboard.searchText("up42-some-more");
       expect(dashboard.getPipelineGroups()).toEqual([]);
+    });
+
+    it("should peform routing when filter text is updated", () => {
+      const performSpy = spyOn(dashboard, '_performRouting');
+
+      expect(performSpy).not.toHaveBeenCalled();
+
+      dashboard.searchText("up");
+
+      expect(performSpy).toHaveBeenCalled();
     });
 
     it('should get new dashboard json', () => {

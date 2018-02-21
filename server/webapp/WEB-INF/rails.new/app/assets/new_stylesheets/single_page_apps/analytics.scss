@@ -34,12 +34,27 @@
     font-weight: 600;
   }
 
-  iframe {
+  .frame-container {
     flex-grow:  1;
     flex-basis: auto;
     min-width:  calc(44vh * 5 / 3);
     min-height: 44vh;
     max-width:  calc(60vh * 5 / 3);
-    border:     0;
+
+    iframe {
+      height: 100%;
+      width:  100%;
+      border: 0;
+    }
+
+    &[data-error-text] {
+      border: 1px solid #f00;
+
+      &::before {
+        display: block;
+        content: attr(data-error-text);
+        color: #f00;
+      }
+    }
   }
 }

@@ -30,6 +30,11 @@
 
         div.appendChild(frame);
         frame.setAttribute("src", r.view_path);
+      }).fail(function(xhr) {
+        var errorEl = document.createElement("div");
+        $(errorEl).addClass("error");
+        errorEl.textContent = xhr.responseText;
+        div.appendChild(errorEl);
       });
     }
   };

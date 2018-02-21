@@ -32,6 +32,17 @@
 
   const models = {};
 
+  function ensureModel(uid, pluginId, metric) {
+    let model = models[uid];
+
+    if (!model) {
+      model = models[uid] = new Frame(m.redraw);
+      model.url(Routes.dashboardAnalyticsPath({plugin_id: pluginId, metric})); // eslint-disable-line camelcase
+    }
+
+    return model;
+  }
+
   PluginEndpoint.ensure();
 
   PluginEndpoint.define({
@@ -51,14 +62,10 @@
         frames.push(m(AnalyticsDashboardHeader));
         $.each($(main).data("supported-dashboard-metrics"), (pluginId, metrics) => {
           $.each(metrics, (idx, metric) => {
-            const uid = `f-${pluginId}:${metric}:${idx}`;
+            const uid = `f-${pluginId}:${metric}:${idx}`,
+              model = ensureModel(uid, pluginId, metric);
 
-            let model = models[uid];
-            if (!model) {
-              model = models[uid] = new Frame(m.redraw);
-              model.url(Routes.dashboardAnalyticsPath({plugin_id: pluginId, metric})); // eslint-disable-line camelcase
-            }
-            frames.push(m(PluginiFrameWidget, {model: models[uid], pluginId, uid}));
+            frames.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
           });
         });
         return frames;

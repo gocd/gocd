@@ -20,44 +20,81 @@ describe("Plugin iFrame Widget", () => {
 
   const PluginiFrameWidget = require('views/analytics/plugin_iframe_widget');
 
+  function newModel(loadedData, loadedView) {
+    const data = Stream(),
+          view = Stream(),
+        errors = Stream();
+
+    return {data, view, errors, load: () => {
+      data(loadedData);
+      view(loadedView);
+    }};
+  }
+
+  const noop = () => {};
+
   let $root, root;
+
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
-  afterEach(window.destroyDomElementForTest);
 
   afterEach(() => {
     unmount();
+    window.destroyDomElementForTest();
+  });
+
+  it('should load model oncreate', () => {
+    let called = false;
+    const model = newModel(null, null);
+    model.load = () => { called = true; };
+
+    mount(model, noop);
+    expect(called).toBe(true);
   });
 
   it('should load view path from model and create an iframe with sandbox', () => {
-    const model = (function () {
-      const data = Stream();
-      const view = Stream();
+    mount(newModel({a: 1}, "/some/path"), noop);
+    const iframe = $root.find('iframe');
 
-      const load = () => {
-        data({a: 1});
-        view('/some/path');
-      };
-
-      return {view, data, load};
-    }());
-
-    mount(model, 'some-plugin', 'some-uid');
-
-    expect($root.find('iframe[src="/some/path"]').attr('sandbox')).toEqual('allow-scripts');
+    expect(iframe.attr('sandbox')).toEqual('allow-scripts');
+    expect(iframe.attr('src')).toEqual('/some/path');
   });
 
-  const mount = (model, pluginId, uid) => {
-    m.mount(root, {
-      view() {
-        return m(PluginiFrameWidget, {
-          model,
-          pluginId,
-          uid
-        });
-      }
+  it('should show errors if any', () => {
+    const model = newModel(null, null);
+    model.errors("here is an error");
+    mount(model, noop);
+    expect($root.find(".frame-container")[0].getAttribute("data-error-text")).toBe("here is an error");
+
+  });
+
+  it('should initialize iframe oncreate', () => {
+    let actualMessage;
+
+    mount(newModel("model data", null), (_win, data) => {
+      actualMessage = JSON.stringify(data);
     });
+
+    const iframe = $root.find('iframe')[0];
+    iframe.onload();
+
+    const expectedMessage = JSON.stringify({
+      uid: "some-uid",
+      pluginId: "some-plugin",
+      data: "model data"
+    });
+    expect(actualMessage).toBe(expectedMessage);
+  });
+
+  const mount = (model, init) => {
+    m.mount(root,
+      {
+        view() {
+          return m(PluginiFrameWidget, {model, pluginId: "some-plugin", uid: "some-uid", init});
+        }
+      }
+    );
     m.redraw();
   };
 

@@ -44,7 +44,17 @@ class AnalyticsController < ApplicationController
   end
 
   private
+
   def render_plugin_error e
+    log_java_error(e)
     render :text => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
   end
+
+  def log_java_error(e)
+    cause = e.getMessage()
+    stack_trace = com.google.common.base.Throwables.getStackTraceAsString(e)
+
+    Rails.logger.error "#{cause}:\n\n#{stack_trace}"
+  end
+
 end

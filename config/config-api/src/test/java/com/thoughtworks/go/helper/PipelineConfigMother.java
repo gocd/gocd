@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.*;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+
+import java.util.*;
 
 public class PipelineConfigMother {
     public static PipelineConfigs studiosAndEvolve() {
@@ -148,6 +148,16 @@ public class PipelineConfigMother {
         for (String elasticProfileId : elasticProfileIds) {
             pipelineConfig.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId));
         }
+        return pipelineConfig;
+    }
+
+    public static PipelineConfig createManualTriggerPipelineConfig(MaterialConfig materialConfig, String pipelineName, String stageName, String... buildNames) {
+        PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, buildNames);
+        pipelineConfig.materialConfigs().clear();
+        materialConfig.setName(new CaseInsensitiveString(String.format("%s-%s", pipelineName, materialConfig.getType())));
+        materialConfig.setAutoUpdate(false);
+        pipelineConfig.materialConfigs().add(materialConfig);
+        pipelineConfig.first().setApproval(Approval.manualApproval());
         return pipelineConfig;
     }
 }

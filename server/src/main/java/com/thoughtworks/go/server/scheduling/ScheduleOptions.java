@@ -29,6 +29,7 @@ import com.thoughtworks.go.security.GoCipher;
 public class ScheduleOptions {
     private final Map<String, String> specifiedRevisions;
     private final EnvironmentVariablesConfig variables;
+    private Boolean shouldPerformMDUBeforeScheduling = true;
 
     public ScheduleOptions() {
         this(new HashMap<>(), new HashMap<>(), new HashMap<>());
@@ -83,5 +84,12 @@ public class ScheduleOptions {
         int result = specifiedRevisions != null ? specifiedRevisions.hashCode() : 0;
         result = 31 * result + (variables != null ? variables.hashCode() : 0);
         return result;
+    }
+
+    public Boolean shouldPerformMDUBeforeScheduling() {
+        return shouldPerformMDUBeforeScheduling;
+    }
+    public void shouldPerformMDUBeforeScheduling(Boolean shouldPerformMDUBeforeScheduling) {
+        this.shouldPerformMDUBeforeScheduling = shouldPerformMDUBeforeScheduling;
     }
 }

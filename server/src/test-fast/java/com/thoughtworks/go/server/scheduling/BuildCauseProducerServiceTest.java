@@ -16,20 +16,13 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -41,29 +34,16 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.materials.MaterialUpdateCompletedTopic;
-import com.thoughtworks.go.server.materials.MaterialUpdateFailedMessage;
-import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusListener;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
-import com.thoughtworks.go.server.materials.MaterialUpdateSuccessfulMessage;
-import com.thoughtworks.go.server.materials.SpecificMaterialRevisionFactory;
+import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.AutoBuild;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.ManualBuild;
-import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
-import com.thoughtworks.go.server.service.PipelineScheduleQueue;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.SchedulingCheckerService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
@@ -82,40 +62,49 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.*;
+
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildCauseProducerServiceTest {
     private static final ServerHealthState SERVER_ERROR = error("something", "else", HealthStateType.general(GLOBAL));
 
     private PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
-    @Mock private ServerHealthService mockServerHealthService;
-    @Mock private SchedulingCheckerService mockSchedulingCheckerService;
-    @Mock private MaterialUpdateStatusNotifier mockMaterialUpdateStatusNotifier;
-    @Mock private MaterialUpdateService mockMaterialUpdateService;
-    @Mock private OperationResult operationResult;
-    @Mock private PipelineScheduleQueue pipelineScheduleQueue;
-    @Mock private MaterialRepository materialRepository;
-    @Mock private SpecificMaterialRevisionFactory specificMaterialRevisionFactory;
-    @Mock private PipelineService pipelineService;
-    @Mock private GoConfigService goConfigService;
-    @Mock private MaterialConfigConverter materialConfigConverter;
-    @Mock private MaterialExpansionService materialExpansionService;
-    @Mock private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    @Mock
+    private ServerHealthService mockServerHealthService;
+    @Mock
+    private SchedulingCheckerService mockSchedulingCheckerService;
+    @Mock
+    private MaterialUpdateStatusNotifier mockMaterialUpdateStatusNotifier;
+    @Mock
+    private MaterialUpdateService mockMaterialUpdateService;
+    @Mock
+    private OperationResult operationResult;
+    @Mock
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Mock
+    private MaterialRepository materialRepository;
+    @Mock
+    private SpecificMaterialRevisionFactory specificMaterialRevisionFactory;
+    @Mock
+    private PipelineService pipelineService;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private MaterialConfigConverter materialConfigConverter;
+    @Mock
+    private MaterialExpansionService materialExpansionService;
+    @Mock
+    private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    @Mock
+    private MaterialChecker materialChecker;
 
     private final Map<String, String> EMPTY_REVISIONS = new HashMap<>();
     private HealthStateType healthStateType;
@@ -125,7 +114,6 @@ public class BuildCauseProducerServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-
         triggerMonitor = new TriggerMonitor();
         healthStateType = HealthStateType.general(HealthStateScope.forPipeline(CaseInsensitiveString.str(pipelineConfig.name())));
         when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
@@ -148,13 +136,19 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldAllowRetriggeringIfThePreviousTriggerFailed() throws Exception {
-
+        GitMaterialConfig materialConfig = MaterialConfigsMother.gitMaterialConfig();
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(materialConfig));
+        Material material = new MaterialConfigConverter().toMaterial(materialConfig);
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), errorResult());
 
         HttpOperationResult result = new HttpOperationResult();
+        when(materialConfigConverter.toMaterial(materialConfig)).thenReturn(material);
+        when(materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs())).thenReturn(pipelineConfig.materialConfigs());
+        when(materialConfigConverter.toMaterials(pipelineConfig.materialConfigs())).thenReturn(new Materials(material));
+        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), result);
         assertThat(result.httpCode(), is(202));
-
+        assertThat(result.fullMessage(), is("Request to schedule pipeline pipeline accepted"));
     }
 
     @Test
@@ -407,7 +401,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1,"plug"),"revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
@@ -425,25 +419,27 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void manualTrigger_shouldNotUpdatePipelineConfigWhenConfigRepoIsNotInMaterials() {
+    public void manualTrigger_shouldUpdateJustPipelineConfigNotMaterialsWhenPipelineIsDefinedInConfigRepoAndMDUFlagIsTurnedOff() {
         HgMaterial material1 = new HgMaterial("url", null);
         HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
         HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig2,"plug"),"revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig2, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
+        when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(new MaterialConfigConverter().toMaterial(materialConfig2));
 
+        ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>());
+        scheduleOptions.shouldPerformMDUBeforeScheduling(false);
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
-                new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>()),
+                scheduleOptions,
                 new ServerHealthStateOperationResult());
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
-        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig);
-
+        verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig), any(MaterialUpdateStatusListener.class));
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
     }
 
@@ -455,7 +451,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1,"plug"),"revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);
@@ -466,23 +462,27 @@ public class BuildCauseProducerServiceTest {
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
         // updated pipeline config
-        PipelineConfig pipelineConfig1 = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
-        pipelineConfig1.addMaterialConfig(materialConfig1);
-        pipelineConfig1.addMaterialConfig(materialConfig2);
-        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig1);
+        PipelineConfig updatedPipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
+        updatedPipelineConfig.addMaterialConfig(materialConfig1);
+        updatedPipelineConfig.addMaterialConfig(materialConfig2);
+        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(updatedPipelineConfig);
         when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
-
+        Materials materials = new Materials(material1, material2);
+        when(materialConfigConverter.toMaterials(updatedPipelineConfig.materialConfigs())).thenReturn(materials);
+        when(materialExpansionService.expandMaterialConfigsForScheduling(updatedPipelineConfig.materialConfigs())).thenReturn(updatedPipelineConfig.materialConfigs());
+        when(pipelineScheduleQueue.mostRecentScheduled(updatedPipelineConfig.name().toString())).thenReturn(BuildCause.createNeverRun());
+        when(materialChecker.findLatestRevisions(any(), eq(materials))).thenReturn(new MaterialRevisions());
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
 
         verify(goConfigService, times(2)).pipelineConfigNamed(pipelineConfig.name());
 
-        verify(mockMaterialUpdateService,times(1)).updateMaterial(material1);
-        verify(mockMaterialUpdateService,times(1)).updateMaterial(material2);
+        verify(mockMaterialUpdateService, times(1)).updateMaterial(material1);
+        verify(mockMaterialUpdateService, times(1)).updateMaterial(material2);
 
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material2, 0));
 
-        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig1);
+        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(updatedPipelineConfig);
     }
 
     @Test
@@ -528,6 +528,7 @@ public class BuildCauseProducerServiceTest {
                 assertThat("description", item.getDescription(), is(description));
                 return true;
             }
+
             public void describeTo(Description description) {
                 description.appendText("message = [" + message + "] and description = [" + description + "]");
             }

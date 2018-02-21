@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class HttpOperationResult implements OperationResult {
         httpCode = 422;
     }
 
-    public boolean isSuccess(){
+    public boolean isSuccess() {
         return httpCode >= 200 && httpCode <= 299;
     }
 
@@ -96,7 +96,7 @@ public class HttpOperationResult implements OperationResult {
         return httpCode;
     }
 
-    public String message(){
+    public String message() {
         return message;
     }
 
@@ -127,9 +127,13 @@ public class HttpOperationResult implements OperationResult {
         this.message = message;
     }
 
-    public String detailedMessage() {//cache me if gc mandates so -jj
+    public String fullMessage() {
         ServerHealthState serverHealthState = serverHealthStateOperationResult.getServerHealthState();
         String desc = serverHealthState == null ? BLANK_STRING : serverHealthState.getDescription();
-        return StringUtils.isBlank(desc) ? message + "\n" : String.format("%s { %s }\n", message, desc);
+        return StringUtils.isBlank(desc) ? message : String.format("%s { %s }", message, desc);
+    }
+
+    public String detailedMessage() {        //cache me if gc mandates so -jj
+        return fullMessage() + "\n";
     }
 }

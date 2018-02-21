@@ -39,7 +39,7 @@ public class JsonReader {
 
     public String getString(String property) {
         return optString(property)
-                .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
+            .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
     public Optional<String> optString(String property) {
@@ -88,7 +88,7 @@ public class JsonReader {
 
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
-                .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
+            .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
     public void readStringIfPresent(String key, Consumer<String> setterMethod) {
@@ -104,9 +104,9 @@ public class JsonReader {
             try {
                 Spliterator<JsonElement> iterator = jsonObject.getAsJsonArray(property).spliterator();
                 return Optional.of(
-                        StreamSupport.stream(iterator, false)
-                                .map(JsonElement::getAsString)
-                                .collect(Collectors.toList()));
+                    StreamSupport.stream(iterator, false)
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toList()));
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonStringArray(property);
             }

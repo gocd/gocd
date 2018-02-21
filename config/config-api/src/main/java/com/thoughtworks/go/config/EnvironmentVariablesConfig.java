@@ -110,12 +110,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
     }
 
     public boolean hasVariable(String variableName) {
-        for (EnvironmentVariableConfig variableConfig : this) {
-            if (variableConfig.getName().equals(variableName)) {
-                return true;
-            }
-        }
-        return false;
+        return getVariable(variableName) != null;
     }
 
     public void setConfigAttributes(Object attributes) {
@@ -131,6 +126,15 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
                 }
             }
         }
+    }
+
+    public EnvironmentVariableConfig getVariable(String variableName) {
+        for (EnvironmentVariableConfig variableConfig : this) {
+            if (variableConfig.getName().equals(variableName)) {
+                return variableConfig;
+            }
+        }
+        return null;
     }
 
     public EnvironmentVariablesConfig getSecureVariables() {

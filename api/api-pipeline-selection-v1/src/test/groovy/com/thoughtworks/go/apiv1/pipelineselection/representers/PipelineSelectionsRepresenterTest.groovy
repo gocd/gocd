@@ -49,15 +49,17 @@ class PipelineSelectionsRepresenterTest {
 
       List<PipelineConfigs> pipelineConfigs = [group1, group2]
 
-      def actualJson = toObjectString({ PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(selections, pipelineConfigs)) })
+      def actualJson = toObjectString({
+        PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(selections, pipelineConfigs))
+      })
 
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
-        pipelines : [
+        pipelines: [
           grp1: [],
           grp2: ["pipeline1", "pipeline2"]
         ],
         selections: ['build-linux', 'build-windows'],
-        blacklist : true
+        blacklist: true
       ])
     }
   }

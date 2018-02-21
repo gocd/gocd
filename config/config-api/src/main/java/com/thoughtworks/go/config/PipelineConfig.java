@@ -353,7 +353,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean isConfigOriginSameAsOneOfMaterials() {
-        if (!(this.origin instanceof RepoConfigOrigin))
+        if (!(isConfigDefinedRemotely()))
             return false;
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
@@ -367,8 +367,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return false;
     }
 
+    public boolean isConfigDefinedRemotely() {
+        return this.origin instanceof RepoConfigOrigin;
+    }
+
     public boolean isConfigOriginFromRevision(String revision) {
-        if (!(this.origin instanceof RepoConfigOrigin))
+        if (!(isConfigDefinedRemotely()))
             return false;
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;

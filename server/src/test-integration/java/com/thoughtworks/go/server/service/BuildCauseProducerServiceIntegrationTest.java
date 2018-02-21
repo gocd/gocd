@@ -18,15 +18,20 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.GoPartialConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
@@ -34,25 +39,28 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
+import com.thoughtworks.go.server.materials.MaterialUpdateStatusListener;
+import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
+import com.thoughtworks.go.server.scheduling.TriggerMonitor;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,6 +75,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
@@ -74,7 +84,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -103,6 +114,9 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired private PipelinePauseService pipelinePauseService;
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private BuildCauseProducerService service;
+    @Autowired private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
+    @Autowired private TriggerMonitor triggerMonitor;
+    @Autowired private GoPartialConfig goPartialConfig;
 
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -118,6 +132,13 @@ public class BuildCauseProducerServiceIntegrationTest {
     private PipelineConfig goPipelineConfig;
     private MaterialRevisions svnMaterialRevs;
     private PipelineConfig mingleConfig;
+    private HttpOperationResult result;
+    private ScheduleOptions scheduleOptions;
+    private SvnMaterial svnMaterial;
+    private ScheduleTestUtil u;
+    private PipelineConfig manualTriggerPipeline;
+    private SvnMaterial materialForManualTriggerPipeline;
+    private Username username;
 
     @Before
     public void setup() throws Exception {
@@ -137,7 +158,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 
         svnMaterialRevs = new MaterialRevisions();
-        SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
@@ -157,6 +178,13 @@ public class BuildCauseProducerServiceIntegrationTest {
         latestPipeline = pipelineDao.saveWithStages(latestPipeline);
         dbHelper.passStage(latestPipeline.getStages().first());
         pipelineScheduleQueue.clear();
+        result = new HttpOperationResult();
+        scheduleOptions = new ScheduleOptions();
+        u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+        materialForManualTriggerPipeline = u.wf(new SvnMaterial("svn", "username", "password", false), "folder1");
+        u.checkinInOrder(materialForManualTriggerPipeline, u.d(1), "s1");
+        manualTriggerPipeline = configHelper.addPipeline(UUID.randomUUID().toString(), STAGE_NAME, materialForManualTriggerPipeline.config(), "build");
+        username = Username.ANONYMOUS;
     }
 
     @After
@@ -408,6 +436,79 @@ public class BuildCauseProducerServiceIntegrationTest {
         ServerHealthStateOperationResult p2Result = new ServerHealthStateOperationResult();
         service.autoSchedulePipeline(p2.config.name().toString(), p2Result, 1234);
         assertThat(p2Result.canContinue(), is(true));
+    }
+
+
+    @Test
+    public void shouldNotTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedOFFInRequest() throws Exception {
+        scheduleOptions.shouldPerformMDUBeforeScheduling(false);
+        service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
+
+        assertThat(result.isSuccess(), is(true));
+        assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
+        assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name().toString()), Is.is(false));
+
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name().toString());
+        assertNotNull(buildCause);
+        assertThat(buildCause.getApprover(), is(username.getDisplayName()));
+        assertThat(buildCause.getMaterialRevisions().numberOfRevisions(), is(1));
+        assertThat(buildCause.getMaterialRevisions().getModifications(materialForManualTriggerPipeline).getRevision(), is("s1"));
+    }
+
+    @Test
+    public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        configHelper.addConfigRepo(repoConfig);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
+        PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);
+        GitMaterial git = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getGitMaterial()), "git");
+        u.checkinInOrder(git, u.d(1), "g1r1");
+        SvnMaterial svn = u.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
+        u.checkinInOrder(svn, u.d(1), "svn1r11");
+        GitMaterial configRepoMaterial = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getMaterialConfig()), "git");
+        u.checkinInOrder(configRepoMaterial, u.d(1), "s1");
+        goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
+        assertTrue(goConfigService.hasPipelineNamed(remotePipeline.name()));
+        scheduleOptions.shouldPerformMDUBeforeScheduling(false);
+
+        service.manualSchedulePipeline(username, remotePipeline.name(), scheduleOptions, result);
+        assertThat(result.isSuccess(), is(true));
+        assertThat(result.message(), is("Request to schedule pipeline remote_pipeline accepted"));
+        assertThat(materialUpdateStatusNotifier.hasListenerFor(remotePipeline), is(true));
+        assertMDUPendingForMaterial(remotePipeline, configRepoMaterial);
+        assertMDUNotPendingForMaterial(remotePipeline, svn);
+        assertMDUNotPendingForMaterial(remotePipeline, git);
+        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name().toString()), Is.is(true));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(remotePipeline.name().toString());
+        assertNull(buildCause);
+    }
+
+    @Test
+    public void shouldTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedONInRequest() throws Exception {
+        scheduleOptions.shouldPerformMDUBeforeScheduling(true);
+        service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
+
+        assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline), is(true));
+        assertMDUPendingForMaterial(manualTriggerPipeline, materialForManualTriggerPipeline);
+        assertThat(result.isSuccess(), is(true));
+        assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name().toString()), Is.is(true));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name().toString());
+        assertNull(buildCause);
+    }
+
+    private void assertMDUPendingForMaterial(PipelineConfig remotePipeline, Material material) {
+        assertMDUPending(remotePipeline, material, true);
+    }
+
+    private void assertMDUNotPendingForMaterial(PipelineConfig remotePipeline, Material material) {
+        assertMDUPending(remotePipeline, material, false);
+    }
+
+    private void assertMDUPending(PipelineConfig remotePipeline, Material material, boolean pending) {
+        MaterialUpdateStatusListener materialUpdateStatusListener = ((ConcurrentMap<String, MaterialUpdateStatusListener>) ReflectionUtil.getField(materialUpdateStatusNotifier, "pending")).get(CaseInsensitiveString.str(remotePipeline.name()));
+        assertThat(materialUpdateStatusListener.isListeningFor(material), is(pending));
     }
 
     private void verifyChanged(Material material, BuildCause bc, final boolean changed) {

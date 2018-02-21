@@ -80,7 +80,7 @@ describe("Agent Row Widget", () => {
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    const hostname      = $(information[2]).find('.content');
+    const hostname    = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('in-john.local');
     expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
@@ -89,24 +89,38 @@ describe("Agent Row Widget", () => {
   it('should contain link to agent status report page for elastic agents', () => {
     agents(allAgents);
     const model = Stream(true);
-    mount(agents().lastAgent(), model, true, true);
+    mount(agents().lastAgent(), model, true, {'capabilities': () => ({'supportsStatusReport': () => true})});
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    const hostname      = $(information[2]).find('.content');
+    const hostname    = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
     expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/${allAgents.lastAgent().elasticAgentId()}`);
   });
 
-  it('should not contain link to agent status report page when plugin doesnt support status reports', () => {
+  it('should contain link to job run history page for elastic agents when elastic agent plugin is missing', () => {
     agents(allAgents);
     const model = Stream(true);
-    mount(agents().lastAgent(), model, true, false);
+    mount(agents().lastAgent(), model, true, null);
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
-    const hostname      = $(information[2]).find('.content');
+    const hostname    = $(information[2]).find('.content');
+
+    expect(hostname).toHaveText('elastic-agent-hostname');
+    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
+  });
+
+
+  it('should not contain link to agent status report page when plugin doesnt support status reports', () => {
+    agents(allAgents);
+    const model = Stream(true);
+    mount(agents().lastAgent(), model, true);
+
+    const row         = $root.find('tr')[0];
+    const information = $(row).find('td');
+    const hostname    = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
     expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
@@ -170,7 +184,7 @@ describe("Agent Row Widget", () => {
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
-  const mount = (agent, model, isUserAdmin, pluginSupportsStatusReport = false) => {
+  const mount = (agent, model, isUserAdmin, pluginInfo = {'capabilities': () => ({'supportsStatusReport': () => false})}) => {
     m.mount(root, {
       view() {
         return m(AgentsRowWidget, {
@@ -179,7 +193,7 @@ describe("Agent Row Widget", () => {
           'dropdown':      agentsVM.dropdown,
           isUserAdmin,
           'pluginInfos':   () => ({
-            'findById': () => ({'capabilities': () => ({'supportsStatusReport': () => pluginSupportsStatusReport})})
+            'findById': () => (pluginInfo)
           })
         });
       }

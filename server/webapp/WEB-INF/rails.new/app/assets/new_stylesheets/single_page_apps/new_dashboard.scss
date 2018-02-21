@@ -846,7 +846,7 @@ body {
     &.cancelled {
       @include icon-before($cancelled-icon, 12px, 0);
       background: $building;
-      color: #333;
+      color:      #333;
     }
   }
 }

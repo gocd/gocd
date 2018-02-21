@@ -26,6 +26,7 @@
 
 //variables
 
+$dark-gray: #333;
 $passed: #1ec659;
 $failed: #fc131b;
 $building: #fed34e;
@@ -43,7 +44,7 @@ $pipeline-list-height: 265px;
 $border-color: #ccc;
 $border-color-active: #94399e;
 $tab-hover-bg: #f5f5f5;
-$tab-head-color: #333;
+$tab-head-color: $dark-gray;
 $tab-bg: #e5e5e5;
 $active-tab: #94399e;
 
@@ -214,13 +215,13 @@ $btn-default: #d6d5d5;
 .btn-default {
   background:   $btn-default;
   border-color: $btn-default;
-  color:        #333;
+  color:        $dark-gray;
 }
 
 .btn-link {
   border:     0;
   background: transparent;
-  color:      #333;
+  color:      $dark-gray;
   font-size:  16px;
 
 }
@@ -377,15 +378,21 @@ $btn-default: #d6d5d5;
 }
 
 .recent-pipeline {
-  float:      right;
-  margin-top: -3px;
+  float: right;
+  input {
+    margin: 0;
+  }
+  label {
+    font-size:    13px;
+    margin-right: 0;
+  }
 
 }
 
 .filter_pipelines {
   max-height: $pipeline-list-height;
   overflow-y: auto;
-  padding:    10px 20px;
+  padding:    10px 28px;
 }
 
 .filter_header {
@@ -395,7 +402,8 @@ $btn-default: #d6d5d5;
   font-size:  13px;
   overflow:   hidden;
   h5 {
-    margin: 0 0 5px 0;
+    margin:    0 0 5px 0;
+    font-size: 13px;
   }
 }
 
@@ -423,7 +431,7 @@ $btn-default: #d6d5d5;
 .filter_pipeline-group {
   font-size:   13px;
   position:    relative;
-  margin:      10px 10px 5px 10px;
+  margin:      10px 10px 0 10px;
   cursor:      pointer;
   padding:     5px 0;
   display:     flex;
@@ -432,32 +440,29 @@ $btn-default: #d6d5d5;
     font-weight: 600;
     font-size:   15px;
   }
-}
-
-.expand-collapse-icon {
-  &.expanded {
-    content:     "+";
+  .arrow-right {
+    @include icon-before($type: angle-right);
     position:    absolute;
-    left:        -25px;
-    top:         2px;
-    padding:     0 5px;
     font-size:   20px;
-    font-weight: 600;
+    font-weight: bold;
+    left:        -18px;
+    top:         1px;
   }
 
-  &.collapsed {
-    content:   "-";
-    position:  absolute;
-    left:      -25px;
-    top:       -7px;
-    padding:   0 5px;
-    font-size: 30px;
+  .arrow-down {
+    @include icon-before($type: angle-down);
+    position:    absolute;
+    font-size:   20px;
+    font-weight: bold;
+    left:        -23px;
+    top:         1px;
   }
+
 }
 
 .filter_pipeline-list {
   list-style-type: none;
-  margin:          0 0 5px 10px;
+  margin:          0 0 5px 30px;
   padding:         0;
   font-size:       12px;
   li {
@@ -536,7 +541,7 @@ $btn-default: #d6d5d5;
 .btn-select {
   border:     0;
   background: #dcdcdc;
-  color:      #333;
+  color:      $dark-gray;
   font-size:  14px;
   padding:    5px 10px;
   margin:     0;
@@ -545,7 +550,7 @@ $btn-default: #d6d5d5;
     outline: 0;
   }
   &.selected {
-    background: #333;
+    background: $dark-gray;
     color:      #fff;
   }
 
@@ -713,7 +718,7 @@ body {
       height:       0;
       border-right: 6px solid transparent;
       border-left:  6px solid transparent;
-      border-top:   6px solid #333;
+      border-top:   6px solid $dark-gray;
       position:     absolute;
       top:          8px;
       left:         auto;
@@ -749,7 +754,7 @@ body {
 
 .material_changes {
   position:      absolute;
-  background:    #333;
+  background:    $dark-gray;
   padding:       20px 20px 0;
   color:         #fff;
   font-size:     13px;
@@ -846,7 +851,7 @@ body {
     &.cancelled {
       @include icon-before($cancelled-icon, 12px, 0);
       background: $building;
-      color:      #333;
+      color:      $dark-gray;
     }
   }
 }
@@ -1079,7 +1084,7 @@ body {
       white-space: nowrap;
       &:before {
         content:      "";
-        border-left:  1px dotted #333;
+        border-left:  1px dotted $dark-gray;
         margin-right: 5px;
       }
       &:first-child {

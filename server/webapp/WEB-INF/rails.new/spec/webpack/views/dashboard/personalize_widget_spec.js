@@ -125,7 +125,7 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should select all pipelines when pipeline group is checked', () => {
-    $root.find('.expand-collapse-icon').get(1).click();
+    $root.find('.arrow-right').get(0).click();
 
     expect($root.find('#pgroup_second')).not.toBeChecked();
     expect($root.find('#pipeline_up43')).not.toBeChecked();
@@ -149,7 +149,7 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should select all pipelines from selection', () => {
-    $root.find('.expand-collapse-icon').get(1).click();
+    $root.find('.arrow-right').get(0).click();
 
     expect($root.find('#pipeline_up42')).toBeChecked();
     expect($root.find('#pipeline_up43')).not.toBeChecked();
@@ -163,7 +163,7 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should select no pipelines from selection', () => {
-    $root.find('.expand-collapse-icon').get(1).click();
+    $root.find('.arrow-right').get(0).click();
 
     expect($root.find('#pipeline_up42')).toBeChecked();
     expect($root.find('#pipeline_up43')).not.toBeChecked();
@@ -217,27 +217,27 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should expand first pipeline group by default', () => {
-    expect($root.find('.expand-collapse-icon').get(0)).toHaveClass('expanded');
-    expect($root.find('.expand-collapse-icon').get(1)).toHaveClass('collapsed');
+    expect($root.find('.filter_pipeline-group span').get(0)).toHaveClass('arrow-down');
+    expect($root.find('.filter_pipeline-group span').get(1)).toHaveClass('arrow-right');
   });
 
   it('should not render pipelines for collapsed group', () => {
-    expect($root.find('.expand-collapse-icon').get(0)).toHaveClass('expanded');
+    expect($root.find('.filter_pipeline-group span').get(0)).toHaveClass('arrow-down');
     expect($root.find('#pipeline_up42')).toBeInDOM();
 
-    expect($root.find('.expand-collapse-icon').get(1)).toHaveClass('collapsed');
+    expect($root.find('.filter_pipeline-group span').get(1)).toHaveClass('arrow-right');
     expect($root.find('#pipeline_up43')).not.toBeInDOM();
     expect($root.find('#pipeline_up44')).not.toBeInDOM();
   });
 
   it('should expand a pipeline group', () => {
-    expect($root.find('.expand-collapse-icon').get(1)).toHaveClass('collapsed');
+    expect($root.find('.filter_pipeline-group span').get(0)).toHaveClass('arrow-down');
     expect($root.find('#pipeline_up43')).not.toBeInDOM();
     expect($root.find('#pipeline_up44')).not.toBeInDOM();
 
-    $root.find('.expand-collapse-icon').get(1).click();
+    $root.find('.filter_pipeline-group span').get(1).click();
 
-    expect($root.find('.expand-collapse-icon').get(1)).toHaveClass('expanded');
+    expect($root.find('.filter_pipeline-group span').get(1)).toHaveClass('arrow-down');
     expect($root.find('#pipeline_up43')).toBeInDOM();
     expect($root.find('#pipeline_up44')).toBeInDOM();
   });

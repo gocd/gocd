@@ -103,11 +103,11 @@ const PersonalizeWidget = {
           );
         });
 
-        expandCollapseIcon = (<div class="expand-collapse-icon expanded"
-                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}>+</div>);
+        expandCollapseIcon = (<span class="arrow-down"
+                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}></span>);
       } else {
-        expandCollapseIcon = (<div class="expand-collapse-icon collapsed"
-                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}>-</div>);
+        expandCollapseIcon = (<span class="arrow-right"
+                                   onclick={vnode.attrs.vm.toggleGroupSelection.bind(vnode.attrs.vm, groupName)}></span>);
       }
 
       return (
@@ -165,7 +165,7 @@ const PersonalizeWidget = {
             <input type="checkbox" id="show-newly-created-pipelines"
                    checked={pipelineSelection.blacklist()}
                    onclick={self.toggleBlacklist.bind(self)}/>
-            <label for="show-newly-created-pipelines">show recent pipelines</label>
+            <label for="show-newly-created-pipelines">Show newly created pipelines</label>
           </div>
         </header>
         {pipelineGroupCheckboxes}

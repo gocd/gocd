@@ -16,12 +16,12 @@
 
 describe("Agents Widget", () => {
 
-  const $         = require("jquery");
-  const m         = require('mithril');
-  const Stream    = require('mithril/stream');
-  const _         = require('lodash');
-  const Routes    = require('gen/js-routes');
-  const SortOrder = require('views/agents/models/sort_order');
+  const $            = require("jquery");
+  const m            = require('mithril');
+  const Stream       = require('mithril/stream');
+  const _            = require('lodash');
+  const Routes       = require('gen/js-routes');
+  const RouteHandler = require('views/agents/models/route_handler');
 
   const simulateEvent = require('simulate-event');
 
@@ -43,11 +43,11 @@ describe("Agents Widget", () => {
 
   let agentsVM;
   let agents;
-  let sortOrder;
+  let routeHandler;
 
   beforeEach(() => {
-    sortOrder           = Stream(new SortOrder());
-    sortOrder().perform = _.noop;
+    routeHandler           = Stream(new RouteHandler());
+    routeHandler().perform = _.noop;
   });
 
   const route = (isUserAdmin) => {
@@ -60,7 +60,7 @@ describe("Agents Widget", () => {
             isUserAdmin,
             showSpinner,
             permanentMessage,
-            sortOrder,
+            sortOrder:            routeHandler,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
           });
@@ -74,7 +74,7 @@ describe("Agents Widget", () => {
             isUserAdmin,
             showSpinner,
             permanentMessage,
-            sortOrder,
+            sortOrder:            routeHandler,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
           });
@@ -92,7 +92,7 @@ describe("Agents Widget", () => {
   };
 
   beforeEach(() => {
-    agentsVM = new AgentsVM();
+    agentsVM = new AgentsVM(Stream(''));
     agents   = Stream(Agents.fromJSON(allAgentsJSON));
     agentsVM.initializeWith(agents());
 
@@ -280,7 +280,7 @@ describe("Agents Widget", () => {
   });
 
   it('should show only filtered agents after inserting filter text', () => {
-    const searchField       = $root.find('#filter-agent').get(0);
+    const searchField     = $root.find('#filter-agent').get(0);
     let agentsCountOnPage = $root.find('.agents-table-body .agents-table tbody tr');
     expect(agentsCountOnPage).toHaveLength(2);
 
@@ -352,7 +352,7 @@ describe("Agents Widget", () => {
       clickAllAgents();
       stubResourcesList();
       const resourceButton = $root.find("button:contains('Resources')");
-      let resourcesList  = $root.find('.has-dropdown')[0];
+      let resourcesList    = $root.find('.has-dropdown')[0];
       expect(resourcesList.classList).not.toContain('is-open');
 
       $(resourceButton).click();
@@ -373,7 +373,7 @@ describe("Agents Widget", () => {
       stubEnvironmentsList();
 
       const environmentButton = $root.find("button:contains('Environments')");
-      let environmentsList  = $root.find('.has-dropdown')[1];
+      let environmentsList    = $root.find('.has-dropdown')[1];
       expect(environmentsList.classList).not.toContain('is-open');
 
       $(environmentButton).click();

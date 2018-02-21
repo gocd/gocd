@@ -17,7 +17,7 @@
 const Stream = require('mithril/stream');
 const _      = require('lodash');
 
-const VM         = () => {
+const VM         = (searchText) => {
   const dropdownStates     = {};
   const agentCheckedStates = {};
   const allAgentsSelected  = Stream(false);
@@ -66,7 +66,7 @@ const VM         = () => {
       }
     },
 
-    filterText: Stream(''),
+    filterText: searchText,
 
     agents: {
       isAnyAgentSelected() {

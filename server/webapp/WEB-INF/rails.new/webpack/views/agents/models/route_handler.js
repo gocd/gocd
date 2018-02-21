@@ -19,6 +19,7 @@ const m = require('mithril');
 const SortOrder = function () {
   let sortBy  = 'agentState';
   let orderBy = 'asc';
+  let search  = '';
 
   this.orderBy = () => orderBy;
 
@@ -36,15 +37,25 @@ const SortOrder = function () {
     this.perform();
   };
 
+  this.searchText = (...args) => {
+    if (args.length) {
+      search = args[0];
+      this.perform();
+    }
+    return search;
+  };
+
   this.initialize = () => {
     sortBy  = m.route.param('sortBy') || this.sortBy();
     orderBy = m.route.param('orderBy') || this.orderBy();
+
+    search = m.route.param('query') || this.searchText();
 
     this.perform();
   };
 
   this.perform = function () {
-    m.route.set(`/${this.sortBy()}/${this.orderBy()}`);
+    m.route.set(`/${this.sortBy()}/${this.orderBy()}/${this.searchText()}`);
   };
 };
 

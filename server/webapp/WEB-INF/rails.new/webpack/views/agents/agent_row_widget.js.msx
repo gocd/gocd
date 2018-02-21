@@ -85,7 +85,7 @@ const AgentRowWidget = {
     const pluginInfos     = args.pluginInfos;
     let selectAgentCheckbox;
     let elasticAgentIcon;
-    const hostnameLink      = getHostnameLink(args.isUserAdmin, agent, pluginInfos);
+    const hostnameLink    = getHostnameLink(args.isUserAdmin, agent, pluginInfos);
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}

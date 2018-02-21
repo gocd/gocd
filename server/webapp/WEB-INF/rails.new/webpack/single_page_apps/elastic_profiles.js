@@ -31,7 +31,7 @@ $(() => {
     const component = {
       view() {
         return m(ElasticProfilesWidget, {
-          pluginInfos: Stream(pluginInfos.filterByType('elastic-agent'))
+          pluginInfos: Stream(pluginInfos)
         });
       }
     };
@@ -46,5 +46,5 @@ $(() => {
     );
   };
 
-  PluginInfos.all().then(onSuccess, onFailure);
+  PluginInfos.all(null, {type: 'elastic-agent'}).then(onSuccess, onFailure);
 });

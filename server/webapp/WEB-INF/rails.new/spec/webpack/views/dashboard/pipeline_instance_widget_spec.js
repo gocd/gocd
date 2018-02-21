@@ -28,7 +28,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
   afterEach(window.destroyDomElementForTest);
 
   const pipelineInstanceJson = {
-    "_links":       {
+    "_links":                   {
       "self":            {
         "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
       },
@@ -48,11 +48,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
         "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
       }
     },
-    "label":        "1",
-    "counter":      "1",
-    "scheduled_at": "2017-11-10T07:25:28.539Z",
-    "triggered_by": "changes",
-    "build_cause":  {
+    "label":                    "1",
+    "counter":                  "1",
+    "scheduled_at":             "1519015244393",
+    "scheduled_at_server_time": "2017-11-10T07:25:28.539Z",
+    "triggered_by":             "changes",
+    "build_cause":              {
       "approver":           "",
       "is_forced":          false,
       "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
@@ -77,7 +78,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
         }
       ]
     },
-    "_embedded":    {
+    "_embedded":                {
       "stages": [
         {
           "_links":       {
@@ -110,7 +111,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
       view() {
         return m(PipelineInstanceWidget, {
           instance,
-          dropdown: dashboardViewModel.dropdown,
+          dropdown:     dashboardViewModel.dropdown,
           trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
           pipelineName
         });
@@ -130,13 +131,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
   it("should render triggered by information", () => {
     expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${ pipelineInstanceJson.triggered_by }`);
-    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
+    const expectedTime = moment(new Date(+pipelineInstanceJson.scheduled_at)).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
     expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
   it("should show server triggered by information on hover", () => {
-    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
-    expect($root.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
+    expect($root.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(`Server Time: ${pipelineInstanceJson.scheduled_at_server_time}`);
   });
 
   it("should render compare link", () => {

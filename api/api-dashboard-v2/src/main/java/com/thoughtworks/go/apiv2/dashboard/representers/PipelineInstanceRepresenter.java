@@ -22,31 +22,40 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.spark.Routes;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.function.Consumer;
 
 public class PipelineInstanceRepresenter {
+    public static final String SCHEDULED_AT_PATTERN = "dd MMM, yyyy 'at' HH:mm:ss [Z]";
 
     public static void toJSON(OutputWriter jsonOutputWriter, PipelineInstanceModel model) {
-        jsonOutputWriter
-            .addLinks(addLinks(model))
-            .add("label", model.getLabel())
-            .add("counter", model.getCounter())
-            .add("triggered_by", model.getApprovedByForDisplay())
-            .add("scheduled_at", model.getScheduledDate())
-            .addChild("build_cause", childWriter -> {
-                BuildCauseRepresenter.toJSON(childWriter, model.getBuildCause());
-            })
-            .addChild("_embedded", childWriter -> {
-                childWriter.addChildList("stages", getStages(model));
-            });
+        Date scheduledDate = model.getScheduledDate();
+
+        OutputWriter outputWriter = jsonOutputWriter
+                .addLinks(addLinks(model))
+                .add("label", model.getLabel())
+                .add("counter", model.getCounter())
+                .add("triggered_by", model.getApprovedByForDisplay())
+                .addChild("build_cause", childWriter -> {
+                    BuildCauseRepresenter.toJSON(childWriter, model.getBuildCause());
+                })
+                .addChild("_embedded", childWriter -> {
+                    childWriter.addChildList("stages", getStages(model));
+                });
+
+        if (scheduledDate != null) {
+            outputWriter.add("scheduled_at", scheduledDate.getTime());
+            outputWriter.add("scheduled_at_server_time", new SimpleDateFormat(SCHEDULED_AT_PATTERN).format(scheduledDate));
+        }
     }
 
     private static Consumer<OutputLinkWriter> addLinks(PipelineInstanceModel model) {
         return linkWriter -> {
             linkWriter.addLink("self", Routes.Pipeline.instance(model.getName(), model.getCounter()))
-                .addLink("compare_url", Routes.PipelineInstance.compare(model.getName(), model.getCounter() - 1, model.getCounter()))
-                .addLink("history_url", Routes.Pipeline.history(model.getName()))
-                .addLink("vsm_url", Routes.PipelineInstance.vsm(model.getName(), model.getCounter()));
+                    .addLink("compare_url", Routes.PipelineInstance.compare(model.getName(), model.getCounter() - 1, model.getCounter()))
+                    .addLink("history_url", Routes.Pipeline.history(model.getName()))
+                    .addLink("vsm_url", Routes.PipelineInstance.vsm(model.getName(), model.getCounter()));
         };
     }
 

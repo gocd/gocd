@@ -30,11 +30,12 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
 const PipelineInstance = function (info, pipelineName) {
   const self = this;
 
-  this.pipelineName = pipelineName;
-  this.label        = info.label;
-  this.counter      = info.counter;
-  this.scheduledAt  = info.scheduled_at;
-  this.triggeredBy  = info.triggered_by;
+  this.pipelineName          = pipelineName;
+  this.label                 = info.label;
+  this.counter               = info.counter;
+  this.scheduledAt           = new Date(+info.scheduled_at);
+  this.scheduledAtServerTime = info.scheduled_at_server_time;
+  this.triggeredBy           = info.triggered_by;
 
   this.vsmPath     = info._links.vsm_url.href;
   this.comparePath = info._links.compare_url.href;

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const _      = require('lodash');
-const moment = require("moment");
-require("moment-duration-format");
+const m                      = require('mithril');
+const _                      = require('lodash');
+const timeFormatter          = require('helpers/time_formatter');
 const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget');
 const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/material_revision_widget');
 
@@ -26,7 +25,7 @@ const PipelineInstanceWidget = {
     this.adjustPositionOfPopup = () => {
       const widthOfWindow           = window.innerWidth;
       const popup                   = vnode.dom.querySelector('.material_changes');
-      const rightCoordinateOfWidget = popup? popup.getBoundingClientRect().right: 0;
+      const rightCoordinateOfWidget = popup ? popup.getBoundingClientRect().right : 0;
       if (rightCoordinateOfWidget > widthOfWindow) {
         popup.style.right = '0px';
       }
@@ -40,11 +39,10 @@ const PipelineInstanceWidget = {
     const dropdown     = vnode.attrs.dropdown;
     const pipelineName = vnode.attrs.pipelineName;
 
-    const scheduledAt           = moment(new Date(instance.scheduledAt));
-    const scheduledAtLocalTime  = scheduledAt.format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
-    const scheduledAtServerTime = scheduledAt.format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
-    let dropdownWidget;
+    const scheduledAtLocalTime  = `on ${timeFormatter(instance.scheduledAt)}`;
+    const scheduledAtServerTime = `Server Time: ${instance.scheduledAtServerTime}`;
 
+    let dropdownWidget;
     if (dropdown.isDropDownOpen(pipelineName)) {
       dropdownWidget = <div class="material_changes" onclick={(e) => e.stopPropagation()}>
         {_.map(instance.materialRevisions, (revision) => {

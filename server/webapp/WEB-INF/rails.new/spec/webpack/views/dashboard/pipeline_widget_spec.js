@@ -112,26 +112,45 @@ describe("Dashboard Pipeline Widget", () => {
   });
 
   describe("Pipeline Header", () => {
-    beforeEach(mount);
     afterEach(unmount);
 
     it("should render pipeline name", () => {
+      mount();
       expect($root.find('.pipeline_name')).toContainText('up42');
     });
 
     it("should show pipeline name on hover", () => {
+      mount();
       expect($root.find('.pipeline_name').get(0).title).toEqual('up42');
     });
 
     it("should link history to pipeline history page", () => {
+      mount();
       expect($root.find('.pipeline_header>div>a')).toContainText('History');
       const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
       expect($root.find('.pipeline_header>div>a').get(1).href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
     it("should link to pipeline settings path", () => {
+      mount();
       const expectedPath = pipeline.settingsPath;
       expect($root.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+    });
+
+    it("should align history link to the left if pipeline operation buttons aren't present", () => {
+      mount(false, false, {}, {}, false, false);
+      const historyLink      = $root.find('.pipeline_header>div>a');
+      const operationButtons = $root.find('.pipeline_operations');
+      expect(operationButtons).not.toBeInDOM();
+      expect(historyLink).toHaveClass("no_operation_buttons");
+    });
+
+    it("should only show pause button and right align history link if user can pause but not operate the pipeline", () => {
+      mount(false, false, {}, {}, true, false);
+      const pauseButton = $root.find('.pause');
+      const historyLink = $root.find('.pipeline_header>div>a');
+      expect(pauseButton).toBeInDOM();
+      expect(historyLink).not.toHaveClass('no_operation_buttons');
     });
 
   });
@@ -278,8 +297,6 @@ describe("Dashboard Pipeline Widget", () => {
 
         dashboard        = {};
         dashboard.reload = jasmine.createSpy();
-
-        mount(false, true, pauseInfo, dashboard);
       });
 
       afterEach(() => {
@@ -288,28 +305,29 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render pause pipeline button", () => {
+        mount(false, true, pauseInfo, dashboard);
         expect($root.find('.pause')).toBeInDOM();
       });
 
       it('should disable pause button for non admin users', () => {
-        unmount();
         mount(false, true, pauseInfo, dashboard, false);
 
         expect($root.find('.pause')).toHaveClass('disabled');
       });
 
       it('should add onclick handler for admin users', () => {
+        mount(false, true, pauseInfo, dashboard);
         expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(true);
       });
 
       it('should not add onclick handler for non admin users', () => {
-        unmount();
         mount(false, true, pauseInfo, dashboard, false);
 
         expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(false);
       });
 
       it("should show modal to specify pause reason upon pausing a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const pauseButton = $root.find('.pause');
 
         expect($('.reveal:visible')).not.toBeInDOM();
@@ -321,6 +339,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should show appropriate header for popup modal upon pause button click", () => {
+        mount(false, true, pauseInfo, dashboard);
         const pauseButton = $root.find('.pause');
 
         simulateEvent.simulate(pauseButton.get(0), 'click');
@@ -331,6 +350,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should pause a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -355,6 +375,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not pause a pipeline", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -378,6 +399,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
+        mount(false, true, pauseInfo, dashboard);
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -401,6 +423,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should close pause popup when escape is pressed", () => {
+        mount(false, true, pauseInfo, dashboard);
         simulateEvent.simulate($root.find('.pause').get(0), 'click');
         expect($('.reveal:visible')).toBeInDOM();
         const keydownEvent = $.Event("keydown");
@@ -410,6 +433,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not retain text entered when the pause popup is closed", () => {
+        mount(false, true, pauseInfo, dashboard);
         simulateEvent.simulate($root.find('.pause').get(0), 'click');
         expect($('.reveal:visible')).toBeInDOM();
         let pausePopupTextBox = $('.reveal input');
@@ -505,26 +529,23 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     describe("Trigger With Options", () => {
-      beforeEach(mount);
-
       afterEach(() => {
         unmount();
         Modal.destroyAll();
       });
 
       it("should render trigger with options pipeline button", () => {
+        mount();
         expect($root.find('.play_with_options')).toBeInDOM();
       });
 
-      it('should disable trigger with options button for non admin users', () => {
-        unmount();
-        mount(false, true, {}, {}, false, false);
+      it('should remove trigger with options button for view users', () => {
+        mount(false, false, {}, {}, false, false);
 
-        expect($root.find('.play_with_options')).toHaveClass('disabled');
+        expect($root.find('.play_with_options')).not.toBeInDOM();
       });
 
       it('should disable trigger with options button when first stage is in progress', () => {
-        unmount();
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
@@ -532,7 +553,6 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it('should not add onclick handler when first stage is in progess', () => {
-        unmount();
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
@@ -540,31 +560,30 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it('should disable trigger with options button when pipeline is locked', () => {
-        unmount();
         mount(false, true, undefined, {"locked": true});
 
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler pipeline is locked', () => {
-        unmount();
         mount(false, true, undefined, {"locked": true});
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
 
       it('should add onclick handler for admin users', () => {
+        mount();
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(true);
       });
 
       it('should not add onclick handler for non admin users', () => {
-        unmount();
         mount(false, true, {}, {}, false, false);
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
 
       it("should show modal to specify trigger options for a pipeline", () => {
+        mount();
         stubTriggerOptions(pipelineName);
         const triggerWithOptionsButton = $root.find('.play_with_options');
 
@@ -577,6 +596,7 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should show appropriate header for trigger with options popup modal", () => {
+        mount();
         const pauseButton = $root.find('.play_with_options');
 
         simulateEvent.simulate(pauseButton.get(0), 'click');
@@ -584,6 +604,17 @@ describe("Dashboard Pipeline Widget", () => {
 
         const modalTitle = $('.modal-title:visible');
         expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
+      });
+
+      it("should disable trigger buttons when pipeline is paused", () => {
+        const pauseInfo = {
+          "paused":       true,
+          "paused_by":    null,
+          "pause_reason": null
+        };
+        mount(false, true, pauseInfo);
+        expect($root.find('.play')).toHaveClass('disabled');
+        expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
     });
   });

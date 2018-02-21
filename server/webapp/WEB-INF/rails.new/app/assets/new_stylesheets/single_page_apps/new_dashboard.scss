@@ -642,7 +642,11 @@ body {
   text-decoration: underline;
   font-size:       13px;
   float:           right;
-  margin-top:      10px;
+  margin-top:      7px;
+
+  &.no_operation_buttons {
+    float: none;
+  }
 }
 
 .pipeline_actions {

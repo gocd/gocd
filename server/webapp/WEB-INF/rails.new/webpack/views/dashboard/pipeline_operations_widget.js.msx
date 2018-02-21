@@ -153,26 +153,39 @@ const PipelineOperationsWidget = {
     }
 
     let isTriggerDisabled = false;
-    if (!pipeline.canOperate || pipeline.isFirstStageInProgress() || pipeline.isLocked) {
+    if (!pipeline.canOperate || pipeline.isFirstStageInProgress() || pipeline.isLocked || pipeline.isPaused) {
       isTriggerDisabled = true;
     }
+
+    const pauseButton = (<li>
+      <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
+    </li>);
+
+    let operationRelatedButtons;
+    if (pipeline.canAdminister || pipeline.canOperate) {
+      operationRelatedButtons = (<ul className="pipeline_operations">
+        <li>
+          <button class={`pipeline_btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
+        </li>
+        <li>
+          <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
+                  class={`pipeline_btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
+        </li>
+        {pauseButton}
+      </ul>);
+    } else if (pipeline.canPause) {
+      operationRelatedButtons = (<ul className="pipeline_operations">
+        {pauseButton}
+      </ul>);
+    }
+
+    const alignmentClass = (pipeline.canAdminister || pipeline.canOperate || pipeline.canPause) ? '' : 'no_operation_buttons';
 
     return (
       <div>
         {flashMessage}
-        <ul className="pipeline_operations">
-          <li>
-            <button class={`pipeline_btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
-          </li>
-          <li>
-            <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
-                    class={`pipeline_btn play_with_options ${isTriggerDisabled ? 'disabled' : ''}`}/>
-          </li>
-          <li>
-            <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
-          </li>
-        </ul>
-        <a href={pipeline.historyPath} class="pipeline_history">History</a>
+        {operationRelatedButtons}
+        <a href={pipeline.historyPath} class={`pipeline_history ${alignmentClass}`}>History</a>
         <div className="pipeline_pause-message">{pausedMessage}</div>
       </div>
     );

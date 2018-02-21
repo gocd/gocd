@@ -365,6 +365,8 @@ describe("Dashboard Widget", () => {
             "last_updated_timestamp": 1510299695473,
             "locked":                 false,
             "can_pause":              true,
+            "can_operate":            true,
+            "can_administer":         true,
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,
@@ -499,6 +501,8 @@ describe("Dashboard Widget", () => {
             "locked":                 true,
             "can_unlock":             true,
             "can_pause":              true,
+            "can_operate":            true,
+            "can_administer":         true,
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,

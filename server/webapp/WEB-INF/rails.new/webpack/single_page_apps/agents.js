@@ -20,7 +20,7 @@ const Stream         = require('mithril/stream');
 const Agents         = require('models/agents/agents');
 const AgentsWidget   = require('views/agents/agents_widget');
 const AgentsVM       = require('views/agents/models/agents_widget_view_model');
-const SortOrder      = require('views/agents/models/sort_order');
+const RouteHandler   = require('views/agents/models/route_handler');
 const VersionUpdater = require('models/shared/version_updater');
 const PluginInfos    = require('models/shared/plugin_infos');
 const AjaxPoller     = require('helpers/ajax_poller');
@@ -52,10 +52,10 @@ $(() => {
 
   const agents           = Stream(new Agents());
   const showSpinner      = Stream(true);
-  const agentsViewModel  = new AgentsVM();
+  const sortOrder        = Stream(new RouteHandler());
+  const agentsViewModel  = new AgentsVM(sortOrder().searchText);
   const permanentMessage = Stream({});
   const currentRepeater  = Stream(createRepeater());
-  const sortOrder        = Stream(new SortOrder());
 
   const onResponse = (pluginInfos) => {
     const component = {
@@ -78,8 +78,10 @@ $(() => {
     };
 
     m.route($agentElem.get(0), '', {
-      '':                  component,
-      '/:sortBy/:orderBy': component
+      '':                         component,
+      '/:sortBy/:orderBy':        component,
+      '/:sortBy/:orderBy/':       component,
+      '/:sortBy/:orderBy/:query': component
     });
 
     currentRepeater().start();

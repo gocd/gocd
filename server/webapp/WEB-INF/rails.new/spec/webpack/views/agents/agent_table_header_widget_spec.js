@@ -26,17 +26,17 @@ describe("Agent Table Header Widget", () => {
   require('jasmine-jquery');
 
   const AgentsTableHeader = require("views/agents/agent_table_header");
-  const SortOrder         = require('views/agents/models/sort_order');
+  const RouteHandler      = require('views/agents/models/route_handler');
 
-  let $root, root, sortOrder;
+  let $root, root, routeHandler;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
   beforeEach(() => {
-    sortOrder = Stream(new SortOrder());
-    sortOrder().perform = _.noop;
+    routeHandler           = Stream(new RouteHandler());
+    routeHandler().perform = _.noop;
     route(true);
   });
 
@@ -81,15 +81,15 @@ describe("Agent Table Header Widget", () => {
 
 
   it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
-    sortOrder().toggleSortingOrder('hostname');
+    routeHandler().toggleSortingOrder('hostname');
     m.redraw();
     const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
 
   it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', () => {
-    sortOrder().toggleSortingOrder('hostname');
-    sortOrder().toggleSortingOrder('hostname');
+    routeHandler().toggleSortingOrder('hostname');
+    routeHandler().toggleSortingOrder('hostname');
     m.redraw();
     const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('desc');
@@ -98,7 +98,7 @@ describe("Agent Table Header Widget", () => {
   const agentTableHeaderComponent = (isUserAdmin) => m(AgentsTableHeader, {
     onCheckboxClick: _.noop,
     checkboxValue,
-    sortOrder,
+    sortOrder:       routeHandler,
     isUserAdmin
   });
 

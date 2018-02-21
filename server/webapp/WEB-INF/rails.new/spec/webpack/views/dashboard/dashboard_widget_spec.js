@@ -291,7 +291,7 @@ describe("Dashboard Widget", () => {
     unmount();
     mount(false);
 
-    expect($root.find('.pipeline-group_title a')).toHaveClass('disabled');
+    expect($root.find('.pipeline-group_title a')).not.toBeInDOM();
   });
 
   it("should render pipelines within each pipeline group", () => {

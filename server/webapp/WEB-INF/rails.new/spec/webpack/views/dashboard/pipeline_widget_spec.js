@@ -145,10 +145,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.edit_config')).not.toHaveClass("disabled");
       });
 
-      it("should disable pipeline settings button for non admin users", () => {
+      it("should not show settings icon for users who have no admin rights on a pipeline", () => {
         unmount();
-        mount(true, false);
-        expect($root.find('.edit_config')).toHaveClass("disabled");
+        mount(false, false);
+        expect($root.find('.edit_config')).not.toBeInDOM();
       });
 
       it("should link to pipeline settings quick edit path when toggles are enabled", () => {

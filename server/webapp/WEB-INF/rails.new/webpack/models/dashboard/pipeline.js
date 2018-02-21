@@ -69,6 +69,10 @@ const Pipeline = function (info) {
   this.pause = (payload) => {
     return postURL(SparkRoutes.pipelinePausePath(self.name), payload);
   };
+
+  this.getInstanceCounters = () => {
+    return _.map(this.instances, (instance) => instance.counter);
+  };
 };
 
 module.exports = Pipeline;

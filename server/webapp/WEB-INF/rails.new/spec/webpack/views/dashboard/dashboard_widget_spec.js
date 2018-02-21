@@ -613,7 +613,7 @@ describe("Dashboard Widget", () => {
     dashboard._performRouting = _.noop;
 
     const dashboardViewModel = new DashboardVM();
-    dashboardViewModel.initialize(_.map(dashboardJson._embedded.pipelines, (p) => p.name));
+    dashboardViewModel.initialize(dashboard);
 
     m.mount(root, {
       view() {

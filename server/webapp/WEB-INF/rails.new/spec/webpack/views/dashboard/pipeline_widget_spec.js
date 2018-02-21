@@ -22,12 +22,13 @@ describe("Dashboard Pipeline Widget", () => {
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
   const Pipelines      = require('models/dashboard/pipelines');
+  const Dashboard      = require('models/dashboard/dashboard');
   const DashboardVM    = require("views/dashboard/models/dashboard_view_model");
   const Modal          = require('views/shared/new_modal');
   const pipelineName   = 'up42';
 
-
-  let $root, root, dashboardViewModel, pipelinesJson, pipeline, doCancelPolling, doRefreshImmediately;
+  let $root, root, dashboardViewModel, dashboard, pipelinesJson, dashboardJSON, pipeline, doCancelPolling,
+      doRefreshImmediately;
   let pipelineInstances;
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -649,10 +650,33 @@ describe("Dashboard Pipeline Widget", () => {
       }
     }];
 
+    dashboardJSON = {
+      "_embedded": {
+        "pipeline_groups": [
+          {
+            "_links":         {
+              "self": {
+                "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
+              },
+              "doc":  {
+                "href": "https://api.go.cd/current/#pipeline-groups"
+              }
+            },
+            "name":           "first",
+            "pipelines":      ["up42"],
+            "can_administer": true
+          }
+        ],
+        "pipelines":       pipelinesJson
+      }
+    };
+
     pipeline = Pipelines.fromJSON(pipelinesJson).pipelines[pipelineName];
 
     dashboardViewModel = new DashboardVM();
-    dashboardViewModel.initialize([pipelineName]);
+    dashboard          = new Dashboard();
+    dashboard.initialize(dashboardJSON);
+    dashboardViewModel.initialize(dashboard);
 
     //stub trigger_with_options api call
     pipeline.viewInformationForTriggerWithOptions = () => {
@@ -697,6 +721,6 @@ describe("Dashboard Pipeline Widget", () => {
       },
       status:          200
     });
-
   }
+
 });

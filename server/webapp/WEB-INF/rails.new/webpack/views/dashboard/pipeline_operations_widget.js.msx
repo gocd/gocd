@@ -31,6 +31,15 @@ const PipelineOperationsWidget = {
     const operationMessages = vnode.attrs.operationMessages;
     self.pauseMessage       = Stream();
 
+    self.trigger = (pipeline) => {
+      vnode.attrs.doCancelPolling();
+      pipeline.trigger().then((res) => {
+        operationMessages.success(pipeline.name, res.message);
+      }, (res) => {
+        operationMessages.failure(pipeline.name, res.responseJSON.message);
+      }).always(vnode.attrs.doRefreshImmediately);
+    };
+
     self.unpause = (pipeline) => {
       vnode.attrs.doCancelPolling();
       pipeline.unpause().then((res) => {
@@ -162,7 +171,8 @@ const PipelineOperationsWidget = {
         {flashMessage}
         <ul className="pipeline_operations">
           <li>
-            <button class={`pipeline_btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
+            <button onclick={!isTriggerDisabled && vnode.state.trigger.bind(vnode.state, pipeline)}
+                    class={`pipeline_btn play ${isTriggerDisabled ? 'disabled' : ''}`}/>
           </li>
           <li>
             <button onclick={!isTriggerDisabled && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}

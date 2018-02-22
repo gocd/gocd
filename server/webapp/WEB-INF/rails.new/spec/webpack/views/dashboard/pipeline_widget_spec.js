@@ -136,7 +136,6 @@ describe("Dashboard Pipeline Widget", () => {
 
   });
 
-
   describe("Pipeline Operations", () => {
     describe("Settings", () => {
       beforeEach(mount);
@@ -495,6 +494,111 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
+      });
+    });
+
+    describe("Trigger", () => {
+      beforeEach(mount);
+
+      afterEach(() => {
+        unmount();
+        Modal.destroyAll();
+      });
+
+      it("should render trigger pipeline button", () => {
+        expect($root.find('.play')).toBeInDOM();
+      });
+
+      it('should disable trigger button for non admin users', () => {
+        unmount();
+        mount(false, true, {}, {}, false, false);
+
+        expect($root.find('.play')).toHaveClass('disabled');
+      });
+
+      it('should disable trigger button when first stage is in progress', () => {
+        unmount();
+        pipelineInstances[0]._embedded.stages[0].status = 'Building';
+        mount();
+
+        expect($root.find('.play')).toHaveClass('disabled');
+      });
+
+      it('should not add onclick handler when first stage is in progess', () => {
+        unmount();
+        pipelineInstances[0]._embedded.stages[0].status = 'Building';
+        mount();
+
+        expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(false);
+      });
+
+      it('should disable trigger button when pipeline is locked', () => {
+        unmount();
+        mount(false, true, undefined, {"locked": true});
+
+        expect($root.find('.play')).toHaveClass('disabled');
+      });
+
+      it('should not add onclick handler pipeline is locked', () => {
+        unmount();
+        mount(false, true, undefined, {"locked": true});
+
+        expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(false);
+      });
+
+      it('should add onclick handler for admin users', () => {
+        expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(true);
+      });
+
+      it('should not add onclick handler for non admin users', () => {
+        unmount();
+        mount(false, true, {}, {}, false, false);
+
+        expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(false);
+      });
+
+      it("should trigger a pipeline", () => {
+        const responseMessage = `Request for scheduling pipeline '${pipeline.name}' accepted successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
+        });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.play').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
+      });
+
+      it("should show error when triggering a pipeline fails", () => {
+        const responseMessage = `Can not trigger pipeline. Some stages of pipeline are in progress.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
+        });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.play').get(0), 'click');
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();

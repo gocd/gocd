@@ -60,7 +60,7 @@ describe("Dashboard", () => {
     });
 
     it("should return counters for pipeline instances", () => {
-      const pipeline       = new Pipeline(pipelineJson);
+      const pipeline         = new Pipeline(pipelineJson);
       const instanceCounters = pipeline.getInstanceCounters();
       expect(instanceCounters.length).toEqual(1);
       expect(instanceCounters).toEqual([1]);
@@ -152,6 +152,33 @@ describe("Dashboard", () => {
           const request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('POST');
           expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unlock`);
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+        });
+      });
+    });
+
+    describe("Trigger", () => {
+      it('should Trigger a pipeline with appropriate headers', () => {
+        jasmine.Ajax.withMock(() => {
+          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/schedule`, undefined, 'POST').andReturn({
+            responseText:    JSON.stringify({"message": `Request to schedule pipeline '${pipelineJson.name}' accepted successfully.`}),
+            responseHeaders: {
+              'Content-Type': 'application/vnd.go.cd.v1+json'
+            },
+            status:          200
+          });
+
+          const successCallback = jasmine.createSpy();
+
+          const pipeline = new Pipeline(pipelineJson);
+          pipeline.trigger().then(successCallback);
+
+          expect(successCallback).toHaveBeenCalled();
+
+          const request = jasmine.Ajax.requests.mostRecent();
+          expect(request.method).toBe('POST');
+          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/schedule`);
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
           expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
         });

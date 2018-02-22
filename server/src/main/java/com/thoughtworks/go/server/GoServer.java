@@ -134,7 +134,6 @@ public class GoServer {
         validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getDatabaseSeverPort()));
         validators.add(FileValidator.defaultFile("cruise.war"));
-        validators.add(FileValidator.defaultFile("historical_jars/h2-1.2.127.jar"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
         validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));

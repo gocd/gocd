@@ -29,6 +29,10 @@ module.exports = {
     return `/go/api/pipelines/${pipelineName}/unlock`;
   },
 
+  pipelineTriggerPath: (pipelineName) => {
+    return `/go/api/pipelines/${pipelineName}/schedule`;
+  },
+
   pipelineTriggerWithOptionsViewPath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/trigger_options`;
   },
@@ -42,7 +46,7 @@ module.exports = {
     return `/go/api/internal/material_search?${queryString}`;
   },
 
-    pipelineSelectionPath: () => {
+  pipelineSelectionPath: () => {
     return '/go/api/internal/pipeline_selection';
   }
 };

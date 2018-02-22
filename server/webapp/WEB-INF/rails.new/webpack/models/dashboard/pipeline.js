@@ -70,6 +70,10 @@ const Pipeline = function (info) {
     return postURL(SparkRoutes.pipelinePausePath(self.name), payload);
   };
 
+  this.trigger = (payload = {}) => {
+    return postURL(SparkRoutes.pipelineTriggerPath(self.name), payload);
+  };
+
   this.getInstanceCounters = () => {
     return _.map(this.instances, (instance) => instance.counter);
   };

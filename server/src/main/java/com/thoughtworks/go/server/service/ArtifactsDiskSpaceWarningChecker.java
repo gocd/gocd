@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,10 +42,9 @@ public class ArtifactsDiskSpaceWarningChecker extends DiskSpaceChecker {
     }
 
     protected void createFailure(OperationResult result, long size, long availableSpace) {
-        String msg = "Go has less than " + size + "M of disk space available to it.";
+        String msg = "GoCD has less than " + size + "M of disk space available to it.";
         LOGGER.warn(msg);
-        LOGGER.warn(msg);
-        result.warning("Go Server's artifact repository is running low on disk space", msg, ARTIFACTS_DISK_FULL_ID);
+        result.warning("GoCD Server's artifact repository is running low on disk space", msg, ARTIFACTS_DISK_FULL_ID);
     }
 
     protected SendEmailMessage createEmail() {

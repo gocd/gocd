@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ public class DatabaseDiskSpaceWarningChecker extends DiskSpaceChecker {
     }
 
     protected void createFailure(OperationResult result, long size, long availableSpace) {
-        String msg = "Go has less than " + size + "M of disk space available to it.";
+        String msg = "GoCD has less than " + size + "M of disk space available to it.";
         LOGGER.warn(msg);
-        result.warning("Go Server's database is running on low disk space", msg, DATABASE_DISK_FULL_ID);
+        result.warning("GoCD Server's database is running on low disk space", msg, DATABASE_DISK_FULL_ID);
     }
 
     protected SendEmailMessage createEmail() {

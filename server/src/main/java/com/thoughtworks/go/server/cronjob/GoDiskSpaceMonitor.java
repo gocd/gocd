@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,7 @@
 
 package com.thoughtworks.go.server.cronjob;
 
-import com.thoughtworks.go.server.service.ArtifactsDiskCleaner;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceWarningChecker;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConfigDbStateRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceWarningChecker;
-import com.thoughtworks.go.server.service.DiskSpaceChecker;
-import com.thoughtworks.go.server.service.EmailSender;
-import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.service.SystemDiskSpaceChecker;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceFullChecker;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.DiskSpaceOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -50,6 +39,8 @@ public class GoDiskSpaceMonitor {
     private ConfigDbStateRepository configDbStateRepository;
     private DiskSpaceChecker[] checkers;
     private volatile boolean lowOnDisk;
+    private DatabaseDiskSpaceFullChecker databaseDiskSpaceFullChecker;
+    private ArtifactsDiskSpaceFullChecker artifactsDiskSpaceFullChecker;
 
     @Autowired
     public GoDiskSpaceMonitor(GoConfigService goConfigService,
@@ -75,17 +66,23 @@ public class GoDiskSpaceMonitor {
     }
 
     public void initialize() {
+        databaseDiskSpaceFullChecker = new DatabaseDiskSpaceFullChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker);
+        artifactsDiskSpaceFullChecker = new ArtifactsDiskSpaceFullChecker(systemEnvironment, emailSender, goConfigService, systemDiskSpaceChecker);
+
         checkers = new DiskSpaceChecker[]{
-                new ArtifactsDiskSpaceFullChecker(systemEnvironment, emailSender, goConfigService, systemDiskSpaceChecker),
+                artifactsDiskSpaceFullChecker,
                 new ArtifactsDiskSpaceWarningChecker(systemEnvironment, emailSender, goConfigService, systemDiskSpaceChecker, serverHealthService),
-                new DatabaseDiskSpaceFullChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker),
+                databaseDiskSpaceFullChecker,
                 new DatabaseDiskSpaceWarningChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker, serverHealthService),
                 new ArtifactsDiskCleaner(systemEnvironment, goConfigService, systemDiskSpaceChecker, artifactsService, stageService, configDbStateRepository)};
     }
 
     //Note: This method is called from a Spring timer task
     public void onTimer() {
-        OperationResult result = new DiskSpaceOperationResult(serverHealthService);
+        lowOnDisk = lowOnDisk(lowOnDisk, new DiskSpaceOperationResult(serverHealthService), checkers);
+    }
+
+    private boolean lowOnDisk(boolean currentlyLowOnDisk, OperationResult result, DiskSpaceChecker... checkers) {
         try {
             boolean outOfDisk = false;
             for (DiskSpaceChecker checker : checkers) {
@@ -93,13 +90,18 @@ public class GoDiskSpaceMonitor {
                 checker.check(callResult);
                 outOfDisk = outOfDisk || !result.canContinue();
             }
-            lowOnDisk = outOfDisk;
+            return outOfDisk;
         } catch (Exception e) {
             LOG.error("Error occured during checking filesystems low disk space", e);
         }
+        return currentlyLowOnDisk;
     }
 
     public boolean isLowOnDisk() {
         return lowOnDisk;
+    }
+
+    public void checkIfOutOfDisk(OperationResult result) {
+        lowOnDisk(lowOnDisk, result, databaseDiskSpaceFullChecker, artifactsDiskSpaceFullChecker);
     }
 }

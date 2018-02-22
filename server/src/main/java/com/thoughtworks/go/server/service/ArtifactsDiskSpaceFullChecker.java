@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,10 @@ public class ArtifactsDiskSpaceFullChecker extends DiskSpaceChecker {
         super(sender, systemEnvironment, goConfigService.artifactsDir(), goConfigService, ARTIFACTS_DISK_FULL_ID, diskSpaceChecker);
     }
 
-    //for constructing SchedulingChecker
-    public ArtifactsDiskSpaceFullChecker(SystemEnvironment systemEnvironment,
-                                         GoConfigService goConfigService) {
-        this(systemEnvironment, null, goConfigService, new SystemDiskSpaceChecker());
-    }
-
     protected void createFailure(OperationResult result, long size, long availableSpace) {
-        String msg = "Go has less than " + size + "Mb of disk space available. Scheduling has stopped, and will resume once more than " + size + "Mb is available.";
+        String msg = "GoCD has less than " + size + "Mb of disk space available. Scheduling has stopped, and will resume once more than " + size + "Mb is available.";
         LOGGER.error(msg);
-        result.error("Go Server has run out of artifacts disk space. Scheduling has been stopped", msg, ARTIFACTS_DISK_FULL_ID);
+        result.error("GoCD Server has run out of artifacts disk space. Scheduling has been stopped", msg, ARTIFACTS_DISK_FULL_ID);
     }
 
     protected SendEmailMessage createEmail() {

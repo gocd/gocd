@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,7 +315,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result), is(false));
         assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("Go has less than %sb of disk space", limit)));
+                containsString(String.format("GoCD has less than %sb of disk space", limit)));
     }
 
     @Test
@@ -330,7 +330,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(s, 1, label), stageName, username, result), is(false));
         assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("Go has less than %sb of disk space", limit)));
+                containsString(String.format("GoCD has less than %sb of disk space", limit)));
     }
 
     @Test
@@ -340,7 +340,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canSchedule(result), is(false));
         assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("Go has less than %sb of disk space", limit)));
+                containsString(String.format("GoCD has less than %sb of disk space", limit)));
     }
 
     @Test

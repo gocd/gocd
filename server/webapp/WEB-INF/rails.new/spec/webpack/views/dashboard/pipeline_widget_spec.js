@@ -690,6 +690,34 @@ describe("Dashboard Pipeline Widget", () => {
         expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
       });
 
+      it('should show modal appropriately when opened and closed multiple times', () => {
+        stubTriggerOptions(pipelineName);
+        const triggerWithOptionsButton = $root.find('.play_with_options');
+
+        //open trigger with options modal
+        expect($('.reveal:visible')).not.toBeInDOM();
+        expect($('.pipeline_options-heading')).not.toContainText('Materials');
+
+        simulateEvent.simulate(triggerWithOptionsButton.get(0), 'click');
+        m.redraw();
+
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.pipeline_options-heading')).toContainText('Materials');
+
+        //close trigger with options modal
+        $('.modal-buttons .button.save.secondary').click();
+
+        //open again trigger with options modal
+        expect($('.reveal:visible')).not.toBeInDOM();
+        expect($('.pipeline_options-heading')).not.toContainText('Materials');
+
+        simulateEvent.simulate(triggerWithOptionsButton.get(0), 'click');
+        m.redraw();
+
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.pipeline_options-heading')).toContainText('Materials');
+      });
+
       it("should trigger a pipeline", () => {
         stubTriggerOptions(pipelineName);
         const responseMessage = `Request for scheduling pipeline '${pipeline.name}' accepted successfully.`;
@@ -716,7 +744,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.pipeline_message')).toHaveClass("success");
       });
 
-      xit("should show error when triggering a pipeline fails", () => {
+      it("should show error when triggering a pipeline fails", () => {
         stubTriggerOptions(pipelineName);
         const responseMessage = `Can not trigger pipeline. Some stages of pipeline are in progress.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({

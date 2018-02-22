@@ -24,14 +24,17 @@
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
   <link href="/go/${railsAssetsService.getAssetPath('frameworks.css')}" media="screen" rel="stylesheet"/>
   #if(${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")} != "")
-    <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen" rel="stylesheet"/>
+    <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen"
+          rel="stylesheet"/>
   #end
   #foreach( $js in ${webpackAssetsService.getAssetPaths("single_page_apps/${controllerName}")})
     <script src="${js}"></script>
   #end
 </head>
 
-<body data-controller-name="${controllerName}" id="${controllerName}-page">
+<body data-controller-name="${controllerName}"
+      data-timezone="${serverTimezoneUTCOffset}"
+      id="${controllerName}-page">
 <div class="page-wrap">
   <header class="app-header">
     <div class="row expanded">
@@ -45,7 +48,7 @@
 
 </div>
 
-#parse('new_navigation_elements/_footer.vm')
+  #parse('new_navigation_elements/_footer.vm')
 
 </body>
 </html>

@@ -16,14 +16,14 @@
 
 const m             = require('mithril');
 const Modal         = require('views/shared/new_modal');
-const timeFormatter = require('helpers/time_formatter');
+const TimeFormatter = require('helpers/time_formatter');
 
 const HealthMessageWidget = {
   view(vnode) {
     return (
       <div class={`server-health-status ${vnode.attrs.message.level.toLowerCase()}`}>
         <div class="message">{vnode.attrs.message.message}</div>
-        <div class="timestamp">{timeFormatter(vnode.attrs.message.time)}</div>
+        <div class="timestamp">{TimeFormatter.format(vnode.attrs.message.time)}</div>
         <div class="detail">{m.trust(vnode.attrs.message.detail)}</div>
       </div>
     );

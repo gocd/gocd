@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Component
 public class InitialContextProvider {
@@ -60,6 +61,7 @@ public class InitialContextProvider {
         context.put("toggles", Toggles.class);
         context.put("goUpdate", versionInfoService.getGoUpdate());
         context.put("goUpdateCheckEnabled", versionInfoService.isGOUpdateCheckEnabled());
+        context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getRawOffset());
 
         return new VelocityContext(context);
     }

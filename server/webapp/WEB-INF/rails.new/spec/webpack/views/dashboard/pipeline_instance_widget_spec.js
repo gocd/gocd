@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 describe("Dashboard Pipeline Instance Widget", () => {
-  const m      = require("mithril");
-  const moment = require("moment");
-  const _      = require("lodash");
-  require("moment-duration-format");
+  const m             = require("mithril");
+  const _             = require("lodash");
+  const TimeFormatter = require('helpers/time_formatter');
+
   const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
   const Dashboard              = require('models/dashboard/dashboard');
@@ -133,12 +133,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
   it("should render triggered by information", () => {
     expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${ pipelineInstanceJson.triggered_by }`);
-    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]');
+    const expectedTime = `on ${ TimeFormatter.format(new Date(pipelineInstanceJson.scheduled_at))}`;
     expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
   it("should show server triggered by information on hover", () => {
-    const expectedTime = moment(new Date(pipelineInstanceJson.scheduled_at)).format("[Server Time:] DD MMM, YYYY [at] HH:mm:ss Z");
+    const expectedTime = TimeFormatter.formatInServerTime(new Date(pipelineInstanceJson.scheduled_at));
     expect($root.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
   });
 

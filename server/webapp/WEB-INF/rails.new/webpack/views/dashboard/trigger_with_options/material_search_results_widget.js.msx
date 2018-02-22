@@ -17,7 +17,7 @@
 const m = require('mithril');
 const _ = require('lodash');
 
-const timeFormatter = require('helpers/time_formatter');
+const TimeFormatter = require('helpers/time_formatter');
 
 const MaterialSearchResultsWidget = {
   view(vnode) {
@@ -52,7 +52,7 @@ const MaterialSearchResultsWidget = {
                   <div class="info">
                     <span class="rev">{result.revision}</span>
                     <span class="committer">{result.user}</span>
-                    <span class="time">{timeFormatter(result.date)}</span>
+                    <span class="time">{TimeFormatter.format(result.date)}</span>
                   </div>
                   <div class="commit_message">{result.comment}</div>
                 </li>

@@ -22,9 +22,42 @@ const AjaxHelper           = require('helpers/ajax_helper');
 const EnvironmentVariables = require('models/dashboard/environment_variables');
 
 const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVariables) {
+  const self = this;
+
   this.materials          = materials;
   this.plainTextVariables = plainTextVariables;
   this.secureVariables    = secureVariables;
+
+  this.getTriggerOptionsJSON = () => {
+    const json = {};
+
+    json['update_materials_before_scheduling'] = false;
+
+    json['materials'] = _.reduce(self.materials, (selections, material) => {
+      if (material.selection()) {
+        selections.push({
+          fingerprint: material.fingerprint,
+          revision:    material.selection()
+        });
+      }
+
+      return selections;
+    }, []);
+
+    json['environment_variables'] = _.reduce(self.plainTextVariables.concat(self.secureVariables), (allEnvs, envVar) => {
+      if (envVar.isDirtyValue()) {
+        allEnvs.push({
+          name:   envVar.name,
+          value:  envVar.value(),
+          secure: envVar.isSecureValue()
+        });
+      }
+
+      return allEnvs;
+    }, []);
+
+    return json;
+  };
 };
 
 const isSecure    = (v) => v.secure;

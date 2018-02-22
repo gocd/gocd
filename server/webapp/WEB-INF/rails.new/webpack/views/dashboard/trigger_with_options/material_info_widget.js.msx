@@ -17,7 +17,7 @@
 const m = require('mithril');
 const _ = require('lodash');
 
-const timeFormatter               = require('helpers/time_formatter');
+const TimeFormatter               = require('helpers/time_formatter');
 const MaterialSearchResultsWidget = require('views/dashboard/trigger_with_options/material_search_results_widget');
 
 const MaterialInfoWidget = {
@@ -35,7 +35,7 @@ const MaterialInfoWidget = {
 
     if (!_.isEmpty(material.revision)) {
       comment = material.revision.comment ? material.revision.comment : <em>not specified</em>;
-      date    = material.revision.date ? timeFormatter(material.revision.date) : <em>not specified</em>;
+      date    = material.revision.date ? TimeFormatter.format(material.revision.date) : <em>not specified</em>;
       lastRun = material.revision.lastRunRevision ? material.revision.lastRunRevision : <em>not specified</em>;
       user    = material.revision.user ? material.revision.user : <em>not specified</em>;
     }

@@ -18,7 +18,7 @@ describe("ServerHealthMessagesCountWidget", () => {
 
   const ServerHealthMessages            = require('models/server_health_messages/server_health_messages');
   const ServerHealthMessagesCountWidget = require('views/server_health_messages/server_health_messages_count_widget');
-  const timeFormatter = require('helpers/time_formatter');
+  const TimeFormatter = require('helpers/time_formatter');
 
   const $             = require("jquery");
   const m             = require("mithril");
@@ -84,7 +84,7 @@ describe("ServerHealthMessagesCountWidget", () => {
 
     expect($('.new-modal-container .server-health-status .message:first')).toContainText(jsonData[0].message);
     expect($('.new-modal-container .server-health-status .detail:first')).toContainText(jsonData[0].detail);
-    expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(timeFormatter(jsonData[0].time));
+    expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(TimeFormatter.format(jsonData[0].time));
 
     simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .close').get(0), 'click');
   });
@@ -108,7 +108,7 @@ describe("ServerHealthMessagesCountWidget", () => {
 
     expect($('.new-modal-container .server-health-status .message:first')).toContainText("Test Message");
     expect($('.new-modal-container .server-health-status .detail:first')).toContainHtml("This is a <a href='http://example.com'>link</a>");
-    expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(timeFormatter("2018-01-30T07:34:43Z"));
+    expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(TimeFormatter.format("2018-01-30T07:34:43Z"));
 
     simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .close').get(0), 'click');
   });

@@ -19,7 +19,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
 
   const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
   const MaterialInfoWidget     = require("views/dashboard/trigger_with_options/material_info_widget");
-  const timeFormatter          = require('helpers/time_formatter');
+  const TimeFormatter          = require('helpers/time_formatter');
 
   let $root, root;
   beforeEach(() => {
@@ -32,9 +32,9 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
 
   let info;
   const searchVM = {
-    performSearch:    jasmine.createSpy('performSearch'),
-    searchText:       jasmine.createSpy('searchText'),
-    searchInProgress: jasmine.createSpy('searchInProgress'),
+    performSearch:         jasmine.createSpy('performSearch'),
+    searchText:            jasmine.createSpy('searchText'),
+    searchInProgress:      jasmine.createSpy('searchInProgress'),
     materialSearchResults: jasmine.createSpy('materialSearchResult')
   };
 
@@ -69,7 +69,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
 
     expect($root.find('.name-value .destination')).toContainText(material.destination);
 
-    expect($root.find('.name-value .date')).toContainText(timeFormatter(material.revision.date));
+    expect($root.find('.name-value .date')).toContainText(TimeFormatter.format(material.revision.date));
 
     expect($root.find('.name-value .user')).toContainText(material.revision.user);
 

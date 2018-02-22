@@ -265,6 +265,10 @@ module ApplicationHelper
     return @page_name
   end
 
+  def server_timezone
+    java.util.TimeZone.getDefault().getRawOffset()
+  end
+
   def version
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end

@@ -16,7 +16,7 @@
 
 describe("Dashboard Material Search Results Widget", () => {
   const m             = require("mithril");
-  const timeFormatter = require('helpers/time_formatter');
+  const TimeFormatter = require('helpers/time_formatter');
 
   const MaterialSearchResultsWidget = require("views/dashboard/trigger_with_options/material_search_results_widget");
 
@@ -63,7 +63,7 @@ describe("Dashboard Material Search Results Widget", () => {
 
     expect($root.find('.commit_info .rev').get(0)).toContainText(json[0].revision);
     expect($root.find('.commit_info .committer').get(0)).toContainText(json[0].user);
-    expect($root.find('.commit_info .time').get(0)).toContainText(timeFormatter(json[0].date));
+    expect($root.find('.commit_info .time').get(0)).toContainText(TimeFormatter.format(json[0].date));
     expect($root.find('.commit_info .commit_message').get(0)).toContainText(json[0].comment);
   });
 

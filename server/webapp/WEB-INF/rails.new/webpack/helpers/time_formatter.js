@@ -15,9 +15,29 @@
  */
 
 
+const $      = require('jquery');
 const moment = require("moment");
 require("moment-duration-format");
 
-module.exports = function (time) {
-  return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
+let offsetInMilliSeconds;
+
+const serverTimezoneUTCOffset = () => {
+  if (offsetInMilliSeconds) {
+    return offsetInMilliSeconds;
+  }
+  offsetInMilliSeconds = parseInt(JSON.parse($('body').attr('data-timezone')));
+  return offsetInMilliSeconds;
 };
+
+const formatter = {
+  format: (time) => {
+    return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
+  },
+
+  formatInServerTime: (time) => {
+    const format             = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
+    const utcOffsetInMinutes = parseInt(serverTimezoneUTCOffset()) / 60000;
+    return moment(time).utcOffset(utcOffsetInMinutes).format(format);
+  }
+};
+module.exports  = formatter;

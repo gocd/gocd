@@ -59,6 +59,9 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  //set it to 0 as the test should not rely on actual timezone.
+  $('body').attr('data-timezone', '0');
+
   if ($('#mithril-component-container').length === 0) {
     const container = $('<div>').attr({id: 'mithril-component-container'}).hide();
     container.append($('<div>').attr({id: 'mithril-mount-point'}));

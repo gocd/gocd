@@ -121,7 +121,7 @@ public class DiskSpaceFullCheckerTest {
         fullChecker.check(result);
         assertThat(result.getServerHealthState().isSuccess(), is(false));
         assertThat(result.getServerHealthState().getMessage(),
-                is("Go Server has run out of artifacts disk space. Scheduling has been stopped"));
+                is("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         assertThat(result.getServerHealthState().getType(), is(HealthStateType.artifactsDiskFull()));
         verify(sender).sendEmail(any(SendEmailMessage.class));
     }

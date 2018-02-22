@@ -272,7 +272,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
         assertThat(serverHealthService.getLogsAsText(),
-                containsString("Go Server has run out of artifacts disk space. Scheduling has been stopped"));
+                containsString("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(MINGLE_PIPELINE_NAME)));
     }
 
@@ -286,7 +286,7 @@ public class BuildCauseProducerServiceIntegrationTest {
                 new ServerHealthStateOperationResult());
 
         assertThat(serverHealthService.getLogsAsText(),
-                containsString("Go Server has run out of artifacts disk space. Scheduling has been stopped"));
+                containsString("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(MINGLE_PIPELINE_NAME)));
     }
 

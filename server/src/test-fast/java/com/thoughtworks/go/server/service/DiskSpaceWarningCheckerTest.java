@@ -124,7 +124,7 @@ public class DiskSpaceWarningCheckerTest {
         diskSpaceWarningChecker.check(result);
         assertThat(actual.getBody(), Matchers.containsString(expectedHelpUrl));
         assertThat(result.getServerHealthState().isSuccess(), is(true));
-        assertThat(result.getServerHealthState().getMessage(), is("Go Server's artifact repository is running low on disk space"));
+        assertThat(result.getServerHealthState().getMessage(), is("GoCD Server's artifact repository is running low on disk space"));
         assertThat(result.getServerHealthState().getType(), is(HealthStateType.artifactsDiskFull()));
     }
 }

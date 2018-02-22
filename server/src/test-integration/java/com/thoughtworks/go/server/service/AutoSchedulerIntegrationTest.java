@@ -110,7 +110,7 @@ public class AutoSchedulerIntegrationTest {
         try {
             pipelineScheduler.onTimer();
             HealthStateType healthStateType = HealthStateType.artifactsDiskFull();
-            assertThat(serverHealthService, containsState(healthStateType, HealthStateLevel.ERROR, "Go Server has run out of artifacts disk space. Scheduling has been stopped"));
+            assertThat(serverHealthService, containsState(healthStateType, HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         } finally {
             full.onTearDown();
             configService.artifactsDir().delete();

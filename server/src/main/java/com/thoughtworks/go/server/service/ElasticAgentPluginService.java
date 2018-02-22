@@ -132,7 +132,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     }
 
     private HealthStateScope scope(String pluginId) {
-        return HealthStateScope.forPlugin(pluginId, "missingPlugin");
+        return HealthStateScope.aboutPlugin(pluginId, "missingPlugin");
     }
 
     public static AgentMetadata toAgentMetadata(ElasticAgentMetadata obj) {

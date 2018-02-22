@@ -93,11 +93,11 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.GLOBAL, "global");
     }
 
-    public static HealthStateScope forPlugin(String symbolicName) {
+    public static HealthStateScope aboutPlugin(String symbolicName) {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName);
     }
 
-    public static HealthStateScope forPlugin(String symbolicName, String operation) {
+    public static HealthStateScope aboutPlugin(String symbolicName, String operation) {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName + operation);
     }
 

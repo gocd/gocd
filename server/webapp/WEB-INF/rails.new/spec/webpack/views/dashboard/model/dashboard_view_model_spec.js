@@ -21,11 +21,11 @@ describe("Dashboard View Model", () => {
   const dashboard   = new Dashboard();
 
   describe('initialize', () => {
-    let pipelineNames, dashboardVM;
+    let pipelinesCountMap, dashboardVM;
     beforeEach(() => {
-      pipelineNames = ['up42', 'up43'];
-      dashboardVM   = new DashboardVM();
-      dashboard.initialize(dashboardJsonForPipelines(pipelineNames));
+      pipelinesCountMap = {'up42': 2, 'up43': 2};
+      dashboardVM       = new DashboardVM();
+      dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
     });
 
     it('should initialize VM with pipelines', () => {
@@ -46,7 +46,7 @@ describe("Dashboard View Model", () => {
       expect(dashboardVM.contains('up42')).toEqual(true);
       expect(dashboardVM.contains('up43')).toEqual(true);
 
-      dashboard.initialize(dashboardJsonForPipelines(['up42', 'up43', 'up44']));
+      dashboard.initialize(dashboardJsonForPipelines({'up42': 2, 'up43': 2, 'up44': 2}));
       dashboardVM.initialize(dashboard);
       expect(dashboardVM.size()).toEqual(3);
 
@@ -62,7 +62,7 @@ describe("Dashboard View Model", () => {
       expect(dashboardVM.contains('up43')).toEqual(true);
       expect(dashboardVM.contains('up44')).toEqual(false);
 
-      dashboard.initialize(dashboardJsonForPipelines(['up43', 'up44']));
+      dashboard.initialize(dashboardJsonForPipelines({'up43': 2, 'up44': 2}));
       dashboardVM.initialize(dashboard);
       expect(dashboardVM.size()).toEqual(2);
 
@@ -74,16 +74,37 @@ describe("Dashboard View Model", () => {
   });
 
   describe("Dropdown", () => {
-    let pipelineNames, dashboardVM;
+    let pipelinesCountMap, dashboardVM;
     beforeEach(() => {
-      pipelineNames = ['up42', 'up43'];
-      dashboard.initialize(dashboardJsonForPipelines(pipelineNames));
+      pipelinesCountMap = {'up42': 2, 'up43': 2};
+      dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
       dashboardVM = new DashboardVM();
       dashboardVM.initialize(dashboard);
     });
 
     it('should initialize dropdown states for all the pipelines', () => {
       expect(dashboardVM.size()).toEqual(2);
+    });
+
+    it('should initialize dropdown state for each pipeline instance', () => {
+      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+    });
+
+    it('should remove invalid pipeline instances from dropdown state', () => {
+      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+
+      dashboardVM.dropdown.toggle('up42', 1);
+
+      dashboard.initialize(dashboardJsonForPipelines({'up42': 1, 'up43': 1}));
+
+      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
     });
 
     it('should initialize dropdown states as close initially', () => {
@@ -151,11 +172,11 @@ describe("Dashboard View Model", () => {
   });
 
   describe('Operation Messages', () => {
-    let pipelineNames, dashboardVM;
+    let pipelinesCountMap, dashboardVM;
     beforeEach(() => {
-      pipelineNames = ['up42', 'up43'];
-      dashboardVM   = new DashboardVM();
-      dashboard.initialize(dashboardJsonForPipelines(pipelineNames));
+      pipelinesCountMap = {'up42': 2, 'up43': 2};
+      dashboardVM       = new DashboardVM();
+      dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
       dashboardVM.initialize(dashboard);
       jasmine.clock().install();
     });
@@ -227,7 +248,7 @@ describe("Dashboard View Model", () => {
               }
             },
             "name":           "first",
-            pipelines,
+            pipelines:        _.keys(pipelines),
             "can_administer": true
           }
         ],
@@ -236,10 +257,87 @@ describe("Dashboard View Model", () => {
     };
   };
 
-  const pipelinesJsonForPipelines = (pipelineNames) => {
-    const pipelines = [];
-    _.each((pipelineNames), (pipelineName) => {
-      pipelines.push({
+  const getPipelineInstance = (counter) => {
+    //need to increment by 1 as pipeline counter starts with 1
+    counter++;
+
+    return {
+      "_links":       {
+        "self":            {
+          "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
+        },
+        "doc":             {
+          "href": "https://api.go.cd/current/#get-pipeline-instance"
+        },
+        "history_url":     {
+          "href": "http://localhost:8153/go/api/pipelines/up42/history"
+        },
+        "vsm_url":         {
+          "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
+        },
+        "compare_url":     {
+          "href": "http://localhost:8153/go/compare/up42/0/with/1"
+        },
+        "build_cause_url": {
+          "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
+        }
+      },
+      "label":        counter,
+      counter,
+      "scheduled_at": "2017-11-10T07:25:28.539Z",
+      "triggered_by": "changes",
+      "build_cause":  {
+        "approver":           "",
+        "is_forced":          false,
+        "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+        "material_revisions": [
+          {
+            "material_type": "Git",
+            "material_name": "test-repo",
+            "changed":       true,
+            "modifications": [
+              {
+                "_links":        {
+                  "vsm": {
+                    "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                  }
+                },
+                "user_name":     "GoCD Test User <devnull@example.com>",
+                "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                "modified_time": "2017-12-19T05:30:32.000Z",
+                "comment":       "Initial commit"
+              }
+            ]
+          }
+        ]
+      },
+      "_embedded":    {
+        "stages": [
+          {
+            "_links":       {
+              "self": {
+                "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
+              },
+              "doc":  {
+                "href": "https://api.go.cd/current/#get-stage-instance"
+              }
+            },
+            "name":         "up42_stage",
+            "counter":      "1",
+            "status":       "Failed",
+            "approved_by":  "changes",
+            "scheduled_at": "2017-11-10T07:25:28.539Z"
+          }
+        ]
+      }
+    };
+  };
+
+  const pipelinesJsonForPipelines = (pipelines) => {
+    return _.map((pipelines), (instanceCount, pipelineName) => {
+      const instances = _.times(instanceCount, getPipelineInstance);
+
+      return ({
         "_links":                 {
           "self":                 {
             "href": "http://localhost:8153/go/api/pipelines/up42/history"
@@ -297,153 +395,9 @@ describe("Dashboard View Model", () => {
             }
           ]
         },
-        "_embedded":              {
-          "instances": [
-            {
-              "_links":       {
-                "self":            {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-                },
-                "doc":             {
-                  "href": "https://api.go.cd/current/#get-pipeline-instance"
-                },
-                "history_url":     {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/history"
-                },
-                "vsm_url":         {
-                  "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-                },
-                "compare_url":     {
-                  "href": "http://localhost:8153/go/compare/up42/0/with/1"
-                },
-                "build_cause_url": {
-                  "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
-                }
-              },
-              "label":        "1",
-              "counter":      "1",
-              "scheduled_at": "2017-11-10T07:25:28.539Z",
-              "triggered_by": "changes",
-              "build_cause":  {
-                "approver":           "",
-                "is_forced":          false,
-                "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-                "material_revisions": [
-                  {
-                    "material_type": "Git",
-                    "material_name": "test-repo",
-                    "changed":       true,
-                    "modifications": [
-                      {
-                        "_links":        {
-                          "vsm": {
-                            "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                          }
-                        },
-                        "user_name":     "GoCD Test User <devnull@example.com>",
-                        "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                        "modified_time": "2017-12-19T05:30:32.000Z",
-                        "comment":       "Initial commit"
-                      }
-                    ]
-                  }
-                ]
-              },
-              "_embedded":    {
-                "stages": [
-                  {
-                    "_links":       {
-                      "self": {
-                        "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                      },
-                      "doc":  {
-                        "href": "https://api.go.cd/current/#get-stage-instance"
-                      }
-                    },
-                    "name":         "up42_stage",
-                    "counter":      "1",
-                    "status":       "Failed",
-                    "approved_by":  "changes",
-                    "scheduled_at": "2017-11-10T07:25:28.539Z"
-                  }
-                ]
-              }
-            },
-            {
-              "_links":       {
-                "self":            {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-                },
-                "doc":             {
-                  "href": "https://api.go.cd/current/#get-pipeline-instance"
-                },
-                "history_url":     {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/history"
-                },
-                "vsm_url":         {
-                  "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-                },
-                "compare_url":     {
-                  "href": "http://localhost:8153/go/compare/up42/0/with/1"
-                },
-                "build_cause_url": {
-                  "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
-                }
-              },
-              "label":        "2",
-              "counter":      "2",
-              "scheduled_at": "2017-11-10T07:25:28.539Z",
-              "triggered_by": "changes",
-              "build_cause":  {
-                "approver":           "",
-                "is_forced":          false,
-                "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-                "material_revisions": [
-                  {
-                    "material_type": "Git",
-                    "material_name": "test-repo",
-                    "changed":       true,
-                    "modifications": [
-                      {
-                        "_links":        {
-                          "vsm": {
-                            "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                          }
-                        },
-                        "user_name":     "GoCD Test User <devnull@example.com>",
-                        "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                        "modified_time": "2017-12-19T05:30:32.000Z",
-                        "comment":       "Initial commit"
-                      }
-                    ]
-                  }
-                ]
-              },
-              "_embedded":    {
-                "stages": [
-                  {
-                    "_links":       {
-                      "self": {
-                        "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                      },
-                      "doc":  {
-                        "href": "https://api.go.cd/current/#get-stage-instance"
-                      }
-                    },
-                    "name":         "up42_stage",
-                    "counter":      "1",
-                    "status":       "Failed",
-                    "approved_by":  "changes",
-                    "scheduled_at": "2017-11-10T07:25:28.539Z"
-                  }
-                ]
-              }
-            }
-          ]
-        }
+        "_embedded":              {instances}
       });
     });
 
-    return pipelines;
   };
 });

@@ -119,8 +119,24 @@ const VM = () => {
       });
 
       _.each(newPipelinesNotKnownToVM, (name) => {
-        const instanceCounters = dashboard.findPipeline(name).getInstanceCounters();
-        create(name, instanceCounters);
+        create(name, dashboard.findPipeline(name).getInstanceCounters());
+      });
+
+      //pipeline instance changes
+      _.each(pipelinesState, (state, pipelineName) => {
+        const currentInstances = _.keys(state[DROPDOWN_KEY]);
+        const newInstances     = dashboard.findPipeline(pipelineName).getInstanceCounters().map((c) => `${c}`);
+
+        const instancesToRemoveFromVM = _.difference(currentInstances, newInstances);
+        const instancesNotKnownToVM   = _.difference(newInstances, currentInstances);
+
+        _.each(instancesToRemoveFromVM, (counter) => {
+          delete state[DROPDOWN_KEY][counter];
+        });
+
+        _.each(instancesNotKnownToVM, (counter) => {
+          state[DROPDOWN_KEY][counter] = Stream(false);
+        });
       });
     }
   };

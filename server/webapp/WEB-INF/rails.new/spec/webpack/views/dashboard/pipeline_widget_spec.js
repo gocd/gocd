@@ -689,6 +689,58 @@ describe("Dashboard Pipeline Widget", () => {
         const modalTitle = $('.modal-title:visible');
         expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
       });
+
+      it("should trigger a pipeline", () => {
+        stubTriggerOptions(pipelineName);
+        const responseMessage = `Request for scheduling pipeline '${pipeline.name}' accepted successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
+        });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.play_with_options').get(0), 'click');
+        m.redraw();
+
+        $('.modal-buttons .button.save.primary').click();
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
+      });
+
+      xit("should show error when triggering a pipeline fails", () => {
+        stubTriggerOptions(pipelineName);
+        const responseMessage = `Can not trigger pipeline. Some stages of pipeline are in progress.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          409
+        });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.play_with_options').get(0), 'click');
+        m.redraw();
+
+        $('.modal-buttons .button.save.primary').click();
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("error");
+      });
     });
   });
 

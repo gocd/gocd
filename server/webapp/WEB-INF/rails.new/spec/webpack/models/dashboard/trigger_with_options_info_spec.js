@@ -43,6 +43,70 @@ describe("Dashboard", () => {
       });
     });
 
+    describe("Trigger with Options Request JSON", () => {
+      it("should set update_materials_before_scheduling to false", () => {
+        const info = TriggerWithOptionsInfo.fromJSON(json);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['update_materials_before_scheduling']).toBe(false);
+      });
+
+      it("should not select any materials when none of the material revisions are selected", () => {
+        const info = TriggerWithOptionsInfo.fromJSON(json);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['materials']).toEqual([]);
+      });
+
+      it("should not select any environment variables when none of the environment variables are overriden", () => {
+        const info = TriggerWithOptionsInfo.fromJSON(json);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['environment_variables']).toEqual([]);
+      });
+
+      it("should contain selected materials", () => {
+        const info     = TriggerWithOptionsInfo.fromJSON(json);
+        const revision = "new revision";
+        info.materials[0].selection(revision);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['materials']).toEqual([{
+          fingerprint: info.materials[0].fingerprint,
+          revision
+        }]);
+      });
+
+      it("should contain overriden environment variables", () => {
+        const info     = TriggerWithOptionsInfo.fromJSON(json);
+        const newValue = "some value";
+        const variable = info.plainTextVariables[0];
+        variable.value(newValue);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['environment_variables']).toEqual([{
+          name:   variable.name,
+          value:  variable.value(),
+          secure: variable.isSecureValue()
+        }]);
+      });
+
+      it("should contain overriden secure environment variables", () => {
+        const info     = TriggerWithOptionsInfo.fromJSON(json);
+        const newValue = "some value";
+        const variable = info.secureVariables[0];
+        variable.editValue();
+        variable.value(newValue);
+
+        const triggerOptionsJSON = info.getTriggerOptionsJSON();
+        expect(triggerOptionsJSON['environment_variables']).toEqual([{
+          name:   variable.name,
+          value:  variable.value(),
+          secure: variable.isSecureValue()
+        }]);
+      });
+    });
+
     it('should fetch trigger options for the specified pipeline name', () => {
       const pipelineName = 'up42';
 
@@ -105,6 +169,17 @@ describe("Dashboard", () => {
             "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
             "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
             "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
+          }
+        },
+        {
+          "type":        "Git",
+          "name":        "https://github.com/ganeshspatil/gocd2",
+          "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd810",
+          "revision":    {
+            "date":              "2018-02-08T04:32:11Z",
+            "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+            "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
+            "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d6"
           }
         }
       ]

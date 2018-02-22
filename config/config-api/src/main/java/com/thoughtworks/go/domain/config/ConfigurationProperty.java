@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.exceptions.InvalidCipherTextRuntimeException;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -181,7 +182,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
                 }
                 return cipher.decrypt(encryptedValue.getValue());
             } catch (InvalidCipherTextException e) {
-                throw new RuntimeException(format("Could not decrypt secure configuration property value for key %s", configurationKey.getName()), e);
+                throw new InvalidCipherTextRuntimeException(format("Could not decrypt secure configuration property value for key %s", configurationKey.getName()), e);
             }
         }
         return configurationValue == null ? null : configurationValue.getValue();

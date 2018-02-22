@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.config.exceptions.InvalidCipherTextRuntimeException;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -148,7 +149,7 @@ public class PluginService {
                     savePluginSettingsFor(pluginSettings);
                     notifyPluginSettingsChange(pluginSettings);
                 } catch (Exception e) {
-                    if (e instanceof IllegalArgumentException) {
+                    if (e instanceof IllegalArgumentException || e instanceof InvalidCipherTextRuntimeException) {
                         result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
                     } else {
                         if (!result.hasMessage()) {

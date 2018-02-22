@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.builder;
 
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.security.GoCipher;
@@ -112,17 +111,10 @@ public class ConfigurationPropertyBuilderTest {
     }
 
     @Test
-    public void shouldCopyOverTheError_WhenErrorArePassedInParam() {
-        Property key = new Property("key");
-        key.with(Property.SECURE, false);
+    public void shouldAddErrorOnPropertyWhenEncryptedValueCannotBeDecryptedByGoCipher() {
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("Password", null, "not-encrypted-by-gocd", true);
 
-        final ConfigErrors errors = new ConfigErrors();
-        errors.add("key", "Error on property");
-
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, false, errors);
-
-        assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertNull(property.getEncryptedConfigurationValue());
-        assertThat(property.errors().on("key"), is("Error on property"));
+        assertThat(property.errors().get("Password").get(0), is("Could not decrypt secure configuration property value for key Password."));
+        assertThat(property.getEncryptedValue(), is("not-encrypted-by-gocd"));
     }
 }

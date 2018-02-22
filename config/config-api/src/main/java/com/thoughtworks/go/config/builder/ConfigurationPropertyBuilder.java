@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config.builder;
 
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -69,17 +68,11 @@ public class ConfigurationPropertyBuilder {
         return configurationProperty;
     }
 
-    public ConfigurationProperty create(String key, String value, String encryptedValue, Boolean isSecure, ConfigErrors errors) {
-        final ConfigurationProperty configurationProperty = create(key, value, encryptedValue, isSecure);
-        configurationProperty.errors().addAll(errors);
-        return configurationProperty;
-    }
-
     private void setEncryptedValue(String encryptedValue, ConfigurationProperty configurationProperty) {
         try {
             cipher.decrypt(encryptedValue);
         } catch (Exception e) {
-            configurationProperty.addError(configurationProperty.getConfigKeyName(), String.format("Encrypted value for %s is invalid. This usually happens when the cipher text is invalid.", configurationProperty.getConfigKeyName()));
+            configurationProperty.addError(configurationProperty.getConfigKeyName(), String.format("Could not decrypt secure configuration property value for key %s.", configurationProperty.getConfigKeyName()));
         }
 
         configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));

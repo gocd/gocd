@@ -20,6 +20,10 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
@@ -35,6 +39,7 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
@@ -51,6 +56,8 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -405,6 +412,62 @@ public class PluginServiceTest {
         Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
         plugin.setId(1L);
         verify(pluginDao).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void shouldReturnUnProcessableEntityWhenInvalidEncryptedValueProvided() {
+        final List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+                new PluginConfiguration("k1", new Metadata(true, false)),
+                new PluginConfiguration("k2", new Metadata(true, true))
+        );
+        final List<ConfigurationProperty> configurationProperties = Arrays.asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue("you-can-not-decrypt-this."))
+        );
+
+        final ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, new PluggableInstanceSettings(pluginConfigurations));
+
+        final PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
+        pluginSettings.addConfigurations(pluginInfo, configurationProperties);
+        final Username currentUser = new Username("bob");
+
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("foo");
+
+        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pluginService.updatePluginSettings(currentUser, result, pluginSettings, "foo");
+
+        assertThat(result.httpCode(), is(422));
+        assertThat(pluginSettings.getErrorFor("k2"), hasSize(1));
+        assertThat(pluginSettings.getErrorFor("k2"), contains("Could not decrypt secure configuration property value for key k2."));
+    }
+
+    @Test
+    public void shouldReturnUnProcessableEntityWhenEncryptedValueIsEncryptedUsingDifferentCipher() {
+        final List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+                new PluginConfiguration("k1", new Metadata(true, false)),
+                new PluginConfiguration("k2", new Metadata(true, true))
+        );
+        final List<ConfigurationProperty> configurationProperties = Arrays.asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue("krnX/aDLjvrBe+BfhHgQxr6RQHUIRCA0"))
+        );
+
+        final ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, new PluggableInstanceSettings(pluginConfigurations));
+
+        final PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
+        pluginSettings.addConfigurations(pluginInfo, configurationProperties);
+        final Username currentUser = new Username("bob");
+
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("foo");
+
+        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pluginService.updatePluginSettings(currentUser, result, pluginSettings, "foo");
+
+        assertThat(result.httpCode(), is(422));
+        assertThat(pluginSettings.getErrorFor("k2"), hasSize(1));
+        assertThat(pluginSettings.getErrorFor("k2"), contains("Could not decrypt secure configuration property value for key k2."));
     }
 
     private String toJSON(Map<String, String> configuration) {

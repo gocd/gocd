@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -51,17 +52,17 @@ public class SchedulingCheckerServiceUnitTest {
         initMocks(this);
         schedulingChecker = spy(new SchedulingCheckerService(mock(GoConfigService.class), mock(CurrentActivityService.class),
                 mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class),
-                mock(PipelinePauseService.class), mock(OutOfDiskSpaceChecker.class)));
+                mock(PipelinePauseService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
 
         compositeChecker = mock(CompositeChecker.class);
         operationResult = mock(OperationResult.class);
 
-        doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(Matchers.<List<SchedulingChecker>>any());
+        doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(Matchers.any());
         when(operationResult.getServerHealthState()).thenReturn(ServerHealthState.success(HealthStateType.general(HealthStateScope.GLOBAL)));
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnStageRerun() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnStageRerun() {
         schedulingChecker.canRerunStage(new PipelineIdentifier("pipeline_name", 1), "stage_name", "user", operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
@@ -71,12 +72,11 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), PipelineActiveChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnManuallyTrigger() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnManuallyTrigger() {
 
         schedulingChecker.canManuallyTrigger(PipelineConfigMother.pipelineConfig("p1"), "user", operationResult);
 
@@ -88,12 +88,11 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), PipelineLockChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnScheduleStage() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnScheduleStage() {
         schedulingChecker.canScheduleStage(new PipelineIdentifier("name",1),"stage","user",operationResult );
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
@@ -104,23 +103,21 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), PipelineActiveChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnSchedule() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnSchedule() {
         schedulingChecker.canSchedule(operationResult );
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
         verify(compositeChecker).check(operationResult);
 
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnCanTriggerPipelineWithTimer() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnCanTriggerPipelineWithTimer() {
         schedulingChecker.canTriggerPipelineWithTimer(PipelineConfigMother.pipelineConfig("sample"), operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
@@ -130,12 +127,11 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
         assertFor(argumentCaptor.getValue(), PipelineLockChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnTriggerManualPipeline() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnTriggerManualPipeline() {
         schedulingChecker.canTriggerManualPipeline(PipelineConfigMother.pipelineConfig("sample"), "user", operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
@@ -145,12 +141,11 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
         assertFor(argumentCaptor.getValue(), PipelineLockChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     @Test
-    public void shouldCheckIfScheduleCheckersCalledOnAutoTriggerProducer() throws Exception {
+    public void shouldCheckIfScheduleCheckersCalledOnAutoTriggerProducer() {
         schedulingChecker.canAutoTriggerProducer(PipelineConfigMother.pipelineConfig("sample"), operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
@@ -163,21 +158,20 @@ public class SchedulingCheckerServiceUnitTest {
     }
 
     @Test
-    public void verifyScheduleCheckersCalledOnPipelineCanBeTriggeredManually() throws Exception {
+    public void verifyScheduleCheckersCalledOnPipelineCanBeTriggeredManually() {
         schedulingChecker.pipelineCanBeTriggeredManually(PipelineConfigMother.pipelineConfig("sample"));
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
-        verify(compositeChecker).check(Matchers.<OperationResult>any());
+        verify(compositeChecker).check(Matchers.any());
 
         assertFor(argumentCaptor.getValue(), AboutToBeTriggeredChecker.class);
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
-        assertFor(argumentCaptor.getValue(), ArtifactsDiskSpaceFullChecker.class);
-        assertFor(argumentCaptor.getValue(), DatabaseDiskSpaceFullChecker.class);
+        assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
     }
 
     private void assertFor(List<SchedulingChecker> checkerList, Class typeOfScheduleChecker) {
-        ArrayList containerForAllCheckers = new ArrayList();
+        ArrayList<SchedulingChecker> containerForAllCheckers = new ArrayList<>();
         flatten(checkerList, containerForAllCheckers);
         for (Object o : containerForAllCheckers) {
             if (o.getClass().equals(typeOfScheduleChecker)) {
@@ -188,7 +182,7 @@ public class SchedulingCheckerServiceUnitTest {
         fail("could not find " + typeOfScheduleChecker);
     }
 
-    private void flatten(List<SchedulingChecker> value, ArrayList containerForAllCheckers) {
+    private void flatten(List<SchedulingChecker> value, ArrayList<SchedulingChecker> containerForAllCheckers) {
         for (SchedulingChecker checker : value) {
             if (checker instanceof CompositeChecker) {
                 List<SchedulingChecker> schedulingCheckers = Arrays.asList(((CompositeChecker) checker).getCheckers());

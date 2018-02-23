@@ -244,7 +244,6 @@ $btn-default: #d6d5d5;
   }
 
   > span:after, .animate > span > span {
-    animation:        move 2s linear infinite;
     content:          "";
     position:         absolute;
     top:              0;

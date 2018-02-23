@@ -545,6 +545,17 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.play')).toHaveClass('disabled');
       });
 
+      it('should disable trigger button when pipeline is paused', () => {
+        unmount();
+        mount(false, true, {
+          "paused":       true,
+          "paused_by":    "admin",
+          "pause_reason": "under construction"
+        });
+
+        expect($root.find('.play')).toHaveClass('disabled');
+      });
+
       it('should not add onclick handler pipeline is locked', () => {
         unmount();
         mount(false, true, undefined, {"locked": true});
@@ -646,6 +657,17 @@ describe("Dashboard Pipeline Widget", () => {
       it('should disable trigger with options button when pipeline is locked', () => {
         unmount();
         mount(false, true, undefined, {"locked": true});
+
+        expect($root.find('.play_with_options')).toHaveClass('disabled');
+      });
+
+      it('should disable trigger with options button when pipeline is paused', () => {
+        unmount();
+        mount(false, true, {
+          "paused":       true,
+          "paused_by":    "admin",
+          "pause_reason": "under construction"
+        });
 
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });

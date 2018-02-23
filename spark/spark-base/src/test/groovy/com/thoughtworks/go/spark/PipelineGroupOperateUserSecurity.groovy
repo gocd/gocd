@@ -66,6 +66,16 @@ trait PipelineGroupOperateUserSecurity {
   }
 
   @Test
+  void "should disallow pipeline view users, with security enabled"() {
+    enableSecurity()
+    loginAsPipelineViewUser()
+
+    makeHttpCall()
+
+    assertRequestNotAuthorized()
+  }
+
+  @Test
   void 'should allow pipeline group operate users, with security enabled'() {
     enableSecurity()
     loginAsGroupOperateUser()

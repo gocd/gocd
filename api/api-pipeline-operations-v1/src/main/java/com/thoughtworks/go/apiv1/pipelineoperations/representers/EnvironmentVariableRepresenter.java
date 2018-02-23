@@ -17,11 +17,11 @@
 package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv1.pipelineoperations.exceptions.InvalidGoCipherTextException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.config.exceptions.InvalidCipherTextRuntimeException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
-public class EnvrionmentVariableRepresenter {
+public class EnvironmentVariableRepresenter {
     public static EnvironmentVariableConfig fromJSON(JsonReader jsonReader) {
         String name = jsonReader.getString("name");
         Boolean secure = jsonReader.optBoolean("secure").orElse(false);
@@ -32,7 +32,7 @@ public class EnvrionmentVariableRepresenter {
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
             return environmentVariableConfig;
         } catch (InvalidCipherTextException e) {
-            throw new InvalidGoCipherTextException(e.getMessage(), e);
+            throw new InvalidCipherTextRuntimeException(e.getMessage(), e);
         }
     }
 }

@@ -112,7 +112,7 @@ const PipelineOperationsWidget = {
       }
 
       const modal = new Modal({
-        size:    'small',
+        size:    'large',
         title:   `${pipeline.name} - Trigger`,
         body:    () => (<PipelineTriggerWithOptionsModalBody vm={self.triggerWithOptionsVM}
                                                              searchVM={searchVM}

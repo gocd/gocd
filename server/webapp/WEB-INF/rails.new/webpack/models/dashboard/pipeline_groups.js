@@ -17,25 +17,27 @@
 const _      = require('lodash');
 const Routes = require('gen/js-routes');
 
-const PipelineGroup = function (name, path, canAdminister, pipelines) {
+const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) {
   const self = this;
 
   this.name          = name;
   this.path          = path;
+  this.editPath      = editPath;
   this.canAdminister = canAdminister;
   this.pipelines     = pipelines;
 
   this.filterBy = (filterText) => {
     const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
     if (filteredPipelines.length) {
-      return new PipelineGroup(self.name, self.path, self.canAdminister, filteredPipelines);
+      return new PipelineGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
     }
   };
 };
 
 PipelineGroup.fromJSON = (json) => {
-  const path = `${Routes.pipelineGroupsPath()}#group-${json.name}`;
-  return new PipelineGroup(json.name, path, json.can_administer, json.pipelines);
+  const path     = `${Routes.pipelineGroupsPath()}#group-${json.name}`;
+  const editPath = `${Routes.pipelineGroupEditPath(json.name)}`;
+  return new PipelineGroup(json.name, path, editPath, json.can_administer, json.pipelines);
 };
 
 

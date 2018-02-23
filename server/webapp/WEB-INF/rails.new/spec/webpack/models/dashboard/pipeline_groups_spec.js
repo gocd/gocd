@@ -26,6 +26,7 @@ describe("Dashboard", () => {
       expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);
       expect(pipelineGroups.groups[0].canAdminister).toBe(pipelineGroupsData[0].can_administer);
       expect(pipelineGroups.groups[0].path).toBe('/go/admin/pipelines#group-first');
+      expect(pipelineGroups.groups[0].editPath).toBe('/go/admin/pipeline_group/first/edit');
       expect(pipelineGroups.groups[0].pipelines).toEqual(pipelineGroupsData[0].pipelines);
     });
 

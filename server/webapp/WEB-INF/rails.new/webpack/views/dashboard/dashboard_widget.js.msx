@@ -48,16 +48,23 @@ const DashboardWidget = {
         );
       });
 
-      const pipelineGroupSettingsIcon = (pipelineGroup.canAdminister)
-        ? (<a href={pipelineGroup.path} class="edit_config pipeline-group_edit-config"></a>)
-        : (<a href="#" class="edit_config pipeline-group_edit-config disabled"></a>);
+      let name, settingsIcon;
+      if (pipelineGroup.canAdminister) {
+        name         = <a href={pipelineGroup.path}>{pipelineGroup.name}</a>;
+        settingsIcon = <a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>;
+      } else {
+        name         = pipelineGroup.name;
+        settingsIcon = <a href="#" class="edit_config pipeline-group_edit-config disabled"/>;
+      }
 
       return (
         <div class="pipeline-group">
           <h2 class="pipeline-group_title">
             <span> pipeline group </span>
-            <strong>{pipelineGroup.name}</strong>
-            {pipelineGroupSettingsIcon}
+            <strong>
+              {name}
+            </strong>
+            {settingsIcon}
           </h2>
           <ul class="pipeline-group_items">
             {pipelines}

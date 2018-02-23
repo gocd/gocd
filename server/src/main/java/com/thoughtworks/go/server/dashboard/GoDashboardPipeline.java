@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 
@@ -30,17 +31,19 @@ public class GoDashboardPipeline {
     private final String groupName;
     private final TrackingTool trackingTool;
     private final long lastUpdatedTimeStamp;
+    private ConfigOrigin origin;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
         this.trackingTool = trackingTool;
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
+        this.origin = origin;
     }
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter) {
-        this(pipelineModel, permissions, groupName, null, timeStampBasedCounter);
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter, ConfigOrigin origin) {
+        this(pipelineModel, permissions, groupName, null, timeStampBasedCounter, origin);
     }
 
     public String groupName() {
@@ -109,5 +112,9 @@ public class GoDashboardPipeline {
         result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
         result = 31 * result + (int) (lastUpdatedTimeStamp ^ (lastUpdatedTimeStamp >>> 32));
         return result;
+    }
+
+    public ConfigOrigin getOrigin() {
+        return origin;
     }
 }

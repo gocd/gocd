@@ -36,7 +36,7 @@ const PipelineHeaderWidget = {
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     let settingsButton;
-    if (pipeline.canAdminister) {
+    if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} href={settingsPath}/>);
     } else {

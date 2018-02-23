@@ -662,7 +662,8 @@ body {
     color: #000;
   }
   &.disabled {
-    color: #999;
+    color:  #999;
+    cursor: not-allowed;
   }
 }
 
@@ -677,7 +678,8 @@ body {
     color: #000;
   }
   &.disabled {
-    color: #999;
+    color:  #999;
+    cursor: not-allowed;
   }
 }
 

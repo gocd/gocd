@@ -65,12 +65,6 @@ public class H2Database implements Database {
     }
 
     public void startDatabase() {
-        try {
-            new Migrate().execute(systemEnvironment.getDbPath(), true, configuration.getUser(),
-                    configuration.getPassword(), false);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         if (systemEnvironment.inDbDebugMode()) {
             if (tcpServer != null) {
                 return;
@@ -159,9 +153,6 @@ public class H2Database implements Database {
             LOG.info("In debug mode - not upgrading database");
             //don't upgrade
         } else {
-            Migration upgradeToH2 = new MigrateHsqldbToH2(source, systemEnvironment);
-            upgradeToH2.migrate();
-
             Migration migrateSchema = new DbDeployMigration(source, systemEnvironment);
             migrateSchema.migrate();
         }

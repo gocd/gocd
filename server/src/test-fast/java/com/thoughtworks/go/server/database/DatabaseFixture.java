@@ -50,11 +50,6 @@ public class DatabaseFixture {
         this.templatesDir = new File("db", "dbtemplate");
     }
 
-    public DatabaseFixture withTemplatesDir(String templatesDir) {
-        this.templatesDir = new File(templatesDir);
-        return this;
-    }
-
     public SystemEnvironment env() throws IOException {
         return new SystemEnvironment(new File(tmpDb, "h2db").getCanonicalPath(), "9845");
     }
@@ -96,26 +91,8 @@ public class DatabaseFixture {
         return new File(tmpDb, "hsqldb");
     }
 
-    public File backupFile() throws FileNotFoundException {
-        File[] files = tmpDb.listFiles();
-        for (File file : files) {
-            if (file.getName().contains("hsqldb-upgrade-backup")) {
-                return file;
-            }
-        }
-        throw new FileNotFoundException("No backup file found. Directory contains: " + Arrays.asList(files));
-    }
-
-    public void copyOldDb() throws IOException {
-        copyDirectory(new File(templatesDir(), "hsqldb"), oldDb());
-    }
-
     public File templatesDir() {
         return templatesDir;
-    }
-
-    public void copyOldDb(String oldDb) throws IOException {
-        new ZipUtil().unzip(new File(templatesDir(), oldDb), oldDb());
     }
 
     public void copyH2Db(String oldDb) throws IOException {

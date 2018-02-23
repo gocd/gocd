@@ -85,7 +85,6 @@ task cleanRails(type: Delete) {
   delete "${project.railsRoot}/db/h2db"
   delete "${project.railsRoot}/db/shine"
   delete "${project.railsRoot}/logs"
-  delete "${project.railsRoot}/historical_jars"
   delete "${project.railsRoot}/public/assets"
   delete "${project.railsRoot}/tmp"
   delete "${project.railsRoot}/webpack/gen"

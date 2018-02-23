@@ -130,7 +130,6 @@ server/testdata/test-agent.jar
 server/webapp/WEB-INF/rails.new/*.log
 server/webapp/WEB-INF/rails.new/config/cipher
 server/webapp/WEB-INF/rails.new/db/config.git/
-server/webapp/WEB-INF/rails.new/historical_jars/
 server/webapp/WEB-INF/rails.new/log/
 server/webapp/WEB-INF/rails.new/logs/
 server/webapp/WEB-INF/rails.new/node_modules/

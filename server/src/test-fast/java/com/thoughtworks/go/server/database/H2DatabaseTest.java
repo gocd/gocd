@@ -103,40 +103,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldBackupOldDatabaseWhenUpgrading() throws SQLException, IOException {
-        dbFixture.copyOldDb();
-        h2Database.startDatabase();
-        h2Database.upgrade();
-        assertThat(dbFixture.oldDb().exists(), is(false));
-        File backup = dbFixture.backupFile();
-        assertThat(backup.exists(), is(true));
-        assertThat(backup.getName(), matches(".+\\d\\d\\d\\d-\\d\\d-\\d\\d-\\d\\d\\d\\d\\.zip"));
-    }
-
-    private Matcher<String> matches(final String regex) {
-        return new TypeSafeMatcher<String>() {
-            public boolean matchesSafely(String item) {
-                return item.matches(regex);
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("should match " + regex);
-            }
-        };
-    }
-
-    @Test
-    public void shouldDeleteEmptyHsqldbDirectory() throws SQLException, IOException {
-        dbFixture.oldDb().mkdir();
-
-        h2Database.startDatabase();
-        h2Database.upgrade();
-        assertThat(dbFixture.oldDb().exists(), is(false));
-    }
-
-    @Test
     public void shouldMigrateBuildbufferToTextColumn() throws SQLException, IOException {
-        dbFixture.copyOldDb();
         h2Database.startDatabase();
         h2Database.upgrade();
 

@@ -102,6 +102,6 @@ public class GoDiskSpaceMonitor {
     }
 
     public void checkIfOutOfDisk(OperationResult result) {
-        lowOnDisk(lowOnDisk, result, databaseDiskSpaceFullChecker, artifactsDiskSpaceFullChecker);
+        lowOnDisk(false, result, databaseDiskSpaceFullChecker, artifactsDiskSpaceFullChecker);
     }
 }

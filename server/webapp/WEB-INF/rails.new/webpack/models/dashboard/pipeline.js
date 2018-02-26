@@ -15,6 +15,7 @@
  */
 
 const _           = require('lodash');
+const Stream      = require('mithril/stream');
 const VMRoutes    = require('helpers/vm_routes');
 const SparkRoutes = require('helpers/spark_routes');
 const AjaxHelper  = require('helpers/ajax_helper');
@@ -38,9 +39,8 @@ const Pipeline = function (info) {
   this.pausedCause = info.pause_info.pause_reason;
   this.canPause    = info.can_pause;
 
-  this.isLocked  = info.locked;
-  this.canUnlock = info.can_unlock;
-
+  this.isLocked   = info.locked;
+  this.canUnlock  = info.can_unlock;
   this.canOperate = info.can_operate;
 
   this.trackingTool = info.tracking_tool;
@@ -53,6 +53,11 @@ const Pipeline = function (info) {
     }
     return false;
   };
+
+  this.triggerDisabled = Stream(false);
+  if (!self.canOperate || self.isFirstStageInProgress() || self.isLocked || self.isPaused) {
+    self.triggerDisabled(true);
+  }
 
   function postURL(url, payload = {}) {
     return AjaxHelper.POST({url, apiVersion: 'v1', payload});

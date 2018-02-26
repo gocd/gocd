@@ -59,6 +59,38 @@ describe("Dashboard", () => {
       expect(pipeline.isFirstStageInProgress()).toBe(false);
     });
 
+    it("should disable trigger when user dont have permissions", () => {
+      pipelineJson['can_operate'] = false;
+
+      const pipeline = new Pipeline(pipelineJson);
+      expect(pipeline.canOperate).toBe(false);
+      expect(pipeline.triggerDisabled()).toBe(true);
+    });
+
+    it("should disable trigger when first stage of pipeline is in progress", () => {
+      pipelineJson._embedded.instances[0]._embedded.stages[0].status = 'Building';
+
+      const pipeline = new Pipeline(pipelineJson);
+      expect(pipeline.isFirstStageInProgress()).toBe(true);
+      expect(pipeline.triggerDisabled()).toBe(true);
+    });
+
+    it("should disable trigger when pipeline is locked", () => {
+      pipelineJson.locked = true;
+
+      const pipeline = new Pipeline(pipelineJson);
+      expect(pipeline.isLocked).toBe(true);
+      expect(pipeline.triggerDisabled()).toBe(true);
+    });
+
+    it("should disable trigger when pipeline is paused", () => {
+      pipelineJson.pause_info.paused = true;
+
+      const pipeline = new Pipeline(pipelineJson);
+      expect(pipeline.isPaused).toBe(true);
+      expect(pipeline.triggerDisabled()).toBe(true);
+    });
+
     it("should return counters for pipeline instances", () => {
       const pipeline         = new Pipeline(pipelineJson);
       const instanceCounters = pipeline.getInstanceCounters();

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.plugin;
+package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
+import com.thoughtworks.go.server.messaging.notifications.PluginNotificationMessage;
+import com.thoughtworks.go.server.messaging.notifications.PluginNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,19 +31,19 @@ import java.util.Date;
 @Component
 public class AgentStatusChangeNotifier implements AgentStatusChangeListener{
     private NotificationPluginRegistry notificationPluginRegistry;
-    private PluginNotificationQueue pluginNotificationQueue;
+    private PluginNotificationService pluginNotificationService;
 
     @Autowired
-    public AgentStatusChangeNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationQueue pluginNotificationQueue) {
+    public AgentStatusChangeNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationService pluginNotificationService) {
         this.notificationPluginRegistry = notificationPluginRegistry;
-        this.pluginNotificationQueue = pluginNotificationQueue;
+        this.pluginNotificationService = pluginNotificationService;
     }
 
     @Override
     public void onAgentStatusChange(AgentInstance agentInstance) {
         if (isAnyPluginInterestedInAgentStatus()) {
             AgentNotificationData agentNotificationData = notificationDataFrom(agentInstance);
-            pluginNotificationQueue.post(new PluginNotificationMessage(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentNotificationData));
+            pluginNotificationService.notifyPlugins(new PluginNotificationMessage(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentNotificationData));
         }
     }
 

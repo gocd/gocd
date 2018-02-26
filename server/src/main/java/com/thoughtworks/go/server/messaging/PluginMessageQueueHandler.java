@@ -20,6 +20,10 @@ import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
@@ -68,9 +72,12 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
         String pluginId = message.pluginId();
         try {
             if (queues.containsKey(pluginId)) {
-                queues.get(pluginId).post(message, timeToLive);
+                PluginAwareMessageQueue queue = queues.get(pluginId);
+                queue.post(message, timeToLive);
+                LOGGER.debug("Message {} posted to queue {}", message, queue.queueName);
             } else {
                 LOGGER.error("Could not find a queue for {}", pluginId);
+                //TODO: Add server health error
             }
         } catch (Exception e) {
             LOGGER.error("Failed while posting to queue for plugin {}. The error was {}", pluginId, e.getMessage(), e);

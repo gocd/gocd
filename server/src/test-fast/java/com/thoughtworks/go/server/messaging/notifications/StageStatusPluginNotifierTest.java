@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.plugin;
+package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
@@ -42,9 +44,9 @@ public class StageStatusPluginNotifierTest {
     @Mock
     private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
-    private PluginNotificationQueue pluginNotificationQueue;
-    @Mock
     private Stage stage;
+    @Mock
+    private PluginNotificationService pluginNotificationService;
 
     private ArgumentCaptor<PluginNotificationMessage> captor;
     private StageStatusPluginNotifier stageStatusPluginNotifier;
@@ -55,7 +57,7 @@ public class StageStatusPluginNotifierTest {
 
         captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
 
-        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, goConfigService, pipelineSqlMapDao, pluginNotificationQueue);
+        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, goConfigService, pipelineSqlMapDao, pluginNotificationService);
     }
 
     @Test
@@ -64,7 +66,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService, never()).notifyPlugins(any(PluginNotificationMessage.class));
     }
 
     @Test
@@ -76,7 +78,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService, never()).notifyPlugins(any(PluginNotificationMessage.class));
     }
 
     @Test
@@ -91,7 +93,7 @@ public class StageStatusPluginNotifierTest {
         when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter())).thenReturn(BuildCause.createManualForced());
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(captor.capture());
+        verify(pluginNotificationService).notifyPlugins(captor.capture());
         assertThat(captor.getValue().getData() instanceof StageNotificationData, is(true));
         StageNotificationData data = (StageNotificationData) captor.getValue().getData();
         assertThat(data.getStage(), is(stage));
@@ -109,7 +111,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService).notifyPlugins(any(PluginNotificationMessage.class));
     }
 
     @Test
@@ -122,6 +124,6 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService).notifyPlugins(any(PluginNotificationMessage.class));
     }
 }

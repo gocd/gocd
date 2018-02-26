@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.plugin;
+package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -40,7 +40,7 @@ public class AgentStatusChangeNotifierTest {
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
     @Mock
-    private PluginNotificationQueue pluginNotificationQueue;
+    private PluginNotificationService pluginNotificationService;
 
     private ArgumentCaptor<PluginNotificationMessage> captor;
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
@@ -50,7 +50,7 @@ public class AgentStatusChangeNotifierTest {
         initMocks(this);
 
         captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
-        agentStatusChangeNotifier = new AgentStatusChangeNotifier(notificationPluginRegistry, pluginNotificationQueue);
+        agentStatusChangeNotifier = new AgentStatusChangeNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class AgentStatusChangeNotifierTest {
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verify(pluginNotificationQueue).post(captor.capture());
+        verify(pluginNotificationService).notifyPlugins(captor.capture());
 
 
         assertThat(captor.getValue().getData() instanceof AgentNotificationData, is(true));
@@ -91,7 +91,7 @@ public class AgentStatusChangeNotifierTest {
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verify(pluginNotificationQueue).post(captor.capture());
+        verify(pluginNotificationService).notifyPlugins(captor.capture());
 
         assertThat(captor.getValue().getData() instanceof AgentNotificationData, is(true));
         AgentNotificationData data = (AgentNotificationData) captor.getValue().getData();
@@ -107,6 +107,6 @@ public class AgentStatusChangeNotifierTest {
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verifyZeroInteractions(pluginNotificationQueue);
+        verifyZeroInteractions(pluginNotificationService);
     }
 }

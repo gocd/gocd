@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.plugin;
+package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -26,50 +26,32 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.Set;
+public class PluginNotificationMessageListener implements GoMessageListener<NotificationMessage> {
+    private NotificationExtension notificationExtension;
+    private ServerHealthService serverHealthService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginNotificationMessageListener.class);
 
-@Component
-public class PluginNotificationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PluginNotificationService.class);
-
-    private final NotificationExtension notificationExtension;
-    private final NotificationPluginRegistry notificationPluginRegistry;
-    private final ServerHealthService serverHealthService;
-
-    @Autowired
-    public PluginNotificationService(NotificationExtension notificationExtension, NotificationPluginRegistry notificationPluginRegistry, ServerHealthService serverHealthService) {
+    public PluginNotificationMessageListener(NotificationExtension notificationExtension, ServerHealthService serverHealthService) {
         this.notificationExtension = notificationExtension;
-        this.notificationPluginRegistry = notificationPluginRegistry;
         this.serverHealthService = serverHealthService;
     }
 
-    public <T> void notifyPlugins(PluginNotificationMessage<T> pluginNotificationMessage) throws Exception {
-        Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(pluginNotificationMessage.getRequestName());
-
-        if (interestedPlugins != null && !interestedPlugins.isEmpty()) {
-            for (String interestedPlugin : interestedPlugins) {
-                notifyPlugin(interestedPlugin, pluginNotificationMessage);
-            }
-        }
-    }
-
-    private <T> void notifyPlugin(String pluginId, PluginNotificationMessage<T> pluginNotificationMessage) {
-        HealthStateScope scope = HealthStateScope.aboutPlugin(pluginId);
+    @Override
+    public void onMessage(NotificationMessage message) {
+        HealthStateScope scope = HealthStateScope.aboutPlugin(message.pluginId());
         try {
-            Result result = notificationExtension.notify(pluginId, pluginNotificationMessage.getRequestName(), pluginNotificationMessage.getData());
+            Result result = notificationExtension.notify(message.pluginId(), message.getData().getRequestName(), message.getData().getData());
 
             if (result.isSuccessful()) {
                 serverHealthService.removeByScope(scope);
             } else {
                 String errorDescription = result.getMessages() == null ? null : StringUtils.join(result.getMessages(), ", ");
-                handlePluginNotifyError(pluginId, scope, errorDescription, null);
+                handlePluginNotifyError(message.pluginId(), scope, errorDescription, null);
             }
         } catch (Exception e) {
             String errorDescription = e.getMessage() == null ? "Unknown error" : e.getMessage();
-            handlePluginNotifyError(pluginId, scope, errorDescription, e);
+            handlePluginNotifyError(message.pluginId(), scope, errorDescription, e);
         }
     }
 
@@ -78,4 +60,5 @@ public class PluginNotificationService {
         serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
         LOGGER.warn(message, e);
     }
+
 }

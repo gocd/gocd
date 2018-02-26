@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+const $ = require('jquery');
 const m = require('mithril');
 const _ = require('lodash');
 
@@ -23,6 +24,19 @@ const MaterialSearchResultsWidget = require('views/dashboard/trigger_with_option
 const MaterialInfoWidget = {
   oninit(vnode) {
     vnode.attrs.searchVM.performSearch();
+  },
+
+  onupdate(vnode) {
+    const commits = $(vnode.dom).find('.commits');
+
+    if (commits.length) {
+      const searchInput = $(vnode.dom).find('.material-revision-search');
+      if (searchInput.length) {
+        const offset = searchInput.offset();
+        offset.top   = offset.top + searchInput.height() + 10;
+        commits.css(offset);
+      }
+    }
   },
 
   view(vnode) {

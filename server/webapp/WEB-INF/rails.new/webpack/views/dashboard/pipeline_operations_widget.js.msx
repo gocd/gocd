@@ -32,12 +32,12 @@ const PipelineOperationsWidget = {
     self.pauseMessage       = Stream();
 
     self.trigger = (pipeline, json = {}) => {
-      vnode.attrs.doCancelPolling();
       pipeline.trigger(json).then((res) => {
+        pipeline.triggerDisabled(true);
         operationMessages.success(pipeline.name, res.message);
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
-      }).always(vnode.attrs.doRefreshImmediately);
+      });
     };
 
     self.unpause = (pipeline) => {

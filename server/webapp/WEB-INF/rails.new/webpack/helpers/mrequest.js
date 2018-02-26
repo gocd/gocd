@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-const $ = require('jquery');
+const $         = require('jquery');
+const CONSTANTS = require('helpers/constants');
 
 const setHeaders = (xhr, version) => {
   xhr.setRequestHeader("Content-Type", "application/json");
@@ -27,7 +28,7 @@ const setHeaders = (xhr, version) => {
 };
 
 const mrequest = {
-  timeout:   5000,
+  timeout:   CONSTANTS.SPA_REQUEST_TIMEOUT,
   versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;
   },

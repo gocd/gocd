@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html class="no-js">
 <head>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="utf-8">
+  <meta name="gocd-params"
+        data-timezone="<%= server_timezone %>"
+        data-page-refresh-interval="<%= spa_refresh_interval %>"
+        data-page-timeout="<%= spa_timeout %>">
+
   <title><%= @view_title %> - Go</title>
 
   <link rel="shortcut icon" href="<%= asset_path('cruise.ico') %>"/>
@@ -15,7 +20,6 @@
 
 <body data-controller-name="<%= controller_name %>"
       data-action-name="<%= action_name %>"
-      data-timezone="<%= server_timezone %>"
       id="<%= controller_name %>-page">
 <div class="page-wrap">
   <header class="app-header">

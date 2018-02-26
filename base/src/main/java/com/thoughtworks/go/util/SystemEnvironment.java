@@ -219,6 +219,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static GoSystemProperty<String> AGENT_STATUS_API_BIND_HOST = new GoStringSystemProperty("go.agent.status.api.bind.host", "localhost");
     private static GoSystemProperty<Integer> AGENT_STATUS_API_BIND_PORT = new GoIntSystemProperty("go.agent.status.api.bind.port", 8152);
 
+    private static GoSystemProperty<Integer> GO_SPA_TIMEOUT = new GoIntSystemProperty("go.spa.timeout", 5000);
+    private static GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL = new GoIntSystemProperty("go.spa.refresh.interval", 10000);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -833,9 +836,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public int sessionTimeoutInSeconds() {
         return GO_SERVER_SESSION_TIMEOUT_IN_SECONDS.getValue();
     }
+
     public int sessionCookieMaxAgeInSeconds() {
         return GO_SERVER_SESSION_COOKIE_MAX_AGE_IN_SECONDS.getValue();
     }
+
     public boolean isSessionCookieSecure() {
         return GO_SERVER_SESSION_COOKIE_SECURE.getValue();
     }
@@ -866,6 +871,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getAgentStatusPort() {
         return AGENT_STATUS_API_BIND_PORT.getValue();
+    }
+
+    public static Integer goSpaRefreshInterval() {
+        return GO_SPA_REFRESH_INTERVAL.getValue();
+    }
+
+    public static Integer goSpaTimeout() {
+        return GO_SPA_TIMEOUT.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

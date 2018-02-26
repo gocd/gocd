@@ -15,19 +15,11 @@
  */
 
 
-const CONSTANTS = require('helpers/constants');
-const moment    = require("moment");
-require("moment-duration-format");
+const $    = require('jquery');
+const meta = $("meta[name='gocd-params']");
 
-const formatter = {
-  format: (time) => {
-    return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
-  },
-
-  formatInServerTime: (time) => {
-    const format             = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
-    const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;
-    return moment(time).utcOffset(utcOffsetInMinutes).format(format);
-  }
+module.exports = {
+  SERVER_TIMEZONE_UTC_OFFSET: parseInt(meta.attr('data-timezone')),
+  SPA_REQUEST_TIMEOUT:        parseInt(meta.attr('data-page-timeout')),
+  SPA_REFRESH_INTERVAL:       parseInt(meta.attr('data-page-refresh-interval'))
 };
-module.exports  = formatter;

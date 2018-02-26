@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const m      = require('mithril');
-const Stream = require('mithril/stream');
-const Repeat = require('repeat');
+const _         = require('lodash');
+const m         = require('mithril');
+const Stream    = require('mithril/stream');
+const Repeat    = require('repeat');
+const CONSTANTS = require('helpers/constants.js');
 
 // Set the name of the hidden property and the change event for visibility
 let hidden, visibilityChange;
@@ -32,7 +33,11 @@ if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and 
   visibilityChange = "webkitvisibilitychange";
 }
 
-const defaultOptions = {intervalSeconds: 10, inSeconds: 0, visibilityBackoffFactor: 4};
+const defaultOptions = {
+  intervalSeconds:         CONSTANTS.SPA_REFRESH_INTERVAL / 1000,
+  inSeconds:               0,
+  visibilityBackoffFactor: 4
+};
 
 const AjaxPoller = function (args = {}) {
   let options;

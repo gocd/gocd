@@ -26,22 +26,14 @@
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const VersionUpdater           = require('models/shared/version_updater');
   const Frame                    = require('models/analytics/frame');
+  const MetricType               = require('models/analytics/metric_type');
+  const Tabs                     = require('models/analytics/tabs');
   const AnalyticsDashboardHeader = require('views/analytics/header');
+  const DashboardTabs            = require('views/analytics/tabs');
+  const GlobalMetrics            = require('views/analytics/global_metrics');
+  const PipelineMetrics          = require('views/analytics/pipeline_metrics');
   const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
   const Routes                   = require('gen/js-routes');
-
-  const models = {};
-
-  function ensureModel(uid, pluginId, type, id) {
-    let model = models[uid];
-
-    if (!model) {
-      model = models[uid] = new Frame(m.redraw);
-      model.url(Routes.showAnalyticsPath(pluginId, type, id)); // eslint-disable-line camelcase
-    }
-
-    return model;
-  }
 
   PluginEndpoint.ensure();
 
@@ -72,17 +64,13 @@
 
     m.mount(main, {
       view() {
-        const frames = [];
-        frames.push(m(AnalyticsDashboardHeader));
-        $.each($(main).data("supported-dashboard-metrics"), (pluginId, supportedAnalytics) => {
-          $.each(supportedAnalytics, (idx, sa) => {
-            const uid = `f-${pluginId}:${sa.id}:${idx}`,
-              model = ensureModel(uid, pluginId, sa.type, sa.id);
-
-            frames.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
-          });
-        });
-        return frames;
+        const pageItems = [];
+        const tabs = new Tabs(m.redraw);
+        pageItems.push(m(AnalyticsDashboardHeader));
+        tabs.push(new MetricType("Global", GlobalMetrics, $(main).data("supported-dashboard-metrics")));
+        tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: ["smoke", "Staging", "Production", "BuildApp1", "BuildApp2"], plugins: $(main).data("supported-dashboard-metrics")}));
+        pageItems.push(m(DashboardTabs, {tabs: tabs}));
+        return pageItems;
       }
     });
 

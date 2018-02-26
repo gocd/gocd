@@ -19,8 +19,9 @@
 
   const m = require("mithril");
 
-  const PluginiFrameWidget = {
-    oncreate(vnode) {
+  const PluginiFrameWidget = function() {
+    let currentUrl = null;
+    function oncreate(vnode) {
       const iframe = vnode.dom.firstChild;
 
       iframe.onload = () => {
@@ -31,10 +32,31 @@
         });
       };
 
-      vnode.attrs.model.load();
-    },
+      currentUrl = vnode.attrs.model.url();
 
-    view(vnode) {
+      vnode.attrs.model.load();
+    }
+
+    function onupdate(vnode) {
+      const iframe = vnode.dom.firstChild;
+      if (vnode.attrs && vnode.attrs.model) {
+        if (currentUrl !== vnode.attrs.model.url()) {
+          iframe.onload = () => {
+            vnode.attrs.init(iframe.contentWindow, {
+              uid: vnode.attrs.uid,
+              pluginId: vnode.attrs.pluginId,
+              data: vnode.attrs.model.data()
+            });
+          };
+
+          currentUrl = vnode.attrs.model.url();
+
+          vnode.attrs.model.load();
+        }
+      }
+    }
+
+    function view(vnode) {
       const model = vnode.attrs.model,
         attrs = { src: model.view(), scrolling: "no" },
         errorAttrs = model.errors() ? { "data-error-text": model.errors() } : {};
@@ -43,6 +65,8 @@
         <iframe sandbox="allow-scripts" {...attrs}></iframe>
       </div>;
     }
+
+    return {oncreate, view, onupdate};
   };
 
   module.exports = PluginiFrameWidget;

@@ -24,37 +24,78 @@
 @import "font-awesome";
 
 .analytics-container {
-  height:          80vh;
+  height:          79vh;
   display:         flex;
   flex-wrap:       wrap;
   justify-content: center;
-  overflow:        scroll;
-  margin-top:      40px;
+  overflow-y:      scroll;
+  overflow-x:      hidden;
+  margin-top:      50px;
 
   h1 {
     font-weight: 600;
   }
 
-  .frame-container {
-    flex-grow:  1;
-    flex-basis: auto;
-    min-width:  500px;
-    min-height: 44vh;
-    max-width:  calc(60vh * 5 / 3);
+  .dashboard-content {
+    display: flex;
+    //flex-wrap: wrap;
+    flex-grow: 0.5;
+    height: 100%;
+    flex-direction: column;
 
-    iframe {
-      height: 100%;
-      width:  100%;
-      border: 0;
+    .dashboard-tabs-container {
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+
+      ul.dashboard-tabs {
+        margin: 0;
+
+        li {
+          cursor: pointer;
+          float: left;
+          list-style: none;
+          padding: 7px 15px;
+          line-height: 19px;
+          font-size: 15px;
+          border-radius: 3px 3px 0 0;
+          font-weight: 600;
+          color: #333;
+        }
+
+        li.current {
+          border-bottom: 4px solid #94399e;
+          font-weight: 700;
+        }
+      }
     }
 
-    &[data-error-text] {
-      border: 1px solid #f00;
+    .dashboard-charts {
+      overflow: visible;
+      height: 80%;
+      border:     0;
 
-      &::before {
-        display: block;
-        content: attr(data-error-text);
-        color: #f00;
+      &.Global {
+        display: flex;
+      }
+
+      .frame-container {
+        width: 100%;
+        height: 100%;
+        iframe {
+          height: 100%;
+          width:  100%;
+          border: 0;
+        }
+
+        &[data-error-text] {
+          border: 1px solid #f00;
+
+          &::before {
+            display: block;
+            content: attr(data-error-text);
+            color: #f00;
+          }
+        }
       }
     }
   }

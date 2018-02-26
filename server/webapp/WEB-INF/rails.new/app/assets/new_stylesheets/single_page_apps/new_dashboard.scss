@@ -30,7 +30,6 @@ $dark-gray: #333;
 $passed: #1ec659;
 $failed: #fc131b;
 $building: #fed34e;
-$pipeline_header_bg: #e0e0e0;
 $pipeline_icons_size: 16px;
 
 $border: #ccc;
@@ -41,7 +40,7 @@ $pipeline-list-height: 265px;
 
 //vertical and horizontal tabs
 
-$border-color: #ccc;
+$border-color: $border;
 $border-color-active: #94399e;
 $tab-hover-bg: #f5f5f5;
 $tab-head-color: $dark-gray;
@@ -163,7 +162,7 @@ $active-tab: #94399e;
 }
 
 .name-value_pair {
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted $border-color;
   display:       flex;
   padding:       4px 0;
 
@@ -303,7 +302,7 @@ $btn-default: #d6d5d5;
   box-shadow:      0 0 0 #000;
   height:          50px;
   box-sizing:      border-box;
-  border-bottom:   1px solid #ccc;
+  border-bottom:   1px solid $border-color;
 }
 
 .page_title {
@@ -337,11 +336,11 @@ $btn-default: #d6d5d5;
     line-height:   30px;
     padding:       0 10px 0 30px;
     margin:        0;
-    border:        1px solid #ccc;
+    border:        1px solid $border-color;
     border-radius: 0;
     &::placeholder {
       font-size: 13px;
-      color:     #ccc;
+      color:     $border-color;
     }
   }
 }
@@ -354,7 +353,7 @@ $btn-default: #d6d5d5;
   height:        32px;
   line-height:   32px;
   border:        0;
-  background:    #ccc;
+  background:    $border-color;
   cursor:        pointer;
   border-radius: 0;
   &:before {
@@ -369,7 +368,7 @@ $btn-default: #d6d5d5;
   position:   absolute;
   right:      30px;
   top:        84px;
-  border:     1px solid $border;
+  border:     1px solid $border-color;
   background: #fff;
   width:      $filter-width;
   z-index:    1;
@@ -377,7 +376,7 @@ $btn-default: #d6d5d5;
 
 .personalize-spinner-container {
   position:   absolute;
-  border:     1px solid $border;
+  border:     1px solid $border-color;
   right:      30px;
   top:        84px;
   width:      $filter-width;
@@ -422,7 +421,7 @@ $btn-default: #d6d5d5;
 }
 
 .filter_group {
-  border-bottom: 1px dotted $border;
+  border-bottom: 1px dotted $border-color;
   label {
     margin:        0 0 0 10px;
     width:         280px;
@@ -588,7 +587,7 @@ body {
 .pipeline-group_title {
   padding:       0;
   position:      relative;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid $border-color;
   font-size:     22px;
   font-weight:   600;
   line-height:   25px;
@@ -632,16 +631,17 @@ body {
 
 .pipeline_header {
   @include clearfix;
-  padding:       10px 15px;
+  padding:       0 0 10px 10px;
+  margin:        10px 15px 0 15px;
   border-radius: 5px 5px 0 0;
-  background:    $pipeline_header_bg;
+  border-bottom: 1px solid $border-color;
 }
 
 .pipeline_name {
-  font-size:     15px;
+  font-size:     14px;
   font-weight:   600;
   width:         190px;
-  margin:        0;
+  margin:        0 0 5px 0;
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
@@ -657,7 +657,7 @@ body {
 .pipeline_actions {
   position: absolute;
   right:    10px;
-  top:      9px;
+  top:      -2px;
 }
 
 .pipeline_locked {
@@ -693,6 +693,8 @@ body {
 }
 
 .pipeline_pause-message {
+  margin:      5px 0 0 0;
+  float:       left;
   font-size:   12px;
   clear:       both;
   line-height: 14px;
@@ -700,7 +702,7 @@ body {
 
 .pipeline_instance {
   padding:    10px 0 0;
-  border-top: 1px dotted #ccc;
+  border-top: 1px dotted $border-color;
   margin:     0 15px;
   &:first-child {
     border: 0;
@@ -713,7 +715,7 @@ body {
 }
 
 .pipeline_instance-label {
-  font-size:   15px;
+  font-size:   14px;
   font-weight: 500;
   line-height: normal;
 }
@@ -740,12 +742,12 @@ body {
   }
   .info {
     list-style-type: none;
-    margin:          0;
+    margin:          5px 0;
     padding:         0;
     line-height:     normal;
     li {
       display:     inline-block;
-      border-left: 1px solid #ccc;
+      border-left: 1px solid $border-color;
       &:first-child {
         border: 0;
         a {
@@ -782,7 +784,7 @@ body {
     }
   }
   .rev-head {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $border-color;
     padding:       0 0 5px;
     word-break:    break-all;
   }
@@ -817,7 +819,8 @@ body {
 }
 
 .pipeline_instance-details {
-  font-size: 12px;
+  font-size:   12px;
+  line-height: 16px;
 }
 
 .pipeline_stages {
@@ -825,7 +828,7 @@ body {
   flex-wrap:       wrap;
   justify-content: flex-start;
   list-style-type: none;
-  margin:          5px 0 10px -4px;
+  margin:          1px 0 10px -4px;
   padding:         0;
   .pipeline_stage {
     width:       34px;
@@ -856,7 +859,7 @@ body {
       background: $building;
     }
     &.unknown {
-      border:     1px solid #ccc;
+      border:     1px solid $border-color;
       background: #e6e3e3;
     }
     &.cancelled {
@@ -868,7 +871,7 @@ body {
 }
 
 .pipeline_message {
-  border:        1px solid #ccc;
+  border:        1px solid $border-color;
   background:    #fff;
   font-size:     12px;
   padding:       1px 10px;
@@ -904,32 +907,30 @@ body {
 }
 
 .pipeline_btn {
-  border:     1px solid #ccc;
+  border:     1px solid $border-color;
   background: #fff;
-  width:      40px;
-  height:     25px;
-  transition: all 0.2s ease-in-out;
+  width:      36px;
+  height:     22px;
 
   &:focus, &:active {
     outline: 0;
   }
   &:hover {
     background-color: #4d4d4d;
-    transition:       all 0.2s ease-in-out;
   }
 }
 
 .pipeline_btn.play {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px 0 no-repeat #4d4d4d;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -1px no-repeat #4d4d4d;
   }
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -35px -30px no-repeat #fff;
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
       opacity:    0.5;
       cursor:     not-allowed;
     }
@@ -937,16 +938,16 @@ body {
 }
 
 .pipeline_btn.play_with_options {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px 0 no-repeat #4d4d4d;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -1px no-repeat #4d4d4d;
   }
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat #fff;
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
       opacity:    0.5;
       cursor:     not-allowed;
     }
@@ -954,16 +955,16 @@ body {
 }
 
 .pipeline_btn.pause {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
   }
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
       opacity:    0.5;
       cursor:     not-allowed;
     }
@@ -971,16 +972,16 @@ body {
 }
 
 .pipeline_btn.unpause {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat #fff;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
   }
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
     opacity:    0.5;
     cursor:     not-allowed;
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat #4d4d4d;
+      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
       opacity:    0.5;
       cursor:     not-allowed;
     }
@@ -1104,9 +1105,9 @@ $commits-width: 635px;
   margin:          0;
   padding:         0;
   width:           $commits-width;
-  border:          1px solid #ccc;
+  border:          1px solid $border-color;
   li {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $border-color;
     display:       block;
     cursor:        pointer;
     &:hover {
@@ -1181,7 +1182,7 @@ $commits-width: 635px;
   margin-bottom: 0;
   width:         418px;
   height:        35px;
-  border:        1px solid #ccc;
+  border:        1px solid $border-color;
   border-radius: 3px;
   padding:       3px 10px 3px 30px;
   &::placeholder {

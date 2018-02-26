@@ -46,19 +46,23 @@
   PluginEndpoint.ensure();
 
   PluginEndpoint.define({
-    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
-      const model = models[message.uid];
-      model.url(Routes.pipelineAnalyticsPath({plugin_id: message.pluginId, pipeline_name: message.data.pipelineName})); // eslint-disable-line camelcase
-      model.load();
-    },
+    "analytics.job.history": (message, trans) => {
+      const meta = message.head;
+      const model = models[meta.uid];
+      const params = $.extend({plugin_id: meta.pluginId}, message.body); // eslint-disable-line camelcase
 
-    "analytics.jobs": (message, reply) => { // eslint-disable-line no-unused-vars
-      const model = models[message.uid];
-      const params = $.extend({plugin_id: message.pluginId}, message.data); // eslint-disable-line camelcase
       params.start = JSON.stringify(params.start).replace(/"/g, "");
       params.end = JSON.stringify(params.end).replace(/"/g, "");
 
-      model.url(Routes.jobAnalyticsPath(params));
+      model.fetch(Routes.jobAnalyticsPath(params), (data, errors) => {
+        trans.respond(meta.reqId, {data, errors});
+      });
+    },
+
+    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
+      const meta = message.head;
+      const model = models[meta.uid];
+      model.url(Routes.pipelineAnalyticsPath({plugin_id: meta.pluginId, pipeline_name: message.body.pipelineName})); // eslint-disable-line camelcase
       model.load();
     }
   });

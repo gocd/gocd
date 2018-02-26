@@ -25,7 +25,7 @@
         frame.sandbox = "allow-scripts";
 
         frame.onload = function(e) {
-          PluginEndpoint.init(frame.contentWindow, {data: r.data })
+          PluginEndpoint.init(frame.contentWindow, {initialData: r.data})
         };
 
         div.appendChild(frame);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-(function() {
+ (function() {
   "use strict";
 
   const Stream = require("mithril/stream");
@@ -43,7 +43,22 @@
       });
     }
 
-    return {url, view, data, load, errors};
+    function fetch(url, handler) {
+      errors(null);
+
+      $.ajax({
+        url,
+        type: "GET",
+        dataType: "json"
+      }).done((r) => {
+        handler(r.data, null);
+      }).fail((xhr) => {
+        errors(xhr.responseText);
+        handler(null, errors());
+      });
+    }
+
+    (Object.assign || $.extend)(this, {url, view, data, load, fetch, errors});
   }
 
   module.exports = Frame;

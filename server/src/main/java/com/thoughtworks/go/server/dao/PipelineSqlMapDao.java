@@ -912,6 +912,14 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pipelineIdentifiers;
     }
 
+    @Override
+    public PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames) {
+        Map<String, Object> args = arguments("pipelineNames", SqlUtil.joinWithQuotesForSql(pipelineNames.toArray())).asMap();
+
+        List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelinesForDashboard", args);
+        return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
+    }
+
     private String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String dependencyPipelineName, Integer dependencyPipelineCounter) {
         return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + dependencyPipelineName.toLowerCase() + "_" + dependencyPipelineCounter).intern();
     }

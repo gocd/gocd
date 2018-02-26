@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,22 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import com.thoughtworks.go.presentation.pipelinehistory.*;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.SchedulingCheckerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
@@ -47,6 +49,7 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 /* Understands the current state of a pipeline, which is to be shown on the dashboard. */
 @Component
 public class GoDashboardCurrentStateLoader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoDashboardCurrentStateLoader.class);
     private PipelineDao pipelineDao;
     private TriggerMonitor triggerMonitor;
     private PipelinePauseService pipelinePauseService;
@@ -72,47 +75,59 @@ public class GoDashboardCurrentStateLoader {
     }
 
     public List<GoDashboardPipeline> allPipelines(CruiseConfig config) {
-        final PipelineInstanceModels activeInstances = pipelineDao.loadActivePipelines();
+        List<String> pipelineNames = CaseInsensitiveString.toStringList(config.getAllPipelineNames());
+        PipelineInstanceModels historyForDashboard = loadHistoryForPipelines(pipelineNames);
+
+        LOGGER.debug("Loading permissions from authority");
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = permissionsAuthority.pipelinesAndTheirPermissions();
 
-        final List<GoDashboardPipeline> pipelines = new ArrayList<>();
+        final List<GoDashboardPipeline> pipelines = new ArrayList<>(1024);
 
+        LOGGER.debug("Populating dashboard pipelines");
         config.accept(new PipelineGroupVisitor() {
             @Override
             public void visit(final PipelineConfigs group) {
                 group.accept(new PiplineConfigVisitor() {
                     @Override
                     public void visit(PipelineConfig pipelineConfig) {
+                        long start = System.currentTimeMillis();
                         Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
-                        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activeInstances);
-                        Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
-                        if (trackingTool.isPresent()) {
-                            pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), trackingTool.get(), timeStampBasedCounter));
-                        } else {
-                            pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), timeStampBasedCounter));
-                        }
+
+                        pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
+
+                        LOGGER.debug("It took {}ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
                     }
                 });
             }
         });
-
+        LOGGER.debug("Done populating dashboard pipelines");
         return pipelines;
     }
 
-    public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig) {
-        PipelineInstanceModels activePipelineInstances = pipelineDao.loadActivePipelineInstancesFor(str(pipelineConfig.name()));
-
-        Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
-        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activePipelineInstances);
-        Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
-        if (trackingTool.isPresent()) {
-            return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), trackingTool.get(), timeStampBasedCounter);
-        } else {
-            return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), timeStampBasedCounter);
+    private PipelineInstanceModels loadHistoryForPipelines(List<String> pipelineNames) {
+        LOGGER.debug("Loading history for dashboard with {} pipelines", pipelineNames.size());
+        try {
+            return pipelineDao.loadHistoryForDashboard(pipelineNames);
+        } finally {
+            LOGGER.debug("Done loading history for dashboard");
         }
     }
 
-    private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
+    public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig) {
+        List<String> pipelineNames = CaseInsensitiveString.toStringList(Collections.singletonList(pipelineConfig.getName()));
+        PipelineInstanceModels historyForDashboard = loadHistoryForPipelines(pipelineNames);
+
+        Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
+        return createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, groupConfig);
+    }
+
+    private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group) {
+        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, historyForDashboard);
+        Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
+        return new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), trackingTool.orElse(null), timeStampBasedCounter);
+    }
+
+    private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels historyForDashboard) {
         String pipelineName = str(pipelineConfig.name());
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
@@ -121,12 +136,12 @@ public class GoDashboardCurrentStateLoader {
         PipelineModel pipelineModel = new PipelineModel(pipelineName, canBeForced, true, pauseInfo);
         pipelineModel.updateAdministrability(pipelineConfig.isLocal());
 
-        pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, activeInstances));
+        pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, historyForDashboard));
         return pipelineModel;
     }
 
-    private PipelineInstanceModels instancesFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
-        PipelineInstanceModels pims = findPIMsWithFallbacks(pipelineConfig, activeInstances);
+    private PipelineInstanceModels instancesFor(PipelineConfig pipelineConfig, PipelineInstanceModels historyForDashboard) {
+        PipelineInstanceModels pims = findPIMsWithFallbacks(pipelineConfig, historyForDashboard);
 
         boolean isCurrentlyLocked = pipelineLockService.isLocked(str(pipelineConfig.name()));
         boolean isUnlockable = pipelineUnlockApiService.isUnlockable(str(pipelineConfig.name()));
@@ -139,21 +154,16 @@ public class GoDashboardCurrentStateLoader {
         return pims;
     }
 
-    private PipelineInstanceModels findPIMsWithFallbacks(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
+    private PipelineInstanceModels findPIMsWithFallbacks(PipelineConfig pipelineConfig, PipelineInstanceModels historyForDashboard) {
         String pipelineName = str(pipelineConfig.name());
 
-        PipelineInstanceModels activeInstancesForPipeline = activeInstances.findAll(pipelineName);
-        if (!activeInstancesForPipeline.isEmpty()) {
-            return activeInstancesForPipeline;
+        PipelineInstanceModels pipelinesToShow = historyForDashboard.findAll(pipelineName);
+        if (!pipelinesToShow.isEmpty()) {
+            return pipelinesToShow;
         }
 
         if (triggerMonitor.isAlreadyTriggered(pipelineName)) {
             return createPipelineInstanceModels(createPreparingToSchedule(pipelineName, new StageInstanceModels()));
-        }
-
-        PipelineInstanceModels modelsFromHistory = pipelineDao.loadHistory(pipelineName, 1, 0);
-        if (!modelsFromHistory.isEmpty()) {
-            return modelsFromHistory;
         }
 
         return createPipelineInstanceModels(createEmptyPipelineInstanceModel(pipelineName, createWithEmptyModifications(), new StageInstanceModels()));

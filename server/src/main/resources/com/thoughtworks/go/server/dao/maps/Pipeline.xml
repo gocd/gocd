@@ -271,6 +271,27 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
+    <select id="getPipelinesForDashboard" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.id IN (
+          (
+              SELECT stages.pipelineId
+              FROM stages
+              WHERE stages.state = 'Building' AND latestRun = true
+          )
+        UNION
+          (
+              SELECT max(pipelines.id)
+              FROM pipelines
+              WHERE pipelines.name IN ($pipelineNames$)
+              GROUP BY pipelines.name
+          )
+        )
+        AND pipelines.name IN ($pipelineNames$)
+        ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+    <!-- TODO: ketan pkr unused query?-->
     <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         WHERE pipelines.id IN ($pipelineIds$)
@@ -305,7 +326,7 @@
      <select id="findExactMatchingPipelineInstances" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         INNER JOIN
-            (SELECT * FROM 
+            (SELECT * FROM
                 (SELECT id
                     FROM pipelines
                     WHERE pipelines.name = #pipelineName# AND LOWER(pipelines.label) = #rawPattern#
@@ -355,7 +376,7 @@
         WHERE pipelines.name = #pipelineName#
           AND pipelines.counter = #pipelineCounter#
     </sql>
-    
+
     <select id="getPipelineHistoryByNameAndCounter" resultMap="select-pipeline-history">
         <include refid="getPipelineHistoryByNameAndCounterSQL"/>
         ORDER BY stages.orderId ASC

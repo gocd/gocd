@@ -584,13 +584,11 @@ describe("Dashboard Pipeline Widget", () => {
           status:          200
         });
 
-        expect(doCancelPolling).not.toHaveBeenCalled();
-        expect(doRefreshImmediately).not.toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         simulateEvent.simulate($root.find('.play').get(0), 'click');
 
-        expect(doCancelPolling).toHaveBeenCalled();
-        expect(doRefreshImmediately).toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(true);
 
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
@@ -606,13 +604,11 @@ describe("Dashboard Pipeline Widget", () => {
           status:          409
         });
 
-        expect(doCancelPolling).not.toHaveBeenCalled();
-        expect(doRefreshImmediately).not.toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         simulateEvent.simulate($root.find('.play').get(0), 'click');
 
-        expect(doCancelPolling).toHaveBeenCalled();
-        expect(doRefreshImmediately).toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("error");
@@ -751,16 +747,14 @@ describe("Dashboard Pipeline Widget", () => {
           status:          200
         });
 
-        expect(doCancelPolling).not.toHaveBeenCalled();
-        expect(doRefreshImmediately).not.toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         simulateEvent.simulate($root.find('.play_with_options').get(0), 'click');
         m.redraw();
 
         $('.modal-buttons .button.save.primary').click();
 
-        expect(doCancelPolling).toHaveBeenCalled();
-        expect(doRefreshImmediately).toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(true);
 
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
@@ -777,16 +771,14 @@ describe("Dashboard Pipeline Widget", () => {
           status:          409
         });
 
-        expect(doCancelPolling).not.toHaveBeenCalled();
-        expect(doRefreshImmediately).not.toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         simulateEvent.simulate($root.find('.play_with_options').get(0), 'click');
         m.redraw();
 
         $('.modal-buttons .button.save.primary').click();
 
-        expect(doCancelPolling).toHaveBeenCalled();
-        expect(doRefreshImmediately).toHaveBeenCalled();
+        expect(pipeline.triggerDisabled()).toBe(false);
 
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("error");

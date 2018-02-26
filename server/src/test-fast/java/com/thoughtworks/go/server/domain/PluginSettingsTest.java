@@ -60,6 +60,7 @@ public class PluginSettingsTest {
         configuration.put("k1", "v1");
         configuration.put("k2", "");
         configuration.put("k3", null);
+        configuration.put("k4", "v4");
         Plugin plugin = new Plugin(PLUGIN_ID, toJSON(configuration));
         when(pluginInfo.getPluginSettings()).thenReturn(new PluggableInstanceSettings(Arrays.asList(
                 new PluginConfiguration("k1", new Metadata(false, false)),
@@ -70,10 +71,11 @@ public class PluginSettingsTest {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.populateSettingsMap(plugin, pluginInfo);
 
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
+        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(4));
         assertThat(pluginSettings.getValueFor("k1"), is("v1"));
         assertThat(pluginSettings.getValueFor("k2"), is(""));
         assertThat(pluginSettings.getValueFor("k3"), is(nullValue()));
+        assertThat(pluginSettings.getValueFor("k4"), is("v4"));
     }
 
     @Test
@@ -213,18 +215,22 @@ public class PluginSettingsTest {
         List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("v2")));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("v3")));
 
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.addConfigurations(pluginInfo, configurationProperties);
 
         final List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPluginSettingsProperties();
 
-        assertThat(pluginSettingsProperties.size(), is(2));
+        assertThat(pluginSettingsProperties.size(), is(3));
         assertThat(pluginSettingsProperties.get(0).getValue(), is("v1"));
         assertNull(pluginSettingsProperties.get(0).getEncryptedValue());
 
         assertThat(pluginSettingsProperties.get(1).getValue(), is("v2"));
         assertThat(pluginSettingsProperties.get(1).getEncryptedValue(), is(new GoCipher().encrypt("v2")));
+
+        assertThat(pluginSettingsProperties.get(2).getConfigKeyName(), is("k3"));
+        assertThat(pluginSettingsProperties.get(2).getValue(), is("v3"));
     }
 
     private String toJSON(Map<String, String> map) {

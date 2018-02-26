@@ -80,6 +80,8 @@ public class PluginSettings {
                 final PluginConfiguration configuration = configPropertyFor(property.getConfigKeyName(), pluginInfo);
                 if (configuration != null) {
                     settingsMap.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(), configuration.isSecure()));
+                } else {
+                    settingsMap.add(property);
                 }
             }
         }
@@ -107,6 +109,8 @@ public class PluginSettings {
             final PluginConfiguration configuration = pluginInfo.getPluginSettings().getConfiguration(settingsKey);
             if (configuration != null) {
                 settingsMap.add(builder.create(settingsKey, plugin.getConfigurationValue(settingsKey), null, configuration.isSecure()));
+            } else {
+                settingsMap.add(builder.create(settingsKey, plugin.getConfigurationValue(settingsKey), null, false));
             }
         }
     }

@@ -47,7 +47,7 @@ const MaterialInfoWidget = {
     return (
       <div class={`v-tab_content material-for-trigger`}>
 
-        <dl class="name-value">
+        <ul class="name-value">
           <li class="name-value_pair meta">
             <label>{material.type}</label>
             <span class="value">{material.name}</span>
@@ -95,7 +95,7 @@ const MaterialInfoWidget = {
             </span>
 
           </li>
-        </dl>
+        </ul>
       </div>
     );
   }

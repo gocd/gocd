@@ -21,8 +21,8 @@ const Plain = {
   view(vnode) {
     return (
       <div class="environment-variables-tab-content">
-        <p>Override environment and pipeline level variables</p>
-        <ul class="environment-variables plain">
+        <p class="small-txt">Override environment and pipeline level variables</p>
+        <dl class="environment-variables plain key-value-pair">
           {
             _.map(vnode.attrs.variables, (variable) => {
               const hasChanged = variable.isDirtyValue();
@@ -30,23 +30,26 @@ const Plain = {
               if (hasChanged) {
                 mayBeOverridenText = (
                   <div class="overridden-message">
-                    Overriden. Default: <code>{variable.getOriginalValue()}</code>
+                    <label>The value is overridden. Default value :</label>
+                    <p>{variable.getOriginalValue()}</p>
                   </div>);
               }
 
               return (
-                <li>
-                  <label class="name">{variable.name()}</label>
-                  <input class="small"
-                         type="text"
-                         value={variable.value()}
-                         oninput={m.withAttr('value', variable.value)}/>
-                  {mayBeOverridenText}
-                </li>
+                <span>
+                    <dt class="name">{variable.name()}</dt>
+                    <dd class="value">
+                      <input class="small"
+                             type="text"
+                             value={variable.value()}
+                             oninput={m.withAttr('value', variable.value)}/>
+                      {mayBeOverridenText}
+                    </dd>
+                  </span>
               );
             })
           }
-        </ul>
+        </dl>
       </div>
     );
   }
@@ -71,8 +74,8 @@ const Secure = {
 
     return (
       <div class="environment-variables-tab-content">
-        <p>Override secure environment and pipeline level variables</p>
-        <ul class="environment-variables secure">
+        <p class="small-txt">Override secure environment and pipeline level variables</p>
+        <dl class="environment-variables secure key-value-pair">
           {
             _.map(variables, (variable) => {
               const isEditing = variable.isEditingValue();
@@ -86,19 +89,21 @@ const Secure = {
               }
 
               return (
-                <li>
-                  <label class="name">{variable.name()}</label>
-                  <input class="small"
-                         type="password"
-                         value={variable.isEditingValue() ? variable.value() : '*****'}
-                         oninput={m.withAttr('value', variable.value)}
-                         disabled={!variable.isEditingValue()}/>
-                  {overrideOrResetBtn}
-                </li>
+                <span>
+                  <dt class="name">{variable.name()}</dt>
+                  <dd class="value">
+                    <input class="small"
+                           type="password"
+                           value={variable.isEditingValue() ? variable.value() : '*****'}
+                           oninput={m.withAttr('value', variable.value)}
+                           disabled={!variable.isEditingValue()}/>
+                    {overrideOrResetBtn}
+                  </dd>
+                </span>
               );
             })
           }
-        </ul>
+        </dl>
       </div>
     );
   }

@@ -78,7 +78,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
-      expect($root.find('.overridden-message')).toContainText(`Overriden. Default: ${json[0].value}`);
+      expect($root.find('.overridden-message')).toContainText(`The value is overridden. Default value :${json[0].value}`);
     });
   });
 

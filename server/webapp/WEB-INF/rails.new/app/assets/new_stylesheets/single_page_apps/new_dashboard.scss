@@ -110,8 +110,8 @@ $active-tab: #94399e;
   height:     32px;
   width:      250px;
   li {
-    margin:        0 0 10px 0;
-    padding-right: 20px;
+    margin:        0;
+    padding:       5px 10px;
     cursor:        pointer;
     color:         $tab-head-color;
     border-bottom: 0;
@@ -157,7 +157,7 @@ $active-tab: #94399e;
 }
 
 @mixin label() {
-  padding:     5px 10px 3px 0;
+  padding:     0 10px 0 0;
   min-width:   150px;
   font-weight: 600;
 }
@@ -169,9 +169,10 @@ $active-tab: #94399e;
 
   label {
     @include label;
+    font-size: 13px;
   }
   .value {
-    padding: 5px 10px 3px 0;
+    font-size: 13px;
   }
 }
 
@@ -224,6 +225,15 @@ $btn-default: #d6d5d5;
   color:      $dark-gray;
   font-size:  16px;
 
+}
+
+.small-txt {
+  font-size: 12px;
+}
+
+// scss-lint:disable IdSelector
+#new_dashboard-page .reveal {
+  overflow-y: visible;
 }
 
 // ---------------------  common styles end ------------------------
@@ -983,9 +993,8 @@ body {
   padding: 30px;
 
   .last-run-revision .value {
-    @include ellipsis($width: 100%);
+    @include ellipsis();
     display: block;
-    width:   100%;
   }
 
   .material-name, .latest-revision {
@@ -995,13 +1004,22 @@ body {
   }
 
   .name-value_pair label {
-    width: 150px;
+    width: 180px;
   }
 }
 
 //material latest run
 .material-for-trigger {
   padding: 0 30px;
+
+  .name-value {
+    list-style-type: none;
+    width:           790px;
+  }
+
+  .value {
+    width: 620px;
+  }
 }
 
 .comment {
@@ -1014,25 +1032,44 @@ body {
 }
 
 .environment-variables-tab-content {
-  .environment-variables {
-    list-style-type: none;
-    margin:          30px 0 0 0;
-    li {
-      display: flex;
-    }
+  padding: 0 20px;
 
-    label {
-      @include label;
+  .environment-variables {
+    margin: 30px 0 0 0;
+
+    dt {
+      width:         200px;
+      word-break:    break-all;
+      padding-right: 10px;
     }
 
     input {
-      display: inline-block;
-      width:   300px;
+      display:       inline-block;
+      width:         300px;
+      margin-bottom: 5px;
     }
 
-    .override, .reset, .overridden-message {
+    .override, .reset {
       padding-left: 10px;
       padding-top:  5px;
+    }
+
+    .overridden-message {
+      padding:       5px 10px;
+      margin-bottom: 10px;
+      max-width:     800px;
+      background:    #f5f5f5;
+
+      label {
+        font-size: 12px;
+        display:   inline-block;
+      }
+      p {
+        font-size:     12px;
+        font-weight:   600;
+        margin-bottom: 0;
+        display:       inline-block;
+      }
     }
   }
 
@@ -1050,11 +1087,15 @@ body {
   position: relative;
 }
 
+$commits-width: 635px;
+
 .commits {
-  top:        42px;
-  left:       0;
-  position:   absolute;
+  top:        552px;
+  left:       588px;
+  position:   fixed;
+  width:      $commits-width;
   right:      10px;
+  z-index:    100;
   background: #fff;
 }
 
@@ -1062,7 +1103,7 @@ body {
   list-style-type: none;
   margin:          0;
   padding:         0;
-  width:           550px;
+  width:           $commits-width;
   border:          1px solid #ccc;
   li {
     border-bottom: 1px solid #ccc;
@@ -1081,12 +1122,12 @@ body {
     font-size:  12px;
     background: #f5f5f5;
     span {
-      padding:     0 5px;
+      padding:     0 3px;
       white-space: nowrap;
       &:before {
         content:      "";
         border-left:  1px dotted $dark-gray;
-        margin-right: 5px;
+        margin-right: 10px;
       }
       &:first-child {
         padding-left: 0;
@@ -1097,7 +1138,7 @@ body {
       }
     }
     .rev {
-      @include ellipsis($width: 100px);
+      @include ellipsis($width: 130px);
       min-width: 100px;
     }
 
@@ -1115,7 +1156,7 @@ body {
     @include ellipsis;
     font-family: $font-family-monospace;
     font-size:   12px;
-    max-height:  60px;
+    max-height:  30px;
     padding:     5px 10px;
     white-space: pre-wrap;
   }
@@ -1137,6 +1178,7 @@ body {
 
 .material-revision-search {
   display:       inline-block;
+  margin-bottom: 0;
   width:         418px;
   height:        35px;
   border:        1px solid #ccc;

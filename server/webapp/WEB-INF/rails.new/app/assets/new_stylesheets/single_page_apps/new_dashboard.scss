@@ -620,6 +620,7 @@ body {
 .pipeline-group_pipeline {
   width:         267px;
   padding:       0 0 5px 0;
+  border:        1px solid #ddd;
   background:    #fff;
   border-radius: 5px;
   margin:        5px;
@@ -631,8 +632,8 @@ body {
 
 .pipeline_header {
   @include clearfix;
-  padding:       0 0 10px 10px;
-  margin:        10px 15px 0 15px;
+  padding:       0 15px 10px 15px;
+  margin:        10px 0 0 0;
   border-radius: 5px 5px 0 0;
   border-bottom: 1px solid $border-color;
 }
@@ -640,7 +641,7 @@ body {
 .pipeline_name {
   font-size:     14px;
   font-weight:   600;
-  width:         190px;
+  width:         215px;
   margin:        0 0 5px 0;
   white-space:   nowrap;
   overflow:      hidden;
@@ -899,7 +900,7 @@ body {
   float:           left;
   li {
     display:     inline-block;
-    margin-left: 2px;
+    margin-left: 5px;
     &:first-child {
       margin-left: 0;
     }

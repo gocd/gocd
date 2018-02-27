@@ -59,7 +59,7 @@ describe("Dashboard Widget", () => {
     expect($root.find('.filter_btn')).toBeInDOM();
   });
 
-  it('should render a message', function () {
+  it('should render a message', () => {
     expect($root.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message('some message');
     m.redraw();

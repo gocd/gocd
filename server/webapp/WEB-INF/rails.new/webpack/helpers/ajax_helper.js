@@ -34,9 +34,9 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
 
     const didFulfill = (data, _textStatus, _jqXHR) => {
       if (type) {
-        deferred.resolve(type.fromJSON(data))
+        deferred.resolve(type.fromJSON(data));
       } else {
-        deferred.resolve(data, _textStatus, _jqXHR)
+        deferred.resolve(data, _textStatus, _jqXHR);
       }
     };
 

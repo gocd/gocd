@@ -45,11 +45,11 @@ $(() => {
 
   function createRepeater() {
     return new AjaxPoller(() => Dashboard.get()
-      .then(function (data, _textStatus, jqXHR) {
+      .then((data, _textStatus, jqXHR) => {
         if (jqXHR.status === 202) {
           dashboard.message("Dashboard is being processed, this may take a few seconds. Please check back later.");
           onResponse({});
-          return
+          return;
         }
         onResponse(data);
         dashboard.message(undefined);
@@ -83,5 +83,5 @@ $(() => {
   };
 
   repeater().start();
-  renderView()
+  renderView();
 });

@@ -39,8 +39,8 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   };
 
   beforeEach(() => {
+    searchVM.materialSearchResults.and.returnValue(searchResults);
     info = TriggerWithOptionsInfo.fromJSON(json);
-
   });
 
   afterEach(() => {
@@ -153,4 +153,38 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
       }
     ]
   };
+
+  const searchResults = [
+    {
+      "revision": "2a4b782a3a7d2eb13868da75149e716b15f52e5d",
+      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "date":     "2018-02-12T11:02:48Z",
+      "comment":  "implemented feature boo"
+    },
+    {
+      "revision": "7f7653464e14682c7c9ce6a8bf85989a9a52eb35",
+      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "date":     "2018-02-12T11:01:53Z",
+      "comment":  "implemented feature boo"
+    },
+    {
+      "revision": "24d682d8b8a99e8862acac8cae092caeca3a51f3",
+      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "date":     "2018-02-12T11:01:36Z",
+      "comment":  "implemented feature baz"
+    },
+    {
+      "revision": "e5b730abdf7954e7ff45a4c15b2333c550559b35",
+      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "date":     "2018-02-12T11:01:12Z",
+      "comment":  "implemented feature bar"
+    },
+    {
+      "revision": "c30118c0a6e7e6042a50e2db1e191db081e915f0",
+      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "date":     "2018-02-12T11:01:02Z",
+      "comment":  "implemented feature foo"
+    }
+  ];
+
 });

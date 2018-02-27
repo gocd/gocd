@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const _ = require('lodash');
+const m          = require('mithril');
+const _          = require('lodash');
+const inflection = require('lodash-inflection');
 
 const TimeFormatter = require('helpers/time_formatter');
 
@@ -25,7 +26,7 @@ const MaterialSearchResultsWidget = {
 
     const searchInProgress = searchVM.searchInProgress();
     const searchText       = searchVM.searchText();
-    const results          = searchVM.materialSearchResults();
+    const results          = searchVM.materialSearchResults() || [];
 
     let resultMessage;
 
@@ -34,14 +35,14 @@ const MaterialSearchResultsWidget = {
     }
 
     if (_.isEmpty(results)) {
-      resultMessage = `No revisions found matching '${searchText}'`;
-    } else {
-      resultMessage = `Last ${results.length} commits listed in chronological order`;
+      resultMessage = <span class="helper">No revisions found matching '{searchText}'</span>;
+    } else if (_.isEmpty(searchText)) {
+      resultMessage = <span class="helper">Last {inflection.pluralize('commit', results.length, true)} listed in chronological order</span>;
     }
 
     return (
       <div class="commits">
-        <span class="helper">{resultMessage}</span>
+        {resultMessage}
         <ul class="commit_info">
           {
             _.map(results, (result) => {

@@ -44,17 +44,20 @@ describe("Dashboard Material Search Results Widget", () => {
 
   afterEach(unmount);
 
-  it("should render results matching count message", () => {
+  it("should render results matching count message when search text is absent", () => {
+    searchVM.searchText.and.returnValue('');
     searchVM.materialSearchResults.and.returnValue(json);
     m.redraw();
-    const expectedMessage = 'Last 5 commits listed in chronological order';
+    const expectedMessage = 'Last 4 commits listed in chronological order';
     expect($root.find('.commits .helper')).toContainText(expectedMessage);
   });
 
-  it("should render all matched material search revisions", () => {
+  it("should render all matched material search revisions and no message", () => {
+    searchVM.searchText.and.returnValue('some search text');
     searchVM.materialSearchResults.and.returnValue(json);
     m.redraw();
-    expect($root.find('.commit_info li')).toHaveLength(5);
+    expect($root.find('.commit_info li')).toHaveLength(4);
+    expect($root.find('.commits .helper')).toContainText('');
   });
 
   it("should render commit information", () => {
@@ -115,12 +118,6 @@ describe("Dashboard Material Search Results Widget", () => {
       "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
       "date":     "2018-02-12T11:01:12Z",
       "comment":  "implemented feature bar"
-    },
-    {
-      "revision": "c30118c0a6e7e6042a50e2db1e191db081e915f0",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
-      "date":     "2018-02-12T11:01:02Z",
-      "comment":  "implemented feature foo"
     }
   ];
 

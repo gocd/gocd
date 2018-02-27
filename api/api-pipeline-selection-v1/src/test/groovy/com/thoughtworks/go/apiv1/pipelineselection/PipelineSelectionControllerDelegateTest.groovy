@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.when
 class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, ControllerTrait<PipelineSelectionControllerDelegate> {
   PipelineSelectionsService pipelineSelectionsService = mock(PipelineSelectionsService.class)
   PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
+  SystemEnvironment systemEnvironment = mock(SystemEnvironment.class)
 
   @Nested
   class Show {
@@ -146,6 +148,31 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         long recordId = SecureRandom.longNumber()
         when(pipelineSelectionsService.persistSelectedPipelines(String.valueOf(recordId), currentUserLoginId(), payload.selections, payload.blacklist)).thenReturn(recordId)
+        when(systemEnvironment.isSessionCookieSecure()).thenReturn(false)
+
+        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
+        putWithApiHeader(controller.controllerBasePath(), payload)
+
+        assertThatResponse()
+          .hasNoContent()
+          .hasContentType(controller.mimeType)
+          .hasCookie("/go", "selected_pipelines", String.valueOf(recordId), 31536000, false, true)
+          .hasNoBody()
+      }
+
+      @Test
+      void 'sets the secure flag of the cookie as per session cookie config'() {
+        disableSecurity()
+        loginAsAnonymous()
+
+        def payload = [
+          selections: ['build-linux', 'build-windows'],
+          blacklist : true
+        ]
+
+        long recordId = SecureRandom.longNumber()
+        when(pipelineSelectionsService.persistSelectedPipelines(String.valueOf(recordId), currentUserLoginId(), payload.selections, payload.blacklist)).thenReturn(recordId)
+        when(systemEnvironment.isSessionCookieSecure()).thenReturn(true)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
         putWithApiHeader(controller.controllerBasePath(), payload)
@@ -161,6 +188,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
   @Override
   PipelineSelectionControllerDelegate createControllerInstance() {
-    return new PipelineSelectionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), pipelineSelectionsService, pipelineConfigService)
+    return new PipelineSelectionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService),
+      pipelineSelectionsService, pipelineConfigService, systemEnvironment)
   }
 }

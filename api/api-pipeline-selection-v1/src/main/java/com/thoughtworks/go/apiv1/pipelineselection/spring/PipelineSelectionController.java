@@ -21,6 +21,7 @@ import com.thoughtworks.go.apiv1.pipelineselection.PipelineSelectionControllerDe
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +30,12 @@ public class PipelineSelectionController implements SparkSpringController {
     private final PipelineSelectionControllerDelegate delegate;
 
     @Autowired
-    public PipelineSelectionController(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, PipelineConfigService pipelineConfigService) {
-        delegate = new PipelineSelectionControllerDelegate(apiAuthenticationHelper, pipelineSelectionsService, pipelineConfigService);
+    public PipelineSelectionController(ApiAuthenticationHelper apiAuthenticationHelper,
+                                       PipelineSelectionsService pipelineSelectionsService,
+                                       PipelineConfigService pipelineConfigService,
+                                       SystemEnvironment systemEnvironment) {
+        delegate = new PipelineSelectionControllerDelegate(apiAuthenticationHelper, pipelineSelectionsService,
+                pipelineConfigService, systemEnvironment);
     }
 
     @Override

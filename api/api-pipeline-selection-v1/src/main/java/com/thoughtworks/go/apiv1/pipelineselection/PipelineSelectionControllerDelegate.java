@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
@@ -42,12 +43,17 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;
     private final PipelineConfigService pipelineConfigService;
+    private final SystemEnvironment systemEnvironment;
 
-    public PipelineSelectionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, PipelineConfigService pipelineConfigService) {
+    public PipelineSelectionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper,
+                                               PipelineSelectionsService pipelineSelectionsService,
+                                               PipelineConfigService pipelineConfigService,
+                                               SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineSelectionsService = pipelineSelectionsService;
         this.pipelineConfigService = pipelineConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
@@ -89,7 +95,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
         Long recordId = pipelineSelectionsService.persistSelectedPipelines(fromCookie, currentUserId(request), selectionResponse.getSelectedPipelines().pipelineList(), selectionResponse.getSelectedPipelines().isBlacklist());
 
         if (!apiAuthenticationHelper.securityEnabled()) {
-            response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, true, true);
+            response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
         response.status(204);

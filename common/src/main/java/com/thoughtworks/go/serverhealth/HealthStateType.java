@@ -18,6 +18,7 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CruiseConfig;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class HealthStateType implements Comparable<HealthStateType> {
@@ -25,11 +26,13 @@ public class HealthStateType implements Comparable<HealthStateType> {
     private String name;
     private final int httpCode;
     private final HealthStateScope scope;
+    private String subkey;
 
-    private HealthStateType(String name, int httpCode, HealthStateScope scope) {
+    private HealthStateType(String name, int httpCode, HealthStateScope scope, String subkey) {
         this.name = name;
         this.httpCode = httpCode;
         this.scope = scope;
+        this.subkey = subkey;
     }
 
     public int getHttpCode() {
@@ -37,89 +40,90 @@ public class HealthStateType implements Comparable<HealthStateType> {
     }
 
     public static HealthStateType general(HealthStateScope scope) {
-        return new HealthStateType("GENERAL", 406, scope);
+        return new HealthStateType("GENERAL", 406, scope, null);
+    }
+
+    public static HealthStateType withSubkey(HealthStateScope scope, String subkey) {
+        return new HealthStateType("GENERAL_WITH_SUBKEY", 406, scope, subkey);
     }
 
     public static HealthStateType invalidConfig() {
-        return new HealthStateType("INVALID_CONFIG", 406, HealthStateScope.GLOBAL);
+        return new HealthStateType("INVALID_CONFIG", 406, HealthStateScope.GLOBAL, null);
     }
     public static HealthStateType invalidConfigMerge() {
-        return new HealthStateType("INVALID_CONFIG_MERGE", 406, HealthStateScope.GLOBAL);
+        return new HealthStateType("INVALID_CONFIG_MERGE", 406, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType unauthorisedForPipeline(String pipelineName) {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forPipeline(pipelineName));
+        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forPipeline(pipelineName), null);
     }
 
     public static HealthStateType unauthorisedForGroup(String groupName) {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forGroup(groupName));
+        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forGroup(groupName), null);
     }
 
     public static HealthStateType unauthorised() {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.GLOBAL);
+        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType invalidLicense(HealthStateScope scope) {
-        return new HealthStateType("INVALID_LICENSE", 402, scope);
+        return new HealthStateType("INVALID_LICENSE", 402, scope, null);
     }
 
     public static HealthStateType expiredLicense(HealthStateScope scope) {
-        return new HealthStateType("EXPIRED_LICENSE", 402, scope);
+        return new HealthStateType("EXPIRED_LICENSE", 402, scope, null);
     }
 
     public static HealthStateType userLimitExceeded(HealthStateScope scope) {
-        return new HealthStateType("USER_LIMIT_EXCEEDED", 402, scope);
+        return new HealthStateType("USER_LIMIT_EXCEEDED", 402, scope, null);
     }
 
     public static HealthStateType exceedsAgentLimit(HealthStateScope scope) {
-        return new HealthStateType("EXCEEDS_AGENT_LIMIT", 402, scope);
+        return new HealthStateType("EXCEEDS_AGENT_LIMIT", 402, scope, null);
     }
 
     public static HealthStateType artifactsDiskFull() {
-        return new HealthStateType("ARTIFACTS_DISK_FULL", 400, HealthStateScope.GLOBAL);
+        return new HealthStateType("ARTIFACTS_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType databaseDiskFull() {
-        return new HealthStateType("DATABASE_DISK_FULL", 400, HealthStateScope.GLOBAL);
+        return new HealthStateType("DATABASE_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType artifactsDirChanged() {
-        return new HealthStateType("ARTIFACTS_DIR_CHANGED", 406, HealthStateScope.GLOBAL);
+        return new HealthStateType("ARTIFACTS_DIR_CHANGED", 406, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType commandRepositoryAccessibilityIssue() {
-        return new HealthStateType("COMMAND_REPOSITORY_ERROR", 406, HealthStateScope.GLOBAL);
+        return new HealthStateType("COMMAND_REPOSITORY_ERROR", 406, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType commandRepositoryUpgradeIssue() {
-        return new HealthStateType("COMMAND_REPOSITORY_UPGRADE_ERROR", 406, HealthStateScope.GLOBAL);
+        return new HealthStateType("COMMAND_REPOSITORY_UPGRADE_ERROR", 406, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType notFound() {
-        return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL);
+        return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL, null);
     }
 
-    public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) {return false; }
-        if (this.getClass() != that.getClass()) { return false; }
-
-        return equals((HealthStateType) that);
+    public static HealthStateType duplicateAgent(HealthStateScope scope) {
+        return new HealthStateType("DUPLICATE_AGENT", 406, scope, null);
     }
 
-    private boolean equals(HealthStateType that) {
-        if (!name.equals(that.name)) { return false; }
-        if (this.httpCode != that.httpCode) { return false; }
-        if (!scope.equals(that.scope)) { return false; }
-        return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HealthStateType that = (HealthStateType) o;
+        return httpCode == that.httpCode &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(scope, that.scope) &&
+                Objects.equals(subkey, that.subkey);
     }
 
+    @Override
     public int hashCode() {
-        int result;
-        result = httpCode;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + scope.hashCode();
-        return result;
+        return Objects.hash(name, httpCode, scope, subkey);
     }
 
     public HealthStateScope getScope() {
@@ -136,11 +140,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
 
     public boolean isRemovedFromConfig(CruiseConfig cruiseConfig) {
         return scope.isRemovedFromConfig(cruiseConfig);
-    }
-
-
-    public static HealthStateType duplicateAgent(HealthStateScope scope) {
-        return new HealthStateType("DUPLICATE_AGENT", 406, scope);
     }
 
     public int compareTo(HealthStateType o) {

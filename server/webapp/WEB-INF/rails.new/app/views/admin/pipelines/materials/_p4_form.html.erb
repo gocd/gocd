@@ -30,6 +30,7 @@
 </div>
 <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}}%>
 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
+<%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
 <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:username => ".p4_username", :password => ".p4_password", :port => ".p4_url", :type => "p4", :encrypted_password => "false", :view => ".p4_view"}} %>
 
 <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

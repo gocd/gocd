@@ -101,6 +101,7 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "Poll for new changes")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{ScmMaterialConfig::FILTER}]']")
         end
       end
 
@@ -153,6 +154,8 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "Shallow clone (recommended for large repositories)")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE}]']")
+
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{ScmMaterialConfig::FILTER}]']")
         end
       end
     end
@@ -169,6 +172,7 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "Poll for new changes")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{ScmMaterialConfig::FILTER}]']")
         end
       end
     end
@@ -188,6 +192,7 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "Poll for new changes")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{ScmMaterialConfig::FILTER}]']")
 
           expect(form).not_to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspaceOwner]']")
           expect(form).not_to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspace]']")
@@ -213,6 +218,7 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "View*")
           expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]']")
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{ScmMaterialConfig::FILTER}]']")
 
           expect(form).to have_selector("label[for='material_useTickets']", :text => "Use tickets")
           expect(form).to have_selector("input[id='material_useTickets'][type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS}]']")

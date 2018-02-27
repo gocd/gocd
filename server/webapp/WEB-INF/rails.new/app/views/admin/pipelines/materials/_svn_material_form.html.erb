@@ -15,6 +15,7 @@
 
   <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}} %>
   <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
+  <%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
 
   <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:username => ".svn_username", :password => ".svn_password", :url => ".svn_url", :type => "svn", :encrypted_password => "false"}} %>
   <div class="clear"></div>

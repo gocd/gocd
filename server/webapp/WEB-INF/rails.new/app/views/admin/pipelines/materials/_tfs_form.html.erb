@@ -26,6 +26,7 @@
 
 <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}} %>
 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
+<%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
 
 <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".tfs_url", :type => "tfs", :username => ".tfs_username", :password => ".tfs_password",
                                                                                          :encrypted_password => "false", :password_changed => "false", :project_path => ".tfs_project_path", :domain => ".tfs_domain"}} %>

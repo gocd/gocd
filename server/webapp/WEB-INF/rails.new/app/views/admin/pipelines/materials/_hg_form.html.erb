@@ -6,6 +6,7 @@
 
 <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}}%>
 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
+<%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
 <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".hg_url", :type => "hg"}} %>
 
 <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

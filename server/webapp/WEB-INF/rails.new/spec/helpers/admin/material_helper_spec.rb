@@ -24,6 +24,7 @@ describe Admin::MaterialHelper do
     it "should populate options correctly" do
       material_options_map = material_options
       expect(material_options_map.size).to eq(7)
+      expect(material_options_map.first).to eq(["Git", "GitMaterial"])
       expect(material_options_map["Subversion"]).to eq(SvnMaterialConfig::TYPE)
       expect(material_options_map["Git"]).to eq(GitMaterialConfig::TYPE)
       expect(material_options_map["Mercurial"]).to eq(HgMaterialConfig::TYPE)

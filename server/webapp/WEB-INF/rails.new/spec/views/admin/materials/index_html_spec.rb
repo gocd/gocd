@@ -115,8 +115,8 @@ describe "admin/materials/index.html.erb" do
     end
     Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
       ul.all("li a[href='#']").tap do |lis|
-        expect(lis[0]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Subversion'})")
-        expect(lis[1]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Git'})")
+        expect(lis[0]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Git'})")
+        expect(lis[1]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Subversion'})")
         expect(lis[2]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Mercurial'})")
         expect(lis[3]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Perforce'})")
         expect(lis[4]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Team Foundation Server'})")

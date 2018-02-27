@@ -36,7 +36,7 @@
 
     view(vnode) {
       const model = vnode.attrs.model,
-        attrs = { src: model.view() },
+        attrs = { src: model.view(), scrolling: "no" },
         errorAttrs = model.errors() ? { "data-error-text": model.errors() } : {};
 
       return <div class="frame-container" {...errorAttrs}>

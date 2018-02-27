@@ -350,6 +350,13 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
+    public void hasEverLoadedCurrentStateIsTrueAfterLoading() {
+        assertThat(loader.hasEverLoadedCurrentState(), is(false));
+        loader.allPipelines(new BasicCruiseConfig());
+        assertThat(loader.hasEverLoadedCurrentState(), is(true));
+    }
+
+    @Test
     public void shouldAddTrackingToolInfoWhenLoadingAllPipelines() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         TrackingTool trackingTool = new TrackingTool("http://example.com/${ID}", "\\d+");

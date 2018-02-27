@@ -33,7 +33,11 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
     });
 
     const didFulfill = (data, _textStatus, _jqXHR) => {
-      deferred.resolve(type ? type.fromJSON(data) : data);
+      if (type) {
+        deferred.resolve(type.fromJSON(data))
+      } else {
+        deferred.resolve(data, _textStatus, _jqXHR)
+      }
     };
 
     jqXHR.then(didFulfill, deferred.reject);

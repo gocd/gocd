@@ -59,6 +59,13 @@ describe("Dashboard Widget", () => {
     expect($root.find('.filter_btn')).toBeInDOM();
   });
 
+  it('should render a message', function () {
+    expect($root.find('.dashboard-message')).not.toBeInDOM();
+    dashboard.message('some message');
+    m.redraw();
+    expect($root.find('.dashboard-message')).toContainText('some message');
+  });
+
   it("should show personalize view", () => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({

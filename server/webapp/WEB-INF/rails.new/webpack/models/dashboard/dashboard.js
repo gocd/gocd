@@ -25,18 +25,19 @@ const Pipelines      = require('models/dashboard/pipelines');
 
 const Dashboard = function () {
   const self               = this;
-  let pipelineGroups, pipelines;
-  let filteredGroups;
+  let pipelineGroups       = PipelineGroups.fromJSON([]), pipelines = Pipelines.fromJSON([]);
+  let filteredGroups       = pipelineGroups.filterBy('');
   const internalSearchText = Stream('');
 
+  this.message           = Stream();
   this.getPipelineGroups = () => filteredGroups.groups;
   this.getPipelines      = () => pipelines.pipelines;
   this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json) => {
-    pipelineGroups = PipelineGroups.fromJSON(json._embedded.pipeline_groups);
-    pipelines      = Pipelines.fromJSON(json._embedded.pipelines);
+    pipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
+    pipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
   };
 

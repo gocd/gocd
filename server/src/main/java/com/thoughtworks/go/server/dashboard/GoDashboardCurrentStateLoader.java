@@ -58,6 +58,7 @@ public class GoDashboardCurrentStateLoader {
     private SchedulingCheckerService schedulingCheckerService;
     private GoConfigPipelinePermissionsAuthority permissionsAuthority;
     private TimeStampBasedCounter timeStampBasedCounter;
+    private boolean everLoadedCurrentState = false;
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
@@ -101,7 +102,12 @@ public class GoDashboardCurrentStateLoader {
             }
         });
         LOGGER.debug("Done populating dashboard pipelines");
+        this.everLoadedCurrentState = true;
         return pipelines;
+    }
+
+    public boolean hasEverLoadedCurrentState() {
+        return everLoadedCurrentState;
     }
 
     private PipelineInstanceModels loadHistoryForPipelines(List<String> pipelineNames) {

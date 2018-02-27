@@ -182,6 +182,10 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return hasStatus(500)
   }
 
+  def isAccepted() {
+    return hasStatus(202)
+  }
+
   MockHttpServletResponseAssert hasCookie(String path, String name, String value, int maxAge, boolean secured, boolean httpOnly) {
     def actualCookie = actual.getCookie(name)
 

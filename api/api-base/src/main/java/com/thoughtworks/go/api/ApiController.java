@@ -49,7 +49,11 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     }
 
     protected String messageJson(Exception ex) {
-        return MessageJson.create(ex.getMessage());
+        return messageJson(ex.getMessage());
+    }
+
+    protected String messageJson(String message) {
+        return MessageJson.create(message);
     }
 
     protected void verifyContentType(Request request, Response response) throws IOException {

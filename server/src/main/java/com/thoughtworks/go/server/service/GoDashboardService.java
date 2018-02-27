@@ -88,6 +88,10 @@ public class GoDashboardService {
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
     }
 
+    public boolean hasEverLoadedCurrentState() {
+        return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
+    }
+
     private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user, GoDashboardPipelines allPipelines) {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 

@@ -69,6 +69,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
       when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
 
       getWithApiHeader(controller.controllerPath())
@@ -87,6 +88,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
       pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
       when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
       def pipelineGroups = [pipelineGroup]
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
 
@@ -106,13 +108,27 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       def pipelineSelections = PipelineSelections.ALL
       when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
       when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
+      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
       loginAsUser()
       getWithApiHeader(controller.controllerPath())
 
       assertThatResponse()
         .isOk()
+        .hasContentType(controller.mimeType)
         .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername()), PipelineGroupsRepresenter)
+    }
+
+    @Test
+    void 'should return 204 no content when dashboard is not processed (on server start)'() {
+      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(false)
+      loginAsUser()
+      getWithApiHeader(controller.controllerPath())
+
+      assertThatResponse()
+        .isAccepted()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([:])
     }
   }
 }

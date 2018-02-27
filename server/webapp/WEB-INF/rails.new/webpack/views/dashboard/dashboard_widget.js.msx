@@ -15,6 +15,7 @@
  */
 
 const m                   = require('mithril');
+const f                   = require('helpers/form_helper');
 const Stream              = require('mithril/stream');
 const _                   = require('lodash');
 const $                   = require('jquery');
@@ -99,8 +100,14 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const self       = vnode.state;
-    const vm         = vnode.attrs.vm;
+    const self = vnode.state;
+    const vm   = vnode.attrs.vm;
+    let messageView;
+
+    if (!_.isEmpty(vnode.attrs.dashboard.message())) {
+      messageView = (<f.info><h3 class="dashboard-message text-center">{vnode.attrs.dashboard.message()}</h3></f.info>);
+    }
+
     const groupsView = _.map(vnode.attrs.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
 
     let personalizeView;
@@ -129,6 +136,7 @@ const DashboardWidget = {
           {personalizeView}
         </div>
         <div class="dashboard">
+          {messageView}
           {groupsView}
         </div>
       </div>

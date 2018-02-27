@@ -39,6 +39,7 @@ import static spark.Spark.*;
 
 public class DashboardControllerDelegate extends ApiController {
 
+    private static final String EMPTY_JSON_STRING = "{}";
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
 
@@ -58,11 +59,17 @@ public class DashboardControllerDelegate extends ApiController {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("", this::verifyContentType);
+
             get("", this::index);
         });
     }
 
     private Object index(Request request, Response response) throws IOException {
+        if (!goDashboardService.hasEverLoadedCurrentState()) {
+            response.status(202);
+            return EMPTY_JSON_STRING;
+        }
+
         String selectedPipelinesCookie = request.cookie("selected_pipelines");
         Long userId = currentUserId(request);
         Username userName = currentUsername();

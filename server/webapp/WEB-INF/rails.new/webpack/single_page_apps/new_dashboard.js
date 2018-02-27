@@ -45,7 +45,15 @@ $(() => {
 
   function createRepeater() {
     return new AjaxPoller(() => Dashboard.get()
-      .then(onResponse));
+      .then(function (data, _textStatus, jqXHR) {
+        if (jqXHR.status === 202) {
+          dashboard.message("Dashboard is being processed, this may take a few seconds. Please check back later.");
+          onResponse({});
+          return
+        }
+        onResponse(data);
+        dashboard.message(undefined);
+      }));
   }
 
   const repeater = Stream(createRepeater());
@@ -74,5 +82,6 @@ $(() => {
     dashboard.searchText(m.route.param('searchedBy') || '');
   };
 
-  Dashboard.get().then(onResponse).then(repeater().start).then(renderView);
+  repeater().start();
+  renderView()
 });

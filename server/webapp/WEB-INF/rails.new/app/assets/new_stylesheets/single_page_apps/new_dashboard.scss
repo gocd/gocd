@@ -56,7 +56,7 @@ $active-tab: #94399e;
 .h-tab_tab-head {
   display:        flex;
   flex-direction: row;
-  margin:         0 0 30px 0;
+  margin:         0 0 5px 0;
   padding:        0;
   list-style:     none;
   width:          100%;
@@ -992,7 +992,7 @@ body {
 //trigger with options
 
 .pipeline-trigger-with-options {
-  padding: 30px;
+  margin: 5px 0 5px 10px;
 
   .last-run-revision .value {
     @include ellipsis();
@@ -1001,8 +1001,7 @@ body {
 
   .material-name, .latest-revision {
     @include ellipsis($width: 100%);
-    display: block;
-    width:   100%;
+    width:   46%;
   }
 
   .name-value_pair label {
@@ -1024,12 +1023,18 @@ body {
   }
 }
 
+$commit-message-font-size: 12px;
+$commit-message-line-height: 1.6em;
+
 .comment {
-  span {
+  .value {
     @include ellipsis;
-    font-family: $font-family-monospace;
-    font-size:   12px;
     white-space: pre-wrap;
+    font-family: $font-family-monospace;
+    line-height: $commit-message-line-height;
+    font-size:   $commit-message-font-size;
+    // show 5 lines of commit message
+    max-height:  $commit-message-line-height * 5;
   }
 }
 
@@ -1097,6 +1102,7 @@ $commits-width: 635px;
   right:      10px;
   z-index:    100;
   background: #fff;
+  overflow-y: scroll;
 }
 
 .commit_info {
@@ -1154,11 +1160,14 @@ $commits-width: 635px;
 
   .commit_message {
     @include ellipsis;
-    font-family: $font-family-monospace;
-    font-size:   12px;
-    max-height:  30px;
     padding:     5px 10px;
     white-space: pre-wrap;
+
+    font-family: $font-family-monospace;
+    line-height: $commit-message-line-height;
+    font-size:   $commit-message-font-size;
+    // show 3 lines of commit message
+    max-height:  $commit-message-line-height * 3;
   }
 }
 

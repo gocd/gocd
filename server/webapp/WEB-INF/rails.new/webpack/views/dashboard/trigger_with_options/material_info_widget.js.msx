@@ -27,7 +27,9 @@ const MaterialInfoWidget = {
   },
 
   onupdate(vnode) {
-    const commits = $(vnode.dom).find('.commits');
+      const commits   = $(vnode.dom).find('.commits');
+    const html      = document.documentElement;
+    const winHeight = Math.round(Math.max(window.innerHeight, html.clientHeight));
 
     if (commits.length) {
       const searchInput = $(vnode.dom).find('.material-revision-search');
@@ -35,6 +37,7 @@ const MaterialInfoWidget = {
         const offset = searchInput.offset();
         offset.top   = offset.top + searchInput.height() + 10;
         commits.css(offset);
+        commits.height(`${winHeight - offset.top - 10}px`);
       }
     }
   },

@@ -38,13 +38,13 @@ public class PipelineOperationsControllerV1 implements SparkSpringController {
                                           PipelineHistoryService pipelineHistoryService) {
 
         this.delegate = new PipelineOperationsControllerV1Delegate(
-            pipelinePauseService,
-            pipelineUnlockApiService,
-            pipelineTriggerService,
-            apiAuthenticationHelper,
-            localizer,
-            goConfigService,
-            pipelineHistoryService
+                pipelinePauseService,
+                pipelineUnlockApiService,
+                pipelineTriggerService,
+                apiAuthenticationHelper,
+                localizer,
+                goConfigService,
+                pipelineHistoryService
         );
     }
 

@@ -94,6 +94,11 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
+    public void insufficientStorage(String message, String description, HealthStateType type) {
+        error(message, description, type);
+    }
+
     public void notAcceptable(String message, String description, final HealthStateType type) {
         throw new RuntimeException("Not yet implemented");
     }

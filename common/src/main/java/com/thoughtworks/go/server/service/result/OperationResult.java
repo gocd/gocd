@@ -55,6 +55,8 @@ public interface OperationResult {
 
     void internalServerError(String message, final HealthStateType type);
 
+    void insufficientStorage(String message, String description, HealthStateType type);
+
     void badRequest(String message, String description, HealthStateType healthStateType);
 
     void notAcceptable(String message, String description, HealthStateType type);

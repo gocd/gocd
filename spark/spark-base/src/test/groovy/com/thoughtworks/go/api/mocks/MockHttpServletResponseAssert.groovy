@@ -209,4 +209,7 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return this
   }
 
+  MockHttpServletResponseAssert isInsufficientStorage() {
+    return hasStatus(507)
+  }
 }

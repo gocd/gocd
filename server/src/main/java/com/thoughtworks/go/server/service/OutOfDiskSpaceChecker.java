@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-class OutOfDiskSpaceChecker implements SchedulingChecker {
+public class OutOfDiskSpaceChecker implements SchedulingChecker {
     private final GoDiskSpaceMonitor goDiskSpaceMonitor;
 
     @Autowired

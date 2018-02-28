@@ -50,9 +50,9 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final Localizer localizer;
     private final PipelineUnlockApiService pipelineUnlockApiService;
-    private PipelineTriggerService pipelineTriggerService;
-    private GoConfigService goConfigService;
-    private PipelineHistoryService pipelineHistoryService;
+    private final PipelineTriggerService pipelineTriggerService;
+    private final GoConfigService goConfigService;
+    private final PipelineHistoryService pipelineHistoryService;
 
     public PipelineOperationsControllerV1Delegate(PipelinePauseService pipelinePauseService, PipelineUnlockApiService pipelineUnlockApiService, PipelineTriggerService pipelineTriggerService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer, GoConfigService goConfigService, PipelineHistoryService pipelineHistoryService) {
         super(ApiVersion.v1);

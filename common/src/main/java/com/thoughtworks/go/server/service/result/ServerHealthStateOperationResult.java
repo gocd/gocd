@@ -79,6 +79,11 @@ public class ServerHealthStateOperationResult implements OperationResult {
         error(message, "", type);
     }
 
+    @Override
+    public void insufficientStorage(String message, String description, HealthStateType type) {
+        error(message, description, type);
+    }
+
     public void notAcceptable(String message, String description, final HealthStateType type) {
         error(message, description, type);
     }

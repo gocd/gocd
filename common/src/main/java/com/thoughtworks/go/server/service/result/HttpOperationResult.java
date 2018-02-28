@@ -42,6 +42,13 @@ public class HttpOperationResult implements OperationResult {
         return serverHealthStateOperationResult.error(message, description, type);
     }
 
+    @Override
+    public void insufficientStorage(String message, String description, HealthStateType type) {
+        httpCode = 507;
+        this.message = message;
+        serverHealthStateOperationResult.error(message, description, type);
+    }
+
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
         httpCode = 400;

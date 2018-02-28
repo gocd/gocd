@@ -39,10 +39,7 @@ import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.domain.MaterialForScheduling
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.service.PipelineHistoryService
-import com.thoughtworks.go.server.service.PipelinePauseService
-import com.thoughtworks.go.server.service.PipelineTriggerService
-import com.thoughtworks.go.server.service.PipelineUnlockApiService
+import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
@@ -60,8 +57,7 @@ import org.mockito.invocation.InvocationOnMock
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.doAnswer
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<PipelineOperationsControllerV1Delegate> {
@@ -467,11 +463,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
     }
 
     @Nested
-    class AsAdmin {
+    class AsPipelineGroupOperateUser {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsAdmin()
+        loginAsGroupOperateUser()
       }
 
       @Test
@@ -482,7 +478,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
           return result
         }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
 
-        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), ['X-GoCD-Confirm': true], '')
+        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
 
         assertThatResponse()
           .isOk()
@@ -527,47 +523,6 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any() as HttpOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), convertPipelineScheduleOptionsToJSON(pipelineScheduleOptions))
-
-        assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("scheduled!")
-      }
-
-      @Test
-      void 'should show errors occurred while schedule a pipeline'() {
-        doAnswer({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArgument(3)
-          result.conflict("pipeline is not scheduled", "reason", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
-          return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
-
-        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
-
-        assertThatResponse()
-          .isConflict()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("pipeline is not scheduled { reason }")
-      }
-    }
-
-    @Nested
-    class AsPipelineGroupOperateUser {
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser()
-      }
-
-      @Test
-      void 'should schedule a pipeline'() {
-        doAnswer({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArgument(3)
-          result.ok("scheduled!")
-          return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
-
-        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
 
         assertThatResponse()
           .isOk()

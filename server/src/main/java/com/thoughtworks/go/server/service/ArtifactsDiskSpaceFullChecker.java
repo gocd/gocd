@@ -36,7 +36,7 @@ public class ArtifactsDiskSpaceFullChecker extends DiskSpaceChecker {
     protected void createFailure(OperationResult result, long size, long availableSpace) {
         String msg = "GoCD has less than " + size + "Mb of disk space available. Scheduling has stopped, and will resume once more than " + size + "Mb is available.";
         LOGGER.error(msg);
-        result.error("GoCD Server has run out of artifacts disk space. Scheduling has been stopped", msg, ARTIFACTS_DISK_FULL_ID);
+        result.insufficientStorage("GoCD Server has run out of artifacts disk space. Scheduling has been stopped", msg, ARTIFACTS_DISK_FULL_ID);
     }
 
     protected SendEmailMessage createEmail() {

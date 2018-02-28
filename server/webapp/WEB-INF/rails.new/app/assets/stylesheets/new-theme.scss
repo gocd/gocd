@@ -2428,13 +2428,13 @@ a:link.help, a:visited.help {
     dt {
       float:       left;
       font-weight: bold;
-      width:       125px;
+      width:       160px;
     }
     dd {
       margin:     0;
       float:      left;
       word-break: break-all;
-      width:      235px;
+      width:      calc(100% - 200px);
     }
   }
   .material_summaries {
@@ -2492,8 +2492,16 @@ a:link.help, a:visited.help {
       background: #ccc;
     }
     .material_details {
-      padding: 20px 0;
+      padding: 20px 20px;
       float:   left;
+    }
+
+    .comment {
+      @include ellipsis();
+      display:     inline-block;
+      white-space: pre-wrap;
+      line-height: 1.6em;
+      max-height:  1.6em*2.8;
     }
   }
 }
@@ -3705,6 +3713,7 @@ body#login-page {
 
 .change_materials .materials .content_wrapper_outer {
   clear: right;
+  float: none;
 }
 
 .config-materials .action_icon.delete_icon_disabled {
@@ -3889,9 +3898,12 @@ ul.entity_title {
 
 #MB_window {
   border-radius: 3px;
-  @media screen and (min-width: 40em) {
-    width:     90% !important;
-    max-width: 75rem !important;
+
+  &:not(.small) {
+    @media screen and (min-width: 40em) {
+      width:     90% !important;
+      max-width: 75rem !important;
+    }
   }
 
   #MB_frame {

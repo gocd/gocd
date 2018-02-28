@@ -204,6 +204,13 @@ allprojects {
   }
 }
 
+idea {
+  project {
+    jdkName = '1.8'
+    languageLevel = '1.8'
+  }
+}
+
 subprojects {
   if (!project.childProjects.isEmpty()) {
     return
@@ -420,6 +427,12 @@ subprojects {
           logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
         }
       }
+    }
+  }
+
+  idea {
+    module {
+      excludeDirs += project.tasks.withType(Delete)*.targetFiles*.files.flatten()
     }
   }
 
@@ -680,9 +693,9 @@ task newApi {
       out.println("")
       out.println("rootProject.name = 'gocd'")
       out.println("")
-      def existingProjects = rootProject.allprojects.findAll {prj -> prj.childProjects.isEmpty()}.collect { it.path }
+      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() }.collect { it.path }
       def newProjects = existingProjects + [":api:${newProjectName}"]
-      newProjects.sort().unique().each { out.println  "include '${it}'" }
+      newProjects.sort().unique().each { out.println "include '${it}'" }
     }
   }
 }

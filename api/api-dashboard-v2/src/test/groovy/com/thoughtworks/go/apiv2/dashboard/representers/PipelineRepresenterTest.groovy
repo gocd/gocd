@@ -18,9 +18,13 @@ package com.thoughtworks.go.apiv2.dashboard.representers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.TrackingTool
+import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
@@ -42,7 +46,7 @@ class PipelineRepresenterTest {
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
-      permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter)
+      permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin())
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -78,7 +82,8 @@ class PipelineRepresenterTest {
       tracking_tool         : [
         "regex": "##\\d+",
         "link" : "http://example.com/\${ID}"
-      ]
+      ],
+      from_config_repo      : false
     ])
   }
 
@@ -90,7 +95,8 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
+      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -107,7 +113,8 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE)
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
+      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -124,7 +131,8 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter)
+      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -151,7 +159,8 @@ class PipelineRepresenterTest {
       can_operate           : false,
       can_administer        : false,
       can_unlock            : false,
-      can_pause             : false
+      can_pause             : false,
+      from_config_repo      : true
     ]
   }
 

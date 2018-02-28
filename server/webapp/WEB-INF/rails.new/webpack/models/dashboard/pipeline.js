@@ -39,8 +39,12 @@ const Pipeline = function (info) {
   this.pausedCause = info.pause_info.pause_reason;
   this.canPause    = info.can_pause;
 
-  this.isLocked   = info.locked;
-  this.canUnlock  = info.can_unlock;
+
+  this.isLocked  = info.locked;
+  this.canUnlock = info.can_unlock;
+
+  this.isDefinedInConfigRepo = () => info.from_config_repo;
+
   this.canOperate = info.can_operate;
 
   this.trackingTool = info.tracking_tool;

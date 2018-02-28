@@ -134,6 +134,21 @@ describe("Dashboard Pipeline Widget", () => {
       expect($root.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
+    it('should disable pipeline settings for non admin users', () => {
+      unmount();
+      mount(false, false, {}, {}, true, true);
+
+      expect(pipeline.canAdminister).toBe(false);
+      expect($root.find('.edit_config')).toHaveClass('disabled');
+    });
+
+    it('should disable pipeline settings for config repo pipelines', () => {
+      unmount();
+      mount(false, true, {}, {}, true, true, true);
+
+      expect(pipeline.isDefinedInConfigRepo()).toBe(true);
+      expect($root.find('.edit_config')).toHaveClass('disabled');
+    });
   });
 
   describe("Pipeline Operations", () => {
@@ -810,7 +825,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -843,6 +858,7 @@ describe("Dashboard Pipeline Widget", () => {
       "can_operate":            canOperate,
       "can_pause":              canPause,
       "pause_info":             pauseInfo,
+      "from_config_repo":       fromConfigRepo,
       "_embedded":              {
         "instances": pipelineInstances
       }

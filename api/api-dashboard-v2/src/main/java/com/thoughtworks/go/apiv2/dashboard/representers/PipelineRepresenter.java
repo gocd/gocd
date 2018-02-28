@@ -43,7 +43,8 @@ public class PipelineRepresenter {
             .add("can_operate", model.isPipelineOperator(usernameString))
             .add("can_administer", model.canBeAdministeredBy(usernameString))
             .add("can_unlock", model.canBeOperatedBy(usernameString))
-            .add("can_pause", model.canBeOperatedBy(usernameString));
+            .add("can_pause", model.canBeOperatedBy(usernameString))
+            .add("from_config_repo", !model.getOrigin().isLocal());
 
         if (model.getTrackingTool().isPresent()) {
             TrackingTool trackingTool = model.getTrackingTool().get();

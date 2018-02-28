@@ -51,6 +51,8 @@ describe("Dashboard", () => {
       expect(pipeline.isLocked).toBe(false);
       expect(pipeline.canUnlock).toBe(true);
 
+      expect(pipeline.isDefinedInConfigRepo()).toBe(true);
+
       expect(pipeline.trackingTool).toEqual({
         "regex": "#(\\d+)",
         "link":  "http://example.com/${ID}/"
@@ -251,6 +253,7 @@ describe("Dashboard", () => {
       "can_administer":         true,
       "can_operate":            true,
       "can_pause":              true,
+      "from_config_repo":       true,
       "tracking_tool":          {
         "regex": "#(\\d+)",
         "link":  "http://example.com/${ID}/"

@@ -87,6 +87,18 @@ class PipelineRepresenterTest {
     ])
   }
 
+  @Test
+  void 'should consider pipelines with null origin as local'() {
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", counter, null)
+
+    def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex()))) })
+
+    assertThatJson(json).node("from_config_repo").isEqualTo(false)
+  }
+
   @Nested
   class Authorization {
 

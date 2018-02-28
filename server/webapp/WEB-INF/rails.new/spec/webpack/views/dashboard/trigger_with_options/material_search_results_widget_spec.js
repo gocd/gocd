@@ -37,7 +37,8 @@ describe("Dashboard Material Search Results Widget", () => {
       searchText:            jasmine.createSpy('searchText'),
       searchInProgress:      jasmine.createSpy('searchInProgress'),
       materialSearchResults: jasmine.createSpy('materialSearchResult'),
-      selectRevision:        jasmine.createSpy('selectRevision')
+      selectRevision:        jasmine.createSpy('selectRevision'),
+      isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
     };
     mount();
   });

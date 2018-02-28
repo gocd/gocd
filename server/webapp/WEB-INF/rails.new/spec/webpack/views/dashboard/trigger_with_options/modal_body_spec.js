@@ -118,7 +118,8 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
         searchText:            jasmine.createSpy('searchText'),
         searchInProgress:      jasmine.createSpy('searchInProgress'),
         materialSearchResults: jasmine.createSpy('materialSearchResult'),
-        selectRevision:        jasmine.createSpy('selectRevision')
+        selectRevision:        jasmine.createSpy('selectRevision'),
+        isRevisionSelected:      jasmine.createSpy('isRevisionSelected')
       }
     };
 

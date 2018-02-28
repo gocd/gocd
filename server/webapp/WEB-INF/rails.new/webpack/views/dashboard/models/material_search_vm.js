@@ -30,12 +30,16 @@ const SearchVM = function (pipelineName, materials) {
       searchText:            Stream(''),
       materialSearchResults: Stream([]),
       selectRevision:        (revision) => {
-        material.selection(revision);
         searchState[material.name].updateSearchText(revision);
+        material.selection(revision);
       },
       updateSearchText(newText) {
+        material.selection(null);
         searchState[material.name].searchText(newText);
         searchState[material.name].debouncedSearch();
+      },
+      isRevisionSelected() {
+        return !_.isEmpty(material.selection());
       },
       debouncedSearch:       _.debounce(() => {
         searchState[material.name].performSearch();

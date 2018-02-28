@@ -44,14 +44,16 @@ describe("Dashboard Trigger With Options Material Widget", () => {
         searchText:            jasmine.createSpy('searchText'),
         searchInProgress:      jasmine.createSpy('searchInProgress'),
         materialSearchResults: jasmine.createSpy('materialSearchResult'),
-        selectRevision:        jasmine.createSpy('selectRevision')
+        selectRevision:        jasmine.createSpy('selectRevision'),
+        isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
       },
       [json.materials[1].name]: {
         performSearch:         jasmine.createSpy('performSearch'),
         searchText:            jasmine.createSpy('searchText'),
         searchInProgress:      jasmine.createSpy('searchInProgress'),
         materialSearchResults: jasmine.createSpy('materialSearchResult'),
-        selectRevision:        jasmine.createSpy('selectRevision')
+        selectRevision:        jasmine.createSpy('selectRevision'),
+        isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
       }
     };
 

@@ -27,7 +27,7 @@ const MaterialInfoWidget = {
   },
 
   onupdate(vnode) {
-      const commits   = $(vnode.dom).find('.commits');
+    const commits   = $(vnode.dom).find('.commits');
     const html      = document.documentElement;
     const winHeight = Math.round(Math.max(window.innerHeight, html.clientHeight));
 

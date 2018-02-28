@@ -52,7 +52,9 @@ describe("Dashboard Material Search State Model", () => {
       expect(materialVM.searchText()).toBe('');
       expect(materials[0].selection()).toBe(undefined);
 
+      expect(materialVM.isRevisionSelected()).toBe(false);
       materialVM.selectRevision(revision);
+      expect(materialVM.isRevisionSelected()).toBe(true);
 
       expect(materialVM.searchText()).toBe(revision);
       expect(materials[0].selection()).toBe(revision);
@@ -66,7 +68,10 @@ describe("Dashboard Material Search State Model", () => {
       expect(materialVM.searchText()).toBe('');
       expect(materialVM.debouncedSearch).not.toHaveBeenCalled();
 
+      materialVM.selectRevision('some-revision');
+      expect(materialVM.isRevisionSelected()).toBe(true);
       materialVM.updateSearchText(newSearchText);
+      expect(materialVM.isRevisionSelected()).toBe(false);
 
       expect(materialVM.searchText()).toBe(newSearchText);
       expect(materialVM.debouncedSearch).toHaveBeenCalled();

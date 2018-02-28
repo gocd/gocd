@@ -35,7 +35,8 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     performSearch:         jasmine.createSpy('performSearch'),
     searchText:            jasmine.createSpy('searchText'),
     searchInProgress:      jasmine.createSpy('searchInProgress'),
-    materialSearchResults: jasmine.createSpy('materialSearchResult')
+    materialSearchResults: jasmine.createSpy('materialSearchResult'),
+    isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
   };
 
   beforeEach(() => {

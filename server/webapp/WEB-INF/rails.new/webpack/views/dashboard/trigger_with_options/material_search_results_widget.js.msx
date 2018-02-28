@@ -34,6 +34,10 @@ const MaterialSearchResultsWidget = {
       return null;
     }
 
+    if (searchVM.isRevisionSelected()) {
+      return null;
+    }
+
     if (_.isEmpty(results)) {
       resultMessage = <span class="helper">No revisions found matching '{searchText}'</span>;
     } else if (_.isEmpty(searchText)) {

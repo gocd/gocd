@@ -16,9 +16,13 @@
 <!DOCTYPE html>
 <html class="no-js">
 <head>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="utf-8">
+  <meta name="gocd-params"
+        data-timezone="${serverTimezoneUTCOffset}"
+        data-page-refresh-interval="${spaRefreshInterval}"
+        data-page-timeout="${spaTimeout}">
   <title>${viewTitle} - Go</title>
 
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
@@ -33,7 +37,6 @@
 </head>
 
 <body data-controller-name="${controllerName}"
-      data-timezone="${serverTimezoneUTCOffset}"
       id="${controllerName}-page">
 <div class="page-wrap">
   <header class="app-header">

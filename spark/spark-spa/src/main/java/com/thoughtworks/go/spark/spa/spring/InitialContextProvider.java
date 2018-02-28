@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -62,6 +63,8 @@ public class InitialContextProvider {
         context.put("goUpdate", versionInfoService.getGoUpdate());
         context.put("goUpdateCheckEnabled", versionInfoService.isGOUpdateCheckEnabled());
         context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getRawOffset());
+        context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
+        context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
 
         return new VelocityContext(context);
     }

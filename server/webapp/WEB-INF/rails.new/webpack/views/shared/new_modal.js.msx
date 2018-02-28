@@ -40,12 +40,16 @@ const defaultOptions = {
 };
 
 const Modal = function (options) {
-  const self            = this;
-  const modalId         = `modal-${  s.uuid()}`;
-  options               = _.assign({}, defaultOptions, options);
+  const self    = this;
+  const modalId = `modal-${s.uuid()}`;
+  options       = _.assign({}, defaultOptions, options);
+
+  const $body = $('body');
+
+  const uuid = s.uuid();
 
   this.modalDialog = {
-    oninit (vnode) {
+    oninit(vnode) {
       this.close = (onclose, destroy, e) => {
         if (onclose) {
           onclose(e);
@@ -63,7 +67,7 @@ const Modal = function (options) {
       };
 
       this.handleEscapeKey = () => {
-        $('body').on("keydown", (e) => {
+        $body.on(`keydown.${uuid}`, (e) => {
           if (e.key === "Escape") {
             vnode.state.close(options.onclose, self.destroy, e);
           }
@@ -73,10 +77,14 @@ const Modal = function (options) {
       this.handleEscapeKey();
     },
 
+    onremove() {
+      $body.off(`keydown.${uuid}`);
+    },
+
     view(vnode) {
       return (
         <div class="reveal-overlay" style={{display: 'block'}} onkeydown={vnode.state.handleEnterKey}>
-          <div class={`reveal ${  options.size ? options.size : ''}`}
+          <div class={`reveal ${options.size ? options.size : ''}`}
                style={{display: 'block'}}>
 
             <div class="modal-header">
@@ -110,13 +118,13 @@ const Modal = function (options) {
 
   this.render = function () {
     allModals[modalId] = this;
-    $('body').addClass("fixed");
+    $body.addClass("fixed");
     m.redraw();
   };
 
   this.destroy = function () {
     delete allModals[modalId];
-    $('body').removeClass("fixed");
+    $body.removeClass("fixed");
     m.redraw();
   };
 };
@@ -128,7 +136,7 @@ $(() => {
   // so you can directly access the modals in tests via `$('.modal-parent').data('modal')`
   $modalParent.data('modals', allModals);
   const ModalDialogs = {
-    view () {
+    view() {
       const sortedModalKeys = _.keysIn(allModals).sort();
       return (
         <div>

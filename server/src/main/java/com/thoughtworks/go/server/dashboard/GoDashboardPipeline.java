@@ -114,7 +114,7 @@ public class GoDashboardPipeline {
         return result;
     }
 
-    public ConfigOrigin getOrigin() {
-        return origin;
+    public boolean isLocal() {
+        return origin == null || origin.isLocal();
     }
 }

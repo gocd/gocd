@@ -20,12 +20,17 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
+
+    DataConverter capabilitiesConverter();
+
+    DataConverter agentMetadataConverter();
 
     String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier);
 
@@ -50,4 +55,8 @@ public interface ElasticAgentMessageConverter {
     com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
 
     String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId);
+
+    String getStatusReportView(String responseBody);
+
+    Capabilities getCapabilitiesFromResponseBody(String responseBody);
 }

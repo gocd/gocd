@@ -29,6 +29,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
 import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
+import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionConverterV3;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -42,29 +43,33 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static java.lang.String.format;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
-
-    private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
+    private final Map<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
-        addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
-        addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
+
+        addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
+        addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2());
+        addHandler(ElasticAgentExtensionConverterV3.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV3());
+
+        registerProcessor(ElasticAgentExtensionConverterV1.VERSION, new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
+        registerProcessor(ElasticAgentExtensionConverterV2.VERSION, new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
+        registerProcessor(ElasticAgentExtensionConverterV3.VERSION, new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler,
-                            MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor,
-                            MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
         registerHandler(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
-        registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
-        registerMessageHandlerForServerInfoRequestProcessor(version, messageHandlerForServerInfoRequestProcessor);
+    }
+
+    private void registerProcessor(String version, MessageHandlerForPluginSettingsRequestProcessor pluginSettingsRequestProcessor,
+                                   MessageHandlerForServerInfoRequestProcessor serverInfoRequestProcessor) {
+        registerMessageHandlerForPluginSettingsRequestProcessor(version, pluginSettingsRequestProcessor);
+        registerMessageHandlerForServerInfoRequestProcessor(version, serverInfoRequestProcessor);
     }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
@@ -144,8 +149,7 @@ public class ElasticAgentExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
-                return converter.getStatusReportView(responseBody);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getStatusReportView(responseBody);
             }
         });
     }
@@ -159,22 +163,21 @@ public class ElasticAgentExtension extends AbstractExtension {
 
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
-                return converter.getStatusReportView(responseBody);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getStatusReportView(responseBody);
             }
         });
     }
 
     public Capabilities getCapabilities(String pluginId) {
-        if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
-            throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `Capabilities` endpoint is not supported in this version.", pluginId));
+        final String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS);
+        if (ElasticAgentExtensionConverterV1.VERSION.equals(resolvedExtensionVersion)) {
+            return new Capabilities(false, false);
         }
 
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILTIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
             public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
-                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
-                return converter.getCapabilitiesFromResponseBody(responseBody);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
     }

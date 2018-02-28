@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v2;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
@@ -29,74 +31,69 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.apache.commons.lang.StringUtils;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConverter {
-    private static final Gson GSON = new Gson();
-
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     public static final String VERSION = "2.0";
 
     @Override
-    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("auto_register_key", autoRegisterKey);
-        JsonObject properties = new JsonObject();
-        for (Map.Entry<String, String> entry : configuration.entrySet()) {
-            properties.addProperty(entry.getKey(), entry.getValue());
-        }
-        jsonObject.add("properties", properties);
-        jsonObject.addProperty("environment", environment);
-        jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
-
-        return GSON.toJson(jsonObject);
+    public CapabilitiesConverterV2 capabilitiesConverter() {
+        return new CapabilitiesConverterV2();
     }
 
-    private JsonObject jobIdentifierJson(JobIdentifier jobIdentifier) {
-        JsonObject jobIdentifierJson = new JsonObject();
-        jobIdentifierJson.addProperty("pipeline_name", jobIdentifier.getPipelineName());
-        jobIdentifierJson.addProperty("pipeline_label", jobIdentifier.getPipelineLabel());
-        jobIdentifierJson.addProperty("pipeline_counter", jobIdentifier.getPipelineCounter());
-        jobIdentifierJson.addProperty("stage_name", jobIdentifier.getStageName());
-        jobIdentifierJson.addProperty("stage_counter", jobIdentifier.getStageCounter());
-        jobIdentifierJson.addProperty("job_name", jobIdentifier.getBuildName());
-        jobIdentifierJson.addProperty("job_id", jobIdentifier.getBuildId());
-        return jobIdentifierJson;
+    @Override
+    public AgentMetadataConverterV2 agentMetadataConverter() {
+        return new AgentMetadataConverterV2();
+    }
+
+    @Override
+    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("auto_register_key", autoRegisterKey);
+        jsonObject.add("properties", mapToJsonObject(configuration));
+        jsonObject.addProperty("environment", environment);
+        return jsonObject.toString();
     }
 
     @Override
     public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
-        JsonObject jsonObject = new JsonObject();
-        JsonObject properties = new JsonObject();
-        for (Map.Entry<String, String> entry : configuration.entrySet()) {
-            properties.addProperty(entry.getKey(), entry.getValue());
-        }
+        final JsonObject jsonObject = new JsonObject();
+        JsonObject properties = mapToJsonObject(configuration);
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
-        jsonObject.add("agent", elasticAgent.toJSON());
-        jsonObject.add("job_identifier", jobIdentifierJson(identifier));
-        return GSON.toJson(jsonObject);
+        jsonObject.add("agent", agentMetadataConverter().toDTO(elasticAgent).toJSON());
+        return jsonObject.toString();
     }
 
     @Override
     public String listAgentsResponseBody(Collection<AgentMetadata> metadata) {
-        Gson gson = new Gson();
-        JsonArray array = new JsonArray();
+        final AgentMetadataConverterV2 agentMetadataConverterV2 = agentMetadataConverter();
+        final JsonArray array = new JsonArray();
         for (AgentMetadata agentMetadata : metadata) {
-            array.add(agentMetadata.toJSON());
+            array.add(agentMetadataConverterV2.toDTO(agentMetadata).toJSON());
         }
-        return gson.toJson(array);
+        return GSON.toJson(array);
     }
 
     @Override
     public Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody) {
-        Type AGENT_METADATA_LIST_TYPE = new TypeToken<ArrayList<AgentMetadata>>() {
-        }.getType();
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        return gson.fromJson(requestBody, AGENT_METADATA_LIST_TYPE);
+        final Collection<AgentMetadataDTO> agentMetadata = AgentMetadataDTO.fromJSONArray(requestBody);
+        final List<AgentMetadata> agentMetadataList = new ArrayList<>();
+
+        if (agentMetadata == null) {
+            return agentMetadataList;
+        }
+
+        final AgentMetadataConverterV2 agentMetadataConverterV2 = agentMetadataConverter();
+        for (AgentMetadataDTO metadataDTO : agentMetadata) {
+            agentMetadataList.add(agentMetadataConverterV2.fromDTO(metadataDTO));
+        }
+
+        return agentMetadataList;
     }
 
     @Override
@@ -118,13 +115,9 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         return new ImageDeserializer().fromJSON(responseBody);
     }
 
+    @Override
     public String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId) {
-        JsonObject jsonObject = new JsonObject();
-        if (identifier != null) {
-            jsonObject.add("job_identifier", jobIdentifierJson(identifier));
-        }
-        jsonObject.addProperty("elastic_agent_id", elasticAgentId);
-        return GSON.toJson(jsonObject);
+        throw new UnsupportedOperationException("Agent status report is not supported in elastic-agent extension v2.");
     }
 
     @Override
@@ -134,10 +127,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
 
     @Override
     public String validateRequestBody(Map<String, String> configuration) {
-        JsonObject properties = new JsonObject();
-        for (Map.Entry<String, String> entry : configuration.entrySet()) {
-            properties.addProperty(entry.getKey(), entry.getValue());
-        }
+        final JsonObject properties = mapToJsonObject(configuration);
         return new GsonBuilder().serializeNulls().create().toJson(properties);
     }
 
@@ -151,6 +141,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         return canHandlePluginResponseFromBody(responseBody);
     }
 
+    @Override
     public String getStatusReportView(String responseBody) {
         String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("view");
         if (StringUtils.isBlank(statusReportView)) {
@@ -159,8 +150,18 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         return statusReportView;
     }
 
+    @Override
     public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return com.thoughtworks.go.plugin.access.elastic.models.Capabilities.fromJSON(responseBody).toCapabilities();
+        final CapabilitiesDTO capabilitiesDTO = GSON.fromJson(responseBody, CapabilitiesDTO.class);
+        return capabilitiesConverter().fromDTO(capabilitiesDTO);
+    }
+
+    private JsonObject mapToJsonObject(Map<String, String> configuration) {
+        final JsonObject properties = new JsonObject();
+        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+            properties.addProperty(entry.getKey(), entry.getValue());
+        }
+        return properties;
     }
 }
 

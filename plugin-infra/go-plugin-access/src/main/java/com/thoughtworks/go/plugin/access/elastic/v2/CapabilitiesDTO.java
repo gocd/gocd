@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,28 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.elastic;
+package com.thoughtworks.go.plugin.access.elastic.v2;
 
-public class Capabilities {
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+public class CapabilitiesDTO {
+    @Expose
+    @SerializedName("supports_status_report")
     private boolean supportsStatusReport;
-    private boolean supportsAgentStatusReport;
-
-    public Capabilities(boolean supportsStatusReport) {
-        this.supportsStatusReport = supportsStatusReport;
-    }
-
-    public Capabilities(boolean supportsStatusReport, boolean supportsAgentStatusReport) {
-        this.supportsStatusReport = supportsStatusReport;
-        this.supportsAgentStatusReport = supportsAgentStatusReport;
-    }
 
     public boolean supportsStatusReport() {
         return supportsStatusReport;
     }
 
-    public boolean supportsAgentStatusReport() {
-        return supportsAgentStatusReport;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof CapabilitiesDTO)) return false;
 
-        Capabilities that = (Capabilities) o;
+        CapabilitiesDTO that = (CapabilitiesDTO) o;
 
         return supportsStatusReport == that.supportsStatusReport;
-
     }
 
     @Override

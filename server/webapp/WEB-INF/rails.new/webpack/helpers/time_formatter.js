@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-
+const _         = require('lodash');
 const CONSTANTS = require('helpers/constants');
 const moment    = require("moment");
+const LRUMap    = require('lru_map').LRUMap;
+
 require("moment-duration-format");
 
-const formatter = {
-  format: (time) => {
-    return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
-  },
+const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;
+const CACHE_SIZE         = 10000;
+const LOCAL_TIME_FORMAT  = 'DD MMM, YYYY [at] HH:mm:ss [Local Time]';
+const SERVER_TIME_FORMAT = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
 
-  formatInServerTime: (time) => {
-    const format             = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
-    const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;
-    return moment(time).utcOffset(utcOffsetInMinutes).format(format);
-  }
+const format = _.memoize((time) => {
+  return moment(time).format(LOCAL_TIME_FORMAT);
+});
+format.cache = new LRUMap(CACHE_SIZE);
+
+const formatInServerTime = _.memoize((time) => {
+  return moment(time).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
+});
+formatInServerTime.cache = new LRUMap(CACHE_SIZE);
+
+module.exports = {
+  format,
+  formatInServerTime
 };
-module.exports  = formatter;

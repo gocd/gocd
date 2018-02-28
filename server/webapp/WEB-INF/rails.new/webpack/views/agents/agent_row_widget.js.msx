@@ -28,11 +28,11 @@ const joinOrNoneSpecified = function (things) {
 };
 
 const agentJobHistoryPath = function (uuid) {
-  return `/go/agents/${  uuid  }/job_run_history`;
+  return `/go/agents/${uuid}/job_run_history`;
 };
 
 const agentStatusReportPath = function (elasticPluginId, elasticAgentId) {
-  return `/go/admin/status_reports/${ elasticPluginId }/${ elasticAgentId }`;
+  return `/go/admin/status_reports/${elasticPluginId}/${elasticAgentId}`;
 };
 
 const createBuildDetailsDropDown = function (agent, args) {

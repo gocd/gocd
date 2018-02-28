@@ -24,7 +24,7 @@ const ElasticProfileWidget = {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
-    const vmStateKey = `show-${  vnode.attrs.profile.id()}`;
+    const vmStateKey = `show-${vnode.attrs.profile.id()}`;
 
     this.vmState(vmStateKey, Stream(false));
 

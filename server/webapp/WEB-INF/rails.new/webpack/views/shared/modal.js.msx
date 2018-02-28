@@ -24,7 +24,7 @@ const Foundation = require('foundation-sites');
 const init = function (uuid) {
   return function (_elem, isInitialized) {
     if (!isInitialized) {
-      new Foundation.Reveal($(`#modal-${  uuid}`)); //eslint-disable-line no-undef
+      new Foundation.Reveal($(`#modal-${uuid}`));
     }
   };
 };
@@ -38,9 +38,9 @@ const Modal = function (options) {
     const subViewArgs = _.merge({parentView: this}, this.subView.args);
 
     return (
-      <div class='reveal scm-plugin-modal' id={`modal-${  this.uuid}`} data-reveal data-close-on-click='false'
+      <div class="reveal scm-plugin-modal" id={`modal-${this.uuid}`} data-reveal data-close-on-click="false"
            config={init(this.uuid)}>
-        <h4 class='modal-title'>{this.title}</h4>
+        <h4 class="modal-title">{this.title}</h4>
         <button class="close-button" onclick={this.close.bind(this)} aria-label="Close modal" type="button">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -50,21 +50,21 @@ const Modal = function (options) {
   };
 
   this.close = function () {
-    $(`#modal-${  this.uuid}`).foundation('close');
+    $(`#modal-${this.uuid}`).foundation('close');
   };
 
   this.destroy = function () {
-    if ($(`#modal-${  this.uuid}`).length > 0) {
-      $(`#modal-${  this.uuid}`).foundation('destroy').remove();
+    if ($(`#modal-${this.uuid}`).length > 0) {
+      $(`#modal-${this.uuid}`).foundation('destroy').remove();
     }
   };
 
   this.open = function () {
-    $(`#modal-${  this.uuid}`).foundation('open');
+    $(`#modal-${this.uuid}`).foundation('open');
   };
 
   this.onClose = function (callback) {
-    $(`#modal-${  this.uuid}`).on('closed.zf.reveal', callback);
+    $(`#modal-${this.uuid}`).on('closed.zf.reveal', callback);
   };
 };
 

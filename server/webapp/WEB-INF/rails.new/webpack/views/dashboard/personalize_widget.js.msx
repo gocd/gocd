@@ -112,7 +112,7 @@ const PersonalizeWidget = {
 
       return (
         <section class="filter_group">
-          <h4 class={`filter_pipeline-group ${ self.expandCollapseClassforGroup(groupName)}`}>
+          <h4 class={`filter_pipeline-group ${self.expandCollapseClassforGroup(groupName)}`}>
             {expandCollapseIcon}
             <input type="checkbox"
                    class="pgroup-cb"
@@ -152,11 +152,11 @@ const PersonalizeWidget = {
         <header class="filter_header">
           <h5> Select</h5>
           <div class="selection">
-            <button class={`btn-select select-all ${ self.areAllPipelinesInState(true) ? 'selected' : ''}`}
+            <button class={`btn-select select-all ${self.areAllPipelinesInState(true) ? 'selected' : ''}`}
                     onclick={self.selectAll.bind(self)}>
               All
             </button>
-            <button class={`btn-select select-none ${ self.areAllPipelinesInState(false) ? 'selected' : ''}`}
+            <button class={`btn-select select-none ${self.areAllPipelinesInState(false) ? 'selected' : ''}`}
                     onclick={self.selectNone.bind(self)}>
               None
             </button>

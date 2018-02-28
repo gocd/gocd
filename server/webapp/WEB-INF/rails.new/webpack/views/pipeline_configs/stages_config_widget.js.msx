@@ -31,7 +31,7 @@ require('jquery-textcomplete');
 
 const autoComplete = function (values, model, attrName) {
   return function (elem) {
-    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${attrName}']`));
 
     $inputElem.textcomplete([
       {
@@ -45,7 +45,7 @@ const autoComplete = function (values, model, attrName) {
           }));
         },
         replace (word) {
-          return `$1 ${  word  }, `;
+          return `$1 ${word}, `;
         }
       }
     ]);
@@ -58,7 +58,7 @@ const autoComplete = function (values, model, attrName) {
 
 const destroyAutoComplete = function (attrName) {
   return function (elem) {
-    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${attrName}']`));
     $inputElem.textcomplete('destroy');
   };
 };
@@ -111,7 +111,7 @@ let SettingsWidget = {
 
   view (vnode) {
     const stage           = vnode.attrs.stage;
-    const radioName       = `radio-${  stage.uuid()  }-approval-type`;
+    const radioName       = `radio-${stage.uuid()}-approval-type`;
     const settingSelected = s.isBlank(vnode.attrs.stage.name()) ? 0 : -1;
 
     return (
@@ -138,7 +138,7 @@ let SettingsWidget = {
                 <label>
                   <input type="radio"
                          name={radioName}
-                         id={`${radioName  }-success`}
+                         id={`${radioName}-success`}
                          checked={stage.approval().isSuccess()}
                          onchange={stage.approval().makeOnSuccess.bind(stage.approval())} />
                   On Success
@@ -148,7 +148,7 @@ let SettingsWidget = {
                 <label>
                   <input type="radio"
                          name={radioName}
-                         id={`${radioName  }-manual`}
+                         id={`${radioName}-manual`}
                          checked={stage.approval().isManual()}
                          onchange={stage.approval().makeManual.bind(stage.approval())} />
                   Manual
@@ -211,13 +211,13 @@ let StageConfigDefinitionWidget = {
         <f.removeButton onclick={vnode.attrs.onRemove} class="remove-stage"/>
 
         <SettingsWidget stage={stage}
-                        vm={vnode.state.vmState(`settingsWidgetConfig-${  stageIndex}`)}/>
+                        vm={vnode.state.vmState(`settingsWidgetConfig-${stageIndex}`)}/>
         <ApprovalWidget approval={stage.approval}
-                        vm={vnode.state.vmState(`approvalWidgetConfig-${  stageIndex}`)}/>
+                        vm={vnode.state.vmState(`approvalWidgetConfig-${stageIndex}`)}/>
         <EnvironmentVariablesConfigWidget title='Stages Environment Variables'
                                           variables={stage.environmentVariables}
                                           key={stage.environmentVariables().uuid()}
-                                          vm={vnode.state.vmState(`environmentVariablesConfig-${  stageIndex}`)}/>
+                                          vm={vnode.state.vmState(`environmentVariablesConfig-${stageIndex}`)}/>
 
         <f.row>
           <f.column size={12} end>
@@ -225,7 +225,7 @@ let StageConfigDefinitionWidget = {
                               pluginInfos={vnode.attrs.pluginInfos}
                               elasticProfiles={vnode.attrs.elasticProfiles}
                               key={stage.jobs().uuid()}
-                              vm={vnode.state.vmState(`jobsWidgetConfig-${  stageIndex}`)}/>
+                              vm={vnode.state.vmState(`jobsWidgetConfig-${stageIndex}`)}/>
           </f.column>
         </f.row>
       </div>

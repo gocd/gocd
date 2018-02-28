@@ -507,7 +507,7 @@ describe("RolesWidget", () => {
     });
 
     it("should show success message when role is deleted", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
       });
@@ -521,7 +521,7 @@ describe("RolesWidget", () => {
     });
 
     it("should show error message when deletion of role fails", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });

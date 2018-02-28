@@ -215,7 +215,7 @@ const AuthConfigsWidget = {
         checkConnectionClasses,
         modalTitle: 'Add a new auth config',
         callback:   () => {
-          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${  newAuthConfig().id()  } was created successfully.`), showErrors(ctrl, newAuthConfig)).always(m.redraw);
+          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was created successfully.`), showErrors(ctrl, newAuthConfig)).always(m.redraw);
         }
       });
       modal.render();

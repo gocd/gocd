@@ -34,7 +34,7 @@ let PasswordField = {
     const attrName            = vnode.attrs.attrName;
     const capitalizedAttrName = _.upperFirst(attrName);
 
-    if (model[`isEditing${  capitalizedAttrName}`]()) {
+    if (model[`isEditing${capitalizedAttrName}`]()) {
       return (
         <div>
           <f.column largeSize={4}>
@@ -52,7 +52,7 @@ let PasswordField = {
         <f.column>
           <label>
             Password{' '}
-            <f.link onclick={model[`edit${  capitalizedAttrName}`].bind(model)}>Edit</f.link>
+            <f.link onclick={model[`edit${capitalizedAttrName}`].bind(model)}>Edit</f.link>
           </label>
           <input type='password'
                  readonly={true}
@@ -479,7 +479,7 @@ const MaterialsConfigWidget = {
         }
 
         const indexOfMaterial = materials().indexOfMaterial(newMaterial);
-        self.vmState(`material-${  indexOfMaterial}`, {selectedMaterialIndex: Stream(0)});
+        self.vmState(`material-${indexOfMaterial}`, {selectedMaterialIndex: Stream(0)});
       };
     };
   },
@@ -501,7 +501,7 @@ const MaterialsConfigWidget = {
               pluginInfos:  vnode.attrs.pluginInfos,
               pipelineName: vnode.attrs.pipelineName,
               pipelines:    vnode.attrs.pipelines,
-              vm:           vnode.state.vmState(`material-${  index}`)
+              vm:           vnode.state.vmState(`material-${index}`)
             }));
           })}
           <MaterialTypeSelector createMaterial={vnode.state.createMaterial(vnode.attrs.materials)}

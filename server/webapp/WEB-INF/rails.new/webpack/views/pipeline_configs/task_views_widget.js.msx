@@ -84,13 +84,13 @@ let TaskViews = {
       );
 
       if (pluggableTask && vnode.attrs.isPluginMissing()) {
-        taskActions = (<div class={`task-body ${  classNameForTaskBody()}`}>
+        taskActions = (<div class={`task-body ${classNameForTaskBody()}`}>
           {children}
         </div>);
       }
 
       return (
-        <div class={`task-definition task-type-${  vnode.attrs.task.type()}`} data-task-index={vnode.attrs.taskIndex}>
+        <div class={`task-definition task-type-${vnode.attrs.task.type()}`} data-task-index={vnode.attrs.taskIndex}>
           <div>
             <f.row class="task-summary" onclick={vnode.state.toggleIsEditing.bind(vnode.state)}>
               <f.column size={2} largeSize={2}><span>{vnode.state.taskDisplayName()}</span></f.column>
@@ -174,7 +174,7 @@ let TaskViews = {
 
       if (vnode.attrs.isPluginMissing()) {
         return (<TaskViews.base {...vnode.attrs}>
-          <div id={`pluggable-task-template-${  vnode.attrs.task.uuid()}`} class='task-basic'>
+          <div id={`pluggable-task-template-${vnode.attrs.task.uuid()}`} class='task-basic'>
             <div class='pluggable-task'>
               <f.alert>Plugin '{vnode.attrs.task.pluginId()}' not found.</f.alert>
             </div>

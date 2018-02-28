@@ -21,10 +21,6 @@ const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget
 const PipelineHeaderWidget   = require('views/dashboard/pipeline_header_widget');
 
 const PipelineWidget = {
-  oninit(vnode) {
-    this.args = vnode.attrs;
-  },
-
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     let pipelineInstances;
@@ -34,6 +30,7 @@ const PipelineWidget = {
         return (
           <PipelineInstanceWidget instance={instance}
                                   dropdown={vnode.attrs.vm.dropdown}
+                                  key={instance.counter}
                                   pipelineName={pipeline.name}
                                   trackingTool={pipeline.trackingTool}/>
         );

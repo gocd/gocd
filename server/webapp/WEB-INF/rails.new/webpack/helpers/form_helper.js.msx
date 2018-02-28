@@ -134,7 +134,7 @@ let f = {
         largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
       return (
-        <div class={compactClasses(args, 'columns', `medium-${  size}`, `large-${  largeSize}`, end)}
+        <div class={compactClasses(args, 'columns', `medium-${size}`, `large-${largeSize}`, end)}
              {...args}>
           {children}
         </div>
@@ -280,7 +280,7 @@ let f = {
 
       this.prefixedClass = function (suffix) {
         if (!s.isBlank(this.componentClass)) {
-          return `${this.componentClass  }-${  suffix}`;
+          return `${this.componentClass}-${suffix}`;
         }
       };
     },
@@ -492,7 +492,7 @@ let f = {
       let tooltipId = 'tooltip-';
 
       if (args.model && args.model.uuid) {
-        tooltipId += (`${args.model.uuid()  }-${  args.attrName}`);
+        tooltipId += (`${args.model.uuid()}-${args.attrName}`);
       } else {
         tooltipId += s.uuid();
       }
@@ -543,7 +543,7 @@ let f = {
     view (vnode) {
       const children = vnode.children;
       const type     = deleteKeyAndReturnValue(vnode.attrs, 'type');
-      return (<div class={`callout ${  type}`} {...vnode.attrs}>{children}</div>);
+      return (<div class={`callout ${type}`} {...vnode.attrs}>{children}</div>);
     }
   },
 

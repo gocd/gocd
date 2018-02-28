@@ -25,7 +25,7 @@ const RoleWidget = {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
-    const vmStateKey = `show-${  vnode.attrs.role().name()}`;
+    const vmStateKey = `show-${vnode.attrs.role().name()}`;
     this.vmState(vmStateKey, Stream(false));
 
     this.toggleHide = function () {

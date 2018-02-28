@@ -145,10 +145,10 @@ const TrackingToolWidget = {
                   <span>
                   <input type="radio"
                          name='tracking-tool-button-group'
-                         id={`tracking-tool-${  key}`}
+                         id={`tracking-tool-${key}`}
                          checked={isChecked(key)}
                          onclick={vnode.attrs.trackingTool.bind(vnode.attrs, vnode.state.vmState('possibleTrackingTools')[key])}/>
-                  <label for={`tracking-tool-${  key}`}> {value.description}</label>
+                  <label for={`tracking-tool-${key}`}> {value.description}</label>
                 </span>
                 );
               })}
@@ -156,7 +156,7 @@ const TrackingToolWidget = {
           </f.row>
 
           <f.row
-            class={`tracking-tool tracking-tool-${  vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
+            class={`tracking-tool tracking-tool-${vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
             <f.column size={6} end>
               {TrackingToolViews[vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'](vnode.attrs.trackingTool)}
             </f.column>

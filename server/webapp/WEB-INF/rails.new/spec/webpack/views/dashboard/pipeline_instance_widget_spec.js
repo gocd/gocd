@@ -132,8 +132,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render triggered by information", () => {
-    expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${ pipelineInstanceJson.triggered_by }`);
-    const expectedTime = `on ${ TimeFormatter.format(new Date(pipelineInstanceJson.scheduled_at))}`;
+    expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${pipelineInstanceJson.triggered_by}`);
+    const expectedTime = `on ${TimeFormatter.format(new Date(pipelineInstanceJson.scheduled_at))}`;
     expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 

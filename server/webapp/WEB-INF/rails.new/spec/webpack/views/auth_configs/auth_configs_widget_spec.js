@@ -326,7 +326,7 @@ describe("AuthConfigsWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should render a new modal to edit existing auth config", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'GET').andReturn({
         responseText:    JSON.stringify(authConfigJSON),
         status:          200,
         responseHeaders: {
@@ -342,7 +342,7 @@ describe("AuthConfigsWidget", () => {
     });
 
     it("should display error message if fails to fetch auth config", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
@@ -354,7 +354,7 @@ describe("AuthConfigsWidget", () => {
 
 
     it("should keep the auth config expanded while edit modal is open", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify(authConfigJSON),
         status:       200
       });
@@ -382,7 +382,7 @@ describe("AuthConfigsWidget", () => {
     });
 
     it("should show success message when auth config is deleted", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
       });
@@ -396,7 +396,7 @@ describe("AuthConfigsWidget", () => {
     });
 
     it("should show error message when deletion of auth config fails", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
@@ -495,7 +495,7 @@ describe("AuthConfigsWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show modal with data from cloning auth config", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify(authConfigJSON),
         status:       200
       });

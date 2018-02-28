@@ -152,8 +152,8 @@ const PipelineConfigWidget = function (options) {
               </f.column>
               <f.column size={1}>
                 <f.button onclick={vnode.state.onSavePipeline.bind(vnode.state)}
-                          class={`save-pipeline ${  vnode.state.vm.saveState()}`}>
-                  <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
+                          class={`save-pipeline ${vnode.state.vm.saveState()}`}>
+                  <span class={`save-state ${vnode.state.vm.saveState()}`}/>
                   Save
                 </f.button>
               </f.column>

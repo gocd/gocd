@@ -147,11 +147,11 @@ const PipelineOperationsWidget = {
 
     let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
     if (pipeline.isPaused) {
-      pauseUnpauseClass   = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pauseUnpauseClass   = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled'}`;
       pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
-      pauseUnpauseClass   = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled' }`;
+      pauseUnpauseClass   = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled'}`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
     }
 

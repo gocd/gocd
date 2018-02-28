@@ -25,7 +25,7 @@ require('jquery-textcomplete');
 const PipelineStageFieldWidget = {
   textComplete (attrName, values) {
     return function (elem) {
-      const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
+      const $inputElem = $(elem.dom).find(`input[name='${attrName}']`);
 
       $inputElem.textcomplete([
         {
@@ -48,7 +48,7 @@ const PipelineStageFieldWidget = {
 
   destroyTextComplete (attrName) {
     return function (elem) {
-      const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
+      const $inputElem = $(elem.dom).find(`input[name='${attrName}']`);
       $inputElem.textcomplete('destroy');
     };
   },

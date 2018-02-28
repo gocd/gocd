@@ -139,7 +139,7 @@ const RolesWidget = function (options) {
           newRole,
           modalTitle: 'Add a new role',
           callback:   () => {
-            newRole().create().then(showSuccess(modal, ctrl, `The role ${  newRole().name()  } was created successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
+            newRole().create().then(showSuccess(modal, ctrl, `The role ${newRole().name()} was created successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
           }
         });
         modal.render();

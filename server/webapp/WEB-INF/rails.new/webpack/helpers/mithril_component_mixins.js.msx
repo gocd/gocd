@@ -45,20 +45,20 @@ ComponentMixins.HasViewModel = function () {
 
 ComponentMixins.ManagesCollection = function (options) {
   const associationName                  = options.as;
-  const associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as  }s`), true);
-  const associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as  }s`));
+  const associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as}s`), true);
+  const associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as}s`));
 
   this.add = options.add || function () {
-    this.args[associationNamePlural]()[`create${  associationName}`]();
+    this.args[associationNamePlural]()[`create${associationName}`]();
   };
 
   this.remove = function (thing) {
-    this.args[associationNamePlural]()[`remove${  associationName}`](thing);
+    this.args[associationNamePlural]()[`remove${associationName}`](thing);
     this.changed();
   };
 
   this.last = options.last || function () {
-    return this.args[associationNamePlural]()[`last${  associationName}`]();
+    return this.args[associationNamePlural]()[`last${associationName}`]();
   };
 
   this.changed = function () {
@@ -75,7 +75,7 @@ ComponentMixins.ManagesCollection = function (options) {
   };
 
   this.map = options.map || function (callback) {
-    return this.args[associationNamePlural]()[`map${  associationNamePluralCapitalized}`]((thing, index) => {
+    return this.args[associationNamePlural]()[`map${associationNamePluralCapitalized}`]((thing, index) => {
       return callback(thing, index);
     });
   };

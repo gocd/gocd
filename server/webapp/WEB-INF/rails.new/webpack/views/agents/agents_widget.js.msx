@@ -162,7 +162,7 @@ const AgentsWidget = {
     if (args.permanentMessage().message) {
       permanentMessage = (
         <f.row class="message">
-          <div data-alert class={`callout radius ${  args.permanentMessage().type}`}
+          <div data-alert class={`callout radius ${args.permanentMessage().type}`}
                title={args.permanentMessage().message}>
 
             {_.truncate(args.permanentMessage().message, {'length': maxCharsToBeDisplayedInMessage})}
@@ -176,7 +176,7 @@ const AgentsWidget = {
     if (ctrl.message().message) {
       updateMessage = (
         <f.row class="message">
-          <div data-alert class={`callout radius ${  ctrl.message().type}`} title={ctrl.message().message}>
+          <div data-alert class={`callout radius ${ctrl.message().type}`} title={ctrl.message().message}>
 
             {_.truncate(ctrl.message().message, {'length': maxCharsToBeDisplayedInMessage})}
             <a href="#" class="close"/>

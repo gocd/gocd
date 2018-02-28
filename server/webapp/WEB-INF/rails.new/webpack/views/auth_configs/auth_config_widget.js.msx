@@ -24,7 +24,7 @@ const AuthConfigWidget = {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
-    const vmStateKey = `show-${  vnode.attrs.authConfig.id()}`;
+    const vmStateKey = `show-${vnode.attrs.authConfig.id()}`;
 
     this.vmState(vmStateKey, Stream(false));
 
@@ -75,7 +75,7 @@ const AuthConfigWidget = {
           </div>
 
         </div>
-        <div class={`plugin-config-read-only ${  vnode.state.showState()}`}>
+        <div class={`plugin-config-read-only ${vnode.state.showState()}`}>
           <dl class="key-value-pair">
 
             {authConfig.properties().mapConfigurations((configuration) => {

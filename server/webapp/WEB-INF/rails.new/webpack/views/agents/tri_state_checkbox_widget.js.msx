@@ -24,7 +24,7 @@ const TriStateCheckboxWidget = {
     return (
       <li>
         <input type="checkbox"
-               id={`checkbox-${  args.index.toString()}`}
+               id={`checkbox-${args.index.toString()}`}
                class="select-resource"
                key={args.triStateCheckbox.name()}
                checked={args.triStateCheckbox.isChecked()}
@@ -32,7 +32,7 @@ const TriStateCheckboxWidget = {
                value={args.triStateCheckbox.name()}
                onchange={args.triStateCheckbox.click}>
         </input>
-        <label for={`checkbox-${  args.index.toString()}`} title={args.triStateCheckbox.name()}>
+        <label for={`checkbox-${args.index.toString()}`} title={args.triStateCheckbox.name()}>
           {_.truncate(args.triStateCheckbox.name(), {'length': 25})}
         </label>
 

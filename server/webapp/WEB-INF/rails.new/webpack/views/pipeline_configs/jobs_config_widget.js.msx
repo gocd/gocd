@@ -34,7 +34,7 @@ require('jquery-textcomplete');
 
 
 const resourceReplaceFunc = function (word) {
-  return `$1${  word  }, `;
+  return `$1${word}, `;
 };
 
 const profileIdReplaceFunc = function (word) {
@@ -43,13 +43,13 @@ const profileIdReplaceFunc = function (word) {
 
 const autoComplete = function (values, model, attrName, match, matchIndex, replaceFunc) {
   return function (elem) {
-    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${attrName}']`));
 
     $inputElem.textcomplete([
       {
         match,
         index:   matchIndex, // use the second match in the regex to extract the search term
-        search (term, callback) {
+        search(term, callback) {
           term = term.toLowerCase();
           callback($.map(values, (word) => {
             return word.toLowerCase().indexOf(term) === 0 ? word : null;
@@ -67,20 +67,20 @@ const autoComplete = function (values, model, attrName, match, matchIndex, repla
 
 const destroyAutoComplete = function (attrName) {
   return function (elem) {
-    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${attrName}']`));
     $inputElem.textcomplete('destroy');
   };
 };
 
 let JobTimeout = {
-  view (vnode) {
+  view(vnode) {
     const job       = vnode.attrs.job;
-    const radioName = `radio-${  job.uuid()  }-timeout`;
+    const radioName = `radio-${job.uuid()}-timeout`;
     const errors    = job.validate();
     let timeoutError;
 
     if (errors.errors('timeout')) {
-      timeoutError = (<small class='form-error is-visible'>{errors.errorsForDisplay('timeout')}</small>);
+      timeoutError = (<small class="form-error is-visible">{errors.errorsForDisplay('timeout')}</small>);
     }
     return (
       <div>
@@ -88,7 +88,7 @@ let JobTimeout = {
           <f.column size={12}>
             <label>
               Timeout
-              <f.tooltip tooltip={{content: tt.job.timeout, size:'small'}} model={job} attrName='timeout'/>
+              <f.tooltip tooltip={{content: tt.job.timeout, size: 'small'}} model={job} attrName="timeout"/>
             </label>
           </f.column>
         </f.row>
@@ -98,33 +98,33 @@ let JobTimeout = {
             <label>
               <input type="radio"
                      name={radioName}
-                     id={`${radioName  }-never`}
+                     id={`${radioName}-never`}
                      checked={job.isTimeoutNever()}
-                     onchange={job.timeout.bind(job, "never")} />
+                     onchange={job.timeout.bind(job, "never")}/>
               Never
             </label>
             <label>
               <input type="radio"
                      name={radioName}
-                     id={`${radioName  }-default`}
+                     id={`${radioName}-default`}
                      checked={job.isTimeoutDefault()}
-                     onchange={job.timeout.bind(job, null)} />
+                     onchange={job.timeout.bind(job, null)}/>
               Default
             </label>
 
             <label>
               <input type="radio"
                      name={radioName}
-                     id={`${radioName  }-custom`}
+                     id={`${radioName}-custom`}
                      checked={!(job.isTimeoutNever() || job.isTimeoutDefault())}
-                     onchange={job.timeout.bind(job, "")} />
+                     onchange={job.timeout.bind(job, "")}/>
               Cancel after
               <input type="number"
                      min="1"
                      style={{display: "inline", width: "60px"}} size={3}
                      oninput={m.withAttr("value", job.timeout)}
                      class={timeoutError && "error"}
-                     value={(!(job.isTimeoutNever() || job.isTimeoutDefault())) ? job.timeout() : null} />
+                     value={(!(job.isTimeoutNever() || job.isTimeoutDefault())) ? job.timeout() : null}/>
               minute(s) of inactivity
               {timeoutError}
             </label>
@@ -137,9 +137,9 @@ let JobTimeout = {
 
 
 let RunOnAgent = {
-  view (vnode) {
+  view(vnode) {
     const job                  = vnode.attrs.job;
-    const radioName            = `radio-${  job.uuid()  }-runInstanceCount`;
+    const radioName            = `radio-${job.uuid()}-runInstanceCount`;
     const errors               = job.validate();
     const requiresElasticAgent = job.requiresElasticAgent();
 
@@ -149,7 +149,7 @@ let RunOnAgent = {
 
     if (errors.errors('runInstanceCount')) {
       runInstanceCounteError = (
-        <small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>);
+        <small class="form-error is-visible">{errors.errorsForDisplay('runInstanceCount')}</small>);
     }
 
     if (requiresElasticAgent) {
@@ -165,7 +165,8 @@ let RunOnAgent = {
           <f.column size={12}>
             <label>
               Number of jobs
-              <f.tooltip tooltip={{content: tt.job.runInstanceCount.main, size: 'small'}} model={job} attrName='runInstanceCount'/>
+              <f.tooltip tooltip={{content: tt.job.runInstanceCount.main, size: 'small'}} model={job}
+                         attrName="runInstanceCount"/>
             </label>
           </f.column>
         </f.row>
@@ -175,9 +176,9 @@ let RunOnAgent = {
             <label>
               <input type="radio"
                      name={radioName}
-                     id={`${radioName  }-one`}
+                     id={`${radioName}-one`}
                      checked={job.isRunOnOneAgent()}
-                     onchange={job.runInstanceCount.bind(job, null)} />
+                     onchange={job.runInstanceCount.bind(job, null)}/>
               Run on one agent
             </label>
 
@@ -185,10 +186,10 @@ let RunOnAgent = {
               <input type="radio"
                      name={radioName}
                      class={requiresElasticAgent && "disabled-radio"}
-                     id={`${radioName  }-all`}
+                     id={`${radioName}-all`}
                      disabled={requiresElasticAgent}
                      checked={job.isRunOnAllAgents()}
-                     onchange={job.runInstanceCount.bind(job, 'all')} />
+                     onchange={job.runInstanceCount.bind(job, 'all')}/>
               Run on all agents
               {runOnAllAgentsMessage}
             </label>
@@ -196,9 +197,9 @@ let RunOnAgent = {
             <label>
               <input type="radio"
                      name={radioName}
-                     id={`${radioName  }-custom`}
+                     id={`${radioName}-custom`}
                      checked={!(job.isRunOnOneAgent() || job.isRunOnAllAgents())}
-                     onchange={job.runInstanceCount.bind(job, "")} />
+                     onchange={job.runInstanceCount.bind(job, "")}/>
               Run
               <input type="number"
                      min="1"
@@ -217,7 +218,7 @@ let RunOnAgent = {
 };
 
 const JobSettingsWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
@@ -249,7 +250,7 @@ const JobSettingsWidget = {
 
     return (<f.accordion accordionTitles={[(<span>Job Settings</span>)]}
                          accordionKeys={['job-settings']}
-                         selectedIndex={vnode.state.vmState(`jobSettingsSelected${  jobIndex}`, Stream(s.isBlank(job.name()) ? 0 : -1))}
+                         selectedIndex={vnode.state.vmState(`jobSettingsSelected${jobIndex}`, Stream(s.isBlank(job.name()) ? 0 : -1))}
                          class="accordion-inner">
       <div>
         <f.row>
@@ -257,7 +258,7 @@ const JobSettingsWidget = {
             <f.input model={job}
                      attrName="name"
                      label={<span class="required">Name</span>}
-                     validate />
+                     validate/>
           </f.column>
         </f.row>
         <f.row>
@@ -266,24 +267,28 @@ const JobSettingsWidget = {
                      attrName="resources"
                      label={[
                        "Resources",
-                       <f.tooltip tooltip={{content: tt.job.resources, size: "small"}} model={job} attrName="resources" />,
-                       resourcesDisabledMessage ? <f.tooltip tooltip={{type: "info", content: resourcesDisabledMessage}} /> : null
+                       <f.tooltip tooltip={{content: tt.job.resources, size: "small"}} model={job}
+                                  attrName="resources"/>,
+                       resourcesDisabledMessage ?
+                         <f.tooltip tooltip={{type: "info", content: resourcesDisabledMessage}}/> : null
                      ]}
                      oncreate={autoComplete(Resources.list, job, "resources", /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
                      onremove={destroyAutoComplete("resources")}
-                     disabled={disableResourceTextbox} />
+                     disabled={disableResourceTextbox}/>
           </f.column>
           <f.column size={4} end>
             <f.input model={job}
                      attrName="elasticProfileId"
                      label={[
                        "Elastic Profile Id",
-                       <f.tooltip tooltip={{content: tt.job.elasticProfile, size: "small"}} model={job} attrName="elasticProfileId" />,
-                       elasticProfileIdDisabledMessage ? <f.tooltip tooltip={{type: "info", content: elasticProfileIdDisabledMessage}} /> : null
+                       <f.tooltip tooltip={{content: tt.job.elasticProfile, size: "small"}} model={job}
+                                  attrName="elasticProfileId"/>,
+                       elasticProfileIdDisabledMessage ?
+                         <f.tooltip tooltip={{type: "info", content: elasticProfileIdDisabledMessage}}/> : null
                      ]}
                      oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty("id"), job, "elasticProfileId", /(.*)$/, 1, profileIdReplaceFunc)}
                      onremove={destroyAutoComplete("elasticProfileId")}
-                     disabled={disableElasticProfileSelection} />
+                     disabled={disableElasticProfileSelection}/>
           </f.column>
         </f.row>
         <f.row>
@@ -298,7 +303,7 @@ const JobSettingsWidget = {
 };
 
 const JobsConfigWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
     ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
@@ -309,7 +314,7 @@ const JobsConfigWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
     const allJobNames = vnode.state.map((job) => {
       return job.name();
     });
@@ -319,7 +324,7 @@ const JobsConfigWidget = {
     });
 
     const tabTitles = _(allJobNames).concat((
-      <f.link onclick={vnode.state.add.bind(vnode.state)} class='add-job'>Add Job</f.link>)
+      <f.link onclick={vnode.state.add.bind(vnode.state)} class="add-job">Add Job</f.link>)
     ).value();
 
     const tabUUIDs = _(allJobUUIDs).concat('add-job');
@@ -334,34 +339,34 @@ const JobsConfigWidget = {
           const jobIndex = vnode.attrs.jobs().indexOfJob(job);
 
           return (
-            <f.row class='job-definition' collapse="true" key={job.uuid()}>
+            <f.row class="job-definition" collapse="true" key={job.uuid()}>
               <f.column size={12}>
-                <f.removeButton onclick={vnode.state.removeJob.bind(vnode.state, job)} class='remove-job'/>
+                <f.removeButton onclick={vnode.state.removeJob.bind(vnode.state, job)} class="remove-job"/>
                 <f.row>
                   <JobSettingsWidget job={job}
                                      elasticProfiles={vnode.attrs.elasticProfiles}
                                      jobs={vnode.attrs.jobs}/>
-                  <EnvironmentVariablesConfigWidget title='Jobs Environment Variables'
+                  <EnvironmentVariablesConfigWidget title="Jobs Environment Variables"
                                                     variables={job.environmentVariables}
                                                     key={job.environmentVariables().uuid()}
-                                                    vm={vnode.state.vmState(`environmentVariablesConfig-${  jobIndex}`)}/>
+                                                    vm={vnode.state.vmState(`environmentVariablesConfig-${jobIndex}`)}/>
                 </f.row>
                 <f.row>
                   <TasksConfigWidget tasks={job.tasks}
                                      pluginInfos={vnode.attrs.pluginInfos}
-                                     vm={vnode.state.vmState(`tasksConfig-${  jobIndex}`)}/>
+                                     vm={vnode.state.vmState(`tasksConfig-${jobIndex}`)}/>
                 </f.row>
 
                 <f.row>
                   <ArtifactsConfigWidget artifacts={job.artifacts}
                                          keys={job.artifacts().uuid()}
-                                         vm={vnode.state.vmState(`artifactsConfig-${  jobIndex}`)}/>
+                                         vm={vnode.state.vmState(`artifactsConfig-${jobIndex}`)}/>
                   <TabsConfigWidget tabs={job.tabs}
                                     keys={job.tabs().uuid()}
-                                    vm={vnode.state.vmState(`tabsConfig-${  jobIndex}`)}/>
+                                    vm={vnode.state.vmState(`tabsConfig-${jobIndex}`)}/>
                   <PropertiesConfigWidget properties={job.properties}
                                           keys={job.properties().uuid()}
-                                          vm={vnode.state.vmState(`propertiesConfig-${  jobIndex}`)}/>
+                                          vm={vnode.state.vmState(`propertiesConfig-${jobIndex}`)}/>
                 </f.row>
               </f.column>
             </f.row>

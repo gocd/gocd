@@ -113,7 +113,7 @@ const TasksConfigWidget = {
               onRemove:    vnode.attrs.tasks().removeTask.bind(vnode.attrs.tasks(), task),
               taskIndex,
               key:         task.uuid(),
-              vm:          vnode.state.vmState(`task-${  taskIndex}`),
+              vm:          vnode.state.vmState(`task-${taskIndex}`),
               pluginInfos: vnode.attrs.pluginInfos
             }));
           })}

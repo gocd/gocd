@@ -21,7 +21,7 @@ let SortHeaderWidget = {
     return (
       <label class="agents-table-header"
              onclick={vnode.attrs.sortOrder().toggleSortingOrder.bind(vnode.attrs.sortOrder(), vnode.attrs.attrName)}>{vnode.attrs.attrLabel}
-        <div class={`sort ${  vnode.attrs.sortClass(vnode.attrs.attrName)}`}>
+        <div class={`sort ${vnode.attrs.sortClass(vnode.attrs.attrName)}`}>
           <span class="up"/>
           <span class="down"/>
         </div>

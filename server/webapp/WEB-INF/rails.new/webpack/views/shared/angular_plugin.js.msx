@@ -22,11 +22,11 @@ const $       = require('jquery');
 const angular = require('angular');
 
 const appName = function (configuration) {
-  return `app-${  configuration.uuid()}`;
+  return `app-${configuration.uuid()}`;
 };
 
 const controllerName = function (configuration) {
-  return `controller-${  configuration.uuid()}`;
+  return `controller-${configuration.uuid()}`;
 };
 
 const pluginTemplate = function (pluginInfoSettings) {
@@ -113,7 +113,7 @@ function onUpdate(scope, args) {
 const AngularPlugin = {
   template (template) {
     return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
-      return `GOINPUTNAME['${  name  }']`;
+      return `GOINPUTNAME['${name}']`;
     })).html();
   },
 

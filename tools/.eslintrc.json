@@ -45,6 +45,10 @@
     "arrow-spacing": [
       "error"
     ],
+    "template-curly-spacing": [
+      "error",
+      "never"
+    ],
     "no-const-assign": [
       "error"
     ],
@@ -71,7 +75,12 @@
     ],
     "indent": [
       "off",
-      {"indent-legacy": ["error",2]}
+      {
+        "indent-legacy": [
+          "error",
+          2
+        ]
+      }
     ],
     "eqeqeq": [
       "error",

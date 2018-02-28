@@ -6,7 +6,7 @@
     </form>
 <% else
     scope[:pause_info_id] = "pause-info-#{scope[:pipeline_name]}"
-    scope[:pause_onclick] = "Modalbox.show($(\"#{scope[:pause_info_id]}\"),{title: \"Pause pipeline: #{scope[:pipeline_name]} \",overlayClose:false})"
+    scope[:pause_onclick] = "Modalbox.show($(\"#{scope[:pause_info_id]}\"),{title: \"Pause pipeline: #{scope[:pipeline_name]} \",overlayClose:false, class: 'small'})"
 -%>
     <div class='operate pause_wrapper'>
         <%= submit_button("Pause", {:type=> "image", :id => "confirm-pause-#{scope[:pipeline_name]}", :onclick => "#{h(scope[:pause_onclick])}"}) %>

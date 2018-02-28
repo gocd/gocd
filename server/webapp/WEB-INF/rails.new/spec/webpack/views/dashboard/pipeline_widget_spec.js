@@ -825,7 +825,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, is_defined_in_config_repo = false) { // eslint-disable-line camelcase
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -858,7 +858,7 @@ describe("Dashboard Pipeline Widget", () => {
       "can_operate":            canOperate,
       "can_pause":              canPause,
       "pause_info":             pauseInfo,
-      is_defined_in_config_repo, // eslint-disable-line camelcase
+      "from_config_repo":       fromConfigRepo,
       "_embedded":              {
         "instances": pipelineInstances
       }

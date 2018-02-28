@@ -43,7 +43,7 @@ const Pipeline = function (info) {
   this.isLocked  = info.locked;
   this.canUnlock = info.can_unlock;
 
-  this.isDefinedInConfigRepo = () => info.is_defined_in_config_repo;
+  this.isDefinedInConfigRepo = () => info.from_config_repo;
 
   this.canOperate = info.can_operate;
 

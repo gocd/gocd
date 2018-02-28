@@ -52,7 +52,7 @@ class PipelineRepresenterTest {
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
     assertThatJson(json).isEqualTo([
-      _links                   : [
+      _links                : [
         self    : [href: 'http://test.host/go/api/pipelines/pipeline_name/history'],
         doc     : [href: 'https://api.go.cd/current/#pipelines'],
         schedule: [href: 'http://test.host/go/api/pipelines/pipeline_name/schedule'],
@@ -60,30 +60,30 @@ class PipelineRepresenterTest {
         unlock  : [href: 'http://test.host/go/api/pipelines/pipeline_name/unlock'],
         pause   : [href: 'http://test.host/go/api/pipelines/pipeline_name/pause'],
       ],
-      _embedded                : [
+      _embedded             : [
         instances: [
           toObject({
             PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.first())
           })
         ]
       ],
-      name                     : 'pipeline_name',
-      locked                   : false,
-      last_updated_timestamp   : 1,
-      pause_info               : [
+      name                  : 'pipeline_name',
+      locked                : false,
+      last_updated_timestamp: 1,
+      pause_info            : [
         paused      : false,
         paused_by   : null,
         pause_reason: null
       ],
-      can_operate              : false,
-      can_administer           : false,
-      can_unlock               : false,
-      can_pause                : false,
-      tracking_tool            : [
+      can_operate           : false,
+      can_administer        : false,
+      can_unlock            : false,
+      can_pause             : false,
+      tracking_tool         : [
         "regex": "##\\d+",
         "link" : "http://example.com/\${ID}"
       ],
-      is_defined_in_config_repo: false
+      from_config_repo      : false
     ])
   }
 
@@ -148,19 +148,19 @@ class PipelineRepresenterTest {
 
   private static def pipelines_hash() {
     return [
-      name                     : 'pipeline_name',
-      locked                   : false,
-      last_updated_timestamp   : 1,
-      pause_info               : [
+      name                  : 'pipeline_name',
+      locked                : false,
+      last_updated_timestamp: 1,
+      pause_info            : [
         paused      : false,
         paused_by   : null,
         pause_reason: null
       ],
-      can_operate              : false,
-      can_administer           : false,
-      can_unlock               : false,
-      can_pause                : false,
-      is_defined_in_config_repo: true
+      can_operate           : false,
+      can_administer        : false,
+      can_unlock            : false,
+      can_pause             : false,
+      from_config_repo      : true
     ]
   }
 

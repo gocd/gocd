@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
@@ -25,17 +26,17 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class EnvironmentCommand {
     private Localizable.CurryableLocalizable actionFailed;
-    private EnvironmentConfig config;
-    private LocalizedOperationResult result;
+    protected EnvironmentConfig environmentConfig;
+    protected LocalizedOperationResult result;
 
-    public EnvironmentCommand(Localizable.CurryableLocalizable actionFailed, EnvironmentConfig config, LocalizedOperationResult result) {
+    public EnvironmentCommand(Localizable.CurryableLocalizable actionFailed, EnvironmentConfig environmentConfig, LocalizedOperationResult result) {
         this.actionFailed = actionFailed;
-        this.config = config;
+        this.environmentConfig = environmentConfig;
         this.result = result;
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.config.name());
+        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.environmentConfig.name());
         boolean isValid = config.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig), preprocessedConfig);
 
         if (!isValid) {
@@ -47,6 +48,6 @@ public class EnvironmentCommand {
     }
 
     public EnvironmentConfig getPreprocessedEntityConfig() {
-        return config;
+        return environmentConfig;
     }
 }

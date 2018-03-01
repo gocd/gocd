@@ -19,6 +19,8 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
@@ -33,6 +35,7 @@ import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -126,5 +129,17 @@ public class AddEnvironmentCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldSetTheConfigOriginOnAddedEnvironmentConfig() {
+        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        EnvironmentsConfig environmentConfigs = mock(EnvironmentsConfig.class);
+        when(environmentConfigs.find(environmentConfig.name())).thenReturn(environmentConfig);
+        when(goConfigService.getEnvironments()).thenReturn(environmentConfigs);
+        addEnvironmentCommand.postValidationUpdates(cruiseConfig);
+
+        assertThat(environmentConfig.getOrigin(), is(new FileConfigOrigin()));
+
     }
 }

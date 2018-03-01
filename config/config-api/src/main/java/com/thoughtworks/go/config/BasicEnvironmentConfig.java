@@ -374,7 +374,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     public boolean isLocal() {
-        return this.origin == null || this.origin.isLocal();
+        return this.origin.isLocal();
     }
 
     @Override

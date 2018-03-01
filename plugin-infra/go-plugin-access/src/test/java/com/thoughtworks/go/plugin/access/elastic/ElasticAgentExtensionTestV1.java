@@ -176,7 +176,7 @@ public class ElasticAgentExtensionTestV1 extends ElasticAgentExtensionTest {
         thrown.expectMessage("Interaction with plugin with id 'cd.go.example.plugin' implementing 'elastic-agent' extension failed while requesting for 'go.cd.elastic-agent.status-report'. Reason: [error]");
 
         try {
-            extension.getStatusReport(PLUGIN_ID);
+            extension.getPluginStatusReport(PLUGIN_ID);
         } catch (Exception e) {
             assertExtensionRequest("1.0", REQUEST_STATUS_REPORT, null);
             throw e;

@@ -19,8 +19,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
@@ -33,8 +36,11 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
@@ -50,6 +56,8 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentPluginServiceTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private PluginManager pluginManager;
     @Mock
@@ -67,8 +75,9 @@ public class ElasticAgentPluginServiceTest {
     @Mock
     private CreateAgentQueueHandler createAgentQueue;
     private TimeProvider timeProvider;
-    private ElasticAgentPluginService service;
     private String autoRegisterKey = "key";
+    private ElasticAgentPluginService service;
+    private ElasticAgentMetadataStore elasticAgentMetadataStore;
 
     @Before
     public void setUp() throws Exception {
@@ -83,9 +92,17 @@ public class ElasticAgentPluginServiceTest {
         when(registry.has("p2")).thenReturn(true);
         when(registry.has("missing")).thenReturn(false);
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
+
+        elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
         timeProvider = new TimeProvider();
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService);
+
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        elasticAgentMetadataStore.clear();
     }
 
     @Test
@@ -166,7 +183,7 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldReportMissingElasticPlugin(){
+    public void shouldReportMissingElasticPlugin() {
         JobPlan plan1 = plan(1, "missing");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
@@ -180,7 +197,7 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered(){
+    public void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered() {
         JobPlan plan1 = plan(1, "docker");
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -211,7 +228,7 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_AndThePluginAgreesToTheAssignment(){
+    public void shouldAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_AndThePluginAgreesToTheAssignment() {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
@@ -222,7 +239,7 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldNotAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_ButThePluginRefusesToTheAssignment(){
+    public void shouldNotAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_ButThePluginRefusesToTheAssignment() {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
@@ -233,13 +250,64 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin(){
+    public void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin() {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
         when(registry.shouldAssignWork(any(), any(), any(), any(), any())).thenReturn(true);
 
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
+    }
+
+    @Test
+    public void shouldGetAPluginStatusReportWhenPluginSupportsStatusReport() {
+        final Capabilities capabilities = new Capabilities(true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+
+        when(registry.getPluginStatusReport("cd.go.example.plugin")).thenReturn("<div>This is a plugin status report snippet.</div>");
+
+        final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
+
+        assertThat(pluginStatusReport, is("<div>This is a plugin status report snippet.</div>"));
+    }
+
+    @Test
+    public void shouldErrorOutWhenPluginDoesNotSupportStatusReport() {
+        final Capabilities capabilities = new Capabilities(false);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Plugin does not support status report.");
+
+        service.getPluginStatusReport("cd.go.example.plugin");
+    }
+
+    @Test
+    public void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() {
+        final Capabilities capabilities = new Capabilities(false, true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+
+        when(registry.getAgentStatusReport("cd.go.example.plugin", null, "some-id"))
+                .thenReturn("<div>This is a agent status report snippet.</div>");
+
+        final String pluginStatusReport = service.getAgentStatusReport("cd.go.example.plugin", null, "some-id");
+
+        assertThat(pluginStatusReport, is("<div>This is a agent status report snippet.</div>"));
+    }
+
+    @Test
+    public void shouldErrorOutWhenPluginDoesNotAgentSupportStatusReport() {
+        final Capabilities capabilities = new Capabilities(true, false);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Plugin does not support agent status report.");
+
+        service.getAgentStatusReport("cd.go.example.plugin", null, null);
     }
 
     private JobPlan plan(int jobId, String pluginId) {

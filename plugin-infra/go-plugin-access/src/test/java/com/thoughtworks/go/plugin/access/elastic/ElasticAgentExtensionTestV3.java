@@ -186,7 +186,7 @@ public class ElasticAgentExtensionTestV3 extends ElasticAgentExtensionTest {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final String statusReportView = extension.getStatusReport(PLUGIN_ID);
+        final String statusReportView = extension.getPluginStatusReport(PLUGIN_ID);
 
         assertThat(statusReportView, is("<div>This is a status report snippet.</div>"));
         assertExtensionRequest("3.0", REQUEST_STATUS_REPORT, null);

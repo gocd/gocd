@@ -58,6 +58,20 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         return result;
     }
 
+    public String getPluginStatusReport(String pluginId) {
+        LOGGER.debug("Processing get plugin status report for plugin: {} ", pluginId);
+        final String statusReportView = extension.getPluginStatusReport(pluginId);
+        LOGGER.debug("Done processing get plugin status report for plugin: {} ", pluginId);
+        return statusReportView;
+    }
+
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
+        LOGGER.debug("Processing get plugin status report for plugin: {} with job-identifier: {} with elastic-agent-id: {}", pluginId, jobIdentifier, elasticAgentId);
+        final String agentStatusReportView = extension.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId);
+        LOGGER.debug("Done processing get plugin status report for plugin: {} with job-identifier: {} with elastic-agent-id: {} ", pluginId, jobIdentifier, elasticAgentId);
+        return agentStatusReportView;
+    }
+
     public boolean has(String pluginId) {
         return findPlugin(pluginId) != null;
     }

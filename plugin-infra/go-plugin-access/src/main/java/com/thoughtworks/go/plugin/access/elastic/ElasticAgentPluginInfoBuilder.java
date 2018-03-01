@@ -17,31 +17,24 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
-
 @Component
 public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticAgentPluginInfo> {
-
     private ElasticAgentExtension extension;
-    private final PluginManager pluginManager;
 
     @Autowired
-    public ElasticAgentPluginInfoBuilder(ElasticAgentExtension extension, PluginManager pluginManager) {
+    public ElasticAgentPluginInfoBuilder(ElasticAgentExtension extension) {
         this.extension = extension;
-        this.pluginManager = pluginManager;
     }
 
     @Override
@@ -63,10 +56,6 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
     }
 
     private Capabilities capabilities(String pluginId) {
-        return pluginSupportsElasticAgentV2Endpoint(pluginId) ? extension.getCapabilities(pluginId) : null;
-    }
-
-    private boolean pluginSupportsElasticAgentV2Endpoint(String pluginId) {
-        return pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS).equals(ElasticAgentExtensionConverterV2.VERSION);
+        return extension.getCapabilities(pluginId);
     }
 }

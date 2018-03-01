@@ -95,6 +95,7 @@ module.exports = function (env) {
     plugins.push(new UglifyJsPlugin({
       cache:         true,
       parallel:      true,
+      sourceMap:     true,
       uglifyOptions: {
         ecma:     5,
         warnings: false
@@ -145,6 +146,7 @@ module.exports = function (env) {
 
   if (production) {
     fsExtra.removeSync(config.output.path);
+    config.devtool = "source-map";
   } else {
     config.devtool = "inline-source-map";
 

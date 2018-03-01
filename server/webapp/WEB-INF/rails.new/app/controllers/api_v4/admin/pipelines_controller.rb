@@ -59,6 +59,8 @@ module ApiV4
         @pipeline_config_from_request ||= PipelineConfig.new.tap do |config|
           Admin::Pipelines::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
         end
+
+        @pipeline_config_from_request.setOrigin(FileConfigOrigin.new)
       end
 
       def handle_config_save_or_update_result(result, pipeline_name = params[:pipeline_name])

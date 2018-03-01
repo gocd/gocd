@@ -283,7 +283,9 @@ describe ApiV3::Admin::PipelinesController do
       it "should update pipeline config for an admin" do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@pipeline).and_return(@pipeline_md5)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
-        expect(@pipeline_config_service).to receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, anything())
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, anything()) do |_user, pipeline|
+          expect(pipeline.getOrigin).to eq(FileConfigOrigin.new)
+        end
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
 

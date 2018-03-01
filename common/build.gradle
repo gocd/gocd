@@ -44,6 +44,10 @@ dependencies {
   testCompile project(':test-utils')
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+
+  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
+  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
 }
 
 check.dependsOn(integrationTest)

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.apache.poi.util.LocaleUtil
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat
 

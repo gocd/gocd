@@ -28,7 +28,9 @@ dependencies {
   compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
-  testCompile group: 'junit', name: 'junit', version: project.versions.junit
+  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
+  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

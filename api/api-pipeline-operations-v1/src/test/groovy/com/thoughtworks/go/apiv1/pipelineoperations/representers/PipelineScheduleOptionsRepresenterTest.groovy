@@ -17,9 +17,8 @@
 package com.thoughtworks.go.apiv1.pipelineoperations.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.assertj.core.api.Assertions.assertThat
 
 class PipelineScheduleOptionsRepresenterTest {
@@ -61,19 +60,5 @@ class PipelineScheduleOptionsRepresenterTest {
 
     assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().size(), is(1))
     assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().find { var -> var.getName().equals("SEC_VAR") }.getEncryptedValue()).isEqualTo("encrypted_secval")
-  }
-
-  @Test
-  void 'should consider environment variable value as required for plain text variables during deserialization'() {
-    def scheduleOptionsJson = [
-      environment_variables: [[name: "VAR"]]
-    ]
-
-    def jsonReader = GsonTransformer.instance.jsonReaderFrom(scheduleOptionsJson)
-
-    def exception = shouldFail(spark.HaltException) {
-      PipelineScheduleOptionsRepresenter.fromJSON(jsonReader)
-    }
-    assertThat(exception.body().contains("Json does not contain property 'value'")).isEqualTo(true)
   }
 }

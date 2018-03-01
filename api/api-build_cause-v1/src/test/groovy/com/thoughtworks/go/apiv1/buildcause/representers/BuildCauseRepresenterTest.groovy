@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.buildcause.representers
 
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString

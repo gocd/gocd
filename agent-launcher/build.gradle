@@ -20,6 +20,9 @@ description = 'Agent Launcher Jar'
 
 dependencies {
   compile project(':agent-common')
+  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
+  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile project(':test-utils')
 }

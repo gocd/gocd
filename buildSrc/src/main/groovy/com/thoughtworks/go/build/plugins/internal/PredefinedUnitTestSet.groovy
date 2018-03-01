@@ -50,6 +50,10 @@ class PredefinedUnitTestSet extends AbstractTestSet {
     JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME
   }
 
+  @Override
+  String getCompileOnlyConfigurationName() {
+    return JavaPlugin.TEST_COMPILE_ONLY_CONFIGURATION_NAME
+  }
 
   @Override
   String getImplementationConfigurationName() {

@@ -22,7 +22,9 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-webmvc', version: project.versions.spring
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
   compile group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-  testCompile group: 'junit', name: 'junit', version: project.versions.junit
+  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
+  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
 }

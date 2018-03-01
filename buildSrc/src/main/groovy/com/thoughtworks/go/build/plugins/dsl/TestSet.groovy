@@ -9,7 +9,7 @@ interface TestSet extends Named {
 
   Set<TestSet> getExtendsFrom()
 
-  
+
   boolean isCreateArtifact()
 
 
@@ -30,6 +30,7 @@ interface TestSet extends Named {
 
   String getCompileConfigurationName()
 
+  String getCompileOnlyConfigurationName()
 
   String getImplementationConfigurationName()
 
@@ -38,7 +39,6 @@ interface TestSet extends Named {
 
 
   String getRuntimeOnlyConfigurationName()
-
 
   String getArtifactConfigurationName()
 

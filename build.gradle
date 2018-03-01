@@ -30,7 +30,6 @@ buildscript {
     classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
-    classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.2"
   }
 }
 
@@ -40,14 +39,6 @@ apply plugin: "com.github.hierynomus.license"
 
 if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
-}
-
-configurations {
-  junitAnt
-}
-
-dependencies {
-  junitAnt group: 'org.apache.ant', name: 'ant-junit', version: '1.10.1'
 }
 
 def script = this
@@ -172,7 +163,7 @@ rootProject.ext.versions = [
   jsonUnit            : '1.28.1',
   jsoup               : '1.11.2',
   junit               : '4.12',
-  junit5              : '5.0.2',
+  junit5              : '5.1.0',
   logback             : '1.2.3',
   mail                : '1.6.0',
   mockito             : '1.9.5',
@@ -362,6 +353,7 @@ subprojects {
     // run tests even when inputs have not changed
     outputs.upToDateWhen { false }
 
+    useJUnitPlatform()
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
@@ -448,6 +440,14 @@ subprojects {
       }
     }
   }
+
+  if (project.path.startsWith(':api:') || project.path.startsWith(':spark:')) {
+    project.afterEvaluate {
+      project.configurations*.exclude(group: 'org.junit.vintage')
+      project.configurations*.exclude(group: 'junit')
+    }
+  }
+
 }
 
 task allDependencies {
@@ -474,38 +474,13 @@ task sparkTest { thisTask ->
   finalizedBy 'sparkTestJunitHtmlReport'
 }
 
-task sparkTestJunitHtmlReport {
+task sparkTestJunitHtmlReport(type: TestReport) {
   dependsOn sparkTest
 
-  (project(':api').subprojects + project(':spark').subprojects).collect { subPrj ->
-    inputs.dir("${subPrj.buildDir}/test-results/junit-platform")
-  }
-
+  reportOn project(':api').subprojects*.test
+  reportOn project(':spark').subprojects*.test
   def htmlOutputDir = file("${project.buildDir}/reports/tests/sparkTest")
-  def xmlOutputDir = file("${project.buildDir}/test-results/tests/sparkTest")
-  outputs.dir(htmlOutputDir)
-  outputs.dir(xmlOutputDir)
-
-  doFirst {
-    ant.taskdef(
-      name: 'junitreport',
-      classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-      classpath: configurations.junitAnt.asPath
-    )
-    delete(xmlOutputDir)
-    delete(htmlOutputDir)
-    mkdir(xmlOutputDir)
-
-    mkdir(htmlOutputDir)
-    ant.junitreport(todir: xmlOutputDir) {
-      (project(':api').subprojects + project(':spark').subprojects).each { subPrj ->
-        fileset(dir: "${subPrj.buildDir}/test-results/junit-platform") {
-          include(name: '**/*.xml')
-        }
-      }
-      report(format: 'frames', todir: htmlOutputDir)
-    }
-  }
+  destinationDir = htmlOutputDir
 }
 
 task sparkTestJacocoMerge(type: JacocoMerge) { thisTask ->
@@ -583,16 +558,16 @@ task newApi {
            * limitations under the License.
            */
           
-          apply plugin: 'org.junit.platform.gradle.plugin'
           apply plugin: 'jacoco'
           apply plugin: 'groovy'
-          
-          apply from: rootProject.file('buildSrc/junit5-support.gradle')
           
           dependencies {
             compile project(':api:api-base')
           
             testCompile project(path: ':api:api-base', configuration: 'testOutput')
+            
+            testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+            testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
           }
         """
       out.println(contents.stripIndent().trim())

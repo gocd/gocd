@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson

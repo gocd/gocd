@@ -39,6 +39,10 @@ dependencies {
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
 
+  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
+  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
 

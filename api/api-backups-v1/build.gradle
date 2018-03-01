@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
-
-apply from: rootProject.file('buildSrc/junit5-support.gradle')
 
 dependencies {
   compile project(':api:api-base')
   compile project(':api:api-user-representers-v1')
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

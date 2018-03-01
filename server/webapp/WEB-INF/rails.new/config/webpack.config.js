@@ -21,7 +21,6 @@
 const fs          = require('fs');
 const fsExtra     = require('fs-extra');
 const _           = require('lodash');
-const process     = require('process');
 const path        = require('path');
 const webpack     = require('webpack');
 const StatsPlugin = require('stats-webpack-plugin');
@@ -47,11 +46,11 @@ module.exports = function (env) {
   const production = (env && env.production === 'true');
   const outputDir  = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
 
-  console.log(`Generating assets in ${outputDir}`);
+  console.log(`Generating assets in ${outputDir}`); //eslint-disable-line no-console
 
   const entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), (memo, file) => {
     const fileName   = path.basename(file);
-    const moduleName = `single_page_apps/${  _.split(fileName, '.')[0]}`;
+    const moduleName = `single_page_apps/${_.split(fileName, '.')[0]}`;
     memo[moduleName] = path.join(singlePageAppModuleDir, file);
     return memo;
   }, {});
@@ -159,10 +158,10 @@ module.exports = function (env) {
       filename:        '_specRunner.html',
       template:        path.join(__dirname, '..', 'spec', 'webpack', '_specRunner.html.ejs'),
       jasmineJsFiles:  _.map(jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles), (file) => {
-        return `__jasmine/${  file}`;
+        return `__jasmine/${file}`;
       }),
       jasmineCssFiles: _.map(jasmineFiles.cssFiles, (file) => {
-        return `__jasmine/${  file}`;
+        return `__jasmine/${file}`;
       }),
       excludeChunks:   _.keys(entries)
     };
@@ -171,7 +170,7 @@ module.exports = function (env) {
 
     config.entry['specRoot'] = path.join(__dirname, '..', 'spec', 'webpack', 'specRoot.js');
 
-    const JasmineAssetsPlugin = function (options) {
+    const JasmineAssetsPlugin = function (_options) {
       this.apply = function (compiler) {
         compiler.plugin('emit', (compilation, callback) => {
           const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles).concat(jasmineFiles.cssFiles);
@@ -181,7 +180,7 @@ module.exports = function (env) {
 
             const contents = fs.readFileSync(file).toString();
 
-            compilation.assets[`__jasmine/${  asset}`] = {
+            compilation.assets[`__jasmine/${asset}`] = {
               source() {
                 return contents;
               },

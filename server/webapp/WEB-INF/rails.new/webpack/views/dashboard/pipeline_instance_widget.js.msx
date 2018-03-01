@@ -40,8 +40,8 @@ const PipelineInstanceWidget = {
     const dropdown        = vnode.attrs.dropdown;
     const pipelineName    = vnode.attrs.pipelineName;
 
-    const scheduledAtLocalTime  = `on ${TimeFormatter.format(new Date(instance.scheduledAt))}`;
-    const scheduledAtServerTime = TimeFormatter.formatInServerTime(new Date(instance.scheduledAt));
+    const scheduledAtLocalTime  = `on ${TimeFormatter.format(instance.scheduledAt)}`;
+    const scheduledAtServerTime = TimeFormatter.formatInServerTime(instance.scheduledAt);
 
     let dropdownWidget;
     if (dropdown.isDropDownOpen(pipelineName, instanceCounter)) {

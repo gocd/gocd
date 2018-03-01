@@ -21,7 +21,7 @@ const moment    = require("moment");
 // LRU map requires `Symbol` which is unavailable in IE11
 require('babel-polyfill');
 
-const LRUMap    = require('lru_map').LRUMap;
+const LRUMap = require('lru_map').LRUMap;
 
 require("moment-duration-format");
 
@@ -29,14 +29,16 @@ const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 6000
 const CACHE_SIZE         = 10000;
 const LOCAL_TIME_FORMAT  = 'DD MMM, YYYY [at] HH:mm:ss [Local Time]';
 const SERVER_TIME_FORMAT = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
+// the default timestamp format rendered by the server
+const defaultFormat      = 'YYYY-MM-DDTHH:mm:ssZ';
 
 const format = _.memoize((time) => {
-  return moment(time).format(LOCAL_TIME_FORMAT);
+  return moment(time, defaultFormat).format(LOCAL_TIME_FORMAT);
 });
 format.cache = new LRUMap(CACHE_SIZE);
 
 const formatInServerTime = _.memoize((time) => {
-  return moment(time).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
+  return moment(time, defaultFormat).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
 });
 formatInServerTime.cache = new LRUMap(CACHE_SIZE);
 

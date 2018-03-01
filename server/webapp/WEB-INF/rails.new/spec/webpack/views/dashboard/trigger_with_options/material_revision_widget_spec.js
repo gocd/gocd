@@ -19,6 +19,7 @@ describe("Dashboard Material Revision Widget", () => {
 
   const MaterialRevisionWidget = require("views/dashboard/trigger_with_options/material_revision_widget");
   const MaterialRevision       = require('models/dashboard/material_revision');
+  const TimeFormatter          = require('helpers/time_formatter');
 
   let $root, root;
   beforeEach(() => {
@@ -77,7 +78,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = gitRevisionJson.modifications[0];
       expect(modificationWidget).toContainText(modification.user_name);
       expect(modificationWidget).toContainText(modification.revision);
-      expect(modificationWidget).toContainText(new Date(modification.modified_time));
+      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.comment);
       expect(modificationWidget).toContainText("VSM");
 
@@ -135,7 +136,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = pipelineRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.revision);
-      expect(modificationWidget).toContainText(new Date(modification.modified_time));
+      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.pipeline_label);
     });
 
@@ -199,7 +200,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = packageRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.user_name);
-      expect(modificationWidget).toContainText(new Date(modification.modified_time));
+      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.revision);
       expect(modificationWidget).toContainText("VSM");
       expect(modificationWidget).toContainText("Trackback: Not Provided");

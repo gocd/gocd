@@ -36,7 +36,7 @@ describe("Dashboard", () => {
         const gitModificationJson = gitRevisionJson.modifications[0];
 
         expect(gitModification.username).toEqual(gitModificationJson.user_name);
-        expect(gitModification.modifiedTime).toEqual(new Date(gitModificationJson.modified_time));
+        expect(gitModification.modifiedTime).toEqual(gitModificationJson.modified_time);
         expect(gitModification.revision).toEqual(gitModificationJson.revision);
         expect(gitModification.comment).toEqual(gitModificationJson.comment);
         expect(gitModification.vsmPath).toEqual(gitModificationJson._links.vsm.href);
@@ -92,7 +92,7 @@ describe("Dashboard", () => {
         const pipelineModificationFromJson = pipelineRevisionJson.modifications[0];
 
         expect(pipelineModification.revision).toEqual(pipelineModificationFromJson.revision);
-        expect(pipelineModification.modifiedTime).toEqual(new Date(pipelineModificationFromJson.modified_time));
+        expect(pipelineModification.modifiedTime).toEqual(pipelineModificationFromJson.modified_time);
         expect(pipelineModification.pipelineLabel).toEqual(pipelineModificationFromJson.pipeline_label);
         expect(pipelineModification.stageDetailsUrl).toEqual(pipelineModificationFromJson._links.stage_details_url.href);
       });
@@ -148,7 +148,7 @@ describe("Dashboard", () => {
 
         expect(packageModification.username).toEqual(pipelineModificationFromJson.user_name);
         expect(packageModification.revision).toEqual(pipelineModificationFromJson.revision);
-        expect(packageModification.modifiedTime).toEqual(new Date(pipelineModificationFromJson.modified_time));
+        expect(packageModification.modifiedTime).toEqual(pipelineModificationFromJson.modified_time);
         expect(packageModification.vsmPath).toEqual(pipelineModificationFromJson._links.vsm.href);
         expect(packageModification.comment).toEqual("Trackback: Not Provided");
       });

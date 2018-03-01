@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const _ = require('lodash');
+const m             = require('mithril');
+const _             = require('lodash');
+const TimeFormatter = require('helpers/time_formatter');
 
 const CommentWidget = require('views/dashboard/comment_render_widget');
 
 const PipelineModificationWidget = (modification) => {
+  const modifiedAtLocalTime  = TimeFormatter.format(modification.modifiedTime);
+  const modifiedAtServerTime = TimeFormatter.formatInServerTime(modification.modifiedTime);
+
   return (<div class="modifications">
       <div class="item modified_by">
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
@@ -29,17 +33,20 @@ const PipelineModificationWidget = (modification) => {
           {modification.pipelineLabel}
         </a>
       </div>
-      <div class="item revision">{modification.modifiedTime.toString()}</div>
+      <div class="item modified-time" title={modifiedAtServerTime}>{modifiedAtLocalTime}</div>
     </div>
   );
 };
 
 const SCMModificationWidget = (modification, trackingTool) => {
 
+  const modifiedAtLocalTime  = TimeFormatter.format(modification.modifiedTime);
+  const modifiedAtServerTime = TimeFormatter.formatInServerTime(modification.modifiedTime);
+
   return (<div class="modifications">
     <div class="item modified_by">
       <span>{modification.username}</span>
-      <span>{modification.modifiedTime.toString()}</span>
+      <span title={modifiedAtServerTime}>{modifiedAtLocalTime}</span>
     </div>
     <CommentWidget text={modification.comment} trackingTool={trackingTool}/>
     <div class="item revision">

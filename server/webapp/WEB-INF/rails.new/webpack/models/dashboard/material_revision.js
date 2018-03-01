@@ -19,7 +19,7 @@ const _ = require('lodash');
 const Modifications = {};
 
 Modifications.Modification = function (modification) {
-  this.modifiedTime = new Date(modification.modified_time);
+  this.modifiedTime = modification.modified_time;
   this.revision     = modification.revision;
 };
 

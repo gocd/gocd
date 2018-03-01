@@ -49,13 +49,17 @@ const SearchVM = function (pipelineName, materials) {
         const vm = searchState[material.name];
         this.searchInProgress(true);
         AjaxHelper.GET({
-          url:        sparkRoutes.pipelineMaterialSearchPath(pipelineName, material.fingerprint, this.searchText()),
+          url:        sparkRoutes.pipelineMaterialSearchPath(pipelineName, material.fingerprint, vm.searchText()),
           apiVersion: 'v1',
-        }).then(this.materialSearchResults)
-          .always(() => {
-            vm.searchInProgress(false);
-            m.redraw();
-          });
+        }).then((result) => {
+          vm.materialSearchResults(result);
+          if ((result.length === 1) && (vm.searchText() === result[0].revision)) {
+            material.selection(vm.searchText());
+          }
+        }).always(() => {
+          vm.searchInProgress(false);
+          m.redraw();
+        });
       }
     };
   });

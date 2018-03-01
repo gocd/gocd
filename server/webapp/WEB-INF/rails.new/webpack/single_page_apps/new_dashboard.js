@@ -39,7 +39,18 @@ $(() => {
   const dashboard = new Dashboard();
 
   function onResponse(dashboardData) {
-    dashboard.initialize(dashboardData);
+    try {
+      dashboard.initialize(dashboardData);
+      dashboard.message(undefined);
+    } catch (e) {
+      dashboard.message({
+        type:    "alert",
+        content: "Error occurred while parsing dashboard API response. Check server logs for more information."
+      });
+
+      console.error(e); // eslint-disable-line no-console
+    }
+
     dashboardVM.initialize(dashboard);
   }
 
@@ -47,12 +58,15 @@ $(() => {
     return new AjaxPoller(() => Dashboard.get()
       .then((data, _textStatus, jqXHR) => {
         if (jqXHR.status === 202) {
-          dashboard.message("Dashboard is being processed, this may take a few seconds. Please check back later.");
+          dashboard.message({
+            type:    "info",
+            content: "Dashboard is being processed, this may take a few seconds. Please check back later."
+          });
+
           onResponse({});
           return;
         }
         onResponse(data);
-        dashboard.message(undefined);
       }));
   }
 

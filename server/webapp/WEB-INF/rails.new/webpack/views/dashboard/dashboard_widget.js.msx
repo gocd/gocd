@@ -105,7 +105,10 @@ const DashboardWidget = {
     let messageView;
 
     if (!_.isEmpty(vnode.attrs.dashboard.message())) {
-      messageView = (<f.info><h3 class="dashboard-message text-center">{vnode.attrs.dashboard.message()}</h3></f.info>);
+      const content = (<h3 class="dashboard-message text-center">{vnode.attrs.dashboard.message().content}</h3>);
+      messageView   = (vnode.attrs.dashboard.message().type === 'info')
+        ? (<f.info>{content} </f.info>)
+        : (<f.alert>{content} </f.alert>);
     }
 
     const groupsView = _.map(vnode.attrs.dashboard.getPipelineGroups(), self.getPipelinesGroupView);

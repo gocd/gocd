@@ -59,11 +59,18 @@ describe("Dashboard Widget", () => {
     expect($root.find('.filter_btn')).toBeInDOM();
   });
 
-  it('should render a message', () => {
+  it('should render an info message', () => {
     expect($root.find('.dashboard-message')).not.toBeInDOM();
-    dashboard.message('some message');
+    dashboard.message({content: 'some message', type: 'info'});
     m.redraw();
-    expect($root.find('.dashboard-message')).toContainText('some message');
+    expect($root.find('.callout.info .dashboard-message')).toContainText('some message');
+  });
+
+  it('should render an alert message', () => {
+    expect($root.find('.dashboard-message')).not.toBeInDOM();
+    dashboard.message({content: 'some error message', type: 'alert'});
+    m.redraw();
+    expect($root.find('.callout.alert .dashboard-message')).toContainText('some error message');
   });
 
   it("should show personalize view", () => {

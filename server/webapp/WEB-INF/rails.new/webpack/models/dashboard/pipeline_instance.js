@@ -16,7 +16,6 @@
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
-const MaterialRevision = require('models/dashboard/material_revision');
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.name                  = json.name;
@@ -39,8 +38,7 @@ const PipelineInstance = function (info, pipelineName) {
   this.vsmPath     = info._links.vsm_url.href;
   this.comparePath = info._links.compare_url.href;
 
-  this.stages            = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
-  this.materialRevisions = _.map(info.build_cause.material_revisions, (revision) => new MaterialRevision(revision));
+  this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
 
   this.isFirstStageInProgress = () => self.stages[0].isBuilding();
 };

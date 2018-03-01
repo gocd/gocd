@@ -52,6 +52,18 @@ public interface SparkController {
         }
     }
 
+    default String controllerPathWithParams(Map<String, String> params) {
+        if (params == null || params.isEmpty()) {
+            return controllerBasePath();
+        } else {
+            String path = controllerBasePath();
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                path = path.replaceAll(param.getKey(), param.getValue());
+            }
+            return path;
+        }
+    }
+
     String controllerBasePath();
 
     void setupRoutes();

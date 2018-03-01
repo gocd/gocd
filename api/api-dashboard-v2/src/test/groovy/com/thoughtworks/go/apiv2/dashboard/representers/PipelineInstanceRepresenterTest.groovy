@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers
 
-import com.thoughtworks.go.apiv2.dashboard.PipelineModelMother
-import com.thoughtworks.go.domain.buildcause.BuildCause
-import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.helpers.PipelineModelMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
@@ -60,82 +58,9 @@ class PipelineInstanceRepresenterTest {
 
     def map = [
       label       : 'g1', counter: 5, scheduled_at: jsonDate(instance.getScheduledDate()),
-      triggered_by: 'Triggered by Anonymous',
-      build_cause : [approver          : 'anonymous',
-                     is_forced         : true,
-                     trigger_message   : "Forced by anonymous",
-                     material_revisions: []]]
+      triggered_by: 'Triggered by Anonymous'
+    ]
     assertThatJson(actualJson).isEqualTo(map)
 
-  }
-
-  @Test
-  void 'renders all pipeline instance with build_cause'() {
-    def instance = PipelineModelMother.pipeline_instance_model([name  : "p1", label: "g1", counter: 5,
-                                                                stages: [[name: "cruise", counter: "10", approved_by: "Anonymous"]]])
-    def materialRevisions = ModificationsMother.createHgMaterialRevisions()
-    def pipeline_dependency = ModificationsMother.dependencyMaterialRevision("up1", 1, "label", "first", 1, new Date())
-    materialRevisions.addRevision(pipeline_dependency)
-
-    instance.setBuildCause(BuildCause.createWithModifications(materialRevisions, 'Anonymous'))
-
-    def date = instance.getScheduledDate()
-
-    def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance) })
-
-    actualJson.remove("_links")
-    actualJson.remove("_embedded")
-
-    def expectedBuildCause = [approver          : 'Anonymous', is_forced: false, trigger_message: 'modified by user2',
-                              material_revisions: [
-                                [material_type: 'Mercurial',
-                                 material_name: 'hg-url',
-                                 changed      : false,
-                                 modifications: [
-                                   [
-                                     _links       : [
-                                       vsm: [
-                                         href: 'http://test.host/go/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/9fdcf27f16eadc362733328dd481d8a2c29915e1'
-                                       ]],
-                                     user_name    : 'user2',
-                                     email_address: 'email2',
-                                     revision     : '9fdcf27f16eadc362733328dd481d8a2c29915e1',
-                                     modified_time: jsonDate(materialRevisions.first().getModifications().first().getModifiedTime()),
-                                     comment      : 'comment2'
-                                   ],
-                                   [
-                                     _links       : [
-                                       vsm: [
-                                         href: 'http://test.host/go/materials/value_stream_map/4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515/eef77acd79809fc14ed82b79a312648d4a2801c6']
-                                     ],
-                                     user_name    : 'user1',
-                                     email_address: 'email1',
-                                     revision     : 'eef77acd79809fc14ed82b79a312648d4a2801c6',
-                                     modified_time: jsonDate(materialRevisions.first().getModifications().last().getModifiedTime()),
-                                     comment      : 'comment1'
-                                   ]]
-                                ],
-                                [material_type: "Pipeline",
-                                 material_name: "up1",
-                                 changed      : false,
-                                 modifications: [
-                                   [_links        : [
-                                     vsm              : [
-                                       href: 'http://test.host/go/pipelines/value_stream_map/up1/1'
-                                     ],
-                                     stage_details_url: [
-                                       href: 'http://test.host/go/pipelines/up1/1/first/1'
-                                     ]
-                                   ],
-                                    revision      : 'up1/1/first/1',
-                                    modified_time : jsonDate(materialRevisions.getMaterialRevision(1).getModifications().first().getModifiedTime()),
-                                    pipeline_label: 'label'
-                                   ]
-                                 ]]
-                              ]
-    ]
-
-    assertThatJson(actualJson).isEqualTo(
-      [label: 'g1', counter: 5, scheduled_at: jsonDate(date), triggered_by: 'Triggered by Anonymous', build_cause: expectedBuildCause])
   }
 }

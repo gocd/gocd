@@ -176,4 +176,9 @@ public class Routes {
     public class PipelineSelection {
         public static final String BASE = "/api/internal/pipeline_selection";
     }
+
+    public class BuildCause {
+        public static final String BASE = "/api/internal/build_cause";
+        public static final String PATH = "/:pipeline_name/:pipeline_counter";
+    }
 }

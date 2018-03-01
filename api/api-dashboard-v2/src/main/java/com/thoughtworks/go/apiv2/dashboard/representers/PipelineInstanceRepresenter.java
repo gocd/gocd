@@ -33,9 +33,6 @@ public class PipelineInstanceRepresenter {
             .add("counter", model.getCounter())
             .add("triggered_by", model.getApprovedByForDisplay())
             .add("scheduled_at", model.getScheduledDate())
-            .addChild("build_cause", childWriter -> {
-                BuildCauseRepresenter.toJSON(childWriter, model.getBuildCause());
-            })
             .addChild("_embedded", childWriter -> {
                 childWriter.addChildList("stages", getStages(model));
             });

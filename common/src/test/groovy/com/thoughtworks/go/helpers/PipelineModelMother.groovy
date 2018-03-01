@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.dashboard
+package com.thoughtworks.go.helpers
 
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
@@ -62,7 +62,7 @@ class PipelineModelMother {
     def stages = new StageInstanceModels()
 
     options.stages.each { Map stage_detail ->
-      def stage = StageModelMother.stage_model(stage_detail.name, stage_detail.counter, stage_detail.job_state ?: JobState.Completed, stage_detail.job_result ?: JobResult.Passed)
+      def stage = com.thoughtworks.go.helpers.StageModelMother.stage_model(stage_detail.name, stage_detail.counter, stage_detail.job_state ?: JobState.Completed, stage_detail.job_result ?: JobResult.Passed)
 
       //  Sigh. The stage_model call above uses Time.now. If this is not done, two stages might have
       //  the same scheduled time causing tests to become unpredictable.

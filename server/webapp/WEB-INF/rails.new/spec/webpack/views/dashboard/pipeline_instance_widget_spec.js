@@ -22,6 +22,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
   const Dashboard              = require('models/dashboard/dashboard');
   const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
+  const SparkRoutes            = require("helpers/spark_routes");
 
   let $root, root;
   beforeEach(() => {
@@ -54,31 +55,6 @@ describe("Dashboard Pipeline Instance Widget", () => {
     "counter":      "1",
     "scheduled_at": "2017-11-10T07:25:28.539Z",
     "triggered_by": "changes",
-    "build_cause":  {
-      "approver":           "",
-      "is_forced":          false,
-      "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-      "material_revisions": [
-        {
-          "material_type": "Git",
-          "material_name": "test-repo",
-          "changed":       true,
-          "modifications": [
-            {
-              "_links":        {
-                "vsm": {
-                  "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                }
-              },
-              "user_name":     "GoCD Test User <devnull@example.com>",
-              "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-              "modified_time": "2017-12-19T05:30:32.000Z",
-              "comment":       "Initial commit #1234"
-            }
-          ]
-        }
-      ]
-    },
     "_embedded":    {
       "stages": [
         {
@@ -100,6 +76,32 @@ describe("Dashboard Pipeline Instance Widget", () => {
     }
   };
 
+  const buildCauseJson = {
+    "approver":           "",
+    "is_forced":          false,
+    "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+    "material_revisions": [
+      {
+        "material_type": "Git",
+        "material_name": "test-repo",
+        "changed":       true,
+        "modifications": [
+          {
+            "_links":        {
+              "vsm": {
+                "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+              }
+            },
+            "user_name":     "GoCD Test User <devnull@example.com>",
+            "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+            "modified_time": "2017-12-19T05:30:32.000Z",
+            "comment":       "Initial commit #1234"
+          }
+        ]
+      }
+    ]
+  };
+
   const pipelineName = 'up42';
   const instance     = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
@@ -113,6 +115,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
       view() {
         return m(PipelineInstanceWidget, {
           instance,
+          buildCauses:  dashboardViewModel.buildCauses,
           dropdown:     dashboardViewModel.dropdown,
           trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
           pipelineName
@@ -160,7 +163,14 @@ describe("Dashboard Pipeline Instance Widget", () => {
   it("should show changes once changes link is clicked", () => {
     expect($root.find('.material_changes')).not.toBeInDOM();
 
-    $root.find('.info a').get(1).click();
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, instance.counter), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+      $root.find('.info a').get(1).click();
+    });
 
     expect($root.find('.material_changes')).toBeInDOM();
     expect($root.find('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
@@ -237,31 +247,6 @@ describe("Dashboard Pipeline Instance Widget", () => {
           "paused":       false,
           "paused_by":    null,
           "pause_reason": null
-        },
-        "build_cause":            {
-          "approver":           "",
-          "is_forced":          false,
-          "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-          "material_revisions": [
-            {
-              "material_type": "Git",
-              "material_name": "test-repo",
-              "changed":       true,
-              "modifications": [
-                {
-                  "_links":        {
-                    "vsm": {
-                      "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                    }
-                  },
-                  "user_name":     "GoCD Test User <devnull@example.com>",
-                  "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                  "modified_time": "2017-12-19T05:30:32.000Z",
-                  "comment":       "Initial commit"
-                }
-              ]
-            }
-          ]
         },
         "_embedded":              {
           "instances": [pipelineInstanceJson]

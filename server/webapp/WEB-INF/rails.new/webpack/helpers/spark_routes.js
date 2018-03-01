@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const $ = require('jquery');
+const m = require('mithril');
 
 module.exports = {
   pipelinePausePath: (pipelineName) => {
@@ -38,7 +38,7 @@ module.exports = {
   },
 
   pipelineMaterialSearchPath: (pipelineName, fingerprint, searchText) => {
-    const queryString = $.param({
+    const queryString = m.buildQueryString({
       fingerprint,
       pipeline_name: pipelineName, //eslint-disable-line camelcase
       search_text:   searchText //eslint-disable-line camelcase
@@ -48,5 +48,9 @@ module.exports = {
 
   pipelineSelectionPath: () => {
     return '/go/api/internal/pipeline_selection';
+  },
+
+  buildCausePath: (pipelineName, pipelineCounter) => {
+    return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
   }
 };

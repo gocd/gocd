@@ -38,42 +38,6 @@ const DashboardWidget = {
 
     ComponentMixins.HasViewModel.call(self);
 
-    self.getPipelinesGroupView = (pipelineGroup) => {
-      const pipelines = _.map(pipelineGroup.pipelines, (pipelineName) => {
-        return (
-          <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
-                          doCancelPolling={vnode.attrs.doCancelPolling}
-                          doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-                          isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
-                          vm={vnode.attrs.vm}/>
-        );
-      });
-
-      let name, settingsIcon;
-      if (pipelineGroup.canAdminister) {
-        name         = <a href={pipelineGroup.path}>{pipelineGroup.name}</a>;
-        settingsIcon = <a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>;
-      } else {
-        name         = pipelineGroup.name;
-        settingsIcon = <a href="#" class="edit_config pipeline-group_edit-config disabled"/>;
-      }
-
-      return (
-        <div class="pipeline-group">
-          <h2 class="pipeline-group_title">
-            <span> pipeline group </span>
-            <strong>
-              {name}
-            </strong>
-            {settingsIcon}
-          </h2>
-          <ul class="pipeline-group_items">
-            {pipelines}
-          </ul>
-        </div>
-      );
-    };
-
     self.togglePersonalizeDropdown = (e) => {
       (vnode.attrs.vm.personalizeView.isOpen())
         ? self.pipelineSelection(undefined)
@@ -100,8 +64,7 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const self = vnode.state;
-    const vm   = vnode.attrs.vm;
+    const vm = vnode.attrs.vm;
     let messageView;
 
     if (!_.isEmpty(vnode.attrs.dashboard.message())) {
@@ -110,8 +73,6 @@ const DashboardWidget = {
         ? (<f.info>{content} </f.info>)
         : (<f.alert>{content} </f.alert>);
     }
-
-    const groupsView = _.map(vnode.attrs.dashboard.getPipelineGroups(), self.getPipelinesGroupView);
 
     let personalizeView;
 
@@ -123,7 +84,7 @@ const DashboardWidget = {
     }
     return (
       <div class="pipeline_wrapper">
-        <div class="page_header">
+        <div class="page_header" key="page-header">
           <h1 class="page_title">Pipelines</h1>
           <div class="filter">
             <input type="text"
@@ -138,9 +99,41 @@ const DashboardWidget = {
           </div>
           {personalizeView}
         </div>
-        <div class="dashboard">
+        <div class="dashboard" key="dashboard-content">
           {messageView}
-          {groupsView}
+          {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
+            let name, settingsIcon;
+
+            if (pipelineGroup.canAdminister) {
+              name         = (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>);
+              settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>);
+            } else {
+              name         = pipelineGroup.name;
+              settingsIcon = (<a href="#" class="edit_config pipeline-group_edit-config disabled"/>);
+            }
+
+            return (
+              <div class="pipeline-group" key={pipelineGroup.name}>
+                <h2 class="pipeline-group_title">
+                  <span>pipeline group</span>
+                  <strong>{name}</strong>
+                  {settingsIcon}
+                </h2>
+                <ul class="pipeline-group_items">
+                  {_.map(pipelineGroup.pipelines, (pipelineName) => {
+                    return (
+                      <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
+                                      doCancelPolling={vnode.attrs.doCancelPolling}
+                                      doRefreshImmediately={vnode.attrs.doRefreshImmediately}
+                                      isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
+                                      key={pipelineName}
+                                      vm={vnode.attrs.vm}/>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </div>
     );

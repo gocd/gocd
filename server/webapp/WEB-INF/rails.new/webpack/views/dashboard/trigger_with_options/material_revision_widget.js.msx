@@ -29,9 +29,7 @@ const PipelineModificationWidget = (modification) => {
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
       </div>
       <div class="item comment">
-        <a href={`/go/pipelines/${modification.revision}/pipeline`}>
-          {modification.pipelineLabel}
-        </a>
+        <a href={`/go/pipelines/${modification.revision}/pipeline`}>{modification.pipelineLabel}</a>
       </div>
       <div class="item modified-time" title={modifiedAtServerTime}>{modifiedAtLocalTime}</div>
     </div>
@@ -50,8 +48,9 @@ const SCMModificationWidget = (modification, trackingTool) => {
     </div>
     <CommentWidget text={modification.comment} trackingTool={trackingTool}/>
     <div class="item revision">
-      <span class="revision_id wrapped_word">{modification.revision}</span> -
-      <span><a href={modification.vsmPath}> VSM </a></span>
+      <span class="revision_id wrapped_word">{modification.revision}</span>
+      {' '}-{' '}
+      <span><a href={modification.vsmPath} title="Value Stream Map">VSM</a></span>
     </div>
   </div>);
 };

@@ -30,6 +30,7 @@ const PipelineWidget = {
         return (
           <PipelineInstanceWidget instance={instance}
                                   dropdown={vnode.attrs.vm.dropdown}
+                                  buildCauses={vnode.attrs.vm.buildCauses}
                                   key={instance.counter}
                                   pipelineName={pipeline.name}
                                   trackingTool={pipeline.trackingTool}/>

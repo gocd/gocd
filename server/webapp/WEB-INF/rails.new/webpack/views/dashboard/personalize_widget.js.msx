@@ -86,6 +86,10 @@ const PersonalizeWidget = {
         .always(m.redraw);
     };
 
+    this.preventPropagation = function (e) {
+      e.stopPropagation();
+    };
+
     self.getPipelineGroupCheckboxes = (groupName, pipelines) => {
       let pipelineCheckboxes, expandCollapseIcon;
 
@@ -148,7 +152,7 @@ const PersonalizeWidget = {
         }
       </div>);
 
-    return (<div class={`filter_options`} onclick={(e) => e.stopPropagation()}>
+    return (<div class={`filter_options`} onclick={vnode.state.preventPropagation.bind(vnode.state)}>
         <header class="filter_header">
           <h5> Select</h5>
           <div class="selection">

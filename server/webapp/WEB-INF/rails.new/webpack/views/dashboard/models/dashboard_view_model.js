@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const Stream = require('mithril/stream');
-const _      = require('lodash');
+const m          = require('mithril');
+const Stream     = require('mithril/stream');
+const _          = require('lodash');
+const BuildCause = require('models/dashboard/build_cause');
 
 const VM = () => {
   const DROPDOWN_KEY                          = 'dropdown';
@@ -25,6 +26,7 @@ const VM = () => {
   const SUCCESS_TYPE                          = "success";
   const FAILURE_TYPE                          = "error";
   const MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS = 5000;
+  const BUILD_CAUSE_KEY                       = 'buildCause';
 
   const pipelinesState       = {};
   const personalizeViewState = Stream(false);
@@ -86,6 +88,16 @@ const VM = () => {
       }
     },
 
+    buildCauses: {
+      buildCauseFor: (name, instanceCounter) => {
+        const buildCauseForPipeline = pipelinesState[name][BUILD_CAUSE_KEY];
+        if (!buildCauseForPipeline[instanceCounter]) {
+          buildCauseForPipeline[instanceCounter] = new BuildCause(name, instanceCounter);
+        }
+        return buildCauseForPipeline[instanceCounter];
+      }
+    },
+
     operationMessages: {
       messageFor: (name) => pipelinesState[name][FLASH_MESSAGE_KEY](),
 
@@ -132,6 +144,7 @@ const VM = () => {
 
         _.each(instancesToRemoveFromVM, (counter) => {
           delete state[DROPDOWN_KEY][counter];
+          delete state[BUILD_CAUSE_KEY][counter];
         });
 
         _.each(instancesNotKnownToVM, (counter) => {
@@ -152,9 +165,13 @@ const VM = () => {
   function create(name, instanceCounters) {
     pipelinesState[name]          = {};
     const instanceDropdownTracker = {};
-    _.each(instanceCounters, (counter) => instanceDropdownTracker[counter] = Stream(false));
+    const buildCauses             = {};
+    _.each(instanceCounters, (counter) => {
+      instanceDropdownTracker[counter] = Stream(false);
+    });
 
     pipelinesState[name][DROPDOWN_KEY]           = instanceDropdownTracker;
+    pipelinesState[name][BUILD_CAUSE_KEY]        = buildCauses;
     pipelinesState[name][FLASH_MESSAGE_KEY]      = Stream();
     pipelinesState[name][FLASH_MESSAGE_TYPE_KEY] = Stream();
   }

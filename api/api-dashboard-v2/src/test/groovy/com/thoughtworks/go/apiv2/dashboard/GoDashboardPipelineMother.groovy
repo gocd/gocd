@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
 import com.thoughtworks.go.util.Clock
 
-import static com.thoughtworks.go.apiv2.dashboard.PipelineModelMother.pipeline_model
+import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 

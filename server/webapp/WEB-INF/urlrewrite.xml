@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Build Cause API</name>
+        <from>^/api/internal/build_cause/([^/]+)/([^/]+)</from>
+        <to last="true">/spark/api/internal/build_cause/${escape:$1}/${escape:$2}</to>
+    </rule>
+
+    <rule>
         <name>Spark pipeline selection internal API</name>
         <from>^/api/internal/pipeline_selection$</from>
         <to last="true">/spark/api/internal/pipeline_selection</to>

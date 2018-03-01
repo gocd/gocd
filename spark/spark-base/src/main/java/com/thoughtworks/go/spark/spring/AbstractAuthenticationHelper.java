@@ -17,6 +17,7 @@
 package com.thoughtworks.go.spark.spring;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -90,6 +91,32 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkPipelineViewPermissionsAnd401(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        String pipelineName = request.params("pipeline_name");
+
+        if (!hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(pipelineName, currentUsername())) {
+            throw renderUnauthorizedResponse();
+        }
+    }
+
+    // https://github.com/gocd/gocd/issues/4477
+    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(String pipelineName, Username username) {
+        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException();
+        }
+
+        if (securityService.isUserAdmin(username)){
+            return true;
+        }
+
+        // we check if pipeline exists because this method returns true in case the group or pipeline does not exist!
+        return securityService.hasViewPermissionForPipeline(username, pipelineName);
+    }
+
     private String findPipelineGroupName(Request request) {
         String groupName = request.params("group");
         if (StringUtils.isBlank(groupName)) {
@@ -109,4 +136,5 @@ public abstract class AbstractAuthenticationHelper {
     public boolean securityEnabled() {
         return securityService.isSecurityEnabled();
     }
+
 }

@@ -22,8 +22,9 @@ describe("Dashboard Widget", () => {
   const Dashboard       = require('models/dashboard/dashboard');
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
   const Modal           = require('views/shared/new_modal');
+  const SparkRoutes     = require("helpers/spark_routes");
 
-  let $root, root, dashboard, dashboardJson, doCancelPolling, doRefreshImmediately;
+  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
@@ -222,6 +223,8 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show changes popup for a searched pipeline", () => {
+    stubBuildCauseAjaxCall();
+
     const searchField = $root.find('.pipeline-search').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
@@ -336,6 +339,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
+    stubBuildCauseAjaxCall();
     const dashboard   = $root.find('.pipeline_wrapper');
     const changesLink = $root.find('.info a')[1];
     expect(dashboard.find('.material_changes')).not.toBeInDOM();
@@ -351,7 +355,32 @@ describe("Dashboard Widget", () => {
   });
 
   function mount(canAdminister = true) {
-    dashboardJson = {
+    buildCauseJson = {
+      "approver":           "",
+      "is_forced":          false,
+      "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
+      "material_revisions": [
+        {
+          "material_type": "Git",
+          "material_name": "test-repo",
+          "changed":       true,
+          "modifications": [
+            {
+              "_links":        {
+                "vsm": {
+                  "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                }
+              },
+              "user_name":     "GoCD Test User <devnull@example.com>",
+              "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+              "modified_time": "2017-12-19T05:30:32.000Z",
+              "comment":       "Initial commit"
+            }
+          ]
+        }
+      ]
+    };
+    dashboardJson  = {
       "_embedded": {
         "pipeline_groups": [
           {
@@ -402,31 +431,6 @@ describe("Dashboard Widget", () => {
               "paused_by":    null,
               "pause_reason": null
             },
-            "build_cause":            {
-              "approver":           "",
-              "is_forced":          false,
-              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-              "material_revisions": [
-                {
-                  "material_type": "Git",
-                  "material_name": "test-repo",
-                  "changed":       true,
-                  "modifications": [
-                    {
-                      "_links":        {
-                        "vsm": {
-                          "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                        }
-                      },
-                      "user_name":     "GoCD Test User <devnull@example.com>",
-                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                      "modified_time": "2017-12-19T05:30:32.000Z",
-                      "comment":       "Initial commit"
-                    }
-                  ]
-                }
-              ]
-            },
             "_embedded":              {
               "instances": [
                 {
@@ -454,31 +458,6 @@ describe("Dashboard Widget", () => {
                   "counter":      "1",
                   "scheduled_at": "2017-11-10T07:25:28.539Z",
                   "triggered_by": "changes",
-                  "build_cause":  {
-                    "approver":           "",
-                    "is_forced":          false,
-                    "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-                    "material_revisions": [
-                      {
-                        "material_type": "Git",
-                        "material_name": "test-repo",
-                        "changed":       true,
-                        "modifications": [
-                          {
-                            "_links":        {
-                              "vsm": {
-                                "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                              }
-                            },
-                            "user_name":     "GoCD Test User <devnull@example.com>",
-                            "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                            "modified_time": "2017-12-19T05:30:32.000Z",
-                            "comment":       "Initial commit"
-                          }
-                        ]
-                      }
-                    ]
-                  },
                   "_embedded":    {
                     "stages": [
                       {
@@ -536,31 +515,6 @@ describe("Dashboard Widget", () => {
               "paused_by":    null,
               "pause_reason": null
             },
-            "build_cause":            {
-              "approver":           "",
-              "is_forced":          false,
-              "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-              "material_revisions": [
-                {
-                  "material_type": "Git",
-                  "material_name": "test-repo",
-                  "changed":       true,
-                  "modifications": [
-                    {
-                      "_links":        {
-                        "vsm": {
-                          "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                        }
-                      },
-                      "user_name":     "GoCD Test User <devnull@example.com>",
-                      "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                      "modified_time": "2017-12-19T05:30:32.000Z",
-                      "comment":       "Initial commit"
-                    }
-                  ]
-                }
-              ]
-            },
             "_embedded":              {
               "instances": [
                 {
@@ -588,31 +542,6 @@ describe("Dashboard Widget", () => {
                   "counter":      "1",
                   "scheduled_at": "2017-11-10T07:25:28.539Z",
                   "triggered_by": "changes",
-                  "build_cause":  {
-                    "approver":           "",
-                    "is_forced":          false,
-                    "trigger_message":    "modified by GoCD Test User <devnull@example.com>",
-                    "material_revisions": [
-                      {
-                        "material_type": "Git",
-                        "material_name": "test-repo",
-                        "changed":       true,
-                        "modifications": [
-                          {
-                            "_links":        {
-                              "vsm": {
-                                "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
-                              }
-                            },
-                            "user_name":     "GoCD Test User <devnull@example.com>",
-                            "revision":      "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
-                            "modified_time": "2017-12-19T05:30:32.000Z",
-                            "comment":       "Initial commit"
-                          }
-                        ]
-                      }
-                    ]
-                  },
                   "_embedded":    {
                     "stages": [
                       {
@@ -664,5 +593,20 @@ describe("Dashboard Widget", () => {
     $("body").off();
     m.mount(root, null);
     m.redraw();
+  }
+
+  function stubBuildCauseAjaxCall() {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up43', '1'), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+    });
   }
 });

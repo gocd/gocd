@@ -21,23 +21,31 @@ const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget')
 const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/material_revision_widget');
 
 const PipelineInstanceWidget = {
-  onupdate(vnode) {
-    this.adjustPositionOfPopup = () => {
-      const widthOfWindow           = window.innerWidth;
-      const popup                   = vnode.dom.querySelector('.material_changes');
-      const rightCoordinateOfWidget = popup ? popup.getBoundingClientRect().right : 0;
-      if (rightCoordinateOfWidget > widthOfWindow) {
-        popup.style.right = '0px';
-      }
+  oninit(vnode) {
+    this.toggleDropdown = function (e) {
+      vnode.attrs.dropdown.toggle(vnode.attrs.pipelineName, vnode.attrs.instance.counter);
+      vnode.attrs.buildCauses.buildCauseFor(vnode.attrs.pipelineName, vnode.attrs.instance.counter).getBuildCause();
+      e.stopPropagation();
     };
 
-    this.adjustPositionOfPopup();
+    this.preventPropagation = function (e) {
+      e.stopPropagation();
+    };
+  },
+  onupdate(vnode) {
+    const widthOfWindow           = window.innerWidth;
+    const popup                   = vnode.dom.querySelector('.material_changes');
+    const rightCoordinateOfWidget = popup ? popup.getBoundingClientRect().right : 0;
+    if (rightCoordinateOfWidget > widthOfWindow) {
+      popup.style.right = '0px';
+    }
   },
 
   view: (vnode) => {
     const instance        = vnode.attrs.instance;
     const instanceCounter = instance.counter;
     const dropdown        = vnode.attrs.dropdown;
+    const buildCauses     = vnode.attrs.buildCauses;
     const pipelineName    = vnode.attrs.pipelineName;
 
     const scheduledAtLocalTime  = `on ${TimeFormatter.format(instance.scheduledAt)}`;
@@ -45,24 +53,23 @@ const PipelineInstanceWidget = {
 
     let dropdownWidget;
     if (dropdown.isDropDownOpen(pipelineName, instanceCounter)) {
-      dropdownWidget = <div class="material_changes" onclick={(e) => e.stopPropagation()}>
-        {_.map(instance.materialRevisions, (revision) => {
-          return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
-        })}
-      </div>;
+      dropdownWidget = (
+        <div class="material_changes" onclick={vnode.state.preventPropagation.bind(vnode.state)}>
+          {_.map(buildCauses.buildCauseFor(pipelineName, instanceCounter).materialRevisions, (revision) => {
+            return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
+          })}
+        </div>
+      );
     }
 
     return (
       <div class="pipeline_instance">
-        <label class="pipeline_instance-label">Instance: {instance.label} </label>
+        <label class="pipeline_instance-label">Instance: {instance.label}</label>
         <div class="more_info">
           <ul class="info">
-            <li><a href={instance.comparePath}> Compare </a></li>
-            <li><a onclick={(e) => {
-              dropdown.toggle(pipelineName, instanceCounter);
-              e.stopPropagation();
-            }}><span class="changes"> Changes</span> </a></li>
-            <li><a href={instance.vsmPath}> VSM </a></li>
+            <li><a href={instance.comparePath}>Compare</a></li>
+            <li><a onclick={vnode.state.toggleDropdown.bind(vnode)}><span class="changes">Changes</span></a></li>
+            <li><a href={instance.vsmPath} title="Value Stream Map">VSM</a></li>
           </ul>
           {dropdownWidget}
         </div>

@@ -55,6 +55,19 @@ public class CreatePipelineConfigCommandTest {
         when(goConfigService.groups()).thenReturn(groups);
         when(groups.hasGroup("group1")).thenReturn(true);
         when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group1")).thenReturn(false);
+
+        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+    }
+
+    @Test
+    public void shouldDisallowCreationOfGroupAndPipelineForNonAdmins() {
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, username, localizedOperationResult, "group1");
+
+        PipelineGroups groups = mock(PipelineGroups.class);
+        when(goConfigService.groups()).thenReturn(groups);
+        when(groups.hasGroup("group1")).thenReturn(false);
+        when(goConfigService.isUserAdmin(username)).thenReturn(false);
+
         assertFalse(command.canContinue(mock(CruiseConfig.class)));
     }
 
@@ -63,7 +76,6 @@ public class CreatePipelineConfigCommandTest {
         CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, username, localizedOperationResult, "group1");
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        PipelineGroups groups = mock(PipelineGroups.class);
 
         command.update(cruiseConfig);
         verify(cruiseConfig).addPipelineWithoutValidation("group1", pipelineConfig);

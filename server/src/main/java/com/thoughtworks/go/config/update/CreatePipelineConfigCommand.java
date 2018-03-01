@@ -77,6 +77,10 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", groupName), HealthStateType.unauthorised());
             return false;
         }
+
+        if (!goConfigService.isUserAdmin(currentUser)) {
+            return false;
+        }
         return true;
     }
 

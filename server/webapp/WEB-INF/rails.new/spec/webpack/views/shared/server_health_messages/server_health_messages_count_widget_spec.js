@@ -16,8 +16,8 @@
 
 describe("ServerHealthMessagesCountWidget", () => {
 
-  const ServerHealthMessages            = require('models/server_health_messages/server_health_messages');
-  const ServerHealthMessagesCountWidget = require('views/server_health_messages/server_health_messages_count_widget');
+  const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages');
+  const ServerHealthMessagesCountWidget = require('views/shared/server_health_messages/server_health_messages_count_widget');
   const TimeFormatter = require('helpers/time_formatter');
 
   const $             = require("jquery");

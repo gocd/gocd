@@ -17,7 +17,7 @@
 
 describe("ServerHealthMessages", () => {
 
-  const ServerHealthMessages = require('models/server_health_messages/server_health_messages');
+  const ServerHealthMessages = require('models/shared/server_health_messages/server_health_messages');
 
   it('should return empty when there are no errors or warnings', () => {
     const messages = new ServerHealthMessages([]);

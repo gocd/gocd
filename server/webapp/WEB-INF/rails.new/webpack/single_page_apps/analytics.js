@@ -55,7 +55,7 @@
       params.end = JSON.stringify(params.end).replace(/"/g, "");
 
       model.fetch(Routes.jobAnalyticsPath(params), (data, errors) => {
-        trans.respond(meta.reqId, {data, errors});
+        trans.respond({data, errors});
       });
     },
 

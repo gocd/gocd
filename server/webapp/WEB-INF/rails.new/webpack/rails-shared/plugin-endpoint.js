@@ -56,7 +56,7 @@
   }
 
   function init(win, data) {
-    new Transport(win).request("init", data);
+    new Transport(win, null).request("init", data);
   }
 
   /** constructs a message from metadata and payload, and sends it to the target window */
@@ -131,7 +131,7 @@
           return;
         }
 
-        HANDLERS[key](message, new Transport(source));
+        HANDLERS[key](message, new Transport(source, reqId));
         break;
       case "response":
         var req = PENDING_REQUESTS.pop(reqId);
@@ -145,7 +145,9 @@
 
   function nextReqId() { return REQUEST_ID_SEQ++; }
 
-  function Transport(win) {
+  function Transport(win, responseId) {
+    var alreadyResponded = false;
+
     this.request = function sendRequest(key, data) {
       var reqId = nextReqId();
       var req = new PluginRequest(reqId);
@@ -155,8 +157,19 @@
       return req;
     };
 
-    this.respond = function sendResponse(reqId, data) {
-      send(win, data, {reqId: reqId, type: "response"});
+    this.respond = function sendResponse(data) {
+      if ("number" !== typeof responseId) {
+        err("Missing responseId, cannot locate associated request!");
+        return;
+      }
+
+      if (alreadyResponded) {
+        err("Response already sent! Cannot send again for request", responseId);
+        return;
+      }
+
+      alreadyResponded = true;
+      send(win, data, {reqId: responseId, type: "response"});
     };
   }
 

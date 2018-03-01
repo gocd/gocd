@@ -6,14 +6,7 @@
         "debug": true,
         "targets": {
           "browsers": [
-            "> 0.5%",
-            "last 2 versions",
-            "Firefox ESR",
-            "not IE 10",
-            "not IE_Mob 10",
-            "not BlackBerry 10",
-            "not BlackBerry 7"
-            // see http://browserl.ist/?q=defaults and https://github.com/ai/browserslist#queries
+            "last 2 versions" // see http://browserl.ist/?q=last+2+versions
           ]
         }
       }

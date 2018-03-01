@@ -115,6 +115,7 @@ module Services
     :value_stream_map_service,
     :version_info_service,
     :xml_api_service,
+    :elastic_agent_plugin_service,
   )
 
   service_with_alias_name(:go_config_service_for_url, "goConfigService")

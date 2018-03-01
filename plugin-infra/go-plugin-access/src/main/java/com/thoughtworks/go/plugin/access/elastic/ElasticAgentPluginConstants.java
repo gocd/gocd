@@ -43,5 +43,5 @@ public interface ElasticAgentPluginConstants {
     String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";
     String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
     String REQUEST_AGENT_STATUS_REPORT = REQUEST_PREFIX + ".agent-status-report";
-    String REQUEST_CAPABILTIES = REQUEST_PREFIX + ".get-capabilities";
+    String REQUEST_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
 }

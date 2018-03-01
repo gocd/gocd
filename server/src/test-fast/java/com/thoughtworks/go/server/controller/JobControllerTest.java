@@ -58,7 +58,7 @@ public class JobControllerTest {
     }
 
     @Test
-    public void shouldFindTheLatestJobWhenJobStatusIsRequested() throws Exception {
+    public void shouldFindTheLatestJobWhenJobStatusIsRequested() {
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Rescheduled, JobResult.Unknown, "config");
         job.assign("agent", new Date());
 

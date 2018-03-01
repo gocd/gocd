@@ -35,7 +35,6 @@ import java.util.Map;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    private CapabilitiesConverterV1 capabilitiesConverterV1 = new CapabilitiesConverterV1();
     private AgentMetadataConverterV1 agentMetadataConverterV1 = new AgentMetadataConverterV1();
 
     @Override
@@ -45,7 +44,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
 
     @Override
     public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return capabilitiesConverterV1.fromDTO(new CapabilitiesDTO());
+        throw new UnsupportedOperationException("Capabilities are not supported in elastic-agent extension v1.");
     }
 
     @Override

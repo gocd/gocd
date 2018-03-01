@@ -190,14 +190,14 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(true)));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false,true)));
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertThat(modelAndView.getModel().get("elasticProfilePluginId"), is("plugin_id"));
+        assertThat(modelAndView.getModel().get("elasticAgentPluginId"), is("plugin_id"));
     }
 
     @Test
@@ -205,6 +205,12 @@ public class JobControllerIntegrationTest {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
+
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false,true)));
+
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 
         final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
         agentConfig.setElasticAgentId("elastic_agent_id");
@@ -214,7 +220,7 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertThat(modelAndView.getModel().get("elasticProfilePluginId"), is("plugin_id"));
+        assertThat(modelAndView.getModel().get("elasticAgentPluginId"), is("plugin_id"));
         assertThat(modelAndView.getModel().get("elasticAgentId"), is("elastic_agent_id"));
     }
 
@@ -230,7 +236,7 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+        assertNull(modelAndView.getModel().get("elasticAgentPluginId"));
         assertNull(modelAndView.getModel().get("elasticAgentId"));
     }
 
@@ -248,7 +254,7 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+        assertNull(modelAndView.getModel().get("elasticAgentPluginId"));
         assertNull(modelAndView.getModel().get("elasticAgentId"));
     }
 

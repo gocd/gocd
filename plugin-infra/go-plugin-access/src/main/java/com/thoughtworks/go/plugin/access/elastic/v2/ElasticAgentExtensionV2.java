@@ -52,7 +52,7 @@ public class ElasticAgentExtensionV2 implements VersionedElasticAgentExtension {
 
     @Override
     public Capabilities getCapabilities(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILTIES, new DefaultPluginInteractionCallback<Capabilities>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
             public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV2.getCapabilitiesFromResponseBody(responseBody);

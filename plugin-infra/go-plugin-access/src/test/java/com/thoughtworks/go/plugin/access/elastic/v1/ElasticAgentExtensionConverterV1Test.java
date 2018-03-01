@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.elastic.v1;
 import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,12 +103,9 @@ public class ElasticAgentExtensionConverterV1Test {
         assertThat(image.getData(), is("bar"));
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void getCapabilitiesFromResponseBody_shouldReturnAllKindOfSupportStatusReportWithFalseValue() {
-        final Capabilities capabilities = converterV1.getCapabilitiesFromResponseBody(null);
-
-        assertFalse(capabilities.supportsStatusReport());
-        assertFalse(capabilities.supportsAgentStatusReport());
+        converterV1.getCapabilitiesFromResponseBody(null);
     }
 
     @Test(expected = UnsupportedOperationException.class)

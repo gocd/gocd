@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.Tabs;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
@@ -135,14 +132,7 @@ public class JobController {
     }
 
     private void addElasticAgentInfo(JobInstance jobInstance, Map data) {
-        final AgentConfig agentConfig = goConfigService.agentByUuid(jobInstance.getAgentUuid());
         if (!jobInstance.currentStatus().isActive()) {
-            return;
-        }
-
-        if (agentConfig != null && agentConfig.isElastic()) {
-            data.put("elasticProfilePluginId", agentConfig.getElasticPluginId());
-            data.put("elasticAgentId", agentConfig.getElasticAgentId());
             return;
         }
 
@@ -153,9 +143,17 @@ public class JobController {
 
         final String pluginId = jobAgentMetadata.elasticProfile().getPluginId();
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
-        if (pluginInfo != null && pluginInfo.supportsStatusReport()) {
-            data.put("elasticProfilePluginId", pluginId);
-            return;
+
+        if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
+            final AgentConfig agentConfig = goConfigService.agentByUuid(jobInstance.getAgentUuid());
+
+            if (agentConfig != null && agentConfig.isElastic()) {
+                data.put("elasticAgentPluginId", agentConfig.getElasticPluginId());
+                data.put("elasticAgentId", agentConfig.getElasticAgentId());
+                return;
+            }
+
+            data.put("elasticAgentPluginId", pluginId);
         }
     }
 

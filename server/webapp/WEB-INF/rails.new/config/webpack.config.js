@@ -18,13 +18,14 @@
 
 'use strict';
 
-const fs          = require('fs');
-const fsExtra     = require('fs-extra');
-const _           = require('lodash');
-const path        = require('path');
-const webpack     = require('webpack');
-const StatsPlugin = require('stats-webpack-plugin');
-const HappyPack   = require('happypack');
+const fs             = require('fs');
+const fsExtra        = require('fs-extra');
+const _              = require('lodash');
+const path           = require('path');
+const webpack        = require('webpack');
+const StatsPlugin    = require('stats-webpack-plugin');
+const HappyPack      = require('happypack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -91,11 +92,13 @@ module.exports = function (env) {
   }));
 
   if (production) {
-    plugins.push(new webpack.optimize.UglifyJsPlugin({
-      compressor: {
+    plugins.push(new UglifyJsPlugin({
+      cache:         true,
+      parallel:      true,
+      uglifyOptions: {
+        ecma:     5,
         warnings: false
-      },
-      sourceMap:  false
+      }
     }));
     plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
     plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: JSON.stringify('production')}}));

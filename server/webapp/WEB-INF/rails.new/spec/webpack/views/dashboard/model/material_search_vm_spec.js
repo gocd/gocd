@@ -82,10 +82,16 @@ describe("Dashboard Material Search State Model", () => {
 
       const newMaterialResults = [
         {
-          "type":        "Git",
-          "name":        "material3",
-          "fingerprint": "3dcc10e7943",
-          "revision":    {}
+          "revision": "3d8dd57b8140ea81ba2674e5e64b0ca4339ed4f6",
+          "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+          "date":     "2018-03-01T08:38:58Z",
+          "comment":  "this is the fourth commit"
+        },
+        {
+          "revision": "3d8dd57b8140ea81ba2674e5e64b0ca4339ed4f7",
+          "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+          "date":     "2018-03-01T08:38:58Z",
+          "comment":  "this is the another commit"
         }
       ];
 
@@ -107,6 +113,40 @@ describe("Dashboard Material Search State Model", () => {
         expect(request.method).toBe('GET');
         expect(request.url).toBe(`/go/api/internal/material_search?fingerprint=${materials[0].fingerprint}&pipeline_name=${pipelineName}&search_text=${searchText}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+      });
+    });
+
+    it("should set the selection on the material when it is searched using exact revision", () => {
+      const searchText = '3d8dd57b8140ea81ba2674e5e64b0ca4339ed4f6';
+
+      const newMaterialResults = [
+        {
+          "revision": "3d8dd57b8140ea81ba2674e5e64b0ca4339ed4f6",
+          "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+          "date":     "2018-03-01T08:38:58Z",
+          "comment":  "this is the fourth commit"
+        }
+      ];
+
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(SparkRoutes.pipelineMaterialSearchPath(pipelineName, materials[0].fingerprint, searchText), undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(newMaterialResults),
+          responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+          status:          200
+        });
+
+        const materialVM = vm[materials[0].name];
+        materialVM.searchText(searchText);
+
+        expect(materialVM.searchText()).toBe(searchText);
+        expect(materials[0].selection()).toBe(undefined);
+
+        materialVM.performSearch();
+
+        expect(materialVM.materialSearchResults()).toEqual(newMaterialResults);
+
+        expect(materialVM.searchText()).toBe(searchText);
+        expect(materials[0].selection()).toBe(searchText);
       });
     });
   });

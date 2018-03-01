@@ -68,7 +68,7 @@
         const tabs = new Tabs(m.redraw);
         pageItems.push(m(AnalyticsDashboardHeader));
         tabs.push(new MetricType("Global", GlobalMetrics, $(main).data("supported-dashboard-metrics")));
-        tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: ["smoke", "Staging", "Production", "BuildApp1", "BuildApp2"], plugins: $(main).data("supported-dashboard-metrics")}));
+        tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: $(main).data("supported-dashboard-metrics")}));
         pageItems.push(m(DashboardTabs, {tabs: tabs}));
         return pageItems;
       }

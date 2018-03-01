@@ -54,7 +54,8 @@
               $.each(models, function(uid, model) {
                 models[uid] = new Frame(m.redraw);
                 models[uid].pluginId(model.pluginId());
-                models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: model.pluginId(), pipeline_name: currentPipeline, context: "dashboard"}));
+                models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: model.pluginId(), pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
+
               });
             }
           }, x)

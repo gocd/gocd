@@ -18,16 +18,9 @@
   "use strict";
 
   const m = require("mithril");
-  const $ = require("jquery");
-
-  require("foundation-sites");
-  require('helpers/server_health_messages_helper');
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
-  const VersionUpdater           = require('models/shared/version_updater');
   const Frame                    = require('models/analytics/frame');
-  const AnalyticsDashboardHeader = require('views/analytics/header');
-  const AnalyticsDashboardTabs   = require('views/analytics/tabs');
   const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
   const Routes                   = require('gen/js-routes');
 

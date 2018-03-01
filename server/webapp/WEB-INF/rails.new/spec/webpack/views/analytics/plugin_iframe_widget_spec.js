@@ -23,9 +23,10 @@ describe("Plugin iFrame Widget", () => {
   function newModel(loadedData, loadedView) {
     const data = Stream(),
           view = Stream(),
+          url  = Stream(),
         errors = Stream();
 
-    return {data, view, errors, load: () => {
+    return {url, data, view, errors, load: () => {
       data(loadedData);
       view(loadedView);
     }};

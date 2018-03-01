@@ -71,16 +71,18 @@
 
     .dashboard-charts {
       overflow: visible;
-      height: 80%;
       border:     0;
-
-      &.Global {
-        display: flex;
-      }
+      height: 100%;
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: center;
 
       .frame-container {
-        width: 100%;
+        min-width: calc(44vh * 5 / 3);
+        min-height: 44vh;
+        max-width: calc(60vh * 5 / 3);
         height: 100%;
+
         iframe {
           height: 100%;
           width:  100%;

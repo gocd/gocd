@@ -52,6 +52,9 @@ public class AgentsUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public Agents getPreprocessedEntityConfig() {
         return updatedConfig.agents();
     }

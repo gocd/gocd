@@ -74,4 +74,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
         }
         return true;
     }
+
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
 }

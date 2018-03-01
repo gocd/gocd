@@ -198,6 +198,9 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
             Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentConfig.name().toString(), username.getDisplayName());

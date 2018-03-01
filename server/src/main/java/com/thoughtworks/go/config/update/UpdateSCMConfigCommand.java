@@ -47,7 +47,6 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     }
 
-
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);

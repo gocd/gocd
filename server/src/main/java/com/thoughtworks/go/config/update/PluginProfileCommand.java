@@ -66,6 +66,10 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
         return isAuthorized();
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {
+    }
+
     protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
         preprocessedProfile.validateTree(null);

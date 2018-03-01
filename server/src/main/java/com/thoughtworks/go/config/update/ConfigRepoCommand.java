@@ -80,6 +80,8 @@ public class ConfigRepoCommand {
         return isUserAuthorized();
     }
 
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     public boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());

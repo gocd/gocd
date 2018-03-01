@@ -76,6 +76,9 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public PipelineConfig getPreprocessedEntityConfig() {
         return preprocessedPipelineConfig;
     }

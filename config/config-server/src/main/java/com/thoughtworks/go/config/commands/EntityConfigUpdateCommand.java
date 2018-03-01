@@ -26,4 +26,6 @@ public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
     void clearErrors();
 
     T getPreprocessedEntityConfig();
+
+    void postValidationUpdates(CruiseConfig cruiseConfig);
 }

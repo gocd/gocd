@@ -84,6 +84,9 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
         return canEditPipeline() && isRequestFresh(cruiseConfig);
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     private boolean canEditPipeline() {
         return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getPipelineGroup());
     }

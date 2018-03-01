@@ -78,4 +78,7 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
         }
         return true;
     }
+
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
 }

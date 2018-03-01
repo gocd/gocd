@@ -91,6 +91,9 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
         return isAuthorized();
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());

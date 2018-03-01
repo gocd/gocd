@@ -67,6 +67,9 @@ public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<Config
         return doesConfigRepoExist(cruiseConfig) && isUserAuthorized();
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     private boolean doesConfigRepoExist(CruiseConfig cruiseConfig) {
         return cruiseConfig.getConfigRepos().getConfigRepo(repoId) != null;
     }

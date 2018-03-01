@@ -90,6 +90,11 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {
+
+    }
+
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isAuthorized();
     }

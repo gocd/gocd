@@ -36,8 +36,13 @@ const Dashboard = function () {
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json) => {
-    pipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
-    pipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+    const newPipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
+    const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+
+    //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
+    pipelineGroups = newPipelineGroups;
+    pipelines      = newPipelines;
+
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
   };
 

@@ -435,13 +435,11 @@
         stages.configVersion,
         stages.lastTransitionedTime,
         builds.*, builds.id as buildId,
-        resources.name as resourceName,
         buildstatetransitions.currentState,
         buildstatetransitions.statechangetime, buildstatetransitions.id as stateId
         FROM stages
         INNER JOIN pipelines ON pipelines.id = stages.pipelineId AND pipelines.name = #pipelineName#
         INNER JOIN builds ON stages.id = builds.stageId AND builds.ignored != true
-        LEFT JOIN resources ON builds.id = resources.buildId
         LEFT JOIN buildstatetransitions ON builds.id = buildstatetransitions.buildId
         WHERE stages.id in
     </sql>

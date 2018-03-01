@@ -82,7 +82,7 @@ describe("Plugin iFrame Widget", () => {
     const expectedMessage = JSON.stringify({
       uid: "some-uid",
       pluginId: "some-plugin",
-      data: "model data"
+      initialData: "model data"
     });
     expect(actualMessage).toBe(expectedMessage);
   });

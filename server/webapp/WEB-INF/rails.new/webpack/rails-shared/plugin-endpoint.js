@@ -78,34 +78,37 @@
   /** main function to delegate messages to appropriate handlers */
   function dispatch(ev) {
     var message = ev.data;
-
     if ("null" !== ev.origin && ev.origin !== window.location.origin) {
       err("Disregarding message", message, "because origin", ev.origin, "does not match", window.location.origin);
       return;
     }
-
-    // We always expect data to be an object; this also has the nice
-    // side effect of ignoring bootstrap's test for window.postMessage()
-    if ("object" !== typeof message) {
-      return;
-    }
-
-    if ("object" !== typeof message.head) {
-      err("Missing message metadata! debug:", message);
-      return;
-    }
-
-    if ("string" !== typeof message.head.type) {
-      err("Missing transport type! debug:", message);
-      return;
-    }
-
-    if ("number" !== typeof message.head.reqId) {
-      err("Missing request id! debug:", message);
+    var error = validateMessage(message);
+    if (error) {
+      err(error + " debug:", message);
       return;
     }
 
     handleRequestResponse(ev.source, message);
+  }
+
+  function validateMessage(message) {
+    // We always expect data to be an object; this also has the nice
+    // side effect of ignoring bootstrap's test for window.postMessage()
+    if ("object" !== typeof message) {
+      return "Message is not an object.";
+    }
+
+    if ("object" !== typeof message.head) {
+      return "Missing message metadata!";
+    }
+
+    if ("string" !== typeof message.head.type) {
+      return "Missing transport type!";
+    }
+
+    if ("number" !== typeof message.head.reqId) {
+      return "Missing request id!";
+    }
   }
 
   function messageKey(message) {
@@ -153,7 +156,13 @@
       var req = new PluginRequest(reqId);
 
       PENDING_REQUESTS.register(reqId, req);
-      send(win, data, {reqId: reqId, type: "request", key: key});
+
+      /* make the send() happen asynchronously so that plugin
+       * authors can attach chaining-style callbacks. */
+      setTimeout(function() {
+        send(win, data, {reqId: reqId, type: "request", key: key});
+      }, 0);
+
       return req;
     };
 
@@ -195,7 +204,6 @@
     addCallbackSetter(this, "done");
     addCallbackSetter(this, "fail");
     addCallbackSetter(this, "always");
-
 
     this.onComplete = function (data, errors) {
       if (!errors) {

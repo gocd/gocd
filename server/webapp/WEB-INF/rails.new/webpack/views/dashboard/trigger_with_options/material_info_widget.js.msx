@@ -34,10 +34,12 @@ const MaterialInfoWidget = {
     if (commits.length) {
       const searchInput = $(vnode.dom).find('.material-revision-search');
       if (searchInput.length) {
-        const offset = searchInput.offset();
-        offset.top   = offset.top + searchInput.height() + 10;
-        commits.css(offset);
-        commits.css({'max-height': `${winHeight - offset.top - 10}px`});
+        const inputCoordinates = searchInput.get(0).getBoundingClientRect();
+        commits.css({
+          top:          Math.round(inputCoordinates.top + inputCoordinates.height),
+          left:         inputCoordinates.left,
+          'max-height': `${winHeight - searchInput.offset().top + searchInput.height()}px`
+        });
       }
     }
   },

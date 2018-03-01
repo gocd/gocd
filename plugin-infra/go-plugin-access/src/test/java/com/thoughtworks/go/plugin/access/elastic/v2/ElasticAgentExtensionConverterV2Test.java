@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v2;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +47,8 @@ public class ElasticAgentExtensionConverterV2Test {
 
     @Test
     public void shouldUnJSONizeCanHandleResponseBody() {
-        assertTrue(converterV2.canHandlePluginResponseFromBody("true"));
-        assertFalse(converterV2.canHandlePluginResponseFromBody("false"));
+        assertTrue(new Gson().fromJson("true", Boolean.class));
+        assertFalse(new Gson().fromJson("false", Boolean.class));
     }
 
     @Test
@@ -98,27 +98,21 @@ public class ElasticAgentExtensionConverterV2Test {
     public void shouldErrorOutWhenRequestIdMadeForAgentStatusReport() {
         converterV2.getAgentStatusReportRequestBody(jobIdentifier, null);
     }
-
-    @Test
-    public void shouldJSONizesListAgentsResponseBody() throws Exception {
-        String json = converterV2.listAgentsResponseBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
-        JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", JSONCompareMode.NON_EXTENSIBLE);
-    }
-
+    
     @Test
     public void shouldConstructValidationRequest() throws JSONException {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         configuration.put("key3", null);
-        String requestBody = converterV2.validateRequestBody(configuration);
+        String requestBody = converterV2.validateElasticProfileRequestBody(configuration);
         JSONAssert.assertEquals(requestBody, "{\"key3\":null,\"key2\":\"value2\",\"key1\":\"value1\"}", JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test
     public void shouldHandleValidationResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"error on key one\"}, {\"key\":\"key-two\",\"message\":\"error on key two\"}]";
-        ValidationResult result = converterV2.getValidationResultResponseFromBody(responseBody);
+        ValidationResult result = converterV2.getElasticProfileValidationResultResponseFromBody(responseBody);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getErrors().size(), is(2));
         assertThat(result.getErrors().get(0).getKey(), is("key-one"));

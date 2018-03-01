@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.elastic.v3;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
@@ -31,24 +30,13 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class ElasticAgentExtensionConverterV3 implements ElasticAgentMessageConverter {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    public static final String VERSION = "3.0";
-
-    @Override
-    public CapabilitiesConverterV3 capabilitiesConverter() {
-        return new CapabilitiesConverterV3();
-    }
-
-    @Override
-    public AgentMetadataConverterV3 agentMetadataConverter() {
-        return new AgentMetadataConverterV3();
-    }
+    private CapabilitiesConverterV3 capabilitiesConverterV3 = new CapabilitiesConverterV3();
+    private AgentMetadataConverterV3 agentMetadataConverterV3 = new AgentMetadataConverterV3();
 
     @Override
     public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
@@ -78,40 +66,13 @@ public class ElasticAgentExtensionConverterV3 implements ElasticAgentMessageConv
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("properties", mapToJsonObject(configuration));
         jsonObject.addProperty("environment", environment);
-        jsonObject.add("agent", agentMetadataConverter().toDTO(elasticAgent).toJSON());
+        jsonObject.add("agent", agentMetadataConverterV3.toDTO(elasticAgent).toJSON());
         jsonObject.add("job_identifier", jobIdentifierJson(identifier));
         return GSON.toJson(jsonObject);
     }
 
     @Override
-    public String listAgentsResponseBody(Collection<AgentMetadata> metadata) {
-        final AgentMetadataConverterV3 agentMetadataConverterV3 = agentMetadataConverter();
-        final JsonArray array = new JsonArray();
-        for (AgentMetadata agentMetadata : metadata) {
-            array.add(agentMetadataConverterV3.toDTO(agentMetadata).toJSON());
-        }
-        return GSON.toJson(array);
-    }
-
-    @Override
-    public Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody) {
-        final Collection<AgentMetadataDTO> agentMetadata = AgentMetadataDTO.fromJSONArray(requestBody);
-        final List<AgentMetadata> agentMetadataList = new ArrayList<>();
-
-        if (agentMetadata == null) {
-            return agentMetadataList;
-        }
-
-        final AgentMetadataConverterV3 agentMetadataConverterV3 = agentMetadataConverter();
-        for (AgentMetadataDTO metadataDTO : agentMetadata) {
-            agentMetadataList.add(agentMetadataConverterV3.fromDTO(metadataDTO));
-        }
-
-        return agentMetadataList;
-    }
-
-    @Override
-    public List<PluginConfiguration> getProfileMetadataResponseFromBody(String responseBody) {
+    public List<PluginConfiguration> getElasticProfileMetadataResponseFromBody(String responseBody) {
         return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
@@ -139,24 +100,19 @@ public class ElasticAgentExtensionConverterV3 implements ElasticAgentMessageConv
     }
 
     @Override
-    public ValidationResult getValidationResultResponseFromBody(String responseBody) {
+    public ValidationResult getElasticProfileValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
     }
 
     @Override
-    public String validateRequestBody(Map<String, String> configuration) {
+    public String validateElasticProfileRequestBody(Map<String, String> configuration) {
         JsonObject properties = mapToJsonObject(configuration);
         return new GsonBuilder().serializeNulls().create().toJson(properties);
     }
 
     @Override
-    public Boolean canHandlePluginResponseFromBody(String responseBody) {
-        return new Gson().fromJson(responseBody, Boolean.class);
-    }
-
-    @Override
     public Boolean shouldAssignWorkResponseFromBody(String responseBody) {
-        return canHandlePluginResponseFromBody(responseBody);
+        return new Gson().fromJson(responseBody, Boolean.class);
     }
 
     public String getStatusReportView(String responseBody) {
@@ -169,7 +125,7 @@ public class ElasticAgentExtensionConverterV3 implements ElasticAgentMessageConv
 
     public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
         final CapabilitiesDTO capabilitiesDTO = GSON.fromJson(responseBody, CapabilitiesDTO.class);
-        return capabilitiesConverter().fromDTO(capabilitiesDTO);
+        return capabilitiesConverterV3.fromDTO(capabilitiesDTO);
     }
 
     private JsonObject mapToJsonObject(Map<String, String> configuration) {

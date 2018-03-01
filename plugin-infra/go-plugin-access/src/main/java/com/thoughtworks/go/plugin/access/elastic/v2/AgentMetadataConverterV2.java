@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 public class AgentMetadataConverterV2 implements DataConverter<AgentMetadata, AgentMetadataDTO> {
     @Override
     public AgentMetadata fromDTO(AgentMetadataDTO agentMetadataDTO) {
-        throw unsupportedOperationException(agentMetadataDTO.getClass().getName(), AgentMetadataDTO.class.getName());
+        return new AgentMetadata(agentMetadataDTO.elasticAgentId(), agentMetadataDTO.agentState(), agentMetadataDTO.buildState(), agentMetadataDTO.configState());
     }
 
     @Override

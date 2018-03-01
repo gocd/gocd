@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
@@ -38,9 +37,7 @@ import java.util.Arrays;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ElasticAgentRequestProcessorTest {
     private AgentService agentService = mock(AgentService.class);
@@ -64,11 +61,9 @@ public class ElasticAgentRequestProcessorTest {
     }
 
     @Test
-    public void shouldProcessDisableAgentRequest() throws Exception {
-        AgentMetadata agent = new AgentMetadata("foo", null, null, null);
+    public void shouldProcessDisableAgentRequest() {
         DefaultGoApiRequest goPluginApiRequest = new DefaultGoApiRequest(PROCESS_DISABLE_AGENTS, "1.0", pluginIdentifier);
-        goPluginApiRequest.setRequestBody(extension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(Arrays.asList(agent)));
-
+        goPluginApiRequest.setRequestBody("[{\"agent_id\":\"foo\"}]");
 
         AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
         when(agentService.findElasticAgent("foo", "docker")).thenReturn(agentInstance);
@@ -77,10 +72,9 @@ public class ElasticAgentRequestProcessorTest {
     }
 
     @Test
-    public void shouldProcessDeleteAgentRequest() throws Exception {
-        AgentMetadata agent = new AgentMetadata("foo", null, null, null);
+    public void shouldProcessDeleteAgentRequest() {
         DefaultGoApiRequest goPluginApiRequest = new DefaultGoApiRequest(PROCESS_DELETE_AGENTS, "1.0", pluginIdentifier);
-        goPluginApiRequest.setRequestBody(extension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(Arrays.asList(agent)));
+        goPluginApiRequest.setRequestBody("[{\"agent_id\":\"foo\"}]");
 
 
         AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);

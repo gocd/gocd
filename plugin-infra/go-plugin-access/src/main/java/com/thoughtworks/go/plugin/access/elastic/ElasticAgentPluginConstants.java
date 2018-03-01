@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
+import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionV1;
+import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionV2;
+import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 
 import java.util.Arrays;
 import java.util.List;
 
 public interface ElasticAgentPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION, ElasticAgentExtensionConverterV2.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV1.VERSION, ElasticAgentExtensionV2.VERSION, ElasticAgentExtensionV3.VERSION);
 
     String REQUEST_PREFIX = "go.cd.elastic-agent";
     String PROCESSOR_PREFIX = "go.processor.elastic-agents";

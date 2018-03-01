@@ -279,7 +279,7 @@ public class ElasticAgentPluginServiceTest {
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
 
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Plugin does not support status report.");
+        thrown.expectMessage("Plugin does not plugin support status report.");
 
         service.getPluginStatusReport("cd.go.example.plugin");
     }

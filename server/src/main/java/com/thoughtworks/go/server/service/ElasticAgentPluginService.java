@@ -200,7 +200,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             return elasticAgentPluginRegistry.getPluginStatusReport(pluginId);
         }
 
-        throw new RuntimeException("Plugin does not support status report.");
+        throw new UnsupportedOperationException("Plugin does not plugin support status report.");
     }
 
     public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
@@ -209,7 +209,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId);
         }
 
-        throw new RuntimeException("Plugin does not support agent status report.");
+        throw new UnsupportedOperationException("Plugin does not support agent status report.");
     }
 
     @Override

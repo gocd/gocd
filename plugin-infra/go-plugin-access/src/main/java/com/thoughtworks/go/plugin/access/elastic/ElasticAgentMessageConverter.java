@@ -22,41 +22,31 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
 
-    DataConverter capabilitiesConverter();
+    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
 
-    DataConverter agentMetadataConverter();
+    Capabilities getCapabilitiesFromResponseBody(String responseBody);
+
+    List<PluginConfiguration> getElasticProfileMetadataResponseFromBody(String responseBody);
+
+    String getProfileViewResponseFromBody(String responseBody);
+
+
+    String validateElasticProfileRequestBody(Map<String, String> configuration);
+
+    ValidationResult getElasticProfileValidationResultResponseFromBody(String responseBody);
 
     String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier);
-
-    Boolean canHandlePluginResponseFromBody(String responseBody);
 
     String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier);
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 
-    String listAgentsResponseBody(Collection<AgentMetadata> metadata);
-
-    Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody);
-
-    List<PluginConfiguration> getProfileMetadataResponseFromBody(String responseBody);
-
-    String getProfileViewResponseFromBody(String responseBody);
-
-    ValidationResult getValidationResultResponseFromBody(String responseBody);
-
-    String validateRequestBody(Map<String, String> configuration);
-
-    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
-
     String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId);
 
     String getStatusReportView(String responseBody);
-
-    Capabilities getCapabilitiesFromResponseBody(String responseBody);
 }

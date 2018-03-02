@@ -25,7 +25,7 @@
   function mockEvent(message) {
     const event = {};
     event.source = window;
-    event.origin = window.origin;
+    event.origin = "null";
     event.data = message;
     return event;
   }

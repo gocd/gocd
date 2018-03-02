@@ -65,7 +65,6 @@ public class BackupServiceTest {
         when(artifactsDirHolder.getBackupsDir()).thenReturn(new File(location));
 
         BackupService backupService = new BackupService(null, artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
         assertThat(backupService.backupLocation(), is(new File(location).getAbsolutePath()));
     }
 
@@ -75,7 +74,6 @@ public class BackupServiceTest {
         Date serverBackupTime = new Date();
         when(repo.lastBackup()).thenReturn(new ServerBackup("file_path", serverBackupTime, "user"));
         BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
 
         Date date = backupService.lastBackupTime();
         assertThat(date, is(serverBackupTime));
@@ -86,7 +84,6 @@ public class BackupServiceTest {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(null);
         BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
 
         assertThat(backupService.lastBackupTime(), is(nullValue()));
     }
@@ -95,7 +92,6 @@ public class BackupServiceTest {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(new ServerBackup("file_path", new Date(), "loser"));
         BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
 
         String username = backupService.lastBackupUser();
         assertThat(username, is("loser"));
@@ -106,7 +102,6 @@ public class BackupServiceTest {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(null);
         BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
 
         assertThat(backupService.lastBackupUser(), is(nullValue()));
     }
@@ -118,7 +113,6 @@ public class BackupServiceTest {
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactDirectory);
         when(artifactDirectory.getUsableSpace()).thenReturn(42424242L);
         BackupService backupService = new BackupService(null, artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, serverVersion, configRepo, databaseStrategy);
-        backupService.initialize();
 
         assertThat(backupService.availableDiskSpace(), is("40 MB"));
 

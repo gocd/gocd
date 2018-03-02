@@ -208,7 +208,6 @@ public class BackupServiceIntegrationTest {
         ServerVersion serverVersion = mock(ServerVersion.class);
         when(serverVersion.version()).thenReturn("some-test-version-007");
         BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository, databaseStrategy);
-        backupService.initialize();
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(localizer), is("Backup completed successfully."));
@@ -230,7 +229,6 @@ public class BackupServiceIntegrationTest {
 
         BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
                 databaseStrategy);
-        service.initialize();
         service.startBackup(admin, new HttpLocalizedOperationResult());
 
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
@@ -259,7 +257,6 @@ public class BackupServiceIntegrationTest {
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
         BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
                 databaseStrategyMock);
-        service.initialize();
         service.startBackup(admin, result);
 
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();

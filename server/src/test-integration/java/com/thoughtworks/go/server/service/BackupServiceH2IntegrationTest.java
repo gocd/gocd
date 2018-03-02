@@ -137,7 +137,6 @@ public class BackupServiceH2IntegrationTest {
 
         BackupService service = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
                 databaseStrategy);
-        service.initialize();
         service.startBackup(admin, result);
 
         assertThat(result.isSuccessful(), is(true));

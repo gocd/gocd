@@ -133,7 +133,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             timerScheduler.initialize();
             stageResourceImporter.initialize();
             goDiskSpaceMonitor.initialize();
-            backupService.initialize();
             railsAssetsService.initialize();
             ccTrayActivityListener.initialize();
             dashboardActivityListener.initialize();

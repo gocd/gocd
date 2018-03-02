@@ -35,7 +35,7 @@ import org.mockito.Mock
 import static com.thoughtworks.go.apiv2.dashboard.GoDashboardPipelineMother.dashboardPipeline
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class DashboardControllerDelegateTest implements SecurityServiceTrait, ControllerTrait<DashboardControllerDelegate> {
@@ -120,15 +120,36 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
     }
 
     @Test
-    void 'should return 204 no content when dashboard is not processed (on server start)'() {
+    void 'should return 202 no content when dashboard is not processed (on server start)'() {
+      when(goDashboardService.isFeatureToggleDisabled()).thenReturn(false)
       when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(false)
+
       loginAsUser()
       getWithApiHeader(controller.controllerPath())
+
+      verify(goDashboardService).isFeatureToggleDisabled()
+      verify(goDashboardService).hasEverLoadedCurrentState()
+      verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
 
       assertThatResponse()
         .isAccepted()
         .hasContentType(controller.mimeType)
-        .hasJsonBody([:])
+        .hasJsonMessage("Dashboard is being processed, this may take a few seconds. Please check back later.")
+    }
+
+    @Test
+    void 'should return 424 when dashboard is disabled'() {
+      when(goDashboardService.isFeatureToggleDisabled()).thenReturn(true)
+
+      loginAsUser()
+      getWithApiHeader(controller.controllerPath())
+      verify(goDashboardService).isFeatureToggleDisabled()
+      verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
+
+      assertThatResponse()
+        .isFailedDependency()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("The quicker dashboard feature has not been enabled!")
     }
   }
 }

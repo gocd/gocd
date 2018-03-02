@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
-        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+        if (featureToggleDisabled()) {
             return;
         }
         PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
@@ -75,14 +75,18 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
-        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+        if (featureToggleDisabled()) {
             return;
         }
         updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
     }
 
+    public boolean featureToggleDisabled() {
+        return !Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY);
+    }
+
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
-        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+        if (featureToggleDisabled()) {
             return;
         }
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));

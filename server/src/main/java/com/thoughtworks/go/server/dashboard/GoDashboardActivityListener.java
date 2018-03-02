@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -31,10 +33,11 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleListener;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /* Listens to all activity that is needed to keep the dashboard updated and sets it up for processing.
  */
@@ -50,6 +53,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     private final GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler;
     private final GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler;
     private final GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler;
+    private final FeatureToggleService featureToggleService;
 
     private final MultiplexingQueueProcessor processor;
 
@@ -62,7 +66,8 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                                        GoDashboardConfigChangeHandler configChangeHandler,
                                        GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler,
                                        GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler,
-                                       GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler) {
+                                       GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler,
+                                       FeatureToggleService featureToggleService) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
         this.pipelinePauseService = pipelinePauseService;
@@ -73,6 +78,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         this.pauseStatusChangeHandler = pauseStatusChangeHandler;
         this.lockStatusChangeHandler = lockStatusChangeHandler;
         this.templateConfigChangeHandler = templateConfigChangeHandler;
+        this.featureToggleService = featureToggleService;
 
         this.processor = new MultiplexingQueueProcessor("Dashboard");
     }
@@ -86,6 +92,19 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
+        featureToggleService.registerListener(Toggles.QUICKER_DASHBOARD_KEY, quickDashboardFeatureToggleListener());
+    }
+
+    private FeatureToggleListener quickDashboardFeatureToggleListener() {
+        return new FeatureToggleListener() {
+            @Override
+            public void toggleChanged(boolean newValue) {
+                if (newValue) {
+                    // pretend like the config changed
+                    onConfigChange(goConfigService.currentCruiseConfig());
+                }
+            }
+        };
     }
 
     @Override

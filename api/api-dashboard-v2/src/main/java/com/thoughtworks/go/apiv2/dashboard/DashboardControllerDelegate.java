@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.dashboard;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
@@ -39,7 +40,9 @@ import static spark.Spark.*;
 
 public class DashboardControllerDelegate extends ApiController {
 
-    private static final String EMPTY_JSON_STRING = "{}";
+    private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");
+    private static final String FEATURE_NOT_ENABLED = MessageJson.create("The quicker dashboard feature has not been enabled!");
+
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
 
@@ -65,9 +68,13 @@ public class DashboardControllerDelegate extends ApiController {
     }
 
     private Object index(Request request, Response response) throws IOException {
+        if (goDashboardService.isFeatureToggleDisabled()) {
+            response.status(424);
+            return FEATURE_NOT_ENABLED;
+        }
         if (!goDashboardService.hasEverLoadedCurrentState()) {
             response.status(202);
-            return EMPTY_JSON_STRING;
+            return BEING_PROCESSED;
         }
 
         String selectedPipelinesCookie = request.cookie("selected_pipelines");

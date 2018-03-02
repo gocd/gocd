@@ -38,36 +38,53 @@ $(() => {
 
   const dashboard = new Dashboard();
 
-  function onResponse(dashboardData) {
-    try {
-      dashboard.initialize(dashboardData);
-      dashboard.message(undefined);
-    } catch (e) {
-      dashboard.message({
-        type:    "alert",
-        content: "Error occurred while parsing dashboard API response. Check server logs for more information."
-      });
-
-      console.error(e); // eslint-disable-line no-console
-    }
-
+  function onResponse(dashboardData, message = undefined) {
+    dashboard.initialize(dashboardData);
+    dashboard.message(message);
     dashboardVM.initialize(dashboard);
   }
 
   function createRepeater() {
-    return new AjaxPoller(() => Dashboard.get()
-      .then((data, _textStatus, jqXHR) => {
-        if (jqXHR.status === 202) {
-          dashboard.message({
-            type:    "info",
-            content: "Dashboard is being processed, this may take a few seconds. Please check back later."
-          });
+    const onsuccess = (data, _textStatus, jqXHR) => {
+      if (jqXHR.status === 202) {
+        const message = {
+          type:    "info",
+          content: data.message
+        };
+        onResponse({}, message);
+        return;
+      }
+      onResponse(data);
+    };
+    const onerror   = (jqXHR, textStatus, errorThrown) => {
+      if (textStatus === 'parsererror') {
+        const message = {
+          type:    "alert",
+          content: "Error occurred while parsing dashboard API response. Check server logs for more information."
+        };
+        onResponse({}, message);
+        console.error(errorThrown); // eslint-disable-line no-console
+        return;
+      }
 
-          onResponse({});
-          return;
-        }
-        onResponse(data);
-      }));
+      if (jqXHR.status === 424) {
+        const message = {
+          type:    'warning',
+          content: jqXHR.responseJSON.message,
+        };
+        onResponse({}, message);
+        return;
+      }
+
+      const message = {
+        type:    'warning',
+        content: 'There was an unknown error ',
+      };
+      onResponse({}, message);
+      return;
+    };
+
+    return new AjaxPoller(() => Dashboard.get().then(onsuccess, onerror));
   }
 
   const repeater = Stream(createRepeater());

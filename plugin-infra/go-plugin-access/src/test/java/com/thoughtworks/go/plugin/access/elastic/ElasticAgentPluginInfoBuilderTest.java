@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

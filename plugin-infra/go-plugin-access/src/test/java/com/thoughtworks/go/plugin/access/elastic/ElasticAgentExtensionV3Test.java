@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionV2;
+import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -47,19 +47,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ElasticAgentExtensionTestV2 {
+public class ElasticAgentExtensionV3Test {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private static final String PLUGIN_ID = "cd.go.example.plugin";
@@ -68,7 +67,7 @@ public class ElasticAgentExtensionTestV2 {
     @Mock
     private GoPluginDescriptor descriptor;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
-    private ElasticAgentExtensionV2 extensionV2;
+    private ElasticAgentExtensionV3 extensionV3;
 
     @Before
     public void setUp() throws Exception {
@@ -80,44 +79,32 @@ public class ElasticAgentExtensionTestV2 {
 
         when(pluginManager.getPluginDescriptorFor(PLUGIN_ID)).thenReturn(descriptor);
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, goSupportedVersions)).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, goSupportedVersions)).thenReturn("3.0");
 
         final PluginRequestHelper pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, ELASTIC_AGENT_EXTENSION);
-        extensionV2 = new ElasticAgentExtensionV2(pluginRequestHelper);
+        extensionV3 = new ElasticAgentExtensionV3(pluginRequestHelper);
     }
-
 
     @Test
     public void shouldGetPluginIcon() throws JSONException {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}"));
-        final Image icon = extensionV2.getIcon(PLUGIN_ID);
+        final Image icon = extensionV3.getIcon(PLUGIN_ID);
 
         assertThat(icon.getContentType(), is("image/png"));
         assertThat(icon.getData(), is("Zm9vYmEK"));
 
-        assertExtensionRequest("2.0", REQUEST_GET_PLUGIN_SETTINGS_ICON, null);
+        assertExtensionRequest("3.0", REQUEST_GET_PLUGIN_SETTINGS_ICON, null);
     }
 
     @Test
     public void shouldGetCapabilitiesOfAPlugin() {
-        final String responseBody = "{\"supports_status_report\":\"true\"}";
+        final String responseBody = "{\"supports_status_report\":\"true\", \"supports_agent_status_report\":\"true\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final Capabilities capabilities = extensionV2.getCapabilities(PLUGIN_ID);
+        final Capabilities capabilities = extensionV3.getCapabilities(PLUGIN_ID);
 
         assertTrue(capabilities.supportsStatusReport());
-        assertFalse(capabilities.supportsAgentStatusReport());
-    }
-
-    @Test
-    public void getCapabilitiesOfAPluginShouldAlwaysReturnFalseForAgentStatusReport() {
-        final String responseBody = "{\"supports_status_report\":\"true\",\"supports_agent_status_report\":\"true\"}";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
-
-        final Capabilities capabilities = extensionV2.getCapabilities(PLUGIN_ID);
-
-        assertTrue(capabilities.supportsStatusReport());
-        assertFalse(capabilities.supportsAgentStatusReport());
+        assertTrue(capabilities.supportsAgentStatusReport());
     }
 
     @Test
@@ -125,7 +112,7 @@ public class ElasticAgentExtensionTestV2 {
         String responseBody = "[{\"key\":\"Username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"Password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final List<PluginConfiguration> metadata = extensionV2.getElasticProfileMetadata(PLUGIN_ID);
+        final List<PluginConfiguration> metadata = extensionV3.getElasticProfileMetadata(PLUGIN_ID);
 
         assertThat(metadata, hasSize(2));
         assertThat(metadata, containsInAnyOrder(
@@ -133,7 +120,7 @@ public class ElasticAgentExtensionTestV2 {
                 new PluginConfiguration("Password", new Metadata(true, true))
         ));
 
-        assertExtensionRequest("2.0", REQUEST_GET_PROFILE_METADATA, null);
+        assertExtensionRequest("3.0", REQUEST_GET_PROFILE_METADATA, null);
     }
 
     @Test
@@ -141,11 +128,11 @@ public class ElasticAgentExtensionTestV2 {
         String responseBody = "{ \"template\": \"<div>This is profile view snippet</div>\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final String view = extensionV2.getElasticProfileView(PLUGIN_ID);
+        final String view = extensionV3.getElasticProfileView(PLUGIN_ID);
 
         assertThat(view, is("<div>This is profile view snippet</div>"));
 
-        assertExtensionRequest("2.0", REQUEST_GET_PROFILE_VIEW, null);
+        assertExtensionRequest("3.0", REQUEST_GET_PROFILE_VIEW, null);
     }
 
     @Test
@@ -153,7 +140,7 @@ public class ElasticAgentExtensionTestV2 {
         String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final ValidationResult result = extensionV2.validateElasticProfile(PLUGIN_ID, Collections.emptyMap());
+        final ValidationResult result = extensionV3.validateElasticProfile(PLUGIN_ID, Collections.emptyMap());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getErrors(), containsInAnyOrder(
@@ -161,33 +148,43 @@ public class ElasticAgentExtensionTestV2 {
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
         ));
 
-        assertExtensionRequest("2.0", REQUEST_VALIDATE_PROFILE, "{}");
+        assertExtensionRequest("3.0", REQUEST_VALIDATE_PROFILE, "{}");
     }
 
     @Test
     public void shouldMakeCreateAgentCall() throws JSONException {
         final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV2.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, new JobIdentifier());
+        extensionV3.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, jobIdentifier);
 
         String expectedRequestBody = "{\n" +
                 "  \"auto_register_key\": \"auto-registration-key\",\n" +
                 "  \"properties\": {\n" +
                 "    \"ServerURL\": \"https://example.com/go\"\n" +
                 "  },\n" +
-                "  \"environment\": \"test-env\"\n" +
+                "  \"environment\": \"test-env\",\n" +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"up42\",\n" +
+                "    \"pipeline_label\": \"Test\",\n" +
+                "    \"pipeline_counter\": 2,\n" +
+                "    \"stage_name\": \"up42_stage\",\n" +
+                "    \"stage_counter\": \"10\",\n" +
+                "    \"job_name\": \"up42_job\",\n" +
+                "    \"job_id\": -1\n" +
+                "  }\n" +
                 "}";
-        assertExtensionRequest("2.0", REQUEST_CREATE_AGENT, expectedRequestBody);
+        assertExtensionRequest("3.0", REQUEST_CREATE_AGENT, expectedRequestBody);
     }
 
     @Test
     public void shouldSendServerPing() throws JSONException {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV2.serverPing(PLUGIN_ID);
+        extensionV3.serverPing(PLUGIN_ID);
 
-        assertExtensionRequest("2.0", REQUEST_SERVER_PING, null);
+        assertExtensionRequest("3.0", REQUEST_SERVER_PING, null);
     }
 
     @Test
@@ -196,7 +193,7 @@ public class ElasticAgentExtensionTestV2 {
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
 
-        final boolean shouldAssignWork = extensionV2.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, new JobIdentifier());
+        final boolean shouldAssignWork = extensionV3.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, new JobIdentifier());
 
         assertTrue(shouldAssignWork);
 
@@ -210,29 +207,61 @@ public class ElasticAgentExtensionTestV2 {
                 "    \"agent_state\": \"Idle\",\n" +
                 "    \"build_state\": \"Idle\",\n" +
                 "    \"config_state\": \"Enabled\"\n" +
-                "  }\n" +
+                "  },\n" +
+                "  \"job_identifier\": {}\n" +
                 "}";
 
-        assertExtensionRequest("2.0", REQUEST_SHOULD_ASSIGN_WORK, expectedRequestBody);
+        assertExtensionRequest("3.0", REQUEST_SHOULD_ASSIGN_WORK, expectedRequestBody);
     }
 
     @Test
-    public void shouldErrorOutForGetStatusReport() throws JSONException {
+    public void shouldGetStatusReport() throws JSONException {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final String statusReportView = extensionV2.getPluginStatusReport(PLUGIN_ID);
+        final String statusReportView = extensionV3.getPluginStatusReport(PLUGIN_ID);
 
         assertThat(statusReportView, is("<div>This is a status report snippet.</div>"));
-        assertExtensionRequest("2.0", REQUEST_STATUS_REPORT, null);
+        assertExtensionRequest("3.0", REQUEST_STATUS_REPORT, null);
     }
 
     @Test
-    public void shouldErrorOutForGetAgentStatusReport() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Agent status report is not supported in elastic agent extension v2.");
+    public void shouldGetAgentStatusReport() throws JSONException {
+        final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
+        final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
 
-        extensionV2.getAgentStatusReport(PLUGIN_ID, null, null);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        extensionV3.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37");
+
+        final String requestBody = "{\n" +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"up42\",\n" +
+                "    \"pipeline_label\": \"Test\",\n" +
+                "    \"pipeline_counter\": 2,\n" +
+                "    \"stage_name\": \"up42_stage\",\n" +
+                "    \"stage_counter\": \"10\",\n" +
+                "    \"job_name\": \"up42_job\",\n" +
+                "    \"job_id\": -1\n" +
+                "  },\n" +
+                "  \"elastic_agent_id\": \"GoCD193659b3b930480287b898eeef0ade37\"\n" +
+                "}";
+
+        assertExtensionRequest("3.0", REQUEST_AGENT_STATUS_REPORT, requestBody);
+    }
+
+    @Test
+    public void allRequestMustHaveRequestPrefix() {
+        assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
+
+        assertThat(REQUEST_CREATE_AGENT, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_SERVER_PING, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_SHOULD_ASSIGN_WORK, Matchers.startsWith(REQUEST_PREFIX));
+
+        assertThat(REQUEST_GET_PROFILE_METADATA, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_PROFILE_VIEW, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_VALIDATE_PROFILE, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON, Matchers.startsWith(REQUEST_PREFIX));
     }
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) throws JSONException {

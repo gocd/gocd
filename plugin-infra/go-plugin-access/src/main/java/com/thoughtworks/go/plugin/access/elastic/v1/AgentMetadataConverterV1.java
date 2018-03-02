@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic.v1;
 import com.thoughtworks.go.plugin.access.elastic.DataConverter;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 
-public class AgentMetadataConverterV1 implements DataConverter<AgentMetadata, AgentMetadataDTO> {
+class AgentMetadataConverterV1 implements DataConverter<AgentMetadata, AgentMetadataDTO> {
     @Override
     public AgentMetadata fromDTO(AgentMetadataDTO agentMetadataDTO) {
         return new AgentMetadata(agentMetadataDTO.elasticAgentId(), agentMetadataDTO.agentState(), agentMetadataDTO.buildState(), agentMetadataDTO.configState());

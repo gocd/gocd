@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic.v3;
 import com.thoughtworks.go.plugin.access.elastic.DataConverter;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 
-public class CapabilitiesConverterV3 implements DataConverter<Capabilities, CapabilitiesDTO> {
+class CapabilitiesConverterV3 implements DataConverter<Capabilities, CapabilitiesDTO> {
     @Override
     public Capabilities fromDTO(CapabilitiesDTO capabilitiesDTO) {
         return new Capabilities(capabilitiesDTO.supportsStatusReport(), capabilitiesDTO.supportsAgentStatusReport());

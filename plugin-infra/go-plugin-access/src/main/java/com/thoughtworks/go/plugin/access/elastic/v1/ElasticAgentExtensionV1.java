@@ -28,7 +28,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentPluginConstantsV1.*;
 
 public class ElasticAgentExtensionV1 implements VersionedElasticAgentExtension {
     public static final String VERSION = "1.0";
@@ -122,11 +122,11 @@ public class ElasticAgentExtensionV1 implements VersionedElasticAgentExtension {
 
     @Override
     public String getPluginStatusReport(String pluginId) {
-        throw new UnsupportedOperationException("Plugin status report is not supported in elastic agent extension v1.");
+        throw new UnsupportedOperationException(String.format("Plugin status report is not supported in elastic agent extension %s.", VERSION));
     }
 
     @Override
     public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId) {
-        throw new UnsupportedOperationException("Agent status report is not supported in elastic agent extension v1.");
+        throw new UnsupportedOperationException(String.format("Agent status report is not supported in elastic agent extension %s.", VERSION));
     }
 }

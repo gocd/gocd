@@ -20,8 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.v1.AgentMetadataConverterV1;
-import com.thoughtworks.go.plugin.access.elastic.v1.AgentMetadataDTO;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.ElasticAgentProcessorConverter;
 
 import java.util.ArrayList;

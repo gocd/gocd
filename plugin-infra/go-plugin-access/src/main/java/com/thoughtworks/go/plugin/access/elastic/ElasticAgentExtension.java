@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,18 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
+    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
+            ElasticAgentExtensionV1.VERSION, ElasticAgentExtensionV2.VERSION, ElasticAgentExtensionV3.VERSION
+    );
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired
@@ -116,7 +119,7 @@ public class ElasticAgentExtension extends AbstractExtension {
         return SUPPORTED_VERSIONS;
     }
 
-    private VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
+    protected VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
         final String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
         return elasticAgentExtensionMap.get(resolvedExtensionVersion);
     }

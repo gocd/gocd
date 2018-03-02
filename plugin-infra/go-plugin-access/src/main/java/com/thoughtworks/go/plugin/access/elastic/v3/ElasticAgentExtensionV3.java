@@ -28,7 +28,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
 
 public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
     public static final String VERSION = "3.0";

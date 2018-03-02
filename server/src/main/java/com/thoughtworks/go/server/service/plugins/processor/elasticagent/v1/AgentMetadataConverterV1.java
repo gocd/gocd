@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic.v2;
+package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
 import com.thoughtworks.go.plugin.access.elastic.DataConverter;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 
-class AgentMetadataConverterV2 implements DataConverter<AgentMetadata, AgentMetadataDTO> {
+class AgentMetadataConverterV1 implements DataConverter<AgentMetadata, AgentMetadataDTO> {
     @Override
     public AgentMetadata fromDTO(AgentMetadataDTO agentMetadataDTO) {
         return new AgentMetadata(agentMetadataDTO.elasticAgentId(), agentMetadataDTO.agentState(), agentMetadataDTO.buildState(), agentMetadataDTO.configState());

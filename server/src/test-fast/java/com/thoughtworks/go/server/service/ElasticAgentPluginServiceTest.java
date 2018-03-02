@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -278,7 +278,7 @@ public class ElasticAgentPluginServiceTest {
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
 
-        thrown.expect(RuntimeException.class);
+        thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Plugin does not plugin support status report.");
 
         service.getPluginStatusReport("cd.go.example.plugin");
@@ -293,9 +293,9 @@ public class ElasticAgentPluginServiceTest {
         when(registry.getAgentStatusReport("cd.go.example.plugin", null, "some-id"))
                 .thenReturn("<div>This is a agent status report snippet.</div>");
 
-        final String pluginStatusReport = service.getAgentStatusReport("cd.go.example.plugin", null, "some-id");
+        final String agentStatusReport = service.getAgentStatusReport("cd.go.example.plugin", null, "some-id");
 
-        assertThat(pluginStatusReport, is("<div>This is a agent status report snippet.</div>"));
+        assertThat(agentStatusReport, is("<div>This is a agent status report snippet.</div>"));
     }
 
     @Test
@@ -304,7 +304,7 @@ public class ElasticAgentPluginServiceTest {
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
 
-        thrown.expect(RuntimeException.class);
+        thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Plugin does not support agent status report.");
 
         service.getAgentStatusReport("cd.go.example.plugin", null, null);

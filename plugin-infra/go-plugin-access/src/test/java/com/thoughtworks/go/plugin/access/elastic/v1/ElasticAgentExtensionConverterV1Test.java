@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,21 +101,6 @@ public class ElasticAgentExtensionConverterV1Test {
         com.thoughtworks.go.plugin.domain.common.Image image = converterV1.getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void getCapabilitiesFromResponseBody_shouldReturnAllKindOfSupportStatusReportWithFalseValue() {
-        converterV1.getCapabilitiesFromResponseBody(null);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldErrorOutWhenRequestIsMadeForAgentStatusReport() {
-        converterV1.getAgentStatusReportRequestBody(null, null);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldErrorOutWhenRequestIsMadeForPluginStatusReport() {
-        converterV1.getStatusReportView(null);
     }
 
     private AgentMetadata elasticAgent() {

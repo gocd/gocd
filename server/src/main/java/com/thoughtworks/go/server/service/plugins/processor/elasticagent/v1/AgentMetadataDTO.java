@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic.v1;
+package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;

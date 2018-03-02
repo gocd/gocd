@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class CapabilitiesDTO {
+class CapabilitiesDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     @Expose
     @SerializedName("supports_status_report")

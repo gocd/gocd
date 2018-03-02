@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,146 +16,52 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionV1;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionV2;
-import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
-import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorConverterV1;
-import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v2.ElasticAgentProcessorConverterV2;
-import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v3.ElasticAgentProcessorConverterV3;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentRequestProcessorV1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
-import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
-import static java.lang.String.format;
+import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
 
 @Component
 public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticAgentRequestProcessor.class);
-    private Map<String, ElasticAgentProcessorConverter> processorConverterMap = new HashMap<>();
-
-    private final AgentService agentService;
-    private final AgentConfigService agentConfigService;
-    private final ElasticAgentExtension elasticAgentExtension;
+    private Map<String, VersionableElasticAgentProcessor> versionableProcessorMap = new HashMap<>();
 
     @Autowired
-    public ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, AgentService agentService, AgentConfigService agentConfigService, ElasticAgentExtension elasticAgentExtension) {
-        this.elasticAgentExtension = elasticAgentExtension;
-        this.agentConfigService = agentConfigService;
-        this.agentService = agentService;
+    public ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, AgentService agentService, AgentConfigService agentConfigService) {
+        this(registry, new HashMap<String, VersionableElasticAgentProcessor>() {{
+            put("1.0", new ElasticAgentRequestProcessorV1(agentService, agentConfigService));
+            put("2.0", new ElasticAgentRequestProcessorV1(agentService, agentConfigService));
+            put("3.0", new ElasticAgentRequestProcessorV1(agentService, agentConfigService));
+        }});
+    }
 
-        processorConverterMap.put(ElasticAgentExtensionV1.VERSION, new ElasticAgentProcessorConverterV1());
-        processorConverterMap.put(ElasticAgentExtensionV2.VERSION, new ElasticAgentProcessorConverterV2());
-        processorConverterMap.put(ElasticAgentExtensionV3.VERSION, new ElasticAgentProcessorConverterV3());
+    ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, Map<String, VersionableElasticAgentProcessor> versionableElasticAgentProcessors) {
+        if (versionableElasticAgentProcessors != null) {
+            versionableProcessorMap.putAll(versionableElasticAgentProcessors);
+        }
 
-        registry.registerProcessorFor(PROCESS_DISABLE_AGENTS, this);
-        registry.registerProcessorFor(PROCESS_DELETE_AGENTS, this);
+        registry.registerProcessorFor(REQUEST_DISABLE_AGENTS, this);
+        registry.registerProcessorFor(REQUEST_DELETE_AGENTS, this);
         registry.registerProcessorFor(REQUEST_SERVER_LIST_AGENTS, this);
     }
 
     @Override
     public GoApiResponse process(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        switch (goPluginApiRequest.api()) {
-            case PROCESS_DISABLE_AGENTS:
-                Collection<AgentMetadata> agentsToDisable = elasticAgentProcessorConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
-                if (agentsToDisable.isEmpty()) {
-                    return new DefaultGoApiResponse(200);
-                }
-                return processDisableAgent(pluginDescriptor, goPluginApiRequest);
-            case PROCESS_DELETE_AGENTS:
-                Collection<AgentMetadata> agentsToDelete = elasticAgentProcessorConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
-                if (agentsToDelete.isEmpty()) {
-                    return new DefaultGoApiResponse(200);
-                }
-                return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
-            case REQUEST_SERVER_LIST_AGENTS:
-                return processListAgents(pluginDescriptor, goPluginApiRequest);
-            default:
-                return DefaultGoApiResponse.error("Illegal api request");
-        }
+        return elasticAgentProcessorForVersion(goPluginApiRequest.apiVersion())
+                .process(pluginDescriptor, goPluginApiRequest);
     }
 
-    private GoApiResponse processListAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        LOGGER.debug("Listing agents for plugin {}", pluginDescriptor.id());
-        List<ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
-
-        Collection<AgentMetadata> metadata;
-        if (elasticAgents == null) {
-            metadata = new ArrayList<>();
-        } else {
-            metadata = elasticAgents.stream().map(new Function<ElasticAgentMetadata, AgentMetadata>() {
-                @Override
-                public AgentMetadata apply(ElasticAgentMetadata obj) {
-                    return toAgentMetadata(obj);
-                }
-            }).collect(Collectors.toList());
-        }
-
-        String responseBody = elasticAgentProcessorConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
-        return DefaultGoApiResponse.success(responseBody);
-    }
-
-    private GoApiResponse processDeleteAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);
-
-        if (agentInstances.isEmpty()) {
-            return new DefaultGoApiResponse(200);
-        }
-
-        LOGGER.debug("Deleting agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
-        agentConfigService.deleteAgents(usernameFor(pluginDescriptor), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
-        LOGGER.debug("Done deleting agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
-        return new DefaultGoApiResponse(200);
-    }
-
-    private GoApiResponse processDisableAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);
-
-        if (agentInstances.isEmpty()) {
-            return new DefaultGoApiResponse(200);
-        }
-
-        LOGGER.debug("Disabling agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
-        agentConfigService.disableAgents(usernameFor(pluginDescriptor), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
-        LOGGER.debug("Done disabling agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
-        return new DefaultGoApiResponse(200);
-    }
-
-    Username usernameFor(GoPluginDescriptor pluginDescriptor) {
-        return new Username(format("plugin-%s", pluginDescriptor.id()));
-    }
-
-    private Collection<AgentInstance> getAgentInstances(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        Collection<AgentMetadata> agents = elasticAgentProcessorConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
-
-        return agents.stream().map(new Function<AgentMetadata, AgentInstance>() {
-            @Override
-            public AgentInstance apply(AgentMetadata input) {
-                return agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id());
-            }
-        }).collect(Collectors.toList());
-    }
-
-    private ElasticAgentProcessorConverter elasticAgentProcessorConverter(String resolvedApiVersion) {
-        return processorConverterMap.get(resolvedApiVersion);
+    private VersionableElasticAgentProcessor elasticAgentProcessorForVersion(String resolvedApiVersion) {
+        return versionableProcessorMap.get(resolvedApiVersion);
     }
 }

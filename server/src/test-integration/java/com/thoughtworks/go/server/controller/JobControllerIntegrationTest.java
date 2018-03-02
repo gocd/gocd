@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,7 +190,7 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false,true)));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 
@@ -208,7 +208,7 @@ public class JobControllerIntegrationTest {
 
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false,true)));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v3;
 
-import com.thoughtworks.go.plugin.access.elastic.v2.CapabilitiesConverterV2;
-import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,13 +61,5 @@ public class CapabilitiesConverterV3Test {
         when(capabilitiesDTO.supportsAgentStatusReport()).thenReturn(false);
         assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsStatusReport());
         assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsAgentStatusReport());
-    }
-
-    @Test
-    public void toDTO_shouldErrorOutWithUnSupportedException() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Does not support conversion of com.thoughtworks.go.plugin.domain.elastic.Capabilities to com.thoughtworks.go.plugin.access.elastic.v2.CapabilitiesDTO.");
-
-        new CapabilitiesConverterV2().toDTO(new Capabilities(false));
     }
 }

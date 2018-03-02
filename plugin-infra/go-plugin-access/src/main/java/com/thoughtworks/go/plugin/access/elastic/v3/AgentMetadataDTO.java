@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-public class AgentMetadataDTO implements Serializable {
+class AgentMetadataDTO implements Serializable {
     private static final Gson GSON = new GsonBuilder().
             excludeFieldsWithoutExposeAnnotation().
             serializeNulls().

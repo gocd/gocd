@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.json.JSONException;
@@ -44,17 +44,16 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
+import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,7 +81,22 @@ public class ElasticAgentExtensionTest {
         when(pluginManager.getPluginDescriptorFor(PLUGIN_ID)).thenReturn(descriptor);
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0", "2.0", "3.0"))).thenReturn("3.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SUPPORTED_VERSIONS)).thenReturn("3.0");
+    }
+
+    @Test
+    public void shouldHaveVersionedElasticAgentExtensionForAllSupportedVersions() {
+        for (String supportedVersion : SUPPORTED_VERSIONS) {
+            final String message = String.format("Must define versioned extension class for %s extension with version %s", ELASTIC_AGENT_EXTENSION, supportedVersion);
+
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SUPPORTED_VERSIONS)).thenReturn(supportedVersion);
+
+            final VersionedElasticAgentExtension extension = this.extension.getVersionedElasticAgentExtension(PLUGIN_ID);
+
+            assertNotNull(message, extension);
+
+            assertThat(ReflectionUtil.getField(extension, "VERSION"), is(supportedVersion));
+        }
     }
 
     @Test
@@ -296,13 +310,18 @@ public class ElasticAgentExtensionTest {
         public MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
             return super.messageHandlerForServerInfoRequestProcessor(pluginVersion);
         }
+
+        @Override
+        public VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
+            return super.getVersionedElasticAgentExtension(pluginId);
+        }
     }
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) throws JSONException {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
         Assert.assertThat(request.requestName(), Matchers.is(requestName));
         Assert.assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
-        Assert.assertThat(request.extension(), Matchers.is(PluginConstants.ELASTIC_AGENT_EXTENSION));
+        Assert.assertThat(request.extension(), Matchers.is(ELASTIC_AGENT_EXTENSION));
         JSONAssert.assertEquals(requestBody, request.requestBody(), true);
     }
 }

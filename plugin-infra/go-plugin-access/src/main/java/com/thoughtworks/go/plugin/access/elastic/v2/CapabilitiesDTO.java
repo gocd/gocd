@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic.v2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class CapabilitiesDTO {
+class CapabilitiesDTO {
     @Expose
     @SerializedName("supports_status_report")
     private boolean supportsStatusReport;

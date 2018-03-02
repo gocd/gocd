@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,70 +16,80 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.domain.AgentConfigStatus;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
-import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoApiResponse;
+import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.service.AgentConfigService;
-import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentRequestProcessorV1;
+import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.util.LinkedMultiValueMap;
+import org.mockito.Mock;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentRequestProcessorTest {
-    private AgentService agentService = mock(AgentService.class);
-    private AgentConfigService agentConfigService = mock(AgentConfigService.class);
-    private ElasticAgentExtension extension = new ElasticAgentExtension(null);
+    @Mock
+    private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
+    @Mock
+    private ElasticAgentRequestProcessorV1 processorForV1;
+    @Mock
+    private ElasticAgentRequestProcessorV1 processorForV2;
+    @Mock
+    private ElasticAgentRequestProcessorV1 processorForV3;
+    @Mock
+    private GoPluginDescriptor pluginDescriptor;
+    @Mock
+    private GoApiRequest goApiRequest;
 
-    private ElasticAgentRequestProcessor processor = new ElasticAgentRequestProcessor(new PluginRequestProcessorRegistry(), agentService, agentConfigService, extension);
-    private GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("docker", null, null, null, null, false);
-    private GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS);
+    private ElasticAgentRequestProcessor processor;
 
-    @Test
-    public void shouldProcessListAgentRequest() throws Exception {
-        LinkedMultiValueMap<String, ElasticAgentMetadata> allAgents = new LinkedMultiValueMap<>();
-        ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "docker", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled);
-        allAgents.put("docker", Arrays.asList(agent));
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
 
-        when(agentService.allElasticAgents()).thenReturn(allAgents);
-        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(REQUEST_SERVER_LIST_AGENTS, "1.0", pluginIdentifier));
+        final Map<String, VersionableElasticAgentProcessor> processorMap = new HashMap<>();
+        processorMap.put("1.0", processorForV1);
+        processorMap.put("2.0", processorForV2);
+        processorMap.put("3.0", processorForV3);
 
-        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\"}]", response.responseBody(), true);
+        processor = new ElasticAgentRequestProcessor(pluginRequestProcessorRegistry, processorMap);
     }
 
     @Test
-    public void shouldProcessDisableAgentRequest() {
-        DefaultGoApiRequest goPluginApiRequest = new DefaultGoApiRequest(PROCESS_DISABLE_AGENTS, "1.0", pluginIdentifier);
-        goPluginApiRequest.setRequestBody("[{\"agent_id\":\"foo\"}]");
+    public void shouldDelegateRequestToElasticAgentRequestProcessorV1WhenRequestApiVersionIsV1() {
+        when(goApiRequest.apiVersion()).thenReturn("1.0");
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
-        when(agentService.findElasticAgent("foo", "docker")).thenReturn(agentInstance);
-        processor.process(pluginDescriptor, goPluginApiRequest);
-        verify(agentConfigService).disableAgents(processor.usernameFor(pluginDescriptor), agentInstance);
+        processor.process(pluginDescriptor, goApiRequest);
+
+        verify(processorForV1).process(pluginDescriptor, goApiRequest);
+        verify(processorForV2, times(0)).process(pluginDescriptor, goApiRequest);
+        verify(processorForV3, times(0)).process(pluginDescriptor, goApiRequest);
     }
 
     @Test
-    public void shouldProcessDeleteAgentRequest() {
-        DefaultGoApiRequest goPluginApiRequest = new DefaultGoApiRequest(PROCESS_DELETE_AGENTS, "1.0", pluginIdentifier);
-        goPluginApiRequest.setRequestBody("[{\"agent_id\":\"foo\"}]");
+    public void shouldDelegateRequestToElasticAgentRequestProcessorV2WhenRequestApiVersionIsV2() {
+        when(goApiRequest.apiVersion()).thenReturn("2.0");
 
+        processor.process(pluginDescriptor, goApiRequest);
 
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
-        when(agentService.findElasticAgent("foo", "docker")).thenReturn(agentInstance);
-        processor.process(pluginDescriptor, goPluginApiRequest);
-        verify(agentConfigService).deleteAgents(processor.usernameFor(pluginDescriptor), agentInstance);
+        verify(processorForV2).process(pluginDescriptor, goApiRequest);
+
+        verify(processorForV1, times(0)).process(pluginDescriptor, goApiRequest);
+        verify(processorForV3, times(0)).process(pluginDescriptor, goApiRequest);
+    }
+
+    @Test
+    public void shouldDelegateRequestToElasticAgentRequestProcessorV3WhenRequestApiVersionIsV3() {
+        when(goApiRequest.apiVersion()).thenReturn("3.0");
+
+        processor.process(pluginDescriptor, goApiRequest);
+
+        verify(processorForV3).process(pluginDescriptor, goApiRequest);
+
+        verify(processorForV1, times(0)).process(pluginDescriptor, goApiRequest);
+        verify(processorForV2, times(0)).process(pluginDescriptor, goApiRequest);
     }
 }

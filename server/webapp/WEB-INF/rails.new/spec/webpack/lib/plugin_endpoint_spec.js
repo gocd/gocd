@@ -39,9 +39,11 @@
       }
     };
 
-    window.postMessage = function(message, _origin) {
-      dispatch(mockEvent(message));
-    };
+    Object.defineProperty(window, "postMessage", {
+      value: function(message, _origin) {
+        dispatch(mockEvent(message));
+      }
+    });
 
     PluginEndpoint.ensure();
   });

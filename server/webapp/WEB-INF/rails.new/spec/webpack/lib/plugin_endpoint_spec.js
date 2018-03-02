@@ -40,7 +40,7 @@
     };
 
     Object.defineProperty(window, "postMessage", {
-      value: function(message, _origin) {
+      value: (message, _origin) =>  {
         dispatch(mockEvent(message));
       }
     });

@@ -94,7 +94,7 @@ const PluginsWidget = {
       const modal = this.createModal({
         newPluginSetting,
         pluginInfo,
-        modalTitle: `Edit plugin Settings`,
+        modalTitle: `Edit plugin settings`,
         errorMessage,
         callback:   () => {
           if (newPluginSetting().etag()) {

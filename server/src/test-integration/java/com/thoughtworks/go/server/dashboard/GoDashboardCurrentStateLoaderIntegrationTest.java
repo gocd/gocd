@@ -98,6 +98,14 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
+    public void shouldReturnEmptyWhenNoPipelinesArePresentInConfig() throws Exception {
+        goConfigService.forceNotifyListeners();
+        assertThat(goConfigService.getAllPipelineConfigs(), is(empty()));
+        List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
+        assertThat(goDashboardPipelines, is(empty()));
+    }
+
+    @Test
     public void shouldReturnSingleDashboardForSingleCompletedGreenPipelineInstance() throws Exception {
         PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages("a-pipeline", "a-stage"));
         goConfigService.forceNotifyListeners();

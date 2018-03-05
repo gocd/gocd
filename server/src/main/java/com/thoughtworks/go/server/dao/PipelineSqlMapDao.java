@@ -57,6 +57,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 @SuppressWarnings({"ALL"})
 @Component
@@ -914,9 +915,28 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames) {
-        Map<String, Object> args = arguments("pipelineNames", SqlUtil.joinWithQuotesForSql(pipelineNames.toArray())).asMap();
+        if (pipelineNames == null || pipelineNames.isEmpty()) {
+            return PipelineInstanceModels.createPipelineInstanceModels();
+        }
 
+        // this is done to pick up an SQL query optimized for a single pipeline (no IN clause)
+        if (pipelineNames.size() == 1) {
+            return loadHistoryForDashboard(pipelineNames.get(0));
+        }
+
+        Map<String, Object> args = arguments("pipelineNames", SqlUtil.joinWithQuotesForSql(pipelineNames.toArray())).asMap();
         List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelinesForDashboard", args);
+        return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
+    }
+
+
+    private PipelineInstanceModels loadHistoryForDashboard(String pipelineName) {
+        if (isBlank(pipelineName)) {
+            return PipelineInstanceModels.createPipelineInstanceModels();
+        }
+
+        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelineForDashboard", args);
         return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
     }
 

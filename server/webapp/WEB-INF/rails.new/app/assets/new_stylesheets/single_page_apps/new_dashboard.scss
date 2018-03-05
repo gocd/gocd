@@ -694,11 +694,10 @@ body {
 }
 
 .pipeline_pause-message {
+  @include truncate-to-lines($line-count: 3);
   margin:      5px 0 0 0;
   float:       left;
-  font-size:   12px;
   clear:       both;
-  line-height: 14px;
 }
 
 .pipeline_instance {

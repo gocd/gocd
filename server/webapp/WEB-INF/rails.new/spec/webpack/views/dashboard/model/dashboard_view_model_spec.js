@@ -20,154 +20,89 @@ describe("Dashboard View Model", () => {
   const Dashboard   = require("models/dashboard/dashboard");
   const dashboard   = new Dashboard();
 
-  describe('initialize', () => {
-    let pipelinesCountMap, dashboardVM;
-    beforeEach(() => {
-      pipelinesCountMap = {'up42': 2, 'up43': 2};
-      dashboardVM       = new DashboardVM();
-      dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
-    });
-
-    it('should initialize VM with pipelines', () => {
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(2);
-    });
-
-    it('should not initialize already initialized pipelines', () => {
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(2);
-
-      expect(dashboardVM.contains('up42')).toEqual(true);
-      expect(dashboardVM.contains('up43')).toEqual(true);
-
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(2);
-
-      expect(dashboardVM.contains('up42')).toEqual(true);
-      expect(dashboardVM.contains('up43')).toEqual(true);
-
-      dashboard.initialize(dashboardJsonForPipelines({'up42': 2, 'up43': 2, 'up44': 2}));
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(3);
-
-      expect(dashboardVM.contains('up42')).toEqual(true);
-      expect(dashboardVM.contains('up43')).toEqual(true);
-    });
-
-    it('should remove the unknown pipelines from the VM', () => {
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(2);
-
-      expect(dashboardVM.contains('up42')).toEqual(true);
-      expect(dashboardVM.contains('up43')).toEqual(true);
-      expect(dashboardVM.contains('up44')).toEqual(false);
-
-      dashboard.initialize(dashboardJsonForPipelines({'up43': 2, 'up44': 2}));
-      dashboardVM.initialize(dashboard);
-      expect(dashboardVM.size()).toEqual(2);
-
-      expect(dashboardVM.contains('up42')).toEqual(false);
-      expect(dashboardVM.contains('up43')).toEqual(true);
-      expect(dashboardVM.contains('up44')).toEqual(true);
-    });
-
-  });
-
   describe("Dropdown", () => {
     let pipelinesCountMap, dashboardVM;
     beforeEach(() => {
       pipelinesCountMap = {'up42': 2, 'up43': 2};
       dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
       dashboardVM = new DashboardVM();
-      dashboardVM.initialize(dashboard);
-    });
-
-    it('should initialize dropdown states for all the pipelines', () => {
-      expect(dashboardVM.size()).toEqual(2);
     });
 
     it('should initialize dropdown state for each pipeline instance', () => {
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
     });
 
     it('should remove invalid pipeline instances from dropdown state', () => {
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
 
-      dashboardVM.dropdown.toggle('up42', 1);
+      dashboardVM.dropdown.show('up42', 1);
 
       dashboard.initialize(dashboardJsonForPipelines({'up42': 1, 'up43': 1}));
 
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
     });
 
     it('should initialize dropdown states as close initially', () => {
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
     });
 
     it('should toggle dropdown state', () => {
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      dashboardVM.dropdown.toggle('up42', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      dashboardVM.dropdown.show('up42', 1);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(true);
     });
 
     it('should close all other dropdowns incase of a dropdown is toggled', () => {
-      dashboardVM.dropdown.toggle('up42', 1);
+      dashboardVM.dropdown.show('up42', 1);
 
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      dashboardVM.dropdown.toggle('up43', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      dashboardVM.dropdown.show('up43', 1);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(true);
     });
 
     it('should hide all dropdowns when the first instance dropdown is open', () => {
-      dashboardVM.dropdown.toggle('up42', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
-      dashboardVM.dropdown.hideAll();
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+      dashboardVM.dropdown.show('up42', 1);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
+      dashboardVM.dropdown.hide();
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
     });
 
     it('should hide all dropdowns when any dropdown other than the first instance\'s is open', () => {
-      dashboardVM.dropdown.toggle('up42', 2);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(true);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
-      dashboardVM.dropdown.hideAll();
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up43', 2)).toEqual(false);
+      dashboardVM.dropdown.show('up42', 2);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
+      dashboardVM.dropdown.hide();
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up43', 2)).toEqual(false);
     });
 
     it('should hide other changes dropdown for the same pipeline but different instance', () => {
-      dashboardVM.dropdown.toggle('up42', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(false);
-      dashboardVM.dropdown.toggle('up42', 2);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 2)).toEqual(true);
-    });
-
-    it('should close a dropdown if it is toggled', () => {
-      dashboardVM.dropdown.toggle('up42', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(true);
-      dashboardVM.dropdown.toggle('up42', 1);
-      expect(dashboardVM.dropdown.isDropDownOpen('up42', 1)).toEqual(false);
+      dashboardVM.dropdown.show('up42', 1);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(true);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(false);
+      dashboardVM.dropdown.show('up42', 2);
+      expect(dashboardVM.dropdown.isOpen('up42', 1)).toEqual(false);
+      expect(dashboardVM.dropdown.isOpen('up42', 2)).toEqual(true);
     });
   });
 
@@ -177,7 +112,6 @@ describe("Dashboard View Model", () => {
       pipelinesCountMap = {'up42': 2, 'up43': 2};
       dashboardVM       = new DashboardVM();
       dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
-      dashboardVM.initialize(dashboard);
       jasmine.clock().install();
     });
 
@@ -185,52 +119,35 @@ describe("Dashboard View Model", () => {
       jasmine.clock().uninstall();
     });
 
-    it('should initialize pipeline operation messages states for all the pipelines', () => {
-      expect(dashboardVM.size()).toEqual(2);
-    });
-
-    it('should initialize pipeline operation messages states as empty initially', () => {
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
-    });
-
     it('should set pipeline operation success messages', () => {
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.get('up42')).toEqual(undefined);
 
       const message = 'message';
       dashboardVM.operationMessages.success('up42', message);
 
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('success');
+      expect(dashboardVM.operationMessages.get('up42')).toEqual({message, type: 'success'});
     });
 
-
     it('should set pipeline operation failure messages', () => {
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.get('up42')).toEqual(undefined);
 
       const message = 'message';
       dashboardVM.operationMessages.failure('up42', message);
 
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('error');
+      expect(dashboardVM.operationMessages.get('up42')).toEqual({message, type: 'error'});
     });
 
     it('should clear message after timeout interval', () => {
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.get('up42')).toEqual(undefined);
 
       const message = 'message';
       dashboardVM.operationMessages.failure('up42', message);
 
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(message);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual('error');
+      expect(dashboardVM.operationMessages.get('up42')).toEqual({message, type: 'error'});
 
       jasmine.clock().tick(5001);
 
-      expect(dashboardVM.operationMessages.messageFor('up42')).toEqual(undefined);
-      expect(dashboardVM.operationMessages.messageTypeFor('up42')).toEqual(undefined);
+      expect(dashboardVM.operationMessages.get('up42')).toEqual(undefined);
     });
   });
 

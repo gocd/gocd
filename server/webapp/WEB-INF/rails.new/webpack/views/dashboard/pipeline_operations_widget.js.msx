@@ -155,11 +155,11 @@ const PipelineOperationsWidget = {
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
     }
 
+
     let flashMessage;
-    if (operationMessages.messageFor(pipeline.name)) {
-      flashMessage = (<div class={`pipeline_message ${operationMessages.messageTypeFor(pipeline.name)}`}>
-        <p>{operationMessages.messageFor(pipeline.name)}</p>
-      </div>);
+    const flash = operationMessages.get(pipeline.name);
+    if (flash) {
+      flashMessage = (<div class={`pipeline_message ${flash.type}`}><p>{flash.message}</p></div>);
     }
 
     return (

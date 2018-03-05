@@ -16,6 +16,9 @@
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
+const sparkRoutes      = require('helpers/spark_routes');
+const AjaxHelper       = require('helpers/ajax_helper');
+const MaterialRevision = require('models/dashboard/material_revision');
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.name                  = json.name;
@@ -41,6 +44,15 @@ const PipelineInstance = function (info, pipelineName) {
   this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
 
   this.isFirstStageInProgress = () => self.stages[0].isBuilding();
+
+  this.getBuildCause = () => {
+    return AjaxHelper.GET({
+      url:        sparkRoutes.buildCausePath(this.pipelineName, this.counter),
+      apiVersion: 'v1',
+    }).then((buildCause) => {
+      return _.map(buildCause.material_revisions, (revision) => new MaterialRevision(revision));
+    });
+  };
 };
 
 module.exports = PipelineInstance;

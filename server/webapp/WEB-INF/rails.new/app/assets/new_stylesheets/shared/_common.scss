@@ -172,6 +172,13 @@ html, body {
   height:        100px;
   margin:        -50px 0 0 -50px;
   animation:     spin 2s linear infinite;
+
+  &.small {
+    width:        50px;
+    height:       50px;
+    margin:       -25px 0 0 -25px;
+    border-width: 8px;
+  }
 }
 
 .header-panel-button-group {

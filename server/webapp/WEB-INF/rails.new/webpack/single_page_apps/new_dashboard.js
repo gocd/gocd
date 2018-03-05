@@ -41,7 +41,6 @@ $(() => {
   function onResponse(dashboardData, message = undefined) {
     dashboard.initialize(dashboardData);
     dashboard.message(message);
-    dashboardVM.initialize(dashboard);
   }
 
   function createRepeater() {

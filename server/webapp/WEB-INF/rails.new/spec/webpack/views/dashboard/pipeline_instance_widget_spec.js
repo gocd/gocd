@@ -109,13 +109,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
     const dashboardViewModel = new DashboardVM();
     const dashboard          = new Dashboard();
     dashboard.initialize(dashboardJsonForPipelines([pipelineName]));
-    dashboardViewModel.initialize(dashboard);
 
     m.mount(root, {
       view() {
         return m(PipelineInstanceWidget, {
           instance,
-          buildCauses:  dashboardViewModel.buildCauses,
+          buildCause:   dashboardViewModel.buildCause,
           dropdown:     dashboardViewModel.dropdown,
           trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
           pipelineName

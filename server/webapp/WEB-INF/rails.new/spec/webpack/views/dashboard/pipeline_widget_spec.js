@@ -865,7 +865,6 @@ describe("Dashboard Pipeline Widget", () => {
     dashboardViewModel = new DashboardVM();
     dashboard          = new Dashboard();
     dashboard.initialize(dashboardJSON);
-    dashboardViewModel.initialize(dashboard);
 
     //stub trigger_with_options api call
     pipeline.viewInformationForTriggerWithOptions = () => {

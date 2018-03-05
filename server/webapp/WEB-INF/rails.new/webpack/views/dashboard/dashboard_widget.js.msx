@@ -39,12 +39,14 @@ const DashboardWidget = {
     ComponentMixins.HasViewModel.call(self);
 
     self.togglePersonalizeDropdown = (e) => {
-      (vnode.attrs.vm.personalizeView.isOpen())
-        ? self.pipelineSelection(undefined)
-        : PipelineSelection.get().then((selection) => {
+      if (vnode.attrs.vm.personalizeView.isOpen()) {
+        self.pipelineSelection(undefined);
+      } else {
+        PipelineSelection.get().then((selection) => {
           self.pipelineSelection(selection);
           self.pipelineSelectionVM.initialize(selection.pipelineGroups());
         }).then(m.redraw);
+      }
 
       vnode.attrs.vm.personalizeView.toggle();
       e.stopPropagation();
@@ -54,7 +56,7 @@ const DashboardWidget = {
     const attachClickEventToBody = () => {
       const body = $("body");
       body.click(() => {
-        vnode.attrs.vm.dropdown.hideAll();
+        vnode.attrs.vm.dropdown.hide();
         vnode.attrs.vm.personalizeView.hide();
         m.redraw();
       });

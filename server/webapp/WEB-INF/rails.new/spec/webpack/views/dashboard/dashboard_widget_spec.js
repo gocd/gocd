@@ -235,7 +235,14 @@ describe("Dashboard Widget", () => {
     expect($root.find('.pipeline')).toHaveLength(1);
     expect($root.find('.material_changes')).not.toBeInDOM();
 
-    $root.find('.info a').get(1).click();
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+      $root.find('.info a').get(1).click();
+    });
 
     expect($root.find('.material_changes')).toBeInDOM();
 
@@ -246,7 +253,14 @@ describe("Dashboard Widget", () => {
     expect($root.find('.pipeline')).toHaveLength(1);
     expect($root.find('.material_changes')).not.toBeInDOM();
 
-    $root.find('.info a').get(1).click();
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+      $root.find('.info a').get(1).click();
+    });
 
     expect($root.find('.material_changes')).toBeInDOM();
   });
@@ -343,7 +357,16 @@ describe("Dashboard Widget", () => {
     const dashboard   = $root.find('.pipeline_wrapper');
     const changesLink = $root.find('.info a')[1];
     expect(dashboard.find('.material_changes')).not.toBeInDOM();
-    $(changesLink).click();
+
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status:          200
+      });
+      $(changesLink).click();
+    });
+
     m.redraw();
 
     expect(dashboard.find('.material_changes')).toBeInDOM();
@@ -574,7 +597,6 @@ describe("Dashboard Widget", () => {
     dashboard._performRouting = _.noop;
 
     const dashboardViewModel = new DashboardVM();
-    dashboardViewModel.initialize(dashboard);
 
     m.mount(root, {
       view() {

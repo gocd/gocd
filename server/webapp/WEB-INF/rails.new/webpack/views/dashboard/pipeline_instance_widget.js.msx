@@ -23,8 +23,9 @@ const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/mat
 const PipelineInstanceWidget = {
   oninit(vnode) {
     this.toggleDropdown = function (e) {
-      vnode.attrs.dropdown.toggle(vnode.attrs.pipelineName, vnode.attrs.instance.counter);
-      vnode.attrs.buildCauses.buildCauseFor(vnode.attrs.pipelineName, vnode.attrs.instance.counter).getBuildCause();
+      vnode.attrs.buildCause(undefined);
+      vnode.attrs.instance.getBuildCause().then(vnode.attrs.buildCause);
+      vnode.attrs.dropdown.show(vnode.attrs.pipelineName, vnode.attrs.instance.counter);
       e.stopPropagation();
     };
 
@@ -45,19 +46,27 @@ const PipelineInstanceWidget = {
     const instance        = vnode.attrs.instance;
     const instanceCounter = instance.counter;
     const dropdown        = vnode.attrs.dropdown;
-    const buildCauses     = vnode.attrs.buildCauses;
     const pipelineName    = vnode.attrs.pipelineName;
 
     const scheduledAtLocalTime  = `on ${TimeFormatter.format(instance.scheduledAt)}`;
     const scheduledAtServerTime = TimeFormatter.formatInServerTime(instance.scheduledAt);
 
     let dropdownWidget;
-    if (dropdown.isDropDownOpen(pipelineName, instanceCounter)) {
+    if (dropdown.isOpen(pipelineName, instanceCounter)) {
+      const buildCause = vnode.attrs.buildCause();
+
+      let buildCauseListOrSpinner;
+      if (buildCause) {
+        buildCauseListOrSpinner = _.map(buildCause, (revision) => {
+          return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
+        });
+      } else {
+        buildCauseListOrSpinner = (<div class="page-spinner small"></div>);
+      }
+
       dropdownWidget = (
         <div class="material_changes" onclick={vnode.state.preventPropagation.bind(vnode.state)}>
-          {_.map(buildCauses.buildCauseFor(pipelineName, instanceCounter).materialRevisions, (revision) => {
-            return (<MaterialRevisionWidget revision={revision} trackingTool={vnode.attrs.trackingTool}/>);
-          })}
+          {buildCauseListOrSpinner}
         </div>
       );
     }

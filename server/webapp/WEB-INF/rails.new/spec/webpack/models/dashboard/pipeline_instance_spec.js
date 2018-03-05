@@ -18,6 +18,7 @@ describe("Dashboard", () => {
   describe('Pipeline Instance Model', () => {
     const pipelineName     = "up42";
     const PipelineInstance = require('models/dashboard/pipeline_instance');
+    const sparkRoutes      = require('helpers/spark_routes');
 
     it("should deserialize from json", () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
@@ -45,6 +46,30 @@ describe("Dashboard", () => {
       expect(pipelineInstance.stages[1].isBuildingOrCompleted()).toEqual(false);
 
       expect(pipelineInstance.isFirstStageInProgress()).toEqual(false);
+    });
+
+    it("should fetch build cause", () => {
+      const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
+
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(sparkRoutes.buildCausePath(pipelineName, pipelineInstance.counter), undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(buildCauseJson),
+          responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+          status:          200
+        });
+
+        const successCallback = jasmine.createSpy().and.callFake((modifications) => {
+          expect(modifications).toHaveLength(1);
+        });
+
+        pipelineInstance.getBuildCause().then(successCallback);
+        expect(successCallback).toHaveBeenCalled();
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('GET');
+        expect(request.url).toBe(`/go/api/internal/build_cause/up42/1`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+      });
     });
 
     const pipelineInstanceJson = {
@@ -107,5 +132,25 @@ describe("Dashboard", () => {
         ]
       }
     };
+
+    const buildCauseJson = {'material_revisions': [{
+        "material_type": "Pipeline",
+        "material_name": "up42",
+        "changed":       true,
+        "modifications": [{
+          "_links":         {
+            "vsm":               {
+              "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/2"
+            },
+            "stage_details_url": {
+              "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
+            }
+          },
+          "revision":       "up42/2/up42_stage/1",
+          "modified_time":  "2017-12-26T09:01:03.503Z",
+          "pipeline_label": "2"
+        }]
+      }]};
+
   });
 });

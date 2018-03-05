@@ -776,7 +776,8 @@ body {
   z-index:       10;
   border-radius: 3px;
   max-height:    310px;
-  overflow-y:    scroll;
+  min-height:    110px;
+  overflow-y:    auto;
   .revisions {
     &.changed {
       color: #ff6;

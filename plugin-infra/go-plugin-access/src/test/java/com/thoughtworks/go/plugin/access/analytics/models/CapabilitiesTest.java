@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,50 +18,38 @@ package com.thoughtworks.go.plugin.access.analytics.models;
 
 import org.junit.Test;
 
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
 public class CapabilitiesTest {
 
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
-        String json = "" +
-                "{\n" +
-                "  \"supports_pipeline_analytics\": \"true\",\n" +
-                "  \"supported_analytics_dashboard_metrics\": [\"foo\"]\n" +
-                "}";
+        String json = "{\n" +
+                "\"supported_analytics\": [\n" +
+                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
+                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
+                "]}";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
-        assertTrue(capabilities.supportsPipelineAnalytics());
-        assertEquals(Collections.singletonList("foo"), capabilities.supportedAnalyticsDashboardMetrics());
+        assertThat(capabilities.getSupportedAnalytics().size(), is(2));
+        assertThat(capabilities.getSupportedAnalytics().get(0), is(new SupportedAnalytics("dashboard", "abc", "Title 1")) );
     }
 
-
     @Test
-    public void shouldCreateEquivalentObjectsForSameJSON() throws Exception {
-        String json = "" +
-                "{\n" +
-                "  \"supports_pipeline_analytics\": \"true\",\n" +
-                "  \"supported_analytics_dashboard_metrics\": [\"foo\"]\n" +
-                "}";
+    public void shouldConvertToDomainCapabilities() throws Exception {
+        String json = "{\n" +
+                "\"supported_analytics\": [\n" +
+                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
+                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
+                "]}";
 
-        com.thoughtworks.go.plugin.domain.analytics.Capabilities a = Capabilities.fromJSON(json).toCapabilities();
-        com.thoughtworks.go.plugin.domain.analytics.Capabilities b = Capabilities.fromJSON(json).toCapabilities();
-        com.thoughtworks.go.plugin.domain.analytics.Capabilities c = Capabilities.fromJSON("{\"supports_pipeline_analytics\": false, \"supported_analytics_dashboard_metrics\": [\"foo\"]}").toCapabilities();
-        com.thoughtworks.go.plugin.domain.analytics.Capabilities d = Capabilities.fromJSON("{\"supports_pipeline_analytics\": true, \"supported_analytics_dashboard_metrics\": [\"bar\"]}").toCapabilities();
+        Capabilities capabilities = Capabilities.fromJSON(json);
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities domain = capabilities.toCapabilities();
 
-        assertEquals(a, b);
-        assertEquals(a.hashCode(), b.hashCode());
-
-        assertNotEquals(a, c);
-        assertNotEquals(a.hashCode(), c.hashCode());
-
-        assertNotEquals(a, d);
-        assertNotEquals(a.hashCode(), d.hashCode());
-
+        assertThat(domain.supportedDashboardAnalytics(), containsInAnyOrder(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("dashboard", "abc", "Title 1")));
+        assertThat(domain.supportedPipelineAnalytics(), containsInAnyOrder(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("pipeline", "abc", "Title 1")));
     }
 }

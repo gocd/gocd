@@ -307,7 +307,9 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', plugin_metadata)], plugin_view)
-      capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(true, ["top_10_jobs_waiting"])
+      dashboard_analytics = SupportedAnalytics.new('dashboard', 'top_ten_agents_by_utilization', 'Top Ten Agents With Highest Utilization')
+      pipeline_analytics  = SupportedAnalytics.new('pipeline', 'top_ten_pipelines_by_wait_time', 'Top Ten Pipelines With Highest Wait Time')
+      capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([dashboard_analytics, pipeline_analytics])
 
       plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, image, capabilities, plugin_settings)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
@@ -325,7 +327,12 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
                                   about: about_json,
                                   extension_info: {
                                     plugin_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
-                                    capabilities: ApiV4::Plugin::AnalyticsCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
+                                    capabilities: {
+                                      supported_analytics: [
+                                        {'type'=> 'dashboard', 'id' => 'top_ten_agents_by_utilization', 'title' => 'Top Ten Agents With Highest Utilization'},
+                                        {'type'=> 'pipeline', 'id'=> 'top_ten_pipelines_by_wait_time', 'title'=> 'Top Ten Pipelines With Highest Wait Time'}
+                                      ]
+                                    }
                                   }
                                 })
     end

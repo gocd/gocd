@@ -20,32 +20,45 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class CapabilitiesTest {
     @Test
-    public void equivalenceBasedOnContent() throws Exception {
-        Capabilities capabilities = new Capabilities(true, Collections.singletonList("foo"));
-        Capabilities capabilities1 = new Capabilities(true, Collections.singletonList("foo"));
+    public void shouldSupportDashboardAnalyticsIfPluginListsDashboardMetricsAsCapability() throws Exception {
+        assertTrue(new Capabilities(Collections.singletonList(new SupportedAnalytics("dashboard", "id", "title"))).supportsDashboardAnalytics());
 
-        assertEquals(capabilities, capabilities1);
-        assertEquals(capabilities.hashCode(), capabilities1.hashCode());
-
-        Capabilities capabilities2 = new Capabilities(true, Collections.singletonList("bar"));
-        assertNotEquals(capabilities, capabilities2);
-        assertNotEquals(capabilities.hashCode(), capabilities2.hashCode());
-
-        Capabilities capabilities3 = new Capabilities(false, Collections.singletonList("foo"));
-        assertNotEquals(capabilities, capabilities3);
-        assertNotEquals(capabilities.hashCode(), capabilities3.hashCode());
+        assertFalse(new Capabilities(Collections.emptyList()).supportsDashboardAnalytics());
     }
 
     @Test
-    public void shouldSupportDashboardAnalyticsIfPluginListsSupportedAnalyticsDashboardMetrics() throws Exception {
-        assertTrue(new Capabilities(true, Collections.singletonList("foo")).supportsDashboardAnalytics());
+    public void shouldSupportPipelineAnalyticsIfPluginListsPipelineMetricsAsCapability() throws Exception {
+        assertTrue(new Capabilities(Collections.singletonList(new SupportedAnalytics("pipeline", "id", "title"))).supportsPipelineAnalytics());
 
-        assertFalse(new Capabilities(true, Collections.emptyList()).supportsDashboardAnalytics());
+        assertFalse(new Capabilities(Collections.emptyList()).supportsPipelineAnalytics());
+    }
 
-        assertFalse(new Capabilities(true, null).supportsDashboardAnalytics());
+    @Test
+    public void shouldListSupportedDashBoardAnalytics() throws Exception {
+        Capabilities capabilities = new Capabilities(Collections.singletonList(new SupportedAnalytics("dashboard", "id", "title")));
+
+        assertThat(capabilities.supportedAnalyticsDashboardMetrics(), is(Collections.singletonList("title")));
+        assertTrue(new Capabilities(Collections.emptyList()).supportedAnalyticsDashboardMetrics().isEmpty());
+    }
+
+    @Test
+    public void shouldListSupportedAnalyticsForDashboard() throws Exception {
+        Capabilities capabilities = new Capabilities(Collections.singletonList(new SupportedAnalytics("dashboard", "id", "title")));
+
+        assertThat(capabilities.supportedDashboardAnalytics(), is(Collections.singletonList(new SupportedAnalytics("dashboard", "id", "title"))));
+        assertTrue(new Capabilities(Collections.emptyList()).supportedDashboardAnalytics().isEmpty());
+    }
+
+    @Test
+    public void shouldListSupportedAnalyticsForPipelines() throws Exception {
+        Capabilities capabilities = new Capabilities(Collections.singletonList(new SupportedAnalytics("pipeline", "id", "title")));
+
+        assertThat(capabilities.supportedPipelineAnalytics(), is(Collections.singletonList(new SupportedAnalytics("pipeline", "id", "title"))));
+        assertTrue(new Capabilities(Collections.emptyList()).supportedPipelineAnalytics().isEmpty());
     }
 }

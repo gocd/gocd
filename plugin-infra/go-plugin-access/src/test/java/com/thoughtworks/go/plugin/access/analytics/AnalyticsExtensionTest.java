@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
+import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.core.Is;
@@ -34,16 +35,15 @@ import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -79,14 +79,19 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetCapabilities() throws Exception {
-        String responseBody = "{\"supports_pipeline_analytics\":\"true\", \"supported_analytics_dashboard_metrics\": [\"foo\"]}";
+        String responseBody = "{\n" +
+                "\"supported_analytics\": [\n" +
+                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
+                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
+                "]}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
-        assertTrue(capabilities.supportsPipelineAnalytics());
-        assertEquals(Collections.singletonList("foo"), capabilities.supportedAnalyticsDashboardMetrics());
+
+        assertThat(capabilities.supportedDashboardAnalytics(), containsInAnyOrder(new SupportedAnalytics("dashboard", "abc", "Title 1")));
+        assertThat(capabilities.supportedPipelineAnalytics(), containsInAnyOrder(new SupportedAnalytics("pipeline", "abc", "Title 1")));
     }
 
     @Test

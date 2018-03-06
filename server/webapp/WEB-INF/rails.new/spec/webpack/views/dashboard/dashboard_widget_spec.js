@@ -56,6 +56,10 @@ describe("Dashboard Widget", () => {
     expect($root.find('.filter input')).toBeInDOM();
   });
 
+  it("should render Old dashboard button", () => {
+    expect($root.find("a.toggle-old-view")).toContainText("Old Dashboard");
+  });
+
   it("should render personalize view button", () => {
     expect($root.find('.filter_btn')).toBeInDOM();
   });

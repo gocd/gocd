@@ -29,7 +29,7 @@
       {
         "key": "quicker_dashboard_key",
         "description": "To disable caching of dashboard information until the dashboard API goes live",
-        "value": false
+        "value": true
       },
       {
         "key": "artifact_extension_key",

@@ -21,8 +21,6 @@
   const $ = require("jquery");
   const _ = require('lodash');
 
-  require("foundation-sites");
-  require('helpers/server_health_messages_helper');
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
   const Frame                    = require('models/analytics/frame');

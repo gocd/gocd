@@ -19,13 +19,17 @@ describe("Global Dashboard Metrics", () => {
 
   const GlobalMetrics = require('views/analytics/global_metrics');
 
-  function newModel(d) {
-    const data = d;
+  function globalMetricTab(metrics) {
+    const data = metrics;
 
     return {data};
   }
 
   let $root, root;
+  const supportedMetrics = {
+    "plugin-id-x": ["one", "two"],
+    "plugin-id-y": ["three"]
+  };
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -39,16 +43,13 @@ describe("Global Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin metric', () => {
-    const supportedMetrics = {
-      "plugin-id-x": [ "one"],
-      "plugin-id-y": ["two"]
-    };
     jasmine.Ajax.stubRequest("/analytics/plugin-id-x/dashboard/one", undefined, 'GET').andReturn({ status: 200 });
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/dashboard/two", undefined, 'GET').andReturn({ status: 200 });
-    const model = newModel(supportedMetrics);
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/dashboard/two", undefined, 'GET').andReturn({ status: 200 });
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/dashboard/three", undefined, 'GET').andReturn({ status: 200 });
+    const model = globalMetricTab(supportedMetrics);
 
     mount(model);
-    expect($root.find("iframe").length).toBe(2);
+    expect($root.find("iframe").length).toBe(3);
   });
 
   const mount = (model) => {

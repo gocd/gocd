@@ -45,7 +45,7 @@
                 {x}
               </ul>
             </div>
-            <div {...{class:"dashboard-charts " + tabs.current().name}}>
+            <div class="dashboard-charts">
               {m(tabs.current().view, {model: tabs.current()})}
            </div>
         </div>

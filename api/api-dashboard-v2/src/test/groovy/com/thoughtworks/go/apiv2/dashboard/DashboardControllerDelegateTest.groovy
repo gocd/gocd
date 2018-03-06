@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.apiv2.dashboard
 
+import com.thoughtworks.go.api.SecurityTestTrait
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter
 import com.thoughtworks.go.config.security.Permissions
@@ -25,6 +27,7 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.apache.commons.codec.digest.DigestUtils
 import org.junit.jupiter.api.BeforeEach
@@ -54,102 +57,117 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
   @Override
   DashboardControllerDelegate createControllerInstance() {
-    new DashboardControllerDelegate(pipelineSelectionsService, goDashboardService)
+    new DashboardControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), pipelineSelectionsService, goDashboardService)
   }
 
   @Nested
   class Dashboard {
 
-    @Test
-    void 'should get dashboard json'() {
-      loginAsUser()
+    @Nested class Security implements SecurityTestTrait, NormalUserSecurity {
 
-      def pipelineSelections = PipelineSelections.ALL
-      def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
-      pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
-      pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
+      @Override
+      String getControllerMethodUnderTest() {
+        return "index"
+      }
 
-      getWithApiHeader(controller.controllerPath())
-
-      assertThatResponse()
-        .isOk()
-        .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername()), PipelineGroupsRepresenter)
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
     }
 
-    @Test
-    void 'should render 304 if content matches'() {
-      loginAsUser()
+    @Nested class AsAuthorizedUser {
+      @Test
+      void 'should get dashboard json'() {
+        loginAsUser()
 
-      def pipelineSelections = PipelineSelections.ALL
-      def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
-      pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
-      pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-      def pipelineGroups = [pipelineGroup]
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+        def pipelineSelections = PipelineSelections.ALL
+        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
+        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
+
+        getWithApiHeader(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername()), PipelineGroupsRepresenter)
+      }
+
+      @Test
+      void 'should render 304 if content matches'() {
+        loginAsUser()
+
+        def pipelineSelections = PipelineSelections.ALL
+        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
+        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
+        def pipelineGroups = [pipelineGroup]
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
 
 
-      def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.etag() }.join("/")) + '"'
-      getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
+        def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.etag() }.join("/")) + '"'
+        getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
-      assertThatResponse()
-        .isNotModified()
-        .hasContentType(controller.mimeType)
-        .hasNoBody()
-    }
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+          .hasNoBody()
+      }
 
-    @Test
-    void 'should get empty json when dashboard is empty'() {
-      def noPipelineGroups = []
-      def pipelineSelections = PipelineSelections.ALL
-      when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-      when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
-      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
+      @Test
+      void 'should get empty json when dashboard is empty'() {
+        def noPipelineGroups = []
+        def pipelineSelections = PipelineSelections.ALL
+        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
+        when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
-      loginAsUser()
-      getWithApiHeader(controller.controllerPath())
+        loginAsUser()
+        getWithApiHeader(controller.controllerPath())
 
-      assertThatResponse()
-        .isOk()
-        .hasContentType(controller.mimeType)
-        .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername()), PipelineGroupsRepresenter)
-    }
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername()), PipelineGroupsRepresenter)
+      }
 
-    @Test
-    void 'should return 202 no content when dashboard is not processed (on server start)'() {
-      when(goDashboardService.isFeatureToggleDisabled()).thenReturn(false)
-      when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(false)
+      @Test
+      void 'should return 202 no content when dashboard is not processed (on server start)'() {
+        when(goDashboardService.isFeatureToggleDisabled()).thenReturn(false)
+        when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(false)
 
-      loginAsUser()
-      getWithApiHeader(controller.controllerPath())
+        loginAsUser()
+        getWithApiHeader(controller.controllerPath())
 
-      verify(goDashboardService).isFeatureToggleDisabled()
-      verify(goDashboardService).hasEverLoadedCurrentState()
-      verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
+        verify(goDashboardService).isFeatureToggleDisabled()
+        verify(goDashboardService).hasEverLoadedCurrentState()
+        verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
 
-      assertThatResponse()
-        .isAccepted()
-        .hasContentType(controller.mimeType)
-        .hasJsonMessage("Dashboard is being processed, this may take a few seconds. Please check back later.")
-    }
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Dashboard is being processed, this may take a few seconds. Please check back later.")
+      }
 
-    @Test
-    void 'should return 424 when dashboard is disabled'() {
-      when(goDashboardService.isFeatureToggleDisabled()).thenReturn(true)
+      @Test
+      void 'should return 424 when dashboard is disabled'() {
+        when(goDashboardService.isFeatureToggleDisabled()).thenReturn(true)
 
-      loginAsUser()
-      getWithApiHeader(controller.controllerPath())
-      verify(goDashboardService).isFeatureToggleDisabled()
-      verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
+        loginAsUser()
+        getWithApiHeader(controller.controllerPath())
+        verify(goDashboardService).isFeatureToggleDisabled()
+        verifyNoMoreInteractions(pipelineSelectionsService, goDashboardService)
 
-      assertThatResponse()
-        .isFailedDependency()
-        .hasContentType(controller.mimeType)
-        .hasJsonMessage("The quicker dashboard feature has not been enabled!")
+        assertThatResponse()
+          .isFailedDependency()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("The quicker dashboard feature has not been enabled!")
+      }
     }
   }
 }

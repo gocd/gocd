@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.dashboard;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
@@ -45,9 +46,11 @@ public class DashboardControllerDelegate extends ApiController {
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
 
-    public DashboardControllerDelegate(PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
+    public DashboardControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
         super(ApiVersion.v2);
+        this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineSelectionsService = pipelineSelectionsService;
         this.goDashboardService = goDashboardService;
     }
@@ -62,12 +65,13 @@ public class DashboardControllerDelegate extends ApiController {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("", this::verifyContentType);
+            before("", apiAuthenticationHelper::checkUserAnd401);
 
             get("", this::index);
         });
     }
 
-    private Object index(Request request, Response response) throws IOException {
+    public Object index(Request request, Response response) throws IOException {
         if (goDashboardService.isFeatureToggleDisabled()) {
             response.status(424);
             return FEATURE_NOT_ENABLED;

@@ -64,6 +64,22 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
+    public AnalyticsData getAnalytics(String pluginId, String type, String metricId, Map params) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getAnalyticsRequestBody(type, metricId, params);
+            }
+
+            @Override
+            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
+                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
+                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
+                return analyticsData;
+            }
+        });
+    }
+
     public AnalyticsData getPipelineAnalytics(String pluginId, String pipelineName) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
             @Override

@@ -35,6 +35,7 @@ import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,6 +137,23 @@ public class AnalyticsExtensionTest {
         expected.put("data", "{}");
         expected.put("view_path", "/assets/root/path/to/view");
         assertEquals(expected, jobAnalytics.toMap());
+    }
+
+    @Test
+    public void shouldGetAnalytics() throws Exception {
+        AnalyticsData pipelineAnalytics = analyticsExtension.getAnalytics(PLUGIN_ID, "pipeline", "pipeline_with_highest_wait_time", Collections.singletonMap("pipeline_name", "test_pipeline"));
+
+        String expectedRequestBody = "{" +
+                "\"type\": \"pipeline\"," +
+                "\"id\": \"pipeline_with_highest_wait_time\"," +
+                " \"params\": {\"pipeline_name\": \"test_pipeline\"}}";
+
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
+
+        assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
+        assertThat(pipelineAnalytics.getData(), is("{}"));
+        assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
+        assertThat(pipelineAnalytics.getFullViewPath(), is("/assets/root/path/to/view"));
     }
 
     @Test

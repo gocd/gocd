@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ describe AnalyticsController do
 
       expect(:get => '/analytics/plugin_id/pipelines/pipeline_name').to route_to(controller: 'analytics', action: 'pipeline', plugin_id: 'plugin_id', pipeline_name: 'pipeline_name')
       expect(pipeline_analytics_path(plugin_id: 'test_plugin', pipeline_name: 'test_pipeline')).to eq('/analytics/test_plugin/pipelines/test_pipeline')
+
+      expect(:get => '/analytics/plugin_id/pipeline/metric_id').to route_to(controller: 'analytics', action: 'show', plugin_id: 'plugin_id', type: 'pipeline', id: 'metric_id')
+      expect(show_analytics_path(plugin_id: 'test_plugin', plugin_id: 'plugin_id', type: 'pipeline', id: 'metric_id')).to eq('/analytics/plugin_id/pipeline/metric_id')
     end
   end
 
@@ -32,6 +35,21 @@ describe AnalyticsController do
     before(:each) do
       login_as_admin
       allow_current_user_to_access_pipeline('pipeline_name')
+    end
+
+    it 'should only allow pipeline viewers to see analytics of type pipeline' do
+      expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+
+      allow_current_user_to_not_access_pipeline('pipeline_name')
+      expect(controller).not_to allow_action(:get, :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+    end
+
+    it 'should allow all users to view analytics of type pipeline if security is disabled' do
+      allow_current_user_to_not_access_pipeline('pipeline_name')
+      expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+
+      disable_security
+      expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
     end
 
     it 'should only allow pipeline viewers to see pipeline analytics' do
@@ -50,12 +68,68 @@ describe AnalyticsController do
     end
   end
 
-  describe 'analytics dashboard' do
+  describe 'show' do
+    before(:each) do
+      login_as_admin
+      allow_current_user_to_access_pipeline('pipeline_name')
+    end
+
+    it 'should render analytics for a pipeline' do
+      analytics_extension = instance_double('AnalyticsExtension')
+      analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new('pipeline_analytics', '/path/to/view')
+
+      allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
+      allow(analytics_extension).to receive(:getAnalytics).with('com.tw.myplugin', 'analytics_type', 'metric_id', {pipeline_name: 'pipeline_name', duration: '30 days'}).and_return(analytics_data)
+
+      get :show, plugin_id: 'com.tw.myplugin', type: 'analytics_type', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'
+
+      expect(response).to be_ok
+
+      response_json = JSON.parse(response.body)
+      expect(response_json['data']).to eq('pipeline_analytics')
+      expect(response_json['view_path']).to eq('/path/to/view')
+      expect(response.content_type).to eq('application/json')
+    end
+  end
+
+  describe 'new_index' do
     before(:each) do
       login_as_admin
     end
 
     it 'should include the plugin ids in the SPA skeleton' do
+      plugin_info_finder = instance_double('DefaultPluginInfoFinder')
+
+      descriptor1 = com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, false)
+      descriptor2 = com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor.new('com.tw.yourplugin', nil, nil, nil, nil, false)
+
+      supported_analytics1 = com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new('dashboard', 'top_ten_agents', 'Top 10 Agents')
+      supported_analytics2 = com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new('dashboard', 'top_ten_jobs', 'Top 10 Jobs')
+
+      cap1 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics1])
+      cap2 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics2])
+
+      plugin1 = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor1, nil, cap1, nil)
+      plugin2 = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor2, nil, cap2, nil)
+
+
+      allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
+      allow(plugin_info_finder).to receive(:allPluginInfos).with(PluginConstants.ANALYTICS_EXTENSION).and_return([plugin1, plugin2])
+
+      get :index
+
+      expect(response).to be_ok
+      expect(controller.instance_variable_get(:@supported_dashboard_metrics)).to eq({'com.tw.myplugin' => [{type: 'dashboard', id: 'top_ten_agents', title: 'Top 10 Agents'}],
+                                                                                     'com.tw.yourplugin' => [{type: 'dashboard', id: 'top_ten_jobs', title: 'Top 10 Jobs'}]})
+    end
+  end
+
+  describe 'analytics dashboard' do
+    before(:each) do
+      login_as_admin
+    end
+
+    xit 'should include the plugin ids in the SPA skeleton' do
       plugin_info_finder = instance_double('DefaultPluginInfoFinder')
       cap = instance_double('Capabilities')
       info = instance_double('AnalyticsPluginInfo')

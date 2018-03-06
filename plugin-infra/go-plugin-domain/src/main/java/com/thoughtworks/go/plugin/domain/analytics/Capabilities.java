@@ -25,7 +25,6 @@ public class Capabilities {
     private static final String DASHBOARD_TYPE = "dashboard";
     private static final String PIPELINE_TYPE = "pipeline";
 
-
     public Capabilities(List<SupportedAnalytics> supportedAnalytics) {
         this.supportedAnalytics = supportedAnalytics;
     }

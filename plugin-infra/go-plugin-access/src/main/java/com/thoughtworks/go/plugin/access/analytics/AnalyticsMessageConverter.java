@@ -32,6 +32,8 @@ public interface AnalyticsMessageConverter {
 
     String getJobAnalyticsRequestBody(Map params);
 
+    String getAnalyticsRequestBody(String type, String metricId, Map params);
+
     AnalyticsData getAnalyticsFromResponseBody(String responseBody);
 
     String getDashboardAnalyticsRequestBody(String metric);

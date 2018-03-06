@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,5 +93,17 @@ public class AnalyticsMessageConverterV1Test {
         params.put("job_name", "anything");
         Map actual = GSON.fromJson(converter.getJobAnalyticsRequestBody(params), Map.class);
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldBuildRequestBodyForAnalyticsRequest() throws Exception {
+        String analyticsRequestBody = converter.getAnalyticsRequestBody("pipeline", "pipeline_with_highest_wait_time", Collections.singletonMap("pipeline_name", "test_pipeline"));
+
+        String expectedRequestBody = "{" +
+                "\"type\":\"pipeline\"," +
+                "\"id\":\"pipeline_with_highest_wait_time\"," +
+                " \"params\":{\"pipeline_name\": \"test_pipeline\"}}";
+
+        assertEquals(GSON.fromJson(expectedRequestBody, Map.class), GSON.fromJson(analyticsRequestBody, Map.class));
     }
 }

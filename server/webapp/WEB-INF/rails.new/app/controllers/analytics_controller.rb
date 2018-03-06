@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,15 +20,22 @@ class AnalyticsController < ApplicationController
   layout 'single_page_app', only: [:index]
 
   before_action :check_admin_user_and_401
+  before_action :check_permissions, only: [:show]
   before_action :check_user_can_see_pipeline, only: [:pipeline]
 
   def index
     @view_title = 'Analytics'
     @supported_dashboard_metrics = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({})do |memo, plugin|
       key = plugin.getDescriptor().id()
-      memo[key] = plugin.getCapabilities().supportedAnalyticsDashboardMetrics() if plugin.getCapabilities().supportsDashboardAnalytics()
+      memo[key] = supported_analytics_hash(plugin.getCapabilities().supportedDashboardAnalytics()) if plugin.getCapabilities().supportsDashboardAnalytics()
       memo
     end
+  end
+
+  def show
+    render json: analytics_extension.getAnalytics(params[:plugin_id], params[:type], params[:id], request.query_parameters).toMap().to_h
+  rescue => e
+    render_plugin_error e
   end
 
   def dashboard
@@ -52,6 +59,17 @@ class AnalyticsController < ApplicationController
 
   private
 
+  def supported_analytics_hash supported_analytics
+    supported_analytics.map do |s|
+      {type: s.getType(), id: s.getId(), title: s.getTitle()}
+    end
+
+  end
+
+  def check_permissions
+    check_user_can_see_pipeline if params[:type] == 'pipeline'
+  end
+
   def render_plugin_error e
     log_java_error(e)
     render :text => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
@@ -63,5 +81,4 @@ class AnalyticsController < ApplicationController
 
     Rails.logger.error "#{cause}:\n\n#{stack_trace}"
   end
-
 end

@@ -82,6 +82,13 @@
       err("Disregarding message", message, "because origin", ev.origin, "does not match", window.location.origin);
       return;
     }
+
+    // We always expect data to be an object; this also has the nice
+    // side effect of ignoring bootstrap's test for window.postMessage()
+    if ("object" !== typeof message) {
+      return;
+    }
+
     var error = validateMessage(message);
     if (error) {
       err(error + " debug:", message);
@@ -92,12 +99,6 @@
   }
 
   function validateMessage(message) {
-    // We always expect data to be an object; this also has the nice
-    // side effect of ignoring bootstrap's test for window.postMessage()
-    if ("object" !== typeof message) {
-      return "Message is not an object.";
-    }
-
     if ("object" !== typeof message.head) {
       return "Missing message metadata!";
     }

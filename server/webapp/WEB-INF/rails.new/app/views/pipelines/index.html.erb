@@ -1,28 +1,32 @@
 <% @view_title = "Pipelines" -%>
+
 <% @page_header = '<h1 class="entity_title">Pipelines</h1>'
+   if is_quicker_dashboard_toggle_enabled?
+     @page_header += '<a href="/go/dashboard" class="toggle-new-view">New Dashboard</a>'
+   end
    @show_pipeline_selector = true -%>
 
 
-  <div class="dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups">
-    <div class="hidden changes enhanced_dropdown" id="dashboard_build_cause_content">&nbsp;</div>
-  </div>
+<div class="dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups">
+  <div class="hidden changes enhanced_dropdown" id="dashboard_build_cause_content">&nbsp;</div>
+</div>
 
 
-  <div id="pipeline_groups_container">
-    <% @pipeline_groups.each do |pipeline_group| -%>
-        <% unless pipeline_group.getPipelineModels().isEmpty() -%>
-            <div id="<%= pipelines_dom_id(pipeline_group.getName()) %>">
-              <%= render :partial => 'pipeline_group.html', :locals => {:scope => {:pipeline_group => pipeline_group}} -%>
-            </div>
-        <% end -%>
+<div id="pipeline_groups_container">
+  <% @pipeline_groups.each do |pipeline_group| -%>
+    <% unless pipeline_group.getPipelineModels().isEmpty() -%>
+      <div id="<%= pipelines_dom_id(pipeline_group.getName()) %>">
+        <%= render :partial => 'pipeline_group.html', :locals => {:scope => {:pipeline_group => pipeline_group}} -%>
+      </div>
     <% end -%>
-  </div>
+  <% end -%>
+</div>
 
 
 <script type="text/javascript">
   Util.on_load(function () {
-    var reformatAllBuildTimes = function() {
-      jQuery(".pipeline_instance .schedule_time span.time").each(function(idx, timeSpan) {
+    var reformatAllBuildTimes = function () {
+      jQuery(".pipeline_instance .schedule_time span.time").each(function (idx, timeSpan) {
         var timestamp = parseInt(jQuery(timeSpan).attr("data"));
         if (isNaN(timestamp)) return;
         var time = new Date(timestamp);

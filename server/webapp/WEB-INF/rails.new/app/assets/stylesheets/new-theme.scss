@@ -1277,7 +1277,7 @@ ul#pipeline_config_tree {
   }
 }
 
-.pipeline_header .toggle-new-view, .page_header a.agents-toggle-new-view {
+.pipeline_header .toggle-new-view, .page_header a.agents-toggle-new-view, .pipelines .page_header .toggle-new-view {
   display:          inline-block;
   text-align:       center;
   line-height:      1;
@@ -1299,6 +1299,10 @@ ul#pipeline_config_tree {
     background-color: $primary-btn-bg-hover;
     color:            $go-white;
   }
+}
+
+.pipelines .page_header .toggle-new-view {
+  top: 4px;
 }
 
 .pipeline_header .analytics-link-wrapper .pipeline-analytics-icon {

@@ -17,9 +17,6 @@
 (function() {
   "use strict";
 
-  const Stream = require("mithril/stream");
-  const      $ = require("jquery");
-
   function Tabs(callback) {
     let activeTab = 0;
     const tabs = [];

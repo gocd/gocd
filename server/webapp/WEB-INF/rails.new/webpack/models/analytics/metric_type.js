@@ -17,10 +17,6 @@
 (function() {
   "use strict";
 
-  const Stream = require("mithril/stream");
-  const      $ = require("jquery");
-  const AnalyticsGlobalMetrics   = require('views/analytics/global_metrics');
-
   function MetricType(name, view, data) {
     return {name, view, data};
   }

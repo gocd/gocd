@@ -25,39 +25,14 @@
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const VersionUpdater           = require('models/shared/version_updater');
-  const Frame                    = require('models/analytics/frame');
   const MetricType               = require('models/analytics/metric_type');
   const Tabs                     = require('models/analytics/tabs');
   const AnalyticsDashboardHeader = require('views/analytics/header');
   const DashboardTabs            = require('views/analytics/tabs');
   const GlobalMetrics            = require('views/analytics/global_metrics');
   const PipelineMetrics          = require('views/analytics/pipeline_metrics');
-  const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
-  const Routes                   = require('gen/js-routes');
 
   PluginEndpoint.ensure();
-
-  PluginEndpoint.define({
-    "analytics.job.history": (message, trans) => {
-      const meta = message.head;
-      const model = models[meta.uid];
-      const params = $.extend({plugin_id: meta.pluginId}, message.body); // eslint-disable-line camelcase
-
-      params.start = JSON.stringify(params.start).replace(/"/g, "");
-      params.end = JSON.stringify(params.end).replace(/"/g, "");
-
-      model.fetch(Routes.jobAnalyticsPath(params), (data, errors) => {
-        trans.respond({data, errors});
-      });
-    },
-
-    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
-      const meta = message.head;
-      const model = models[meta.uid];
-      model.url(Routes.pipelineAnalyticsPath({plugin_id: meta.pluginId, pipeline_name: message.body.pipelineName})); // eslint-disable-line camelcase
-      model.load();
-    }
-  });
 
   document.addEventListener("DOMContentLoaded", () => {
     const main = document.querySelector("[data-supported-dashboard-metrics]");
@@ -69,7 +44,7 @@
         pageItems.push(m(AnalyticsDashboardHeader));
         tabs.push(new MetricType("Global", GlobalMetrics, $(main).data("supported-dashboard-metrics")));
         tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: $(main).data("supported-dashboard-metrics")}));
-        pageItems.push(m(DashboardTabs, {tabs: tabs}));
+        pageItems.push(m(DashboardTabs, {tabs}));
         return pageItems;
       }
     });

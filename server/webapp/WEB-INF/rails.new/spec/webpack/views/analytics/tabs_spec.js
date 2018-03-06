@@ -15,6 +15,7 @@
  */
 describe("Analytics Dashboard Tabs", () => {
   const m      = require('mithril');
+  const $ = require('jquery');
   require('jasmine-jquery');
 
   const DashboardTabs = require('views/analytics/tabs');
@@ -22,15 +23,6 @@ describe("Analytics Dashboard Tabs", () => {
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
   const Tabs = require('models/analytics/tabs');
   const MetricType = require('models/analytics/metric_type');
-
-  function tabsModel(t) {
-    const tabs = t;
-    function setActiveTab(tab) {
-    }
-    function current() {}
-
-    return {tabs, current, setActiveTab};
-  }
 
   let $root, root;
 
@@ -44,30 +36,30 @@ describe("Analytics Dashboard Tabs", () => {
   });
 
   it('should display given tabs', () => {
-    let tabs = new Tabs(m.redraw);
+    const tabs = new Tabs(m.redraw);
     tabs.push(new MetricType("Global", GlobalMetrics, []));
     tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
 
     mount(tabs);
-    expect($root.find(".dashboard-tabs li.current").text()).toBe("Global")
-    expect($($root.find(".dashboard-tabs li")[1]).text()).toBe("Pipeline")
+    expect($root.find(".dashboard-tabs li.current").text()).toBe("Global");
+    expect($($root.find(".dashboard-tabs li")[1]).text()).toBe("Pipeline");
   });
 
   it('should change tabs when clicking inactive tab', () => {
-    let tabs = new Tabs(m.redraw);
+    const tabs = new Tabs(m.redraw);
     tabs.push(new MetricType("Global", GlobalMetrics, []));
     tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
 
     mount(tabs);
-    expect($root.find(".dashboard-tabs li.current").text()).toBe("Global")
+    expect($root.find(".dashboard-tabs li.current").text()).toBe("Global");
     $($root.find(".dashboard-tabs li")[1]).click();
-    expect($root.find(".dashboard-tabs li.current").text()).toBe("Pipeline")
+    expect($root.find(".dashboard-tabs li.current").text()).toBe("Pipeline");
   });
 
   const mount = (tabs) => {
     m.mount(root, {
       view() {
-        return m(DashboardTabs, {tabs: tabs});
+        return m(DashboardTabs, {tabs});
       }
     });
     m.redraw();

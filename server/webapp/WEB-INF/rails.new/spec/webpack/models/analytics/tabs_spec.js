@@ -18,10 +18,11 @@ describe("Analytics Dashboard Tabs Model", () => {
   const Tabs = require('models/analytics/tabs');
   const MetricType = require('models/analytics/metric_type');
 
+  const tabs = new Tabs(() => {});
+  const m1 = new MetricType("x", null, []);
+  const m2 = new MetricType("y", null, []);
+
   it('should use the first tab as the default active', () => {
-    let tabs = new Tabs(null);
-    let m1 = new MetricType("x", null, [])
-    let m2 = new MetricType("y", null, [])
     tabs.push(m1);
     tabs.push(m2);
 
@@ -30,9 +31,6 @@ describe("Analytics Dashboard Tabs Model", () => {
   });
 
   it('should change active tab', () => {
-    let tabs = new Tabs(function() {});
-    let m1 = new MetricType("x", null, [])
-    let m2 = new MetricType("y", null, [])
     tabs.push(m1);
     tabs.push(m2);
 

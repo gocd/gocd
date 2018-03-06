@@ -16,14 +16,12 @@
 describe("Pipeline Dashboard Metrics", () => {
   const m      = require('mithril');
   require('jasmine-jquery');
+  const $ = require("jquery");
 
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
   function pipelineMetricTab(pipelines, plugins) {
-    const data = {
-      pipelines:  pipelines,
-      plugins: plugins
-    };
+    const data = {pipelines, plugins};
 
     return {data};
   }
@@ -50,7 +48,7 @@ describe("Pipeline Dashboard Metrics", () => {
     const model = pipelineMetricTab(pipelineList, supportedMetrics);
 
     mount(model);
-    var list = $root.find("select option");
+    const list = $root.find("select option");
     expect(list.length).toBe(3);
     expect($(list[0]).val()).toBe("p1");
     expect($(list[1]).val()).toBe("p2");
@@ -58,13 +56,12 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin', () => {
-    var doneFn = jasmine.createSpy("success");
     const model = pipelineMetricTab(pipelineList, supportedMetrics);
 
     mount(model);
     expect($root.find("iframe").length).toBe(2);
 
-    var requests = jasmine.Ajax.requests;
+    const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(2);
     expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/pipelines/p1?context=dashboard');
     expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/pipelines/p1?context=dashboard');
@@ -76,7 +73,7 @@ describe("Pipeline Dashboard Metrics", () => {
      mount(model);
 
     $root.find("select").val("p2").trigger("change");
-    var requests = jasmine.Ajax.requests;
+    const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
     expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipelines/p2?context=dashboard');
     expect(requests.at(3).url).toBe('/go/analytics/plugin-id-y/pipelines/p2?context=dashboard');

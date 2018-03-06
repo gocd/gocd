@@ -23,6 +23,8 @@
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
+// scss-lint:disable SelectorDepth
+
 .analytics-container {
   height:          79vh;
   display:         flex;
@@ -37,51 +39,50 @@
   }
 
   .dashboard-content {
-    display: flex;
-    //flex-wrap: wrap;
-    flex-grow: 0.5;
-    height: 100%;
+    display:        flex;
+    flex-grow:      0.5;
+    height:         100%;
     flex-direction: column;
 
     .dashboard-tabs-container {
       border-bottom: 1px solid #ccc;
       margin-bottom: 10px;
 
-      ul.dashboard-tabs {
+      .dashboard-tabs {
         margin: 0;
 
         li {
-          cursor: pointer;
-          float: left;
-          list-style: none;
-          padding: 7px 15px;
-          line-height: 19px;
-          font-size: 15px;
+          cursor:        pointer;
+          float:         left;
+          list-style:    none;
+          padding:       7px 15px;
+          line-height:   19px;
+          font-size:     15px;
           border-radius: 3px 3px 0 0;
-          font-weight: 600;
-          color: #333;
-        }
+          font-weight:   600;
+          color:         #333;
 
-        li.current {
-          border-bottom: 4px solid #94399e;
-          font-weight: 700;
+          &.current {
+            border-bottom: 4px solid #94399e;
+            font-weight:   700;
+          }
         }
       }
     }
 
     .dashboard-charts {
-      overflow: visible;
-      border:     0;
-      height: 100%;
-      display: flex;
-      flex-flow: row wrap;
+      overflow:        visible;
+      border:          0;
+      height:          100%;
+      display:         flex;
+      flex-flow:       row wrap;
       justify-content: center;
 
       .frame-container {
-        min-width: calc(44vh * 5 / 3);
+        min-width:  calc(44vh * 5 / 3);
         min-height: 44vh;
-        max-width: calc(60vh * 5 / 3);
-        height: 100%;
+        max-width:  calc(60vh * 5 / 3);
+        height:     100%;
 
         iframe {
           height: 100%;
@@ -95,7 +96,7 @@
           &::before {
             display: block;
             content: attr(data-error-text);
-            color: #f00;
+            color:   #f00;
           }
         }
       }

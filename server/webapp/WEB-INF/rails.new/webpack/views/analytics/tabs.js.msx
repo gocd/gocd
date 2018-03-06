@@ -32,7 +32,7 @@
           return (<li class="current">{tab.name}</li>);
         } else {
           return(m("li", {
-            onclick: function() {
+            onclick: () => {
               tabs.setActiveTab(tab);
             }
           }, tab.name));
@@ -51,8 +51,8 @@
         </div>
       );
     }
-    return {view, oninit}
-  }
+    return {view, oninit};
+  };
 
   module.exports = DashboardTabs;
 

@@ -18,6 +18,7 @@
   "use strict";
 
   const m = require("mithril");
+  const $ = require('jquery');
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const Frame                    = require('models/analytics/frame');
@@ -25,6 +26,28 @@
   const Routes                   = require('gen/js-routes');
 
   const models = {};
+
+  PluginEndpoint.define({
+    "analytics.job.history": (message, trans) => {
+      const meta = message.head;
+      const model = models[meta.uid];
+      const params = $.extend({plugin_id: meta.pluginId}, message.body); // eslint-disable-line camelcase
+
+      params.start = JSON.stringify(params.start).replace(/"/g, "");
+      params.end = JSON.stringify(params.end).replace(/"/g, "");
+
+      model.fetch(Routes.jobAnalyticsPath(params), (data, errors) => {
+        trans.respond({data, errors});
+      });
+    },
+
+    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
+      const meta = message.head;
+      const model = models[meta.uid];
+      model.url(Routes.pipelineAnalyticsPath({plugin_id: meta.pluginId, pipeline_name: message.body.pipelineName})); // eslint-disable-line camelcase
+      model.load();
+    }
+  });
 
   function ensureModel(uid, pluginId, type, id) {
     let model = models[uid];

@@ -21,9 +21,11 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
@@ -67,8 +69,9 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
+    private final ElasticAgentMetadataStore elasticAgentMetadataStore;
 
-//    for test only
+    //    for test only
     public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
         this.elasticPluginHeartBeatInterval = elasticPluginHeartBeatInterval;
     }
@@ -79,6 +82,16 @@ public class ElasticAgentPluginService implements JobStatusListener {
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
+
+        this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
+                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance());
+    }
+
+    ElasticAgentPluginService(
+            PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
+            AgentService agentService, EnvironmentConfigService environmentConfigService,
+            CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
+            GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService, ElasticAgentMetadataStore elasticAgentMetadataStore) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -88,6 +101,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         this.goConfigService = goConfigService;
         this.timeProvider = timeProvider;
         this.serverHealthService = serverHealthService;
+        this.elasticAgentMetadataStore = elasticAgentMetadataStore;
     }
 
     public void heartbeat() {
@@ -178,6 +192,24 @@ public class ElasticAgentPluginService implements JobStatusListener {
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);
         boolean shouldAssignWork = elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
         return elasticProfile.getPluginId().equals(metadata.elasticPluginId()) && shouldAssignWork;
+    }
+
+    public String getPluginStatusReport(String pluginId) {
+        final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo.getCapabilities().supportsStatusReport()) {
+            return elasticAgentPluginRegistry.getPluginStatusReport(pluginId);
+        }
+
+        throw new UnsupportedOperationException("Plugin does not plugin support status report.");
+    }
+
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
+        final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo.getCapabilities().supportsAgentStatusReport()) {
+            return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId);
+        }
+
+        throw new UnsupportedOperationException("Plugin does not support agent status report.");
     }
 
     @Override

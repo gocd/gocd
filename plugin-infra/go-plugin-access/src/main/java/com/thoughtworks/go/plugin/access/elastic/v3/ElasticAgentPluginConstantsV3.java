@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic;
+package com.thoughtworks.go.plugin.access.elastic.v3;
 
-import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
-
-import java.util.Arrays;
-import java.util.List;
-
-public interface ElasticAgentPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION, ElasticAgentExtensionConverterV2.VERSION);
-
-    String REQUEST_PREFIX = "go.cd.elastic-agent";
-    String PROCESSOR_PREFIX = "go.processor.elastic-agents";
+public interface ElasticAgentPluginConstantsV3 {
+    String REQUEST_PREFIX = "cd.go.elastic-agent";
 
     String REQUEST_CREATE_AGENT = REQUEST_PREFIX + ".create-agent";
     String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";
@@ -37,10 +28,7 @@ public interface ElasticAgentPluginConstants {
     String REQUEST_VALIDATE_PROFILE = REQUEST_PREFIX + ".validate-profile";
     String REQUEST_GET_PLUGIN_SETTINGS_ICON = REQUEST_PREFIX + ".get-icon";
 
-    String PROCESS_DISABLE_AGENTS = PROCESSOR_PREFIX + ".disable-agents";
-    String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
-    String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";
     String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
     String REQUEST_AGENT_STATUS_REPORT = REQUEST_PREFIX + ".agent-status-report";
-    String REQUEST_CAPABILTIES = REQUEST_PREFIX + ".get-capabilities";
+    String REQUEST_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
 }

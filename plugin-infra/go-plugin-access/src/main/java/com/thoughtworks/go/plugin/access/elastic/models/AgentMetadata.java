@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.elastic.models;
 
-import com.google.gson.*;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 
 public class AgentMetadata implements Serializable {
-
-    private static final Gson GSON = new GsonBuilder().
-            excludeFieldsWithoutExposeAnnotation().
-            serializeNulls().
-            setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
-            create();
-
-    @Expose
-    @SerializedName("agent_id")
     private final String elasticAgentId;
-    @Expose
-    @SerializedName("agent_state")
     private final String agentState;
-    @Expose
-    @SerializedName("build_state")
     private final String buildState;
-    @Expose
-    @SerializedName("config_state")
     private final String configState;
 
     public AgentMetadata(String elasticAgentId, String agentState, String buildState, String configState) {
@@ -64,10 +45,6 @@ public class AgentMetadata implements Serializable {
 
     public String configState() {
         return configState;
-    }
-
-    public JsonElement toJSON() {
-        return GSON.toJsonTree(this);
     }
 
     @Override

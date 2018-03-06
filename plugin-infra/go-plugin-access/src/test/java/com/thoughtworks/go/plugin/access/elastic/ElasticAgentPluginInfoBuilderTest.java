@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -45,7 +45,7 @@ public class ElasticAgentPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithProfileSettings() throws Exception {
+    public void shouldBuildPluginInfoWithProfileSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
@@ -62,7 +62,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getProfileView(descriptor.id())).thenReturn("profile_view");
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension, pluginManager);
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
@@ -88,7 +88,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getProfileView(descriptor.id())).thenReturn("profile_view");
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension, pluginManager);
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
@@ -100,27 +100,15 @@ public class ElasticAgentPluginInfoBuilderTest {
     }
 
     @Test
-    public void capabilitiesIsSupportedByElasticAgentPluginsWhichImplementV2() throws Exception {
+    public void shouldGetCapabilitiesForAPlugin() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
 
         when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("2.0");
         Capabilities capabilities = new Capabilities(true);
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension, pluginManager).pluginInfoFor(descriptor);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getCapabilities(), is(capabilities));
-    }
-
-    @Test
-    public void capabilitiesIsNotSupportedByElastucAgentPluginsWhichImplementV1() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-
-        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
-
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension, pluginManager).pluginInfoFor(descriptor);
-
-        assertNull(pluginInfo.getCapabilities());
-        verify(extension, times(0)).getCapabilities(descriptor.id());
     }
 }

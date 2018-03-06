@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v2;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,23 +35,26 @@ import static org.junit.Assert.*;
 
 public class ElasticAgentExtensionConverterV2Test {
     private JobIdentifier jobIdentifier;
+    private ElasticAgentExtensionConverterV2 converterV2;
 
     @Before
     public void setUp() throws Exception {
         jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
         jobIdentifier.setBuildId(100L);
+
+        converterV2 = new ElasticAgentExtensionConverterV2();
     }
 
     @Test
-    public void shouldUnJSONizeCanHandleResponseBody() throws Exception {
-        assertTrue(new ElasticAgentExtensionConverterV2().canHandlePluginResponseFromBody("true"));
-        assertFalse(new ElasticAgentExtensionConverterV2().canHandlePluginResponseFromBody("false"));
+    public void shouldUnJSONizeCanHandleResponseBody() {
+        assertTrue(new Gson().fromJson("true", Boolean.class));
+        assertFalse(new Gson().fromJson("false", Boolean.class));
     }
 
     @Test
-    public void shouldUnJSONizeShouldAssignWorkResponseFromBody() throws Exception {
-        assertTrue(new ElasticAgentExtensionConverterV2().shouldAssignWorkResponseFromBody("true"));
-        assertFalse(new ElasticAgentExtensionConverterV2().shouldAssignWorkResponseFromBody("false"));
+    public void shouldUnJSONizeShouldAssignWorkResponseFromBody() {
+        assertTrue(converterV2.shouldAssignWorkResponseFromBody("true"));
+        assertFalse(converterV2.shouldAssignWorkResponseFromBody("false"));
     }
 
     @Test
@@ -59,23 +62,14 @@ public class ElasticAgentExtensionConverterV2Test {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
-        String json = new ElasticAgentExtensionConverterV2().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
+        String json = converterV2.createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
         JSONAssert.assertEquals(json, "{" +
                 "  \"auto_register_key\":\"secret-key\"," +
                 "  \"properties\":{" +
                 "    \"key1\":\"value1\"," +
                 "    \"key2\":\"value2\"" +
                 "    }," +
-                "  \"environment\":\"prod\"," +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
+                "  \"environment\":\"prod\"" +
                 "}", JSONCompareMode.NON_EXTENSIBLE);
     }
 
@@ -83,7 +77,7 @@ public class ElasticAgentExtensionConverterV2Test {
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
-        String actual = new ElasticAgentExtensionConverterV2().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
+        String actual = converterV2.shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
         String expected = "{" +
                 "  \"environment\":\"prod\"," +
                 "  \"agent\":{" +
@@ -94,70 +88,26 @@ public class ElasticAgentExtensionConverterV2Test {
                 "  }," +
                 "  \"properties\":{" +
                 "    \"property_name\":\"property_value\"" +
-                "  }," +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
+                "  }" +
                 "}";
 
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
-
-    @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
-        String elasticAgentId = "my-fancy-elastic-agent-id";
-        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(null, elasticAgentId);
-        String expected = String.format("{" +
-                "  \"elastic_agent_id\": \"%s\"" +
-                "}", elasticAgentId);
-
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
-    }
-
-    @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
-        String actual = new ElasticAgentExtensionConverterV2().getAgentStatusReportRequestBody(jobIdentifier, null);
-        String expected = "{" +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
-                "}";
-
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
-    }
-
-    @Test
-    public void shouldJSONizesListAgentsResponseBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV2().listAgentsResponseBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
-        JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", JSONCompareMode.NON_EXTENSIBLE);
-    }
-
+    
     @Test
     public void shouldConstructValidationRequest() throws JSONException {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         configuration.put("key3", null);
-        String requestBody = new ElasticAgentExtensionConverterV2().validateRequestBody(configuration);
+        String requestBody = converterV2.validateElasticProfileRequestBody(configuration);
         JSONAssert.assertEquals(requestBody, "{\"key3\":null,\"key2\":\"value2\",\"key1\":\"value1\"}", JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test
     public void shouldHandleValidationResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"error on key one\"}, {\"key\":\"key-two\",\"message\":\"error on key two\"}]";
-        ValidationResult result = new ElasticAgentExtensionConverterV2().getValidationResultResponseFromBody(responseBody);
+        ValidationResult result = converterV2.getElasticProfileValidationResultResponseFromBody(responseBody);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getErrors().size(), is(2));
         assertThat(result.getErrors().get(0).getKey(), is("key-one"));
@@ -167,31 +117,41 @@ public class ElasticAgentExtensionConverterV2Test {
     }
 
     @Test
-    public void shouldUnJSONizeGetProfileViewResponseFromBody() throws Exception {
-        String template = new ElasticAgentExtensionConverterV2().getProfileViewResponseFromBody("{\"template\":\"foo\"}");
+    public void shouldUnJSONizeGetProfileViewResponseFromBody() {
+        String template = converterV2.getProfileViewResponseFromBody("{\"template\":\"foo\"}");
         assertThat(template, is("foo"));
     }
 
     @Test
-    public void shouldUnJSONizeGetImageResponseFromBody() throws Exception {
-        com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV2().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
+    public void shouldUnJSONizeGetImageResponseFromBody() {
+        com.thoughtworks.go.plugin.domain.common.Image image = converterV2.getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
     }
 
     @Test
-    public void shouldGetStatusReportViewFromResponseBody() throws Exception {
-        String template = new ElasticAgentExtensionConverterV2().getStatusReportView("{\"view\":\"foo\"}");
+    public void shouldGetStatusReportViewFromResponseBody() {
+        String template = converterV2.getStatusReportView("{\"view\":\"foo\"}");
         assertThat(template, is("foo"));
     }
 
     @Test
-    public void shouldGetCapabilitiesFromResponseBody() throws Exception {
+    public void shouldGetCapabilitiesFromResponseBody() {
         String responseBody = "{\"supports_status_report\":\"true\"}";
 
-        Capabilities capabilities = new ElasticAgentExtensionConverterV2().getCapabilitiesFromResponseBody(responseBody);
+        Capabilities capabilities = converterV2.getCapabilitiesFromResponseBody(responseBody);
 
         assertTrue(capabilities.supportsStatusReport());
+    }
+
+    @Test
+    public void shouldGetCapabilitiesFromResponseBodyAndIgnoreSupportAgentStatusReportForV2WhenItIsSpecifiedInJson() {
+        String responseBody = "{\"supports_status_report\":\"true\",\"supports_agent_status_report\":\"true\"}";
+
+        Capabilities capabilities = converterV2.getCapabilitiesFromResponseBody(responseBody);
+
+        assertTrue(capabilities.supportsStatusReport());
+        assertFalse(capabilities.supportsAgentStatusReport());
     }
 
     private AgentMetadata elasticAgent() {

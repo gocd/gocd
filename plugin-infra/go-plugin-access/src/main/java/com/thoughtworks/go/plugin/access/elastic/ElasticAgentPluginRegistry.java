@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,20 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration, identifier);
         LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {}", result, plugin.id(), agent, environment, configuration);
         return result;
+    }
+
+    public String getPluginStatusReport(String pluginId) {
+        LOGGER.debug("Processing get plugin status report for plugin: {} ", pluginId);
+        final String statusReportView = extension.getPluginStatusReport(pluginId);
+        LOGGER.debug("Done processing get plugin status report for plugin: {} ", pluginId);
+        return statusReportView;
+    }
+
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
+        LOGGER.debug("Processing get plugin status report for plugin: {} with job-identifier: {} with elastic-agent-id: {}", pluginId, jobIdentifier, elasticAgentId);
+        final String agentStatusReportView = extension.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId);
+        LOGGER.debug("Done processing get plugin status report for plugin: {} with job-identifier: {} with elastic-agent-id: {} ", pluginId, jobIdentifier, elasticAgentId);
+        return agentStatusReportView;
     }
 
     public boolean has(String pluginId) {

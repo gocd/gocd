@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ module Admin
     def plugin_status
       @view_title = 'Plugin Status Report'
       @page_header = 'Plugin Status Report'
-      @status_report = elastic_agent_extension.getStatusReport(params[:plugin_id])
+      @status_report = elastic_agent_plugin_service.getPluginStatusReport(params[:plugin_id])
     rescue java.lang.UnsupportedOperationException => e
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} is not found.", 404
     rescue java.lang.Exception => e
@@ -40,7 +40,7 @@ module Admin
         return render_error_template 'Provide either elastic_agent_id or job_id for Status Report.', 422
       end
 
-      @agent_status_report = elastic_agent_extension.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
+      @agent_status_report = elastic_agent_plugin_service.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
     rescue org.springframework.dao.DataRetrievalFailureException, java.lang.UnsupportedOperationException
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for agent #{params[:elastic_agent_id]} is not found.", 404
     rescue java.lang.Exception => e

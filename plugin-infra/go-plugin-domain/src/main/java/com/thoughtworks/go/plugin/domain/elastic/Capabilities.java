@@ -18,13 +18,23 @@ package com.thoughtworks.go.plugin.domain.elastic;
 
 public class Capabilities {
     private boolean supportsStatusReport;
+    private boolean supportsAgentStatusReport;
 
     public Capabilities(boolean supportsStatusReport) {
         this.supportsStatusReport = supportsStatusReport;
     }
 
+    public Capabilities(boolean supportsStatusReport, boolean supportsAgentStatusReport) {
+        this.supportsStatusReport = supportsStatusReport;
+        this.supportsAgentStatusReport = supportsAgentStatusReport;
+    }
+
     public boolean supportsStatusReport() {
         return supportsStatusReport;
+    }
+
+    public boolean supportsAgentStatusReport() {
+        return supportsAgentStatusReport;
     }
 
     @Override

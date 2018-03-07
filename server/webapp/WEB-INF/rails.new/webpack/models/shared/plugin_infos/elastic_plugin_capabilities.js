@@ -18,11 +18,13 @@ const Stream = require('mithril/stream');
 const s      = require('string-plus');
 
 const Capabilities = function (data) {
-  this.supportsStatusReport = Stream(s.defaultToIfBlank(data.supportsStatusReport, false));
+  this.supportsStatusReport      = Stream(s.defaultToIfBlank(data.supportsStatusReport, false));
+  this.supportsAgentStatusReport = Stream(s.defaultToIfBlank(data.supportsAgentStatusReport, false));
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
-  supportsStatusReport: data && data.supports_status_report
+  supportsStatusReport:      data && data.supports_status_report,
+  supportsAgentStatusReport: data && data.supports_agent_status_report
 });
 
 module.exports = Capabilities;

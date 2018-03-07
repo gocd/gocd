@@ -42,6 +42,19 @@ const createBuildDetailsDropDown = function (agent, args) {
   );
 };
 
+const supportsAgentStatusReport = function (pluginInfos, pluginId) {
+  if (!pluginInfos || !pluginInfos()) {
+    return false;
+  }
+
+  const pluginInfo = pluginInfos().findById(pluginId);
+  if (pluginInfo) {
+    return pluginInfo.capabilities().supportsAgentStatusReport();
+  }
+
+  return false;
+};
+
 const getHostnameLink = function (isUserAdmin, agent, pluginInfos) {
   if (!isUserAdmin) {
     return (<span>{agent.hostname()}</span>);
@@ -50,14 +63,11 @@ const getHostnameLink = function (isUserAdmin, agent, pluginInfos) {
     return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
   }
 
-  const supportsStatusReport = pluginInfos && pluginInfos() && pluginInfos().findById(agent.elasticPluginId()) && pluginInfos().findById(agent.elasticPluginId()).capabilities().supportsStatusReport();
-
-  if (supportsStatusReport) {
+  if (supportsAgentStatusReport(pluginInfos, agent.elasticPluginId())) {
     return (<a href={agentStatusReportPath(agent.elasticPluginId(), agent.elasticAgentId())}>{agent.hostname()}</a>);
   } else {
     return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
   }
-
 };
 
 const AgentRowWidget = {

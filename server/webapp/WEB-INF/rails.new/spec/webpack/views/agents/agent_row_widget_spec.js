@@ -89,7 +89,7 @@ describe("Agent Row Widget", () => {
   it('should contain link to agent status report page for elastic agents', () => {
     agents(allAgents);
     const model = Stream(true);
-    mount(agents().lastAgent(), model, true, {'capabilities': () => ({'supportsStatusReport': () => true})});
+    mount(agents().lastAgent(), model, true, {'capabilities': () => ({'supportsAgentStatusReport': () => true})});
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
@@ -184,7 +184,7 @@ describe("Agent Row Widget", () => {
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
-  const mount = (agent, model, isUserAdmin, pluginInfo = {'capabilities': () => ({'supportsStatusReport': () => false})}) => {
+  const mount = (agent, model, isUserAdmin, pluginInfo = {'capabilities': () => ({'supportsAgentStatusReport': () => false})}) => {
     m.mount(root, {
       view() {
         return m(AgentsRowWidget, {

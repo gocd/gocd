@@ -222,7 +222,8 @@ describe('PluginInfos', () => {
             }
           },
           "capabilities":     {
-            "supports_status_report": true
+            "supports_status_report": true,
+            "supports_agent_status_report": true
           }
         }
       };
@@ -238,6 +239,7 @@ describe('PluginInfos', () => {
         required: true
       });
       expect(pluginInfo.capabilities().supportsStatusReport()).toBeTruthy();
+      expect(pluginInfo.capabilities().supportsAgentStatusReport()).toBeTruthy();
 
       expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
       expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);

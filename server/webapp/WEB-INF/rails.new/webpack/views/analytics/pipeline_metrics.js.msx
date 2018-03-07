@@ -26,8 +26,6 @@
   const Frame                    = require('models/analytics/frame');
   const Routes                   = require('gen/js-routes');
 
-  PluginEndpoint.ensure();
-
   const models = {};
 
   const PipelineMetrics = function() {

@@ -43,6 +43,13 @@ class AnalyticsController < ApplicationController
     render_plugin_error e
   end
 
+  def job
+    options = params.reject {|k,v| %w(controller action plugin_id).include?(k)}
+    render :json => analytics_extension.getJobAnalytics(params[:plugin_id], options).toMap().to_h
+  rescue => e
+    render_plugin_error e
+  end
+
   private
 
   def render_plugin_error e

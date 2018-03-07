@@ -41,6 +41,15 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     }
 
     @Override
+    public String getJobAnalyticsRequestBody(Map params) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("type", TYPE_JOB);
+        requestMap.put("data", params);
+
+        return GSON.toJson(requestMap);
+    }
+
+    @Override
     public String getDashboardAnalyticsRequestBody(String metric) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("type", TYPE_DASHBOARD);

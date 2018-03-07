@@ -39,6 +39,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,8 +191,12 @@ public class ElasticAgentPluginService implements JobStatusListener {
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, JobIdentifier identifier) {
         GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);
-        boolean shouldAssignWork = elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
-        return elasticProfile.getPluginId().equals(metadata.elasticPluginId()) && shouldAssignWork;
+
+        if (!StringUtils.equals(elasticProfile.getPluginId(), metadata.elasticPluginId())) {
+            return false;
+        }
+
+        return elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
     }
 
     public String getPluginStatusReport(String pluginId) {

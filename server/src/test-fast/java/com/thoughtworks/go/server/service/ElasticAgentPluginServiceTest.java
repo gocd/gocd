@@ -254,9 +254,9 @@ public class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
-        when(registry.shouldAssignWork(any(), any(), any(), any(), any())).thenReturn(true);
 
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
+        verifyNoMoreInteractions(registry);
     }
 
     @Test

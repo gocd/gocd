@@ -80,54 +80,6 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    public AnalyticsData getPipelineAnalytics(String pluginId, String pipelineName) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsRequestBody(pipelineName);
-            }
-
-            @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
-                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
-                return analyticsData;
-            }
-        });
-    }
-
-    public AnalyticsData getJobAnalytics(String pluginId, Map params) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getJobAnalyticsRequestBody(params);
-            }
-
-            @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
-                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
-                return analyticsData;
-            }
-        });
-    }
-
-    public AnalyticsData getDashboardAnalytics(String pluginId, String metric) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getDashboardAnalyticsRequestBody(metric);
-            }
-
-            @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
-                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
-                return analyticsData;
-            }
-        });
-    }
-
     public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override

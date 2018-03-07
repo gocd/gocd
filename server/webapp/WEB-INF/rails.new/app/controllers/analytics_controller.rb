@@ -21,7 +21,6 @@ class AnalyticsController < ApplicationController
 
   before_action :check_admin_user_and_401
   before_action :check_permissions, only: [:show]
-  before_action :check_user_can_see_pipeline, only: [:pipeline]
 
   def index
     @view_title = 'Analytics'
@@ -34,25 +33,6 @@ class AnalyticsController < ApplicationController
 
   def show
     render json: analytics_extension.getAnalytics(params[:plugin_id], params[:type], params[:id], request.query_parameters).toMap().to_h
-  rescue => e
-    render_plugin_error e
-  end
-
-  def dashboard
-    render json: analytics_extension.getDashboardAnalytics(params[:plugin_id], params[:metric]).toMap().to_h
-  rescue => e
-    render_plugin_error e
-  end
-
-  def pipeline
-    render :json => analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name]).toMap().to_h
-  rescue => e
-    render_plugin_error e
-  end
-
-  def job
-    options = params.reject {|k,v| %w(controller action plugin_id).include?(k)}
-    render :json => analytics_extension.getJobAnalytics(params[:plugin_id], options).toMap().to_h
   rescue => e
     render_plugin_error e
   end

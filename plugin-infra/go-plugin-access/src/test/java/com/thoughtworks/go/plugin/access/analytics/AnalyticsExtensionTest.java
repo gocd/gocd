@@ -37,13 +37,11 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
@@ -96,52 +94,18 @@ public class AnalyticsExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPlugin_To_GetPipelineAnalytics() throws Exception {
-        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
-        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
-                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
-                null, null, null);
-        pluginInfo.setStaticAssetsPath("/assets/root");
-        metadataStore.setPluginInfo(pluginInfo);
-
-        AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");
-
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"pipeline\", \"data\": {\"pipeline_name\": \"test_pipeline\"}}");
-
-        assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
-
-        Map<String, String> expected = new HashMap<>();
-        expected.put("data", "{}");
-        expected.put("view_path", "/assets/root/path/to/view");
-        assertEquals(expected, pipelineAnalytics.toMap());
-    }
-
-    @Test
-    public void shouldTalkToPlugin_To_GetJobAnalytics() throws Exception {
-        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
-        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
-                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
-                null, null, null);
-        pluginInfo.setStaticAssetsPath("/assets/root");
-        metadataStore.setPluginInfo(pluginInfo);
-
-        AnalyticsData jobAnalytics = analyticsExtension.getJobAnalytics(PLUGIN_ID, Collections.EMPTY_MAP);
-
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"job\", \"data\": {}}");
-
-        assertThat(jobAnalytics.getViewPath(), is("path/to/view"));
-
-        Map<String, String> expected = new HashMap<>();
-        expected.put("data", "{}");
-        expected.put("view_path", "/assets/root/path/to/view");
-        assertEquals(expected, jobAnalytics.toMap());
-    }
-
-    @Test
     public void shouldGetAnalytics() throws Exception {
-        AnalyticsData pipelineAnalytics = analyticsExtension.getAnalytics(PLUGIN_ID, "pipeline", "pipeline_with_highest_wait_time", Collections.singletonMap("pipeline_name", "test_pipeline"));
+        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
+
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
+                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false), null, null, null);
+        pluginInfo.setStaticAssetsPath("/assets/root");
+        metadataStore.setPluginInfo(pluginInfo);
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        AnalyticsData pipelineAnalytics = analyticsExtension.getAnalytics(PLUGIN_ID, "pipeline", "pipeline_with_highest_wait_time",
+                Collections.singletonMap("pipeline_name", "test_pipeline"));
 
         String expectedRequestBody = "{" +
                 "\"type\": \"pipeline\"," +
@@ -150,32 +114,9 @@ public class AnalyticsExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
 
-        assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
         assertThat(pipelineAnalytics.getData(), is("{}"));
         assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
         assertThat(pipelineAnalytics.getFullViewPath(), is("/assets/root/path/to/view"));
-    }
-
-    @Test
-    public void shouldTalkToPlugin_To_GetDashboardAnalytics() throws Exception {
-        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
-        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
-                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false),
-                null, null, null);
-        pluginInfo.setStaticAssetsPath("/assets/root");
-        metadataStore.setPluginInfo(pluginInfo);
-
-        AnalyticsData dashboardAnalytics = analyticsExtension.getDashboardAnalytics(PLUGIN_ID, "metric");
-
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"dashboard\", \"data\": {\"metric\": \"metric\"}}");
-
-        assertThat(dashboardAnalytics.getViewPath(), is("path/to/view"));
-
-        Map<String, String> expected = new HashMap<>();
-        expected.put("data", "{}");
-        expected.put("view_path", "/assets/root/path/to/view");
-        assertEquals(expected, dashboardAnalytics.toMap());
     }
 
     @Test

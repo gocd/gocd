@@ -103,7 +103,9 @@ module PipelinesHelper
 
     default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |plugin|
       if plugin.getCapabilities().supportsPipelineAnalytics()
-        yield plugin.getDescriptor().id()
+        supported_analytics = plugin.getCapabilities().supportedPipelineAnalytics().get(0)
+        yield plugin.getDescriptor().id(), supported_analytics.getId()
+        break
       end
     end
   end

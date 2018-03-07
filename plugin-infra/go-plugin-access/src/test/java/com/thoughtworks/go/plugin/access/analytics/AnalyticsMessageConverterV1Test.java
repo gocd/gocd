@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -68,31 +67,6 @@ public class AnalyticsMessageConverterV1Test {
         thrown.expectMessage("Missing \"view_path\" key in analytics payload");
 
         converter.getAnalyticsFromResponseBody(response);
-    }
-
-    @Test
-    public void createsCorrectJSONForDashboardRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"dashboard\", \"data\": {\"metric\": \"anything\"}}", Map.class);
-        Map actual = GSON.fromJson(converter.getDashboardAnalyticsRequestBody("anything"), Map.class);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void createsCorrectJSONForPipelineRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"pipeline\", \"data\": {\"pipeline_name\": \"anything\"}}", Map.class);
-        Map actual = GSON.fromJson(converter.getPipelineAnalyticsRequestBody("anything"), Map.class);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void createsCorrectJSONForJobRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"job\", \"data\": {\"pipeline_name\": \"anything\", \"stage_name\": \"anything\",\"job_name\": \"anything\"}}", Map.class);
-        Map<String, String> params = new HashMap<>();
-        params.put("pipeline_name", "anything");
-        params.put("stage_name", "anything");
-        params.put("job_name", "anything");
-        Map actual = GSON.fromJson(converter.getJobAnalyticsRequestBody(params), Map.class);
-        assertEquals(expected, actual);
     }
 
     @Test

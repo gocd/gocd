@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,36 +30,11 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     public static final String VERSION = "1.0";
     private static final Gson GSON = new Gson();
 
-    @Override
-    public String getPipelineAnalyticsRequestBody(String pipelineName) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("type", TYPE_PIPELINE);
-        requestMap.put("data", Collections.singletonMap("pipeline_name", pipelineName));
-
-        return GSON.toJson(requestMap);
-    }
-
-    @Override
-    public String getJobAnalyticsRequestBody(Map params) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("type", TYPE_JOB);
-        requestMap.put("data", params);
-    }
-
     public String getAnalyticsRequestBody(String type, String metricId, Map params) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("type", type);
         requestMap.put("id", metricId);
         requestMap.put("params", params);
-
-        return GSON.toJson(requestMap);
-    }
-
-    @Override
-    public String getDashboardAnalyticsRequestBody(String metric) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("type", TYPE_DASHBOARD);
-        requestMap.put("data", Collections.singletonMap("metric", metric));
 
         return GSON.toJson(requestMap);
     }

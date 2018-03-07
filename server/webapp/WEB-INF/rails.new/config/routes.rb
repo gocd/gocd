@@ -157,10 +157,7 @@ Go::Application.routes.draw do
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
   resources :analytics, only: [:index], controller: "analytics"
-  get 'analytics/:plugin_id/dashboard/:metric' => 'analytics#dashboard', constraints: {plugin_id: PLUGIN_ID_FORMAT, metric: ALLOW_DOTS}, as: :dashboard_analytics
-  get 'analytics/:plugin_id/pipelines/:pipeline_name' => 'analytics#pipeline', constraints: {plugin_id: PLUGIN_ID_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_analytics
-  get 'analytics/:plugin_id/jobs/:pipeline_name/:stage_name/:job_name' => 'analytics#job', constraints: {plugin_id: PLUGIN_ID_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT, stage_name: PIPELINE_NAME_FORMAT, job_name: PIPELINE_NAME_FORMAT}, as: :job_analytics
-  get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, }, as: :show_analytics
+  get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics
 
   scope 'pipelines' do
     defaults :no_layout => true do

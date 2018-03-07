@@ -145,7 +145,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s3"));
@@ -170,7 +170,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s2"));
@@ -193,7 +193,7 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline %s accepted", pipelineName)));
         assertThat(result.httpCode(), is(202));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(false));
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s2"));
@@ -242,7 +242,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s3"));
@@ -288,7 +288,7 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(result.isSuccess(), is(true));
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
         assertNotNull(buildCause);
         EnvironmentVariable secureVariable = (EnvironmentVariable) CollectionUtils.find(buildCause.getVariables(), new Predicate() {
             @Override

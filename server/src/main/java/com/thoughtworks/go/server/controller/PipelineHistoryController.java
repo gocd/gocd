@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,13 +105,13 @@ public class PipelineHistoryController {
         }
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
+        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(pipelineConfig.name());
         PipelineInstanceModels pipelineHistory = StringUtils.isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
                 pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, UserHelper.getUserName(), new HttpLocalizedOperationResult());
 
 
-        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);
+        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineConfig.name());
 
         PipelineHistoryJsonPresentationModel historyJsonPresenter = new PipelineHistoryJsonPresentationModel(
                 pauseInfo,

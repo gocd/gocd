@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
         assertThat(result.canContinue(), is(true));
 
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(CaseInsensitiveString.str(mingleConfig.name()));
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
         assertThat(materialRevisions.getRevisions().size(), is(1));
@@ -141,7 +141,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
         assertThat(result.canContinue(), is(true));
 
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(CaseInsensitiveString.str(mingleConfig.name()));
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
         assertThat(materialRevisions.getRevisions().size(), is(2));

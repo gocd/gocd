@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private BuildCause buildCauseForPipeline() {
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_NAME);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat("Should be scheduled", buildCause, is(not(nullValue())));
         return buildCause;
     }
@@ -227,13 +227,13 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         return BuildCause.createWithModifications(materialRevisions, "");
     }
 
-    private void verifyBuildCauseHasModificationsWith(Map<String, BuildCause> load, boolean changed) {
+    private void verifyBuildCauseHasModificationsWith(Map<CaseInsensitiveString, BuildCause> load, boolean changed) {
         for (BuildCause buildCause : load.values()) {
             assertBuildCauseWithModificationHasChangedStatus(changed, buildCause);
         }
     }
 
-    private void assertModificationChangedStateBasedOnMaterial(Map<String, BuildCause> load) {
+    private void assertModificationChangedStateBasedOnMaterial(Map<CaseInsensitiveString, BuildCause> load) {
         for (BuildCause buildCause : load.values()) {
             for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
                 if (revision.getMaterial() instanceof HgMaterial) {

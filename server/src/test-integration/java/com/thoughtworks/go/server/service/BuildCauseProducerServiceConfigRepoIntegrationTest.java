@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,9 +204,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
     }
 
@@ -217,7 +217,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         waitForMaterialNotInProgress();
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
-        assertThat(scheduleHelper.waitForAnyScheduled(5).keySet(), hasItem(PIPELINE_NAME));
+        assertThat(scheduleHelper.waitForAnyScheduled(5).keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
     }
 
     @Test
@@ -245,9 +245,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
@@ -291,9 +291,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
@@ -316,9 +316,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
@@ -346,7 +346,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         waitForMaterialNotInProgress();
         // config is correct
         cachedGoConfig.throwExceptionIfExists();
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(new CaseInsensitiveString(PIPELINE_NAME))));
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()),is(false));
     }
 
@@ -376,9 +376,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(20);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(20);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
@@ -411,9 +411,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         List<Modification> secondBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added second code file", "some java code");
@@ -431,8 +431,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         cachedGoConfig.throwExceptionIfExists();
 
         afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by Admin"));
 
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
@@ -470,9 +470,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
 
         List<Modification> secondBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
@@ -489,8 +489,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         cachedGoConfig.throwExceptionIfExists();
 
         afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
-        cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(afterLoad.keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
+        cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by Admin"));
 
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());

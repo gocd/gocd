@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -120,11 +121,11 @@ public class BuildCauseProducerServiceIntegrationHgTest {
                 "helper/topics/upgrading_go.xml",
                 "helper/topics/whats_new_in_go.xml");
 
-        Map<String, BuildCause> beforeLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<CaseInsensitiveString, BuildCause> beforeLoad = pipelineScheduleQueue.toBeScheduled();
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
-        Map<String, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
         assertThat(afterLoad.size(), is(beforeLoad.size()));
 
     }

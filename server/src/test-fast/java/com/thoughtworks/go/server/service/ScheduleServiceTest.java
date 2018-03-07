@@ -216,8 +216,8 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
-        final HashMap<String, BuildCause> map = new HashMap<>();
-        map.put("pipeline-quux", BuildCause.createManualForced());
+        final HashMap<CaseInsensitiveString, BuildCause> map = new HashMap<>();
+        map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();
@@ -237,8 +237,8 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
-        final HashMap<String, BuildCause> map = new HashMap<>();
-        map.put("pipeline-quux", BuildCause.createManualForced());
+        final HashMap<CaseInsensitiveString, BuildCause> map = new HashMap<>();
+        map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();

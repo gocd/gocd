@@ -134,7 +134,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldFailCheckingWhenPipelineNotYetScheduledButInScheduleQueue() throws Exception {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
-        pipelineScheduleQueue.schedule(pipelineName, BuildCause.createManualForced());
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createManualForced());
         HttpOperationResult operationResult = new HttpOperationResult();
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));
         assertThat(operationResult.canContinue(), is(false));
@@ -146,7 +146,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         String pipelineName = "blahPipeline";
         configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
 
-        pipelineScheduleQueue.schedule(pipelineName, BuildCause.createWithEmptyModifications());
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
         assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(new CaseInsensitiveString("blahUser"))), is(true));
     }
 

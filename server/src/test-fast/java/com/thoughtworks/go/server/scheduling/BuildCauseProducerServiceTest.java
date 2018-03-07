@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ public class BuildCauseProducerServiceTest {
 
         when(materialConfigConverter.toMaterial(hgMaterialConfig)).thenReturn(hgMaterial);
         when(specificMaterialRevisionFactory.create("pipeline", new HashMap<>())).thenReturn(new MaterialRevisions());
-        when(pipelineScheduleQueue.mostRecentScheduled(CaseInsensitiveString.str(pipelineConfig.name()))).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(pipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
         when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<>())));
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
@@ -320,7 +320,7 @@ public class BuildCauseProducerServiceTest {
         MaterialRevision specificMaterialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream-pipeline/2/stage/1", "MOCK_LABEL-12", null));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"))))
                 .thenReturn(new MaterialRevisions(specificMaterialRevision));
-        when(pipelineScheduleQueue.mostRecentScheduled("pipeline")).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString("pipeline"))).thenReturn(BuildCause.createNeverRun());
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModifications)));
 
         when(materialConfigConverter.toMaterials(pipelineConfig.materialConfigs())).thenReturn(new Materials(dependencyMaterial, svnMaterial));
@@ -333,7 +333,7 @@ public class BuildCauseProducerServiceTest {
                 new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
 
-        verify(pipelineScheduleQueue).schedule(eq("pipeline"), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
+        verify(pipelineScheduleQueue).schedule(eq(new CaseInsensitiveString("pipeline")), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
     }
 
     @Test
@@ -465,7 +465,7 @@ public class BuildCauseProducerServiceTest {
         Materials materials = new Materials(material1, material2);
         when(materialConfigConverter.toMaterials(updatedPipelineConfig.materialConfigs())).thenReturn(materials);
         when(materialExpansionService.expandMaterialConfigsForScheduling(updatedPipelineConfig.materialConfigs())).thenReturn(updatedPipelineConfig.materialConfigs());
-        when(pipelineScheduleQueue.mostRecentScheduled(updatedPipelineConfig.name().toString())).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(updatedPipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
         when(materialChecker.findLatestRevisions(any(), eq(materials))).thenReturn(new MaterialRevisions());
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
@@ -495,7 +495,7 @@ public class BuildCauseProducerServiceTest {
 
         when(pipelineService.getRevisionsBasedOnDependencies(Matchers.<MaterialRevisions>any(), Matchers.<BasicCruiseConfig>any(), Matchers.<CaseInsensitiveString>any())).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
-        when(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName))).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));

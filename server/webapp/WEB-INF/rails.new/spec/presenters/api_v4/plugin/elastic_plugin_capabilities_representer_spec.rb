@@ -13,14 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-module ApiV4
-  module Plugin
-    class ElasticPluginCapabilitiesRepresenter < BaseRepresenter
-      alias_method :capabilities, :represented
+require 'rails_helper'
 
-      property :supports_status_report
-      property :supports_agent_status_report
-
-    end
+describe ApiV4::Plugin::ElasticPluginCapabilitiesRepresenter do
+  it 'should describe elastic agent capabilities' do
+    capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true, true)
+    actual_json = ApiV4::Plugin::ElasticPluginCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to eq({supports_status_report: true, supports_agent_status_report: true})
   end
 end

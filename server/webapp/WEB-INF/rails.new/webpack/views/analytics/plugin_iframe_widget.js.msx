@@ -45,7 +45,7 @@
             vnode.attrs.init(iframe.contentWindow, {
               uid: vnode.attrs.uid,
               pluginId: vnode.attrs.pluginId,
-              data: vnode.attrs.model.data()
+              initialData: vnode.attrs.model.data()
             });
           };
 

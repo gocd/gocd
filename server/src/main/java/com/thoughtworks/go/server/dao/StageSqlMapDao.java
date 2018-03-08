@@ -51,6 +51,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,6 +288,13 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 .and("result", result.toString())
                 .and("state", stage.getState())
                 .and("completedByTransitionId", stage.getCompletedByTransitionId()).asMap());
+
+        upddateLastTransitionedTime(stage);
+    }
+
+    private void upddateLastTransitionedTime(Stage stage) {
+        Timestamp lastTransitionedTime = (Timestamp) getSqlMapClientTemplate().queryForObject("getLastTransitionedTimeByStageId", stage.getId());
+        stage.setLastTransitionedTime(lastTransitionedTime);
     }
 
     public Stage mostRecentCompleted(StageConfigIdentifier identifier) {

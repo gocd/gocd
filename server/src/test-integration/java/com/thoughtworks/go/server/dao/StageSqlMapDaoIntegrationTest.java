@@ -125,6 +125,18 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(reloaded.getCompletedByTransitionId(), greaterThan(0l));
     }
 
+    @Test
+    public void onStageUpdateShouldSetTheLastTransitionedTimeOnTheUpdateStageSinceTheTimeIsGeneratedByADatabaseTrigger() throws Exception {
+        Pipeline pipeline = pipelineWithFirstStageRunning(mingleConfig);
+        Stage stage = pipeline.getStages().get(0);
+
+        assertNull(stage.getLastTransitionedTime());
+
+        updateResultInTransaction(stage, StageResult.Passed);
+
+        assertNotNull(stage.getLastTransitionedTime());
+    }
+
     @Test public void shouldUpdateStageStateWhenUpdatingResult() throws Exception {
         Pipeline pipeline = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig)[1];
         Stage stage = pipeline.getStages().get(0);

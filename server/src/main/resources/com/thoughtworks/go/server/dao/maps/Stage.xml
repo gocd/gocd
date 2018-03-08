@@ -615,6 +615,10 @@
         SELECT name FROM stages WHERE id = #value#
     </select>
 
+    <select id="getLastTransitionedTimeByStageId" parameterClass="long" resultClass="java.sql.Timestamp" >
+        SELECT lastTransitionedTime FROM stages WHERE id = #value#
+    </select>
+
     <!--
     TODO: This takes over 500 ms and could be changed to use the stage state e.g.
         SELECT count(1)

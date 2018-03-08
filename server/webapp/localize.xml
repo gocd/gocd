@@ -699,7 +699,6 @@
     <entry key="COMMAND_REPOSITORY_MANAGEMENT">Command Repository Management</entry>
     <entry key="PLUGINS_TAB">Plugins</entry>
     <entry key="COMMAND_UPLOAD">Upload</entry>
-    <entry key="UPLOAD_PLUGIN">Upload Plugin</entry>
     <entry key="PLUGIN_JAR">Plugin JAR</entry>
     <entry key="PACKAGE_REPOSITORY_TAB">Package Repositories</entry>
     <entry key="DEPLOY_SPECIFIC_REVISION">Deploy Specific Revision</entry>

@@ -22,11 +22,7 @@
 <li role="presentation"><a href="/go/oauth/admin/clients?column=status&order=ASC">OAuth Clients</a></li>
 <li role="presentation"><a href="/go/admin/backup">Backup</a></li>
 <li role="presentation">
-  #if(${toggles.isToggleOn(${toggles.PLUGIN_SPA_TOGGLE_KEY})})
-    <a href="/go/admin/plugins">Plugins</a>
-  #else
-    <a href="/go/admin/old_plugins">Plugins</a>
-  #end
+  <a href="/go/admin/plugins">Plugins</a>
 </li>
 <li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>
 <li role="presentation" class="sub-menu">

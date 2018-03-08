@@ -20,7 +20,6 @@ public class Toggles {
     public static String PIPELINE_CONFIG_SINGLE_PAGE_APP = "pipeline_config_single_page_app_key";
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
-    public static String PLUGIN_SPA_TOGGLE_KEY = "plugin_spa_toggle_key";
     public static String QUICKER_DASHBOARD_KEY = "quicker_dashboard_key";
     public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
     public static String SPARK_BACKUP_ENABLED_KEY = "spark_backup_enabled_key";

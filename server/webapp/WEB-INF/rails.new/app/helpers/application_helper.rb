@@ -490,19 +490,8 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def is_plugin_spa_toggle_enabled?
-    Toggles.isToggleOn(Toggles.PLUGIN_SPA_TOGGLE_KEY)
-  end
-
   def is_quicker_dashboard_toggle_enabled?
     Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)
-  end
-
-  def plugin_listing_path
-    if is_plugin_spa_toggle_enabled?
-      return admin_plugins_path
-    end
-    plugins_listing_path
   end
 
   def edit_path_for_pipeline(pipeline_name)

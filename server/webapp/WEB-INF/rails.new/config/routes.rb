@@ -45,11 +45,6 @@ Go::Application.routes.draw do
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
 
-  get "admin/old_plugins" => "admin/plugins/plugins#index", as: :plugins_listing
-  post 'admin/old_plugins' => 'admin/plugins/plugins#upload', as: :upload_plugin
-  get 'admin/old_plugins/settings/:plugin_id' => 'admin/plugins/plugins#edit_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :edit_settings
-  post 'admin/old_plugins/settings/:plugin_id' => 'admin/plugins/plugins#update_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :update_settings
-
   ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
     get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
     post "admin/pipelines/:pipeline_name/materials/#{material_type}" => "admin/materials/#{material_type}#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_create"

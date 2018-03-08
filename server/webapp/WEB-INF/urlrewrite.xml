@@ -163,20 +163,6 @@
     </rule>
 
     <rule>
-        <name>Plugins UI</name>
-        <from>^/admin/old_plugins$</from>
-        <to last="true">/rails/admin/old_plugins</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Plugins UI</name>
-        <from>^/admin/old_plugins/settings/(.*)$</from>
-        <to last="true">/rails/admin/old_plugins/settings/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
         <name>Dashboard UI</name>
         <from>^/dashboard$</from>
         <to last="true">/rails/new_dashboard</to>

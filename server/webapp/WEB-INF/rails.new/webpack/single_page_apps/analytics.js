@@ -25,7 +25,7 @@
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const VersionUpdater           = require('models/shared/version_updater');
-  const MetricType               = require('models/analytics/metric_type');
+  const Tab                      = require('models/analytics/tab');
   const Tabs                     = require('models/analytics/tabs');
   const AnalyticsDashboardHeader = require('views/analytics/header');
   const DashboardTabs            = require('views/analytics/tabs');
@@ -39,11 +39,12 @@
 
     m.mount(main, {
       view() {
+        const metrics = $(main).data("supported-dashboard-metrics");
         const pageItems = [];
         const tabs = new Tabs(m.redraw);
         pageItems.push(m(AnalyticsDashboardHeader));
-        tabs.push(new MetricType("Global", GlobalMetrics, $(main).data("supported-dashboard-metrics")));
-        tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: $(main).data("supported-dashboard-metrics")}));
+        tabs.push(new Tab("Global", GlobalMetrics, metrics));
+        tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: Object.keys(metrics)}));
         pageItems.push(m(DashboardTabs, {tabs}));
         return pageItems;
       }

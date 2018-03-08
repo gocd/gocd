@@ -22,7 +22,7 @@ describe("Analytics Dashboard Tabs", () => {
   const GlobalMetrics = require('views/analytics/global_metrics');
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
   const Tabs = require('models/analytics/tabs');
-  const MetricType = require('models/analytics/metric_type');
+  const Tab = require('models/analytics/tab');
 
   let $root, root;
 
@@ -37,8 +37,8 @@ describe("Analytics Dashboard Tabs", () => {
 
   it('should display given tabs', () => {
     const tabs = new Tabs(m.redraw);
-    tabs.push(new MetricType("Global", GlobalMetrics, []));
-    tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
+    tabs.push(new Tab("Global", GlobalMetrics, []));
+    tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
 
     mount(tabs);
     expect($root.find(".dashboard-tabs li.current").text()).toBe("Global");
@@ -47,8 +47,8 @@ describe("Analytics Dashboard Tabs", () => {
 
   it('should change tabs when clicking inactive tab', () => {
     const tabs = new Tabs(m.redraw);
-    tabs.push(new MetricType("Global", GlobalMetrics, []));
-    tabs.push(new MetricType("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
+    tabs.push(new Tab("Global", GlobalMetrics, []));
+    tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: [], plugins: []}));
 
     mount(tabs);
     expect($root.find(".dashboard-tabs li.current").text()).toBe("Global");

@@ -30,45 +30,51 @@
 
   const PipelineMetrics = function() {
     let currentPipeline = null;
+    let data = null;
 
     function oninit(vnode) {
+      data = vnode.attrs.model.data;
       currentPipeline = vnode.attrs.model.data.pipelines[0];
     }
 
-    function view(vnode) { // eslint-disable-line no-unused-vars
-      const pageItems = [];
-      const pipelineOptions = _.map(vnode.attrs.model.data.pipelines, (pipeline) => {
+    function newFrame(pluginId) {
+      const frame = new Frame(m.redraw);
+      frame.pluginId(pluginId);
+      frame.url(Routes.pipelineAnalyticsPath({plugin_id: pluginId, pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
+      return frame;
+    }
+
+    function dropdown() {
+      const pipelineOptions = _.map(data.pipelines, (pipeline) => {
         if (pipeline === currentPipeline) {
           return (<option selected>{pipeline}</option>);
         } else {
           return (<option>{pipeline}</option>);
         }
       });
-      const dropdown = m("select", {
-            onchange: function() { // eslint-disable-line object-shorthand
-              currentPipeline = $(this).val();
-              $.each(models, (uid, model) => {
-                models[uid] = new Frame(m.redraw);
-                models[uid].pluginId(model.pluginId());
-                models[uid].url(Routes.pipelineAnalyticsPath({plugin_id: model.pluginId(), pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
-              });
-            }
-          }, pipelineOptions);
-      pageItems.push(dropdown);
 
-      let idx = 0;
-      $.each(vnode.attrs.model.data.plugins, (pluginId, _) => { // eslint-disable-line no-unused-vars
+      return m("select", {
+        onchange: function() { // eslint-disable-line object-shorthand
+          currentPipeline = $(this).val();
+          $.each(models, (uid, model) => {
+            models[uid] = newFrame(model.pluginId());
+          });
+        }
+      }, pipelineOptions);
+    }
 
+    function view(vnode) { // eslint-disable-line no-unused-vars
+      const pageItems = [];
+      pageItems.push(dropdown());
+
+      $.each(data.plugins, (idx, pluginId) => { // eslint-disable-line no-unused-vars
         const uid = `f-${pluginId}:pipeline:${idx}`;
         let model = models[uid];
         if (!model) {
-          model = models[uid] = new Frame(m.redraw);
-          model.pluginId(pluginId);
-          model.url(Routes.pipelineAnalyticsPath({plugin_id: pluginId, pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
+          model = models[uid] = newFrame(pluginId);
         }
 
         pageItems.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
-        idx++;
       });
 
       return pageItems;

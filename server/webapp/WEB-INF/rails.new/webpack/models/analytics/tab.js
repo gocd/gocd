@@ -17,9 +17,9 @@
 (function() {
   "use strict";
 
-  function MetricType(name, view, data) {
+  function Tab(name, view, data) {
     return {name, view, data};
   }
 
-  module.exports = MetricType;
+  module.exports = Tab;
 })();

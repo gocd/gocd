@@ -27,10 +27,7 @@ describe("Pipeline Dashboard Metrics", () => {
   }
 
   let $root, root;
-  const supportedMetrics = {
-    "plugin-id-x": ["one", "two"],
-    "plugin-id-y": ["three"]
-  };
+  const supportedMetrics = ["plugin-id-x", "plugin-id-y"];
   const pipelineList = ["p1", "p2", "p3"];
 
   beforeEach(() => {

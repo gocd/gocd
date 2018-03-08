@@ -59,8 +59,8 @@
             <div id="new_material_popup" class="hidden enhanced_dropdown">
                 <ul>
                     <% if @pipeline.materialConfigs().scmMaterialsHaveDestination() %>
-                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show('#{admin_svn_new_path(:controller => "admin/materials/svn", :action => "new")}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show('#{admin_git_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
+                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show('#{admin_svn_new_path(:controller => "admin/materials/svn", :action => "new")}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show('#{admin_hg_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
                         <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show('#{admin_p4_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
                         <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show('#{admin_tfs_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>
@@ -72,8 +72,8 @@
                             <% end %>
                         <% end %>
                     <% else %>
-                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
+                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
                         <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
                         <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>

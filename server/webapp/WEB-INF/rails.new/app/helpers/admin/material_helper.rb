@@ -19,8 +19,8 @@ module Admin
     include JavaImports
 
     def material_options
-      {l.string("SUBVERSION") => SvnMaterialConfig::TYPE,
-       l.string("GIT") => GitMaterialConfig::TYPE,
+      {l.string("GIT") => GitMaterialConfig::TYPE,
+       l.string("SUBVERSION") => SvnMaterialConfig::TYPE,
        l.string("MERCURIAL") => HgMaterialConfig::TYPE,
        l.string("P4") => P4MaterialConfig::TYPE,
        l.string("TFS") => com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE,

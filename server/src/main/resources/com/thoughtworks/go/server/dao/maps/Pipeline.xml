@@ -224,13 +224,6 @@
         stages.latestRun = true
     </sql>
 
-    <select id="pipelineIdsForCounters" resultClass="java.lang.Long">
-        SELECT pipelines.id
-        FROM pipelines
-        WHERE pipelines.name = #name#
-        AND pipelines.counter in ($counters$)
-    </select>
-
     <select id="getPipelineRange" resultClass="java.lang.Long">
         SELECT pipelines.id
         FROM pipelines

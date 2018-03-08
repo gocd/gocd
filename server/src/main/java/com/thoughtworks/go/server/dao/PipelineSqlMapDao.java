@@ -524,10 +524,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return model;
     }
 
-    private List<Long> loadPipelineIdsFor(String pipelineName, List<Integer> counters) {
-        return getSqlMapClientTemplate().queryForList("pipelineIdsForCounters", arguments("counters", SqlUtil.joinWithQuotesForSql(counters.toArray())).and("name", pipelineName).asMap());
-    }
-
     private Map<String, TreeSet<Long>> groupPipelineInstanceIdsByPipelineName(List<PipelineInstanceModel> pipelines) {
         Map<String, TreeSet<Long>> result;
         result = new HashMap<String, TreeSet<Long>>();

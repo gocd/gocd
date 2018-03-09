@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
+import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
@@ -38,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +49,13 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertIsInserted;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertNotInserted;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -141,14 +145,20 @@ public class PipelineStateDaoIntegrationTest {
     public void shouldUnlockPipelineInstance() throws Exception {
         String pipelineName = UUID.randomUUID().toString();
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
-        pipelineStateDao.lockPipeline(minglePipeline);
+        TestAfterCompletionCallback afterLockCallback = new TestAfterCompletionCallback();
+
+        pipelineStateDao.lockPipeline(minglePipeline, afterLockCallback);
         PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
         assertThat(pipelineState.getLockedBy(), is(minglePipeline.getFirstStage().getIdentifier()));
         assertThat(pipelineState.getLockedByPipelineId(), is(minglePipeline.getId()));
-        pipelineStateDao.unlockPipeline(pipelineName);
+        afterLockCallback.assertCalledWithStatus(TransactionSynchronization.STATUS_COMMITTED);
+
+        TestAfterCompletionCallback unlockCallback = new TestAfterCompletionCallback();
+        pipelineStateDao.unlockPipeline(pipelineName, unlockCallback);
         PipelineState pipelineState1 = pipelineStateDao.pipelineStateFor(pipelineName);
         assertThat(pipelineState1.getLockedBy(), is(nullValue()));
         assertThat(pipelineState1.getLockedByPipelineId(), is(0L));
+        unlockCallback.assertCalledWithStatus(TransactionSynchronization.STATUS_COMMITTED);
     }
 
     @Test
@@ -213,5 +223,20 @@ public class PipelineStateDaoIntegrationTest {
         });
     }
 
+    private class TestAfterCompletionCallback implements AfterCompletionCallback {
 
+        boolean called = false;
+        Integer status = null;
+
+        @Override
+        public void execute(int status) {
+            called = true;
+            this.status = status;
+        }
+
+        void assertCalledWithStatus(int status) {
+            assertTrue(called);
+            assertThat(this.status, equalTo(status));
+        }
+    }
 }

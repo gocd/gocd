@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,34 +21,22 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Capabilities {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
-    @SerializedName("supports_pipeline_analytics")
-    private final boolean supportsPipelineAnalytics;
+    @SerializedName("supported_analytics")
+    private List<SupportedAnalytics> supportedAnalytics;
 
-    @Expose
-    @SerializedName("supported_analytics_dashboard_metrics")
-    private final List<String> supportedAnalyticsDashboardMetrics;
-
-    public Capabilities(boolean supportsPipelineAnalytics, List<String> supportedAnalyticsDashboardMetrics) {
-        this.supportsPipelineAnalytics = supportsPipelineAnalytics;
-        this.supportedAnalyticsDashboardMetrics = supportedAnalyticsDashboardMetrics;
+    public List<SupportedAnalytics> getSupportedAnalytics() {
+        return supportedAnalytics;
     }
 
-    public List<String> supportedAnalyticsDashboardMetrics() {
-        return supportedAnalyticsDashboardMetrics;
-    }
-
-    public boolean supportsPipelineAnalytics() {
-        return supportsPipelineAnalytics;
-    }
-
-    public String toJSON() {
-        return GSON.toJson(this);
+    public Capabilities(List<SupportedAnalytics> supportedAnalytics) {
+        this.supportedAnalytics = supportedAnalytics;
     }
 
     public static Capabilities fromJSON(String json) {
@@ -56,6 +44,18 @@ public class Capabilities {
     }
 
     public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilities() {
-        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportsPipelineAnalytics, supportedAnalyticsDashboardMetrics);
+        return new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportedAnalytics());
+    }
+
+    private List<com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics> supportedAnalytics() {
+        ArrayList<com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics> list = new ArrayList<>();
+
+        if (this.supportedAnalytics != null) {
+            for (SupportedAnalytics analytics : this.supportedAnalytics) {
+                list.add(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics(analytics.getType(), analytics.getId(), analytics.getTitle()));
+            }
+        }
+
+        return list;
     }
 }

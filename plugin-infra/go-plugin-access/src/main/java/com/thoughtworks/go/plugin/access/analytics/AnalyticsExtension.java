@@ -64,43 +64,11 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    public AnalyticsData getPipelineAnalytics(String pluginId, String pipelineName) {
+    public AnalyticsData getAnalytics(String pluginId, String type, String metricId, Map params) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsRequestBody(pipelineName);
-            }
-
-            @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
-                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
-                return analyticsData;
-            }
-        });
-    }
-
-    public AnalyticsData getJobAnalytics(String pluginId, Map params) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getJobAnalyticsRequestBody(params);
-            }
-
-            @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
-                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
-                return analyticsData;
-            }
-        });
-    }
-
-    public AnalyticsData getDashboardAnalytics(String pluginId, String metric) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getDashboardAnalyticsRequestBody(metric);
+                return getMessageConverter(resolvedExtensionVersion).getAnalyticsRequestBody(type, metricId, params);
             }
 
             @Override

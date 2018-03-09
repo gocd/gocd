@@ -111,7 +111,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
-        velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, isSupportsAnalyticsDashboard());
+        velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
 
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);
@@ -123,7 +123,7 @@ public class GoVelocityView extends VelocityToolboxView {
         setAdmininstratorRole(velocityContext, authentication);
     }
 
-    private boolean isSupportsAnalyticsDashboard() {
+    private boolean supportsAnalyticsDashboard() {
         for (Object obj : getPluginInfoFinder().allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
             AnalyticsPluginInfo info = (AnalyticsPluginInfo) obj;
             if (info.getCapabilities().supportsDashboardAnalytics()) {

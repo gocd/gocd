@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
+import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
@@ -43,6 +44,7 @@ import org.springframework.security.userdetails.User;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static org.hamcrest.core.Is.is;
@@ -91,9 +93,13 @@ public class GoVelocityViewTest {
 
     @Test
     public void shouldSetSupportsAnalyticsDashboardIfPluginInstalled() throws Exception {
-        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(false, Collections.singletonList("foo")), null);
+        List<SupportedAnalytics> supportedAnalytics = Collections.singletonList(new SupportedAnalytics("dashboard", "id", "foo"));
+        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
+
         when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(info));
+
         view.exposeHelpers(velocityContext, request);
+
         assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(true));
     }
 

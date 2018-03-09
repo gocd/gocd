@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -70,27 +70,14 @@ public class AnalyticsMessageConverterV1Test {
     }
 
     @Test
-    public void createsCorrectJSONForDashboardRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"dashboard\", \"data\": {\"metric\": \"anything\"}}", Map.class);
-        Map actual = GSON.fromJson(converter.getDashboardAnalyticsRequestBody("anything"), Map.class);
-        assertEquals(expected, actual);
-    }
+    public void shouldBuildRequestBodyForAnalyticsRequest() throws Exception {
+        String analyticsRequestBody = converter.getAnalyticsRequestBody("pipeline", "pipeline_with_highest_wait_time", Collections.singletonMap("pipeline_name", "test_pipeline"));
 
-    @Test
-    public void createsCorrectJSONForPipelineRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"pipeline\", \"data\": {\"pipeline_name\": \"anything\"}}", Map.class);
-        Map actual = GSON.fromJson(converter.getPipelineAnalyticsRequestBody("anything"), Map.class);
-        assertEquals(expected, actual);
-    }
+        String expectedRequestBody = "{" +
+                "\"type\":\"pipeline\"," +
+                "\"id\":\"pipeline_with_highest_wait_time\"," +
+                " \"params\":{\"pipeline_name\": \"test_pipeline\"}}";
 
-    @Test
-    public void createsCorrectJSONForJobRequest() {
-        Map expected = GSON.fromJson("{\"type\":\"job\", \"data\": {\"pipeline_name\": \"anything\", \"stage_name\": \"anything\",\"job_name\": \"anything\"}}", Map.class);
-        Map<String, String> params = new HashMap<>();
-        params.put("pipeline_name", "anything");
-        params.put("stage_name", "anything");
-        params.put("job_name", "anything");
-        Map actual = GSON.fromJson(converter.getJobAnalyticsRequestBody(params), Map.class);
-        assertEquals(expected, actual);
+        assertEquals(GSON.fromJson(expectedRequestBody, Map.class), GSON.fromJson(analyticsRequestBody, Map.class));
     }
 }

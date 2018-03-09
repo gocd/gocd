@@ -18,41 +18,42 @@ package com.thoughtworks.go.plugin.domain.analytics;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Capabilities {
-    private final boolean supportsPipelineAnalytics;
-    private final List<String> supportedAnalyticsDashboardMetrics;
+    private final List<SupportedAnalytics> supportedAnalytics;
+    private static final String DASHBOARD_TYPE = "dashboard";
+    private static final String PIPELINE_TYPE = "pipeline";
 
-    public Capabilities(boolean supportsPipelineAnalytics, List<String> supportedAnalyticsDashboardMetrics) {
-        this.supportsPipelineAnalytics = supportsPipelineAnalytics;
-        this.supportedAnalyticsDashboardMetrics = supportedAnalyticsDashboardMetrics;
+    public Capabilities(List<SupportedAnalytics> supportedAnalytics) {
+        this.supportedAnalytics = supportedAnalytics;
+    }
+
+    public List<SupportedAnalytics> getSupportedAnalytics() {
+        return supportedAnalytics;
     }
 
     public boolean supportsPipelineAnalytics() {
-        return supportsPipelineAnalytics;
+        return hasSupportFor(PIPELINE_TYPE);
     }
 
     public boolean supportsDashboardAnalytics() {
-        return this.supportedAnalyticsDashboardMetrics != null && this.supportedAnalyticsDashboardMetrics.size() > 0;
+        return hasSupportFor(DASHBOARD_TYPE);
     }
 
     public List<String> supportedAnalyticsDashboardMetrics() {
-        return supportedAnalyticsDashboardMetrics;
+        return this.supportedAnalytics.stream().filter(s -> DASHBOARD_TYPE.equalsIgnoreCase(s.getType())).map(SupportedAnalytics::getTitle).collect(Collectors.toList());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Capabilities that = (Capabilities) o;
-
-        return supportsPipelineAnalytics == that.supportsPipelineAnalytics &&
-                supportedAnalyticsDashboardMetrics.equals(that.supportedAnalyticsDashboardMetrics);
+    public List<SupportedAnalytics> supportedDashboardAnalytics() {
+        return this.supportedAnalytics.stream().filter(s -> DASHBOARD_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
     }
 
-    @Override
-    public int hashCode() {
-        return (supportedAnalyticsDashboardMetrics.hashCode() << 1) + (supportsPipelineAnalytics ? 1 : 0);
+    public List<SupportedAnalytics> supportedPipelineAnalytics() {
+        return this.supportedAnalytics.stream().filter(s -> PIPELINE_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
+    }
+
+    private boolean hasSupportFor(String analyticsType) {
+        return this.supportedAnalytics.stream().anyMatch(s -> analyticsType.equalsIgnoreCase(s.getType()));
     }
 }

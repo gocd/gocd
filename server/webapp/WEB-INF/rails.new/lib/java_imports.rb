@@ -278,4 +278,5 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension unless defined? AnalyticsExtension
   java_import com.thoughtworks.go.plugin.domain.common.PluginConstants
   java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo unless defined? BadPluginInfo
+  java_import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics unless defined? SupportedAnalytics
 end

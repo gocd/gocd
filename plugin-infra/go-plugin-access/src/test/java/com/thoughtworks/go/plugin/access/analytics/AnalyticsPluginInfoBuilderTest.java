@@ -43,13 +43,13 @@ public class AnalyticsPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AnalyticsExtension.class);
-        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities( true, Collections.emptyList()));
+        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities(Collections.emptyList()));
     }
 
     @Test
-    public void shouldBuildPluginInfoWithCapablities() throws Exception {
+    public void shouldBuildPluginInfoWithCapabilities() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Capabilities capabilities = new Capabilities(true, Collections.emptyList());
+        Capabilities capabilities = new Capabilities(Collections.emptyList());
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 

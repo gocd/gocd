@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.messaging.notifications;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -28,11 +27,8 @@ import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -42,40 +38,23 @@ public class AgentStatusChangeNotifierTest {
     @Mock
     private PluginNotificationService pluginNotificationService;
 
-    private ArgumentCaptor<PluginNotificationMessage> captor;
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-
-        captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
         agentStatusChangeNotifier = new AgentStatusChangeNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
     @Test
     public void shouldNotifyInterestedPluginsWithAgentInformation() {
         AgentInstance agentInstance = AgentInstanceMother.building();
-
         when(notificationPluginRegistry.isAnyPluginInterestedIn("agent-status")).thenReturn(true);
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verify(pluginNotificationService).notifyPlugins(captor.capture());
-
-
-        assertThat(captor.getValue().getData() instanceof AgentNotificationData, is(true));
-        AgentNotificationData data = (AgentNotificationData) captor.getValue().getData();
-
-        assertThat(data.getUuid(), is(agentInstance.getUuid()));
-        assertThat(data.getHostName(), is(agentInstance.getHostname()));
-        assertFalse(data.isElastic());
-        assertThat(data.getIpAddress(), is(agentInstance.getIpAddress()));
-        assertThat(data.getFreeSpace(), is(agentInstance.freeDiskSpace().toString()));
-        assertThat(data.getAgentConfigState(), is(agentInstance.getAgentConfigStatus().name()));
-        assertThat(data.getAgentState(), is(agentInstance.getRuntimeStatus().agentState().name()));
-        assertThat(data.getBuildState(), is(agentInstance.getRuntimeStatus().buildState().name()));
-    }
+        verify(pluginNotificationService).notifyAgentStatus(agentInstance);
+}
 
     @Test
     public void shouldNotifyIfAgentIsElastic() throws Exception {
@@ -91,13 +70,8 @@ public class AgentStatusChangeNotifierTest {
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verify(pluginNotificationService).notifyPlugins(captor.capture());
-
-        assertThat(captor.getValue().getData() instanceof AgentNotificationData, is(true));
-        AgentNotificationData data = (AgentNotificationData) captor.getValue().getData();
-
-        assertTrue(data.isElastic());
-    }
+        verify(pluginNotificationService).notifyAgentStatus(agentInstance);
+}
 
     @Test
     public void shouldNotifyInAbsenceOfPluginsInterestedInAgentStatusNotifications() throws Exception {

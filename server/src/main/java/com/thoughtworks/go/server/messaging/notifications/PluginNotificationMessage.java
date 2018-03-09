@@ -16,13 +16,18 @@
 
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.server.messaging.GoMessage;
+import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
-public class PluginNotificationMessage<T> implements GoMessage {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class PluginNotificationMessage<T extends Serializable> implements PluginAwareMessage {
+    private String pluginId;
     private final String requestName;
     private final T data;
 
-    public PluginNotificationMessage(String requestName, T data) {
+    public PluginNotificationMessage(String pluginId, String requestName, T data) {
+        this.pluginId = pluginId;
         this.requestName = requestName;
         this.data = data;
     }
@@ -39,19 +44,29 @@ public class PluginNotificationMessage<T> implements GoMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        PluginNotificationMessage that = (PluginNotificationMessage) o;
-
-        if (data != null ? !data.equals(that.data) : that.data != null) return false;
-        if (requestName != null ? !requestName.equals(that.requestName) : that.requestName != null) return false;
-
-        return true;
+        PluginNotificationMessage<?> that = (PluginNotificationMessage<?>) o;
+        return Objects.equals(pluginId, that.pluginId) &&
+                Objects.equals(requestName, that.requestName) &&
+                Objects.equals(data, that.data);
     }
 
     @Override
     public int hashCode() {
-        int result = requestName != null ? requestName.hashCode() : 0;
-        result = 31 * result + (data != null ? data.hashCode() : 0);
-        return result;
+
+        return Objects.hash(pluginId, requestName, data);
+    }
+
+    @Override
+    public String pluginId() {
+        return pluginId;
+    }
+
+    @Override
+    public String toString() {
+        return "PluginNotificationMessage{" +
+                "pluginId='" + pluginId + '\'' +
+                ", requestName='" + requestName + '\'' +
+                ", data=" + data +
+                '}';
     }
 }

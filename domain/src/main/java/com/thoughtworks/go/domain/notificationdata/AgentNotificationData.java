@@ -85,4 +85,20 @@ public class AgentNotificationData implements Serializable {
     public Date getTransitionTime() {
         return transitionTime;
     }
+
+    @Override
+    public String toString() {
+        return "AgentNotificationData{" +
+                "uuid='" + uuid + '\'' +
+                ", hostName='" + hostName + '\'' +
+                ", isElastic=" + isElastic +
+                ", ipAddress='" + ipAddress + '\'' +
+                ", operatingSystem='" + operatingSystem + '\'' +
+                ", freeSpace='" + freeSpace + '\'' +
+                ", agentConfigState='" + agentConfigState + '\'' +
+                ", agentState='" + agentState + '\'' +
+                ", buildState='" + buildState + '\'' +
+                ", transitionTime=" + transitionTime +
+                '}';
+    }
 }

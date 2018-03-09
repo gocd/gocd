@@ -16,33 +16,89 @@
 
 package com.thoughtworks.go.server.messaging.notifications;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
+import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Set;
 
 @Component
 public class PluginNotificationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PluginNotificationService.class);
-
     private final NotificationPluginRegistry notificationPluginRegistry;
     private final PluginNotificationsQueueHandler pluginNotificationsQueueHandler;
+    private final GoConfigService goConfigService;
+    private final PipelineDao pipelineSqlMapDao;
+    private final HashMap<String, NotificationDataCreator> map = new HashMap<>();
 
     @Autowired
-    public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationsQueueHandler pluginNotificationsQueueHandler) {
+    public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
+                                     PluginNotificationsQueueHandler pluginNotificationsQueueHandler,
+                                     GoConfigService goConfigService,
+                                     PipelineDao pipelineSqlMapDao) {
         this.notificationPluginRegistry = notificationPluginRegistry;
         this.pluginNotificationsQueueHandler = pluginNotificationsQueueHandler;
+        this.goConfigService = goConfigService;
+        this.pipelineSqlMapDao = pipelineSqlMapDao;
+        map.put(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, new StageNotificationDataCreator());
+        map.put(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, new AgentNotificationDataCreator());
     }
 
-    public <T> void notifyPlugins(PluginNotificationMessage<T> pluginNotificationMessage) {
-        Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(pluginNotificationMessage.getRequestName());
-        if (interestedPlugins != null && !interestedPlugins.isEmpty()) {
-            for (String pluginId : interestedPlugins) {
-                pluginNotificationsQueueHandler.post(new NotificationMessage(pluginId, pluginNotificationMessage), 0);
-            }
+    public void notifyAgentStatus(AgentInstance agentInstance) {
+        notify(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
+    }
+
+    public void notifyStageStatus(Stage stage) {
+        notify(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, stage);
+    }
+
+    private <T> void notify(String requestName, T instance) {
+        Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
+        for (String pluginId : interestedPlugins) {
+            PluginNotificationMessage message = new PluginNotificationMessage<>(pluginId, requestName, map.get(requestName).notificationDataFor(instance));
+            pluginNotificationsQueueHandler.post(message, 0);
         }
+    }
+
+    private class AgentNotificationDataCreator implements NotificationDataCreator<AgentInstance, AgentNotificationData> {
+        @Override
+        public AgentNotificationData notificationDataFor(AgentInstance agentInstance) {
+            return new AgentNotificationData(agentInstance.getUuid(),
+                    agentInstance.getHostname(),
+                    agentInstance.isElastic(),
+                    agentInstance.getIpAddress(),
+                    agentInstance.getOperatingSystem(),
+                    agentInstance.freeDiskSpace().toString(),
+                    agentInstance.getAgentConfigStatus().name(),
+                    agentInstance.getRuntimeStatus().agentState().name(),
+                    agentInstance.getRuntimeStatus().buildState().name(),
+                    new Date()
+            );
+        }
+    }
+
+    private class StageNotificationDataCreator implements NotificationDataCreator<Stage, StageNotificationData> {
+        @Override
+        public StageNotificationData notificationDataFor(Stage stage) {
+            String pipelineName = stage.getIdentifier().getPipelineName();
+            String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+            BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
+            return new StageNotificationData(stage, buildCause, pipelineGroup);
+        }
+    }
+
+    private interface NotificationDataCreator<T, V extends Serializable> {
+        V notificationDataFor(T t);
     }
 }

@@ -28,15 +28,18 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<NotificationMessage> {
+public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<PluginNotificationMessage> {
     private final static String QUEUE_NAME_PREFIX = PluginNotificationsQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
-    public PluginNotificationsQueueHandler(final MessagingService messaging, NotificationExtension notificationExtension, PluginManager pluginManager, final SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
+    public PluginNotificationsQueueHandler(final MessagingService messaging, NotificationExtension notificationExtension,
+        PluginManager pluginManager, final SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
         super(notificationExtension, messaging, pluginManager, new QueueFactory() {
             @Override
             public PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.getNotificationListenerCountForPlugin(pluginDescriptor.id()), listener());
+                return new PluginAwareMessageQueue(messaging, pluginDescriptor.id(),
+                QUEUE_NAME_PREFIX + pluginDescriptor.id(),
+                 systemEnvironment.getNotificationListenerCountForPlugin(pluginDescriptor.id()), listener());
             }
 
             public ListenerFactory listener() {

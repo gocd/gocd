@@ -16,44 +16,28 @@
 
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.messaging.notifications.PluginNotificationMessage;
-import com.thoughtworks.go.server.messaging.notifications.PluginNotificationQueue;
-import com.thoughtworks.go.server.messaging.notifications.PluginNotificationService;
-import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StageStatusPluginNotifier implements StageStatusListener {
     private NotificationPluginRegistry notificationPluginRegistry;
-    private GoConfigService goConfigService;
-    private PipelineSqlMapDao pipelineSqlMapDao;
     private PluginNotificationService pluginNotificationService;
 
     @Autowired
-    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, GoConfigService goConfigService, PipelineSqlMapDao pipelineSqlMapDao, PluginNotificationService pluginNotificationService) {
+    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationService pluginNotificationService) {
         this.notificationPluginRegistry = notificationPluginRegistry;
-        this.goConfigService = goConfigService;
-        this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.pluginNotificationService = pluginNotificationService;
     }
 
     @Override
     public void stageStatusChanged(final Stage stage) {
         if (isAnyPluginInterestedInStageStatus() && isStageStateScheduledOrCompleted(stage)) {
-            String pipelineName = stage.getIdentifier().getPipelineName();
-            String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-            BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
-            StageNotificationData data = new StageNotificationData(stage, buildCause, pipelineGroup);
-            pluginNotificationService.notifyPlugins(new PluginNotificationMessage<>(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
+            pluginNotificationService.notifyStageStatus(stage);
         }
     }
 

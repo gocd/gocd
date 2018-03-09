@@ -24,9 +24,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -34,33 +31,29 @@ import static org.mockito.Mockito.*;
 
 public class PluginNotificationMessageListenerTest {
     @Test
-    public void shouldNotifyPluginOnMessage() throws Exception {
+    public void shouldNotifyPluginOnMessage() {
         NotificationExtension notificationExtension = mock(NotificationExtension.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        Map dataMap = new HashMap();
-        dataMap.put("pipeline-status", "scheduled");
-        NotificationMessage message = new NotificationMessage("pid", new PluginNotificationMessage("request-name", dataMap));
-        when(notificationExtension.notify(message.pluginId(), message.getData().getRequestName(), message.getData().getData())).thenReturn(new Result());
+        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
+        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(new Result());
         listener.onMessage(message);
 
-        verify(serverHealthService).removeByScope(HealthStateScope.forPlugin(message.pluginId()));
-        verify(notificationExtension).notify("pid", "request-name", message.getData().getData());
+        verify(serverHealthService).removeByScope(HealthStateScope.aboutPlugin(message.pluginId()));
+        verify(notificationExtension).notify("pid", "request-name", message.getData());
     }
 
     @Test
-    public void shouldAddErrorReturnedByPluginToHealthMessage() throws Exception {
+    public void shouldAddErrorReturnedByPluginToHealthMessage() {
         NotificationExtension notificationExtension = mock(NotificationExtension.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        Map dataMap = new HashMap();
-        dataMap.put("pipeline-status", "scheduled");
-        NotificationMessage message = new NotificationMessage("pid", new PluginNotificationMessage("request-name", dataMap));
+        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
         Result result = new Result();
         result.withErrorMessages(asList(new String[]{"error message 1", "error message 2"}));
-        when(notificationExtension.notify(message.pluginId(), message.getData().getRequestName(), message.getData().getData())).thenReturn(result);
+        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(result);
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);
 
@@ -69,19 +62,17 @@ public class PluginNotificationMessageListenerTest {
         assertThat(serverHealthState.isSuccess(), is(false));
         assertThat(serverHealthState.getMessage(), is("Notification update failed for plugin: pid"));
         assertThat(serverHealthState.getDescription(), is("error message 1, error message 2"));
-        verify(notificationExtension).notify("pid", "request-name", message.getData().getData());
+        verify(notificationExtension).notify("pid", "request-name", message.getData());
     }
 
     @Test
-    public void shouldHandleExceptionDuringPluginNotificationCorrectly() throws Exception {
+    public void shouldHandleExceptionDuringPluginNotificationCorrectly() {
         NotificationExtension notificationExtension = mock(NotificationExtension.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        Map dataMap = new HashMap();
-        dataMap.put("pipeline-status", "scheduled");
-        NotificationMessage message = new NotificationMessage("pid", new PluginNotificationMessage("request-name", dataMap));
-        when(notificationExtension.notify(message.pluginId(), message.getData().getRequestName(), message.getData().getData())).thenThrow(new RuntimeException("error!"));
+        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
+        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenThrow(new RuntimeException("error!"));
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);
 
@@ -90,7 +81,7 @@ public class PluginNotificationMessageListenerTest {
         assertThat(serverHealthState.isSuccess(), is(false));
         assertThat(serverHealthState.getMessage(), is("Notification update failed for plugin: pid"));
         assertThat(serverHealthState.getDescription(), is("error!"));
-        verify(notificationExtension).notify("pid", "request-name", message.getData().getData());
+        verify(notificationExtension).notify("pid", "request-name", message.getData());
     }
 
 }

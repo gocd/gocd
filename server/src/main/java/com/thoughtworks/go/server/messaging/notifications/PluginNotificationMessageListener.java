@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PluginNotificationMessageListener implements GoMessageListener<NotificationMessage> {
+public class PluginNotificationMessageListener implements GoMessageListener<PluginNotificationMessage> {
     private NotificationExtension notificationExtension;
     private ServerHealthService serverHealthService;
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginNotificationMessageListener.class);
@@ -38,13 +38,15 @@ public class PluginNotificationMessageListener implements GoMessageListener<Noti
     }
 
     @Override
-    public void onMessage(NotificationMessage message) {
+    public void onMessage(PluginNotificationMessage message) {
         HealthStateScope scope = HealthStateScope.aboutPlugin(message.pluginId());
         try {
-            Result result = notificationExtension.notify(message.pluginId(), message.getData().getRequestName(), message.getData().getData());
+            LOGGER.debug("Sending {} notification message {} for plugin {}", message.getRequestName(), message, message.pluginId());
+            Result result = notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData());
 
             if (result.isSuccessful()) {
                 serverHealthService.removeByScope(scope);
+                LOGGER.debug("Successfully sent {} notification message {} for plugin {}", message.getRequestName(), message, message.pluginId());
             } else {
                 String errorDescription = result.getMessages() == null ? null : StringUtils.join(result.getMessages(), ", ");
                 handlePluginNotifyError(message.pluginId(), scope, errorDescription, null);

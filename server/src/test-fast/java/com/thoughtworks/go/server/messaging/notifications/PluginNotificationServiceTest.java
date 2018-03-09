@@ -16,23 +16,37 @@
 
 package com.thoughtworks.go.server.messaging.notifications;
 
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
+import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.api.response.Result;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -41,51 +55,114 @@ public class PluginNotificationServiceTest {
     public static final String PLUGIN_ID_2 = "plugin-id-2";
     public static final String PLUGIN_ID_3 = "plugin-id-3";
 
-    public static final String PIPELINE_STATUS = "pipeline-status";
-    public static final String STAGE_STATUS = "stage-status";
-    public static final Map<String, String> REQUEST_BODY = new HashMap();
-
-    @Mock
-    private NotificationExtension notificationExtension;
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
     @Mock
     private PluginNotificationsQueueHandler pluginNotificationsQueueHandler;
-
-    private ArgumentCaptor<ServerHealthState> serverHealthState;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private PipelineDao pipelineDao;
+    private PluginNotificationService pluginNotificationService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao);
+    }
 
-        REQUEST_BODY.put("key", "value");
-        serverHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
+    @Test
+    public void shouldConstructDataForAgentNotification() {
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        AgentInstance agentInstance = AgentInstanceMother.building();
+        pluginNotificationService.notifyAgentStatus(agentInstance);
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        assertThat(message.pluginId(), is(PLUGIN_ID_1));
+        assertThat(message.getRequestName(), is(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION));
+        assertThat(message.getData() instanceof AgentNotificationData, is(true));
+        AgentNotificationData data = (AgentNotificationData) message.getData();
+        assertThat(data.getUuid(), is(agentInstance.getUuid()));
+        assertThat(data.getHostName(), is(agentInstance.getHostname()));
+        assertFalse(data.isElastic());
+        assertThat(data.getIpAddress(), is(agentInstance.getIpAddress()));
+        assertThat(data.getFreeSpace(), is(agentInstance.freeDiskSpace().toString()));
+        assertThat(data.getAgentConfigState(), is(agentInstance.getAgentConfigStatus().name()));
+        assertThat(data.getAgentState(), is(agentInstance.getRuntimeStatus().agentState().name()));
+        assertThat(data.getBuildState(), is(agentInstance.getRuntimeStatus().buildState().name()));
+    }
+
+    @Test
+    public void shouldConstructDataForElasticAgentNotification() {
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
+        AgentConfig agentConfig = new AgentConfig();
+        agentConfig.setElasticAgentId("42");
+        agentConfig.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
+        agentConfig.setIpAddress("127.0.0.1");
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        agentInstance.update(agentRuntimeInfo);
+
+        pluginNotificationService.notifyAgentStatus(agentInstance);
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        assertThat(message.pluginId(), is(PLUGIN_ID_1));
+        assertThat(message.getRequestName(), is(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION));
+        assertThat(message.getData() instanceof AgentNotificationData, is(true));
+        AgentNotificationData data = (AgentNotificationData) message.getData();
+        assertTrue(data.isElastic());
+    }
+
+    @Test
+    public void shouldConstructDataForStageNotification() {
+        Stage stage = StageMother.custom("Stage");
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
+        BuildCause buildCause = BuildCause.createManualForced();
+        when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter(stage.getIdentifier().getPipelineName(), stage.getIdentifier().getPipelineCounter())).thenReturn(buildCause);
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+
+        pluginNotificationService.notifyStageStatus(stage);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        assertThat(message.pluginId(), is(PLUGIN_ID_1));
+        assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
+        assertThat(message.getData() instanceof StageNotificationData, is(true));
+        StageNotificationData data = (StageNotificationData) message.getData();
+        assertThat(data.getStage(), is(stage));
+        assertThat(data.getBuildCause(), is(buildCause));
+        assertThat(data.getPipelineGroup(), is("group1"));
     }
 
     @Test
     public void shouldNotifyInterestedPluginsCorrectly() {
         Result result = new Result();
         result.withSuccessMessages("success message");
-        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
-        when(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_3)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_3)));
 
-        when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
-        when(notificationExtension.notify(PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
+        AgentInstance agentInstance = AgentInstanceMother.lostContact();
+        pluginNotificationService.notifyAgentStatus(agentInstance);
 
-        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler);
-        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
-
-        ArgumentCaptor<NotificationMessage> captor = ArgumentCaptor.forClass(NotificationMessage.class);
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
         verify(pluginNotificationsQueueHandler, times(2)).post(captor.capture(), eq(0L));
-        List<NotificationMessage> messages = captor.getAllValues();
+        List<PluginNotificationMessage> messages = captor.getAllValues();
         assertThat(messages.size(), is(2));
-        assertMessage(messages.get(0), PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
-        assertMessage(messages.get(1), PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY);
+        assertMessage(messages.get(0), PLUGIN_ID_1, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
+        assertMessage(messages.get(1), PLUGIN_ID_2, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
     }
 
-    private void assertMessage(NotificationMessage notificationMessage, String pluginId, String requestName, Map<String, String> requestBody) {
+    private void assertMessage(PluginNotificationMessage notificationMessage, String pluginId, String requestName, AgentInstance agentInstance) {
         assertThat(notificationMessage.pluginId(), is(pluginId));
-        assertThat(notificationMessage.getData().getRequestName(), is(requestName));
-        assertThat(notificationMessage.getData().getData(), is(requestBody));
+        assertThat(notificationMessage.getRequestName(), is(requestName));
+        assertThat(notificationMessage.getData(), instanceOf(AgentNotificationData.class));
+        AgentNotificationData data = (AgentNotificationData) notificationMessage.getData();
+        assertThat(data.getUuid(), is(agentInstance.getUuid()));
+        assertThat(data.getAgentState(), is(agentInstance.getStatus().toString()));
     }
 }

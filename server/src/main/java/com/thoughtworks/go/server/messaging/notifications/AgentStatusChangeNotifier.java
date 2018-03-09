@@ -17,19 +17,14 @@
 package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import com.thoughtworks.go.server.messaging.notifications.PluginNotificationMessage;
-import com.thoughtworks.go.server.messaging.notifications.PluginNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 @Component
-public class AgentStatusChangeNotifier implements AgentStatusChangeListener{
+public class AgentStatusChangeNotifier implements AgentStatusChangeListener {
     private NotificationPluginRegistry notificationPluginRegistry;
     private PluginNotificationService pluginNotificationService;
 
@@ -42,24 +37,10 @@ public class AgentStatusChangeNotifier implements AgentStatusChangeListener{
     @Override
     public void onAgentStatusChange(AgentInstance agentInstance) {
         if (isAnyPluginInterestedInAgentStatus()) {
-            AgentNotificationData agentNotificationData = notificationDataFrom(agentInstance);
-            pluginNotificationService.notifyPlugins(new PluginNotificationMessage(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentNotificationData));
+            pluginNotificationService.notifyAgentStatus(agentInstance);
         }
     }
 
-    private AgentNotificationData notificationDataFrom(AgentInstance agentInstance) {
-        return new AgentNotificationData(agentInstance.getUuid(),
-                agentInstance.getHostname(),
-                agentInstance.isElastic(),
-                agentInstance.getIpAddress(),
-                agentInstance.getOperatingSystem(),
-                agentInstance.freeDiskSpace().toString(),
-                agentInstance.getAgentConfigStatus().name(),
-                agentInstance.getRuntimeStatus().agentState().name(),
-                agentInstance.getRuntimeStatus().buildState().name(),
-                new Date()
-        );
-    }
 
     private boolean isAnyPluginInterestedInAgentStatus() {
         return notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);

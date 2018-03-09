@@ -24,6 +24,7 @@ module Admin
     def index
       @view_title = 'Dashboard'
       @is_quick_edit_page_enabled = Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP) && Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)
+      @is_new_dashboard_page_default = Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)
     end
   end
 end

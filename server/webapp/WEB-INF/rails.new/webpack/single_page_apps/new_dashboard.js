@@ -33,6 +33,7 @@ $(() => {
 
   const dashboardVM            = new DashboardVM();
   const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
+  const isNewDashboardPageDefault = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
 
   $(document).foundation();
 
@@ -94,6 +95,7 @@ $(() => {
         return m(DashboardWidget, {
           dashboard,
           isQuickEditPageEnabled,
+          isNewDashboardPageDefault,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => {

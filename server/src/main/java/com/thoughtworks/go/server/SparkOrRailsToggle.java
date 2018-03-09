@@ -42,6 +42,16 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.SPARK_PLUGIN_IMAGES_ENABLED_KEY, request);
     }
 
+    public void oldOrNewDashboard(HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute("rails_bound", true);
+
+        if (Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)) {
+            request.setAttribute("newUrl", "/rails/new_dashboard");
+        } else {
+            request.setAttribute("newUrl", "/rails/pipelines");
+        }
+    }
+
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "spark");

@@ -84,19 +84,22 @@ const DashboardWidget = {
                                             hideSelectionDropdown={vm.personalizeView.hide}
                                             vm={vnode.state.pipelineSelectionVM}/>);
     }
+
+    let oldDashboardLink;
+    if (!vnode.attrs.isNewDashboardPageDefault) {
+      oldDashboardLink = (<a class="toggle-old-view" href={"/go/pipelines/"}>Old Dashboard</a>);
+    }
     return (
       <div class="pipeline_wrapper">
         <div class="page_header" key="page-header">
-          <h1 class="page_title">Pipelines
-            <a class="toggle-old-view" href={"/go/pipelines/"}>Old Dashboard</a>
-          </h1>
+          <h1 class="page_title">Pipelines{oldDashboardLink}</h1>
           <div class="filter">
             <input type="text"
                    class="pipeline-search"
                    value={vnode.attrs.dashboard.searchText()}
                    oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
                    placeholder="Search for pipeline"/>
-              <button class="filter_btn"
+            <button class="filter_btn"
                     onclick={vnode.state.togglePersonalizeDropdown.bind(vnode.state)}>
               Filter View <i class="fa fa-filter"/>
             </button>

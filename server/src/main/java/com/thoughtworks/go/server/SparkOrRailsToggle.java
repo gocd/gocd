@@ -30,10 +30,6 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.SPARK_CURRENT_USER_ENABLED_KEY, request);
     }
 
-    public void encryptionApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SPARK_ENCRYPTION_ENABLED_KEY, request);
-    }
-
     public void rolesConfigApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.SPARK_ROLE_CONFIG_ENABLED_KEY, request);
     }

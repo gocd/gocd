@@ -93,9 +93,6 @@ GEM
     rack (1.5.5)
     rack-test (0.6.3)
       rack (>= 1.0)
-    rack-throttle (0.4.2)
-      bundler (>= 1.0.0)
-      rack (>= 1.0.0)
     rails (4.0.4)
       actionmailer (= 4.0.4)
       actionpack (= 4.0.4)
@@ -202,7 +199,6 @@ DEPENDENCIES
   js-routes
   minitest
   oauth2_provider (= 1.0.3)!
-  rack-throttle (~> 0.4.2)
   rails (= 4.0.4)
   rails-dev-tweaks (~> 1.1)
   roar

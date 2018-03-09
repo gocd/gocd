@@ -42,11 +42,6 @@
         "value": false
       },
       {
-        "key": "spark_encryption_enabled_key",
-        "description": "Whether the spark router should be enabled for encryption api",
-        "value": false
-      },
-      {
         "key": "spark_role_config_enabled_key",
         "description": "Whether the spark router should be enabled for role config api and SPA",
         "value": false

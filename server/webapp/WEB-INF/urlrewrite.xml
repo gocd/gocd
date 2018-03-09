@@ -92,8 +92,7 @@
     <rule>
         <name>Encryption API</name>
         <from>^/api/admin/encrypt</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="encryptionApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/admin/encrypt</to>
+        <to last="true">/spark/api/admin/encrypt</to>
     </rule>
 
     <rule>

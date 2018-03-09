@@ -24,7 +24,6 @@ public class Toggles {
     public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
     public static String SPARK_BACKUP_ENABLED_KEY = "spark_backup_enabled_key";
     public static String SPARK_CURRENT_USER_ENABLED_KEY = "spark_current_user_enabled_key";
-    public static String SPARK_ENCRYPTION_ENABLED_KEY = "spark_encryption_enabled_key";
     public static String SPARK_ROLE_CONFIG_ENABLED_KEY = "spark_role_config_enabled_key";
     public static String SPARK_PLUGIN_IMAGES_ENABLED_KEY = "spark_plugin_images_enabled_key";
     public static String NEW_DASHBOARD_PAGE_DEFAULT = "new_dashboard_page_default";

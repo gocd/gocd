@@ -66,13 +66,14 @@ describe("Dashboard", () => {
     });
 
     it("it should filter dashboard provided filter text", () => {
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      const pipelineName     = "up42";
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up42-some-more");
       expect(dashboard.getPipelineGroups()).toEqual([]);
     });

@@ -54,6 +54,7 @@ PipelineGroup.fromJSON = (json) => {
   return new PipelineGroup(json.name, path, editPath, json.can_administer, json.pipelines);
 };
 
+
 const PipelineGroups = function (groups) {
   const self  = this;
   this.groups = groups;
@@ -69,7 +70,7 @@ const PipelineGroups = function (groups) {
       group.pipelines.forEach(pipeline => {
         pipelinesList.push(_.find(pipelines.pipelines, pipelineData => pipelineData.name === pipeline));
       });
-      group.setPipelinesList(pipelinesList);
+      group.setPipelines(pipelinesList);
     });
   };
 };
@@ -78,7 +79,5 @@ PipelineGroups.fromJSON = (json) => {
   const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
   return new PipelineGroups(pipelineGroups);
 };
-
-
 
 module.exports = PipelineGroups;

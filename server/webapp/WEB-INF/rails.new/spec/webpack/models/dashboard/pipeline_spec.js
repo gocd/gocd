@@ -183,7 +183,7 @@ describe("Dashboard", () => {
 
     it("should return true if the status of the pipeline matches with the passed string", () => {
       const pipeline  = new Pipeline(pipelineJson);
-      const hasStatus = pipeline.hasStatus("Failed");
+      const hasStatus = pipeline.hasStatus("failed");
       expect(hasStatus).toEqual(true);
     });
   });

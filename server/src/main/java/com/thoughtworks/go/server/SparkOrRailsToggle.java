@@ -34,10 +34,6 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.SPARK_ROLE_CONFIG_ENABLED_KEY, request);
     }
 
-    public void pluginImagesApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SPARK_PLUGIN_IMAGES_ENABLED_KEY, request);
-    }
-
     public void oldOrNewDashboard(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute("rails_bound", true);
 

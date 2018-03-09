@@ -18,6 +18,10 @@ class UrlBuilder
     Rails.application.routes.url_helpers.send(method, *add_hostname(args))
   end
 
+  def request
+    OpenStruct.new(host: 'test.host', scheme: 'http', port: 80)
+  end
+
   def add_hostname(args)
     opts        = args.extract_options! || {}
     opts[:host] = 'test.host'

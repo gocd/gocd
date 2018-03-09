@@ -22,6 +22,8 @@ task pathingJar(type: Jar) {
   dependsOn ':server:testJar'
   dependsOn ':server:fastUnitTestJar'
   dependsOn ':server:sharedTestJar'
+  dependsOn project.configurations.spark
+  dependsOn project.configurations.api
 
   doFirst {
     manifest {

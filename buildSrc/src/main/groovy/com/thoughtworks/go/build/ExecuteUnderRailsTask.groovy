@@ -38,6 +38,8 @@ class ExecuteUnderRailsTask extends DefaultTask {
     dependsOn ':server:jar'
     dependsOn ':server:testJar'
     dependsOn ':server:pathingJar'
+    dependsOn project.configurations.spark
+    dependsOn project.configurations.api
 
     def self = this
     doFirst {

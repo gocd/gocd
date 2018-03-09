@@ -43,7 +43,10 @@ module ApiV3
       end
 
       link :image do |opts|
-        opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.getImage.getHash()) if plugin.image
+        if plugin.image
+          ctx = com.thoughtworks.go.spark.RequestContext.new(opts[:url_builder].request.scheme, opts[:url_builder].request.host, opts[:url_builder].request.port, '/go')
+          ctx.urlFor(com.thoughtworks.go.spark.Routes::PluginImages::pluginImage(plugin.descriptor.id, plugin.getImage.getHash()))
+        end
       end
 
       property :id, exec_context: :decorator

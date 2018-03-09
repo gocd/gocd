@@ -38,6 +38,10 @@ public class Routes {
     public static class PluginImages {
         public static final String BASE = "/api/plugin_images";
         public static final String PLUGIN_ID_HASH_PATH = "/:plugin_id/:hash";
+
+        public static String pluginImage(String pluginId, String hash) {
+            return BASE + PLUGIN_ID_HASH_PATH.replaceAll(":plugin_id", pluginId).replaceAll(":hash", hash);
+        }
     }
 
     public static class Roles {

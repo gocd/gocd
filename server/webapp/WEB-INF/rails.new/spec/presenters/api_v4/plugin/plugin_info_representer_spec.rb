@@ -237,7 +237,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, capabilities)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
+      expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
 
       expect(actual_json).to eq({
@@ -274,7 +274,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
+      expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
 
       expect(actual_json).to eq({
@@ -313,7 +313,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, image, capabilities, plugin_settings)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
+      expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
 
       expect(actual_json).to eq({

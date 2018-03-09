@@ -366,8 +366,6 @@ Go::Application.routes.draw do
   resources :new_dashboard, only: [:index], controller: "admin/new_dashboard", as: :new_dashboard
 
   namespace :api, as: "" do
-    match 'plugin_images/:plugin_id/:hash', via: %w(get head), controller: :plugin_images, action: :show, constraints: {plugin_id: PLUGIN_ID_FORMAT, hash: /(\h){64}/}, format: false, as: :plugin_images
-
     defaults :no_layout => true do
       get 'plugins/status' => 'plugins#status'
 

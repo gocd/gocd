@@ -85,8 +85,7 @@
     <rule>
         <name>Plugin Images</name>
         <from>^/api/plugin_images/(.*)$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluginImagesApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/plugin_images/$1</to>
+        <to last="true">/spark/api/plugin_images/$1</to>
     </rule>
 
     <rule>

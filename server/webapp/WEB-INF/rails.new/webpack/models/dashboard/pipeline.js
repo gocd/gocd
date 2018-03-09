@@ -135,10 +135,8 @@ const Pipeline = function (info) {
   };
 
   self.hasStatus = (filterStatus) => {
-    const pipelineStageStatusList = _.flatMap(_.flatMap(self.instances, (instance) => instance.stages),
-        (stage) => stage.status);
-    return _.some(pipelineStageStatusList, (status) => _.includes(status.toLowerCase(), filterStatus));
-  };
+    return _.some(self.instances, instance => instance.hasStatus(filterStatus));
+  }
 };
 
 module.exports = Pipeline;

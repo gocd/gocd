@@ -27,10 +27,24 @@ const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) 
   this.pipelines     = pipelines;
 
   this.filterBy = (filterText) => {
-    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
+    var filteredPipelines = [];
+    if (_.includes(name.toLowerCase(), filterText)) {
+      filteredPipelines = self.pipelines;
+    } else {
+      filteredPipelines = _.filter(self.pipelines, (pipeline) => {
+        if (_.includes(pipeline.name.toLowerCase(), filterText)) {
+          return true;
+        }
+        return _.some(self.pipelines, pipeline => pipeline.hasStatus(filterText));
+      });
+    }
     if (filteredPipelines.length) {
       return new PipelineGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
     }
+  };
+
+  this.setPipelines = (pipelines) => {
+    this.pipelines = pipelines;
   };
 };
 
@@ -40,7 +54,6 @@ PipelineGroup.fromJSON = (json) => {
   return new PipelineGroup(json.name, path, editPath, json.can_administer, json.pipelines);
 };
 
-
 const PipelineGroups = function (groups) {
   const self  = this;
   this.groups = groups;
@@ -49,11 +62,23 @@ const PipelineGroups = function (groups) {
     const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
     return new PipelineGroups(filteredGroups);
   };
+
+  this.setPipelinesData = (pipelines) => {
+    self.groups.forEach(group => {
+      const pipelinesList = [];
+      group.pipelines.forEach(pipeline => {
+        pipelinesList.push(_.find(pipelines.pipelines, pipelineData => pipelineData.name === pipeline));
+      });
+      group.setPipelinesList(pipelinesList);
+    });
+  };
 };
 
 PipelineGroups.fromJSON = (json) => {
   const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
   return new PipelineGroups(pipelineGroups);
 };
+
+
 
 module.exports = PipelineGroups;

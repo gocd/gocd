@@ -133,6 +133,12 @@ const Pipeline = function (info) {
     NO_PAUSE_PERMISSION:     "You do not have permission to pause the pipeline.",
     NO_UNPAUSE_PERMISSION:   "You do not have permission to unpause the pipeline."
   };
+
+  self.hasStatus = (filterStatus) => {
+    const pipelineStageStatusList = _.flatMap(_.flatMap(self.instances, (instance) => instance.stages),
+        (stage) => stage.status);
+    return _.some(pipelineStageStatusList, (status) => _.includes(status.toLowerCase(), filterStatus));
+  };
 };
 
 module.exports = Pipeline;

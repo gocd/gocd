@@ -42,6 +42,7 @@ const Dashboard = function () {
     //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
     pipelineGroups = newPipelineGroups;
     pipelines      = newPipelines;
+    pipelineGroups.setPipelinesData(pipelines);
 
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
   };

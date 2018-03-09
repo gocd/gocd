@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ThoughtWorks, Inc.
  *
@@ -178,6 +179,12 @@ describe("Dashboard", () => {
       pipelineJson   = pipelineJsonFor(defaultPauseInfo, true, true, false);
       const pipeline = new Pipeline(pipelineJson);
       expect(pipeline.getSettingsDisabledTooltipText()).toEqual("You do not have permission to edit the pipeline.");
+    });
+
+    it("should return true if the status of the pipeline matches with the passed string", () => {
+      const pipeline  = new Pipeline(pipelineJson);
+      const hasStatus = pipeline.hasStatus("Failed");
+      expect(hasStatus).toEqual(true);
     });
   });
 

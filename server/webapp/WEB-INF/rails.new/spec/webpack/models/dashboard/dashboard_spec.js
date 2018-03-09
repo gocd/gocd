@@ -57,14 +57,6 @@ describe("Dashboard", () => {
       expect(actualPipelines.length).toEqual(expectedPipelines.length);
     });
 
-    it("should find the pipeline by pipeline name", () => {
-      const pipelineName     = "up42";
-      const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
-      const actualPipeline   = dashboard.findPipeline(pipelineName);
-
-      expect(actualPipeline.name).toEqual(expectedPipeline.name);
-    });
-
     it("it should filter dashboard provided filter text", () => {
       const pipelineName     = "up42";
       expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);

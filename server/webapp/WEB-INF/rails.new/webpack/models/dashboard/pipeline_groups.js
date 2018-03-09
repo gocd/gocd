@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const Routes = require('gen/js-routes');
+const _               = require('lodash');
+const Routes          = require('gen/js-routes');
+const Pipelines       = require('models/dashboard/pipelines');
 
 const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) {
   const self = this;
@@ -43,8 +44,12 @@ const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) 
     }
   };
 
-  this.setPipelines = (pipelines) => {
-    this.pipelines = pipelines;
+  this.replacePipelineNamesWithData = (pipelines) => {
+    const pipelinesList = [];
+    self.pipelines.forEach(pipeline => {
+      pipelinesList.push(_.find(pipelines.pipelines, pipelineData => pipelineData.name === pipeline));
+    });
+    self.pipelines = pipelinesList;
   };
 };
 
@@ -63,20 +68,16 @@ const PipelineGroups = function (groups) {
     const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
     return new PipelineGroups(filteredGroups);
   };
-
-  this.setPipelinesData = (pipelines) => {
-    self.groups.forEach(group => {
-      const pipelinesList = [];
-      group.pipelines.forEach(pipeline => {
-        pipelinesList.push(_.find(pipelines.pipelines, pipelineData => pipelineData.name === pipeline));
-      });
-      group.setPipelines(pipelinesList);
-    });
-  };
 };
 
 PipelineGroups.fromJSON = (json) => {
-  const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
+  const pipelines         = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+  const pipelineGroupJson = _.get(json, '_embedded.pipeline_groups', []);
+  const pipelineGroups    = _.map(pipelineGroupJson, (group) => {
+    const pipelineGroup = PipelineGroup.fromJSON(group);
+    pipelineGroup.replacePipelineNamesWithData(pipelines);
+    return pipelineGroup;
+  });
   return new PipelineGroups(pipelineGroups);
 };
 

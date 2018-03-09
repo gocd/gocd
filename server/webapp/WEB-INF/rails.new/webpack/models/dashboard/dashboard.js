@@ -31,18 +31,12 @@ const Dashboard = function () {
 
   this.message           = Stream();
   this.getPipelineGroups = () => filteredGroups.groups;
-  this.getPipelines      = () => pipelines.pipelines;
-  this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
-  this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json) => {
-    const newPipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
-    const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+    const newPipelineGroups = PipelineGroups.fromJSON(json);
 
-    //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
+    //set it on the current object only on a successful deserialization of pipeline groups
     pipelineGroups = newPipelineGroups;
-    pipelines      = newPipelines;
-    pipelineGroups.setPipelinesData(pipelines);
 
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
   };

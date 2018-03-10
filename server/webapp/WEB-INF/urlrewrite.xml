@@ -104,8 +104,7 @@
     <rule>
         <name>Backup API</name>
         <from>^/api/backups$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="backupApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/backups</to>
+        <to last="true">/spark/api/backups</to>
     </rule>
 
     <rule>

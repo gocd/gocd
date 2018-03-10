@@ -22,7 +22,6 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String QUICKER_DASHBOARD_KEY = "quicker_dashboard_key";
     public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
-    public static String SPARK_BACKUP_ENABLED_KEY = "spark_backup_enabled_key";
     public static String SPARK_CURRENT_USER_ENABLED_KEY = "spark_current_user_enabled_key";
     public static String SPARK_ROLE_CONFIG_ENABLED_KEY = "spark_role_config_enabled_key";
     public static String NEW_DASHBOARD_PAGE_DEFAULT = "new_dashboard_page_default";

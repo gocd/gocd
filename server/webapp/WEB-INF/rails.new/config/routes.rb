@@ -222,8 +222,6 @@ Go::Application.routes.draw do
 
       resources :notification_filters, only: [:index, :create, :destroy]
 
-      resources :backups, only: [:create], constraints: HeaderConstraint.new
-
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
         patch :update, on: :member
       end

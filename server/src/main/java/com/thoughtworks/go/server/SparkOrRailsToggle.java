@@ -22,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
-    public void backupApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SPARK_BACKUP_ENABLED_KEY, request);
-    }
 
     public void currentUserApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.SPARK_CURRENT_USER_ENABLED_KEY, request);

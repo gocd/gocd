@@ -23,10 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
 
-    public void rolesConfigApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SPARK_ROLE_CONFIG_ENABLED_KEY, request);
-    }
-
     public void oldOrNewDashboard(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute("rails_bound", true);
 

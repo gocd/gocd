@@ -57,22 +57,19 @@
     <rule>
         <name>Roles Config SPA</name>
         <from>^/admin/security/roles$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/admin/security/roles</to>
+        <to last="true">/spark/admin/security/roles</to>
     </rule>
 
     <rule>
         <name>Spark Security Role Configs API Index API</name>
         <from>^/api/admin/security/roles</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/admin/security/roles</to>
+        <to last="true">/spark/api/admin/security/roles</to>
     </rule>
 
     <rule>
         <name>Spark Security Role Configs API</name>
         <from>^/api/admin/security/roles/(.*)$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="rolesConfigApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/admin/security/roles/${escape:$1}</to>
+        <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
     </rule>
 
     <rule>

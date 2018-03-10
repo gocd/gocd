@@ -35,11 +35,6 @@
         "key": "artifact_extension_key",
         "description": "Disable artifact extension (implicit) by disabling the pluggable artifact specific config elements",
         "value": false
-      },
-      {
-        "key": "spark_role_config_enabled_key",
-        "description": "Whether the spark router should be enabled for role config api and SPA",
-        "value": false
       }
   ]
 }

@@ -97,8 +97,7 @@
     <rule>
         <name>Current User API</name>
         <from>^/api/current_user$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="currentUserApi"/>
-        <to last="true">/%{attribute:sparkOrRails}/api/current_user</to>
+        <to last="true">/spark/api/current_user</to>
     </rule>
 
     <rule>

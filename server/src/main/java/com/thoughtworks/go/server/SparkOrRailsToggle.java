@@ -23,10 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
 
-    public void currentUserApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SPARK_CURRENT_USER_ENABLED_KEY, request);
-    }
-
     public void rolesConfigApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.SPARK_ROLE_CONFIG_ENABLED_KEY, request);
     }

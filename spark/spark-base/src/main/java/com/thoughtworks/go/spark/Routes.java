@@ -193,4 +193,8 @@ public class Routes {
     public class ElasticProfilesSPA {
         public static final String BASE = "/admin/elastic_profiles";
     }
+
+    public class NewDashboardSPA {
+        public static final String BASE = "/dashboard";
+    }
 }

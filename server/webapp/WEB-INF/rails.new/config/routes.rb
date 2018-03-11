@@ -359,8 +359,6 @@ Go::Application.routes.draw do
     get 'agents', to: redirect('/go/agents')
   end
 
-  resources :new_dashboard, only: [:index], controller: "admin/new_dashboard", as: :new_dashboard
-
   namespace :api, as: "" do
     defaults :no_layout => true do
       get 'plugins/status' => 'plugins#status'

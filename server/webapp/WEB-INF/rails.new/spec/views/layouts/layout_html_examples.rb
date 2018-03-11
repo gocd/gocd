@@ -61,7 +61,7 @@ shared_examples :layout do
     allow(view).to receive(:mycruise_available?).and_return(true)
     render :inline => "<span>foo</span>", :layout => @layout_name
     expect(response.body).to have_selector("a[href='/pipelines']", 'PIPELINES')
-    expect(response.body).to have_selector("a[href='/path/to/agents']", 'AGENTS')
+    expect(response.body).to have_selector("a[href='/go/agents']", 'AGENTS')
     expect(response.body).to have_selector("a[href='/path/to/environments']", 'ENVIRONMENTS')
     expect(response.body).to have_selector("a[href='https://gocd.org/help']", 'Help')
     expect(response.body).to have_selector("a[data-toggle='dropdown']", 'ADMIN')

@@ -39,7 +39,7 @@
             <%= link_to l.string('ENVIRONMENTS_CAPS'), main_app.environments_path -%>
         </li>
         <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
-            <%= link_to l.string('AGENTS'), main_app.agents_path -%>
+            <%= link_to l.string('AGENTS'), '/go/agents' -%>
         </li>
         <% with_analytics_dashboard_support do %>
             <li id='cruise-header-tab-analytics' class="<%= "current" if @current_tab_name == "analytics" %>">

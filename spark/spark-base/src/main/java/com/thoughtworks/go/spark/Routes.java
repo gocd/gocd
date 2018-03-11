@@ -185,4 +185,8 @@ public class Routes {
         public static final String BASE = "/api/internal/build_cause";
         public static final String PATH = "/:pipeline_name/:pipeline_counter";
     }
+
+    public class AgentsSPA {
+        public static final String BASE = "/agents";
+    }
 }

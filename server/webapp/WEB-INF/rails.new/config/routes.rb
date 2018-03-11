@@ -360,7 +360,6 @@ Go::Application.routes.draw do
     get 'agents', to: redirect('/go/agents')
   end
 
-  resources :agents, only: [:index], controller: "admin/agents", as: :agents
   resources :new_dashboard, only: [:index], controller: "admin/new_dashboard", as: :new_dashboard
 
   namespace :api, as: "" do

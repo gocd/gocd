@@ -21,7 +21,6 @@ module EngineUrlHelper
     allow(main_app).to receive(:pipelines_snippet_path).and_return("admin/pipelines/snippet")
     allow(main_app).to receive(:pipeline_dashboard_path).and_return("/path/to/pipeline/dashboard")
     allow(main_app).to receive(:environments_path).and_return("/path/to/environments")
-    allow(main_app).to receive(:agents_path).and_return("/path/to/agents")
     allow(main_app).to receive(:pipeline_groups_path).and_return("/path/to/pipeline/groups")
     allow(main_app).to receive(:templates_path).and_return("/path/to/templates")
     allow(main_app).to receive(:config_view_path).and_return("/path/to/config/view")

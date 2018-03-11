@@ -19,11 +19,11 @@
     <div class="top-bar-left">
       <ul class="dropdown menu" data-dropdown-menu>
 
-        <li class="menu-text"><a href="#pipeline_dashboard_path()" class="logo"></a></li>
+        <li class="menu-text"><a href="/go/pipelines" class="logo"></a></li>
 
-        <li>#link_to('Pipelines', "#pipeline_dashboard_path()")</li>
-        <li>#link_to('Environments', "#environments_path()")</li>
-        <li>#link_to('Agents', "#agents_path()")</li>
+        <li>#link_to('Pipelines', "/go/pipelines")</li>
+        <li>#link_to('Environments', "/go/environments")</li>
+        <li>#link_to('Agents', "/go/agents")</li>
         <li>
           #if(${securityService.canViewAdminPage(${currentUser})})
             <a href="#" onclick="return false;">Admin</a>

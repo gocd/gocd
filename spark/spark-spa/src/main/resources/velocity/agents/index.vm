@@ -1,3 +1,4 @@
+#* @vtlvariable name="isUserAnAdmin" type="boolean" *#
 #*
  * Copyright 2018 ThoughtWorks, Inc.
  *
@@ -13,4 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-#macro(link_to $text $url $htmlOptions)<a href="$url">${text}$!{bodyContent}</a>#end
+<div id="agents" data-is-current-user-an-admin="${isUserAnAdmin}">
+  <span class="page-spinner"></span>
+</div>

@@ -16,23 +16,32 @@
 
 package com.thoughtworks.go.spark.spa.spring;
 
+import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.spark.spa.AgentsControllerDelegate;
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
-public class RolesController implements SparkSpringController {
-    private final RolesControllerDelegate delegate;
+public class SpaControllers implements SparkSpringController {
+    private final List<SparkController> sparkControllers = new ArrayList<>();
 
     @Autowired
-    public RolesController(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory) {
-        this.delegate = new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, "layouts/single_page_app.vm"));
+    public SpaControllers(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory, SecurityService securityService) {
+        sparkControllers.add(new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")));
+        sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, "layouts/single_page_app.vm"), securityService));
     }
 
     @Override
     public void setupRoutes() {
-        delegate.setupRoutes();
+        for (SparkController sparkController : sparkControllers) {
+            sparkController.setupRoutes();
+        }
     }
 }

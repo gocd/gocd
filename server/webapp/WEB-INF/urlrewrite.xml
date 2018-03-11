@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Agents SPA</name>
+        <from>^/agents(/?)$</from>
+        <to last="true">/spark/agents</to>
+    </rule>
+
+    <rule>
         <name>Build Cause API</name>
         <from>^/api/internal/build_cause/([^/]+)/([^/]+)</from>
         <to last="true">/spark/api/internal/build_cause/${escape:$1}/${escape:$2}</to>

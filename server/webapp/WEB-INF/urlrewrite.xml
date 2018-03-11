@@ -189,10 +189,9 @@
     </rule>
 
     <rule>
-        <name>Rails Security Auth Config UI</name>
+        <name>Auth Config SPA</name>
         <from>^/admin/security/auth_configs$</from>
-        <to last="true">/rails/admin/security/auth_configs</to>
-        <set name="rails_bound">true</set>
+        <to last="true">/spark/admin/security/auth_configs</to>
     </rule>
 
     <rule>

@@ -197,4 +197,8 @@ public class Routes {
     public class NewDashboardSPA {
         public static final String BASE = "/dashboard";
     }
+
+    public class AuthConfigSPA {
+        public static final String BASE = "/admin/security/auth_configs";
+    }
 }

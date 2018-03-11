@@ -81,6 +81,17 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkAdminUserOrGroupAdminUserAnd401(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()))) {
+            throw renderUnauthorizedResponse();
+        }
+
+    }
+
     public void checkAnyAdminUserAnd401(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;

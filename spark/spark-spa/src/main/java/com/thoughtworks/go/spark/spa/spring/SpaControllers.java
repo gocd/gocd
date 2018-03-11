@@ -19,6 +19,7 @@ package com.thoughtworks.go.spark.spa.spring;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.AgentsControllerDelegate;
+import com.thoughtworks.go.spark.spa.ElasticProfilesDelegate;
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -36,6 +37,7 @@ public class SpaControllers implements SparkSpringController {
     public SpaControllers(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory, SecurityService securityService) {
         sparkControllers.add(new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, "layouts/single_page_app.vm"), securityService));
+        sparkControllers.add(new ElasticProfilesDelegate(authenticationHelper, templateEngineFactory.create(ElasticProfilesDelegate.class, "layouts/single_page_app.vm")));
     }
 
     @Override

@@ -189,4 +189,8 @@ public class Routes {
     public class AgentsSPA {
         public static final String BASE = "/agents";
     }
+
+    public class ElasticProfilesSPA {
+        public static final String BASE = "/admin/elastic_profiles";
+    }
 }

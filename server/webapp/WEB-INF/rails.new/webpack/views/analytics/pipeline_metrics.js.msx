@@ -27,14 +27,16 @@
   const Routes                   = require('gen/js-routes');
 
   const models = {};
+  let currentPipeline = null;
 
   const PipelineMetrics = function() {
-    let currentPipeline = null;
     let data = null;
 
     function oninit(vnode) {
       data = vnode.attrs.model.data;
-      currentPipeline = vnode.attrs.model.data.pipelines[0];
+      if (!currentPipeline) {
+        currentPipeline = vnode.attrs.model.data.pipelines[0];
+      }
     }
 
     function newFrame(pluginId) {

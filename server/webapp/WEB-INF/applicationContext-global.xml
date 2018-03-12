@@ -51,6 +51,7 @@
   <context:component-scan base-package="com.thoughtworks.go.service"/>
   <context:component-scan base-package="com.thoughtworks.go.server.sweepers"/>
   <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.domain"/>
   <context:component-scan base-package="com.thoughtworks.go.server.service"/>
   <context:component-scan base-package="com.thoughtworks.go.server.perf"/>
   <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>
@@ -76,6 +77,8 @@
   <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
   <context:component-scan base-package="com.thoughtworks.go.plugin.infra"/>
   <context:component-scan base-package="com.thoughtworks.go.i18n"/>
+  <context:component-scan base-package="com.thoughtworks.go.util.scheduling"/>
+  <context:component-scan base-package="com.thoughtworks.go.config"/>
 
   <import resource="velocity-config.xml"/>
   <import resource="applicationContext-shine-server.xml"/>
@@ -94,9 +97,7 @@
         <value>localize</value>
       </list>
     </property>
-    <property name="cacheSeconds">
-      <value>-1</value>
-    </property>
+    <property name="cacheSeconds" value="-1"/>
   </bean>
 
   <bean id="messageSouceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
@@ -112,7 +113,7 @@
         <value>HEAD</value>
       </list>
     </property>
-    <property name="alwaysUseFullPath" value="true"></property>
+    <property name="alwaysUseFullPath" value="true"/>
   </bean>
   <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
   <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
@@ -121,6 +122,4 @@
   <!--END OVERIDE THE SPRING ADAPTERS-->
 
   <bean class="org.quartz.impl.StdSchedulerFactory" name="schedulerFactory"/>
-  <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true"
-        autowire="autodetect"/>
 </beans>

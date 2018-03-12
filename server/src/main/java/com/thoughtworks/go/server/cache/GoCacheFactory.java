@@ -16,17 +16,22 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+@Component
 public class GoCacheFactory {
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private String diskStorePath;
@@ -37,11 +42,13 @@ public class GoCacheFactory {
         System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
     }
 
+    @Autowired
     public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager) {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         factoryBean = new EhCacheFactoryBean();
     }
 
+    @Bean
     public GoCache createCache() throws IOException {
         factoryBean.setCacheManager(createCacheManager());
         factoryBean.afterPropertiesSet();
@@ -53,27 +60,33 @@ public class GoCacheFactory {
         factoryBean.setCacheManager(cacheManager);
     }
 
-    public void setCacheName(String cacheName) {
+    @Autowired
+    public void setCacheName(@Value("cruise") String cacheName) {
         factoryBean.setCacheName(cacheName);
     }
 
-    public void setMaxElementsInMemory(int maxElementsInMemory) {
+    @Autowired
+    public void setMaxElementsInMemory(@Value("${cruise.cache.elements.limit}") int maxElementsInMemory) {
         factoryBean.setMaxElementsInMemory(maxElementsInMemory);
     }
 
-    public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+    @Autowired
+    public void setMaxElementsOnDisk(@Value("${cruise.cache.elements.limit.disk}") int maxElementsOnDisk) {
         factoryBean.setMaxElementsOnDisk(maxElementsOnDisk);
     }
 
-    public void setMemoryStoreEvictionPolicy(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+    @Autowired
+    public void setMemoryStoreEvictionPolicy(@Value("${cruise.cache.eviction.policy}") MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
         factoryBean.setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
     }
 
-    public void setOverflowToDisk(boolean overflowToDisk) {
+    @Autowired
+    public void setOverflowToDisk(@Value("${cruise.cache.should.overflow}") boolean overflowToDisk) {
         factoryBean.setOverflowToDisk(overflowToDisk);
     }
 
-    public void setEternal(boolean eternal) {
+    @Autowired
+    public void setEternal(@Value("${cruise.cache.is.eternal}") boolean eternal) {
         factoryBean.setEternal(eternal);
     }
 
@@ -85,7 +98,8 @@ public class GoCacheFactory {
         factoryBean.setTimeToIdle(timeToIdle);
     }
 
-    public void setDiskPersistent(boolean diskPersistent) {
+    @Autowired
+    public void setDiskPersistent(@Value("${cruise.cache.should.persist}") boolean diskPersistent) {
         factoryBean.setDiskPersistent(diskPersistent);
     }
 
@@ -97,7 +111,8 @@ public class GoCacheFactory {
         factoryBean.setBlocking(blocking);
     }
 
-    public void setDiskStorePath(String diskStorePath) {
+    @Autowired
+    public void setDiskStorePath(@Value("${java.io.tmpdir}") String diskStorePath) {
         this.diskStorePath = diskStorePath;
     }
 

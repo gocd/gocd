@@ -38,18 +38,7 @@
   <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
 
   <!-- Loads the System Properties -->
-  <bean id="propertyConfigurer"
-        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="locations">
-      <list>
-        <value>classpath*:agent.properties</value>
-      </list>
-    </property>
-    <!--SYSTEM_PROPERTIES_MODE_OVERRIDE : Check system properties first, before trying the specified properties.
-        This allows system properties to override any other property source.-->
-    <property name="systemPropertiesMode" value="2"/>
-  </bean>
-
+  <context:property-placeholder location="classpath*:agent.properties"/>
 
   <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock"/>
 

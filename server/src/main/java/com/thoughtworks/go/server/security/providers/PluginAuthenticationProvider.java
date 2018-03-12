@@ -38,12 +38,14 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+@Component
 public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

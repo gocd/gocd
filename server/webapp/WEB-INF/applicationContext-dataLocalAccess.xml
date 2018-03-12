@@ -29,10 +29,14 @@
   <context:annotation-config/>
 
   <context:component-scan base-package="com.thoughtworks.go.server.dao"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.transaction"/>
   <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
   <context:component-scan base-package="com.thoughtworks.go.server.database"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.util"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
+
   <import resource="propertyConfigurer.xml"/>
-  <import resource="classpath*:optional-development-server-configurer.xml" />
+  <import resource="classpath*:optional-development-server-configurer.xml"/>
 
   <bean id="cache" class="com.opensymphony.oscache.base.Cache">
     <constructor-arg value="true"/>
@@ -68,9 +72,6 @@
     </constructor-arg>
   </bean>
 
-  <bean id="transactionSynchronizationManager"
-        class="com.thoughtworks.go.server.transaction.TransactionSynchronizationManager"/>
-
   <!-- ========================= HIBERNATE ========================= -->
 
   <bean id="hibernateProperties" class="com.thoughtworks.go.server.database.HibernateProperties"/>
@@ -85,44 +86,11 @@
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="entityInterceptor">
       <bean class="com.thoughtworks.go.server.transaction.TransactionCacheInterceptor" lazy-init="true"
-            autowire="autodetect">
-        <constructor-arg index="0" ref="goCache"/>
-      </bean>
+            autowire="autodetect"/>
     </property>
   </bean>
 
   <bean id="goTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
     <property name="sessionFactory" ref="sessionFactory"/>
-  </bean>
-
-  <!-- ========================= DAO DEFINITIONS ========================= -->
-
-  <bean class="com.thoughtworks.go.server.cache.GoCacheFactory" name="goCacheFactory" lazy-init="false"
-        autowire-candidate="false">
-    <constructor-arg index="0" ref="transactionSynchronizationManager"/>
-
-    <property name="cacheName" value="cruise"/>
-
-    <property name="diskStorePath" value="${java.io.tmpdir}"/>
-    <property name="diskPersistent" value="${cruise.cache.should.persist}"/>
-
-    <property name="maxElementsInMemory" value="${cruise.cache.elements.limit}"/>
-    <property name="maxElementsOnDisk" value="${cruise.cache.elements.limit.disk}"/>
-    <property name="overflowToDisk" value="${cruise.cache.should.overflow}"/>
-
-    <property name="eternal" value="${cruise.cache.is.eternal}"/>
-
-    <property name="memoryStoreEvictionPolicy" value="${cruise.cache.eviction.policy}"/>
-  </bean>
-
-  <bean name="goCache" factory-bean="goCacheFactory" factory-method="createCache"/>
-
-  <bean class="com.thoughtworks.go.server.persistence.MaterialRepository" name="materialRepository" lazy-init="true"
-        autowire="autodetect">
-    <constructor-arg index="0" ref="sessionFactory"/>
-    <constructor-arg index="1" ref="goCache"/>
-    <constructor-arg index="2" value="${cruise.material.modifications.cache.limit}"/>
-    <constructor-arg index="3" ref="transactionSynchronizationManager"/>
-    <constructor-arg index="4" ref="materialConfigConverter"/>
   </bean>
 </beans>

@@ -22,7 +22,9 @@ import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.vote.AccessDecisionVoter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class IsSecurityEnabledVoter implements AccessDecisionVoter {
     private GoConfigService goConfigService;
 

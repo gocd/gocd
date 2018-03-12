@@ -30,6 +30,7 @@
 
   <context:annotation-config/>
   <context:component-scan base-package="com.thoughtworks.go.server.security"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.security.providers"/>
   <context:component-scan base-package="com.thoughtworks.go.server.web"/>
 
   <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->
@@ -81,8 +82,6 @@
       </list>
     </property>
   </bean>
-
-  <bean id="authenticationProcessingFilter" class="com.thoughtworks.go.server.security.AuthenticationProcessingFilter"/>
 
   <bean id="goAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
     <property name="providers">

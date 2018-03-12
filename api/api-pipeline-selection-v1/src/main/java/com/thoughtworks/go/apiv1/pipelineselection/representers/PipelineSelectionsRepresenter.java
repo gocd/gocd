@@ -33,10 +33,14 @@ public class PipelineSelectionsRepresenter {
             .add("blacklist", pipelineSelectionResponse.getSelectedPipelines().isBlacklist())
             .addChild("pipelines", pipelineGroupsWriter -> {
                 pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
-                        List<String> pipelineNames = pipelineConfigs.getPipelines().stream().map(PipelineConfig::getName).map(CaseInsensitiveString::toString).collect(Collectors.toList());
+                    List<String> pipelineNames = pipelineConfigs
+                            .getPipelines().stream()
+                            .map(pipelineConfig -> pipelineConfig.getName().toString())
+                            .collect(Collectors.toList());
+                    if (!pipelineNames.isEmpty()) {
                         pipelineGroupsWriter.addChildList(pipelineConfigs.getGroup(), pipelineNames);
                     }
-                );
+                });
             });
     }
 

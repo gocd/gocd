@@ -60,8 +60,8 @@ describe("Pipeline Dashboard Metrics", () => {
 
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(2);
-    expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/pipelines/p1?context=dashboard');
-    expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/pipelines/p1?context=dashboard');
+    expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/dashboard/pipeline_duration?pipeline_name=p1&context=dashboard');
+    expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/dashboard/pipeline_duration?pipeline_name=p1&context=dashboard');
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
@@ -72,8 +72,8 @@ describe("Pipeline Dashboard Metrics", () => {
     $root.find("select").val("p2").trigger("change");
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
-    expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipelines/p2?context=dashboard');
-    expect(requests.at(3).url).toBe('/go/analytics/plugin-id-y/pipelines/p2?context=dashboard');
+    expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/dashboard/pipeline_duration?pipeline_name=p2&context=dashboard');
+    expect(requests.at(3).url).toBe('/go/analytics/plugin-id-y/dashboard/pipeline_duration?pipeline_name=p2&context=dashboard');
   });
 
   const mount = (model) => {

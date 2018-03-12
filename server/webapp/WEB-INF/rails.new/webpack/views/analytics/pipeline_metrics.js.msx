@@ -40,7 +40,7 @@
     function newFrame(pluginId) {
       const frame = new Frame(m.redraw);
       frame.pluginId(pluginId);
-      frame.url(Routes.pipelineAnalyticsPath({plugin_id: pluginId, pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
+      frame.url(Routes.showAnalyticsPath(pluginId, "dashboard", "pipeline_duration", {pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
       return frame;
     }
 

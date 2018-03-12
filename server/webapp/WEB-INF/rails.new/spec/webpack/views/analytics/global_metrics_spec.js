@@ -27,8 +27,8 @@ describe("Global Dashboard Metrics", () => {
 
   let $root, root;
   const supportedMetrics = {
-    "plugin-id-x": ["one", "two"],
-    "plugin-id-y": ["three"]
+    "plugin-id-x": [{ type: "x", id: "one"}, {type: "y", id: "two"}],
+    "plugin-id-y": [{type: "z", id: "three"}]
   };
 
   beforeEach(() => {
@@ -43,9 +43,9 @@ describe("Global Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin metric', () => {
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/dashboard/one", undefined, 'GET').andReturn({ status: 200 });
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/dashboard/two", undefined, 'GET').andReturn({ status: 200 });
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/dashboard/three", undefined, 'GET').andReturn({ status: 200 });
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/x/one", undefined, 'GET').andReturn({ status: 200 });
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/y/two", undefined, 'GET').andReturn({ status: 200 });
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/z/three", undefined, 'GET').andReturn({ status: 200 });
     const model = globalMetricTab(supportedMetrics);
 
     mount(model);

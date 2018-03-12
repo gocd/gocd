@@ -42,6 +42,8 @@
     display:        flex;
     flex-grow:      0.5;
     height:         100%;
+    width:          100%;
+    padding:        0 100px;
     flex-direction: column;
 
     .dashboard-tabs-container {
@@ -77,6 +79,12 @@
       display:         flex;
       flex-flow:       row wrap;
       justify-content: center;
+
+      select {
+        min-width:  calc(35vh * 5 / 3);
+        max-width:  calc(43vh * 5 / 3);
+        margin: 0px 25%;
+      }
 
       .frame-container {
         min-width:  calc(44vh * 5 / 3);

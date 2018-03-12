@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-let m                      = require('mithril');
-let f                      = require('helpers/form_helper');
-let PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_widget');
-let MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
-let PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
+const m                      = require('mithril');
+const f                      = require('helpers/form_helper');
+const PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_widget');
+const MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
+const PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
 
 const Stream          = require('mithril/stream');
 const s               = require('string-plus');

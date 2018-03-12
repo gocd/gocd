@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-let m                  = require('mithril');
-let f                  = require('helpers/form_helper');
-let BuildDetailsWidget = require('views/agents/build_details_widget');
+const m                  = require('mithril');
+const f                  = require('helpers/form_helper');
+const BuildDetailsWidget = require('views/agents/build_details_widget');
 
 
 const joinOrNoneSpecified = function (things) {

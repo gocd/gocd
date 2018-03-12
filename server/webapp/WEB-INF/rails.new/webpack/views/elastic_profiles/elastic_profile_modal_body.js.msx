@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-let m                 = require("mithril");
-let f                 = require('helpers/form_helper');
-let AngularPlugin     = require('views/shared/angular_plugin');
+const m                 = require("mithril");
+const f                 = require('helpers/form_helper');
+const AngularPlugin     = require('views/shared/angular_plugin');
 const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
 const s               = require('string-plus');
 

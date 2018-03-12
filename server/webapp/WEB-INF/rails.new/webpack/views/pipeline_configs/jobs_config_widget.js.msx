@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-let m                                = require('mithril');
-let f                                = require('helpers/form_helper');
-let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
-let TasksConfigWidget                = require('views/pipeline_configs/tasks_config_widget');
-let ArtifactsConfigWidget            = require('views/pipeline_configs/artifacts_config_widget');
-let PropertiesConfigWidget           = require('views/pipeline_configs/properties_config_widget');
-let TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget');
+const m                                = require('mithril');
+const f                                = require('helpers/form_helper');
+const EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+const TasksConfigWidget                = require('views/pipeline_configs/tasks_config_widget');
+const ArtifactsConfigWidget            = require('views/pipeline_configs/artifacts_config_widget');
+const PropertiesConfigWidget           = require('views/pipeline_configs/properties_config_widget');
+const TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
@@ -72,7 +72,7 @@ const destroyAutoComplete = function (attrName) {
   };
 };
 
-let JobTimeout = {
+const JobTimeout = {
   view(vnode) {
     const job       = vnode.attrs.job;
     const radioName = `radio-${job.uuid()}-timeout`;
@@ -136,7 +136,7 @@ let JobTimeout = {
 };
 
 
-let RunOnAgent = {
+const RunOnAgent = {
   view(vnode) {
     const job                  = vnode.attrs.job;
     const radioName            = `radio-${job.uuid()}-runInstanceCount`;

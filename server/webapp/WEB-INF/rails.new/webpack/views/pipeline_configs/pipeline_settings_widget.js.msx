@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-let m                                = require('mithril');
-let f                                = require('helpers/form_helper');
-let tt                               = require('helpers/pipeline_configs/tooltips');
-let ParametersConfigWidget           = require('views/pipeline_configs/parameters_config_widget');
-let TrackingToolWidget               = require('views/pipeline_configs/tracking_tool_widget');
-let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+const m                                = require('mithril');
+const f                                = require('helpers/form_helper');
+const tt                               = require('helpers/pipeline_configs/tooltips');
+const ParametersConfigWidget           = require('views/pipeline_configs/parameters_config_widget');
+const TrackingToolWidget               = require('views/pipeline_configs/tracking_tool_widget');
+const EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
 
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Stream          = require('mithril/stream');

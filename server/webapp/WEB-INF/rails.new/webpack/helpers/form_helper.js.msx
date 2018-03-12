@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-let m       = require('mithril');
+const m       = require('mithril');
 const $     = require('jquery');
 const _     = require('lodash');
 const s     = require('string-plus');
@@ -107,7 +107,7 @@ function validateModel(model, attrs) {
   return validationErrors;
 }
 
-let f = {
+const f = {
   row: {
     view (vnode) {
       const args     = vnode.attrs;

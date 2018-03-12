@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-let m                      = require('mithril');
-let f                      = require('helpers/form_helper');
-let ResourcesListWidget    = require('views/agents/resources_list_widget');
-let EnvironmentsListWidget = require('views/agents/environments_list_widget');
+const m                      = require('mithril');
+const f                      = require('helpers/form_helper');
+const ResourcesListWidget    = require('views/agents/resources_list_widget');
+const EnvironmentsListWidget = require('views/agents/environments_list_widget');
 
 const Stream       = require('mithril/stream');
 const Resources    = require('models/agents/resources');

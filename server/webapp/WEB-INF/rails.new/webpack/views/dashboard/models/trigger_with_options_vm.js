@@ -17,7 +17,7 @@
 const _      = require('lodash');
 const Stream = require('mithril/stream');
 
-const TriggerWitHOptionsVM = function () {
+const TriggerWithOptionsVM = function () {
   const materialsState = {};
   const tabsState      = {};
 
@@ -60,4 +60,4 @@ const TriggerWitHOptionsVM = function () {
 };
 
 
-module.exports = TriggerWitHOptionsVM;
+module.exports = TriggerWithOptionsVM;

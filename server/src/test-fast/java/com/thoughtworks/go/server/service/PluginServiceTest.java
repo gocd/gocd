@@ -110,26 +110,6 @@ public class PluginServiceTest {
     }
 
     @Test
-    public void shouldGetSettingsFromDBIfExists() {
-        PluginSettings pluginSettings = pluginService.loadPluginSettingsFor("plugin-id-1");
-
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getValueFor("p1-k1"), is("v1"));
-        assertThat(pluginSettings.getValueFor("p1-k2"), is(""));
-        assertThat(pluginSettings.getValueFor("p1-k3"), is(nullValue()));
-    }
-
-    @Test
-    public void shouldGetSettingsFromConfigurationIfItDoesNotExistInDB() {
-        PluginSettings pluginSettings = pluginService.loadPluginSettingsFor("plugin-id-2");
-
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getValueFor("p2-k1"), is(""));
-        assertThat(pluginSettings.getValueFor("p2-k2"), is(""));
-        assertThat(pluginSettings.getValueFor("p2-k3"), is(""));
-    }
-
-    @Test
     public void shouldReturnPluginSettingsFromDbIfItExists() {
         PluginSettings pluginSettings = pluginService.getPluginSettings("plugin-id-1");
 
@@ -276,21 +256,6 @@ public class PluginServiceTest {
 
         assertThat(result.httpCode(), is(412));
         assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
-    }
-
-    @Test
-    public void shouldPopulateSettingsMapFromKeyValueMap() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p3-k1", "v1");
-        parameterMap.put("p3-k2", "");
-        parameterMap.put("p3-k3", null);
-
-        PluginSettings pluginSettings = pluginService.createPluginSettingsFrom("plugin-id-3", parameterMap);
-
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getValueFor("p3-k1"), is("v1"));
-        assertThat(pluginSettings.getValueFor("p3-k2"), is(""));
-        assertThat(pluginSettings.getValueFor("p3-k3"), is(nullValue()));
     }
 
     @Test

@@ -53,23 +53,6 @@ public class PluginService {
         this.entityHashingService = entityHashingService;
     }
 
-    public PluginSettings createPluginSettingsFrom(String pluginId, Map<String, String> parameterMap) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
-        pluginSettings.populateSettingsMap(parameterMap);
-        return pluginSettings;
-    }
-
-    public PluginSettings loadPluginSettingsFor(String pluginId) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
-        Plugin plugin = pluginDao.findPlugin(pluginId);
-        if (plugin instanceof NullPlugin) {
-            pluginSettings.populateSettingsMap(PluginSettingsMetadataStore.getInstance().configuration(pluginId));
-        } else {
-            pluginSettings.populateSettingsMap(plugin);
-        }
-        return pluginSettings;
-    }
-
     public PluginSettings getPluginSettings(String pluginId) {
         PluginSettings pluginSettings = new PluginSettings(pluginId);
         Plugin plugin = pluginDao.findPlugin(pluginId);

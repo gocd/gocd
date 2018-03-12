@@ -41,7 +41,7 @@
       view() {
         const metrics = $(main).data("supported-dashboard-metrics");
         const pageItems = [];
-        const tabs = new Tabs(m.redraw);
+        const tabs = new Tabs();
         pageItems.push(m(AnalyticsDashboardHeader));
         tabs.push(new Tab("Global", GlobalMetrics, metrics));
         tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: Object.keys(metrics)}));

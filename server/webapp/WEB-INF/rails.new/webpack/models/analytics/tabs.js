@@ -17,7 +17,7 @@
 (function() {
   "use strict";
 
-  function Tabs(callback) {
+  function Tabs() {
     let activeTab = 0;
     const tabs = [];
 
@@ -25,20 +25,15 @@
       tabs.push(tab);
     }
 
-    function load() {
-      callback();
-    }
-
     function setActiveTab(tab) {
       activeTab = tabs.indexOf(tab);
-      callback();
     }
 
     function current() {
       return tabs[activeTab];
     }
 
-    return {tabs, push, current, load, setActiveTab};
+    return {tabs, push, current, setActiveTab};
   }
 
   module.exports = Tabs;

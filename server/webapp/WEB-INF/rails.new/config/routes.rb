@@ -350,7 +350,6 @@ Go::Application.routes.draw do
     get 'status_reports/:plugin_id' => 'status_reports#plugin_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :status_report
     get 'status_reports/:plugin_id/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
 
-    resources :plugins, only: [:index], controller: :plugins, as: :plugins
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles

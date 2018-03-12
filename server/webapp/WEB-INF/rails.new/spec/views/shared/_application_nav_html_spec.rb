@@ -168,7 +168,7 @@ describe "/shared/_application_nav.html.erb" do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
 
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,
-                        "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => admin_plugins_path, "Package Repositories" => package_repositories_new_path}
+                        "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => '/go/admin/plugins', "Package Repositories" => package_repositories_new_path}
     end
 
     it 'should show dropdown items for admin link on header' do
@@ -204,7 +204,7 @@ describe "/shared/_application_nav.html.erb" do
 
       render :partial => partial_page
 
-      assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Config XML" => pipelines_snippet_path, "Plugins" => admin_plugins_path, "Package Repositories" => package_repositories_new_path, "Elastic Agent Profiles" => '/go/admin/elastic_profiles'}
+      assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Config XML" => pipelines_snippet_path, "Plugins" => '/go/admin/plugins', "Package Repositories" => package_repositories_new_path, "Elastic Agent Profiles" => '/go/admin/elastic_profiles'}
 
       Capybara.string(response.body).find("li#cruise-header-tab-admin").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)
@@ -228,7 +228,7 @@ describe "/shared/_application_nav.html.erb" do
         'Pipelines' => pipeline_groups_path,
         'Templates' => templates_path,
         'Config XML' => pipelines_snippet_path,
-        'Plugins' => admin_plugins_path,
+        'Plugins' => '/go/admin/plugins',
         'Package Repositories' => package_repositories_new_path,
         'Elastic Agent Profiles' => '/go/admin/elastic_profiles'
       }

@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Plugins SPA</name>
+        <from>^/admin/plugins(/?)$</from>
+        <to last="true">/spark/admin/plugins</to>
+    </rule>
+
+    <rule>
         <name>Elastic Profiles SPA</name>
         <from>^/admin/elastic_profiles(/?)$</from>
         <to last="true">/spark/admin/elastic_profiles</to>

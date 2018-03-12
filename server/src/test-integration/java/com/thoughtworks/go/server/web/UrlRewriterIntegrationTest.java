@@ -195,7 +195,7 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion TASKS_LOOKUP_SHOW = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/commands/show", "http://127.1.1.1:" + HTTP + "/go/rails/admin/commands/show", true);
     @DataPoint
-    public static ResponseAssertion PLUGINS_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/plugins", "http://127.1.1.1:" + HTTP + "/go/rails/admin/plugins", true);
+    public static ResponseAssertion PLUGINS_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/plugins", "http://127.1.1.1:" + HTTP + "/go/spark/admin/plugins", true);
     @DataPoint
     public static ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/package_repositories", "http://127.1.1.1:" + HTTP + "/go/rails/admin/package_repositories", true);
     @DataPoint

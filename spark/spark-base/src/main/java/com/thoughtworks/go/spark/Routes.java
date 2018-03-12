@@ -201,4 +201,8 @@ public class Routes {
     public class AuthConfigSPA {
         public static final String BASE = "/admin/security/auth_configs";
     }
+
+    public class PluginsSPA {
+        public static final String BASE = "/admin/plugins";
+    }
 }

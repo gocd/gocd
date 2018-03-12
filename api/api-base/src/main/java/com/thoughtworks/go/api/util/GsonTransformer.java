@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.JsonReader;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -38,6 +39,9 @@ public class GsonTransformer {
 
     public JsonReader jsonReaderFrom(String string) {
         try {
+            if (StringUtils.isBlank(string)) {
+                string = "{}";
+            }
             return new JsonReader(GSON.fromJson(string, JsonElement.class).getAsJsonObject());
         } catch (Exception e) {
             throw new JsonParseException(e);

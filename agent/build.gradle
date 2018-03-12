@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,10 +140,8 @@ task verifyJar(type: VerifyJarTask) {
       "quartz-1.6.5.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
       "spring-aop-${project.versions.spring}.jar",
-      "spring-asm-${project.versions.spring}.jar",
       "spring-beans-${project.versions.spring}.jar",
       "spring-context-${project.versions.spring}.jar",
-      "spring-context-support-${project.versions.spring}.jar",
       "spring-core-${project.versions.spring}.jar",
       "spring-expression-${project.versions.spring}.jar",
       "spring-tx-${project.versions.spring}.jar",

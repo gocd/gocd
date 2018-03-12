@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,17 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationManager;
 import org.springframework.security.AuthenticationServiceException;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Component
 public class AuthenticationProcessingFilter extends org.springframework.security.ui.webapp.AuthenticationProcessingFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationProcessingFilter.class);
     private GoConfigService goConfigService;
@@ -37,6 +41,16 @@ public class AuthenticationProcessingFilter extends org.springframework.security
     public AuthenticationProcessingFilter(GoConfigService goConfigService, Localizer localizer) {
         this.goConfigService = goConfigService;
         this.localizer = localizer;
+        setAuthenticationFailureUrl("/auth/login?login_error=1");
+        setDefaultTargetUrl("/");
+        setFilterProcessesUrl("/auth/security_check");
+        setInvalidateSessionOnSuccessfulAuthentication(true);
+    }
+
+    @Override
+    @Autowired
+    public void setAuthenticationManager(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
     }
 
     @Override

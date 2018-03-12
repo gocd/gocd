@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,32 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Component
 public class OauthAuthenticationFilter extends SpringSecurityFilter {
     private final AuthenticationManager authenticationManager;
     private static final Pattern OAUTH_TOKEN_PATTERN = Pattern.compile("^Token token=\"(.*?)\"$");
     static final String AUTHORIZATION = "Authorization";
 
-    public OauthAuthenticationFilter(AuthenticationManager authenticationManager) {
+    @Autowired
+    public OauthAuthenticationFilter(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

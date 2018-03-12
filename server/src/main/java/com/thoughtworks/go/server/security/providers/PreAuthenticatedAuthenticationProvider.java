@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,13 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.List;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+@Component
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider {
     private final AuthorizationExtension authorizationExtension;
     private final PluginRoleService pluginRoleService;
@@ -47,6 +50,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private final AuthorityGranter authorityGranter;
     private GoConfigService configService;
 
+    @Autowired
     public PreAuthenticatedAuthenticationProvider(AuthorizationExtension authorizationExtension, PluginRoleService pluginRoleService,
                                                   UserService userService, AuthorityGranter authorityGranter, GoConfigService configService) {
         this.authorizationExtension = authorizationExtension;

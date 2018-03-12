@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.FetchHandler;
+import com.thoughtworks.go.server.util.NoOpGoAgentServerHttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -49,7 +49,7 @@ public class HttpService {
     public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     public HttpService() {
-        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())));
+        this(new NoOpGoAgentServerHttpClient());
     }
 
     @Autowired(required = false)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,21 @@ package com.thoughtworks.go.server.database;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
+
+@Component
 public class SqlMapClientFactory extends org.springframework.orm.ibatis.SqlMapClientFactoryBean {
 
-    private DatabaseStrategy databaseStrategy;
-
     @Autowired
-    public SqlMapClientFactory(DatabaseStrategy databaseStrategy) {
-        this.databaseStrategy = databaseStrategy;
-    }
-
-    @Override
-    public void setConfigLocation(Resource configLocation) {
-        if (configLocation != null) {
-            this.setConfigLocations(new Resource[]{configLocation});
-        } else {
-            super.setConfigLocation(configLocation);
-        }
-    }
-
-    @Override
-    public void setConfigLocations(Resource[] configLocations) {
-        super.setConfigLocations(addToConfigLocations(configLocations, databaseStrategy.getIbatisConfigXmlLocation()));
+    public SqlMapClientFactory(DatabaseStrategy databaseStrategy, DataSource dataSource, @Value("WEB-INF/sql-map-config.xml") Resource configLocation) {
+        setDataSource(dataSource);
+        setUseTransactionAwareDataSource(true);
+        setConfigLocations(addToConfigLocations(new Resource[]{configLocation}, databaseStrategy.getIbatisConfigXmlLocation()));
     }
 
     private Resource[] addToConfigLocations(Resource[] configLocations, String ibatisConfigXmlLocation) {

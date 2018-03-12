@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings({"unchecked"})
+@Component
 public class ConfigRepositoryValidatorService implements InitializingBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigRepositoryValidatorService.class);
     private ConfigRepository configRepository;

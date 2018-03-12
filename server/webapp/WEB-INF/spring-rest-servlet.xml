@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2015 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,30 +16,28 @@
   -->
 
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <context:annotation-config/>
-    <import resource="velocity-config.xml"/>
-    <context:component-scan base-package="com.thoughtworks.go.util"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
+  <context:annotation-config/>
+  <import resource="velocity-config.xml"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.server.web"/>
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
-        <property name="interceptors">
-            <list>
-                <ref bean="authorizationInterceptor"/>
-            </list>
-        </property>
-        <property name="alwaysUseFullPath" value="true"></property>
-    </bean>
+  <context:component-scan base-package="com.thoughtworks.go.server.web"/>
+  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+    <property name="interceptors">
+      <list>
+        <ref bean="authorizationInterceptor"/>
+      </list>
+    </property>
+    <property name="alwaysUseFullPath" value="true"></property>
+  </bean>
 
-    <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
+  <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 </beans>

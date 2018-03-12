@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,11 +31,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Component
 public class ReAuthenticationFilter extends SpringSecurityFilter {
     private final SystemEnvironment systemEnvironment;
     private final TimeProvider timeProvider;
     protected static final String LAST_REAUTHENICATION_CHECK_TIME = "last_reauthentication_check_time";
 
+    @Autowired
     public ReAuthenticationFilter(SystemEnvironment systemEnvironment, TimeProvider timeProvider) {
         this.systemEnvironment = systemEnvironment;
         this.timeProvider = timeProvider;

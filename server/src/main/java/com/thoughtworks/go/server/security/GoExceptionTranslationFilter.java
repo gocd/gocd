@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,19 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.server.service.SecurityService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AccessDeniedHandler;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -36,11 +39,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+@Component
 public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {
-    private String urlPatternsThatShouldNotBeRedirectedToAfterLogin;
+    private static final Pattern URL_PATTERNS_THAT_SHOULD_NOT_BE_REDIRECTED_TO_AFTER_LOGIN = Pattern.compile("(\\.json)|(\\?.*format=json)|(/images/)|(\\.css)|(\\.ico)|(\\.js)|(/auth/login)|(/auth/logout)");
     private AuthenticationEntryPoint basicAuthenticationEntryPoint;
-    public static final String REQUEST__FORMAT = "format";
-    private SecurityService securityService;
+    private static final String REQUEST__FORMAT = "format";
 
     protected void sendStartAuthentication(ServletRequest request, ServletResponse response, FilterChain chain,
                                            AuthenticationException reason) throws ServletException, IOException {
@@ -94,25 +97,24 @@ public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {
                 !StringUtils.isBlank(httpRequest.getParameter("callback"));
     }
 
-
     boolean shouldRedirect(String url) {
-        Pattern regexPattern = Pattern.compile(urlPatternsThatShouldNotBeRedirectedToAfterLogin);
-        return !regexPattern.matcher(url).find();
+        return !URL_PATTERNS_THAT_SHOULD_NOT_BE_REDIRECTED_TO_AFTER_LOGIN.matcher(url).find();
     }
 
-    public String getUrlPatternsThatShouldNotBeRedirectedToAfterLogin() {
-        return urlPatternsThatShouldNotBeRedirectedToAfterLogin;
-    }
-
-    public void setUrlPatternsThatShouldNotBeRedirectedToAfterLogin(String value) {
-        urlPatternsThatShouldNotBeRedirectedToAfterLogin = value;
-    }
-
-    public void setBasicAuthenticationEntryPoint(AuthenticationEntryPoint basicAuthenticationEntryPoint) {
+    @Autowired
+    public void setBasicAuthenticationEntryPoint(@Qualifier("basicProcessingFilterEntryPoint") AuthenticationEntryPoint basicAuthenticationEntryPoint) {
         this.basicAuthenticationEntryPoint = basicAuthenticationEntryPoint;
     }
 
-    public void setSecurityService(SecurityService service) {
-        this.securityService = service;
+    @Override
+    @Autowired
+    public void setAuthenticationEntryPoint(@Qualifier("sessionDenialAwareAuthenticationProcessingFilterEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
+        super.setAuthenticationEntryPoint(authenticationEntryPoint);
+    }
+
+    @Override
+    @Autowired
+    public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
+        super.setAccessDeniedHandler(accessDeniedHandler);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableScheduling
 public class ConfigRepositoryGCWarningService {
     private final ConfigRepository configRepository;
     private final ServerHealthService serverHealthService;
@@ -41,6 +44,7 @@ public class ConfigRepositoryGCWarningService {
         this.systemEnvironment = systemEnvironment;
     }
 
+    @Scheduled(initialDelay = 5000, fixedDelayString = "${go.config.repo.gc.check.interval}")
     public void checkRepoAndAddWarningIfRequired() {
         try {
             if (configRepository.getLooseObjectCount() >= systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)) {

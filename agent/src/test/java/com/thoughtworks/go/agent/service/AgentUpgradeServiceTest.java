@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.agent.common.ssl.DefaultGoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
@@ -50,7 +51,7 @@ public class AgentUpgradeServiceTest {
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
         urlService = mock(URLService.class);
-        GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
+        GoAgentServerHttpClient httpClient = mock(DefaultGoAgentServerHttpClient.class);
         jvmExitter = mock(AgentUpgradeService.JvmExitter.class);
         agentUpgradeService = spy(new AgentUpgradeService(urlService, httpClient, systemEnvironment, jvmExitter));
 

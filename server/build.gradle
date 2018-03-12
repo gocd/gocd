@@ -65,14 +65,15 @@ configurations {
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
 
 def props = [
-  'go.enforce.server.immutability': 'N',
-  'rails.use.compressed.js'       : 'false',
-  'go.database.provider'          : 'com.thoughtworks.go.server.database.H2Database',
-  'db.host'                       : 'localhost',
-  'db.user'                       : 'sa',
-  'db.password'                   : '',
-  'db.name'                       : 'cruise',
-  'db.port'                       : ''
+  'go.enforce.server.immutability'  : 'N',
+  'rails.use.compressed.js'         : 'false',
+  'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
+  'db.host'                         : 'localhost',
+  'db.user'                         : 'sa',
+  'db.password'                     : '',
+  'db.name'                         : 'cruise',
+  'db.port'                         : '',
+  'spring.profiles.active'          : 'test'
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
@@ -163,6 +164,7 @@ dependencies {
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
+  compile group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
   compile(group: 'org.springframework.security', name: 'spring-security-core', version: '2.0.3') {
     exclude(module: 'spring-core')
     exclude(module: 'spring-context')
@@ -697,7 +699,6 @@ task verifyWar(type: VerifyJarTask) {
         "smtp-${project.versions.mail}.jar",
         "spark-core-${project.versions.spark}.jar",
         "spring-aop-${project.versions.spring}.jar",
-        "spring-asm-${project.versions.spring}.jar",
         "spring-beans-${project.versions.spring}.jar",
         "spring-context-${project.versions.spring}.jar",
         "spring-context-support-${project.versions.spring}.jar",

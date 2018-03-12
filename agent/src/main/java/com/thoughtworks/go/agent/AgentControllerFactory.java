@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableScheduling
 public class AgentControllerFactory {
     private final BuildRepositoryRemote server;
     private final GoArtifactsManipulator manipulator;
@@ -95,6 +98,7 @@ public class AgentControllerFactory {
         this.agentHealthHolder = agentHealthHolder;
     }
 
+    @Bean
     public AgentController createInstance() {
         if (systemEnvironment.isWebsocketsForAgentsEnabled()) {
             LOG.info("Connecting to server using WebSockets");

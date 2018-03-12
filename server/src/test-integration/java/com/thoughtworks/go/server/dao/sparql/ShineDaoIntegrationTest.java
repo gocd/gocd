@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class ShineDaoIntegrationTest {
 
         LazyStageGraphLoader graphLoader = new LazyStageGraphLoader(importer, stageStorage);
         StagesQuery stagesQuery = new StagesQuery(graphLoader, stagesQueryCache);
-        shineDao = new ShineDao(stagesQuery, stageService, pipelineHistoryService);
+        shineDao = new ShineDao(stagesQuery, stageService);
         goURLRepository = new StubGoURLRepository("http://localhost:8153", artifactsRoot);
 
         failureSetup = new TestFailureSetup(materialRepository, dbHelper, pipelineTimeline, configHelper, transactionTemplate);

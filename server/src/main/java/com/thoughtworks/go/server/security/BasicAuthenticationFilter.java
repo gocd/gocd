@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,13 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.security.AuthenticationManager;
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -33,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+@Component
 public class BasicAuthenticationFilter extends BasicProcessingFilter {
 
     private static ThreadLocal<Boolean> isProcessingBasicAuth = new ThreadLocal<Boolean>() {
@@ -47,6 +52,18 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     @Autowired
     public BasicAuthenticationFilter(Localizer localizer) {
         this.localizer = localizer;
+    }
+
+    @Override
+    @Autowired
+    public void setAuthenticationManager(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
+    }
+
+    @Override
+    @Autowired
+    public void setAuthenticationEntryPoint(@Qualifier("basicProcessingFilterEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
+        super.setAuthenticationEntryPoint(authenticationEntryPoint);
     }
 
     @Override

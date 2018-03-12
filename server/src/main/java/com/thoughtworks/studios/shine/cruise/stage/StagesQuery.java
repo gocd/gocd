@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package com.thoughtworks.studios.shine.cruise.stage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.dao.sparql.RdfResultMapper;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageGraphLoader;
@@ -26,14 +23,22 @@ import com.thoughtworks.studios.shine.semweb.BoundVariables;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
 public class StagesQuery {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(StagesQuery.class);
     private StageGraphLoader stageGraphLoader;
     private StagesQueryCache cache;
 
-    public StagesQuery(StageGraphLoader stageGraphLoader, StagesQueryCache cache) {
+    @Autowired
+    public StagesQuery(@Qualifier("lazyStageGraphLoader") StageGraphLoader stageGraphLoader, StagesQueryCache cache) {
         this.stageGraphLoader = stageGraphLoader;
         this.cache = cache;
     }

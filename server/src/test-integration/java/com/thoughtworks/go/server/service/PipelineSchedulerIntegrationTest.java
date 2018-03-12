@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,25 +201,6 @@ public class PipelineSchedulerIntegrationTest {
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(PIPELINE_MINGLE);
         dbHelper.pass(pipeline);
         return pipeline;
-    }
-
-    @Test
-    public void shouldPauseAndUnpausePipeline_identifiedByCaseInsensitiveString() throws Exception {
-
-        configHelper.setOperatePermissionForGroup("defaultGroup", "pausedBy");
-        configHelper.addPipeline(PIPELINE_NAME, "stage-name");
-
-        Username userName = new Username(new CaseInsensitiveString("pauseBy"));
-        pipelinePauseService.pause(PIPELINE_NAME, "pauseCause", userName);
-
-        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);
-        assertThat(pauseInfo.isPaused(), is(true));
-        assertThat(pauseInfo.getPauseCause(), is("pauseCause"));
-        assertThat(pauseInfo.getPauseBy(), is("pauseBy"));
-
-        pipelinePauseService.unpause(PIPELINE_NAME);
-        pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);
-        assertThat(pauseInfo.isPaused(), is(false));
     }
 
     @Test

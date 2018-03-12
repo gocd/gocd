@@ -289,8 +289,7 @@ $btn-default: #d6d5d5;
 }
 
 .dashboard {
-  margin-top: 20px;
-  padding:    20px 30px 50px;
+  padding: 80px 30px 50px;
 }
 
 .page_header {
@@ -303,6 +302,9 @@ $btn-default: #d6d5d5;
   height:          50px;
   box-sizing:      border-box;
   border-bottom:   1px solid $border-color;
+  position:        fixed;
+  top:             40px;
+  z-index:         10;
 }
 
 .page_title {

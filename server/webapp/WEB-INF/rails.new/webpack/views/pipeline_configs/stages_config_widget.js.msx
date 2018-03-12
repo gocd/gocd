@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-let m                                = require('mithril');
-let f                                = require('helpers/form_helper');
-let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
-let JobsConfigWidget                 = require('views/pipeline_configs/jobs_config_widget');
+const m                                = require('mithril');
+const f                                = require('helpers/form_helper');
+const EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+const JobsConfigWidget                 = require('views/pipeline_configs/jobs_config_widget');
 
 const Stream          = require('mithril/stream');
 const s               = require('string-plus');
@@ -63,7 +63,7 @@ const destroyAutoComplete = function (attrName) {
   };
 };
 
-let ApprovalWidget = {
+const ApprovalWidget = {
   oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
@@ -103,7 +103,7 @@ let ApprovalWidget = {
   }
 };
 
-let SettingsWidget = {
+const SettingsWidget = {
   oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
@@ -196,7 +196,7 @@ let SettingsWidget = {
   }
 };
 
-let StageConfigDefinitionWidget = {
+const StageConfigDefinitionWidget = {
   oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);

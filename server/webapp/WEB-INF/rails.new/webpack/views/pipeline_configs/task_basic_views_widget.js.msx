@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-let m                   = require('mithril');
-let f                   = require('helpers/form_helper');
-let LookupCommandWidget = require('views/pipeline_configs/lookup_command_widget');
+const m                   = require('mithril');
+const f                   = require('helpers/form_helper');
+const LookupCommandWidget = require('views/pipeline_configs/lookup_command_widget');
 
 const Argument      = require('models/pipeline_configs/argument');
 const AngularPlugin = require('views/shared/angular_plugin');

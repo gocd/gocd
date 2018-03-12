@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-let m   = require('mithril');
+const m   = require('mithril');
 const _ = require('lodash');
-let f   = require('helpers/form_helper');
+const f   = require('helpers/form_helper');
 
 const Routes = require('gen/js-routes');
 
-let UseThis = {
+const UseThis = {
   view (vnode) {
     return (<a title='Use this' onclick={_.wrap(vnode.attrs.toShow, vnode.attrs.callback)}>{vnode.attrs.toShow}</a>);
   }
 };
 
-let ExampleTable = {
+const ExampleTable = {
   view (vnode) {
     return (
       <table>

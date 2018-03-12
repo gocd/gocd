@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-let m                 = require('mithril');
-let f                 = require('helpers/form_helper');
+const m                 = require('mithril');
+const f                 = require('helpers/form_helper');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const tt              = require('helpers/pipeline_configs/tooltips');
 
-let EnvironmentVariableWidget = {
+const EnvironmentVariableWidget = {
   base: {
     view (vnode) {
       const children = vnode.children;
@@ -107,7 +107,7 @@ let EnvironmentVariableWidget = {
   }
 };
 
-let VariablesWidget = {
+const VariablesWidget = {
   plain:  {
     oninit (vnode) {
       this.args = vnode.attrs;

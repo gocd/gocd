@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-let m                    = require('mithril');
-let f                    = require('helpers/form_helper');
-let TestConnectionWidget = require('views/pipeline_configs/test_connection_widget');
-let PipelineStageField   = require('views/pipeline_configs/pipeline_stage_field_widget');
-let PluggableSCMWidget   = require('views/pipeline_configs/pluggable_scm_widget');
-let MaterialFilterWidget = require('views/pipeline_configs/material_filter_widget');
+const m                    = require('mithril');
+const f                    = require('helpers/form_helper');
+const TestConnectionWidget = require('views/pipeline_configs/test_connection_widget');
+const PipelineStageField   = require('views/pipeline_configs/pipeline_stage_field_widget');
+const PluggableSCMWidget   = require('views/pipeline_configs/pluggable_scm_widget');
+const MaterialFilterWidget = require('views/pipeline_configs/material_filter_widget');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
@@ -28,7 +28,7 @@ const tt              = require('helpers/pipeline_configs/tooltips');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Materials       = require('models/pipeline_configs/materials');
 
-let PasswordField = {
+const PasswordField = {
   view (vnode) {
     const model               = vnode.attrs.model;
     const attrName            = vnode.attrs.attrName;
@@ -63,7 +63,7 @@ let PasswordField = {
   }
 };
 
-let UrlField = {
+const UrlField = {
   view (vnode) {
     return (
       <f.column largeSize={4}>
@@ -77,7 +77,7 @@ let UrlField = {
   }
 };
 
-let UsernameField = {
+const UsernameField = {
   view (vnode) {
     return (
       <f.column largeSize={4}>
@@ -89,7 +89,7 @@ let UsernameField = {
   }
 };
 
-let DestinationField = {
+const DestinationField = {
   view (vnode) {
     return (
       <f.column largeSize={4}>
@@ -106,7 +106,7 @@ let DestinationField = {
 };
 
 
-let NameField = {
+const NameField = {
   view (vnode) {
     return (
       <f.column largeSize={4}>
@@ -122,7 +122,7 @@ let NameField = {
   }
 };
 
-let BranchField = {
+const BranchField = {
   view (vnode) {
     return (
       <f.column largeSize={4}>
@@ -134,7 +134,7 @@ let BranchField = {
   }
 };
 
-let AutoUpdateField = {
+const AutoUpdateField = {
   view (vnode) {
     return (
       <f.column class="align-with-control" size={3} end>
@@ -146,7 +146,7 @@ let AutoUpdateField = {
   }
 };
 
-let TestConnection = {
+const TestConnection = {
   oninit () {
     ComponentMixins.HasViewModel.call(this);
   },
@@ -164,7 +164,7 @@ let TestConnection = {
   }
 };
 
-let MaterialViews = {
+const MaterialViews = {
   base: {
     oninit (vnode) {
       this.args = vnode.attrs;
@@ -416,7 +416,7 @@ let MaterialViews = {
 
 };
 
-let MaterialTypeSelector = {
+const MaterialTypeSelector = {
   oninit () {
     this.selected = Stream('git');
   },

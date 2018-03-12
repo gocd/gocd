@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-let m                     = require('mithril');
-let f                     = require('helpers/form_helper');
-let RunIfConditionsWidget = require('views/pipeline_configs/run_if_conditions_widget');
-let TaskBasicViews        = require('views/pipeline_configs/task_basic_views_widget');
-let CancelTaskWidget      = require('views/pipeline_configs/cancel_task_widget');
+const m                     = require('mithril');
+const f                     = require('helpers/form_helper');
+const RunIfConditionsWidget = require('views/pipeline_configs/run_if_conditions_widget');
+const TaskBasicViews        = require('views/pipeline_configs/task_basic_views_widget');
+const CancelTaskWidget      = require('views/pipeline_configs/cancel_task_widget');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
@@ -26,7 +26,7 @@ const s               = require('string-plus');
 const Tasks           = require('models/pipeline_configs/tasks');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 
-let TaskSummaryView = {
+const TaskSummaryView = {
   view (vnode) {
     return (
       <ul class='task-type'>
@@ -39,7 +39,7 @@ let TaskSummaryView = {
   }
 };
 
-let TaskViews = {
+const TaskViews = {
   base: {
     oninit (vnode) {
       const self       = this;

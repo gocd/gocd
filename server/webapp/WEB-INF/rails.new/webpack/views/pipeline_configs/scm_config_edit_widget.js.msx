@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-let m = require('mithril');
-let f = require('helpers/form_helper');
+const m = require('mithril');
+const f = require('helpers/form_helper');
 
 const $             = require('jquery');
 const Stream        = require('mithril/stream');
@@ -40,7 +40,7 @@ const fetchDependentPipelines = function (id) {
   }).promise();
 };
 
-let SCMGlobalCopyWarningWidget = {
+const SCMGlobalCopyWarningWidget = {
   oninit (vnode) {
     const self              = this;
     self.scm                = vnode.attrs.scm;

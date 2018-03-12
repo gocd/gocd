@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-let m                 = require("mithril");
-let AngularPlugin     = require('views/shared/angular_plugin');
+const m                 = require("mithril");
+const AngularPlugin     = require('views/shared/angular_plugin');
 
 const PluginSettingModalBody = {
   view (vnode) {

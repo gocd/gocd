@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-let m = require('mithril');
-let f = require('helpers/form_helper');
+const m = require('mithril');
+const f = require('helpers/form_helper');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
@@ -25,7 +25,7 @@ const Tasks           = require('models/pipeline_configs/tasks');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const TaskViews       = require('views/pipeline_configs/task_views_widget');
 
-let TaskTypeSelector = {
+const TaskTypeSelector = {
   oninit (vnode) {
     const self    = this;
     self.tasks    = vnode.attrs.tasks;

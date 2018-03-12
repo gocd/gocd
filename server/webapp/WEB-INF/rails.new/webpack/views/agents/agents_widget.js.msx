@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-let m                     = require('mithril');
-let f                     = require('helpers/form_helper');
-let AgentStateCountWidget = require('views/agents/agent_state_count_widget');
-let AgentRowWidget        = require('views/agents/agent_row_widget');
-let AgentTableHeader      = require('views/agents/agent_table_header');
-let ButtonRowWidget       = require('views/agents/button_row_widget');
+const m                     = require('mithril');
+const f                     = require('helpers/form_helper');
+const AgentStateCountWidget = require('views/agents/agent_state_count_widget');
+const AgentRowWidget        = require('views/agents/agent_row_widget');
+const AgentTableHeader      = require('views/agents/agent_table_header');
+const ButtonRowWidget       = require('views/agents/button_row_widget');
 
 const Stream = require('mithril/stream');
 const _      = require('lodash');

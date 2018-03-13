@@ -21,6 +21,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <context:property-placeholder location="classpath*:cruise.properties,classpath*:development.properties" system-properties-mode="OVERRIDE" />
+  <!--testPropertyConfigurer provides a lower order and takes precendence -->
+  <context:property-placeholder order="1" location="classpath*:cruise.properties,classpath*:development.properties" system-properties-mode="OVERRIDE" ignore-unresolvable="false"/>
 
 </beans>

@@ -26,10 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +48,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     private File descriptorBundleDir;
     private File errorGeneratingDescriptorBundleDir;
     private File exceptionThrowingAtLoadDescriptorBundleDir;
+    private File validMultipleExtensionPluginBundleDir;
     private DefaultPluginRegistry registry;
 
     @Before
@@ -62,18 +60,25 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment());
         pluginOSGiFramework.start();
 
-        ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.osgi.jar")));
-        descriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "descriptor-plugin-bundle-dir");
+        try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.osgi.jar")))) {
+            descriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "descriptor-plugin-bundle-dir");
+        }
 
-        zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("error-generating-descriptor-aware-test-plugin.osgi.jar")));
-        errorGeneratingDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "error-generating-descriptor-plugin-bundle-dir");
+        try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("error-generating-descriptor-aware-test-plugin.osgi.jar")))) {
+            errorGeneratingDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "error-generating-descriptor-plugin-bundle-dir");
+        }
 
-        zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("exception-throwing-at-load-plugin.osgi.jar")));
-        exceptionThrowingAtLoadDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "exception-throwing-at-load-plugin-bundle-dir");
+        try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("exception-throwing-at-load-plugin.osgi.jar")))) {
+            exceptionThrowingAtLoadDescriptorBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "exception-throwing-at-load-plugin-bundle-dir");
+        }
+
+        try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("valid-plugin-with-multiple-extensions.osgi.jar")))) {
+            validMultipleExtensionPluginBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "valid-plugin-with-multiple-extensions");
+        }
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         FileUtils.deleteQuietly(TMP_DIR);
         pluginOSGiFramework.stop();
     }
@@ -98,7 +103,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWhenPluginLoaded() throws Exception {
+    public void shouldNotifyListenersWhenPluginLoaded() {
         PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
         pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(null, null, null, null, descriptorBundleDir, true);
@@ -107,7 +112,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWhenPluginUnLoaded() throws Exception {
+    public void shouldNotifyListenersWhenPluginUnLoaded() {
         PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
         pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(null, null, null, null, descriptorBundleDir, true);
@@ -116,10 +121,6 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
         pluginOSGiFramework.unloadPlugin(pluginDescriptor);
         verify(pluginChangeListener).pluginUnLoaded(pluginDescriptor);
-    }
-
-    private int getIntField(Object service, String fieldName) {
-        return Integer.parseInt(ReflectionUtil.getField(service, fieldName) + "");
     }
 
     @Test
@@ -142,7 +143,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldHandleErrorGeneratedByAValidGoPluginOSGiBundleAtUsageTime() throws Exception {
+    public void shouldHandleErrorGeneratedByAValidGoPluginOSGiBundleAtUsageTime() {
         Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(null, null, null, null, errorGeneratingDescriptorBundleDir, true));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
@@ -163,7 +164,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldPassInCorrectDescriptorToAction() throws Exception {
+    public void shouldPassInCorrectDescriptorToAction() {
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("testplugin.descriptorValidator", null, null, null, descriptorBundleDir, true);
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
@@ -208,6 +209,28 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         Bundle bundle = pluginOSGiFramework.loadPlugin(pluginDescriptor);
         assertThat(pluginDescriptor.isInvalid(),is(true));
         assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
+    }
+
+    @Test
+    public void shouldLoadAValidPluginWithMultipleExtensions_ImplementingDifferentExtensions() throws Exception {
+        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(null, null, null, null, validMultipleExtensionPluginBundleDir, true));
+        assertThat(bundle.getState(), is(Bundle.ACTIVE));
+
+        BundleContext context = bundle.getBundleContext();
+        String taskExtensionFilter = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, "valid-plugin-with-multiple-extensions", Constants.BUNDLE_CATEGORY, "task");
+        String analyticsExtensionFilter = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, "valid-plugin-with-multiple-extensions", Constants.BUNDLE_CATEGORY, "analytics");
+
+        ServiceReference<?>[] taskExtensionServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), taskExtensionFilter);
+        assertThat(taskExtensionServiceReferences.length, is(1));
+        assertThat(((GoPlugin) context.getService(taskExtensionServiceReferences[0])).pluginIdentifier().getExtension(), is("task"));
+
+        ServiceReference<?>[] analyticsExtensionServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), analyticsExtensionFilter);
+        assertThat(analyticsExtensionServiceReferences.length, is(1));
+        assertThat(((GoPlugin) context.getService(analyticsExtensionServiceReferences[0])).pluginIdentifier().getExtension(), is("analytics"));
+    }
+
+    private int getIntField(Object service, String fieldName) {
+        return Integer.parseInt(ReflectionUtil.getField(service, fieldName) + "");
     }
 
     private File pathOfFileInDefaultFiles(String filePath) {

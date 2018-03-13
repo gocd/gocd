@@ -53,7 +53,7 @@ public class DefaultPluginManager implements PluginManager {
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
-    private final Set<PluginDescriptor> initializedPlugins = new HashSet<>();
+    private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
     private PluginRequestProcessorRegistry requestProcesRegistry;
 
     @Autowired
@@ -103,8 +103,8 @@ public class DefaultPluginManager implements PluginManager {
 
             @Override
             public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-                synchronized (initializedPlugins) {
-                    initializedPlugins.remove(pluginDescriptor);
+                synchronized (initializedPluginsWithTheirExtensionTypes) {
+                    initializedPluginsWithTheirExtensionTypes.remove(pluginDescriptor);
                 }
             }
         });
@@ -120,8 +120,8 @@ public class DefaultPluginManager implements PluginManager {
     @Override
     public void stopInfrastructure() {
         goPluginOSGiFramework.stop();
-
         monitor.stop();
+        initializedPluginsWithTheirExtensionTypes.clear();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class DefaultPluginManager implements PluginManager {
         return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                ensureInitializerInvoked(pluginDescriptor, plugin);
+                ensureInitializerInvoked(pluginDescriptor, plugin, extensionType);
                 try {
                     return plugin.handle(apiRequest);
                 } catch (UnhandledRequestTypeException e) {
@@ -146,12 +146,18 @@ public class DefaultPluginManager implements PluginManager {
         });
     }
 
-    private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin) {
-        synchronized (initializedPlugins) {
-            if (initializedPlugins.contains(pluginDescriptor)) {
+    private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin, String extensionType) {
+        synchronized (initializedPluginsWithTheirExtensionTypes) {
+            if (initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor) == null) {
+                initializedPluginsWithTheirExtensionTypes.put(pluginDescriptor, new HashSet<>());
+            }
+
+            Set<String> initializedExtensions = initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor);
+            if (initializedExtensions == null || initializedExtensions.contains(extensionType)) {
                 return;
             }
-            initializedPlugins.add(pluginDescriptor);
+            initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor).add(extensionType);
+
             PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcesRegistry);
             plugin.initializeGoApplicationAccessor(accessor);
         }

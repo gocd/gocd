@@ -28,7 +28,6 @@
     build.error.generating.plugin.jar,
     build.invalid.descriptor.plugin.jar,
     build.exception.throwing.at.load.plugin.jar,
-    build.plugin.with.multiple.extensions.for.same.interface.jar,
     build.valid.plugin.with.multiple.extensions.jar,
     create.activator.jar,
     create.osgi.bundles"/>
@@ -42,7 +41,6 @@
     <delete file="error-generating-descriptor-aware-test-plugin.osgi.jar"/>
     <delete file="exception-throwing-at-load-plugin.jar"/>
     <delete file="invalid-descriptor-plugin.jar"/>
-    <delete file="plugin-with-multiple-extensions.jar"/>
     <delete file="exception-throwing-at-load-plugin.osgi.jar"/>
     <delete file="valid-plugin-with-multiple-extensions.jar"/>
     <delete dir="target"/>
@@ -95,12 +93,6 @@
   <target name="build.invalid.descriptor.plugin.jar">
     <build.jar file="invalid-descriptor-plugin.jar"
                dir="${plugins.dir}/plugins/invalid-descriptor-plugin/"
-               classpathref="test.plugin.classpath"/>
-  </target>
-
-  <target name="build.plugin.with.multiple.extensions.for.same.interface.jar">
-    <build.jar file="plugin-with-multiple-extensions.jar"
-               dir="${plugins.dir}/plugins/plugin-with-multiple-extensions-for-same-interface/"
                classpathref="test.plugin.classpath"/>
   </target>
 

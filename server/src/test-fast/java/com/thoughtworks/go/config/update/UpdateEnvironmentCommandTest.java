@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
@@ -34,6 +33,8 @@ import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -141,5 +142,19 @@ public class UpdateEnvironmentCommandTest {
         expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name().toString()));
 
         assertThat(result, is(expectResult));
+    }
+
+    @Test
+    public void shouldSetTheConfigOriginOnTheUpdatedEnvironmentConfig() {
+        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentName.toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        EnvironmentsConfig environmentConfigs = mock(EnvironmentsConfig.class);
+        when(cruiseConfig.getEnvironments()).thenReturn(environmentConfigs);
+        when(environmentConfigs.find(oldEnvironmentName)).thenReturn(newEnvironmentConfig);
+
+        updateEnvironmentCommand.postValidationUpdates(cruiseConfig);
+
+        assertThat(newEnvironmentConfig.getOrigin(), is(new FileConfigOrigin()));
     }
 }

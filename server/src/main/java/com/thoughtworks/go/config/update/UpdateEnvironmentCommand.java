@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -68,7 +69,10 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     }
 
     @Override
-    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {
+        EnvironmentConfig addedEnvironmentConfig = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentConfigName));
+        addedEnvironmentConfig.setOrigins(new FileConfigOrigin());
+    }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         EnvironmentConfig config = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentConfigName));

@@ -84,16 +84,22 @@ $(() => {
       return;
     };
 
-    return new AjaxPoller(() => Dashboard.get().then(onsuccess, onerror));
+    return new AjaxPoller(() => Dashboard.get()
+      .then(onsuccess, onerror)
+      .always(() => {
+        showSpinner(false);
+      }));
   }
 
-  const repeater = Stream(createRepeater());
+  const repeater          = Stream(createRepeater());
+  const showSpinner       = Stream(true);
 
   const renderView = () => {
     const component = {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          showSpinner,
           isQuickEditPageEnabled,
           isNewDashboardPageDefault,
           vm:                   dashboardVM,

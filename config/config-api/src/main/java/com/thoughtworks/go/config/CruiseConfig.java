@@ -112,6 +112,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     PipelineGroups getGroups();
 
+    List<String> getGroupsForUser(CaseInsensitiveString username, List<Role> roles);
+
     void addPipeline(String groupName, PipelineConfig pipelineConfig);
 
     void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig);

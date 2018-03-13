@@ -195,7 +195,7 @@ public class TemplateConfigService {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
             return null;
         }
-        List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEdit();
+        List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEditForUser(username);
         List<PipelineConfig> allPipelinesNotUsingTemplates = new ArrayList<>();
         for (PipelineConfig pipeline : allPipelineConfigs) {
             if (!pipeline.hasTemplate()) {

@@ -843,6 +843,17 @@ public class BasicCruiseConfig implements CruiseConfig {
         return groups;
     }
 
+    @Override
+    public List<String> getGroupsForUser(CaseInsensitiveString username, List<Role> roles) {
+        ArrayList<String> groups = new ArrayList<>();
+        for (PipelineConfigs group : this.groups) {
+            if (isAdministrator(username.toString()) || group.isUserAnAdmin(username, roles)) {
+                groups.add(group.getGroup());
+            }
+        }
+        return groups;
+    }
+
     // when adding pipelines, groups or environments we must make sure that both merged and basic scopes are updated
 
     @Override

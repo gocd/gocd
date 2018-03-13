@@ -550,6 +550,18 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getConfigForEditing().getAllPipelineConfigs();
     }
 
+    public List<PipelineConfig> getAllPipelineConfigsForEditForUser(Username username) {
+        ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
+
+        List<String> groupsForUser = getConfigForEditing().getGroupsForUser(username.getUsername(), rolesForUser(username.getUsername()));
+
+        for (String groupName : groupsForUser) {
+            pipelineConfigs.addAll(getAllPipelinesInGroup(groupName).getPipelines());
+        }
+
+        return pipelineConfigs;
+    }
+
     public String adminEmail() {
         return getCurrentConfig().adminEmail();
     }

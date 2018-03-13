@@ -364,7 +364,7 @@ public class TemplateConfigServiceTest {
 
         cruiseConfig.addTemplate(template);
         cruiseConfig.addTemplate(another);
-        when(goConfigService.getAllPipelineConfigsForEdit()).thenReturn(cruiseConfig.allPipelines());
+        when(goConfigService.getAllPipelineConfigsForEditForUser(user)).thenReturn(cruiseConfig.allPipelines());
 
         List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, new HttpLocalizedOperationResult());
         assertThat(pipelineConfigs, is(Arrays.asList(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo)));

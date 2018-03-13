@@ -24,6 +24,7 @@
     const url = Stream();
     const view = Stream();
     const data = Stream();
+    const pluginId = Stream();
     const errors = Stream();
 
     function load() {
@@ -58,7 +59,7 @@
       });
     }
 
-    (Object.assign || $.extend)(this, {url, view, data, load, fetch, errors});
+    (Object.assign || $.extend)(this, {url, view, data, load, fetch, pluginId, errors});
   }
 
   module.exports = Frame;

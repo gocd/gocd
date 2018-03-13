@@ -25,64 +25,28 @@
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
   const VersionUpdater           = require('models/shared/version_updater');
-  const Frame                    = require('models/analytics/frame');
+  const Tab                      = require('models/analytics/tab');
+  const Tabs                     = require('models/analytics/tabs');
   const AnalyticsDashboardHeader = require('views/analytics/header');
-  const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
-  const Routes                   = require('gen/js-routes');
-
-  const models = {};
-
-  function ensureModel(uid, pluginId, type, id) {
-    let model = models[uid];
-
-    if (!model) {
-      model = models[uid] = new Frame(m.redraw);
-      model.url(Routes.showAnalyticsPath(pluginId, type, id)); // eslint-disable-line camelcase
-    }
-
-    return model;
-  }
+  const DashboardTabs            = require('views/analytics/tabs');
+  const GlobalMetrics            = require('views/analytics/global_metrics');
+  const PipelineMetrics          = require('views/analytics/pipeline_metrics');
 
   PluginEndpoint.ensure();
-
-  PluginEndpoint.define({
-    "analytics.job.history": (message, trans) => {
-      const meta = message.head;
-      const model = models[meta.uid];
-      const params = $.extend({plugin_id: meta.pluginId}, message.body); // eslint-disable-line camelcase
-
-      params.start = JSON.stringify(params.start).replace(/"/g, "");
-      params.end = JSON.stringify(params.end).replace(/"/g, "");
-
-      model.fetch(Routes.jobAnalyticsPath(params), (data, errors) => {
-        trans.respond({data, errors});
-      });
-    },
-
-    "analytics.pipeline": (message, reply) => { // eslint-disable-line no-unused-vars
-      const meta = message.head;
-      const model = models[meta.uid];
-      model.url(Routes.pipelineAnalyticsPath({plugin_id: meta.pluginId, pipeline_name: message.body.pipelineName})); // eslint-disable-line camelcase
-      model.load();
-    }
-  });
 
   document.addEventListener("DOMContentLoaded", () => {
     const main = document.querySelector("[data-supported-dashboard-metrics]");
 
     m.mount(main, {
       view() {
-        const frames = [];
-        frames.push(m(AnalyticsDashboardHeader));
-        $.each($(main).data("supported-dashboard-metrics"), (pluginId, supportedAnalytics) => {
-          $.each(supportedAnalytics, (idx, sa) => {
-            const uid = `f-${pluginId}:${sa.id}:${idx}`,
-              model = ensureModel(uid, pluginId, sa.type, sa.id);
-
-            frames.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
-          });
-        });
-        return frames;
+        const metrics = $(main).data("supported-dashboard-metrics");
+        const pageItems = [];
+        const tabs = new Tabs();
+        pageItems.push(m(AnalyticsDashboardHeader));
+        tabs.push(new Tab("Global", GlobalMetrics, metrics));
+        tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: Object.keys(metrics)}));
+        pageItems.push(m(DashboardTabs, {tabs}));
+        return pageItems;
       }
     });
 

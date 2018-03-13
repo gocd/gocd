@@ -23,38 +23,90 @@
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
+// scss-lint:disable SelectorDepth
+
 .analytics-container {
-  height:          80vh;
+  height:          79vh;
   display:         flex;
   flex-wrap:       wrap;
   justify-content: center;
-  overflow:        scroll;
-  margin-top:      40px;
+  overflow-y:      scroll;
+  overflow-x:      hidden;
+  margin-top:      50px;
 
   h1 {
     font-weight: 600;
   }
 
-  .frame-container {
-    flex-grow:  1;
-    flex-basis: auto;
-    min-width:  500px;
-    min-height: 44vh;
-    max-width:  calc(60vh * 5 / 3);
+  .dashboard-content {
+    display:        flex;
+    flex-grow:      0.5;
+    height:         100%;
+    width:          100%;
+    padding:        0 100px;
+    flex-direction: column;
 
-    iframe {
-      height: 100%;
-      width:  100%;
-      border: 0;
+    .dashboard-tabs-container {
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+
+      .dashboard-tabs {
+        margin: 0;
+
+        li {
+          cursor:        pointer;
+          float:         left;
+          list-style:    none;
+          padding:       7px 15px;
+          line-height:   19px;
+          font-size:     15px;
+          border-radius: 3px 3px 0 0;
+          font-weight:   600;
+          color:         #333;
+
+          &.current {
+            border-bottom: 4px solid #94399e;
+            font-weight:   700;
+          }
+        }
+      }
     }
 
-    &[data-error-text] {
-      border: 1px solid #f00;
+    .dashboard-charts {
+      overflow:        visible;
+      border:          0;
+      height:          100%;
+      display:         flex;
+      flex-flow:       row wrap;
+      justify-content: center;
 
-      &::before {
-        display: block;
-        content: attr(data-error-text);
-        color: #f00;
+      select {
+        min-width:  calc(35vh * 5 / 3);
+        max-width:  calc(43vh * 5 / 3);
+        margin:     0 25%;
+      }
+
+      .frame-container {
+        min-width:  calc(44vh * 5 / 3);
+        min-height: 44vh;
+        max-width:  calc(60vh * 5 / 3);
+        height:     100%;
+
+        iframe {
+          height: 100%;
+          width:  100%;
+          border: 0;
+        }
+
+        &[data-error-text] {
+          border: 1px solid #f00;
+
+          &::before {
+            display: block;
+            content: attr(data-error-text);
+            color:   #f00;
+          }
+        }
       }
     }
   }

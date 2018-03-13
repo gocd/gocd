@@ -254,11 +254,13 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doCancelPolling).not.toHaveBeenCalled();
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
+        doRefreshImmediately.and.callFake(() => pipeline.isPaused = false);
         simulateEvent.simulate($root.find('.unpause').get(0), 'click');
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
+        expect($root.find('.pipeline_pause-message')).not.toBeInDOM();
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
       });
@@ -364,11 +366,14 @@ describe("Dashboard Pipeline Widget", () => {
 
         simulateEvent.simulate($root.find('.pause').get(0), 'click');
         $('.reveal input').val("test");
+
+        doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         simulateEvent.simulate($('.reveal .primary').get(0), 'click');
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
+        expect($root.find('.pipeline_pause-message')).toBeInDOM();
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
       });

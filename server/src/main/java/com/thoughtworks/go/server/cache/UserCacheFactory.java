@@ -16,15 +16,16 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public class UserCacheFactory {
@@ -34,6 +35,7 @@ public class UserCacheFactory {
         factoryBean = new EhCacheFactoryBean();
     }
 
+    @Bean(name = "userCache")
     public Cache createCache() throws IOException {
         factoryBean.setCacheManager(createCacheManager());
         factoryBean.setCacheName("userCache");

@@ -130,8 +130,6 @@
     </property>
   </bean>
 
-  <bean id="userCache" factory-bean="userCacheFactory" factory-method="createCache" autowire-candidate="false"/>
-
   <bean class="org.springframework.security.vote.AffirmativeBased" id="accessDecisionManager">
     <property name="allowIfAllAbstainDecisions" value="false"/>
     <property name="decisionVoters">

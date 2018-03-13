@@ -48,9 +48,10 @@ public class GoCacheFactory {
         factoryBean = new EhCacheFactoryBean();
     }
 
-    @Bean
+    @Bean(name = "goCache")
     public GoCache createCache() throws IOException {
         factoryBean.setCacheManager(createCacheManager());
+        factoryBean.setCacheName("goCache");
         factoryBean.afterPropertiesSet();
         factoryBean.getObject().getCacheConfiguration().setClearOnFlush(clearOnFlush);
         return new GoCache(factoryBean, transactionSynchronizationManager);

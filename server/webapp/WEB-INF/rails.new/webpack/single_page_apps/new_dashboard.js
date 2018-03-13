@@ -29,11 +29,12 @@ require('helpers/server_health_messages_helper');
 
 $(() => {
   new VersionUpdater().update();
-  const dashboardElem = $('#dashboard');
+  const dashboardElem              = $('#dashboard');
 
-  const dashboardVM            = new DashboardVM();
-  const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
-  const isNewDashboardPageDefault = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
+  const dashboardVM                = new DashboardVM();
+  const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
+  const isNewDashboardPageDefault  = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
+  const pluginsSupportingAnalytics = JSON.parse(dashboardElem.attr('data-plugins-supporting-analytics'));
 
   $(document).foundation();
 
@@ -96,6 +97,7 @@ $(() => {
           dashboard,
           isQuickEditPageEnabled,
           isNewDashboardPageDefault,
+          pluginsSupportingAnalytics,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => {

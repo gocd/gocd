@@ -48,6 +48,7 @@ const PipelineWidget = {
           <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
                                 doCancelPolling={vnode.attrs.doCancelPolling}
                                 doRefreshImmediately={vnode.attrs.doRefreshImmediately}
+                                pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                 vm={vnode.attrs.vm}
                                 isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
           <div className="pipeline_instances">

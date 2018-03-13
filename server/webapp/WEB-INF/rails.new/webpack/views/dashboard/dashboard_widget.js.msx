@@ -130,6 +130,7 @@ const DashboardWidget = {
                                       doCancelPolling={vnode.attrs.doCancelPolling}
                                       doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                       isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
+                                      pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                       key={pipelineName}
                                       vm={vnode.attrs.vm}/>
                     );

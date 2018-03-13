@@ -15,8 +15,10 @@
  */
 
 const m = require('mithril');
+const $ = require('jquery');
 
 const PipelineOperationsWidget = require('views/dashboard/pipeline_operations_widget');
+const PipelineAnalyticsWidget  = require('views/dashboard/pipeline_analytics_widget');
 
 const PipelineHeaderWidget = {
   oninit(vnode) {
@@ -35,13 +37,19 @@ const PipelineHeaderWidget = {
 
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
+    const pluginsSupportingAnalytics = vnode.attrs.pluginsSupportingAnalytics;
     let settingsButton;
+    const analyticsIcons = [];
     if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} href={settingsPath}/>);
     } else {
       settingsButton = (<a class={`edit_config disabled`}/>);
     }
+
+    $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
+      analyticsIcons.push(m(PipelineAnalyticsWidget, {pipeline, pluginId, metricId}));
+    });
 
     let pipelineLockButton;
     if (pipeline.isLocked) {
@@ -54,6 +62,7 @@ const PipelineHeaderWidget = {
       <div class="pipeline_header">
         <h3 class="pipeline_name" title={pipeline.name}> {pipeline.name} </h3>
         <div className="pipeline_actions">
+          {analyticsIcons}
           {settingsButton}
           {pipelineLockButton}
         </div>

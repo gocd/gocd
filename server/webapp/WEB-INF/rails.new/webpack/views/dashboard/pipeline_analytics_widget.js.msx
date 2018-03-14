@@ -19,8 +19,8 @@ const m = require('mithril');
 const PluginEndpoint           = require('rails-shared/plugin-endpoint');
 const Modal                    = require('views/shared/new_modal');
 const Routes                   = require('gen/js-routes');
-const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
-const Frame                    = require('models/analytics/frame');
+const AnalyticsiFrameWidget    = require('views/shared/analytics_iframe_widget');
+const Frame                    = require('models/shared/frame');
 
 
 function createModal(pluginId, metricId, pipeline) {
@@ -35,7 +35,7 @@ function createModal(pluginId, metricId, pipeline) {
   const modal = new Modal({
     size: "small",
     title: `Analytics for Pipeline: ${pipeline.name}`,
-    body: () => (m(PluginiFrameWidget, {model, pluginId, init: PluginEndpoint.init})),
+    body: () => (m(AnalyticsiFrameWidget, {model, pluginId, init: PluginEndpoint.init})),
     onclose: () => modal.destroy(),
     buttons: []
   });
@@ -46,7 +46,7 @@ const PipelineAnalyticsWidget = {
   view: (vnode) => {
     return m("a", {
       class: "pipeline-analytics",
-      onclick: function() { // eslint-disable-line object-shorthand
+      onclick: () => {
         createModal(vnode.attrs.pluginId, vnode.attrs.metricId, vnode.attrs.pipeline);
       }
     });

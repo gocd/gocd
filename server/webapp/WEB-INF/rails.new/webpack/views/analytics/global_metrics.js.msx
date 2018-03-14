@@ -20,10 +20,10 @@
   const m = require("mithril");
   const $ = require("jquery");
 
-  const PluginEndpoint           = require("rails-shared/plugin-endpoint");
-  const Frame                    = require("models/analytics/frame");
-  const PluginiFrameWidget       = require("views/analytics/plugin_iframe_widget");
-  const Routes                   = require("gen/js-routes");
+  const PluginEndpoint           = require('rails-shared/plugin-endpoint');
+  const Frame                    = require('models/shared/frame');
+  const AnalyticsiFrameWidget    = require('views/shared/analytics_iframe_widget');
+  const Routes                   = require('gen/js-routes');
 
   const models = {};
 
@@ -64,7 +64,7 @@
             const uid = `f-${pluginId}:${sa.id}:${idx}`,
               model = ensureModel(uid, pluginId, sa.type, sa.id);
 
-            frames.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
+            frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
           });
         });
       return frames;

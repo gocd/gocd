@@ -19,7 +19,7 @@
 
   const m = require("mithril");
 
-  const PluginiFrameWidget = function() {
+  const AnalyticsiFrameWidget = function() {
     let currentUrl = null;
     function oncreate(vnode) {
       const iframe = vnode.dom.firstChild;
@@ -69,6 +69,6 @@
     return {oncreate, view, onupdate};
   };
 
-  module.exports = PluginiFrameWidget;
+  module.exports = AnalyticsiFrameWidget;
 
 })();

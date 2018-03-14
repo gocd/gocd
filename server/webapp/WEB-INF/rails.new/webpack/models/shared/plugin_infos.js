@@ -95,7 +95,7 @@ PluginInfos.PluginInfo = function (types, {about, bundledPlugin, extensions, id,
 PluginInfos.PluginInfo.MultiPluginInfo = {};
 
 PluginInfos.PluginInfo.MultiPluginInfo.fromJSON = (data = {}) => {
-  let extensions = {};
+  const extensions = {};
   _.forEach(data.extensions, (extension) => {
     extensions[extension.type] = PluginInfos.PluginInfo.Extensions[extension.type](extension);
   });
@@ -105,7 +105,7 @@ PluginInfos.PluginInfo.MultiPluginInfo.fromJSON = (data = {}) => {
   return new PluginInfos.PluginInfo(_.map(data.extensions, (extension) => extension.type), {
     about:              About.fromJSON(data.about),
     bundledPlugin:      data.bundled_plugin,
-    extensions:         extensions,
+    extensions,
     id:                 data.id,
     imageUrl:           _.get(data, '_links.image.href'),
     pluginFileLocation: data.plugin_file_location,
@@ -155,7 +155,7 @@ PluginInfos.PluginInfo.Extensions['authorization'] = (extensionData = {}) => {
   };
 };
 
-PluginInfos.PluginInfo.Extensions['configrepo'] = (extensionData = {}) => {
+PluginInfos.PluginInfo.Extensions['configrepo'] = () => {
   return {};
 };
 
@@ -166,7 +166,7 @@ PluginInfos.PluginInfo.Extensions['elastic-agent'] = (extensionData = {}) => {
   };
 };
 
-PluginInfos.PluginInfo.Extensions['notification'] = (extensionData = {}) => {
+PluginInfos.PluginInfo.Extensions['notification'] = () => {
   return {};
 };
 
@@ -203,7 +203,7 @@ PluginInfos.PluginInfo.createByType = ({type}) => {
   return new PluginInfos.MultiPluginInfo.fromJSON({
     extensions: [
       {
-        type: type
+        type
       }
     ]
   });

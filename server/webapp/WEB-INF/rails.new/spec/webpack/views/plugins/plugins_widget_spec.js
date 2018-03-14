@@ -370,7 +370,7 @@ describe("PluginsWidget", () => {
     });
 
     it("should show status report button for admin", () => {
-      let pluginWithStatusReport = $root.find('.plugin .plugin-actions a.status-report-btn').parents('.plugin');
+      const pluginWithStatusReport = $root.find('.plugin .plugin-actions a.status-report-btn').parents('.plugin');
       expect(pluginWithStatusReport.find('.plugin-name')).toContainText(elasticAgentPluginInfoJSON.about.name);
       expect(pluginWithStatusReport.find('.plugin-name')).not.toContainText(configRepoPluginInfoJSON.about.name);
     });

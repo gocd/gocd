@@ -780,7 +780,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithElasticAgentExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithElasticAgentExtension);
 
-      let extensionInfo = pluginInfo.extensions()['elastic-agent'];
+      const extensionInfo = pluginInfo.extensions()['elastic-agent'];
       expect(extensionInfo.profileSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].profile_settings.view.template);
       expect(extensionInfo.profileSettings().configurations().countConfiguration()).toEqual(3);
       expect(extensionInfo.profileSettings().configurations().collectConfigurationProperty('key')).toEqual(['Image', 'Command', 'Environment']);
@@ -822,7 +822,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithPackageRepositoryExtension);
 
-      let extensionInfo = pluginInfo.extensions()['package-repository'];
+      const extensionInfo = pluginInfo.extensions()['package-repository'];
       expect(extensionInfo.packageSettings().configurations().countConfiguration()).toEqual(4);
       expect(extensionInfo.packageSettings().configurations().collectConfigurationProperty('key')).toEqual(['PACKAGE_ID', 'POLL_VERSION_FROM', 'POLL_VERSION_TO', 'INCLUDE_PRE_RELEASE']);
       expect(extensionInfo.packageSettings().configurations().firstConfiguration().metadata()).toEqual({
@@ -858,7 +858,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithTaskExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithTaskExtension);
 
-      let extensionInfo = pluginInfo.extensions().task;
+      const extensionInfo = pluginInfo.extensions().task;
       expect(extensionInfo.taskSettings().viewTemplate()).toEqual(pluginInfoWithTaskExtension.extensions[0].task_settings.view.template);
       expect(extensionInfo.taskSettings().configurations().countConfiguration()).toEqual(4);
       expect(extensionInfo.taskSettings().configurations().collectConfigurationProperty('key')).toEqual(['DockerFile', 'DockerRunArguments', 'IsDockerPush', 'DockerBuildTag']);
@@ -874,7 +874,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithSCMExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithSCMExtension);
 
-      let extensionInfo = pluginInfo.extensions().scm;
+      const extensionInfo = pluginInfo.extensions().scm;
       expect(extensionInfo.scmSettings().viewTemplate()).toEqual(pluginInfoWithSCMExtension.extensions[0].scm_settings.view.template);
       expect(extensionInfo.scmSettings().configurations().countConfiguration()).toEqual(3);
       expect(extensionInfo.scmSettings().configurations().collectConfigurationProperty('key')).toEqual(['url', 'username', 'password']);
@@ -899,7 +899,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithAuthorizationExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithAuthorizationExtension);
 
-      let extensionInfo = pluginInfo.extensions().authorization;
+      const extensionInfo = pluginInfo.extensions().authorization;
       expect(extensionInfo.authConfigSettings().viewTemplate()).toEqual(pluginInfoWithAuthorizationExtension.extensions[0].auth_config_settings.view.template);
       expect(extensionInfo.authConfigSettings().configurations().countConfiguration()).toEqual(4);
       expect(extensionInfo.authConfigSettings().configurations().collectConfigurationProperty('key')).toEqual(['Url', 'SearchBases', 'ManagerDN', 'Password']);
@@ -927,7 +927,7 @@ describe('PluginInfos', () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithArtifactExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithArtifactExtension);
 
-      let extensionInfo  = pluginInfo.extensions().artifact;
+      const extensionInfo  = pluginInfo.extensions().artifact;
       expect(extensionInfo.storeConfigSettings().viewTemplate()).toEqual(pluginInfoWithArtifactExtension.extensions[0].store_config_settings.view.template);
       expect(extensionInfo.storeConfigSettings().configurations().countConfiguration()).toEqual(3);
       expect(extensionInfo.storeConfigSettings().configurations().collectConfigurationProperty('key')).toEqual(['S3_BUCKET', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']);
@@ -984,7 +984,7 @@ describe('PluginInfos', () => {
         required: true
       });
 
-      let extensionInfo = pluginInfo.extensions().analytics;
+      const extensionInfo = pluginInfo.extensions().analytics;
       expect(extensionInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
       expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual(["foo"]);
     });
@@ -1061,11 +1061,11 @@ describe('PluginInfos', () => {
       expect(Object.keys(pluginInfo.extensions())).toEqual(['analytics', 'notification', 'package-repository']);
       expect(pluginInfo.extensions().notification).toEqual({});
 
-      let analyticsExtensionInfo = pluginInfo.extensions().analytics;
+      const analyticsExtensionInfo = pluginInfo.extensions().analytics;
       expect(analyticsExtensionInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
       expect(analyticsExtensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual(["foo"]);
 
-      let packageRepositoryExtensionInfo = pluginInfo.extensions()['package-repository'];
+      const packageRepositoryExtensionInfo = pluginInfo.extensions()['package-repository'];
       expect(packageRepositoryExtensionInfo.packageSettings().configurations().countConfiguration()).toEqual(4);
       expect(packageRepositoryExtensionInfo.repositorySettings().configurations().countConfiguration()).toEqual(3);
     });

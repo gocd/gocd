@@ -133,8 +133,15 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             return;
         }
 
+        for (PluginChangeListener listener : pluginChangeListeners) {
+            try {
+                listener.pluginUnLoaded(pluginDescriptor);
+            } catch (Exception e) {
+                LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), pluginDescriptor, e);
+            }
+        }
+
         try {
-            forAllDo(pluginChangeListeners, notifyPluginUnLoadedEvent(pluginDescriptor));
             bundle.stop();
             bundle.uninstall();
         } catch (Exception e) {

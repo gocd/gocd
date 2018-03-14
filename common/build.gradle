@@ -17,7 +17,6 @@
 description = 'GoCD Common Module'
 
 apply plugin: 'com.thoughtworks.go.test-sets'
-apply plugin: 'groovy'
 
 testSets {
   integrationTest {

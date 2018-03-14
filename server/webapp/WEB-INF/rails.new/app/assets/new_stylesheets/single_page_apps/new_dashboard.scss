@@ -293,26 +293,26 @@ $btn-default: #d6d5d5;
 }
 
 .page_header {
-  display:         flex;
-  width:           100%;
-  justify-content: space-between;
-  align-items:     center;
-  background:      #fff;
-  box-shadow:      0 0 0 #000;
-  height:          50px;
-  box-sizing:      border-box;
-  border-bottom:   1px solid $border-color;
-  position:        fixed;
-  top:             40px;
-  z-index:         10;
+  @include clearfix;
+  width:         100%;
+  align-items:   center;
+  background:    #fff;
+  box-shadow:    0 0 0 #000;
+  height:        50px;
+  box-sizing:    border-box;
+  border-bottom: 1px solid $border-color;
+  position:      fixed;
+  top:           40px;
+  z-index:       10;
 }
 
 .page_title {
   font-size:   17px;
   font-weight: 600;
-  margin:      0;
+  margin:      12px 0 0 0;
   padding:     0 30px;
   align-self:  center;
+  float:       left;
 }
 
 .toggle-old-view {
@@ -335,11 +335,12 @@ $btn-default: #d6d5d5;
 .filter {
   @include icon-before($type: search);
   position:        relative;
-  margin-top:      3px;
+  margin-top:      9px;
   padding:         0 30px;
   align-self:      center;
   display:         flex;
   justify-content: flex-end;
+  float:           right;
 
   &:before {
     position:  absolute;
@@ -386,7 +387,7 @@ $btn-default: #d6d5d5;
 .filter_options {
   position:   absolute;
   right:      30px;
-  top:        84px;
+  top:        43px;
   border:     1px solid $border-color;
   background: #fff;
   width:      $filter-width;
@@ -714,9 +715,9 @@ body {
 
 .pipeline_pause-message {
   @include truncate-to-lines($line-count: 3);
-  margin:      5px 0 0 0;
-  float:       left;
-  clear:       both;
+  margin: 5px 0 0 0;
+  float:  left;
+  clear:  both;
 }
 
 .pipeline_instance {

@@ -98,10 +98,10 @@ const PluginsWidget = {
         errorMessage,
         callback:   () => {
           if (newPluginSetting().etag()) {
-            newPluginSetting().update().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} was updated successfully.`), showErrors(modal, ctrl, newPluginSetting)).always(m.redraw);
+            newPluginSetting().update().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} were updated successfully.`), showErrors(modal, ctrl, newPluginSetting)).always(m.redraw);
           }
           else {
-            newPluginSetting().create().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} was created successfully.`), showErrors(modal, ctrl, newPluginSetting)).always(m.redraw);
+            newPluginSetting().create().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} were created successfully.`), showErrors(modal, ctrl, newPluginSetting)).always(m.redraw);
           }
         }
       });

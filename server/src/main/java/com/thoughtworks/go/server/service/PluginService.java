@@ -124,7 +124,7 @@ public class PluginService {
                     } else {
                         if (!result.hasMessage()) {
                             LOGGER.error(e.getMessage(), e);
-                            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the plugin settings. Please check the logs for more information."));
                         }
                     }
                 }

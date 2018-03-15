@@ -774,7 +774,7 @@ describe('PluginInfos', () => {
     expect(pluginInfoWithoutPluginSettingsConfiguration.supportsPluginSettings()).toBe(false);
 
   });
-  
+
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithElasticAgentExtension);
@@ -808,14 +808,6 @@ describe('PluginInfos', () => {
       expect(pluginInfo.extensions().notification).toEqual({});
 
       expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
-      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
-      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['hostname']);
-      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
-        secure:   false,
-        required: true
-      });
-    });
-  });
 
   describe("PackageRepository", () => {
     it("should deserialize", () => {
@@ -985,8 +977,8 @@ describe('PluginInfos', () => {
       });
 
       const extensionInfo = pluginInfo.extensions().analytics;
-      expect(extensionInfo.capabilities().supportsPipelineAnalytics()).toBeTruthy();
-      expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual(["foo"]);
+      expect(extensionInfo.capabilities().supportedPipelineAnalytics()).toEqual([{type: "pipeline", id: "rawr"}]);
+      expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{"type": "dashboard", "id": "foo"}]);
     });
   });
 

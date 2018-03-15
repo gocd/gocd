@@ -20,6 +20,7 @@ const Stream          = require('mithril/stream');
 const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
+const PluginInfos     = require('models/shared/plugin_infos');
 
 const VersionUpdater = require('models/shared/version_updater');
 const AjaxPoller     = require('helpers/ajax_poller');
@@ -34,7 +35,7 @@ $(() => {
   const dashboardVM                = new DashboardVM();
   const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   const isNewDashboardPageDefault  = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
-  const pluginsSupportingAnalytics = JSON.parse(dashboardElem.attr('data-plugins-supporting-analytics'));
+  const pluginsSupportingAnalytics = {};
 
   $(document).foundation();
 
@@ -117,5 +118,13 @@ $(() => {
   };
 
   repeater().start();
-  renderView();
+
+  const onPluginInfosResponse = (pluginInfos) => {
+    pluginInfos.eachPluginInfo((pluginInfo) => {
+      pluginsSupportingAnalytics[pluginInfo.id()] = pluginInfo.capabilities().supportedPipelineAnalytics()[0].id;
+    });
+    renderView();
+  };
+
+  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfosResponse);
 });

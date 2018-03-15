@@ -128,8 +128,9 @@ describe("Dashboard Pipeline Widget", () => {
 
   describe("Pipeline Analytics", () => {
     beforeEach(() => {
-      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"});
+      mount(false, true, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"});
     });
+
     afterEach(() => {
       unmount();
       Modal.destroyAll();

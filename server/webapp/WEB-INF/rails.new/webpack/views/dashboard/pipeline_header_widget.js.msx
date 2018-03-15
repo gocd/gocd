@@ -38,6 +38,7 @@ const PipelineHeaderWidget = {
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     const pluginsSupportingAnalytics = vnode.attrs.pluginsSupportingAnalytics;
+
     let settingsButton;
     const analyticsIcons = [];
     if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
@@ -47,9 +48,11 @@ const PipelineHeaderWidget = {
       settingsButton = (<a class={`edit_config disabled`}/>);
     }
 
-    $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
-      analyticsIcons.push(m(PipelineAnalyticsWidget, {pipeline, pluginId, metricId}));
-    });
+    if (pipeline.canAdminister) {
+      $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
+        analyticsIcons.push(m(PipelineAnalyticsWidget, {pipeline, pluginId, metricId}));
+      });
+    }
 
     let pipelineLockButton;
     if (pipeline.isLocked) {

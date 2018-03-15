@@ -91,7 +91,7 @@ describe("Dashboard", () => {
         }]);
       });
 
-      it("should contain overriden secure environment variables", () => {
+      it("should contain overridden secure environment variables", () => {
         const info     = TriggerWithOptionsInfo.fromJSON(json);
         const newValue = "some value";
         const variable = info.secureVariables[0];

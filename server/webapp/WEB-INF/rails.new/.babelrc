@@ -1,6 +1,9 @@
 {
   "presets": [
     [
+      "stage-2"
+    ],
+    [
       "env",
       {
         "debug": true,
@@ -26,6 +29,7 @@
         "debug": true,
         "pragma": "m"
       }
-    ]
+    ],
+    "transform-class-properties"
   ]
 }

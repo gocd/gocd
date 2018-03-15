@@ -50,7 +50,7 @@ describe("Dashboard Material Search State Model", () => {
       const revision             = 'foo';
 
       expect(materialVM.searchText()).toBe('');
-      expect(materials[0].selection()).toBe(undefined);
+      expect(materials[0].selection()).toBe('');
 
       expect(materialVM.isRevisionSelected()).toBe(false);
       materialVM.selectRevision(revision);
@@ -139,7 +139,7 @@ describe("Dashboard Material Search State Model", () => {
         materialVM.searchText(searchText);
 
         expect(materialVM.searchText()).toBe(searchText);
-        expect(materials[0].selection()).toBe(undefined);
+        expect(materials[0].selection()).toBe('');
 
         materialVM.performSearch();
 

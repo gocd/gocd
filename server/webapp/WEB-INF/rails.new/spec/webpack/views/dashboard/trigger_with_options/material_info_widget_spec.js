@@ -30,18 +30,10 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     window.destroyDomElementForTest();
   });
 
-  let info;
-  const searchVM = {
-    performSearch:         jasmine.createSpy('performSearch'),
-    searchText:            jasmine.createSpy('searchText'),
-    searchInProgress:      jasmine.createSpy('searchInProgress'),
-    materialSearchResults: jasmine.createSpy('materialSearchResult'),
-    isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
-  };
+  let triggerWithOptionsInfo;
 
   beforeEach(() => {
-    searchVM.materialSearchResults.and.returnValue(searchResults);
-    info = TriggerWithOptionsInfo.fromJSON(json);
+    triggerWithOptionsInfo = TriggerWithOptionsInfo.fromJSON(json);
   });
 
   afterEach(() => {
@@ -50,11 +42,16 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   });
 
   function mount(material) {
+    material.performSearch         = jasmine.createSpy('performSearch');
+    material.searchText            = jasmine.createSpy('searchText');
+    material.searchInProgress      = jasmine.createSpy('searchInProgress');
+    material.materialSearchResults = jasmine.createSpy('materialSearchResult');
+    material.isRevisionSelected    = jasmine.createSpy('isRevisionSelected');
+    material.materialSearchResults.and.returnValue(searchResults);
     m.mount(root, {
       view() {
         return m(MaterialInfoWidget, {
-          material,
-          searchVM
+          material
         });
       }
     });
@@ -62,13 +59,14 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   }
 
   it("it should render material info when revision is present", () => {
-    mount(info.materials[0]);
+    mount(triggerWithOptionsInfo.materials[0]);
     const material = json.materials[0];
 
     expect($root.find('.name-value .meta')).toContainText(material.type);
+
     expect($root.find('.name-value .meta')).toContainText(material.name);
 
-    expect($root.find('.name-value .destination')).toContainText(material.destination);
+    expect($root.find('.name-value .destination')).toContainText(material.folder);
 
     expect($root.find('.name-value .date')).toContainText(TimeFormatter.format(material.revision.date));
 
@@ -80,8 +78,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   });
 
   it("it should render material info when revision is not present", () => {
-    mount(info.materials[1]);
-
+    mount(triggerWithOptionsInfo.materials[1]);
     const material = json.materials[1];
 
     expect($root.find('.name-value .meta')).toContainText(material.type);
@@ -98,27 +95,8 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     expect($root.find('.name-value .last-run-revision')).toContainText('never ran');
   });
 
-  it("it should render material revision is missing content", () => {
-    mount(info.materials[2]);
-
-    const material = json.materials[2];
-
-    expect($root.find('.name-value .meta')).toContainText(material.type);
-    expect($root.find('.name-value .meta')).toContainText(material.name);
-
-    expect($root.find('.name-value .destination')).toContainText('not specified');
-
-    expect($root.find('.name-value .date')).toContainText('not specified');
-
-    expect($root.find('.name-value .user')).toContainText('not specified');
-
-    expect($root.find('.name-value .comment')).toContainText('not specified');
-
-    expect($root.find('.name-value .last-run-revision')).toContainText('not specified');
-  });
-
   it('should render searched material revision spinner', () => {
-    mount(info.materials[0]);
+    mount(triggerWithOptionsInfo.materials[0]);
     expect($root.find('.commits')).toBeInDOM();
   });
 
@@ -128,7 +106,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
       {
         "type":        "Git",
         "name":        "material1",
-        "destination": "gocd",
+        "folder":      "gocd",
         "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
         "revision":    {
           "date":              "2018-02-08T04:32:11Z",

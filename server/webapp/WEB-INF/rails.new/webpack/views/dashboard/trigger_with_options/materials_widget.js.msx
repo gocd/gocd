@@ -16,6 +16,7 @@
 
 
 const m = require('mithril');
+const f = require("helpers/form_helper");
 const _ = require('lodash');
 
 const MaterialInfoWidget = require('views/dashboard/trigger_with_options/material_info_widget');
@@ -39,12 +40,12 @@ const MaterialsForTriggerWidget = {
 
     const materialHeadings = _.map(vnode.attrs.materials, (material) => {
       const name = material.name;
-
+      debugger;
       return (
         <li class={self.activeClassForMaterial(name)}
             onclick={vm.selectMaterial.bind(vm, name)}>
           <span class="material-name">{material.name}</span>
-          <span class="latest-revision">{material.revision.lastRunRevision || "latest"}</span>
+          <span class="latest-revision">{material.revision.revision || "latest"}</span>
         </li>
       );
     });
@@ -53,6 +54,12 @@ const MaterialsForTriggerWidget = {
       return self.shouldMaterialContentBeVisible(material.name);
     });
 
+    let errorSection;
+    if (materialThatShouldBeVisible.error()) {
+      errorSection = (<f.alert>
+        {materialThatShouldBeVisible.error()}
+      </f.alert>);
+    }
     return (
       <div class="v-tab">
         <ul class="v-tab_tab-head">
@@ -60,9 +67,11 @@ const MaterialsForTriggerWidget = {
         </ul>
 
         <div class="v-tab_container">
-          <MaterialInfoWidget key={materialThatShouldBeVisible.name}
-                              material={materialThatShouldBeVisible}
-                              searchVM={vnode.attrs.searchVM[materialThatShouldBeVisible.name]}/>
+          {errorSection}
+          <div class="h-tab_container">
+            <MaterialInfoWidget key={materialThatShouldBeVisible.name}
+                                material={materialThatShouldBeVisible}/>
+          </div>
         </div>
       </div>);
   }

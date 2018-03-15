@@ -15,6 +15,7 @@
  */
 
 describe("Dashboard Trigger With Options Material Widget", () => {
+  const _      = require("lodash");
   const m      = require("mithril");
   const Stream = require("mithril/stream");
 
@@ -32,38 +33,26 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     window.destroyDomElementForTest();
   });
 
-  let vm, info, searchVM;
+  let vm, info;
   beforeEach(() => {
     vm   = new TriggerWithOptionsVM();
     info = TriggerWithOptionsInfo.fromJSON(json);
     vm.initialize(info);
 
-    searchVM = {
-      [json.materials[0].name]: {
-        performSearch:         jasmine.createSpy('performSearch'),
-        searchText:            jasmine.createSpy('searchText'),
-        searchInProgress:      jasmine.createSpy('searchInProgress'),
-        materialSearchResults: jasmine.createSpy('materialSearchResult'),
-        selectRevision:        jasmine.createSpy('selectRevision'),
-        isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
-      },
-      [json.materials[1].name]: {
-        performSearch:         jasmine.createSpy('performSearch'),
-        searchText:            jasmine.createSpy('searchText'),
-        searchInProgress:      jasmine.createSpy('searchInProgress'),
-        materialSearchResults: jasmine.createSpy('materialSearchResult'),
-        selectRevision:        jasmine.createSpy('selectRevision'),
-        isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
-      }
-    };
-
+    _.each(info.materials, (material) => {
+      material.performSearch         = jasmine.createSpy('performSearch');
+      material.searchText            = jasmine.createSpy('searchText');
+      material.searchInProgress      = jasmine.createSpy('searchInProgress');
+      material.materialSearchResults = jasmine.createSpy('materialSearchResult');
+      material.selectRevision        = jasmine.createSpy('selectRevision');
+      material.isRevisionSelected    = jasmine.createSpy('isRevisionSelected');
+    });
 
     m.mount(root, {
       view() {
         return m(MaterialForTriggerWidget, {
           materials: info.materials,
-          vm:        Stream(vm),
-          searchVM
+          vm:        Stream(vm)
         });
       }
     });

@@ -505,7 +505,7 @@ const jobElasticProfile = (
   <div>
     <p>
       Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile. <a
-      href={Routes.adminElasticProfilesPath()} target="_blank">Click here</a> to see and manage all elastic profiles.
+      href={'/go/admin/elastic_profiles'} target="_blank">Click here</a> to see and manage all elastic profiles.
     </p>
   </div>
 );

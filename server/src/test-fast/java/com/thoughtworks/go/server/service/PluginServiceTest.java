@@ -31,16 +31,21 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.domain.common.PluginConstants;
+import com.thoughtworks.go.plugin.domain.common.*;
+import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
+import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.io.File;
 import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -68,6 +73,8 @@ public class PluginServiceTest {
     private SecurityService securityService;
     @Mock
     private EntityHashingService entityHashingService;
+    @Mock
+    private DefaultPluginInfoFinder defaultPluginInfoFinder;
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
@@ -107,7 +114,7 @@ public class PluginServiceTest {
         when(notificationExtension.extensionName()).thenReturn(PluginConstants.NOTIFICATION_EXTENSION);
         when(configRepoExtension.extensionName()).thenReturn(PluginConstants.CONFIG_REPO_EXTENSION);
         extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
-        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService);
+        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, defaultPluginInfoFinder);
     }
 
     @Test
@@ -383,6 +390,46 @@ public class PluginServiceTest {
         Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
         plugin.setId(1L);
         verify(pluginDao).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void shouldGetPluginInfoFromTheExtensionWhichImplementsPluginSettingsIfThePluginImplementsMultipleExtensions() {
+        String pluginId = "plugin-id-1";
+        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo();
+        PluggableInstanceSettings pluginSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("key", new Metadata(false, false))));
+        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, "1", null, "location", new File(""), false);
+        NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(pluginDescriptor, null);
+        combinedPluginInfo.add(notificationPluginInfo);
+        SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), pluginSettings);
+        combinedPluginInfo.add(scmPluginInfo);
+
+        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, PluginConstants.SCM_EXTENSION, new PluginSettingsConfiguration(), "template-1");
+        when(defaultPluginInfoFinder.pluginInfoFor(pluginId)).thenReturn(combinedPluginInfo);
+        when(notificationExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(scmExtension.canHandlePlugin(pluginId)).thenReturn(true);
+
+        PluginInfo pluginInfo = pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
+
+        assertTrue(pluginInfo instanceof SCMPluginInfo);
+        assertThat(pluginInfo, is(scmPluginInfo));
+    }
+
+
+    @Test
+    public void shouldReturnNullForGetPluginInfoIfDoesNotImplementPluginSettings_MultipleExtensionImpl() {
+        String pluginId = "plugin-id-1";
+        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo();
+        PluggableInstanceSettings pluginSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("key", new Metadata(false, false))));
+        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, "1", null, "location", new File(""), false);
+        NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(pluginDescriptor, null);
+        combinedPluginInfo.add(notificationPluginInfo);
+        SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), pluginSettings);
+        combinedPluginInfo.add(scmPluginInfo);
+
+        when(notificationExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(scmExtension.canHandlePlugin(pluginId)).thenReturn(true);
+
+        assertNull(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId));
     }
 
     private String toJSON(Map<String, String> configuration) {

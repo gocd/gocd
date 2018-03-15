@@ -26,8 +26,6 @@ describe ApiV1::Admin::PluginSettingsController do
     @plugin_settings.setPluginSettingsProperties([ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     @plugin_service = double('plugin_service')
     @entity_hashing_service = double('entity_hashing_service')
-    @default_plugin_info_finder = double('default_plugin_info_finder')
-    allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
     allow(controller).to receive(:plugin_service).and_return(@plugin_service)
     allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
   end
@@ -90,7 +88,7 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should render the plugin settings for a specified plugin id' do
         expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(CombinedPluginInfo.new(@plugin_info))
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(@plugin_info)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
         get_with_api_header :show, plugin_id: 'plugin.id.1'
@@ -109,8 +107,7 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should render 424 for a non existent plugin' do
         expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
-
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
         get_with_api_header :show, plugin_id: 'plugin.id.1'
 
         expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
@@ -183,14 +180,13 @@ describe ApiV1::Admin::PluginSettingsController do
       before(:each) do
         enable_security
         login_as_admin
-        @default_plugin_info_finder = double('default_plugin_info_finder')
-        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        allow(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.2').exactly(2).times.and_return(
-          CombinedPluginInfo.new(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
-            [
-              com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil),
-              com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)
-            ]))))
+        @plugin_service = double('plugin_service')
+        allow(controller).to receive(:plugin_service).and_return(@plugin_service)
+        allow(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+          [
+            com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil),
+            com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)
+          ])))
       end
 
       it 'should deserialize plugin settings from given object' do
@@ -223,7 +219,7 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should render 424 for a non existent plugin' do
         hash = {plugin_id: 'plugin.id.1'}
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -304,11 +300,12 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should not proceed with update if validation has failed' do
-        @default_plugin_info_finder = double('default_plugin_info_finder')
-        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(
-          CombinedPluginInfo.new(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
-            [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)]))))
+        @plugin_service = double('plugin_service')
+        allow(controller).to receive(:plugin_service).and_return(@plugin_service)
+
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
+          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+          [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         allow(controller).to receive(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
 
@@ -339,11 +336,11 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should proceed with update if etag matches.' do
-        @default_plugin_info_finder = double('default_plugin_info_finder')
-        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(
-          CombinedPluginInfo.new(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
-            [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)]))))
+        @plugin_service = double('plugin_service')
+        allow(controller).to receive(:plugin_service).and_return(@plugin_service)
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
+          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+            [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
 
@@ -364,7 +361,7 @@ describe ApiV1::Admin::PluginSettingsController do
         controller.stub(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1'}
         expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
+        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 

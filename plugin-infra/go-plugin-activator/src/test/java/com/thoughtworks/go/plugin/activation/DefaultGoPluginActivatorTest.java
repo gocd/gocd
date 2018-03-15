@@ -317,7 +317,7 @@ public class DefaultGoPluginActivatorTest {
         activator.start(context);
 
         assertThat(activator.hasErrors(), is(true));
-        verifyErrorReportedContains("Unable to find extension type from plugin identifier in class PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier");
+        verifyErrorReportedContains("Unable to find extension type from plugin identifier in class com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier");
         verify(context, times(0)).registerService(eq(GoPlugin.class), any(GoPlugin.class), any());
     }
 

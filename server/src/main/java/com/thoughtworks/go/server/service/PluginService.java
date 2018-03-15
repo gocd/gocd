@@ -25,9 +25,11 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
@@ -43,14 +45,21 @@ public class PluginService {
     private final PluginDao pluginDao;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
+    private DefaultPluginInfoFinder defaultPluginInfoFinder;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService, DefaultPluginInfoFinder defaultPluginInfoFinder) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.defaultPluginInfoFinder = defaultPluginInfoFinder;
+    }
+
+    public PluginInfo pluginInfoForExtensionThatHandlesPluginSettings(String pluginId) {
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        return extension == null ? null : defaultPluginInfoFinder.pluginInfoFor(pluginId).extensionFor(extension.extensionName());
     }
 
     public PluginSettings loadStoredPluginSettings(String pluginId) {

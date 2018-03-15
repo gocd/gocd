@@ -389,12 +389,14 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       task_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', task_plugin_metadata)], task_plugin_view)
       task_plugin_info = PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_plugin_settings)
 
-      config_repo_plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
-      config_repo_plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
-      config_repo_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', config_repo_plugin_metadata)], config_repo_plugin_view)
-      config_repo_plugin_info = ConfigRepoPluginInfo.new(descriptor, config_repo_plugin_settings)
+      notification_plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('pluggable_task_view_template')
+      notification_plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+      notification_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', notification_plugin_metadata)], notification_plugin_view)
+      notification_plugin_info = NotificationPluginInfo.new(descriptor, notification_plugin_settings)
 
-      plugin_info_with_multiple_extensions = CombinedPluginInfo.new([task_plugin_info, config_repo_plugin_info])
+      config_repo_plugin_info = ConfigRepoPluginInfo.new(descriptor, nil)
+
+      plugin_info_with_multiple_extensions = CombinedPluginInfo.new([notification_plugin_info, task_plugin_info, config_repo_plugin_info])
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info_with_multiple_extensions).to_hash(url_builder: UrlBuilder.new)
 
       actual_json.delete(:_links)
@@ -409,13 +411,16 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
                                   about: about_json,
                                   extensions: [
                                     {
+                                      type: 'notification',
+                                      plugin_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(notification_plugin_settings).to_hash(url_builder: UrlBuilder.new)
+                                    },
+                                    {
                                       type: 'task',
                                       display_name: 'Foo task',
                                       task_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(task_plugin_settings).to_hash(url_builder: UrlBuilder.new),
                                     },
                                     {
-                                      type: 'configrepo',
-                                      plugin_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(config_repo_plugin_settings).to_hash(url_builder: UrlBuilder.new)
+                                      type: 'configrepo'
                                     }
                                   ]})
     end

@@ -40,7 +40,7 @@ const MaterialsForTriggerWidget = {
 
     const materialHeadings = _.map(vnode.attrs.materials, (material) => {
       const name = material.name;
-      debugger;
+
       return (
         <li class={self.activeClassForMaterial(name)}
             onclick={vm.selectMaterial.bind(vm, name)}>

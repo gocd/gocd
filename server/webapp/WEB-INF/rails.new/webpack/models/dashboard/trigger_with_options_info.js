@@ -43,6 +43,11 @@ const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVa
           fingerprint: material.fingerprint,
           revision:    material.selection()
         });
+      } else if (material.revision.revision) {
+        selections.push({
+          fingerprint: material.fingerprint,
+          revision:    material.revision.revision
+        });
       }
 
       return selections;

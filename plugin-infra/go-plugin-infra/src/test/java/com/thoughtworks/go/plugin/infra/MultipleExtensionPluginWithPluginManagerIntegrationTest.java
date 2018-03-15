@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.junitext.SystemPropertyAffectingTestBase;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
-public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
+public class MultipleExtensionPluginWithPluginManagerIntegrationTest extends SystemPropertyAffectingTestBase {
     private static final String EXTENSION_1_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.task_extension.";
     private static final String EXTENSION_2_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.analytics_extension.";
 
@@ -58,11 +60,12 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     @Autowired DefaultPluginJarChangeListener jarChangeListener;
     @Autowired SystemEnvironment systemEnvironment;
 
-    static {
-        System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
-        System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), BUNDLE_DIR_NAME);
-        System.setProperty(PLUGIN_GO_PROVIDED_PATH.propertyName(), PLUGIN_DIR_NAME);
-        System.setProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), PLUGIN_DIR_NAME);
+    @BeforeClass
+    public static void overrideProperties() {
+        overrideProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
+        overrideProperty(PLUGIN_BUNDLE_PATH.propertyName(), BUNDLE_DIR_NAME);
+        overrideProperty(PLUGIN_GO_PROVIDED_PATH.propertyName(), PLUGIN_DIR_NAME);
+        overrideProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), PLUGIN_DIR_NAME);
     }
 
     @Before

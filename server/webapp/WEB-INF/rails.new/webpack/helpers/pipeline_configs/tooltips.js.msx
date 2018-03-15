@@ -18,8 +18,6 @@ const m   = require('mithril');
 const _ = require('lodash');
 const f   = require('helpers/form_helper');
 
-const Routes = require('gen/js-routes');
-
 const UseThis = {
   view (vnode) {
     return (<a title='Use this' onclick={_.wrap(vnode.attrs.toShow, vnode.attrs.callback)}>{vnode.attrs.toShow}</a>);
@@ -504,8 +502,8 @@ const jobResources = (
 const jobElasticProfile = (
   <div>
     <p>
-      Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile. <a
-      href={'/go/admin/elastic_profiles'} target="_blank">Click here</a> to see and manage all elastic profiles.
+      Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile.
+      <a href="/go/admin/elastic_profiles" target="_blank">Click here</a> to see and manage all elastic profiles.
     </p>
   </div>
 );

@@ -28,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks
 class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>, SecurityServiceTrait {
   @Override
   NewDashboardDelegate createControllerInstance() {
-    return new NewDashboardDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new NewDashboardDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService)
   }
 
   @Nested

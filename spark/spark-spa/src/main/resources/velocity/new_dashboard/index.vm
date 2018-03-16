@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div id="dashboard" data-is-quick-edit-page-enabled="${isQuickEditPageEnabled}" data-is-new-dashboard-page-default="${isNewDashboardPageEnabled}">
+<div id="dashboard" data-is-quick-edit-page-enabled="${isQuickEditPageEnabled}" data-is-new-dashboard-page-default="${isNewDashboardPageEnabled}" data-is-current-user-an-admin="${isUserAnAdmin}">>
   <span class="page-spinner"/>
 </div>

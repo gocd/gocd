@@ -128,7 +128,7 @@ describe("Dashboard Pipeline Widget", () => {
 
   describe("Pipeline Analytics", () => {
     beforeEach(() => {
-      mount(false, true, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"});
+      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, true);
     });
 
     afterEach(() => {
@@ -824,7 +824,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, isUserAdmin = false) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -901,6 +901,7 @@ describe("Dashboard Pipeline Widget", () => {
           pipeline,
           isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
+          isUserAdmin,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

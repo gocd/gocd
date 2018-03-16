@@ -38,6 +38,7 @@ const PipelineHeaderWidget = {
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     const pluginsSupportingAnalytics = vnode.attrs.pluginsSupportingAnalytics;
+    const isUserAdmin = vnode.attrs.isUserAdmin;
 
     let settingsButton;
     const analyticsIcons = [];
@@ -48,7 +49,7 @@ const PipelineHeaderWidget = {
       settingsButton = (<a class={`edit_config disabled`}/>);
     }
 
-    if (pipeline.canAdminister) {
+    if (isUserAdmin) {
       $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
         analyticsIcons.push(m(PipelineAnalyticsWidget, {pipeline, pluginId, metricId}));
       });

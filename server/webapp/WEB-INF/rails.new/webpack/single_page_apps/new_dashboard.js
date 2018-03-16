@@ -34,6 +34,7 @@ $(() => {
 
   const dashboardVM                = new DashboardVM();
   const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
+  const isUserAdmin                = JSON.parse(dashboardElem.attr('data-is-current-user-an-admin'));
   const isNewDashboardPageDefault  = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
   const pluginsSupportingAnalytics = {};
 
@@ -99,6 +100,7 @@ $(() => {
           isQuickEditPageEnabled,
           isNewDashboardPageDefault,
           pluginsSupportingAnalytics,
+          isUserAdmin,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => {

@@ -22,7 +22,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.BadCredentialsException;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class BasicProcessingFilterEntryPointTest {
 
@@ -62,6 +66,19 @@ public class BasicProcessingFilterEntryPointTest {
         new BasicProcessingFilterEntryPoint().commence(request, response, new BadCredentialsException("foo"));
 
         assertEquals("Basic realm=\"GoCD\"", response.getHeader("WWW-Authenticate"));
+        assertEquals(401, response.getStatus());
+        assertEquals("foo", response.getErrorMessage());
+    }
+
+    @Test
+    public void shouldRender401WithNoAuthenticateHeaderForXhr() throws IOException, ServletException {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("X-Requested-With", "XMLHttpRequest");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        new BasicProcessingFilterEntryPoint().commence(request, response, new BadCredentialsException("foo"));
+
+        assertNull(response.getHeader("WWW-Authenticate"));
         assertEquals(401, response.getStatus());
         assertEquals("foo", response.getErrorMessage());
     }

@@ -137,7 +137,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     it("should link to pipeline analytics if there are any", () => {
-      expect($root.find('.pipeline-analytics').length).toEqual(1);
+      expect($root.find('.pipeline-analytics')).toBeInDOM();
     });
 
     it("should open up a modal when the analytics icon is clicked", () => {
@@ -147,6 +147,12 @@ describe("Dashboard Pipeline Widget", () => {
       expect($(".frame-container")).toBeInDOM();
       const modalTitle = $('.modal-title:visible');
       expect(modalTitle).toHaveText(`Analytics for Pipeline: ${pipeline.name}`);
+    });
+
+    it("should not display the analytics icon if the user is not an admin", () => {
+      unmount();
+      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
+      expect($root.find('.pipeline-analytics')).not.toBeInDOM();
     });
   });
 

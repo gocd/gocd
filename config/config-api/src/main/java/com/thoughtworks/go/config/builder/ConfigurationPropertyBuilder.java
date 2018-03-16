@@ -26,7 +26,6 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class ConfigurationPropertyBuilder {
-
     private GoCipher cipher;
 
     public ConfigurationPropertyBuilder() {
@@ -34,7 +33,6 @@ public class ConfigurationPropertyBuilder {
     }
 
     public ConfigurationProperty create(String key, String value, String encryptedValue, Boolean isSecure) {
-
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         configurationProperty.setConfigurationKey(new ConfigurationKey(key));
 
@@ -43,31 +41,41 @@ public class ConfigurationPropertyBuilder {
             configurationProperty.addError("encryptedValue", "You may only specify `value` or `encrypted_value`, not both!");
 
             configurationProperty.setConfigurationValue(new ConfigurationValue(value));
-            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+            setEncryptedValue(encryptedValue, configurationProperty);
             return configurationProperty;
         }
 
         if (isSecure) {
             if (isNotBlank(encryptedValue)) {
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+                setEncryptedValue(encryptedValue, configurationProperty);
             }
 
             if (isNotBlank(value)) {
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encrypt(value)));
+                setEncryptedValue(encrypt(value), configurationProperty);
             }
 
         } else {
             if (isNotBlank(encryptedValue)) {
                 configurationProperty.addError("encryptedValue", "encrypted_value cannot be specified to a unsecured property.");
-                configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+                setEncryptedValue(encryptedValue, configurationProperty);
             }
 
-            if (isNotBlank(value)) {
+            if (value != null) {
                 configurationProperty.setConfigurationValue(new ConfigurationValue(value));
             }
         }
 
         return configurationProperty;
+    }
+
+    private void setEncryptedValue(String encryptedValue, ConfigurationProperty configurationProperty) {
+        try {
+            cipher.decrypt(encryptedValue);
+        } catch (Exception e) {
+            configurationProperty.addError(configurationProperty.getConfigKeyName(), String.format("Could not decrypt secure configuration property value for key %s.", configurationProperty.getConfigKeyName()));
+        }
+
+        configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
     }
 
     private String encrypt(String data) {

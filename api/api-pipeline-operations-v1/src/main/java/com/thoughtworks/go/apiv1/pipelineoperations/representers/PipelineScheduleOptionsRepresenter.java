@@ -35,7 +35,7 @@ public class PipelineScheduleOptionsRepresenter {
         });
         jsonReader.readArrayIfPresent("environment_variables", environmentVariables -> {
             EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
-            environmentVariables.forEach(variable -> variables.add(EnvrionmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject()))));
+            environmentVariables.forEach(variable -> variables.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject()))));
             model.setEnvironmentVariables(variables);
         });
         return model;

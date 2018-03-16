@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.config.exceptions.InvalidCipherTextRuntimeException;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -25,9 +26,11 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
@@ -43,14 +46,16 @@ public class PluginService {
     private final PluginDao pluginDao;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
+    private final DefaultPluginInfoFinder pluginInfoFinder;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService, DefaultPluginInfoFinder pluginInfoFinder) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.pluginInfoFinder = pluginInfoFinder;
     }
 
     public PluginSettings getPluginSettingsFor(String pluginId) {
@@ -59,7 +64,7 @@ public class PluginService {
         if (plugin instanceof NullPlugin) {
             pluginSettings.populateSettingsMap(PluginSettingsMetadataStore.getInstance().configuration(pluginId));
         } else {
-            pluginSettings.populateSettingsMap(plugin);
+            pluginSettings.populateSettingsMap(plugin, pluginInfoFor(pluginId));
         }
         return pluginSettings;
     }
@@ -70,7 +75,7 @@ public class PluginService {
         if (plugin instanceof NullPlugin) {
             return null;
         } else {
-            pluginSettings.populateSettingsMap(plugin);
+            pluginSettings.populateSettingsMap(plugin, pluginInfoFor(pluginId));
         }
         return pluginSettings;
     }
@@ -144,7 +149,7 @@ public class PluginService {
                     savePluginSettingsFor(pluginSettings);
                     notifyPluginSettingsChange(pluginSettings);
                 } catch (Exception e) {
-                    if (e instanceof IllegalArgumentException) {
+                    if (e instanceof IllegalArgumentException || e instanceof InvalidCipherTextRuntimeException) {
                         result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
                     } else {
                         if (!result.hasMessage()) {
@@ -194,4 +199,12 @@ public class PluginService {
 
     }
 
+    private PluginInfo pluginInfoFor(String pluginId) {
+        final PluginInfo pluginInfo = pluginInfoFinder.pluginInfoFor(pluginId);
+        if (pluginInfo == null) {
+            throw new RuntimeException(String.format("The plugin with id %s is not loaded.", pluginId));
+        }
+
+        return pluginInfo;
+    }
 }

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
 
 public class ConfigurationPropertyBuilderTest {
     @Test
-    public void shouldCreateConfigurationPropertyWithEncyrptedValueForSecureProperty() {
+    public void shouldCreateConfigurationPropertyWithEncryptedValueForSecureProperty() {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
@@ -38,7 +38,7 @@ public class ConfigurationPropertyBuilderTest {
     }
 
     @Test
-    public void shouldCreateWithEncyrptedValueForOnlyPlainTextInputForSecureProperty() throws Exception {
+    public void shouldCreateWithEncryptedValueForOnlyPlainTextInputForSecureProperty() throws Exception {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
@@ -108,5 +108,13 @@ public class ConfigurationPropertyBuilderTest {
 
         assertThat(property.getConfigurationValue().getValue(), is("value"));
         assertNull(property.getEncryptedConfigurationValue());
+    }
+
+    @Test
+    public void shouldAddErrorOnPropertyWhenEncryptedValueCannotBeDecryptedByGoCipher() {
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("Password", null, "not-encrypted-by-gocd", true);
+
+        assertThat(property.errors().get("Password").get(0), is("Could not decrypt secure configuration property value for key Password."));
+        assertThat(property.getEncryptedValue(), is("not-encrypted-by-gocd"));
     }
 }

@@ -38,7 +38,9 @@ public abstract class SystemPropertyAffectingTestBase {
     }
 
     protected static void overrideProperty(String key, String value) {
-        oldProperties.put(key, value);
+        if (!oldProperties.containsKey(key)) {
+            oldProperties.put(key, value);
+        }
         System.setProperty(key, value);
     }
 

@@ -50,8 +50,8 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest extends Sys
     private static final String EXTENSION_1_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.task_extension.";
     private static final String EXTENSION_2_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.analytics_extension.";
 
-    private static final String PLUGIN_DIR_NAME = "./tmp-DefPlgnMgrIntTest";
-    private static final String BUNDLE_DIR_NAME = "./tmp-bundles-DefPlgnMgrIntTest";
+    private static final String PLUGIN_DIR_NAME = "./tmp-MultipleExtensionDefPlgnMgrIntTest";
+    private static final String BUNDLE_DIR_NAME = "./tmp-bundles-MultipleExtensionDefPlgnMgrIntTest";
     private static final File PLUGIN_DIR = new File(PLUGIN_DIR_NAME);
     private static final File BUNDLE_DIR = new File(BUNDLE_DIR_NAME);
     private static final String PLUGIN_ID = "valid-plugin-with-multiple-extensions";

@@ -85,7 +85,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
         try {
             framework.stop();
-        } catch (BundleException e) {
+            framework.waitForStop(10000L);
+        } catch (BundleException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 

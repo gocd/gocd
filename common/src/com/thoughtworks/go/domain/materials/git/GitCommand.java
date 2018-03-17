@@ -39,6 +39,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 public class GitCommand extends SCMCommand {
     private static final Pattern GIT_SUBMODULE_STATUS_PATTERN = Pattern.compile("^.[0-9a-fA-F]{40} (.+?)( \\(.+\\))?$");
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
+    private static final Pattern GIT_SUBMODULE_PATH_PATTERN = Pattern.compile("^submodule\\.(.+)\\.path (.+)$");
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
     private final File workingDir;
@@ -137,8 +138,8 @@ public class GitCommand extends SCMCommand {
 
     private void cleanAllUnversionedFiles(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Cleaning all unversioned files in working copy");
-        for (Map.Entry<String, String> submoduleFolder : submoduleUrls().entrySet()) {
-            cleanUnversionedFiles(new File(workingDir, submoduleFolder.getKey()));
+        for (Map.Entry<String, String> submoduleFolder : submodulePaths().entrySet()) {
+            cleanUnversionedFiles(new File(workingDir, submoduleFolder.getValue()));
         }
         cleanUnversionedFiles(workingDir);
     }
@@ -358,6 +359,25 @@ public class GitCommand extends SCMCommand {
             submoduleUrls.put(m.group(1), m.group(2));
         }
         return submoduleUrls;
+    }
+
+    public Map<String, String> submodulePaths() {
+        String[] args = new String[]{"config", "--file", ".gitmodules", "--get-regexp", "^submodule\\..+\\.path"};
+        
+        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
+        ConsoleResult result = runOrBomb(gitCmd, false);
+        List<String> submoduleList = result.output();
+        HashMap<String, String> submodulePaths = new HashMap<String, String>();
+        for (String submoduleLine : submoduleList) {
+            Matcher m = GIT_SUBMODULE_PATH_PATTERN.matcher(submoduleLine);
+            if (!m.find()) {
+                bomb("Unable to parse git-config output line: " + result.replaceSecretInfo(submoduleLine) + "\n"
+                        + "From output:\n"
+                        + result.replaceSecretInfo(join(submoduleList, "\n")));
+            }
+            submodulePaths.put(m.group(1), m.group(2));
+        }
+        return submodulePaths;
     }
 
     public String getCurrentBranch() {

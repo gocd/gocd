@@ -60,7 +60,7 @@ public class NewDashboardDelegate implements SparkController {
             put("viewTitle", "Dashboard");
             put("isQuickEditPageEnabled", Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP) && Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT));
             put("isNewDashboardPageEnabled", Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT));
-            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
+            put("shouldShowAnalyticsIcon", securityService.isUserAdmin(currentUsername()));
         }};
         return new ModelAndView(object, "new_dashboard/index.vm");
     }

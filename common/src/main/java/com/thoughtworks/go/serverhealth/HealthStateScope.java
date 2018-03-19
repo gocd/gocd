@@ -101,6 +101,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName + operation);
     }
 
+    public static HealthStateScope fromPlugin(String symbolicName) {
+        return new HealthStateScope(ScopeType.FROM_PLUGIN, symbolicName);
+    }
+
     public boolean isSame(String scope) {
         return StringUtils.endsWithIgnoreCase(this.scope, scope);
     }
@@ -269,7 +273,9 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
                 String[] parts = pipelineStageJob.split("/");
                 return !cruiseConfig.hasBuildPlan(new CaseInsensitiveString(parts[0]), new CaseInsensitiveString(parts[1]), parts[2], true);
             }
-        }, PLUGIN;
+        },
+        PLUGIN,
+        FROM_PLUGIN;
 
         protected boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String scope) {
             return false;

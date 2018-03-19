@@ -74,7 +74,7 @@ public class AnalyticsExtensionTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         metadataStore.clear();
     }
 
@@ -133,7 +133,7 @@ public class AnalyticsExtensionTest {
     }
 
     @Test
-    public void shouldErrorOutInAbsenceOfStaticAssets() throws Exception {
+    public void shouldErrorOutInAbsenceOfStaticAssets() {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("No assets defined!");
 
@@ -143,7 +143,7 @@ public class AnalyticsExtensionTest {
     }
 
     @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
+    public void shouldSerializePluginSettingsToJSON() {
         String pluginId = "plugin_id";
         HashMap<String, String> pluginSettings = new HashMap<>();
         pluginSettings.put("key1", "val1");
@@ -157,7 +157,7 @@ public class AnalyticsExtensionTest {
     }
 
     @Test
-    public void shouldNotExposeServerInfo() throws Exception {
+    public void shouldNotExposeServerInfo() {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch Server Info is not supported by Analytics endpoint.");
 

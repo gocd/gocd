@@ -16,23 +16,12 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.helpers.SecurityContextHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.UserService;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Matchers;
 import org.springframework.security.Authentication;
 import org.springframework.security.DisabledException;
@@ -40,17 +29,19 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrder;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.ui.AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY;
 
 public class UserEnabledCheckFilterTest {
@@ -198,6 +189,16 @@ public class UserEnabledCheckFilterTest {
     public void shouldNotLoadUserFromServiceWhenSecurityIsDisabled() throws Exception {
         SecurityContextHelper.setCurrentUser(Username.ANONYMOUS.getUsername().toString());
         when(session.getAttribute(USERID_ATTR)).thenReturn(null);
+
+        filter.doFilterHttp(req, res, chain);
+
+        verifyZeroInteractions(userService);
+        verify(chain).doFilter(req, res);
+    }
+
+    @Test
+    public void shouldNotLoadUserUsingUserServiceWhenUserIsGoAgentUser() throws IOException, ServletException {
+        SecurityContextHelper.setCurrentUser("_go_agent_hostname");
 
         filter.doFilterHttp(req, res, chain);
 

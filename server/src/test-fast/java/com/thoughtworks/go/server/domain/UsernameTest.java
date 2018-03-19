@@ -17,10 +17,10 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.Username;
 import org.junit.Test;
-import static org.junit.Assert.assertThat;
+
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 
 public class UsernameTest {
 
@@ -45,4 +45,11 @@ public class UsernameTest {
         assertThat(one, is(two));
     }
 
+    @Test
+    public void shouldCheckIfUserIsAGoAgentUser() {
+        final Username go_agent_user = new Username("_go_agent_hostname");
+
+        assertTrue(go_agent_user.isGoAgentUser());
+        assertFalse(go_agent_user.isAnonymous());
+    }
 }

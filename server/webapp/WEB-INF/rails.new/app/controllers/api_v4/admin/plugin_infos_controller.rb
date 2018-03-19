@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ module ApiV4
       ]
 
       def index
-        plugin_infos = default_plugin_info_finder.allPluginInfos(params[:type]).select do |pi|
-          PLUGIN_TYPES_FOR_VERSION.include?(pi.getExtensionName())
+        plugin_infos = default_plugin_info_finder.allPluginInfos(params[:type]).reject do |combined_plugin_info|
+          combined_plugin_info.nil? || is_non_nil_and_unsupported?(combined_plugin_info)
         end
 
         if params[:include_bad].to_bool
@@ -46,7 +46,7 @@ module ApiV4
       def show
         plugin_info = default_plugin_info_finder.pluginInfoFor(params[:id])
 
-        raise RecordNotFound if is_unsupported?(plugin_info)
+        raise RecordNotFound if is_non_nil_and_unsupported?(plugin_info)
 
         unless plugin_info
           descriptor = default_plugin_manager.getPluginDescriptorFor(params[:id])
@@ -59,10 +59,9 @@ module ApiV4
       end
 
       private
-      def is_unsupported? plugin_info
-        !plugin_info.nil? && !PLUGIN_TYPES_FOR_VERSION.include?(plugin_info.getExtensionName())
+      def is_non_nil_and_unsupported? plugin_info
+        !plugin_info.nil? && !(plugin_info.extensionNames() - PLUGIN_TYPES_FOR_VERSION).empty?
       end
-
     end
   end
 end

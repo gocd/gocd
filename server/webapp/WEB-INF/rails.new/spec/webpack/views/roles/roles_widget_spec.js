@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,42 +80,46 @@ describe("RolesWidget", () => {
 
   const ldapPluginInfoJSON = {
     "id":             "cd.go.authorization.ldap",
-    "type":           "authorization",
     "status": {
       "state": "active"
     },
     "about":          {"name": "Ldap authorization plugin"},
-    "extension_info": {
-      "role_settings": {
-        "configurations": [],
-        "view":           {
-          "template": '<div class="plugin-role-view"><label>Name</label><input id="name" type="text"/></div>'
+    "extensions": [
+      {
+        "type": "authorization",
+        "role_settings": {
+          "configurations": [],
+          "view":           {
+            "template": '<div class="plugin-role-view"><label>Name</label><input id="name" type="text"/></div>'
+          }
+        },
+        "capabilities":  {
+          "can_authorize": true
         }
-      },
-      "capabilities":  {
-        "can_authorize": true
       }
-    }
+    ]
   };
 
   const githubPluginInfoJSON = {
     "id":             "cd.go.authorization.github",
-    "type":           "authorization",
     "status": {
       "state": "active"
     },
     "about":          {"name": "GitHub authorization plugin"},
-    "extension_info": {
-      "role_settings": {
-        "configurations": [],
-        "view":           {
-          "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
+    "extensions": [
+      {
+        "type": "authorization",
+        "role_settings": {
+          "configurations": [],
+          "view":           {
+            "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
+          }
+        },
+        "capabilities":  {
+          "can_authorize": true
         }
-      },
-      "capabilities":  {
-        "can_authorize": true
       }
-    }
+    ]
   };
 
   const allPluginInfosJSON = [ldapPluginInfoJSON, githubPluginInfoJSON];

@@ -425,7 +425,6 @@ const MaterialTypeSelector = {
     const pluggableSCMs = {};
     vnode.attrs.pluginInfos().filterByType('scm').eachPluginInfo((pluginInfo) => {
       pluggableSCMs[pluginInfo.id()] = {
-        type:        pluginInfo.type(),
         description: pluginInfo.about().name()
       };
     });

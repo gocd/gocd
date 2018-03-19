@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -429,7 +429,6 @@ describe("Materials Config Widget", () => {
     {
       "id":      "github.oauth.login",
       "version": "1",
-      "type":    "authorization",
       "status": {
         "state": "active"
       },
@@ -443,7 +442,12 @@ describe("Materials Config Widget", () => {
           "name": "GoCD Contributors",
           "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
         }
-      }
+      },
+      "extensions": [
+        {
+          "type":    "authorization"
+        }
+      ]
     }
   ];
 

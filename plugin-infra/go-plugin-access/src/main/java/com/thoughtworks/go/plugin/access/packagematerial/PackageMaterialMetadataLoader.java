@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
@@ -43,7 +42,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
     @Autowired
     public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension) {
         this.packageRepositoryExtension = packageRepositoryExtension;
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        pluginManager.addPluginChangeListener(this);
     }
 
     void fetchRepositoryAndPackageMetaData(GoPluginDescriptor pluginDescriptor) {

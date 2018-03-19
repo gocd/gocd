@@ -81,7 +81,7 @@ const AuthConfigModalBody = {
     let angularPlugin;
 
     if (vnode.attrs.pluginInfo()) {
-      angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().authConfigSettings}
+      angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().extensions().authorization.authConfigSettings}
                                       configuration={vnode.attrs.authConfig().properties}
                                       key={vnode.attrs.pluginInfo().id()}/>);
     }

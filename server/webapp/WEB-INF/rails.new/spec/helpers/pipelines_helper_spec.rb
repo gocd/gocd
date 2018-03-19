@@ -152,4 +152,35 @@ describe PipelinesHelper do
       expect(revision_for(revision)).to eq("go-agent-13.1.noarch.rpm")
     end
   end
+
+  it "should find the first plugin where pipeline analytics are supported" do
+    def default_plugin_info_finder; @default_plugin_info_finder; end
+    def is_user_an_admin?; true; end
+
+    @default_plugin_info_finder = double('default_plugin_info_finder')
+
+    vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+    about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+    descriptor = proc do |id| GoPluginDescriptor.new(id, '1.0', about, nil, nil, false) end
+
+    supports_analytics = proc do |supports_pipeline_analytics, supports_dashboard_analytics|
+      supported = []
+      supported << com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new("pipeline", "id1", "title1") if supports_pipeline_analytics
+      supported << com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new("dashboard", "id2", "title2") if supports_dashboard_analytics
+      com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(supported)
+    end
+    plugin_info1 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin1'), nil, supports_analytics.call(true, true), nil))
+    plugin_info2 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin2'), nil, supports_analytics.call(true, false), nil))
+    plugin_info3 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin3'), nil, supports_analytics.call(false, true), nil))
+    plugin_info4 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin3'), nil, supports_analytics.call(false, false), nil))
+
+    allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([plugin_info1, plugin_info2, plugin_info3, plugin_info4])
+
+    ids = []
+    with_pipeline_analytics_support do |plugin_id|
+      ids << plugin_id
+    end
+
+    expect(ids).to eq(['plugin1'])
+  end
 end

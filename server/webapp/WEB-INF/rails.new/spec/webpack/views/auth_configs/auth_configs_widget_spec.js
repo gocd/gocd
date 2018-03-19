@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ describe("AuthConfigsWidget", () => {
 
   const ldapPluginInfoJSON = {
     "id":                   "cd.go.authorization.ldap",
-    "type":                 "authorization",
     "status": {
       "state": "active"
     },
@@ -70,30 +69,32 @@ describe("AuthConfigsWidget", () => {
     "capabilities":       {
       "can_verify_connection": true
     },
-    "extension_info": {
-      "auth_config_settings": {
-        "configurations": [
-          {
-            "key":      "LdapUrl",
-            "metadata": {
-              "secure":   false,
-              "required": true
-            }
-          }],
-        "view":           {
-          "template": '<div class="form_item_block">' +
-                      '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[LdapUrl].$error.server}">LDAP URI</label>' +
-                      '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[LdapUrl].$error.server}" type="text" ng-model="LdapUrl"/> ' +
-                      '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[LdapUrl].$error.server}" ng-show="GOINPUTNAME[LdapUrl].$error.server">{{GOINPUTNAME[LdapUrl].$error.server}}</span> ' +
-                      '</div>'
+    "extensions": [
+      {
+        "type": "authorization",
+        "auth_config_settings": {
+          "configurations": [
+            {
+              "key":      "LdapUrl",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }],
+          "view":           {
+            "template": '<div class="form_item_block">' +
+                        '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[LdapUrl].$error.server}">LDAP URI</label>' +
+                        '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[LdapUrl].$error.server}" type="text" ng-model="LdapUrl"/> ' +
+                        '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[LdapUrl].$error.server}" ng-show="GOINPUTNAME[LdapUrl].$error.server">{{GOINPUTNAME[LdapUrl].$error.server}}</span> ' +
+                        '</div>'
+          }
         }
       }
-    }
+    ]
   };
 
   const githubPluginInfoJSON = {
     "id":                   "cd.go.authorization.github",
-    "type":                 "authorization",
     "status": {
       "state": "active"
     },
@@ -104,18 +105,21 @@ describe("AuthConfigsWidget", () => {
     "capabilities":       {
       "can_verify_connection": false
     },
-    "extension_info": {
-      "auth_config_settings": {
-        "configurations": [],
-        "view":           {
-          "template": '<div class="form_item_block">' +
-                      '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[GithubUrl].$error.server}">GITHUB URL</label>' +
-                      '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[GithubUrl].$error.server}" type="text" ng-model="GithubUrl"/> ' +
-                      '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[GithubUrl].$error.server}" ng-show="GOINPUTNAME[GithubUrl].$error.server">{{GOINPUTNAME[GithubUrl].$error.server}}</span> ' +
-                      '</div>'
+    "extensions": [
+      {
+        "type": "authorization",
+        "auth_config_settings": {
+          "configurations": [],
+          "view":           {
+            "template": '<div class="form_item_block">' +
+                        '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[GithubUrl].$error.server}">GITHUB URL</label>' +
+                        '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[GithubUrl].$error.server}" type="text" ng-model="GithubUrl"/> ' +
+                        '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[GithubUrl].$error.server}" ng-show="GOINPUTNAME[GithubUrl].$error.server">{{GOINPUTNAME[GithubUrl].$error.server}}</span> ' +
+                        '</div>'
+          }
         }
       }
-    }
+    ]
   };
 
   const validationFailedJSON = () => ({

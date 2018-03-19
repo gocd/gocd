@@ -24,9 +24,10 @@ class AnalyticsController < ApplicationController
 
   def index
     @view_title = 'Analytics'
-    @supported_dashboard_metrics = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({})do |memo, plugin|
-      key = plugin.getDescriptor().id()
-      memo[key] = supported_analytics_hash(plugin.getCapabilities().supportedDashboardAnalytics()) if plugin.getCapabilities().supportsDashboardAnalytics()
+    @supported_dashboard_metrics = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({}) do |memo, combined_plugin_info|
+      analytics_extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
+      key = analytics_extension_info.getDescriptor().id()
+      memo[key] = supported_analytics_hash(analytics_extension_info.getCapabilities().supportedDashboardAnalytics()) if analytics_extension_info.getCapabilities().supportsDashboardAnalytics()
       memo
     end
      @pipeline_list = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername())).map do |pipelines_config|

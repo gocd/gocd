@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class DefaultPluginManager implements PluginManager {
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
-    private final Set<PluginDescriptor> initializedPlugins = new HashSet<>();
+    private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
     private PluginRequestProcessorRegistry requestProcesRegistry;
 
     @Autowired
@@ -91,33 +91,6 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-        goPluginOSGiFramework.doOnAll(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches);
-    }
-
-    @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler) {
-        goPluginOSGiFramework.doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, exceptionHandler);
-    }
-
-    @Override
-    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
-        return goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, actionToDoOnTheRegisteredServiceWhichMatches);
-    }
-
-    @Override
-    public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, action);
-    }
-
-    @Override
-    public <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        if (goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId)) {
-            doOn(serviceReferenceClass, pluginId, action);
-        }
-    }
-
-    @Override
     public void startInfrastructure(boolean shouldPoll) {
         removeBundleDirectory();
         goPluginOSGiFramework.start();
@@ -130,8 +103,8 @@ public class DefaultPluginManager implements PluginManager {
 
             @Override
             public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-                synchronized (initializedPlugins) {
-                    initializedPlugins.remove(pluginDescriptor);
+                synchronized (initializedPluginsWithTheirExtensionTypes) {
+                    initializedPluginsWithTheirExtensionTypes.remove(pluginDescriptor);
                 }
             }
         });
@@ -147,22 +120,21 @@ public class DefaultPluginManager implements PluginManager {
     @Override
     public void stopInfrastructure() {
         goPluginOSGiFramework.stop();
-
         monitor.stop();
+        initializedPluginsWithTheirExtensionTypes.clear();
     }
 
     @Override
-    public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-        PluginChangeListener filterChangeListener = new FilterChangeListener(goPluginOSGiFramework, pluginChangeListener, serviceReferenceClass);
-        goPluginOSGiFramework.addPluginChangeListener(filterChangeListener);
+    public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
+        goPluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
     }
 
     @Override
-    public GoPluginApiResponse submitTo(final String pluginId, final GoPluginApiRequest apiRequest) {
-        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
+    public GoPluginApiResponse submitTo(final String pluginId, String extensionType, final GoPluginApiRequest apiRequest) {
+        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                ensureInitializerInvoked(pluginDescriptor, plugin);
+                ensureInitializerInvoked(pluginDescriptor, plugin, extensionType);
                 try {
                     return plugin.handle(apiRequest);
                 } catch (UnhandledRequestTypeException e) {
@@ -174,35 +146,31 @@ public class DefaultPluginManager implements PluginManager {
         });
     }
 
-    private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin) {
-        synchronized (initializedPlugins) {
-            if (initializedPlugins.contains(pluginDescriptor)) {
+    private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin, String extensionType) {
+        synchronized (initializedPluginsWithTheirExtensionTypes) {
+            if (initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor) == null) {
+                initializedPluginsWithTheirExtensionTypes.put(pluginDescriptor, new HashSet<>());
+            }
+
+            Set<String> initializedExtensions = initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor);
+            if (initializedExtensions == null || initializedExtensions.contains(extensionType)) {
                 return;
             }
-            initializedPlugins.add(pluginDescriptor);
+            initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor).add(extensionType);
+
             PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcesRegistry);
             plugin.initializeGoApplicationAccessor(accessor);
         }
     }
 
     @Override
-    public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
-        return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
-    }
-
-    @Override
     public boolean isPluginOfType(final String extension, String pluginId) {
-        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, Boolean>() {
-            @Override
-            public Boolean execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                return extension.equals(plugin.pluginIdentifier().getExtension());
-            }
-        });
+        return goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId, extension);
     }
 
     @Override
-    public String resolveExtensionVersion(String pluginId, final List<String> goSupportedExtensionVersions) {
-        String resolvedExtensionVersion = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
+    public String resolveExtensionVersion(String pluginId, String extensionType, final List<String> goSupportedExtensionVersions) {
+        String resolvedExtensionVersion = goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, new ActionWithReturn<GoPlugin, String>() {
             @Override
             public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
                 List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();
@@ -233,40 +201,5 @@ public class DefaultPluginManager implements PluginManager {
         File bundleDir = new File(systemEnvironment.get(PLUGIN_BUNDLE_PATH));
         FileUtil.validateAndCreateDirectory(bundleDir);
         return bundleDir;
-    }
-
-    private static class FilterChangeListener implements PluginChangeListener {
-        private final GoPluginOSGiFramework goPluginOSGiFramework;
-        private final PluginChangeListener pluginChangeListenerDelegate;
-        private final Class<?>[] serviceReferences;
-
-        public FilterChangeListener(GoPluginOSGiFramework goPluginOSGiFramework,
-                                    PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-            this.goPluginOSGiFramework = goPluginOSGiFramework;
-            pluginChangeListenerDelegate = pluginChangeListener;
-            serviceReferences = serviceReferenceClass;
-        }
-
-        @Override
-        public void pluginLoaded(GoPluginDescriptor descriptor) {
-            String pluginId = descriptor.id();
-            if (shouldCallDelegate(pluginId)) {
-                pluginChangeListenerDelegate.pluginLoaded(descriptor);
-            }
-        }
-
-        private boolean shouldCallDelegate(String pluginId) {
-            for (Class<?> serviceReference : serviceReferences) {
-                if (goPluginOSGiFramework.hasReferenceFor(serviceReference, pluginId)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void pluginUnLoaded(GoPluginDescriptor descriptor) {
-            pluginChangeListenerDelegate.pluginUnLoaded(descriptor);
-        }
     }
 }

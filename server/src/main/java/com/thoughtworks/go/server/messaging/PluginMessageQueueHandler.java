@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -38,7 +37,7 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
     public PluginMessageQueueHandler(GoPluginExtension extension, MessagingService messaging, PluginManager pluginManager, QueueFactory queueFactory) {
         this.extension = extension;
         this.messaging = messaging;
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        pluginManager.addPluginChangeListener(this);
         this.queueFactory = queueFactory;
     }
 

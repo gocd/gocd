@@ -26,7 +26,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public final class PluginSettingsMetadataStore extends PluginPreferenceStore<PluginSettings> {
+public final class PluginSettingsMetadataStore extends PluginPreferenceStore<PluginSettingsMetadata> {
     private static PluginSettingsMetadataStore metadataStore = new PluginSettingsMetadataStore();
 
     private PluginSettingsMetadataStore() {
@@ -36,9 +36,9 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
         return metadataStore;
     }
 
-    public void addMetadataFor(String pluginId, PluginSettingsConfiguration configuration, String settingsTemplate) {
-        PluginSettings pluginSettings = new PluginSettings(configuration, settingsTemplate);
-        setPreferenceFor(pluginId, pluginSettings);
+    public void addMetadataFor(String pluginId, String extensionName, PluginSettingsConfiguration configuration, String settingsTemplate) {
+        PluginSettingsMetadata pluginSettingsMetadata = new PluginSettingsMetadata(configuration, settingsTemplate, extensionName);
+        setPreferenceFor(pluginId, pluginSettingsMetadata);
     }
 
     public PluginSettingsConfiguration configuration(String pluginId) {
@@ -78,6 +78,13 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
 
     public boolean hasPlugin(String pluginId) {
         return hasPreferenceFor(pluginId);
+    }
+
+    public String extensionWhichCanHandleSettings(String pluginId) {
+        if (isEmpty(pluginId) || !hasPreferenceFor(pluginId)) {
+            return null;
+        }
+        return preferenceFor(pluginId).extensionTypeWhichHandlesThis();
     }
 
     @Deprecated

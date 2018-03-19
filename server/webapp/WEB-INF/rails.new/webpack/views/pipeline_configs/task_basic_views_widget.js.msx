@@ -269,7 +269,7 @@ const TaskBasicViews = {
   pluggable_task: { //eslint-disable-line camelcase
     view (vnode) {
       const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId());
-      return (<AngularPlugin pluginInfoSettings={pluginInfo.taskSettings}
+      return (<AngularPlugin pluginInfoSettings={pluginInfo.extensions().task.taskSettings}
                              configuration={vnode.attrs.task.configuration}
                              key={pluginInfo.id()}/>);
     }

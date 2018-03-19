@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,21 @@
 
 package com.thoughtworks.go.plugin.activation;
 
-import java.io.IOException;
-
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.annotation.Load;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginContext;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+
+import java.io.IOException;
+import java.util.Collections;
 
 @Extension
-public class GoExtensionWithLoadAnnotationMethodThrowingException implements PluginDescriptorAware {
+public class GoExtensionWithLoadAnnotationMethodThrowingException implements GoPlugin {
     public static int loadInvoked = 0;
 
     @Load
@@ -33,6 +38,16 @@ public class GoExtensionWithLoadAnnotationMethodThrowingException implements Plu
         throw new IOException("Load Dummy Checked Exception");
     }
     @Override
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        return null;
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

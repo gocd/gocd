@@ -17,10 +17,12 @@
 package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
@@ -41,7 +43,7 @@ public class PluginSettingsMetadataStoreTest {
         String existingPluginId = "plugin-id";
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         String template = "template-value";
-        PluginSettingsMetadataStore.getInstance().addMetadataFor(existingPluginId, configuration, template);
+        PluginSettingsMetadataStore.getInstance().addMetadataFor(existingPluginId, NOTIFICATION_EXTENSION, configuration, template);
 
         assertThat(PluginSettingsMetadataStore.getInstance().configuration(existingPluginId), is(configuration));
         assertThat(PluginSettingsMetadataStore.getInstance().template(existingPluginId), is(template));
@@ -54,7 +56,7 @@ public class PluginSettingsMetadataStoreTest {
     @Test
     public void shouldRemoveDataCorrectly() {
         String pluginId = "plugin-id";
-        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, new PluginSettingsConfiguration(), "template-value");
+        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, NOTIFICATION_EXTENSION, new PluginSettingsConfiguration(), "template-value");
         assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginId), is(true));
 
         PluginSettingsMetadataStore.getInstance().removeMetadataFor(pluginId);
@@ -65,7 +67,7 @@ public class PluginSettingsMetadataStoreTest {
     public void shouldBeAbleToCheckIfPluginExists() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         String template = "template-value";
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id", configuration, template);
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id", NOTIFICATION_EXTENSION, configuration, template);
 
         assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin("plugin-id"), is(true));
         assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin("some-plugin-which-does-not-exist"), is(false));
@@ -79,7 +81,7 @@ public class PluginSettingsMetadataStoreTest {
         configuration.add(p1);
         configuration.add(p2);
 
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id", configuration, "template-value");
+        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id", NOTIFICATION_EXTENSION, configuration, "template-value");
 
         assertTrue(PluginSettingsMetadataStore.getInstance().hasOption("plugin-id", "k1", Property.REQUIRED));
         assertFalse(PluginSettingsMetadataStore.getInstance().hasOption("plugin-id", "k2", Property.REQUIRED));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,6 @@ describe("JobsConfig Widget", () => {
   const taskPlugin = {
     "id":            "script-executor",
     "version":       "1",
-    "type":          "task",
     "status": {
       "state": "active"
     },
@@ -100,13 +99,18 @@ describe("JobsConfig Widget", () => {
         "url":  "https://github.com/srinivasupadhya"
       }
     },
-    "display_name":  "Script Executor",
-    "task_settings": {
-      "configurations": [{"key": "script", "metadata": {"secure": false, "required": true}},
-        {"key": "shtype", "metadata": {"secure": false, "required": true}}
-      ],
-      "view":           {"template": "<div />"}
-    }
+    "extensions": [
+      {
+        "type":          "task",
+        "display_name":  "Script Executor",
+        "task_settings": {
+          "configurations": [{"key": "script", "metadata": {"secure": false, "required": true}},
+            {"key": "shtype", "metadata": {"secure": false, "required": true}}
+          ],
+          "view":           {"template": "<div />"}
+        }
+      }
+    ]
   };
 
   const data = {

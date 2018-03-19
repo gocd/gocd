@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,31 @@
 
 package com.thoughtworks.go.plugin.activation;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -42,15 +50,17 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
     private static final String PLUGIN_ID = "plugin-id";
-    public static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
+    private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
 
     private DefaultGoPluginActivator activator;
+    @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;
     @Mock private BundleContext context;
     @Mock private Bundle bundle;
     @Mock private ServiceReference<PluginHealthService> pluginHealthServiceReference;
@@ -284,6 +294,33 @@ public class DefaultGoPluginActivatorTest {
                 + "Reason: java.io.IOException: Unload Dummy Checked Exception.");
     }
 
+    @Test
+    public void shouldRegisterServiceWithBothPluginIDAndExtensionTypeAsProperties() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+
+        Hashtable<String, String> expectedPropertiesUponRegistration = new Hashtable<>();
+        expectedPropertiesUponRegistration.put(Constants.BUNDLE_SYMBOLICNAME, PLUGIN_ID);
+        expectedPropertiesUponRegistration.put(Constants.BUNDLE_CATEGORY, "test-extension");
+
+        activator.start(context);
+
+        assertThat(activator.hasErrors(), is(false));
+        verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), eq(expectedPropertiesUponRegistration));
+    }
+
+    @Test
+    public void shouldFailToRegisterServiceWhenExtensionTypeCannotBeSuccessfullyRetrieved() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier.class);
+
+        activator.start(context);
+
+        assertThat(activator.hasErrors(), is(true));
+        verifyErrorReportedContains("Unable to find extension type from plugin identifier in class com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier");
+        verify(context, times(0)).registerService(eq(GoPlugin.class), any(GoPlugin.class), any());
+    }
+
     private void verifyThatOneOfTheErrorMessagesIsPresent(String expectedErrorMessage1, String expectedErrorMessage2) {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
         verify(pluginHealthService).reportErrorAndInvalidate(eq(PLUGIN_ID), captor.capture());
@@ -306,28 +343,60 @@ public class DefaultGoPluginActivatorTest {
         verifyNoMoreInteractions(pluginHealthService);
     }
 
+    private void verifyErrorReportedContains(String expectedPartOfErrorMessage) {
+        verify(pluginHealthService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+        List<String> errors = errorMessageCaptor.getValue();
+        for (String errorMessage : errors) {
+            if (errorMessage.contains(expectedPartOfErrorMessage)) {
+                return;
+            }
+        }
+
+        fail("Could not find error message with " + expectedPartOfErrorMessage + " in " + errors);
+    }
+
     @Extension
     public abstract class PublicAbstractGoExtensionClass {
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements PluginDescriptorAware {
+    public class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor(int x) {
         }
 
         @Override
-        public void setPluginDescriptor(PluginDescriptor descriptor) {
+        public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        }
+
+        @Override
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            return null;
+        }
+
+        @Override
+        public GoPluginIdentifier pluginIdentifier() {
+            return null;
         }
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements PluginDescriptorAware {
+    public class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor() {
             throw new RuntimeException(CONSTRUCTOR_FAIL_MSG);
         }
 
         @Override
-        public void setPluginDescriptor(PluginDescriptor descriptor) {
+        public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+        }
+
+        @Override
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            return null;
+        }
+
+        @Override
+        public GoPluginIdentifier pluginIdentifier() {
+            return null;
         }
     }
 

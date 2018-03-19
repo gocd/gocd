@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.thoughtworks.go.plugin.domain.common;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
-public class BadPluginInfo extends PluginInfo {
+public class BadPluginInfo extends CombinedPluginInfo {
 
     public BadPluginInfo(PluginDescriptor pluginDescriptor) {
-        super(pluginDescriptor, null, null, null);
+        super(new PluginInfo(pluginDescriptor, "INVALID_PLUGIN", null, null));
     }
 }

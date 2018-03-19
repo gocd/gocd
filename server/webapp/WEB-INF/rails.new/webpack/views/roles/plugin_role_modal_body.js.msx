@@ -32,7 +32,7 @@ const PluginRoleModalBody = {
       const items = [];
       vnode.attrs.authConfigs().eachAuthConfig((authConfig) => {
         const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
-        if (pluginInfo && pluginInfo.capabilities().canAuthorize()) {
+        if (pluginInfo && pluginInfo.extensions().authorization.capabilities().canAuthorize()) {
           items.push({
             id:   authConfig.id(),
             text: `${authConfig.id()} (${pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id()})`
@@ -63,7 +63,7 @@ const PluginRoleModalBody = {
       return;
     }
 
-    if (!pluginInfo.roleSettings().viewTemplate()) {
+    if (!pluginInfo.extensions().authorization.roleSettings().viewTemplate()) {
       return (
         <f.alert>Role template not defined.</f.alert>
       );
@@ -75,8 +75,8 @@ const PluginRoleModalBody = {
       );
     }
 
-    if (pluginInfo.roleSettings) {
-      angularPlugin = (<AngularPlugin pluginInfoSettings={pluginInfo.roleSettings}
+    if (pluginInfo.extensions().authorization.roleSettings) {
+      angularPlugin = (<AngularPlugin pluginInfoSettings={pluginInfo.extensions().authorization.roleSettings}
                                       configuration={role.properties}
                                       key={pluginInfo.id()}/>);
     }

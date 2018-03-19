@@ -64,9 +64,8 @@ describe AnalyticsController do
       cap1 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics1])
       cap2 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics2])
 
-      plugin1 = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor1, nil, cap1, nil)
-      plugin2 = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor2, nil, cap2, nil)
-
+      plugin1 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor1, nil, cap1, nil))
+      plugin2 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor2, nil, cap2, nil))
 
       allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
       allow(plugin_info_finder).to receive(:allPluginInfos).with(PluginConstants.ANALYTICS_EXTENSION).and_return([plugin1, plugin2])

@@ -100,7 +100,7 @@ const SCMConfigEditWidget = {
                           class='align' />
             </f.column>
           </f.row>
-          <AngularPlugin pluginInfoSettings={vnode.state.pluginInfo().scmSettings}
+          <AngularPlugin pluginInfoSettings={vnode.state.pluginInfo().extensions().scm.scmSettings}
                          configuration={vnode.attrs.scm().configuration}
                          key={vnode.state.pluginInfo() ? vnode.state.pluginInfo().id() : 'no-plugin'}/>
         </div>

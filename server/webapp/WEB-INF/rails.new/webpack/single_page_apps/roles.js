@@ -28,7 +28,7 @@ $(() => {
   Promise.all([PluginInfos.all(null, {type: 'authorization'}), AuthConfigs.all()]).then((args) => {
 
     let authorizationPluginInfos = args[0];
-    authorizationPluginInfos     = new PluginInfos(authorizationPluginInfos.filterPluginInfo((pi) => pi.capabilities().canAuthorize()));
+    authorizationPluginInfos     = new PluginInfos(authorizationPluginInfos.filterPluginInfo((pi) => pi.extensions().authorization.capabilities().canAuthorize()));
 
     const authConfigsOfInstalledPlugin = new AuthConfigs(args[1].filterAuthConfig((ac) => authorizationPluginInfos.findById(ac.pluginId()) !== undefined));
 

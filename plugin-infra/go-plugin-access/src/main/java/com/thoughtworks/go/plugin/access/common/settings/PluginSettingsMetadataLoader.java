@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -25,8 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION;
+import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
 @Component
@@ -37,8 +42,14 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
 
     @Autowired
     public PluginSettingsMetadataLoader(List<GoPluginExtension> extensions, PluginManager pluginManager) {
-        this.extensions = extensions;
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        this.extensions = extensions.stream().filter(new Predicate<GoPluginExtension>() {
+            @Override
+            public boolean test(GoPluginExtension goPluginExtension) {
+                return !PLUGGABLE_TASK_EXTENSION.equals(goPluginExtension.extensionName());
+            }
+        }).collect(Collectors.toList());
+
+        pluginManager.addPluginChangeListener(this);
     }
 
     @Override
@@ -53,28 +64,78 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
 
     void fetchPluginSettingsMetaData(GoPluginDescriptor pluginDescriptor) {
         String pluginId = pluginDescriptor.id();
-        try {
-            PluginSettingsConfiguration configuration = null;
-            String view = null;
-            Boolean isTaskPlugin = false;
+        List<ExtensionSettingsInfo> allMetadata = findSettingsAndViewOfAllExtensionsIn(pluginId);
+        List<ExtensionSettingsInfo> validMetadata = allSettingsAndViewPairsWhichAreValid(allMetadata);
 
-            for (GoPluginExtension extension : extensions) {
-                if (extension.canHandlePlugin(pluginId)) {
-                    if (extension.extensionName().equals(PLUGGABLE_TASK_EXTENSION)) {
-                        isTaskPlugin = true;
-                    } else {
-                        configuration = extension.getPluginSettingsConfiguration(pluginId);
-                        view = extension.getPluginSettingsView(pluginId);
-                    }
-                }
-            }
-            if ((configuration == null || view == null) && !isTaskPlugin) {
-                throw new RuntimeException("Plugin Settings - Configuration or View cannot be null");
-            }
-            metadataStore.addMetadataFor(pluginId, configuration, view);
+        if (validMetadata.size() == 0) {
+            LOGGER.error("Failed to fetch plugin settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
+            LOGGER.error("Plugin: {} - Metadata load info: {}", pluginId, allMetadata);
+            return;
+        }
+
+        if (validMetadata.size() > 1) {
+            throw new RuntimeException(String.format("Plugin with ID: %s has more than one extension which supports plugin settings. " +
+                    "Only one extension should support it and respond to %s and %s.", pluginId, REQUEST_PLUGIN_SETTINGS_CONFIGURATION, REQUEST_PLUGIN_SETTINGS_VIEW));
+        }
+
+        ExtensionSettingsInfo extensionSettingsInfo = validMetadata.get(0);
+        metadataStore.addMetadataFor(pluginId, extensionSettingsInfo.extensionName, extensionSettingsInfo.configuration, extensionSettingsInfo.viewTemplate);
+    }
+
+    private List<ExtensionSettingsInfo> findSettingsAndViewOfAllExtensionsIn(String pluginId) {
+        try {
+            return extensions.stream()
+                    .filter(new Predicate<GoPluginExtension>() {
+                        @Override
+                        public boolean test(GoPluginExtension extension) {
+                            return extension.canHandlePlugin(pluginId);
+                        }
+                    })
+                    .map(new Function<GoPluginExtension, ExtensionSettingsInfo>() {
+                        @Override
+                        public ExtensionSettingsInfo apply(GoPluginExtension extension) {
+                            try {
+                                return new ExtensionSettingsInfo(extension.extensionName(), null, extension.getPluginSettingsConfiguration(pluginId), extension.getPluginSettingsView(pluginId));
+                            } catch (Exception e) {
+                                return new ExtensionSettingsInfo(extension.extensionName(), e.getMessage(), null, null);
+                            }
+                        }
+                    })
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error("Failed to fetch Plugin Settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
-            LOGGER.debug(null, e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<ExtensionSettingsInfo> allSettingsAndViewPairsWhichAreValid(List<ExtensionSettingsInfo> allMetadata) {
+        return allMetadata.stream().filter(new Predicate<ExtensionSettingsInfo>() {
+            @Override
+            public boolean test(ExtensionSettingsInfo extensionSettingsInfo) {
+                return extensionSettingsInfo.settingsAndViewAreValid();
+            }
+        }).collect(Collectors.toList());
+    }
+
+    private class ExtensionSettingsInfo {
+        private final String extensionName;
+        private final String errorMessage;
+        private final PluginSettingsConfiguration configuration;
+        private final String viewTemplate;
+
+        ExtensionSettingsInfo(String extensionName, String errorMessage, PluginSettingsConfiguration configuration, String viewTemplate) {
+            this.extensionName = extensionName;
+            this.errorMessage = errorMessage;
+            this.configuration = configuration;
+            this.viewTemplate = viewTemplate;
+        }
+
+        boolean settingsAndViewAreValid() {
+            return configuration != null && viewTemplate != null;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("{extension='%s', configuration='%s', view='%s', error='%s'}", extensionName, configuration, viewTemplate, errorMessage);
         }
     }
 }

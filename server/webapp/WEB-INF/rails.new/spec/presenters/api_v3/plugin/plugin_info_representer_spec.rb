@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,11 +25,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
       descriptor.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
 
-      plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
-      plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
-      plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
-
-      plugin_info = com.thoughtworks.go.plugin.domain.common.PluginInfo.new(descriptor, 'plugin-type', plugin_settings, nil)
+      plugin_info = BadPluginInfo.new(descriptor)
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :doc, :find)
@@ -40,7 +36,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
 
       expect(actual_json).to eq({
                                   id: 'foo.example',
-                                  type: 'plugin-type',
+                                  type: 'INVALID_PLUGIN',
                                   plugin_file_location: '/path/to/foo.jar',
                                   bundled_plugin: false,
                                   status: {
@@ -62,7 +58,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, plugin_settings)
+      plugin_info = CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, plugin_settings))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :doc, :find)
@@ -97,7 +93,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       metadata = com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity.new(true, false, true)
       scm_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], task_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings, nil)
+      plugin_info = CombinedPluginInfo.new(SCMPluginInfo.new(descriptor, 'Foo task', scm_settings, nil))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
 
@@ -129,7 +125,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       task_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], task_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_settings)
+      plugin_info = CombinedPluginInfo.new(PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_settings))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
 
@@ -166,7 +162,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       repo_metadata = com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata.new(true, false, true, "Member Of", 1)
       repo_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', repo_metadata)], repo_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, repo_settings, package_settings, nil)
+      plugin_info = CombinedPluginInfo.new(PackageMaterialPluginInfo.new(descriptor, repo_settings, package_settings, nil))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
 
@@ -198,7 +194,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], auth_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, plugin_settings)
+      plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, plugin_settings))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
 
@@ -236,7 +232,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
 
 
-      plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, capabilities)
+      plugin_info = CombinedPluginInfo.new(ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, capabilities))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
@@ -273,7 +269,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       role_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], role_config_view)
       capabilities = com.thoughtworks.go.plugin.domain.authorization.Capabilities.new(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType::Password, true, true)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities)
+      plugin_info = CombinedPluginInfo.new(AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities))
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
@@ -294,6 +290,44 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
                                   }
                                 })
 
+    end
+  end
+
+  describe 'plugin info with multiple extensions in it' do
+    it 'should have only the first extension in v3' do
+      vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+      descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
+
+      task_plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('pluggable_task_view_template')
+      task_plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+      task_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', task_plugin_metadata)], task_plugin_view)
+      task_plugin_info = PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_plugin_settings)
+
+      config_repo_plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
+      config_repo_plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+      config_repo_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', config_repo_plugin_metadata)], config_repo_plugin_view)
+      config_repo_plugin_info = ConfigRepoPluginInfo.new(descriptor, config_repo_plugin_settings)
+
+      plugin_info_with_multiple_extensions = CombinedPluginInfo.new([task_plugin_info, config_repo_plugin_info])
+      actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info_with_multiple_extensions).to_hash(url_builder: UrlBuilder.new)
+
+      actual_json.delete(:_links)
+
+      expect(actual_json).to eq({
+                                  id: 'foo.example',
+                                  type: 'task',
+                                  plugin_file_location: '/path/to/foo.jar',
+                                  bundled_plugin: false,
+                                  status: {
+                                    state: 'active'
+                                  },
+                                  about: about_json,
+                                  extension_info: {
+                                      display_name: 'Foo task',
+                                      task_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(task_plugin_settings).to_hash(url_builder: UrlBuilder.new),
+                                    }
+                                  })
     end
   end
 

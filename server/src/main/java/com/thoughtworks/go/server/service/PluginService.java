@@ -25,9 +25,11 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
@@ -43,39 +45,33 @@ public class PluginService {
     private final PluginDao pluginDao;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
+    private DefaultPluginInfoFinder defaultPluginInfoFinder;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService, DefaultPluginInfoFinder defaultPluginInfoFinder) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.defaultPluginInfoFinder = defaultPluginInfoFinder;
     }
 
-    public PluginSettings getPluginSettingsFor(String pluginId) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
-        Plugin plugin = pluginDao.findPlugin(pluginId);
-        if (plugin instanceof NullPlugin) {
-            pluginSettings.populateSettingsMap(PluginSettingsMetadataStore.getInstance().configuration(pluginId));
-        } else {
-            pluginSettings.populateSettingsMap(plugin);
-        }
-        return pluginSettings;
+    public PluginInfo pluginInfoForExtensionThatHandlesPluginSettings(String pluginId) {
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        return extension == null ? null : defaultPluginInfoFinder.pluginInfoFor(pluginId).extensionFor(extension.extensionName());
     }
 
-    public PluginSettings getPluginSettings(String pluginId) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
+    public PluginSettings loadStoredPluginSettings(String pluginId) {
         Plugin plugin = pluginDao.findPlugin(pluginId);
         if (plugin instanceof NullPlugin) {
             return null;
         } else {
-            pluginSettings.populateSettingsMap(plugin);
+            return new PluginSettings(pluginId).populateSettingsMap(plugin);
         }
-        return pluginSettings;
     }
 
-    public void createPluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
+    public void savePluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
         update(currentUser, result, pluginSettings);
     }
 
@@ -91,28 +87,16 @@ public class PluginService {
         }
     }
 
-    public PluginSettings getPluginSettingsFor(String pluginId, Map<String, String> parameterMap) {
-        PluginSettings pluginSettings = new PluginSettings(pluginId);
-        pluginSettings.populateSettingsMap(parameterMap);
-        return pluginSettings;
-    }
-
     public void validatePluginSettingsFor(PluginSettings pluginSettings) {
         String pluginId = pluginSettings.getPluginId();
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
-        ValidationResult result = null;
 
-        boolean anyExtensionSupportsPluginId = false;
-        for (GoPluginExtension extension : extensions) {
-            if (extension.canHandlePlugin(pluginId)) {
-                result = extension.validatePluginSettings(pluginId, configuration);
-                anyExtensionSupportsPluginId = true;
-            }
-        }
-        if (!anyExtensionSupportsPluginId)
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        if (extension == null)
             throw new IllegalArgumentException(String.format(
-                    "Plugin '%s' is not supported by any extension point", pluginId));
+                    "Plugin '%s' does not exist or does not implement settings validation.", pluginId));
 
+        ValidationResult result = extension.validatePluginSettings(pluginId, configuration);
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {
                 pluginSettings.populateErrorMessageFor(error.getKey(), error.getMessage());
@@ -149,7 +133,7 @@ public class PluginService {
                     } else {
                         if (!result.hasMessage()) {
                             LOGGER.error(e.getMessage(), e);
-                            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the plugin settings. Please check the logs for more information."));
                         }
                     }
                 }
@@ -160,15 +144,16 @@ public class PluginService {
     private void notifyPluginSettingsChange(PluginSettings pluginSettings) {
         String pluginId = pluginSettings.getPluginId();
 
-        for (GoPluginExtension extension : extensions) {
-            if (extension.canHandlePlugin(pluginId)) {
-                try {
-                    extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-                } catch (Exception e) {
-                    LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
-                }
-                break;
-            }
+        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        if (extension == null) {
+            LOGGER.trace("No extension handles plugin settings for plugin: {}", pluginId);
+            return;
+        }
+
+        try {
+            extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        } catch (Exception e) {
+            LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
         }
     }
 
@@ -181,7 +166,7 @@ public class PluginService {
     }
 
     private boolean isRequestFresh(String md5, PluginSettings pluginSettings, LocalizedOperationResult result) {
-        PluginSettings storedPluginSettings = getPluginSettings(pluginSettings.getPluginId());
+        PluginSettings storedPluginSettings = loadStoredPluginSettings(pluginSettings.getPluginId());
         if (storedPluginSettings == null) {
             result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginSettings.getPluginId()), HealthStateType.notFound());
             return false;
@@ -194,4 +179,14 @@ public class PluginService {
 
     }
 
+    private GoPluginExtension findExtensionWhichCanHandleSettingsFor(String pluginId) {
+        String extensionWhichCanHandleSettings = PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId);
+        for (GoPluginExtension extension : extensions) {
+            if (extension.extensionName().equals(extensionWhichCanHandleSettings) && extension.canHandlePlugin(pluginId)) {
+                return extension;
+            }
+        }
+
+        return null;
+    }
 }

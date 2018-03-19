@@ -1,5 +1,5 @@
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,108 +15,136 @@
  *************************GO-LICENSE-END******************************* -->
 
 <project name="plugin" default="all" basedir="">
+  <property name="plugins.dir">../../../../..</property>
 
+  <path id="test.plugin.classpath">
+    <pathelement path="${plugins.dir}/plugins/descriptor-aware-test-plugin/lib/dependency.jar"/>
+  </path>
 
-    <path id="test.plugin.classpath">
-        <pathelement path="../../../plugins/descriptor-aware-test-plugin/lib/dependency.jar"/>
-    </path>
+  <target name="all" depends="
+    clean,
+    build.descriptor.plugin.jar,
+    build.descriptor.plugin.without.plugin.xml.jar,
+    build.error.generating.plugin.jar,
+    build.invalid.descriptor.plugin.jar,
+    build.exception.throwing.at.load.plugin.jar,
+    build.valid.plugin.with.multiple.extensions.jar,
+    create.activator.jar,
+    create.osgi.bundles"/>
 
-    <path id="activator.classpath">
-        <pathelement path="../../../../localivy/felix/org.apache.felix.framework-4.0.3.jar"/>
-    </path>
+  <target name="clean">
+    <delete file="go-plugin-activator.jar"/>
+    <delete file="descriptor-aware-test-plugin.jar"/>
+    <delete file="descriptor-aware-test-plugin-with-no-plugin-xml.jar"/>
+    <delete file="descriptor-aware-test-plugin.osgi.jar"/>
+    <delete file="error-generating-descriptor-aware-test-plugin.jar"/>
+    <delete file="error-generating-descriptor-aware-test-plugin.osgi.jar"/>
+    <delete file="exception-throwing-at-load-plugin.jar"/>
+    <delete file="invalid-descriptor-plugin.jar"/>
+    <delete file="exception-throwing-at-load-plugin.osgi.jar"/>
+    <delete file="valid-plugin-with-multiple-extensions.jar"/>
+    <delete dir="target"/>
+  </target>
 
-    <target name="all" depends="clean, build.descriptor.plugin.jar,
-    build.descriptor.plugin.without.plugin.xml.jar, build.error.generating.plugin.jar,
-     build.invalid.descriptor.plugin.jar,build.exception.throwing.at.load.plugin.jar,
-     build.plugin.with.multiple.extensions.for.same.interface.jar,create.activator.jar, create.osgi.bundles"/>
+  <target name="build.descriptor.plugin.jar">
+    <build.jar file="descriptor-aware-test-plugin.jar"
+               dir="${plugins.dir}/plugins/descriptor-aware-test-plugin/"
+               classpathref="test.plugin.classpath"/>
+  </target>
 
-    <target name="clean">
-      <delete file="target"/>
-      <delete file="go-plugin-activator.jar"/>
-      <delete file="descriptor-aware-test-plugin.jar"/>
-      <delete file="descriptor-aware-test-plugin-with-no-plugin-xml.jar"/>
-      <delete file="descriptor-aware-test-plugin.osgi.jar"/>
-      <delete file="error-generating-descriptor-aware-test-plugin.jar"/>
-      <delete file="error-generating-descriptor-aware-test-plugin.osgi.jar"/>
-      <delete file="exception-throwing-at-load-plugin.jar"/>
-    </target>
+  <target name="build.descriptor.plugin.without.plugin.xml.jar">
+    <build.jar file="descriptor-aware-test-plugin-with-no-plugin-xml.jar"
+               dir="${plugins.dir}/plugins/descriptor-aware-test-plugin/"
+               classpathref="test.plugin.classpath"
+               moreexcludes="plugin.xml"/>
+  </target>
 
-    <target name="build.descriptor.plugin.jar">
-        <build.jar file="descriptor-aware-test-plugin.jar" dir="../../../plugins/descriptor-aware-test-plugin/" classpathref="test.plugin.classpath" />
-    </target>
+  <target name="create.activator.jar">
+    <exec dir="${plugins.dir}/.." executable="./gradlew" failonerror="true">
+      <arg value="plugin-infra:go-plugin-activator:clean"/>
+      <arg value="plugin-infra:go-plugin-activator:assemble"/>
+    </exec>
+    <copy todir=".">
+      <fileset dir="${plugins.dir}/go-plugin-activator/target/libs/"/>
+      <globmapper from="go-plugin-activator-*.jar" to="go-plugin-activator.jar"/>
+    </copy>
+  </target>
 
-    <target name="build.descriptor.plugin.without.plugin.xml.jar">
-        <build.jar file="descriptor-aware-test-plugin-with-no-plugin-xml.jar" dir="../../../plugins/descriptor-aware-test-plugin/" classpathref="test.plugin.classpath" moreexcludes="plugin.xml" />
-    </target>
+  <target name="create.osgi.bundles" depends="build.descriptor.plugin.jar, build.error.generating.plugin.jar, build.valid.plugin.with.multiple.extensions.jar, create.activator.jar">
+    <create.osgi.bundle.using file="descriptor-aware-test-plugin"/>
+    <create.osgi.bundle.using file="error-generating-descriptor-aware-test-plugin"/>
+    <create.osgi.bundle.using file="exception-throwing-at-load-plugin" pluginId="com.tw.go.exception.throwing.at.loadplugin"/>
+    <create.osgi.bundle.using file="valid-plugin-with-multiple-extensions" pluginId="valid-plugin-with-multiple-extensions" />
+  </target>
 
-    <target name="create.activator.jar">
-        <build.jar file="go-plugin-activator.jar" dir="../../../go-plugin-activator/src" classpathref="activator.classpath" />
-    </target>
+  <target name="build.error.generating.plugin.jar">
+    <mkdir dir="target"/>
 
-    <target name="create.osgi.bundles" depends="build.descriptor.plugin.jar, create.activator.jar">
-        <create.osgi.bundle.using file="descriptor-aware-test-plugin"/>
-        <create.osgi.bundle.using file="error-generating-descriptor-aware-test-plugin"/>
-        <create.osgi.bundle.using file="exception-throwing-at-load-plugin" pluginId="com.tw.go.exception.throwing.at.loadplugin"/>
-    </target>
+    <javac srcdir="${plugins.dir}/go-plugin-api-internal/src/main/java" destdir="target/" includeantruntime="false"/>
+    <javac srcdir="${plugins.dir}/go-plugin-api/src/main/java" destdir="target/" includeantruntime="false"/>
 
-    <target name="build.error.generating.plugin.jar">
-        <mkdir dir="target"/>
-
-        <javac srcdir="../../../go-plugin-api-internal/" destdir="target/" includeantruntime="false"/>
-        <javac srcdir="../../../go-plugin-api/src" destdir="target/" includeantruntime="false"/>
-
-        <javac srcdir="../../../plugins/error-generating-descriptor-aware-test-plugin/" classpath="target" destdir="target/" includeantruntime="false"/>
-        <jar destfile="error-generating-descriptor-aware-test-plugin.jar" basedir="target" excludes="**/*.java
+    <javac srcdir="${plugins.dir}/plugins/error-generating-descriptor-aware-test-plugin/" classpath="target"
+           destdir="target/" includeantruntime="false"/>
+    <jar destfile="error-generating-descriptor-aware-test-plugin.jar" basedir="target" excludes="**/*.java
         com/thoughtworks/go/plugin/api/** com/thoughtworks/go/plugin/internal/api/** **/*.iml"/>
-        <delete dir="target/"/>
-    </target>
+    <delete dir="target/"/>
+  </target>
 
-    <target name="build.invalid.descriptor.plugin.jar">
-        <build.jar file="invalid-descriptor-plugin.jar" dir="../../../plugins/invalid-descriptor-plugin/" classpathref="test.plugin.classpath" />
-    </target>
-    <target name="build.plugin.with.multiple.extensions.for.same.interface.jar">
-        <build.jar file="plugin-with-multiple-extensions.jar" dir="../../../plugins/plugin-with-multiple-extensions-for-same-interface/" classpathref="test.plugin.classpath" />
-    </target>
-    <target name="build.exception.throwing.at.load.plugin.jar">
-        <build.jar file="exception-throwing-at-load-plugin.jar" dir="../../../plugins/exception-throwing-at-load-plugin/" classpathref="test.plugin.classpath" />
-    </target>
+  <target name="build.invalid.descriptor.plugin.jar">
+    <build.jar file="invalid-descriptor-plugin.jar"
+               dir="${plugins.dir}/plugins/invalid-descriptor-plugin/"
+               classpathref="test.plugin.classpath"/>
+  </target>
 
-    <macrodef name="build.jar">
-        <attribute name="file"/>
-        <attribute name="dir"/>
-        <attribute name="classpathref"/>
-        <attribute name="moreexcludes" default="" />
+  <target name="build.exception.throwing.at.load.plugin.jar">
+    <build.jar file="exception-throwing-at-load-plugin.jar"
+               dir="${plugins.dir}/plugins/exception-throwing-at-load-plugin/"
+               classpathref="test.plugin.classpath"/>
+  </target>
 
-        <sequential>
-            <delete file="@{file}" failonerror="false"/>
+  <target name="build.valid.plugin.with.multiple.extensions.jar">
+    <build.jar file="valid-plugin-with-multiple-extensions.jar"
+               dir="${plugins.dir}/plugins/valid-plugin-with-multiple-extensions/"
+               classpathref="test.plugin.classpath"/>
+  </target>
 
-            <copy todir="target">
-                <fileset dir="@{dir}"/>
-            </copy>
+  <macrodef name="build.jar">
+    <attribute name="file"/>
+    <attribute name="dir"/>
+    <attribute name="classpathref"/>
+    <attribute name="moreexcludes" default=""/>
 
-            <javac srcdir="../../../go-plugin-api-internal/" destdir="target/" includeantruntime="false"/>
-            <javac srcdir="../../../go-plugin-api/src" destdir="target/" includeantruntime="false"/>
-            <javac srcdir="target/" classpathref="@{classpathref}" destdir="target/" includeantruntime="false"/>
-            <jar destfile="@{file}" basedir="target" excludes="**/*.java com/thoughtworks/go/plugin/api/** com/thoughtworks/go/plugin/internal/api/** **/*.iml @{moreexcludes}"/>
+    <sequential>
+      <delete file="@{file}" failonerror="false"/>
 
-            <delete dir="target/" failonerror="false"/>
-        </sequential>
-    </macrodef>
+      <copy todir="target">
+        <fileset dir="@{dir}"/>
+      </copy>
 
-    <property name="defaultPluginId" value="testplugin.descriptorValidator"/>
+      <javac srcdir="${plugins.dir}/go-plugin-api-internal/src/main/java" destdir="target/" includeantruntime="false"/>
+      <javac srcdir="${plugins.dir}/go-plugin-api/src/main/java" destdir="target/" includeantruntime="false"/>
+      <javac srcdir="target/" classpathref="@{classpathref}" destdir="target/" includeantruntime="false"/>
+      <jar destfile="@{file}" basedir="target"
+           excludes="**/*.java com/thoughtworks/go/plugin/api/** com/thoughtworks/go/plugin/internal/api/** **/*.iml @{moreexcludes}"/>
 
-    <macrodef name="create.osgi.bundle.using">
-        <attribute name="file"/>
-        <attribute name="pluginId" default="${defaultPluginId}"/>
+      <delete dir="target/" failonerror="false"/>
+    </sequential>
+  </macrodef>
 
-        <sequential>
-            <delete file="@{file}.osgi.jar"/>
-            <unzip src="@{file}.jar" dest="target"/>
-            <copy file="MANIFEST.WITH.BUNDLE.INFO.MF" tofile="target/META-INF/MANIFEST.MF" overwrite="true"/>
-            <replace file="target/META-INF/MANIFEST.MF" token="${defaultPluginId}" value="@{pluginId}"/>
-            <copy file="go-plugin-activator.jar" tofile="target/lib/go-plugin-activator.jar"/>
-            <zip destfile="@{file}.osgi.jar" basedir="target"/>
-            <delete dir="target"/>
-        </sequential>
-    </macrodef>
+  <property name="defaultPluginId" value="testplugin.descriptorValidator"/>
+
+  <macrodef name="create.osgi.bundle.using">
+    <attribute name="file"/>
+    <attribute name="pluginId" default="${defaultPluginId}"/>
+
+    <sequential>
+      <delete file="@{file}.osgi.jar"/>
+      <unzip src="@{file}.jar" dest="target"/>
+      <copy file="MANIFEST.WITH.BUNDLE.INFO.MF" tofile="target/META-INF/MANIFEST.MF" overwrite="true"/>
+      <replace file="target/META-INF/MANIFEST.MF" token="${defaultPluginId}" value="@{pluginId}"/>
+      <copy file="go-plugin-activator.jar" tofile="target/lib/go-plugin-activator.jar"/>
+      <zip destfile="@{file}.osgi.jar" basedir="target"/>
+      <delete dir="target"/>
+    </sequential>
+  </macrodef>
 </project>

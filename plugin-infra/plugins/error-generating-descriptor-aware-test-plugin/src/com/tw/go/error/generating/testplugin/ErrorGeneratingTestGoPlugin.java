@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.activation.test;
+package com.tw.go.error.generating.testplugin;
 
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-
-
-
-class SubClassOfDummyPluginAwareExtensionWhichIsNotPublic extends DummyPluginAwareExtension {
-}
+import com.thoughtworks.go.plugin.api.GoPlugin;
 
 @Extension
-public class PluginAwareExtensionThatIsADerivedClass extends SubClassOfDummyPluginAwareExtensionWhichIsNotPublic {
+public class ErrorGeneratingTestGoPlugin implements GoPlugin {
+    /* This should fail with an AbstractMethodError if you call something on it, which doesn't exist. */
 }
-
-

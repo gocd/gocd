@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import java.util.List;
 
 public interface AnalyticsPluginConstants {
     List<String> SUPPORTED_VERSIONS = Arrays.asList(AnalyticsMessageConverterV1.VERSION);
-
-    String EXTENSION_NAME = "analytics";
 
     String REQUEST_PREFIX = "go.cd.analytics";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";

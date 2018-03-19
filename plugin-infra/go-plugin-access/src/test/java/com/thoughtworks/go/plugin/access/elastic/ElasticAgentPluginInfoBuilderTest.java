@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -53,7 +54,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         pluginSettingsConfiguration.add(property);
         Image icon = new Image("content_type", "data", "hash");
 
-        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion("plugin1", ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("1.0");
         when(extension.getPluginSettingsConfiguration(descriptor.id())).thenReturn(pluginSettingsConfiguration);
         when(extension.getPluginSettingsView(descriptor.id())).thenReturn("some html");
 
@@ -82,7 +83,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         Image icon = new Image("content_type", "data", "hash");
 
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration(descriptor.id());
-        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion("plugin1", ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("1.0");
         when(extension.getIcon(descriptor.id())).thenReturn(icon);
 
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
@@ -103,7 +104,7 @@ public class ElasticAgentPluginInfoBuilderTest {
     public void shouldGetCapabilitiesForAPlugin() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
 
-        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion("plugin1", ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("2.0");
         Capabilities capabilities = new Capabilities(true);
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 

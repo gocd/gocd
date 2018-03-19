@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,27 +27,15 @@ public interface PluginManager {
 
     GoPluginDescriptor getPluginDescriptorFor(String pluginId);
 
-    <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches);
-
-    <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler);
-
-    <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches);
-
-    <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
-
-    <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
-
     void startInfrastructure(boolean shouldPoll);
 
     void stopInfrastructure();
 
-    void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
+    void addPluginChangeListener(PluginChangeListener pluginChangeListener);
 
-    GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest);
-
-    boolean hasReferenceFor(Class serviceReferenceClass, String pluginId);
+    GoPluginApiResponse submitTo(String pluginId, String extensionType, GoPluginApiRequest apiRequest);
 
     boolean isPluginOfType(String extension, String pluginId);
 
-    String resolveExtensionVersion(String pluginId, List<String> goSupportedExtensionVersions);
+    String resolveExtensionVersion(String pluginId, String extensionType, List<String> goSupportedExtensionVersions);
 }

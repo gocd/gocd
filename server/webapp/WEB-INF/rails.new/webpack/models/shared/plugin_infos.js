@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ const PluginInfos = function (data) {
   };
 
   this.filterByType = function (type) {
-    return new PluginInfos(this.filterPluginInfo((pi) => pi.type() === type));
+    return new PluginInfos(this.filterPluginInfo((pi) => _.includes(pi.types(), type)));
   };
 
   this.pluggableTasksTypes = function () {
@@ -61,12 +61,12 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, status, pluginFileLocation, bundledPlugin}) {
+PluginInfos.PluginInfo = function (types, {about, bundledPlugin, extensions, id, imageUrl, pluginFileLocation, pluginSettings, status}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);
 
-  this.type = Stream(type);
+  this.types = Stream(types);
 
   this.id       = Stream(id);
   this.about    = Stream(about);
@@ -79,6 +79,7 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
   this.status             = Stream(status);
   this.pluginFileLocation = Stream(pluginFileLocation);
   this.bundledPlugin      = Stream(bundledPlugin);
+  this.extensions         = Stream(extensions);
 
   this.isActive = () => this.status().state() === 'active';
 
@@ -91,158 +92,27 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
   };
 };
 
-PluginInfos.PluginInfo.ConfigRepo = function (data) {
-  PluginInfos.PluginInfo.call(this, "configrepo", data);
+PluginInfos.PluginInfo.MultiPluginInfo = {};
+
+PluginInfos.PluginInfo.MultiPluginInfo.fromJSON = (data = {}) => {
+  const extensions = {};
+  _.forEach(data.extensions, (extension) => {
+    extensions[extension.type] = PluginInfos.PluginInfo.Extensions[extension.type](extension);
+  });
+
+  const extensionWithPluginSettings = _.find(data.extensions, 'plugin_settings');
+
+  return new PluginInfos.PluginInfo(_.map(data.extensions, (extension) => extension.type), {
+    about:              About.fromJSON(data.about),
+    bundledPlugin:      data.bundled_plugin,
+    extensions,
+    id:                 data.id,
+    imageUrl:           _.get(data, '_links.image.href'),
+    pluginFileLocation: data.plugin_file_location,
+    pluginSettings:     _.isUndefined(extensionWithPluginSettings) ? null : PluggableInstanceSettings.fromJSON(extensionWithPluginSettings.plugin_settings),
+    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  });
 };
-
-PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ConfigRepo({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  imageUrl:           _.get(data, '_links.image.href')
-});
-
-PluginInfos.PluginInfo.Notification = function (data) {
-  PluginInfos.PluginInfo.call(this, "notification", data);
-};
-
-PluginInfos.PluginInfo.Notification.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Notification({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  imageUrl:           _.get(data, '_links.image.href')
-});
-
-PluginInfos.PluginInfo.PackageRepository = function (data) {
-  PluginInfos.PluginInfo.call(this, "package-repository", data);
-
-  this.packageSettings    = Stream(data.packageSettings);
-  this.repositorySettings = Stream(data.repositorySettings);
-};
-
-PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInfos.PluginInfo.PackageRepository({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  packageSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.package_settings")),
-  repositorySettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.repository_settings")),
-  imageUrl:           _.get(data, '_links.image.href')
-});
-
-PluginInfos.PluginInfo.Task = function (data) {
-  PluginInfos.PluginInfo.call(this, "task", data);
-
-  this.taskSettings = Stream(data.taskSettings);
-};
-
-PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Task({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  taskSettings:       PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.task_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
-});
-
-PluginInfos.PluginInfo.SCM = function (data) {
-  PluginInfos.PluginInfo.call(this, "scm", data);
-
-  this.scmSettings = Stream(data.scmSettings);
-};
-
-PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.SCM({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  scmSettings:        PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
-  imageUrl:           _.get(data, '_links.image.href'),
-});
-
-PluginInfos.PluginInfo.Authorization = function (data) {
-  PluginInfos.PluginInfo.call(this, "authorization", data);
-
-  this.authConfigSettings = Stream(data.authConfigSettings);
-  this.roleSettings       = Stream(data.roleSettings);
-  this.capabilities       = Stream(data.capabilities);
-};
-
-PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authorization({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  authConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.auth_config_settings")),
-  roleSettings:       PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.role_settings")),
-  capabilities:       AuthorizationPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
-  imageUrl:           _.get(data, '_links.image.href'),
-});
-
-PluginInfos.PluginInfo.ElasticAgent = function (data) {
-  PluginInfos.PluginInfo.call(this, "elastic-agent", data);
-  this.profileSettings = Stream(data.profileSettings);
-  this.capabilities    = Stream(data.capabilities);
-};
-
-PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ElasticAgent({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  profileSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
-  capabilities:       ElasticPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
-  imageUrl:           _.get(data, '_links.image.href'),
-});
-
-PluginInfos.PluginInfo.Artifact = function (data) {
-  PluginInfos.PluginInfo.call(this, "artifact", data);
-  this.storeConfigSettings    = Stream(data.storeConfigSettings);
-  this.artifactConfigSettings = Stream(data.artifactConfigSettings);
-  this.fetchArtifactSettings  = Stream(data.fetchArtifactSettings);
-};
-
-PluginInfos.PluginInfo.Artifact.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Artifact({
-  id:                     data.id,
-  status:                 PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation:     data.plugin_file_location,
-  bundledPlugin:          data.bundled_plugin,
-  about:                  About.fromJSON(data.about),
-  storeConfigSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.store_config_settings")),
-  artifactConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.artifact_config_settings")),
-  fetchArtifactSettings:  PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.fetch_artifact_settings")),
-  imageUrl:               _.get(data, '_links.image.href'),
-});
-
-PluginInfos.PluginInfo.Analytics = function (data) {
-  PluginInfos.PluginInfo.call(this, "analytics", data);
-  this.capabilities    = Stream(data.capabilities);
-};
-
-PluginInfos.PluginInfo.Analytics.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Analytics({
-  id:                 data.id,
-  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-  pluginFileLocation: data.plugin_file_location,
-  bundledPlugin:      data.bundled_plugin,
-  about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  capabilities:       AnalyticsPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
-  imageUrl:           _.get(data, '_links.image.href')
-});
 
 PluginInfos.PluginInfo.Bad = function (data) {
   PluginInfos.PluginInfo.call(this, null, data);
@@ -250,13 +120,75 @@ PluginInfos.PluginInfo.Bad = function (data) {
 
 PluginInfos.PluginInfo.Bad.fromJSON = function (data) {
   return new PluginInfos.PluginInfo.Bad({
-    id:                 data.id,
-    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
-    pluginFileLocation: data.plugin_file_location,
-    bundledPlugin:      data.bundled_plugin,
     about:              About.fromJSON(data.about),
+    bundledPlugin:      data.bundled_plugin,
+    extensions:         null,
+    id:                 data.id,
+    imageUrl:           null,
+    pluginFileLocation: data.plugin_file_location,
+    pluginSettings:     null,
+    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
   });
 };
+
+PluginInfos.PluginInfo.Extensions = {};
+
+PluginInfos.PluginInfo.Extensions['analytics' ] = (extensionData = {}) => {
+  return {
+    capabilities: Stream(AnalyticsPluginCapabilities.fromJSON(extensionData.capabilities)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['artifact'] = (extensionData = {}) => {
+  return {
+    artifactConfigSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.artifact_config_settings)),
+    fetchArtifactSettings:  Stream(PluggableInstanceSettings.fromJSON(extensionData.fetch_artifact_settings)),
+    storeConfigSettings:    Stream(PluggableInstanceSettings.fromJSON(extensionData.store_config_settings)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['authorization'] = (extensionData = {}) => {
+  return {
+    authConfigSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.auth_config_settings)),
+    capabilities:       Stream(AuthorizationPluginCapabilities.fromJSON(extensionData.capabilities)),
+    roleSettings:       Stream(PluggableInstanceSettings.fromJSON(extensionData.role_settings)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['configrepo'] = () => {
+  return {};
+};
+
+PluginInfos.PluginInfo.Extensions['elastic-agent'] = (extensionData = {}) => {
+  return {
+    capabilities:    Stream(ElasticPluginCapabilities.fromJSON(extensionData.capabilities)),
+    profileSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.profile_settings)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['notification'] = () => {
+  return {};
+};
+
+PluginInfos.PluginInfo.Extensions['package-repository'] = (extensionData = {}) => {
+  return {
+    packageSettings:    Stream(PluggableInstanceSettings.fromJSON(extensionData.package_settings)),
+    repositorySettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.repository_settings)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['scm'] = (extensionData = {}) => {
+  return {
+    scmSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.scm_settings)),
+  };
+};
+
+PluginInfos.PluginInfo.Extensions['task'] = (extensionData = {}) => {
+  return {
+    taskSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.task_settings)),
+  };
+};
+
 
 PluginInfos.PluginInfo.Status = function ({state, messages}) {
   this.state    = Stream(state);
@@ -267,20 +199,20 @@ PluginInfos.PluginInfo.Status.fromJSON = function (data) {
   return new PluginInfos.PluginInfo.Status(data);
 };
 
-PluginInfos.PluginInfo.createByType = ({type}) => new PluginInfos.Types[type]({});
+PluginInfos.PluginInfo.createByType = ({type}) => {
+  return new PluginInfos.MultiPluginInfo.fromJSON({
+    extensions: [
+      {
+        type
+      }
+    ]
+  });
+};
 
-PluginInfos.PluginInfo.fromJSON = (data = {}) => (data.status && data.status.state === 'active') ? PluginInfos.Types[data.type].fromJSON(data) : PluginInfos.PluginInfo.Bad.fromJSON(data);
-
-PluginInfos.Types = {
-  'artifact':           PluginInfos.PluginInfo.Artifact,
-  'authorization':      PluginInfos.PluginInfo.Authorization,
-  'notification':       PluginInfos.PluginInfo.Notification,
-  'elastic-agent':      PluginInfos.PluginInfo.ElasticAgent,
-  'package-repository': PluginInfos.PluginInfo.PackageRepository,
-  'task':               PluginInfos.PluginInfo.Task,
-  'scm':                PluginInfos.PluginInfo.SCM,
-  'configrepo':         PluginInfos.PluginInfo.ConfigRepo,
-  'analytics' :         PluginInfos.PluginInfo.Analytics,
+PluginInfos.PluginInfo.fromJSON = (data = {}) => {
+  return data.status && data.status.state === 'active' && typeof data.extensions !== 'undefined' && typeof data.extensions[0] !== 'undefined'
+    ? PluginInfos.PluginInfo.MultiPluginInfo.fromJSON(data)
+    : PluginInfos.PluginInfo.Bad.fromJSON(data);
 };
 
 Mixins.fromJSONCollection({

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -45,7 +44,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void shouldBeAPluginChangeListener() throws Exception {
         ElasticAgentMetadataLoader loader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
-        verify(pluginManager).addPluginChangeListener(eq(loader), any(GoPlugin.class.getClass()));
+        verify(pluginManager).addPluginChangeListener(eq(loader));
     }
 
     @Test

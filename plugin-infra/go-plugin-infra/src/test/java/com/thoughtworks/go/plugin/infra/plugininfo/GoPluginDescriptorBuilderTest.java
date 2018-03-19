@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,10 +120,10 @@ public class GoPluginDescriptorBuilderTest {
                <about>
                  <name>Plugin Descriptor Validator</name>
                  <version>1.0.1</version>
-                 <target-go-version>12.4</target-go-version>
+                 <target-go-version>17.12</target-go-version>
                  <description>Validates its own plugin descriptor</description>
                  <vendor>
-                   <name>ThoughtWorks Go Team</name>
+                   <name>ThoughtWorks GoCD Team</name>
                    <url>www.thoughtworks.com</url>
                  </vendor>
                  <target-os>
@@ -134,8 +134,8 @@ public class GoPluginDescriptorBuilderTest {
             </go-plugin>
         */
         return new GoPluginDescriptor(TESTPLUGIN_ID, "1",
-                new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "12.4", "Validates its own plugin descriptor",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks Go Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X")), pluginJarFileLocation,
+                new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "17.12", "Validates its own plugin descriptor",
+                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X")), pluginJarFileLocation,
                 new File(bundleDirectory, name),
                 true);
     }
@@ -147,10 +147,10 @@ public class GoPluginDescriptorBuilderTest {
                <about>
                  <name>Plugin Descriptor Validator</name>
                  <version>1.0.1</version>
-                 <target-go-version>12.4</target-go-version>
+                 <target-go-version>17.12</target-go-version>
                  <description>Validates its own plugin descriptor</description>
                  <vendor>
-                   <name>ThoughtWorks Go Team</name>
+                   <name>ThoughtWorks GoCD Team</name>
                    <url>www.thoughtworks.com</url>
                  </vendor>
                  <target-os>

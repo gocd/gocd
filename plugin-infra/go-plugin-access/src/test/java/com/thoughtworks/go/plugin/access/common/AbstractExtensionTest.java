@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@ public class AbstractExtensionTest {
         extension = new TestExtension(pluginManager, pluginRequestHelper, extensionName);
 
         when(pluginManager.isPluginOfType(extensionName, pluginId)).thenReturn(true);
-
     }
 
     @Test
@@ -86,8 +85,8 @@ public class AbstractExtensionTest {
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler2_0());
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
-        when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
+        when(pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions)).thenReturn(supportedVersion);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
         extension.notifyPluginSettingsChange(pluginId, settings);
 
@@ -101,11 +100,11 @@ public class AbstractExtensionTest {
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler1_0());
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions)).thenReturn(supportedVersion);
 
         extension.notifyPluginSettingsChange(pluginId, settings);
 
-        verify(pluginManager, times(0)).submitTo(anyString(), any(GoPluginApiRequest.class));
+        verify(pluginManager, times(0)).submitTo(anyString(), eq(extensionName), any(GoPluginApiRequest.class));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

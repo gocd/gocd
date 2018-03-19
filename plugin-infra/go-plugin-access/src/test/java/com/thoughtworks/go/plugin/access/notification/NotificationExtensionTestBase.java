@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,9 +66,9 @@ public abstract class NotificationExtensionTestBase {
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NotificationExtension.goSupportedVersions)).thenReturn(apiVersion());
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NOTIFICATION_EXTENSION, NotificationExtension.goSupportedVersions)).thenReturn(apiVersion());
         when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(NOTIFICATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }
 
     protected abstract String apiVersion();

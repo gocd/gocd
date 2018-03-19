@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,14 +63,14 @@ public class JsonBasedTaskExecutorTest {
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION);
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, PLUGGABLE_TASK_EXTENSION, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
     }
 
     @Test
     public void shouldExecuteAndReturnSuccessfulExecutionResultTaskThroughPlugin() {
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(response);
         when(handler.toExecutionResult(response.responseBody())).thenReturn(ExecutionResult.success("message1"));
 
         ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
@@ -79,7 +79,7 @@ public class JsonBasedTaskExecutorTest {
         assertThat(result.getMessagesForDisplay(), is("message1"));
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        verify(pluginManager).submitTo(eq(pluginId), argument.capture());
+        verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
         assertThat(argument.getValue().extension(), is(PLUGGABLE_TASK_EXTENSION));
         assertThat(argument.getValue().extensionVersion(), is(extensionVersion));
         assertThat(argument.getValue().requestName(), is(TaskExtension.EXECUTION_REQUEST));
@@ -87,7 +87,7 @@ public class JsonBasedTaskExecutorTest {
 
     @Test
     public void shouldExecuteAndReturnFailureExecutionResultTaskThroughPlugin() {
-        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(response);
         when(handler.toExecutionResult(response.responseBody())).thenReturn(ExecutionResult.failure("error1"));
 
         ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
@@ -111,11 +111,11 @@ public class JsonBasedTaskExecutorTest {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+                GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
                 executionRequest[0] = request;
                 return response;
             }
-        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class));
         handler = new JsonBasedTaskExtensionHandler_V1();
         handlerHashMap.put("1.0", handler);
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);

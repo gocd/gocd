@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.listener.PluginRoleChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -37,7 +36,7 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
     @Autowired
     public PluginRoleService(GoConfigService goConfigService, PluginManager pluginManager) {
         this.goConfigService = goConfigService;
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        pluginManager.addPluginChangeListener(this);
     }
 
     public void updatePluginRoles(String pluginId, String username, List<CaseInsensitiveString> pluginRolesName) {

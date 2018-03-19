@@ -18,7 +18,9 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
@@ -124,9 +126,9 @@ public class GoVelocityView extends VelocityToolboxView {
     }
 
     private boolean supportsAnalyticsDashboard() {
-        for (Object obj : getPluginInfoFinder().allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
-            AnalyticsPluginInfo info = (AnalyticsPluginInfo) obj;
-            if (info.getCapabilities().supportsDashboardAnalytics()) {
+        for (CombinedPluginInfo combinedPluginInfo : getPluginInfoFinder().allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
+            AnalyticsPluginInfo pluginInfo = (AnalyticsPluginInfo) combinedPluginInfo.extensionFor(PluginConstants.ANALYTICS_EXTENSION);
+            if (pluginInfo.getCapabilities().supportsDashboardAnalytics()) {
                 return true;
             }
         }

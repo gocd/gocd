@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
         try {
             framework.stop();
-        } catch (BundleException e) {
+            framework.waitForStop(10000L);
+        } catch (BundleException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -114,7 +115,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            stopAndUninstallBundle(bundle, bundleLocation);
+            handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
         }
     }
@@ -123,20 +124,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         String failureMsg = String.format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
                 bundleLocation, pluginDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);
-        stopAndUninstallBundle(bundle, bundleLocation);
-    }
-
-    private void stopAndUninstallBundle(Bundle bundle, File bundleLocation) {
-        if (bundle != null) {
-            try {
-                bundle.stop();
-                bundle.uninstall();
-            } catch (BundleException e) {
-                String stopFailMsg = "Failed to stop/uninstall bundle: " + bundleLocation;
-                LOGGER.error(stopFailMsg, e);
-                throw new RuntimeException(stopFailMsg, e);
-            }
-        }
+        unloadPlugin(pluginDescriptor);
     }
 
     @Override
@@ -146,11 +134,18 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             return;
         }
 
+        for (PluginChangeListener listener : pluginChangeListeners) {
+            try {
+                listener.pluginUnLoaded(pluginDescriptor);
+            } catch (Exception e) {
+                LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), pluginDescriptor, e);
+            }
+        }
+
         try {
             bundle.stop();
             bundle.uninstall();
-            forAllDo(pluginChangeListeners, notifyPluginUnLoadedEvent(pluginDescriptor));
-        } catch (BundleException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to unload plugin: " + bundle, e);
         }
     }
@@ -188,127 +183,35 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return config;
     }
 
-    @Override
-    public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-        doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, new ExceptionHandler<T>() {
-            @Override
-            public void handleException(T obj, Throwable t) {
-                throw new RuntimeException(t.getMessage(), t);
-            }
-        });
-    }
-
-    @Override
-    public <T> void doOnAllWithExceptionHandling(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-        BundleContext bundleContext = framework.getBundleContext();
-
-
-        Collection<ServiceReference<T>> matchingServiceReferences;
-        try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, null);
-        } catch (InvalidSyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (ServiceReference<T> currentServiceReference : matchingServiceReferences) {
-
-            T service = bundleContext.getService(currentServiceReference);
-            GoPluginDescriptor descriptor = getDescriptorFor(currentServiceReference);
-            try {
-
-                actionToDoOnEachRegisteredServiceWhichMatches.execute(service, descriptor);
-            } catch (Throwable t) {
-                handler.handleException(service, t);
-            }
-        }
-    }
-
     private <T> GoPluginDescriptor getDescriptorFor(ServiceReference<T> serviceReference) {
         String symbolicName = serviceReference.getBundle().getSymbolicName();
         return registry.getPlugin(symbolicName);
     }
 
     @Override
-    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action) {
+    public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return null;
         }
 
         BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
+        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
         ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
         T service = bundleContext.getService(serviceReference);
         return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
     }
 
     @Override
-    public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        doOnWithExceptionHandling(serviceReferenceClass, pluginId, action, null);
-    }
-
-    @Override
-    public <T> void doOnWithExceptionHandling(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-
-        BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
-        ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
-        T service = bundleContext.getService(serviceReference);
-        executeActionOnTheService(action, service, getDescriptorFor(serviceReference), handler);
-
-    }
-
-    @Override
-    public <T> void doOnAllForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        doOnAllWithExceptionHandlingForPlugin(serviceReferenceClass, pluginId, action, null);
-    }
-
-    @Override
-    public <T> void doOnAllWithExceptionHandlingForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action,
-                                                          ExceptionHandler<T> handler) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
-            return;
-        }
-
-        BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
-        for (ServiceReference<T> serviceReference : matchingServiceReferences) {
-            T service = bundleContext.getService(serviceReference);
-            executeActionOnTheService(action, service, getDescriptorFor(serviceReference), handler);
-        }
-    }
-
-    @Override
-    public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
+    public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return false;
         }
 
         BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginId(serviceReferenceClass, pluginId, bundleContext);
+        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
         return !matchingServiceReferences.isEmpty();
-    }
-
-    private <T> void executeActionOnTheService(Action<T> action, T service, GoPluginDescriptor goPluginDescriptor, ExceptionHandler<T> handler) {
-        try {
-            action.execute(service, goPluginDescriptor);
-        } catch (Throwable t) {
-            if (handler != null) {
-                handler.handleException(service, t);
-            } else {
-                throw new RuntimeException(t.getMessage(), t);
-            }
-        }
     }
 
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {
@@ -319,13 +222,13 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
     }
 
-    private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginId(Class<T> serviceReferenceClass, String pluginId, BundleContext bundleContext) {
-        String filterBySymbolicName = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, pluginId);
+    private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginIdAndExtensionType(Class<T> serviceReferenceClass, String pluginId, String extensionType, BundleContext bundleContext) {
+        String filterBySymbolicNameAndExtensionType = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId, Constants.BUNDLE_CATEGORY, extensionType);
         Collection<ServiceReference<T>> matchingServiceReferences;
         try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filterBySymbolicName);
+            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filterBySymbolicNameAndExtensionType);
         } catch (InvalidSyntaxException e) {
-            String message = String.format("Failed To find reference for Service Reference %s and Filter %s", serviceReferenceClass, filterBySymbolicName);
+            String message = String.format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, filterBySymbolicNameAndExtensionType);
             throw new GoPluginFrameworkException(message, e);
         }
         return matchingServiceReferences;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
@@ -91,7 +90,7 @@ public class SCMMetadataLoaderTest {
     public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
         metadataLoader = new SCMMetadataLoader(scmExtension, pluginManager);
 
-        verify(pluginManager).addPluginChangeListener(metadataLoader, GoPlugin.class);
+        verify(pluginManager).addPluginChangeListener(metadataLoader);
     }
 
     @Test

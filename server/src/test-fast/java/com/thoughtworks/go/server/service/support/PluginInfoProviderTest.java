@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.support;
 
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -52,20 +53,21 @@ public class PluginInfoProviderTest {
         when(pluginManager.plugins())
                 .thenReturn(Arrays.asList(passwordFilePluginDescriptor(), ldapPluginDescriptor()));
         when(pluginInfoFinder.pluginInfoFor("cd.go.authentication.passwordfile"))
-                .thenReturn(new PluginInfo(passwordFilePluginDescriptor(), "authorization", null, null));
+                .thenReturn(new CombinedPluginInfo(
+                        new PluginInfo(passwordFilePluginDescriptor(), "authorization", null, null)));
         Map<String, Object> json = pluginInfoProvider.asJson();
 
         Map<String, Object> expectedJson = new LinkedHashMap<>();
         Map<String, Object> passwordFilePluginJson = new LinkedHashMap<>();
         passwordFilePluginJson.put("id", "cd.go.authentication.passwordfile");
-        passwordFilePluginJson.put("type", "authorization");
+        passwordFilePluginJson.put("type", Collections.singletonList("authorization"));
         passwordFilePluginJson.put("version", "1.0.1-48");
         passwordFilePluginJson.put("bundled_plugin", true);
         passwordFilePluginJson.put("status", passwordFilePluginDescriptor().getStatus());
 
         Map<String, Object> ldapPluginJson = new LinkedHashMap<>();
         ldapPluginJson.put("id", "cd.go.authentication.ldap");
-        ldapPluginJson.put("type", "");
+        ldapPluginJson.put("type", Collections.emptyList());
         ldapPluginJson.put("version", "1.1");
         ldapPluginJson.put("bundled_plugin", true);
         ldapPluginJson.put("status", ldapPluginDescriptor().getStatus());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -38,7 +37,7 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
     public AbstractPluginRegistry(PluginManager pluginManager, Extension extension) {
         this.extension = extension;
         this.plugins = new ArrayList<>();
-        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+        pluginManager.addPluginChangeListener(this);
     }
 
     @Override

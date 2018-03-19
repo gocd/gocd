@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
     }
 
     public void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
 
         if (!pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).supportsPluginSettingsNotification()) {
             return;
@@ -86,13 +86,13 @@ public abstract class AbstractExtension implements GoPluginExtension {
 
     @Override
     public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
         return messageHandlerForPluginSettingsRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
     }
 
     @Override
     public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
 
         return messageHandlerForServerInfoRequestProcessor(resolvedExtensionVersion).serverInfoToJSON(serverId, siteUrl, secureSiteUrl);
     }

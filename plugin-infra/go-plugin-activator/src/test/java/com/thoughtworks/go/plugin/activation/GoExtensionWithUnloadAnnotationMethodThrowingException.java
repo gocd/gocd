@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,37 @@
 
 package com.thoughtworks.go.plugin.activation;
 
-import java.io.IOException;
-
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.annotation.UnLoad;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginContext;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+
+import java.io.IOException;
+import java.util.Collections;
 
 @Extension
-public class GoExtensionWithUnloadAnnotationMethodThrowingException implements PluginDescriptorAware {
+public class GoExtensionWithUnloadAnnotationMethodThrowingException implements GoPlugin {
     @UnLoad
     public int throwExceptionAgain(PluginContext context) throws IOException {
         throw new IOException("Unload Dummy Checked Exception");
     }
 
+    @Override
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
+    }
 
     @Override
-    public void setPluginDescriptor(PluginDescriptor descriptor) {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        return null;
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
+        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
     }
 }

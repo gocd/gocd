@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ public class PluginRequestHelper {
             throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
         }
         try {
-            String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions);
+            String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions);
             DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(extensionName, resolvedExtensionVersion, requestName);
             apiRequest.setRequestBody(pluginInteractionCallback.requestBody(resolvedExtensionVersion));
             apiRequest.setRequestParams(pluginInteractionCallback.requestParams(resolvedExtensionVersion));
             apiRequest.setRequestHeaders(pluginInteractionCallback.requestHeaders(resolvedExtensionVersion));
-            GoPluginApiResponse response = pluginManager.submitTo(pluginId, apiRequest);
+            GoPluginApiResponse response = pluginManager.submitTo(pluginId, extensionName, apiRequest);
             if (response == null) {
                 throw new RuntimeException("The plugin sent a null response");
             }

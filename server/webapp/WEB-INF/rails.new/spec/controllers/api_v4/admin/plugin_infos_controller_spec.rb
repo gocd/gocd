@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ describe ApiV4::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
+      plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings))
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with(nil).and_return([plugin_info])
 
@@ -56,14 +56,14 @@ describe ApiV4::Admin::PluginInfosController do
       good_vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
       good_about = GoPluginDescriptor::About.new('Good plugin', '1.2.3', '17.2.0', 'Does foo', good_vendor, ['Linux'])
       good_plugin = GoPluginDescriptor.new('good.plugin', '1.0', good_about, nil, nil, false)
-      good_plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(good_plugin, nil)
+      good_plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(good_plugin, nil))
 
       bad_vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
       bad_about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', bad_vendor, ['Linux'])
       bad_plugin = GoPluginDescriptor.new('bad.plugin', '1.0', bad_about, nil, nil, false)
       bad_plugin.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
 
-      bad_plugin_info = com.thoughtworks.go.plugin.domain.common.BadPluginInfo.new(bad_plugin)
+      bad_plugin_info = BadPluginInfo.new(bad_plugin)
 
       expect(@default_plugin_manager).to receive(:plugins).and_return([bad_plugin, good_plugin])
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with(nil).and_return([good_plugin_info])
@@ -78,7 +78,7 @@ describe ApiV4::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
+      plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings))
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([plugin_info])
 
@@ -92,10 +92,10 @@ describe ApiV4::Admin::PluginInfosController do
       vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
-      notification_plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
+      notification_plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings))
       unsupported_plugin_info = instance_double('unsupported_plugin')
 
-      expect(unsupported_plugin_info).to receive(:getExtensionName).and_return('unsupported')
+      expect(unsupported_plugin_info).to receive(:extensionNames).and_return(['unsupported'])
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([notification_plugin_info, unsupported_plugin_info])
 
       get_with_api_header :index, type: 'scm'
@@ -109,15 +109,15 @@ describe ApiV4::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      allPluginInfos = [com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, @plugin_settings),
-                        com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, nil, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings),
-                        com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, nil, nil),
-                        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, nil, nil, nil),
-                        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, nil, nil, nil, nil, nil)]
+      allPluginInfos = [CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor, nil, nil, nil)),
+                        CombinedPluginInfo.new(AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil)),
+                        CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, @plugin_settings)),
+                        CombinedPluginInfo.new(ElasticAgentPluginInfo.new(descriptor, nil, nil, nil, nil)),
+                        CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings)),
+                        CombinedPluginInfo.new(PackageMaterialPluginInfo.new(descriptor, nil, nil, nil)),
+                        CombinedPluginInfo.new(PluggableTaskPluginInfo.new(descriptor, nil, nil)),
+                        CombinedPluginInfo.new(SCMPluginInfo.new(descriptor, nil, nil, nil)),
+                        CombinedPluginInfo.new(ArtifactPluginInfo.new(descriptor, nil, nil, nil, nil, nil))]
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).and_return(allPluginInfos)
 
@@ -127,10 +127,13 @@ describe ApiV4::Admin::PluginInfosController do
 
       expect(response).to be_ok
       expect(actual_response[:_embedded][:plugin_info].length).to eq(9)
-      expect(actual_response[:_embedded][:plugin_info].map {|pi| pi['type']}.sort).to eq(expected_response)
+      expect((actual_response[:_embedded][:plugin_info].map do |pi|
+        expect(pi['extensions'].length).to eq(1)
+        pi['extensions'][0]['type']
+      end).flatten.sort).to eq(expected_response)
     end
 
-    it 'should be a unprocessible entity for a invalid plugin type' do
+    it 'should be an unprocessable entity for a invalid plugin type' do
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
       get_with_api_header :index, type: 'invalid_type'
@@ -169,7 +172,7 @@ describe ApiV4::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
+      plugin_info = CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings))
 
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
 
@@ -198,7 +201,7 @@ describe ApiV4::Admin::PluginInfosController do
     it 'should return 404 for unsupported plugins' do
       unsupported_plugin_info = instance_double('unsupported_plugin')
 
-      expect(unsupported_plugin_info).to receive(:getExtensionName).and_return('unsupported')
+      expect(unsupported_plugin_info).to receive(:extensionNames).and_return(['unsupported'])
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('unsupported.plugin').and_return(unsupported_plugin_info)
 
       get_with_api_header :show, id: 'unsupported.plugin'

@@ -140,7 +140,7 @@ public class PluggableScmService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (!result.hasMessage()) {
-                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the material config. Please check the logs for more information."));
                 LOGGER.error(e.getMessage(), e);
             }
         }

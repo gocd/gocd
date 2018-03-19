@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ describe("PluginsWidget", () => {
 
   const configRepoPluginInfoJSON = {
     "id":                   "json.config.plugin",
-    "type":                 "configrepo",
     "status":               {
       "state": "active"
     },
@@ -51,57 +50,46 @@ describe("PluginsWidget", () => {
         "url":  "https://github.com/tomzo/json-config-plugin"
       }
     },
-    "extension_info":       {
-      "plugin_settings": {
-        "configurations": [
-          {
-            "key":      "pattern",
-            "metadata": {
-              "secure":   false,
-              "required": false
+    "extensions": [
+      {
+        "type": "configrepo",
+        "plugin_settings": {
+          "configurations": [
+            {
+              "key":      "pattern",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
             }
+          ],
+          "view":           {
+            "template": "plugin settings view"
           }
-        ],
-        "view":           {
-          "template": "plugin settings view"
         }
       }
-    }
+    ]
   };
 
-  describe('functionality', () => {
-    const pluginSettingJSON = {
-      "plugin_id":     "github.oauth.login",
-      "configuration": [
-        {
-          "key":   "server_base_url",
-          "value": "https://localhost:8154/go"
-        },
-        {
-          "key":   "consumer_key",
-          "value": "foo"
-        }
-      ]
-    };
-
-    const elasticAgentPluginInfoJSON = {
-      "id":             "cd.go.contrib.elastic-agent.docker",
-      "type":           "elastic-agent",
-      "status":         {
-        "state": "active"
-      },
-      "about":          {
-        "name":                     "Docker Elastic Agent Plugin",
-        "version":                  "0.6.1",
-        "target_go_version":        "16.12.0",
-        "description":              "Docker Based Elastic Agent Plugins for GoCD",
-        "target_operating_systems": [],
-        "vendor":                   {
-          "name": "GoCD Contributors",
-          "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
-        }
-      },
-      "extension_info": {
+  const elasticAgentPluginInfoJSON = {
+    "id":             "cd.go.contrib.elastic-agent.docker",
+    "status":         {
+      "state": "active"
+    },
+    "about":          {
+      "name":                     "Docker Elastic Agent Plugin",
+      "version":                  "0.6.1",
+      "target_go_version":        "16.12.0",
+      "description":              "Docker Based Elastic Agent Plugins for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    "extensions": [
+      {
+        "type": "elastic-agent",
         "plugin_settings":  {
           "configurations": [
             {
@@ -134,11 +122,27 @@ describe("PluginsWidget", () => {
           "supports_status_report": true
         }
       }
+    ]
+  };
+
+  describe('functionality', () => {
+    const pluginSettingJSON = {
+      "plugin_id":     "github.oauth.login",
+      "configuration": [
+        {
+          "key":   "server_base_url",
+          "value": "https://localhost:8154/go"
+        },
+        {
+          "key":   "consumer_key",
+          "value": "foo"
+        }
+      ]
     };
+
 
     const githubAuthPluginInfoJSON = {
       "id":                   "github.oauth.login",
-      "type":                 "authorization",
       "status":               {
         "state": "active"
       },
@@ -155,33 +159,35 @@ describe("PluginsWidget", () => {
           "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
         }
       },
-      "extension_info":       {
-        "plugin_settings": {
-          "configurations": [
-            {
-              "key":      "server_base_url",
-              "metadata": {
-                "secure":   false,
-                "required": true
+      "extensions": [
+        {
+          "type": "authorization",
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key":      "server_base_url",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
+              },
+              {
+                "key":      "consumer_key",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
               }
-            },
-            {
-              "key":      "consumer_key",
-              "metadata": {
-                "secure":   false,
-                "required": true
-              }
+            ],
+            "view":           {
+              "template": "plugin settings view"
             }
-          ],
-          "view":           {
-            "template": "plugin settings view"
           }
         }
-      }
+      ]
     };
     const githubScmPluginInfoJSON  = {
       "id":                   "github.pr",
-      "type":                 "scm",
       "status":               {
         "state": "active"
       },
@@ -198,24 +204,27 @@ describe("PluginsWidget", () => {
           "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
         }
       },
-      "extension_info":       {
-        "display_name": "GitHub",
-        "scm_settings": {
-          "configurations": [
-            {
-              "key":      "url",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
+      "extensions": [
+        {
+          "type": "scm",
+          "display_name": "GitHub",
+          "scm_settings": {
+            "configurations": [
+              {
+                "key":      "url",
+                "metadata": {
+                  "secure":           false,
+                  "required":         true,
+                  "part_of_identity": true
+                }
               }
+            ],
+            "view":           {
+              "template": "scm settings view"
             }
-          ],
-          "view":           {
-            "template": "scm settings view"
           }
         }
-      }
+      ]
     };
 
     const yumPluginInfoJSON = {
@@ -331,7 +340,7 @@ describe("PluginsWidget", () => {
   });
 
   describe('for an admin', () => {
-    const allPluginInfosJSON = [configRepoPluginInfoJSON];
+    const allPluginInfosJSON = [configRepoPluginInfoJSON, elasticAgentPluginInfoJSON];
     const pluginInfos        = Stream(PluginInfos.fromJSON([]));
     const isUserAnAdmin      = Stream('true' === 'true');
 
@@ -360,7 +369,11 @@ describe("PluginsWidget", () => {
       expect($root.find('.plugin-actions')).toContainElement('a.edit-plugin');
     });
 
-
+    it("should show status report button for admin", () => {
+      const pluginWithStatusReport = $root.find('.plugin .plugin-actions a.status-report-btn').parents('.plugin');
+      expect(pluginWithStatusReport.find('.plugin-name')).toContainText(elasticAgentPluginInfoJSON.about.name);
+      expect(pluginWithStatusReport.find('.plugin-name')).not.toContainText(configRepoPluginInfoJSON.about.name);
+    });
   });
 
   describe('for a non-admin', () => {

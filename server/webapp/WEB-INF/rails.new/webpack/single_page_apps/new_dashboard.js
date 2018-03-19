@@ -123,7 +123,7 @@ $(() => {
 
   const onPluginInfosResponse = (pluginInfos) => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
-      pluginsSupportingAnalytics[pluginInfo.id()] = pluginInfo.capabilities().supportedPipelineAnalytics()[0].id;
+      pluginsSupportingAnalytics[pluginInfo.id()] = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics()[0].id;
     });
     renderView();
   };

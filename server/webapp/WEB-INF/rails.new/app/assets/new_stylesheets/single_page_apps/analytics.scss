@@ -25,8 +25,9 @@
 
 // scss-lint:disable SelectorDepth
 
+$golden-ratio: 1.61803398875;
+
 .analytics-container {
-  height:          79vh;
   display:         flex;
   flex-wrap:       wrap;
   justify-content: center;
@@ -41,7 +42,6 @@
   .dashboard-content {
     display:        flex;
     flex-grow:      0.5;
-    height:         100%;
     width:          100%;
     padding:        0 100px;
     flex-direction: column;
@@ -49,6 +49,7 @@
     .dashboard-tabs-container {
       border-bottom: 1px solid #ccc;
       margin-bottom: 10px;
+      min-width: 650px;
 
       .dashboard-tabs {
         margin: 0;
@@ -75,22 +76,23 @@
     .dashboard-charts {
       overflow:        visible;
       border:          0;
-      height:          100%;
       display:         flex;
       flex-flow:       row wrap;
       justify-content: center;
 
       select {
-        min-width:  calc(35vh * 5 / 3);
-        max-width:  calc(43vh * 5 / 3);
+        width:      calc(50vw - 100px);
+        min-width:  650px;
         margin:     0 25%;
       }
 
       .frame-container {
-        min-width:  calc(44vh * 5 / 3);
-        min-height: 44vh;
-        max-width:  calc(60vh * 5 / 3);
-        height:     100%;
+        margin:     2px;
+        width:      calc(50vw - 104px);
+        height:     calc(50vw / #{$golden-ratio} - 104px / #{$golden-ratio});
+
+        min-width:  646px;
+        min-height: calc(646px / #{$golden-ratio});
 
         iframe {
           height: 100%;

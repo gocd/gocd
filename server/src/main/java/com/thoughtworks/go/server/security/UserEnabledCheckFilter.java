@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
@@ -34,6 +28,12 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.server.security.SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED;
 import static org.springframework.security.ui.AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY;
@@ -41,7 +41,7 @@ import static org.springframework.security.ui.AbstractProcessingFilter.SPRING_SE
 /**
  * @understands
  */
-public class UserEnabledCheckFilter  extends SpringSecurityFilter {
+public class UserEnabledCheckFilter extends SpringSecurityFilter {
     private final UserService userService;
 
     public UserEnabledCheckFilter(UserService userService) {
@@ -50,10 +50,10 @@ public class UserEnabledCheckFilter  extends SpringSecurityFilter {
 
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         User user = getUser(request);
-        if(user.getId() != NOT_PERSISTED && UserHelper.getUserId(request) == null){
+        if (user.getId() != NOT_PERSISTED && UserHelper.getUserId(request) == null) {
             UserHelper.setUserId(request, user.getId());
         }
-        
+
         if (!user.isEnabled()) {
             SecurityContext context = SecurityContextHolder.getContext();
             request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new DisabledException("Your account has been disabled by the administrator"));
@@ -68,7 +68,12 @@ public class UserEnabledCheckFilter  extends SpringSecurityFilter {
         Long userId = UserHelper.getUserId(request);
         if (userId == null) {
             Username userName = UserHelper.getUserName();
-            return userName.isAnonymous() ? new NullUser() : userService.findUserByName(CaseInsensitiveString.str(userName.getUsername()));
+
+            if (userName.isAnonymous() || userName.isGoAgentUser()) {
+                return new NullUser();
+            }
+
+            return userService.findUserByName(CaseInsensitiveString.str(userName.getUsername()));
         } else {
             return userService.load(userId);
         }

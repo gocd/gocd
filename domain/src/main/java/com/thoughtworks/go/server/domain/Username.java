@@ -59,7 +59,7 @@ public class Username implements Serializable {
         return username;
     }
 
-    public boolean hasDistinctDisplayName(){
+    public boolean hasDistinctDisplayName() {
         return !displayName.equals(username.toString());
     }
 
@@ -69,6 +69,10 @@ public class Username implements Serializable {
 
     public boolean isAnonymous() {
         return this.equals(ANONYMOUS);
+    }
+
+    public boolean isGoAgentUser() {
+        return this.username.toLower().startsWith("_go_agent_");
     }
 
     public String appendNameToText(String text) {

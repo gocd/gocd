@@ -154,7 +154,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldFailCheckingWhenPipelineNotYetScheduledButInTriggerMonitor() throws Exception {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
-        triggerMonitor.markPipelineAsAlreadyTriggered(pipelineName);
+        triggerMonitor.markPipelineAsAlreadyTriggered(pipelineConfig.name());
 
         HttpOperationResult operationResult = new HttpOperationResult();
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));

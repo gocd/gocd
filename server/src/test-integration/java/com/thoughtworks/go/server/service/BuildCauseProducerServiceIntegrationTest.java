@@ -447,7 +447,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat(result.isSuccess(), is(true));
         assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline), is(false));
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name().toString()), Is.is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), Is.is(false));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name());
         assertNotNull(buildCause);
@@ -479,7 +479,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUPendingForMaterial(remotePipeline, configRepoMaterial);
         assertMDUNotPendingForMaterial(remotePipeline, svn);
         assertMDUNotPendingForMaterial(remotePipeline, git);
-        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name().toString()), Is.is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name()), Is.is(true));
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(remotePipeline.name().toString());
         assertNull(buildCause);
     }
@@ -493,7 +493,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUPendingForMaterial(manualTriggerPipeline, materialForManualTriggerPipeline);
         assertThat(result.isSuccess(), is(true));
         assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name().toString()), Is.is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), Is.is(true));
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name().toString());
         assertNull(buildCause);
     }

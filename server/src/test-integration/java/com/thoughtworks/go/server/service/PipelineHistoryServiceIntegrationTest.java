@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -671,7 +671,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         configHelper.addPipeline("pipeline-name", "stage-1");
 
-        triggerMonitor.markPipelineAsAlreadyTriggered("pipeline-name");
+        triggerMonitor.markPipelineAsAlreadyTriggered(new CaseInsensitiveString("pipeline-name"));
 
         PipelineInstanceModel instance = pipelineHistoryService.latest("pipeline-name", new Username(new CaseInsensitiveString("admin")));
         assertThat(instance.getName(), is("pipeline-name"));

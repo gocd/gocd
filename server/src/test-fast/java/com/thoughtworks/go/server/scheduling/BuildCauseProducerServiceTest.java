@@ -202,7 +202,7 @@ public class BuildCauseProducerServiceTest {
             buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), operationResult);
             fail("expected exception, got none");
         } catch (Exception e) {
-            assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
+            assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
         }
     }
 
@@ -219,9 +219,9 @@ public class BuildCauseProducerServiceTest {
         when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<>())));
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
-        assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(true));
         sendMaterialUpdateCompleteMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
-        assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
     }
 
     @Test
@@ -234,7 +234,7 @@ public class BuildCauseProducerServiceTest {
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         sendMaterialUpdateFailedMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
-        assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
     }
 
     private void sendMaterialUpdateCompleteMessage(MaterialUpdateStatusListener materialUpdateStatusListener, HgMaterial material) {

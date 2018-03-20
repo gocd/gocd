@@ -26,22 +26,23 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
  * ADD_UNDERSTANDS_BLOCK
  */
 public class AboutToBeTriggeredChecker implements SchedulingChecker{
-    private final String pipelineName;
+    private final CaseInsensitiveString pipelineName;
     private final TriggerMonitor triggerMonitor;
     private final PipelineScheduleQueue pipelineScheduleQueue;
 
-    public AboutToBeTriggeredChecker(String pipelineName, TriggerMonitor triggerMonitor, PipelineScheduleQueue pipelineScheduleQueue) {
+    public AboutToBeTriggeredChecker(CaseInsensitiveString pipelineName, TriggerMonitor triggerMonitor, PipelineScheduleQueue pipelineScheduleQueue) {
         this.pipelineName = pipelineName;
         this.triggerMonitor = triggerMonitor;
         this.pipelineScheduleQueue = pipelineScheduleQueue;
     }
 
     public void check(OperationResult result) {
-        HealthStateType type = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
-        if (triggerMonitor.isAlreadyTriggered(pipelineName) || pipelineScheduleQueue.hasForcedBuildCause(new CaseInsensitiveString(pipelineName))) {
+        String pipelineNameString = CaseInsensitiveString.str(pipelineName);
+        HealthStateType type = HealthStateType.general(HealthStateScope.forPipeline(pipelineNameString));
+        if (triggerMonitor.isAlreadyTriggered(pipelineName) || pipelineScheduleQueue.hasForcedBuildCause(pipelineName)) {
             result.conflict("Failed to trigger pipeline: " + pipelineName,
                             "Pipeline already triggered",
-                            HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+                            HealthStateType.general(HealthStateScope.forPipeline(pipelineNameString)));
         } else {
             result.success(type);
         }

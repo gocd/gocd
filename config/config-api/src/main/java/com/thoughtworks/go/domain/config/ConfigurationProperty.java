@@ -326,4 +326,8 @@ public class ConfigurationProperty implements Serializable, Validatable {
         }
         return configurationProperty;
     }
+
+    public static ConfigurationPropertyBuilder builder(String key) {
+        return new ConfigurationPropertyBuilder(key);
+    }
 }

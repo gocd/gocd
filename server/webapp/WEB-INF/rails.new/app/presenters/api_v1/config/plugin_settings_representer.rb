@@ -31,7 +31,7 @@ module ApiV1
         opts[:url_builder].apiv1_admin_plugin_setting_url(plugin_id: '__plugin_id__').gsub(/__plugin_id__/, ':plugin_id')
       end
 
-      property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+      property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda {|object, options| object.empty?}
       property :plugin_id,
                exec_context: :decorator
 
@@ -47,7 +47,7 @@ module ApiV1
       end
 
       def configuration
-        plugin_settings.getSecurePluginSettingsProperties(represented[:plugin_info])
+        plugin_settings.getPluginSettingsProperties
       end
 
       def plugin_settings

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -62,41 +63,75 @@ public class PluginService {
         return extension == null ? null : defaultPluginInfoFinder.pluginInfoFor(pluginId).extensionFor(extension.extensionName());
     }
 
-    public PluginSettings loadStoredPluginSettings(String pluginId) {
+    public boolean isPluginLoaded(String pluginId) {
+        for (GoPluginExtension extension : extensions) {
+            if (extension.canHandlePlugin(pluginId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public PluginSettings getPluginSettings(String pluginId) {
         Plugin plugin = pluginDao.findPlugin(pluginId);
         if (plugin instanceof NullPlugin) {
             return null;
         } else {
-            return new PluginSettings(pluginId).populateSettingsMap(plugin);
+            return PluginSettings.from(plugin, pluginInfoForExtensionThatHandlesPluginSettings(pluginId));
         }
     }
 
-    public void savePluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
-        update(currentUser, result, pluginSettings);
-    }
-
-    public void updatePluginSettings(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings, String md5) {
-        String keyToLockOn = keyToLockOn(pluginSettings.getPluginId());
-        synchronized (keyToLockOn) {
-            if (isRequestFresh(md5, pluginSettings, result)) {
-                update(currentUser, result, pluginSettings);
-                if (result.isSuccessful()) {
-                    entityHashingService.removeFromCache(pluginSettings, pluginSettings.getPluginId());
+    public void createPluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result) {
+        final String pluginId = newPluginSettings.getPluginId();
+        if (hasPermission(currentUser, result) && checkPluginLoaded(pluginId, result) && checkPluginSupportsPluginSettings(pluginId, result)) {
+            final String keyToLockOn = keyToLockOn(newPluginSettings.getPluginId());
+            synchronized (keyToLockOn) {
+                final Plugin plugin = pluginDao.findPlugin(newPluginSettings.getPluginId());
+                if (plugin instanceof NullPlugin) {
+                    updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
+                } else {
+                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("The plugin settings for plugin[%s] is already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
                 }
             }
         }
     }
 
-    public void validatePluginSettingsFor(PluginSettings pluginSettings) {
-        String pluginId = pluginSettings.getPluginId();
-        PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
+    public void updatePluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result, String md5) {
+        final String pluginId = newPluginSettings.getPluginId();
 
-        GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
-        if (extension == null)
-            throw new IllegalArgumentException(String.format(
-                    "Plugin '%s' does not exist or does not implement settings validation.", pluginId));
+        if (hasPermission(currentUser, result) && checkPluginLoaded(pluginId, result) && checkPluginSupportsPluginSettings(pluginId, result)) {
+            final String keyToLockOn = keyToLockOn(pluginId);
+            synchronized (keyToLockOn) {
+                final Plugin plugin = pluginDao.findPlugin(pluginId);
+                if (plugin instanceof NullPlugin) {
+                    result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginId), HealthStateType.notFound());
+                    return;
+                }
 
-        ValidationResult result = extension.validatePluginSettings(pluginId, configuration);
+                final PluginSettings pluginSettingsFromDB = getPluginSettings(pluginId);
+                if (!entityHashingService.md5ForEntity(pluginSettingsFromDB).equals(md5)) {
+                    result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Plugin Settings", pluginId));
+                    return;
+                }
+
+                updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
+                if (result.isSuccessful()) {
+                    entityHashingService.removeFromCache(newPluginSettings, pluginId);
+                }
+            }
+        }
+    }
+
+    void validatePluginSettingsFor(PluginSettings pluginSettings) {
+        final String pluginId = pluginSettings.getPluginId();
+        final PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
+
+        final GoPluginExtension extension = findExtensionWhichCanHandleSettingsFor(pluginId);
+        if (extension == null) {
+            throw new IllegalArgumentException(String.format("Plugin '%s' does not exist or does not implement settings validation.", pluginId));
+        }
+
+        final ValidationResult result = extension.validatePluginSettings(pluginId, configuration);
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {
                 pluginSettings.populateErrorMessageFor(error.getKey(), error.getMessage());
@@ -104,7 +139,7 @@ public class PluginService {
         }
     }
 
-    public void savePluginSettingsFor(PluginSettings pluginSettings) {
+    void saveOrUpdatePluginSettingsInDB(PluginSettings pluginSettings) {
         Plugin plugin = pluginDao.findPlugin(pluginSettings.getPluginId());
         if (plugin instanceof NullPlugin) {
             plugin = new Plugin(pluginSettings.getPluginId(), null);
@@ -114,27 +149,23 @@ public class PluginService {
         pluginDao.saveOrUpdate(plugin);
     }
 
-    private void update(Username currentUser, LocalizedOperationResult result, PluginSettings pluginSettings) {
+    private void updatePluginSettingsAndNotifyPluginSettingsChangeListeners(LocalizedOperationResult result, PluginSettings pluginSettings) {
         synchronized (keyToLockOn(pluginSettings.getPluginId())) {
-            if (!securityService.isUserAdmin(currentUser)) {
-                result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            } else {
-                try {
-                    validatePluginSettingsFor(pluginSettings);
-                    if (pluginSettings.hasErrors()) {
-                        result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit."));
-                        return;
-                    }
-                    savePluginSettingsFor(pluginSettings);
-                    notifyPluginSettingsChange(pluginSettings);
-                } catch (Exception e) {
-                    if (e instanceof IllegalArgumentException) {
-                        result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
-                    } else {
-                        if (!result.hasMessage()) {
-                            LOGGER.error(e.getMessage(), e);
-                            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the plugin settings. Please check the logs for more information."));
-                        }
+            try {
+                validatePluginSettingsFor(pluginSettings);
+                if (pluginSettings.hasErrors()) {
+                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit."));
+                    return;
+                }
+                saveOrUpdatePluginSettingsInDB(pluginSettings);
+                notifyPluginSettingsChange(pluginSettings);
+            } catch (Exception e) {
+                if (e instanceof IllegalArgumentException) {
+                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
+                } else {
+                    if (!result.hasMessage()) {
+                        LOGGER.error(e.getMessage(), e);
+                        result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the plugin settings. Please check the logs for more information."));
                     }
                 }
             }
@@ -165,20 +196,6 @@ public class PluginService {
         return (getClass().getName() + "_plugin_settings_" + pluginId).intern();
     }
 
-    private boolean isRequestFresh(String md5, PluginSettings pluginSettings, LocalizedOperationResult result) {
-        PluginSettings storedPluginSettings = loadStoredPluginSettings(pluginSettings.getPluginId());
-        if (storedPluginSettings == null) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginSettings.getPluginId()), HealthStateType.notFound());
-            return false;
-        }
-        boolean freshRequest = entityHashingService.md5ForEntity(pluginSettings).equals(md5);
-        if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Plugin Settings", pluginSettings.getPluginId()));
-        }
-        return freshRequest;
-
-    }
-
     private GoPluginExtension findExtensionWhichCanHandleSettingsFor(String pluginId) {
         String extensionWhichCanHandleSettings = PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId);
         for (GoPluginExtension extension : extensions) {
@@ -188,5 +205,31 @@ public class PluginService {
         }
 
         return null;
+    }
+
+    private boolean hasPermission(Username currentUser, LocalizedOperationResult result) {
+        if (securityService.isUserAdmin(currentUser)) {
+            return true;
+        }
+
+        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        return false;
+    }
+
+    private boolean checkPluginLoaded(String pluginId, LocalizedOperationResult result) {
+        if (!isPluginLoaded(pluginId)) {
+            result.failedDependency(LocalizedMessage.string("FAILED_DEPENDENCY", String.format("The plugin with id %s is not loaded.", pluginId)));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkPluginSupportsPluginSettings(String pluginId, LocalizedOperationResult result) {
+        final PluginInfo pluginInfo = pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
+        if (pluginInfo == null) {
+            result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("The plugin with id %s does not support plugin settings.", pluginId)));
+            return false;
+        }
+        return true;
     }
 }

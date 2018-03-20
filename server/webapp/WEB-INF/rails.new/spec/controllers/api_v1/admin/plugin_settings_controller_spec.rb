@@ -23,7 +23,7 @@ describe ApiV1::Admin::PluginSettingsController do
   before :each do
     @plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
     @plugin_settings = PluginSettings.new("plugin.id.1")
-    @plugin_settings.setPluginSettingsProperties([ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
+    @plugin_settings.addConfigurations(@plugin_info, [ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     @plugin_service = double('plugin_service')
     @entity_hashing_service = double('entity_hashing_service')
     allow(controller).to receive(:plugin_service).and_return(@plugin_service)
@@ -87,7 +87,8 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render the plugin settings for a specified plugin id' do
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(@plugin_info)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
@@ -98,7 +99,7 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render 404 for non existent plugin settings' do
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.2').and_return(nil)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
 
         get_with_api_header :show, plugin_id: 'plugin.id.2'
 
@@ -106,11 +107,11 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render 424 for a non existent plugin' do
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(false)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         get_with_api_header :show, plugin_id: 'plugin.id.1'
 
-        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
       end
     end
 
@@ -191,8 +192,10 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should deserialize plugin settings from given object' do
         allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("some-md5")
-        hash = {plugin_id: 'plugin.id.2',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
-        expect(@plugin_service).to receive(:savePluginSettings).with(anything, anything, an_instance_of(PluginSettings))
+        hash = {plugin_id: 'plugin.id.2', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
+        expect(@plugin_service).to receive(:createPluginSettings).with(an_instance_of(PluginSettings), anything, anything)
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -210,7 +213,9 @@ describe ApiV1::Admin::PluginSettingsController do
         allow(result).to receive(:isSuccessful).and_return(false)
         allow(result).to receive(:message).with(anything).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
-        expect(@plugin_service).to receive(:savePluginSettings).with(anything, result, an_instance_of(PluginSettings))
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
+        expect(@plugin_service).to receive(:createPluginSettings).with(an_instance_of(PluginSettings), anything, result)
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -219,11 +224,11 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should render 424 for a non existent plugin' do
         hash = {plugin_id: 'plugin.id.1'}
-        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(false)
 
         post_with_api_header :create, plugin_setting: hash
 
-        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
       end
     end
 
@@ -305,9 +310,9 @@ describe ApiV1::Admin::PluginSettingsController do
 
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
           com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
-          [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
+            [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         allow(controller).to receive(:check_for_stale_request)
-        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
 
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
@@ -315,9 +320,11 @@ describe ApiV1::Admin::PluginSettingsController do
         allow(result).to receive(:message).with(anything).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
 
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('md5')
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@plugin_service).to receive(:updatePluginSettings).with(anything, result, an_instance_of(PluginSettings), "md5")
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:updatePluginSettings).with(an_instance_of(PluginSettings), anything, result, "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
@@ -326,13 +333,13 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
-        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
-        expect(response).to have_api_message_response(412, "Someone has modified the configuration for Plugin Settings 'plugin.id.1'. Please update your copy of the config with the changes." )
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for Plugin Settings 'plugin.id.1'. Please update your copy of the config with the changes.")
       end
 
       it 'should proceed with update if etag matches.' do
@@ -342,11 +349,13 @@ describe ApiV1::Admin::PluginSettingsController do
           com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
             [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
-        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
 
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@plugin_service).to receive(:updatePluginSettings).with(anything, anything, an_instance_of(PluginSettings), "md5")
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:updatePluginSettings).with(an_instance_of(PluginSettings), anything, anything, "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
@@ -360,12 +369,12 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should render 424 for a non existent plugin' do
         controller.stub(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1'}
-        expect(@plugin_service).to receive(:loadStoredPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(nil)
+        expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(false)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
-        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
       end
     end
 

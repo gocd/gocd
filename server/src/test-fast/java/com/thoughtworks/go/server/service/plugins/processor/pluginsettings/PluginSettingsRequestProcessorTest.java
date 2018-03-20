@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
-import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.dao.PluginSqlMapDao;
+import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.service.PluginService;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -50,11 +51,13 @@ public class PluginSettingsRequestProcessorTest {
     @Mock
     private PluginRequestProcessorRegistry applicationAccessor;
     @Mock
-    private PluginSqlMapDao pluginSqlMapDao;
+    private PluginService pluginService;
     @Mock
     private GoPluginDescriptor pluginDescriptor;
     @Mock
     private GoPluginExtension pluginExtension;
+    @Mock
+    private PluginInfo pluginInfo;
 
     private PluginSettingsRequestProcessor processor;
 
@@ -65,12 +68,15 @@ public class PluginSettingsRequestProcessorTest {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
+        when(pluginInfo.getPluginSettings()).thenReturn(mock(PluggableInstanceSettings.class));
 
-        when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
-        when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(new NullPlugin());
+        final PluginSettings pluginSettings = PluginSettings.from(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)), pluginInfo);
+
+        when(pluginService.getPluginSettings("plugin-id-1")).thenReturn(pluginSettings);
+        when(pluginService.getPluginSettings("plugin-id-2")).thenReturn(null);
         when(pluginExtension.extensionName()).thenReturn("extension1");
 
-        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, singletonList(pluginExtension));
+        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginService, singletonList(pluginExtension));
     }
 
     @Test
@@ -81,9 +87,10 @@ public class PluginSettingsRequestProcessorTest {
     @Test
     public void shouldGetPluginSettingsForPluginThatExistsInDB() {
         String PLUGIN_ID = "plugin-foo-id";
+        final PluginSettings pluginSettings = PluginSettings.from(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"), pluginInfo);
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(pluginSettings);
 
         String responseBody = "expected-response";
         Map<String, String> settingsMap = new HashMap<>();
@@ -107,7 +114,7 @@ public class PluginSettingsRequestProcessorTest {
         String requestBody = "expected-request";
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new NullPlugin());
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(null);
         when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
@@ -122,9 +129,10 @@ public class PluginSettingsRequestProcessorTest {
     @Test
     public void shouldRespondWith400IfPluginExtensionErrorsOut() {
         String PLUGIN_ID = "plugin-foo-id";
+        final PluginSettings pluginSettings = PluginSettings.from(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"), pluginInfo);
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginService.getPluginSettings(PLUGIN_ID)).thenReturn(pluginSettings);
 
         when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(pluginExtension.pluginSettingsJSON(eq(PLUGIN_ID), any(Map.class))).thenThrow(RuntimeException.class);
@@ -153,15 +161,12 @@ public class PluginSettingsRequestProcessorTest {
     public void shouldRouteToTheRightExtensionBasedOnTheRequest_WhenAPluginHasMultipleExtensions() throws Exception {
         GoPluginExtension anotherPluginExtension = mock(GoPluginExtension.class);
         String pluginId = "plugin-foo-id";
-        Map<String, String> pluginSettings = m("k1", "v1", "k2", "v2");
+        final PluginSettings pluginSettings = PluginSettings.from(new Plugin(pluginId, "{\"k1\": \"v1\",\"k2\": \"v2\"}"), pluginInfo);
 
         when(pluginDescriptor.id()).thenReturn(pluginId);
-        when(pluginSqlMapDao.findPlugin(pluginId)).thenReturn(new Plugin(pluginId, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginService.getPluginSettings(pluginId)).thenReturn(pluginSettings);
 
-
-        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, Arrays.asList(pluginExtension, anotherPluginExtension));
-
-
+        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginService, Arrays.asList(pluginExtension, anotherPluginExtension));
 
         DefaultGoApiRequest requestForExtension1 = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", singletonList("1.0")));
         setupExpectationsFor(pluginExtension, pluginId, "extension1");
@@ -172,7 +177,6 @@ public class PluginSettingsRequestProcessorTest {
         verify(pluginExtension).pluginSettingsJSON(eq(pluginId), anyMapOf(String.class, String.class));
         verify(anotherPluginExtension, never()).pluginSettingsJSON(eq(pluginId), anyMapOf(String.class, String.class));
         Mockito.reset(pluginExtension, anotherPluginExtension);
-
 
 
         DefaultGoApiRequest requestForExtension2 = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension2", singletonList("1.0")));

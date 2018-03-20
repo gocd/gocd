@@ -30,7 +30,7 @@ module ApiV1
         result = HttpLocalizedOperationResult.new
         object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
         @plugin_settings = object[:plugin_settings]
-        plugin_service.savePluginSettings(current_user, result, @plugin_settings)
+        plugin_service.createPluginSettings(@plugin_settings, current_user, result)
         handle_create_or_update_response(result, @plugin_settings)
       end
 
@@ -38,7 +38,7 @@ module ApiV1
         result = HttpLocalizedOperationResult.new
         object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
         @plugin_settings = object[:plugin_settings]
-        plugin_service.updatePluginSettings(current_user, result, @plugin_settings, etag_for(@plugin_settings))
+        plugin_service.updatePluginSettings(@plugin_settings, current_user, result, etag_for(@plugin_settings))
         handle_create_or_update_response(result, @plugin_settings)
       end
 
@@ -55,13 +55,14 @@ module ApiV1
       end
 
       def load_plugin_info(plugin_id)
+        raise FailedDependency.new("The plugin with id '#{plugin_id}' is not loaded.") unless plugin_service.isPluginLoaded(plugin_id)
         plugin_info = plugin_service.pluginInfoForExtensionThatHandlesPluginSettings(plugin_id)
-        raise FailedDependency.new("The plugin with id #{plugin_id} is not loaded.") unless plugin_info
+        raise UnprocessableEntity.new("The plugin with id '#{plugin_id}' does not support plugin-settings.") unless plugin_info
         plugin_info
       end
 
       def load_plugin_settings
-        @plugin_settings = plugin_service.loadStoredPluginSettings(params[:plugin_id])
+        @plugin_settings = plugin_service.getPluginSettings(params[:plugin_id])
         raise RecordNotFound unless @plugin_settings
       end
 

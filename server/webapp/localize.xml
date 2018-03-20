@@ -798,4 +798,5 @@
     <entry key="PIPELINE_UNPAUSE_SUCCESSFUL">Pipeline ''{0}'' unpaused successfully.</entry>
     <entry key="PIPELINE_ALREADY_PAUSED">Failed to pause pipeline ''{0}''. Pipeline ''{0}'' is already paused.</entry>
     <entry key="PIPELINE_ALREADY_UNPAUSED">Failed to unpause pipeline ''{0}''. Pipeline ''{0}'' is already unpaused.</entry>
+    <entry key="FAILED_DEPENDENCY">Your request could not be processed. {0}</entry>
 </properties>

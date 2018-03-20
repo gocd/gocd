@@ -20,7 +20,7 @@ describe ApiV1::Config::PluginSettingsRepresenter do
   describe 'serialize' do
     it 'renders plugin settings with hal representation' do
       plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
-      presenter = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: plugin_settings, plugin_info: plugin_info})
+      presenter = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: plugin_settings(plugin_info), plugin_info: plugin_info})
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_plugin_setting_url(plugin_id: 'foo.bar'))
       expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-settings')
@@ -42,9 +42,9 @@ describe ApiV1::Config::PluginSettingsRepresenter do
     end
   end
 
-  def plugin_settings
+  def plugin_settings(plugin_info)
     plugin_settings = PluginSettings.new('foo.bar')
-    plugin_settings.setPluginSettingsProperties([ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
+    plugin_settings.addConfigurations(plugin_info, [ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     plugin_settings
   end
 

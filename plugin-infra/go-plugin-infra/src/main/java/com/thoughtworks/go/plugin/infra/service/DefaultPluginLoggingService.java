@@ -36,6 +36,7 @@ public class DefaultPluginLoggingService implements LoggingService {
     private static final String PLUGIN_LOGGER_PREFIX = "plugin";
 
     private final SystemEnvironment systemEnvironment;
+    private final Object appenderCreationLock = new Object();
 
     public DefaultPluginLoggingService(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
@@ -160,23 +161,26 @@ public class DefaultPluginLoggingService implements LoggingService {
             if (alreadyInitialized(pluginId)) {
                 return;
             }
-            FileAppender<ILoggingEvent> pluginAppender = getAppender(pluginId);
 
-            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId);
-            logger.setAdditive(false);
-            logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
-            logger.addAppender(pluginAppender);
+            synchronized (appenderCreationLock) {
+                FileAppender<ILoggingEvent> pluginAppender = getAppender(pluginId);
 
-            if (systemEnvironment.consoleOutToStdout()) {
-                ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
-                consoleAppender.setEncoder(LogHelper.encoder("%d{ISO8601} %5p [%t] %c{1}:%L [plugin-" + pluginId + "] - %m%n"));
+                ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId);
                 logger.setAdditive(false);
                 logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
-                consoleAppender.start();
-                logger.addAppender(consoleAppender);
-            }
+                logger.addAppender(pluginAppender);
 
-            loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.rawFileProperty());
+                if (systemEnvironment.consoleOutToStdout()) {
+                    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+                    consoleAppender.setEncoder(LogHelper.encoder("%d{ISO8601} %5p [%t] %c{1}:%L [plugin-" + pluginId + "] - %m%n"));
+                    logger.setAdditive(false);
+                    logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
+                    consoleAppender.start();
+                    logger.addAppender(consoleAppender);
+                }
+
+                loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.rawFileProperty());
+            }
         }
     }
 

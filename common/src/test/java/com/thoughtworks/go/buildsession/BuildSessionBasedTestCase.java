@@ -95,7 +95,7 @@ public class BuildSessionBasedTestCase {
 
     public static BuildCommand execSleepScript(int seconds) {
         if (SystemUtils.IS_OS_WINDOWS) {
-            return exec("ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NUL");
+            return exec("powershell", "sleep " + seconds);
         } else {
             return exec("/bin/sleep", String.valueOf(seconds));
         }

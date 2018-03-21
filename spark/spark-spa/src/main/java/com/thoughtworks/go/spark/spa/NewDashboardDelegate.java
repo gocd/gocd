@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
@@ -32,10 +33,12 @@ import static spark.Spark.*;
 public class NewDashboardDelegate implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final SecurityService securityService;
 
-    public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.securityService = securityService;
     }
 
 
@@ -57,6 +60,7 @@ public class NewDashboardDelegate implements SparkController {
             put("viewTitle", "Dashboard");
             put("isQuickEditPageEnabled", Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP) && Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT));
             put("isNewDashboardPageEnabled", Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT));
+            put("shouldShowAnalyticsIcon", securityService.isUserAdmin(currentUsername()));
         }};
         return new ModelAndView(object, "new_dashboard/index.vm");
     }

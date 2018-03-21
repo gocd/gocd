@@ -133,9 +133,9 @@ PluginInfos.PluginInfo.Bad.fromJSON = function (data) {
 
 PluginInfos.PluginInfo.Extensions = {};
 
-PluginInfos.PluginInfo.Extensions['analytics' ] = (extensionData = {}) => {
+PluginInfos.PluginInfo.Extensions['analytics'] = (extensionData = {}) => {
   return {
-    capabilities: Stream(AnalyticsPluginCapabilities.fromJSON(extensionData.capabilities)),
+    capabilities: Stream(AnalyticsPluginCapabilities.fromJSON(extensionData.capabilities.supported_analytics)),
   };
 };
 

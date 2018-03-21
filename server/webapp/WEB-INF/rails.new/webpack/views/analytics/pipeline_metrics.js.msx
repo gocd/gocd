@@ -22,8 +22,8 @@
   const _ = require('lodash');
 
   const PluginEndpoint           = require('rails-shared/plugin-endpoint');
-  const PluginiFrameWidget       = require('views/analytics/plugin_iframe_widget');
-  const Frame                    = require('models/analytics/frame');
+  const AnalyticsiFrameWidget    = require('views/shared/analytics_iframe_widget');
+  const Frame                    = require('models/shared/frame');
   const Routes                   = require('gen/js-routes');
 
   const models = {};
@@ -76,7 +76,7 @@
           model = models[uid] = newFrame(pluginId);
         }
 
-        pageItems.push(m(PluginiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
+        pageItems.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
       });
 
       return pageItems;

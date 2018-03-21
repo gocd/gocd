@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Plugin iFrame Widget", () => {
+describe("Analytics iFrame Widget", () => {
   const m      = require('mithril');
   const Stream = require('mithril/stream');
   require('jasmine-jquery');
 
-  const PluginiFrameWidget = require('views/analytics/plugin_iframe_widget');
+  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
 
   function newModel(loadedData, loadedView) {
     const data = Stream(),
@@ -92,7 +92,7 @@ describe("Plugin iFrame Widget", () => {
     m.mount(root,
       {
         view() {
-          return m(PluginiFrameWidget, {model, pluginId: "some-plugin", uid: "some-uid", init});
+          return m(AnalyticsiFrameWidget, {model, pluginId: "some-plugin", uid: "some-uid", init});
         }
       }
     );

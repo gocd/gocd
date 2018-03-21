@@ -20,6 +20,7 @@ const Stream          = require('mithril/stream');
 const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
+const PluginInfos     = require('models/shared/plugin_infos');
 
 const VersionUpdater = require('models/shared/version_updater');
 const AjaxPoller     = require('helpers/ajax_poller');
@@ -29,11 +30,13 @@ require('helpers/server_health_messages_helper');
 
 $(() => {
   new VersionUpdater().update();
-  const dashboardElem = $('#dashboard');
+  const dashboardElem              = $('#dashboard');
 
-  const dashboardVM            = new DashboardVM();
-  const isQuickEditPageEnabled = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
-  const isNewDashboardPageDefault = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
+  const dashboardVM                = new DashboardVM();
+  const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
+  const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
+  const isNewDashboardPageDefault  = JSON.parse(dashboardElem.attr('data-is-new-dashboard-page-default'));
+  const pluginsSupportingAnalytics = {};
 
   $(document).foundation();
 
@@ -96,6 +99,8 @@ $(() => {
           dashboard,
           isQuickEditPageEnabled,
           isNewDashboardPageDefault,
+          pluginsSupportingAnalytics,
+          shouldShowAnalyticsIcon,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => {
@@ -115,5 +120,13 @@ $(() => {
   };
 
   repeater().start();
-  renderView();
+
+  const onPluginInfosResponse = (pluginInfos) => {
+    pluginInfos.eachPluginInfo((pluginInfo) => {
+      pluginsSupportingAnalytics[pluginInfo.id()] = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics()[0].id;
+    });
+    renderView();
+  };
+
+  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfosResponse);
 });

@@ -24,6 +24,9 @@
 @import 'shared/alert';
 @import 'pipeline_configs/accordion';
 
+@import "font-awesome-sprockets";
+@import "font-awesome";
+
 //variables
 
 $dark-gray: #333;
@@ -713,6 +716,17 @@ body {
   }
 }
 
+.pipeline-analytics {
+  @include icon-before($type: bar-chart);
+  padding:      0;
+  font-size:    $pipeline_icons_size;
+  color:        #555;
+  cursor:       pointer;
+  &:hover {
+    color: #000;
+  }
+}
+
 .pipeline_pause-message {
   @include truncate-to-lines($line-count: 3);
   margin: 5px 0 0 0;
@@ -1217,5 +1231,15 @@ $commits-width: 635px;
   &:before {
     @include animation(spin 1s linear infinite);
     font-size: rem-calc(15px);
+  }
+}
+
+.frame-container {
+  height: 413px;
+  width:  100%;
+  iframe {
+    height: 100%;
+    width:  100%;
+    border: 0;
   }
 }

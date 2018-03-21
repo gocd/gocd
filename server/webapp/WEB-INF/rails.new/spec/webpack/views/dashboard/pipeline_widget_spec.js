@@ -126,6 +126,36 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
+  describe("Pipeline Analytics", () => {
+    beforeEach(() => {
+      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, true);
+    });
+
+    afterEach(() => {
+      unmount();
+      Modal.destroyAll();
+    });
+
+    it("should link to pipeline analytics if there are any", () => {
+      expect($root.find('.pipeline-analytics')).toBeInDOM();
+    });
+
+    it("should open up a modal when the analytics icon is clicked", () => {
+      simulateEvent.simulate($root.find('.pipeline-analytics').get(0), 'click');
+      m.redraw();
+      expect($('.reveal:visible')).toBeInDOM();
+      expect($(".frame-container")).toBeInDOM();
+      const modalTitle = $('.modal-title:visible');
+      expect(modalTitle).toHaveText(`Analytics for Pipeline: ${pipeline.name}`);
+    });
+
+    it("should not display the analytics icon if the user is not an admin", () => {
+      unmount();
+      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
+      expect($root.find('.pipeline-analytics')).not.toBeInDOM();
+    });
+  });
+
   describe("Pipeline Operations", () => {
     describe("Settings", () => {
       beforeEach(mount);
@@ -800,7 +830,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, shouldShowAnalyticsIcon = false) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -876,6 +906,8 @@ describe("Dashboard Pipeline Widget", () => {
         return m(PipelineWidget, {
           pipeline,
           isQuickEditPageEnabled,
+          pluginsSupportingAnalytics,
+          shouldShowAnalyticsIcon,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

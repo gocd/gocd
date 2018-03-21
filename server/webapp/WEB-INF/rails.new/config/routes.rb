@@ -477,6 +477,11 @@ Go::Application.routes.draw do
     get '' => 'users#users', as: :user_listing
   end
 
+  scope 'internal' do
+    # redirects to first-stage details page of the specific pipeline run
+    get 'pipelines/:pipeline_name/:pipeline_counter' => 'stages#redirect_to_first_stage', as: :internal_stage_detail_tab, constraints: PIPELINE_LOCATOR_CONSTRAINTS
+  end
+
   get 'preferences/notifications', controller: 'preferences', action: 'notifications'
 
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}

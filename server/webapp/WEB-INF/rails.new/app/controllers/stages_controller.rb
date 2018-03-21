@@ -123,6 +123,17 @@ class StagesController < ApplicationController
     end
   end
 
+  def redirect_to_first_stage
+    pipeline_name = params[:pipeline_name]
+    pipeline_counter = params[:pipeline_counter].to_i
+    pipeline_instance = pipeline_history_service.findPipelineInstance(pipeline_name, pipeline_counter, current_user, HttpOperationResult.new)
+    stage_instance = pipeline_instance.getStageHistory.first
+    stage_name = stage_instance.getName
+    stage_counter = stage_instance.getCounter
+
+    redirect_to stage_detail_tab_path(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
+  end
+
   private
 
   def can_continue result

@@ -36,9 +36,9 @@ const PipelineHeaderWidget = {
   },
 
   view: (vnode) => {
-    const pipeline = vnode.attrs.pipeline;
+    const pipeline                   = vnode.attrs.pipeline;
     const pluginsSupportingAnalytics = vnode.attrs.pluginsSupportingAnalytics;
-    const shouldShowAnalyticsIcon = vnode.attrs.shouldShowAnalyticsIcon;
+    const shouldShowAnalyticsIcon    = vnode.attrs.shouldShowAnalyticsIcon;
 
     let settingsButton;
     const analyticsIcons = [];
@@ -51,7 +51,7 @@ const PipelineHeaderWidget = {
 
     if (shouldShowAnalyticsIcon) {
       $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
-        analyticsIcons.push(m(PipelineAnalyticsWidget, {pipeline, pluginId, metricId}));
+        analyticsIcons.push(<PipelineAnalyticsWidget pipeline={pipeline} pluginId={pluginId} metricId={metricId}/>);
       });
     }
 

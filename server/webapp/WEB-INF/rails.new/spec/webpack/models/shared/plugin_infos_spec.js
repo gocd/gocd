@@ -297,393 +297,17 @@ describe('PluginInfos', () => {
           "view":           {
             "template": "<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerBuild2\" type=\"checkbox\" ng-model=\"IsDockerBuild2\" ng-init=\"IsDockerBuild2 = IsDockerBuild\" ng-change=\"IsDockerBuild = IsDockerBuild2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerBuild\" type=\"hidden\" ng-model=\"IsDockerBuild\" value=\"{{IsDockerBuild}}\">\n        <label for=\"IsDockerBuild\">Build docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_build\" ng-show=\"IsDockerBuild == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Dockerfile path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerFile\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerFile].$error.server\">{{GOINPUTNAME[DockerFile].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Tag name:</label>\n            <input type=\"text\" ng-model=\"DockerBuildTag\">\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"TagWithPipelineLabel2\" type=\"checkbox\" ng-model=\"TagWithPipelineLabel2\" ng-init=\"TagWithPipelineLabel2 = TagWithPipelineLabel\" ng-change=\"TagWithPipelineLabel = TagWithPipelineLabel2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"TagWithPipelineLabel\" type=\"hidden\" ng-model=\"TagWithPipelineLabel\" value=\"{{TagWithPipelineLabel}}\">\n            <label for=\"TagWithPipelineLabel\">Include pipeline label (tag_name:GO_PIPELINE_LABEL)</label>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerRun2\" type=\"checkbox\" ng-model=\"IsDockerRun2\" ng-init=\"IsDockerRun2 = IsDockerRun\" ng-change=\"IsDockerRun = IsDockerRun2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerRun\" type=\"hidden\" ng-model=\"IsDockerRun\" value=\"{{IsDockerRun}}\">\n        <label for=\"IsDockerRun\">Run command in docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_run\" ng-show=\"IsDockerRun == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Script path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerRunScript\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerRunScript].$error.server\">{{GOINPUTNAME[DockerRunScript].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Arguments (one per line):</label>\n            <textarea ng-model=\"DockerRunArguments\" wrap=\"off\" style=\"width: 250px; resize: both;\" cols=\"58\" autocomplete=\"off\"></textarea>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerPush2\" type=\"checkbox\" ng-model=\"IsDockerPush2\" ng-init=\"IsDockerPush2 = IsDockerPush\" ng-change=\"IsDockerPush = IsDockerPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerPush\" type=\"hidden\" ng-model=\"IsDockerPush\" value=\"{{IsDockerPush}}\">\n        <label for=\"IsDockerPush\">Push image to registry</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_push\" ng-show=\"IsDockerPush == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Docker hub user:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerPushUser\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerPushUser].$error.server\">{{GOINPUTNAME[DockerPushUser].$error.server}}</span>\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"RemoveAfterPush2\" type=\"checkbox\" ng-model=\"RemoveAfterPush2\" ng-init=\"RemoveAfterPush2 = RemoveAfterPush\" ng-change=\"RemoveAfterPush = RemoveAfterPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"RemoveAfterPush\" type=\"hidden\" ng-model=\"RemoveAfterPush\" value=\"{{RemoveAfterPush}}\">\n            <label for=\"RemoveAfterPush\">Remove local image after push</label>\n        </div>\n    </div>\n</div>\n"
           }
-          }
-}
-]
-};
-
-const pluginInfoWithSCMExtension = {
-  "id":           "github.pr",
-  "status":       {
-    "state": "active"
-  },
-  "about":        {
-    "name":                     "Github Pull Requests Builder",
-    "version":                  "1.3.0-RC2",
-    "target_go_version":        "15.1.0",
-    "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
-    "target_operating_systems": [],
-    "vendor":                   {
-      "name": "Ashwanth Kumar",
-      "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
-    }
-  },
-  "extensions": [
-    {
-      "type": "scm",
-      "display_name": "GitHub",
-      "scm_settings": {
-        "configurations": [
-          {
-            "key":      "url",
-            "metadata": {
-              "part_of_identity": true,
-              "secure":           false,
-              "required":         true
-            }
-          },
-          {
-            "key":      "username",
-            "metadata": {
-              "part_of_identity": false,
-              "secure":           false,
-              "required":         false
-            }
-          },
-          {
-            "key":      "password",
-            "metadata": {
-              "part_of_identity": false,
-              "secure":           true,
-              "required":         false
-            }
-          }
-        ],
-        "view":           {
-          "template": "<div class=\"form_item_block\">\n    <label>URL:<span class=\"asterisk\">*</span></label>\n    <input type=\"text\" ng-model=\"url\" ng-required=\"true\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[url].$error.server\">{{ GOINPUTNAME[url].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Username:</label>\n    <input type=\"text\" ng-model=\"username\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[username].$error.server\">{{ GOINPUTNAME[username].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Password:</label>\n    <input type=\"password\" ng-model=\"password\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[password].$error.server\">{{ GOINPUTNAME[password].$error.server }}</span>\n</div>"
-        }
-      },
-      "plugin_settings": {
-        "configurations": [
-          {
-            "key": "another-property",
-            "metadata": {
-              "secure": false,
-              "required": true
-            }
-          }
-        ],
-        "view": {
-          "template": "Plugin Settings View for scm plugin GitHub PR builder"
         }
       }
-    }
-  ]
-};
-
-const pluginInfoWithAuthorizationExtension = {
-  "id":                   "cd.go.authorization.ldap",
-  "status":               {
-    "state": "active"
-  },
-  "about":                {
-    "name":                     "LDAP Authorization Plugin for GoCD",
-    "version":                  "0.0.1",
-    "target_go_version":        "16.12.0",
-    "description":              "LDAP Authorization Plugin for GoCD",
-    "target_operating_systems": [],
-    "vendor":                   {
-      "name": "ThoughtWorks, Inc. & GoCD Contributors",
-      "url":  "https://github.com/gocd/gocd-ldap-authorization-plugin"
-    }
-  },
-  "extensions": [
-    {
-      "type": "authorization",
-      "auth_config_settings": {
-        "configurations": [
-          {
-            "key":      "Url",
-            "metadata": {
-              "secure":   false,
-              "required": true
-            }
-          },
-          {
-            "key":      "SearchBases",
-            "metadata": {
-              "secure":   false,
-              "required": true
-            }
-          },
-          {
-            "key":      "ManagerDN",
-            "metadata": {
-              "secure":   false,
-              "required": true
-            }
-          },
-          {
-            "key":      "Password",
-            "metadata": {
-              "secure":   true,
-              "required": true
-            }
-          },
-        ],
-        "view":           {
-          "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Url].$error.server}\">URI:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Url].$error.server}\" type=\"text\" ng-model=\"Url\" ng-required=\"true\" placeholder=\"ldap://your.first.uri:port\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Url].$error.server}\" ng-show=\"GOINPUTNAME[Url].$error.server\">{{GOINPUTNAME[Url].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchBases].$error.server}\">Search Base:<span class='asterix'>*</span></label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchBases].$error.server}\" type=\"text\" ng-model=\"SearchBases\" ng-required=\"true\" rows=\"3\" placeholder=\"\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchBases].$error.server}\" ng-show=\"GOINPUTNAME[SearchBases].$error.server\">{{GOINPUTNAME[SearchBases].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[ManagerDN].$error.server}\">Manager DN:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[ManagerDN].$error.server}\" type=\"text\" ng-model=\"ManagerDN\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[ManagerDN].$error.server}\" ng-show=\"GOINPUTNAME[ManagerDN].$error.server\">{{GOINPUTNAME[ManagerDN].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Password].$error.server}\">Password:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Password].$error.server}\" type=\"password\" ng-model=\"Password\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Password].$error.server}\" ng-show=\"GOINPUTNAME[Password].$error.server\">{{GOINPUTNAME[Password].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[LoginAttribute].$error.server}\">Search Filter:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[LoginAttribute].$error.server}\" type=\"text\" ng-model=\"LoginAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[LoginAttribute].$error.server}\" ng-show=\"GOINPUTNAME[LoginAttribute].$error.server\">{{GOINPUTNAME[LoginAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchAttributes].$error.server}\">Search Attributes:</label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchAttributes].$error.server}\" type=\"text\" ng-model=\"SearchAttributes\" ng-required=\"true\" placeholder=\"uid,cn,mail\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchAttributes].$error.server}\" ng-show=\"GOINPUTNAME[SearchAttributes].$error.server\">{{GOINPUTNAME[SearchAttributes].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DisplayNameAttribute].$error.server}\">Display Name Attribute:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DisplayNameAttribute].$error.server}\" type=\"text\" ng-model=\"DisplayNameAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DisplayNameAttribute].$error.server}\" ng-show=\"GOINPUTNAME[DisplayNameAttribute].$error.server\">{{GOINPUTNAME[DisplayNameAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[EmailAttribute].$error.server}\">Email Attribute:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[EmailAttribute].$error.server}\" type=\"text\" ng-model=\"EmailAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[EmailAttribute].$error.server}\" ng-show=\"GOINPUTNAME[EmailAttribute].$error.server\">{{GOINPUTNAME[EmailAttribute].$error.server}}</span>\n</div>\n\n\n\n"
-        }
-        },
-  "role_settings":        {
-    "configurations": [
-      {
-        "key":      "AttributeName",
-        "metadata": {
-          "secure":   false,
-          "required": false
-        }
-      },
-      {
-        "key":      "AttributeValue",
-        "metadata": {
-          "secure":   false,
-          "required": false
-        }
-      },
-      {
-        "key":      "GroupMembershipFilter",
-        "metadata": {
-          "secure":   false,
-          "required": false
-        }
-      },
-      {
-        "key":      "GroupMembershipSearchBase",
-        "metadata": {
-          "secure":   false,
-          "required": false
-        }
-      }
-    ],
-    "view":           {
-      "template": "<div class=\"row\">\n  <h4>Query user attribute</h4>\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeName].$error.server}\">Attribute name</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeName].$error.server}\" type=\"text\" ng-model=\"AttributeName\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeName].$error.server}\" ng-show=\"GOINPUTNAME[AttributeName].$error.server\">{{GOINPUTNAME[AttributeName].$error.server}}</span>\n  </div>\n\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeValue].$error.server}\">Attribute value</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeValue].$error.server}\" type=\"text\" ng-model=\"AttributeValue\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeValue].$error.server}\" ng-show=\"GOINPUTNAME[AttributeValue].$error.server\">{{GOINPUTNAME[AttributeValue].$error.server}}</span>\n  </div>\n</div>\n\n<div>\n  <h4>Use group membership filter</h4>\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\">Group membership search base</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" type=\"text\" ng-model=\"GroupMembershipSearchBase\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipSearchBase].$error.server\">{{GOINPUTNAME[GroupMembershipSearchBase].$error.server}}</span>\n    </div>\n  </div>\n\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipFilter].$error.server}\">Group membership filter</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipFilter].$error.server}\" type=\"text\" ng-model=\"GroupMembershipFilter\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipFilter].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipFilter].$error.server\">{{GOINPUTNAME[GroupMembershipFilter].$error.server}}</span>\n    </div>\n  </div>\n</div>\n\n\n\n"
-    }
-  },
-  "capabilities":         {
-    "can_authorize":       true,
-    "can_search":          false,
-    "supported_auth_type": 'web'
-  }
-}
-]
-};
-
-const pluginInfoWithArtifactExtension = {
-  "id":                   "cd.go.artifact.s3",
-  "status":               {
-    "state": "active"
-  },
-  "about":                {
-    "name":                     "Example Artifact Plugin for GoCD",
-    "version":                  "0.0.1",
-    "target_go_version":        "18.1.0",
-    "description":              "Example Artifact Plugin for GoCD",
-    "target_operating_systems": [],
-    "vendor":                   {
-      "name": "ThoughtWorks, Inc. & GoCD Contributors",
-      "url":  "https://github.com/gocd-contrib/artifact-skeleton-plugin"
-    }
-  },
-  "extensions": [
-    {
-      "type": "artifact",
-      "store_config_settings": {
-        "configurations": [
-          {
-            "key":      "S3_BUCKET",
-            "metadata": {
-              "secure":   false,
-              "required": true
-            }
-          },
-          {
-            "key":      "AWS_ACCESS_KEY_ID",
-            "metadata": {
-              "secure":   true,
-              "required": true
-            }
-          },
-          {
-            "key":      "AWS_SECRET_ACCESS_KEY",
-            "metadata": {
-              "secure":   true,
-              "required": true
-            }
-          }
-        ],
-        "view":           {
-          "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DummyField].$error.server}\">Dummy Field:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DummyField].$error.server}\" type=\"text\" ng-model=\"DummyField\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DummyField].$error.server}\" ng-show=\"GOINPUTNAME[DummyField].$error.server\">{{GOINPUTNAME[DummyField].$error.server}}</span>\n</div>"
-        }
-      },
-      "artifact_config_settings":        {
-        "configurations": [
-          {
-            "key":      "Filename",
-            "metadata": {
-              "secure":   false,
-              "required": false
-            }
-          }
-        ],
-        "view":           {
-          "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
-        }
-      },
-      "fetch_artifact_settings":        {
-        "configurations": [
-          {
-            "key":      "Destination",
-            "metadata": {
-              "secure":   false,
-              "required": false
-            }
-          }
-        ],
-        "view":           {
-          "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
-        }
-      }
-    }
-  ]
-};
-
-const pluginInfoWithConfigRepoExtension = {
-  "id":      "json.config.plugin",
-  "status":  {
-    "state": "active"
-  },
-  "about":   {
-    "name":                     "JSON Configuration Plugin",
-    "version":                  "0.2",
-    "target_go_version":        "16.1.0",
-    "description":              "Configuration plugin that supports Go configuration in JSON",
-    "target_operating_systems": [],
-    "vendor":                   {
-      "name": "Tomasz Setkowski",
-      "url":  "https://github.com/tomzo/gocd-json-config-plugin"
-    }
-  },
-  "extensions": [
-    {
-      "type": "configrepo",
-      "plugin_settings": {
-        "configurations": [
-          {
-            "key": "pipeline_pattern",
-            "metadata": {
-              "required": false,
-              "secure": false
-            }
-          }
-        ],
-        "view": {
-          "template": "config repo plugin view"
-        }
-      }
-    }
-  ]
-};
-
-const pluginInfoWithAnalyticsExtension = {
-  "id":      "gocd.analytics.plugin",
-  "status":  {
-    "state": "active"
-  },
-  "about":   {
-    "name":                     "GoCD Analytics Plugin",
-    "version":                  "1.0",
-    "target_go_version":        "18.1.0",
-    "description":              "Provides metrics",
-    "target_operating_systems": [],
-    "vendor":                   {
-      "name": "TW",
-      "url":  "https://thoughtworks.com/go"
-    }
-  },
-  "extensions": [
-    {
-      "type": "analytics",
-      "plugin_settings": {
-        "configurations": [
-          {
-            "key": "username",
-            "metadata": {
-              "secure": false,
-              "required": true
-            }
-          }
-        ],
-        "view": {
-          "template": "analytics plugin view"
-        }
-      },
-      "capabilities":     {
-        "supported_analytics": [
-          {type: "pipeline", id: "rawr"},
-          {type: "dashboard", id: "foo"}
-        ]
-      }
-    },
-  ]
-};
-
-it("should deserialize collection", () => {
-  const json = [
-    {
-      "id":      "github.oauth.login",
-      "status":  {
-        "state": "active"
-      },
-      "about":   {
-        "name":                     "GitHub OAuth Login",
-        "version":                  "2.2",
-        "target_go_version":        "16.2.1",
-        "description":              "Login using GitHub OAuth",
-        "target_operating_systems": ['Linux', 'Mac'],
-        "vendor":                   {
-          "name": "GoCD Contributors",
-          "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
-        }
-      },
-      "extensions": [
-        {
-          "type":    "authorization"
-        }
-      ]
-    }
-  ];
-
-  const pluginInfos = PluginInfos.fromJSON(json);
-  expect(pluginInfos.countPluginInfo()).toBe(1);
-  expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
-});
-
-it("should check if plugin settings is supported", () => {
-  const withoutExtensionInfo = {
-    "id":     "github.pr",
-    "status": {
-      "state": "active"
-    },
-    "about":  {
-      "name":                     "Github Pull Requests Builder",
-      "version":                  "1.3.0-RC2",
-      "target_go_version":        "15.1.0",
-      "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
-      "target_operating_systems": [],
-      "vendor":                   {
-        "name": "Ashwanth Kumar",
-        "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
-      }
-    }
+    ]
   };
 
-  const withoutPluginSettingsProperty = {
-    "id":         "github.pr",
-    "status":     {
+  const pluginInfoWithSCMExtension = {
+    "id":           "github.pr",
+    "status":       {
       "state": "active"
     },
-    "about":      {
+    "about":        {
       "name":                     "Github Pull Requests Builder",
       "version":                  "1.3.0-RC2",
       "target_go_version":        "15.1.0",
@@ -697,84 +321,459 @@ it("should check if plugin settings is supported", () => {
     "extensions": [
       {
         "type": "scm",
-      }
-    ]
-  };
-
-  const withoutPluginSettingsView = {
-    "id":         "github.pr",
-    "status":     {
-      "state": "active"
-    },
-    "about":      {
-      "name":                     "Github Pull Requests Builder",
-      "version":                  "1.3.0-RC2",
-      "target_go_version":        "15.1.0",
-      "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
-      "target_operating_systems": [],
-      "vendor":                   {
-        "name": "Ashwanth Kumar",
-        "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
-      }
-    },
-    "extensions": [
-      {
-        "type":            "scm",
+        "display_name": "GitHub",
+        "scm_settings": {
+          "configurations": [
+            {
+              "key":      "url",
+              "metadata": {
+                "part_of_identity": true,
+                "secure":           false,
+                "required":         true
+              }
+            },
+            {
+              "key":      "username",
+              "metadata": {
+                "part_of_identity": false,
+                "secure":           false,
+                "required":         false
+              }
+            },
+            {
+              "key":      "password",
+              "metadata": {
+                "part_of_identity": false,
+                "secure":           true,
+                "required":         false
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class=\"form_item_block\">\n    <label>URL:<span class=\"asterisk\">*</span></label>\n    <input type=\"text\" ng-model=\"url\" ng-required=\"true\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[url].$error.server\">{{ GOINPUTNAME[url].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Username:</label>\n    <input type=\"text\" ng-model=\"username\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[username].$error.server\">{{ GOINPUTNAME[username].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>Password:</label>\n    <input type=\"password\" ng-model=\"password\" ng-required=\"false\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[password].$error.server\">{{ GOINPUTNAME[password].$error.server }}</span>\n</div>"
+          }
+        },
         "plugin_settings": {
           "configurations": [
             {
-              "key":      "instance_type",
+              "key": "another-property",
               "metadata": {
-                "secure":   false,
+                "secure": false,
                 "required": true
               }
             }
-          ]
-        }
-      }
-    ]
-  };
-
-  const withoutPluginSettingsConfiguration = {
-    "id":         "github.pr",
-    "status":     {
-      "state": "active"
-    },
-    "about":      {
-      "name":                     "Github Pull Requests Builder",
-      "version":                  "1.3.0-RC2",
-      "target_go_version":        "15.1.0",
-      "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
-      "target_operating_systems": [],
-      "vendor":                   {
-        "name": "Ashwanth Kumar",
-        "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
-      }
-    },
-    "extensions": [
-      {
-        "type":            "scm",
-        "plugin_settings": {
+          ],
           "view": {
-            "template": "plugin settings view"
+            "template": "Plugin Settings View for scm plugin GitHub PR builder"
           }
         }
       }
     ]
   };
 
-  const pluginInfoWithoutPluginSettings = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsProperty);
-  expect(pluginInfoWithoutPluginSettings.supportsPluginSettings()).toBe(false);
+  const pluginInfoWithAuthorizationExtension = {
+    "id":                   "cd.go.authorization.ldap",
+    "status":               {
+      "state": "active"
+    },
+    "about":                {
+      "name":                     "LDAP Authorization Plugin for GoCD",
+      "version":                  "0.0.1",
+      "target_go_version":        "16.12.0",
+      "description":              "LDAP Authorization Plugin for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "ThoughtWorks, Inc. & GoCD Contributors",
+        "url":  "https://github.com/gocd/gocd-ldap-authorization-plugin"
+      }
+    },
+    "extensions": [
+      {
+        "type": "authorization",
+        "auth_config_settings": {
+          "configurations": [
+            {
+              "key":      "Url",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "SearchBases",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "ManagerDN",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Password",
+              "metadata": {
+                "secure":   true,
+                "required": true
+              }
+            },
+          ],
+          "view":           {
+            "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Url].$error.server}\">URI:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Url].$error.server}\" type=\"text\" ng-model=\"Url\" ng-required=\"true\" placeholder=\"ldap://your.first.uri:port\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Url].$error.server}\" ng-show=\"GOINPUTNAME[Url].$error.server\">{{GOINPUTNAME[Url].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchBases].$error.server}\">Search Base:<span class='asterix'>*</span></label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchBases].$error.server}\" type=\"text\" ng-model=\"SearchBases\" ng-required=\"true\" rows=\"3\" placeholder=\"\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchBases].$error.server}\" ng-show=\"GOINPUTNAME[SearchBases].$error.server\">{{GOINPUTNAME[SearchBases].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[ManagerDN].$error.server}\">Manager DN:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[ManagerDN].$error.server}\" type=\"text\" ng-model=\"ManagerDN\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[ManagerDN].$error.server}\" ng-show=\"GOINPUTNAME[ManagerDN].$error.server\">{{GOINPUTNAME[ManagerDN].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Password].$error.server}\">Password:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Password].$error.server}\" type=\"password\" ng-model=\"Password\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Password].$error.server}\" ng-show=\"GOINPUTNAME[Password].$error.server\">{{GOINPUTNAME[Password].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[LoginAttribute].$error.server}\">Search Filter:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[LoginAttribute].$error.server}\" type=\"text\" ng-model=\"LoginAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[LoginAttribute].$error.server}\" ng-show=\"GOINPUTNAME[LoginAttribute].$error.server\">{{GOINPUTNAME[LoginAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchAttributes].$error.server}\">Search Attributes:</label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchAttributes].$error.server}\" type=\"text\" ng-model=\"SearchAttributes\" ng-required=\"true\" placeholder=\"uid,cn,mail\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchAttributes].$error.server}\" ng-show=\"GOINPUTNAME[SearchAttributes].$error.server\">{{GOINPUTNAME[SearchAttributes].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DisplayNameAttribute].$error.server}\">Display Name Attribute:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DisplayNameAttribute].$error.server}\" type=\"text\" ng-model=\"DisplayNameAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DisplayNameAttribute].$error.server}\" ng-show=\"GOINPUTNAME[DisplayNameAttribute].$error.server\">{{GOINPUTNAME[DisplayNameAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[EmailAttribute].$error.server}\">Email Attribute:<span class='asterix'>*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[EmailAttribute].$error.server}\" type=\"text\" ng-model=\"EmailAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[EmailAttribute].$error.server}\" ng-show=\"GOINPUTNAME[EmailAttribute].$error.server\">{{GOINPUTNAME[EmailAttribute].$error.server}}</span>\n</div>\n\n\n\n"
+          }
+        },
+        "role_settings":        {
+          "configurations": [
+            {
+              "key":      "AttributeName",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            },
+            {
+              "key":      "AttributeValue",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            },
+            {
+              "key":      "GroupMembershipFilter",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            },
+            {
+              "key":      "GroupMembershipSearchBase",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class=\"row\">\n  <h4>Query user attribute</h4>\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeName].$error.server}\">Attribute name</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeName].$error.server}\" type=\"text\" ng-model=\"AttributeName\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeName].$error.server}\" ng-show=\"GOINPUTNAME[AttributeName].$error.server\">{{GOINPUTNAME[AttributeName].$error.server}}</span>\n  </div>\n\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeValue].$error.server}\">Attribute value</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeValue].$error.server}\" type=\"text\" ng-model=\"AttributeValue\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeValue].$error.server}\" ng-show=\"GOINPUTNAME[AttributeValue].$error.server\">{{GOINPUTNAME[AttributeValue].$error.server}}</span>\n  </div>\n</div>\n\n<div>\n  <h4>Use group membership filter</h4>\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\">Group membership search base</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" type=\"text\" ng-model=\"GroupMembershipSearchBase\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipSearchBase].$error.server\">{{GOINPUTNAME[GroupMembershipSearchBase].$error.server}}</span>\n    </div>\n  </div>\n\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipFilter].$error.server}\">Group membership filter</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipFilter].$error.server}\" type=\"text\" ng-model=\"GroupMembershipFilter\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipFilter].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipFilter].$error.server\">{{GOINPUTNAME[GroupMembershipFilter].$error.server}}</span>\n    </div>\n  </div>\n</div>\n\n\n\n"
+          }
+        },
+        "capabilities":         {
+          "can_authorize":       true,
+          "can_search":          false,
+          "supported_auth_type": 'web'
+        }
+      }
+    ]
+  };
 
-  const pluginInfoWithoutExtensionInfo = PluginInfos.PluginInfo.fromJSON(withoutExtensionInfo);
-  expect(pluginInfoWithoutExtensionInfo.supportsPluginSettings()).toBe(false);
+  const pluginInfoWithArtifactExtension = {
+    "id":                   "cd.go.artifact.s3",
+    "status":               {
+      "state": "active"
+    },
+    "about":                {
+      "name":                     "Example Artifact Plugin for GoCD",
+      "version":                  "0.0.1",
+      "target_go_version":        "18.1.0",
+      "description":              "Example Artifact Plugin for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "ThoughtWorks, Inc. & GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/artifact-skeleton-plugin"
+      }
+    },
+    "extensions": [
+      {
+        "type": "artifact",
+        "store_config_settings": {
+          "configurations": [
+            {
+              "key":      "S3_BUCKET",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "AWS_ACCESS_KEY_ID",
+              "metadata": {
+                "secure":   true,
+                "required": true
+              }
+            },
+            {
+              "key":      "AWS_SECRET_ACCESS_KEY",
+              "metadata": {
+                "secure":   true,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DummyField].$error.server}\">Dummy Field:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DummyField].$error.server}\" type=\"text\" ng-model=\"DummyField\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DummyField].$error.server}\" ng-show=\"GOINPUTNAME[DummyField].$error.server\">{{GOINPUTNAME[DummyField].$error.server}}</span>\n</div>"
+          }
+        },
+        "artifact_config_settings":        {
+          "configurations": [
+            {
+              "key":      "Filename",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
+          }
+        },
+        "fetch_artifact_settings":        {
+          "configurations": [
+            {
+              "key":      "Destination",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
+          }
+        }
+      }
+    ]
+  };
 
-  const pluginInfoWithoutPluginSettingsView = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsView);
-  expect(pluginInfoWithoutPluginSettingsView.supportsPluginSettings()).toBe(false);
+  const pluginInfoWithConfigRepoExtension = {
+    "id":      "json.config.plugin",
+    "status":  {
+      "state": "active"
+    },
+    "about":   {
+      "name":                     "JSON Configuration Plugin",
+      "version":                  "0.2",
+      "target_go_version":        "16.1.0",
+      "description":              "Configuration plugin that supports Go configuration in JSON",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "Tomasz Setkowski",
+        "url":  "https://github.com/tomzo/gocd-json-config-plugin"
+      }
+    },
+    "extensions": [
+      {
+        "type": "configrepo",
+        "plugin_settings": {
+          "configurations": [
+            {
+              "key": "pipeline_pattern",
+              "metadata": {
+                "required": false,
+                "secure": false
+              }
+            }
+          ],
+          "view": {
+            "template": "config repo plugin view"
+          }
+        }
+      }
+    ]
+  };
 
-  const pluginInfoWithoutPluginSettingsConfiguration = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsConfiguration);
-  expect(pluginInfoWithoutPluginSettingsConfiguration.supportsPluginSettings()).toBe(false);
+  const pluginInfoWithAnalyticsExtension = {
+    "id":      "gocd.analytics.plugin",
+    "status":  {
+      "state": "active"
+    },
+    "about":   {
+      "name":                     "GoCD Analytics Plugin",
+      "version":                  "1.0",
+      "target_go_version":        "18.1.0",
+      "description":              "Provides metrics",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "TW",
+        "url":  "https://thoughtworks.com/go"
+      }
+    },
+    "extensions": [
+      {
+        "type": "analytics",
+        "plugin_settings": {
+          "configurations": [
+            {
+              "key": "username",
+              "metadata": {
+                "secure": false,
+                "required": true
+              }
+            }
+          ],
+          "view": {
+            "template": "analytics plugin view"
+          }
+        },
+        "capabilities":     {
+          "supported_analytics": [
+            {type: "pipeline", id: "rawr"},
+            {type: "dashboard", id: "foo"}
+          ]
+        }
+      },
+    ]
+  };
 
+  it("should deserialize collection", () => {
+    const json = [
+      {
+        "id":      "github.oauth.login",
+        "status":  {
+          "state": "active"
+        },
+        "about":   {
+          "name":                     "GitHub OAuth Login",
+          "version":                  "2.2",
+          "target_go_version":        "16.2.1",
+          "description":              "Login using GitHub OAuth",
+          "target_operating_systems": ['Linux', 'Mac'],
+          "vendor":                   {
+            "name": "GoCD Contributors",
+            "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
+          }
+        },
+        "extensions": [
+          {
+            "type":    "authorization"
+          }
+        ]
+      }
+    ];
+
+    const pluginInfos = PluginInfos.fromJSON(json);
+    expect(pluginInfos.countPluginInfo()).toBe(1);
+    expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
+  });
+
+  it("should check if plugin settings is supported", () => {
+    const withoutExtensionInfo = {
+      "id":     "github.pr",
+      "status": {
+        "state": "active"
+      },
+      "about":  {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      }
+    };
+
+    const withoutPluginSettingsProperty = {
+      "id":         "github.pr",
+      "status":     {
+        "state": "active"
+      },
+      "about":      {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extensions": [
+        {
+          "type": "scm",
+        }
+      ]
+    };
+
+    const withoutPluginSettingsView = {
+      "id":         "github.pr",
+      "status":     {
+        "state": "active"
+      },
+      "about":      {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extensions": [
+        {
+          "type":            "scm",
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key":      "instance_type",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    const withoutPluginSettingsConfiguration = {
+      "id":         "github.pr",
+      "status":     {
+        "state": "active"
+      },
+      "about":      {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extensions": [
+        {
+          "type":            "scm",
+          "plugin_settings": {
+            "view": {
+              "template": "plugin settings view"
+            }
+          }
+        }
+      ]
+    };
+
+    const pluginInfoWithoutPluginSettings = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsProperty);
+    expect(pluginInfoWithoutPluginSettings.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutExtensionInfo = PluginInfos.PluginInfo.fromJSON(withoutExtensionInfo);
+    expect(pluginInfoWithoutExtensionInfo.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutPluginSettingsView = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsView);
+    expect(pluginInfoWithoutPluginSettingsView.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutPluginSettingsConfiguration = PluginInfos.PluginInfo.fromJSON(withoutPluginSettingsConfiguration);
+    expect(pluginInfoWithoutPluginSettingsConfiguration.supportsPluginSettings()).toBe(false);
 });
 
   describe("ElasticAgent", () => {
@@ -923,7 +922,7 @@ it("should check if plugin settings is supported", () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithArtifactExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithArtifactExtension);
 
-      const extensionInfo  = pluginInfo.extensions().artifact;
+      const extensionInfo = pluginInfo.extensions().artifact;
       expect(extensionInfo.storeConfigSettings().viewTemplate()).toEqual(pluginInfoWithArtifactExtension.extensions[0].store_config_settings.view.template);
       expect(extensionInfo.storeConfigSettings().configurations().countConfiguration()).toEqual(3);
       expect(extensionInfo.storeConfigSettings().configurations().collectConfigurationProperty('key')).toEqual(['S3_BUCKET', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']);
@@ -982,22 +981,25 @@ it("should check if plugin settings is supported", () => {
 
       const extensionInfo = pluginInfo.extensions().analytics;
       expect(extensionInfo.capabilities().supportedPipelineAnalytics()).toEqual([{type: "pipeline", id: "rawr"}]);
-      expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{"type": "dashboard", "id": "foo"}]);
+      expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{
+        "type": "dashboard",
+        "id":   "foo"
+      }]);
     });
   });
 
   describe("Reading images", () => {
     const json = {
-      "_links":  {
+      "_links": {
         "image": {
           "href": "http://localhost:8153/go/api/plugin_images/cd.go.contrib.elastic-agent.ecs/ff36b7db1762e22ea7523980d90ffa5759bc7f08393be910601f15bfea1f4ca6"
         }
       },
-      "id":      "github.pr",
-      "status":  {
+      "id":     "github.pr",
+      "status": {
         "state": "active"
       },
-      "about":   {
+      "about":  {
         "name":                     "GitHub Pull Requests Builder",
         "version":                  "1.3.0-RC2",
         "target_go_version":        "15.1.0",
@@ -1012,13 +1014,13 @@ it("should check if plugin settings is supported", () => {
 
     _.each(_.keys(PluginInfos.Extensions), (pluginType) => {
       it(`should read image for ${pluginType}`, () => {
-        const pluginInfoJSON = _.cloneDeep(json);
+        const pluginInfoJSON      = _.cloneDeep(json);
         pluginInfoJSON.extensions = [
           {
             type: pluginType
           }
         ];
-        const pluginInfo     = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
+        const pluginInfo          = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
         expect(pluginInfo.imageUrl()).toBe(json._links.image.href);
       });
     });
@@ -1029,11 +1031,11 @@ it("should check if plugin settings is supported", () => {
 
     beforeEach(() => {
       pluginInfoJSON = {
-        "id":      "multi.extension.plugin",
-        "status":  {
+        "id":     "multi.extension.plugin",
+        "status": {
           "state": "active"
         },
-        "about":   {
+        "about":  {
           "name":                     "Multi extension Plugin",
           "version":                  "1.0",
           "target_go_version":        "18.1.0",
@@ -1058,8 +1060,14 @@ it("should check if plugin settings is supported", () => {
       expect(pluginInfo.extensions().notification).toEqual({});
 
       const analyticsExtensionInfo = pluginInfo.extensions().analytics;
-      expect(analyticsExtensionInfo.capabilities().supportedPipelineAnalytics()).toEqual([{type: "pipeline", id: "rawr"}]);
-      expect(analyticsExtensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{"type": "dashboard", "id": "foo"}]);
+      expect(analyticsExtensionInfo.capabilities().supportedPipelineAnalytics()).toEqual([{
+        type: "pipeline",
+        id:   "rawr"
+      }]);
+      expect(analyticsExtensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{
+        "type": "dashboard",
+        "id":   "foo"
+      }]);
 
       const packageRepositoryExtensionInfo = pluginInfo.extensions()['package-repository'];
       expect(packageRepositoryExtensionInfo.packageSettings().configurations().countConfiguration()).toEqual(4);

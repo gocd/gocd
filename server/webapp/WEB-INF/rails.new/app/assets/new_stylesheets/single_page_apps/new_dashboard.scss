@@ -23,7 +23,6 @@
 @import 'shared/header';
 @import 'shared/alert';
 @import 'pipeline_configs/accordion';
-
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
@@ -718,10 +717,10 @@ body {
 
 .pipeline-analytics {
   @include icon-before($type: bar-chart);
-  padding:      0;
-  font-size:    $pipeline_icons_size;
-  color:        #555;
-  cursor:       pointer;
+  padding:   0;
+  font-size: $pipeline_icons_size;
+  color:     #555;
+  cursor:    pointer;
   &:hover {
     color: #000;
   }

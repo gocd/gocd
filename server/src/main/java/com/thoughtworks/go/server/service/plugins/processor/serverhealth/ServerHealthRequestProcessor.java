@@ -58,7 +58,7 @@ public class ServerHealthRequestProcessor implements GoPluginApiRequestProcessor
 
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        String errorMessageTitle = format("Message from plugin {0}", pluginDescriptor.id());
+        String errorMessageTitle = format("Message from plugin: {0}", pluginDescriptor.id());
         HealthStateScope scope = HealthStateScope.fromPlugin(pluginDescriptor.id());
 
         try {
@@ -68,7 +68,7 @@ public class ServerHealthRequestProcessor implements GoPluginApiRequestProcessor
         } catch (Exception e) {
             DefaultGoApiResponse response = new DefaultGoApiResponse(DefaultGoApiResponse.INTERNAL_ERROR);
             response.setResponseBody(format("'{' \"message\": \"{0}\" '}'", e.getMessage()));
-            LOGGER.warn(format("Failed to handle message from plugin {0}: {1}", pluginDescriptor.id(), goPluginApiRequest.requestBody()), e);
+            LOGGER.warn("Failed to handle message from plugin {}: {}", pluginDescriptor.id(), goPluginApiRequest.requestBody(), e);
             return response;
         }
 

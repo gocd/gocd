@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="105">
   <server artifactsdir="artifacts" agentAutoRegisterKey="323040d4-f2e4-4b8a-8394-7a2d122054d1" webhookSecret="3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6" commandRepositoryLocation="default" serverId="60f5f682-5248-4ba9-bb35-72c92841bd75" tokenGenerationKey="8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c">
     <security>

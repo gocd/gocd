@@ -57,7 +57,7 @@ public class PluginNotificationService {
     }
 
     private <T> void notifyPlugin(String pluginId, PluginNotificationMessage<T> pluginNotificationMessage) {
-        HealthStateScope scope = HealthStateScope.forPlugin(pluginId);
+        HealthStateScope scope = HealthStateScope.aboutPlugin(pluginId);
         try {
             Result result = notificationExtension.notify(pluginId, pluginNotificationMessage.getRequestName(), pluginNotificationMessage.getData());
 

@@ -87,7 +87,7 @@ public class HealthStateScopeTest {
 
     @Test
     public void shouldUnderstandPluginScope() {
-        HealthStateScope scope = HealthStateScope.forPlugin("plugin.one");
+        HealthStateScope scope = HealthStateScope.aboutPlugin("plugin.one");
         assertThat(scope.getScope(), is("plugin.one"));
         assertThat(scope.getType(), is(HealthStateScope.ScopeType.PLUGIN));
     }

@@ -35,15 +35,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 
 @Component
 public class AnalyticsExtension extends AbstractExtension {
-    public static String EXTENSION_NAME = "analytics";
     private final HashMap<String, AnalyticsMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public AnalyticsExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, EXTENSION_NAME), EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ANALYTICS_EXTENSION), ANALYTICS_EXTENSION);
         addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV1(),
                 new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
@@ -51,7 +51,7 @@ public class AnalyticsExtension extends AbstractExtension {
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverterV1 extensionHandler,
                             MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
-        messageHandlerMap.put(AnalyticsMessageConverterV1.VERSION, extensionHandler);
+        messageHandlerMap.put(version, extensionHandler);
         registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
     }
 
@@ -98,7 +98,7 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    public AnalyticsMessageConverter getMessageConverter(String version) {
+    private AnalyticsMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
     }
 

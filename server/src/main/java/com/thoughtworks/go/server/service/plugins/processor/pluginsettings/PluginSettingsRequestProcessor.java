@@ -46,7 +46,6 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
 
     private PluginSqlMapDao pluginSqlMapDao;
     private final List<GoPluginExtension> extensions;
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginSqlMapDao pluginSqlMapDao, List<GoPluginExtension> extensions) {
@@ -95,9 +94,5 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
 
         throw new IllegalArgumentException(format(
                 "Plugin '%s' is not supported by any extension point", pluginId));
-    }
-
-    Map<String, JsonMessageHandler> getMessageHandlerMap() {
-        return messageHandlerMap;
     }
 }

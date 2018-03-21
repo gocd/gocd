@@ -51,6 +51,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
         return extensionName;
     }
 
+    @Override
     public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new DefaultPluginInteractionCallback<PluginSettingsConfiguration>() {
             @Override
@@ -60,6 +61,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
+    @Override
     public String getPluginSettingsView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
@@ -69,6 +71,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
+    @Override
     public void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings) {
         String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
 
@@ -93,28 +96,10 @@ public abstract class AbstractExtension implements GoPluginExtension {
     @Override
     public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
         String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
-
         return messageHandlerForServerInfoRequestProcessor(resolvedExtensionVersion).serverInfoToJSON(serverId, siteUrl, secureSiteUrl);
     }
 
-    protected void registerMessageHandlerForPluginSettingsRequestProcessor(String apiVersion, MessageHandlerForPluginSettingsRequestProcessor handler) {
-        messageHandlersForPluginSettingsRequestProcessor.put(apiVersion, handler);
-    }
-
-    protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
-        return messageHandlersForPluginSettingsRequestProcessor.get(pluginVersion);
-    }
-
-    protected void registerMessageHandlerForServerInfoRequestProcessor(String apiVersion, MessageHandlerForServerInfoRequestProcessor handler) {
-        messageHandlersForServerInfoRequestProcessor.put(apiVersion, handler);
-    }
-
-    protected MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
-        return messageHandlersForServerInfoRequestProcessor.get(pluginVersion);
-    }
-
-    protected abstract List<String> goSupportedVersions();
-
+    @Override
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
@@ -128,6 +113,24 @@ public abstract class AbstractExtension implements GoPluginExtension {
             }
         });
     }
+
+    protected void registerMessageHandlerForPluginSettingsRequestProcessor(String apiVersion, MessageHandlerForPluginSettingsRequestProcessor handler) {
+        messageHandlersForPluginSettingsRequestProcessor.put(apiVersion, handler);
+    }
+
+    protected void registerMessageHandlerForServerInfoRequestProcessor(String apiVersion, MessageHandlerForServerInfoRequestProcessor handler) {
+        messageHandlersForServerInfoRequestProcessor.put(apiVersion, handler);
+    }
+
+    protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
+        return messageHandlersForPluginSettingsRequestProcessor.get(pluginVersion);
+    }
+
+    protected MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
+        return messageHandlersForServerInfoRequestProcessor.get(pluginVersion);
+    }
+
+    protected abstract List<String> goSupportedVersions();
 
     public void registerHandler(String version, PluginSettingsJsonMessageHandler handler) {
         pluginSettingsMessageHandlerMap.put(version, handler);

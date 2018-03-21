@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
+package com.thoughtworks.go.server.service.plugins.processor.serverhealth;
 
-import com.thoughtworks.go.server.domain.PluginSettings;
-import com.thoughtworks.go.util.json.JsonHelper;
+import java.util.List;
 
-import java.util.Map;
-
-public class JsonMessageHandler1_0 implements JsonMessageHandler {
-
-    @Override
-    public String responseMessagePluginSettingsGet(PluginSettings pluginSettings) {
-        Map<String, String> map = pluginSettings.getSettingsAsKeyValuePair();
-        return map.isEmpty() ? null : JsonHelper.toJsonString(map);
-    }
+public interface MessageHandlerForServerHealthRequestProcessor {
+    List<PluginHealthMessage> deserializeServerHealthMessages(String requestBody);
 }

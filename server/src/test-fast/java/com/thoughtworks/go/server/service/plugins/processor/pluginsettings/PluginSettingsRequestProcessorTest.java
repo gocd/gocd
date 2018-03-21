@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
-import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,8 +52,6 @@ public class PluginSettingsRequestProcessorTest {
     @Mock
     private PluginSqlMapDao pluginSqlMapDao;
     @Mock
-    private JsonMessageHandler jsonMessageHandler;
-    @Mock
     private GoPluginDescriptor pluginDescriptor;
     @Mock
     private GoPluginExtension pluginExtension;
@@ -74,7 +71,6 @@ public class PluginSettingsRequestProcessorTest {
         when(pluginExtension.extensionName()).thenReturn("extension1");
 
         processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, singletonList(pluginExtension));
-        processor.getMessageHandlerMap().put("1.0", jsonMessageHandler);
     }
 
     @Test
@@ -113,7 +109,6 @@ public class PluginSettingsRequestProcessorTest {
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new NullPlugin());
         when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
-        when(jsonMessageHandler.responseMessagePluginSettingsGet(any(PluginSettings.class))).thenReturn(null);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
         apiRequest.setRequestBody(requestBody);
@@ -143,7 +138,7 @@ public class PluginSettingsRequestProcessorTest {
     }
 
     @Test
-    public void shouldRespondWith400IfNoneOfExtensionsCanHandleThePlugin() throws Exception {
+    public void shouldRespondWith400IfNoneOfExtensionsCanHandleThePlugin() {
         String PLUGIN_ID = "plugin-foo-id";
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
@@ -165,7 +160,6 @@ public class PluginSettingsRequestProcessorTest {
 
 
         processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, Arrays.asList(pluginExtension, anotherPluginExtension));
-        processor.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
 
 

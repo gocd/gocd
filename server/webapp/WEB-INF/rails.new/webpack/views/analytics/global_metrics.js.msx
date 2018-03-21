@@ -28,7 +28,7 @@
   const models = {};
 
   PluginEndpoint.define({
-    "api.analytics.v1": (message, trans) => {
+    "go.cd.analytics.v1.fetch-analytics": (message, trans) => {
       const meta = message.head,
            model = models[meta.uid],
 

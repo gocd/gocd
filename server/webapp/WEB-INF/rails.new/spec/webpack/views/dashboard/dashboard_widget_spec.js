@@ -15,6 +15,7 @@
  */
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
+  const Stream          = require("mithril/stream");
   const $               = require('jquery');
   const _               = require('lodash');
   const simulateEvent   = require('simulate-event');
@@ -59,6 +60,18 @@ describe("Dashboard Widget", () => {
   it("should render Old dashboard button", () => {
     expect($root.find("a.toggle-old-view")).toContainText("Old Dashboard");
     expect($root.find("a.toggle-old-view").attr('href')).toEqual("/go/old_dashboard/");
+  });
+
+  it("should show spinner before dashboard is loaded", () => {
+    unmount();
+    const pageSpinner = Stream(true);
+    mount(true, pageSpinner);
+    expect($root.find(".page-spinner")).toBeInDOM();
+
+    pageSpinner(false);
+    unmount();
+    mount(true, pageSpinner);
+    expect($root.find(".page-spinner")).not.toBeInDOM();
   });
 
   it("should render personalize view button", () => {
@@ -382,7 +395,7 @@ describe("Dashboard Widget", () => {
     expect(dashboard.find('.material_changes')).not.toBeInDOM();
   });
 
-  function mount(canAdminister = true) {
+  function mount(canAdminister = true, showSpinner = Stream(false)) {
     buildCauseJson = {
       "approver":           "",
       "is_forced":          false,
@@ -607,6 +620,7 @@ describe("Dashboard Widget", () => {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          showSpinner,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

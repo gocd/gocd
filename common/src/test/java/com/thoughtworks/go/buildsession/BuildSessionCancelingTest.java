@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,7 +49,6 @@ import static org.junit.Assert.assertTrue;
 public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelLongRunningBuild() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -72,7 +70,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelLongRunningTestCommand() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -94,7 +91,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void doubleCancelDoNothing() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -129,7 +125,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelShouldProcessOnCancelCommandOfCommandThatIsRunning() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {

@@ -18,10 +18,14 @@ package com.thoughtworks.go.spark.spa.spring;
 
 import com.google.common.base.CaseFormat;
 import com.thoughtworks.go.CurrentGoCDVersion;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.SparkController;
@@ -41,13 +45,16 @@ public class InitialContextProvider {
     private final WebpackAssetsService webpackAssetsService;
     private final SecurityService securityService;
     private final VersionInfoService versionInfoService;
+    private final DefaultPluginInfoFinder pluginInfoFinder;
 
     @Autowired
-    public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService, SecurityService securityService, VersionInfoService versionInfoService) {
+    public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
+                                  SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
         this.versionInfoService = versionInfoService;
+        this.pluginInfoFinder = pluginInfoFinder;
     }
 
     public VelocityContext getVelocityContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
@@ -65,7 +72,7 @@ public class InitialContextProvider {
         context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getRawOffset());
         context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
-
+        context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         return new VelocityContext(context);
     }
 
@@ -73,5 +80,17 @@ public class InitialContextProvider {
         return CaseFormat.UPPER_CAMEL.converterTo(CaseFormat.LOWER_UNDERSCORE).convert(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
     }
 
+    private boolean showAnalyticsDashboard() {
+        return securityService.isUserAdmin(UserHelper.getUserName()) && supportsAnalyticsDashboard();
+    }
 
+    private boolean supportsAnalyticsDashboard() {
+        for (CombinedPluginInfo combinedPluginInfo : pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)) {
+            AnalyticsPluginInfo pluginInfo = (AnalyticsPluginInfo) combinedPluginInfo.extensionFor(PluginConstants.ANALYTICS_EXTENSION);
+            if (pluginInfo != null && pluginInfo.getCapabilities().supportsDashboardAnalytics()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

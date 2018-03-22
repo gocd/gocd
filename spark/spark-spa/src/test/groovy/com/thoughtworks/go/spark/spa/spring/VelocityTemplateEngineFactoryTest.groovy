@@ -20,6 +20,7 @@ import com.thoughtworks.go.server.service.RailsAssetsService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.server.service.VersionInfoService
 import com.thoughtworks.go.server.service.WebpackAssetsService
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate
 import org.apache.commons.lang.StringEscapeUtils
 import org.assertj.core.api.Assertions
@@ -39,7 +40,7 @@ class VelocityTemplateEngineFactoryTest {
   @BeforeEach
   void setUp() {
     initMocks(this)
-    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService))
+    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder))
     engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
   }

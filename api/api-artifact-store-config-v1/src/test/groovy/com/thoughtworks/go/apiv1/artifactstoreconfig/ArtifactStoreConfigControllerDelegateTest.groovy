@@ -18,14 +18,20 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter
+import com.thoughtworks.go.config.ArtifactStore
+import com.thoughtworks.go.config.ArtifactStores
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.server.service.ArtifactStoreService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<ArtifactStoreConfigControllerDelegate>, SecurityServiceTrait {
@@ -68,14 +74,18 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         loginAsAdmin()
       }
 
-//      @Test Ignored: WIP
+      @Test
       void 'should get artifact store configs'() {
+        def artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.artifact.docker",
+          ConfigurationPropertyMother.create("RegistryURL", false, "http://foo")))
+        when(artifactStoreService.getPluginProfiles()).thenReturn(artifactStores)
+
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBody('')
+          .hasBodyWithJsonObject(artifactStores, ArtifactStoresRepresenter)
       }
     }
   }

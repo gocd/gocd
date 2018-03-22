@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin.security.representers
+package com.thoughtworks.go.api.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother

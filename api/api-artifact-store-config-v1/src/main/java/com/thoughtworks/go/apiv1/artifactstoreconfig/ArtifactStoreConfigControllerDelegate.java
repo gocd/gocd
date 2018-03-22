@@ -22,7 +22,9 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter;
 import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.spark.Routes;
@@ -91,7 +93,9 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
         });
     }
 
-    public String index(Request request, Response response) {
-        return "";
+    public String index(Request request, Response response) throws IOException {
+        ArtifactStores artifactStores = artifactStoreService.getPluginProfiles();
+        return writerForTopLevelObject(request, response,
+                outputWriter -> ArtifactStoresRepresenter.toJSON(outputWriter, artifactStores));
     }
 }

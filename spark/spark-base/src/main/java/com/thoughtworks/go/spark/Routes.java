@@ -186,6 +186,10 @@ public class Routes {
         public static final String PATH = "/:pipeline_name/:pipeline_counter";
     }
 
+    public class ArtifactStoreConfig {
+        public static final String BASE = "/api/admin/artifact_stores";
+    }
+
     public class AgentsSPA {
         public static final String BASE = "/agents";
     }

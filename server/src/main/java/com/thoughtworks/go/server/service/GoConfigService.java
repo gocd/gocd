@@ -546,17 +546,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getAllLocalPipelineConfigs(true);
     }
 
-    public List<PipelineConfig> getAllPipelineConfigsForEdit() {
-        return getConfigForEditing().getAllPipelineConfigs();
-    }
-
     public List<PipelineConfig> getAllPipelineConfigsForEditForUser(Username username) {
         ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
 
         List<String> groupsForUser = getConfigForEditing().getGroupsForUser(username.getUsername(), rolesForUser(username.getUsername()));
 
         for (String groupName : groupsForUser) {
-            pipelineConfigs.addAll(getAllPipelinesInGroup(groupName).getPipelines());
+            pipelineConfigs.addAll(getAllPipelinesForEditInGroup(groupName).getPipelines());
         }
 
         return pipelineConfigs;
@@ -716,8 +712,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return pipelines;
     }
 
-    public PipelineConfigs getAllPipelinesInGroup(String group) {
-        return getCurrentConfig().pipelines(group);
+    public PipelineConfigs getAllPipelinesForEditInGroup(String group) {
+        return getConfigForEditing().pipelines(group);
     }
 
     public GoConfigValidity checkConfigFileValid() {

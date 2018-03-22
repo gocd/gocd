@@ -933,8 +933,8 @@ public class GoConfigServiceTest {
     @Test
     public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-        expectLoad(cruiseConfig);
-        goConfigService.getAllPipelinesInGroup("group");
+        when(goConfigDao.loadForEditing()).thenReturn(cruiseConfig);
+        goConfigService.getAllPipelinesForEditInGroup("group");
         verify(cruiseConfig).pipelines("group");
     }
 

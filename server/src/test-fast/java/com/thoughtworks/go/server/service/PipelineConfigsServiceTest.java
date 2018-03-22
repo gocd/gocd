@@ -299,7 +299,7 @@ public class PipelineConfigsServiceTest {
 
 		List<PipelineConfigs> gotPipelineGroups = service.getGroupsForUser(user);
 
-		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
+		verify(goConfigService, never()).getAllPipelinesForEditInGroup("group1");
 		assertThat(gotPipelineGroups, is(Arrays.asList(group1)));
 	}
 

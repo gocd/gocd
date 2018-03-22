@@ -64,7 +64,7 @@
         }
       }, pipelineOptions);
 
-      return (<div>Analytics For Pipeline: {select} </div>);
+      return (<div class="chart-pipeline-selector">Analytics For Pipeline: {select} </div>);
     }
 
     function view(vnode) { // eslint-disable-line no-unused-vars
@@ -78,7 +78,7 @@
           model = models[uid] = newFrame(pluginId);
         }
 
-        pageItems.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
+        pageItems.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title: "Pipeline Build Time", init: PluginEndpoint.init}));
       });
 
       return pageItems;

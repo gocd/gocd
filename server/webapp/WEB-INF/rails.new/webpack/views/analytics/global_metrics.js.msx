@@ -48,9 +48,10 @@
       $.each(vnode.attrs.model.data, (pluginId, supportedAnalytics) => {
         $.each(supportedAnalytics, (idx, sa) => {
           const uid   = `f-${pluginId}:${sa.id}:${idx}`,
+                title = sa.title,
                 model = ensureModel(uid, pluginId, sa.type, sa.id);
 
-          frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
+          frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init: PluginEndpoint.init}));
         });
       });
       return frames;

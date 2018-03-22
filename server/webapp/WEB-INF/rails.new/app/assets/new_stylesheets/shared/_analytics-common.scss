@@ -1,0 +1,47 @@
+.frame-container {
+  position: relative;
+
+  iframe {
+    height: 100%;
+    width:  100%;
+    border: 0;
+  }
+
+  .loading-overlay {
+    display:    none;
+    width:      auto;
+    height:     auto;
+    text-align: center;
+    background: #fff;
+    position:   absolute;
+    top:        0;
+    right:      0;
+    bottom:     0;
+    left:       0;
+    z-index:    200;
+
+    .loading-message {
+      position:    relative;
+      font-size:   14px;
+      font-weight: 300;
+      top:         calc(50% + 60px);
+    }
+
+    .loading-message, .analytics-title, .loading-sub {
+      display: block;
+    }
+
+    .loading-sub::after {
+      display:  inline-block;
+      content:  "\2026";
+      width:    0; // don't affect text centering
+      overflow: visible;
+    }
+  }
+
+  &.loading-analytics {
+    .loading-overlay {
+      display: block;
+    }
+  }
+}

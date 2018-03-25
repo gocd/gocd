@@ -25,24 +25,6 @@
         <param-value>36000</param-value>
     </context-param>
 
-    <filter>
-        <filter-name>gzipFilter</filter-name>
-        <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
-        <init-param>
-            <param-name>mimeTypes</param-name>
-            <param-value>text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,image/svg+xml,application/vnd.go.cd.v1+json,application/vnd.go.cd.v2+json,application/vnd.go.cd.v3+json, application/vnd.go.cd.v4+json, application/vnd.go.cd.v5+json, application/json</param-value>
-        </init-param>
-        <init-param>
-            <param-name>methods</param-name>
-            <param-value>HEAD,GET,POST,PUT,PATCH,DELETE</param-value>
-        </init-param>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>gzipFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
     <servlet>
         <servlet-name>default</servlet-name>
         <servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>

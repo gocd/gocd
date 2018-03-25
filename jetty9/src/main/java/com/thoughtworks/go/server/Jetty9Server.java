@@ -24,13 +24,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.SessionManager;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlets.gzip.GzipHandler;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -82,13 +80,45 @@ public class Jetty9Server extends AppServer {
         handlers.addHandler(welcomeFileHandler());
         createWebAppContext();
         addResourceHandler(handlers, webAppContext);
-        handlers.addHandler(webAppContext);
+
+        handlers.addHandler(gzipHandler(webAppContext));
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
         server.addBean(errorHandler);
         server.setHandler(handlers);
         performCustomConfiguration();
         server.setStopAtShutdown(true);
+    }
+
+    static GzipHandler gzipHandler(Handler handler) {
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.addIncludedMimeTypes(
+                "application/javascript",
+                "application/json",
+                "application/vnd.go.cd.v1+json",
+                "application/vnd.go.cd.v2+json",
+                "application/vnd.go.cd.v3+json",
+                "application/vnd.go.cd.v4+json",
+                "application/vnd.go.cd.v5+json",
+                "application/vnd.go.cd.v6+json",
+                "application/vnd.go.cd.v7+json",
+                "application/vnd.go.cd.v8+json",
+                "application/vnd.go.cd.v9+json",
+                "application/xhtml+xml",
+                "image/svg+xml",
+                "text/css",
+                "text/html",
+                "text/plain",
+                "text/xml"
+        );
+        gzipHandler.addIncludedMethods("HEAD",
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE");
+        gzipHandler.setHandler(handler);
+        return gzipHandler;
     }
 
     @Override

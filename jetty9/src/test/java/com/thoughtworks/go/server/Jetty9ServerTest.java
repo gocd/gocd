@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlets.gzip.GzipHandler;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -49,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -175,7 +177,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -199,7 +201,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -223,7 +225,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -265,8 +267,9 @@ public class Jetty9ServerTest {
         assertThat(handlerCollection.getHandlers().length, is(3));
 
         Handler handler = handlerCollection.getHandlers()[2];
-        assertThat(handler instanceof WebAppContext, is(true));
-        WebAppContext webAppContext = (WebAppContext) handler;
+        assertThat(handler, instanceOf(GzipHandler.class));
+        WebAppContext webAppContext = (WebAppContext) ((GzipHandler) handler).getHandler();
+        assertThat(webAppContext, instanceOf(WebAppContext.class));
         List<String> configClasses = new ArrayList<>(Arrays.asList(webAppContext.getConfigurationClasses()));
         assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
         assertThat(configClasses.contains(WebXmlConfiguration.class.getCanonicalName()), is(true));
@@ -362,8 +365,9 @@ public class Jetty9ServerTest {
         assertThat(handlerCollection.getHandlers().length, is(3));
 
         Handler handler = handlerCollection.getHandlers()[2];
-        assertThat(handler instanceof WebAppContext, is(true));
-        WebAppContext webAppContext = (WebAppContext) handler;
+        assertThat(handler, instanceOf(GzipHandler.class));
+        WebAppContext webAppContext = (WebAppContext) ((GzipHandler) handler).getHandler();
+        assertThat(webAppContext, instanceOf(WebAppContext.class));
 
         assertThat(webAppContext.getErrorHandler() instanceof JettyCustomErrorPageHandler, is(true));
     }

@@ -689,14 +689,14 @@ describe StagesController do
     end
   end
 
-  describe 'first_stage_detail_page' do
+  describe 'redirect_to_first_stage' do
     it 'should redirect to first stage of the pipeline instance' do
       pipeline_name = "pipeline_name"
       stage_name = "stage_name"
       pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage(pipeline_name, stage_name, java.util.Date.new)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with(pipeline_name, 1, @user, @status).and_return(pim)
 
-      get :first_stage_detail_page, pipeline_name: 'pipeline_name', pipeline_counter: 1
+      get :redirect_to_first_stage, pipeline_name: 'pipeline_name', pipeline_counter: 1
 
       expect(response.status).to eq(302)
       expect(response).to redirect_to("/pipelines/#{pipeline_name}/1/#{stage_name}/1")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.util.List;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.SecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.domain.Username;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 public class AuthorityGranter {
@@ -36,14 +36,14 @@ public class AuthorityGranter {
         this.securityService = securityService;
     }
 
-    public GrantedAuthority[] authorities(String username) {
+    public List<GrantedAuthority> authorities(String username) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         checkAndAddSuperAdmin(username, authorities);
         checkAndAddGroupAdmin(username, authorities);
         checkAndAddTemplateAdmin(username, authorities);
         checkAndAddTemplateViewUser(username, authorities);
         authorities.add(GoAuthority.ROLE_USER.asAuthority());
-        return authorities.toArray(new GrantedAuthority[authorities.size()]);
+        return authorities;
     }
 
     private void checkAndAddTemplateAdmin(String username, List<GrantedAuthority> authorities) {

@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GoAuthenticationProviderFactory implements FactoryBean {
+public class GoAuthenticationProviderFactory implements FactoryBean<GoAuthenticationProvider> {
     private final UserService userService;
 
     @Autowired
@@ -30,11 +30,11 @@ public class GoAuthenticationProviderFactory implements FactoryBean {
         this.userService = userService;
     }
 
-    public Object getObject() throws Exception {
+    public GoAuthenticationProvider getObject() throws Exception {
         return new GoAuthenticationProvider(userService, null);
     }
 
-    public Class getObjectType() {
+    public Class<GoAuthenticationProvider> getObjectType() {
         return GoAuthenticationProvider.class;
     }
 

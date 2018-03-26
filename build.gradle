@@ -175,6 +175,7 @@ rootProject.ext.versions = [
   slf4j               : '1.7.25',
   spark               : '2.7.1',
   spring              : '3.2.18.RELEASE',
+  springSecurity      : '3.2.10.RELEASE',
   tinybundles         : '3.0.0',
   tokenBucket         : '1.7',
   xmlUnitMatchers     : '2.5.1',

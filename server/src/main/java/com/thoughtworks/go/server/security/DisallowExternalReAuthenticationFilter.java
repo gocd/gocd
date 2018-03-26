@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;

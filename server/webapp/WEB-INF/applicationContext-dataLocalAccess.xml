@@ -85,8 +85,7 @@
     </property>
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="entityInterceptor">
-      <bean class="com.thoughtworks.go.server.transaction.TransactionCacheInterceptor" lazy-init="true"
-            autowire="autodetect"/>
+      <bean class="com.thoughtworks.go.server.transaction.TransactionCacheInterceptor" lazy-init="true" />
     </property>
   </bean>
 

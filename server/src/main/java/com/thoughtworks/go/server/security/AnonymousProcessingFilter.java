@@ -18,33 +18,29 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.memory.UserAttribute;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.memory.UserAttribute;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
+import java.util.Collections;
 
 @Component
-public class AnonymousProcessingFilter extends org.springframework.security.providers.anonymous.AnonymousProcessingFilter {
+public class AnonymousProcessingFilter extends AnonymousAuthenticationFilter {
     private final GoConfigService configService;
 
     @Autowired
     public AnonymousProcessingFilter(GoConfigService configService) {
+        super("anonymousKey", "anonymousUser", Collections.singletonList(GoAuthority.ROLE_ANONYMOUS.asAuthority()));
         this.configService = configService;
-        setKey("anonymousKey");
-        setUserAttributeWithRole(GoAuthority.ROLE_ANONYMOUS.toString());
     }
 
     private void setUserAttributeWithRole(final String role) {
         final UserAttribute initialAttribute = new UserAttribute();
         initialAttribute.setPassword("anonymousUser");
-        initialAttribute.setAuthorities(new ArrayList() {
-            {
-                add(new GrantedAuthorityImpl(role));
-            }
-        });
+        initialAttribute.setAuthorities(Collections.singletonList(new SimpleGrantedAuthority(role)));
         setUserAttribute(initialAttribute);
     }
 

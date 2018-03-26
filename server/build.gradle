@@ -165,14 +165,10 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
-  compile(group: 'org.springframework.security', name: 'spring-security-core', version: '2.0.3') {
-    exclude(module: 'spring-core')
-    exclude(module: 'spring-context')
-    exclude(module: 'spring-aop')
-
-    exclude(module: 'commons-codec')
-    exclude(module: 'commons-collections')
+  compile(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
+    exclude(group: 'org.springframework')
   }
+  compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
   compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
   compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'

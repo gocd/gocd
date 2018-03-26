@@ -22,35 +22,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class AuthenticationProcessingFilter extends org.springframework.security.ui.webapp.AuthenticationProcessingFilter {
+public class AuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationProcessingFilter.class);
     private GoConfigService goConfigService;
     private Localizer localizer;
 
     @Autowired
-    public AuthenticationProcessingFilter(GoConfigService goConfigService, Localizer localizer) {
+    public AuthenticationProcessingFilter(GoConfigService goConfigService, Localizer localizer, @Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
+        super("/auth/security_check");
         this.goConfigService = goConfigService;
         this.localizer = localizer;
-        setAuthenticationFailureUrl("/auth/login?login_error=1");
-        setDefaultTargetUrl("/");
-        setFilterProcessesUrl("/auth/security_check");
+        this.setAuthenticationManager(authenticationManager);
+        setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/auth/login?login_error=1"));
+        setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/"));
         setInvalidateSessionOnSuccessfulAuthentication(true);
-    }
-
-    @Override
-    @Autowired
-    public void setAuthenticationManager(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
-        super.setAuthenticationManager(authenticationManager);
     }
 
     @Override
@@ -63,8 +64,14 @@ public class AuthenticationProcessingFilter extends org.springframework.security
     }
 
     @Override
-    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        super.onUnsuccessfulAuthentication(request, response, failed);
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        super.unsuccessfulAuthentication(request, response, failed);
+
         if (failed.getClass() == AuthenticationServiceException.class) {
             request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new Exception(localizer.localize("AUTHENTICATION_SERVICE_EXCEPTION")));
             LOGGER.error(failed.getMessage());

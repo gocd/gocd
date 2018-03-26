@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ package com.thoughtworks.go.server.util;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
+import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 
@@ -62,7 +63,7 @@ public class UserHelper {
 
 
     public static boolean isAgent() {
-        return matchesRole(X509AuthoritiesPopulator.ROLE_AGENT);
+        return matchesRole(GoAuthority.ROLE_AGENT.toString());
     }
 
     private static boolean matchesRole(String role) {
@@ -73,13 +74,13 @@ public class UserHelper {
         return false;
     }
 
-    static boolean matchesRole(Authentication authentication, String roleAgent) {
-        GrantedAuthority[] authorities = authentication.getAuthorities();
-        if (authorities == null) {
+    static boolean matchesRole(Authentication authentication, String role) {
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        if (authorities == null || authorities.isEmpty()) {
             return false;
         }
         for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals(roleAgent)) {
+            if (authority.getAuthority().equals(role)) {
                 return true;
             }
         }

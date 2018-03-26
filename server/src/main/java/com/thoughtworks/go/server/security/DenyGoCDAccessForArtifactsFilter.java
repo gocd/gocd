@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -30,8 +29,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static com.thoughtworks.go.server.security.SpringSecurityFilter.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.springframework.security.ui.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 
 @Component
 public class DenyGoCDAccessForArtifactsFilter extends SpringSecurityFilter {

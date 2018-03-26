@@ -36,82 +36,46 @@
   <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->
   <aop:aspectj-autoproxy/>
 
-  <!-- This bean name 'filterChainProxy' is referenced in web.xml -->
-  <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-    <security:filter-chain-map path-type="ant">
-      <security:filter-chain pattern="/api/config-repository.git/**"
-                             filters="modeAwareFilter,httpSessionContextIntegrationFilter,apiSessionFilter,removeAdminPermissionFilter,basicAuthenticationFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor"/>
-      <security:filter-chain pattern="/remoting/**"
-                             filters="modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/agent-websocket/**"
-                             filters="modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor"/>
-      <security:filter-chain pattern="/api/feeds/**"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/api/pipelines.xml"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/api/*/*.xml"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/api/pipelines/*/*.xml"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/cctray.xml"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/api/**"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/files/**"
-                             filters="modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,goExceptionTranslationFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-      <security:filter-chain pattern="/**"
-                             filters="modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,disallowExternalReAuthenticationFilter,removeAdminPermissionFilter,oauthAuthenticationFilter,webBasedAuthenticationFilter,preAuthenticatedRequestsProcessingFilter,basicAuthenticationFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,goExceptionTranslationFilter,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoadingFilter,urlRewriter"/>
-    </security:filter-chain-map>
-  </bean>
+  <!--<bean id="preAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">-->
+    <!--<constructor-arg>-->
+      <!--<list>-->
+        <!--<bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">-->
+          <!--<constructor-arg index="0" ref="preAuthenticatedAuthenticationProvider"/>-->
+        <!--</bean>-->
+      <!--</list>-->
+    <!--</constructor-arg>-->
+  <!--</bean>-->
 
-  <bean id="urlRewriter" class="org.tuckey.web.filters.urlrewrite.UrlRewriteFilter"/>
+  <!--<bean id="goAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">-->
+    <!--<property name="providers">-->
+      <!--<list>-->
+        <!--<bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">-->
+          <!--<constructor-arg index="0">-->
+            <!--<bean class="com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider"-->
+                  <!--autowire="autodetect"/>-->
+          <!--</constructor-arg>-->
+        <!--</bean>-->
+        <!--<bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">-->
+          <!--<constructor-arg index="0">-->
+            <!--<bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider"-->
+                  <!--autowire="autodetect"/>-->
+          <!--</constructor-arg>-->
+        <!--</bean>-->
+        <!--<ref bean="preAuthenticatedAuthenticationProvider"/>-->
+        <!--<bean class="org.springframework.security.authentication.AnonymousAuthenticationProvider"-->
+              <!--p:key="anonymousKey"/>-->
+      <!--</list>-->
+    <!--</property>-->
+  <!--</bean>-->
 
-  <bean id="httpSessionContextIntegrationFilter"
-        class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
+  <!--<bean id="sessionFixationProtectionFilter" class="org.springframework.security.ui.SessionFixationProtectionFilter"-->
+        <!--autowire="autodetect"/>-->
 
-  <bean id="defaultLogoutHandler" class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
-
-  <bean id="preAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
-    <property name="providers">
-      <list>
-        <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
-          <constructor-arg index="0">
-            <ref bean="preAuthenticatedAuthenticationProvider"/>
-          </constructor-arg>
-        </bean>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="goAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
-    <property name="providers">
-      <list>
-        <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
-          <constructor-arg index="0">
-            <bean class="com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider"
-                  autowire="autodetect"/>
-          </constructor-arg>
-        </bean>
-        <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
-          <constructor-arg index="0">
-            <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider"
-                  autowire="autodetect"/>
-          </constructor-arg>
-        </bean>
-        <ref bean="preAuthenticatedAuthenticationProvider"/>
-        <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider"
-              p:key="anonymousKey"/>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="sessionFixationProtectionFilter" class="org.springframework.security.ui.SessionFixationProtectionFilter"
-        autowire="autodetect"/>
-
-  <bean id="x509ProcessingFilter" class="org.springframework.security.ui.x509.X509ProcessingFilter">
+  <bean id="x509ProcessingFilter"
+        class="org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter">
     <property name="authenticationManager">
-      <bean id="x509AuthenticationManager" class="org.springframework.security.providers.ProviderManager">
-        <property name="providers">
+      <bean id="x509AuthenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <constructor-arg>
           <list>
             <bean id="x509AuthenticationProvider"
                   class="org.springframework.security.providers.x509.X509AuthenticationProvider">
@@ -125,22 +89,22 @@
               </property>
             </bean>
           </list>
-        </property>
+        </constructor-arg>
       </bean>
     </property>
   </bean>
 
-  <bean class="org.springframework.security.vote.AffirmativeBased" id="accessDecisionManager">
+  <bean class="org.springframework.security.access.vote.AffirmativeBased" id="accessDecisionManager">
     <property name="allowIfAllAbstainDecisions" value="false"/>
     <property name="decisionVoters">
       <list>
-        <bean class="org.springframework.security.vote.RoleVoter"/>
+        <bean class="org.springframework.security.access.vote.RoleVoter"/>
       </list>
     </property>
   </bean>
 
   <bean id="agentRemotingFilterInvocationInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+        class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
     <property name="authenticationManager" ref="goAuthenticationManager"/>
     <property name="accessDecisionManager" ref="accessDecisionManager"/>
     <property name="objectDefinitionSource">
@@ -154,126 +118,136 @@
     </property>
   </bean>
 
-    <bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-        <property name="authenticationManager" ref="goAuthenticationManager"/>
-        <property name="accessDecisionManager">
-            <bean class="org.springframework.security.vote.AffirmativeBased">
-                <property name="allowIfAllAbstainDecisions" value="false"/>
-                <property name="decisionVoters">
-                    <list>
-                        <bean class="com.thoughtworks.go.server.security.IsSecurityEnabledVoter" autowire="autodetect"/>
-                        <bean class="org.springframework.security.vote.RoleVoter"/>
-                        <bean class="org.springframework.security.vote.AuthenticatedVoter"/>
-                    </list>
-                </property>
-            </bean>
-        </property>
-        <property name="objectDefinitionSource">
-          <security:filter-invocation-definition-source path-type="ant" lowercase-comparisons="true">
-            <security:intercept-url pattern="/auth/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/auth/logout" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/auth/security_check" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/compressed/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/assets/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/webhooks/github/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/webhooks/gitlab/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/webhooks/bitbucket/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/v1/health/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/images/cruise.ico" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/agent" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/agent/token" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/latest-agent.status" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/agent-launcher.jar" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/tfs-impl.jar" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/agent-plugins.zip" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/admin/configuration/file/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/configuration/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/restful/configuration/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/pipelines/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/pipeline_group/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/templates/**" access="ROLE_SUPERVISOR,ROLE_TEMPLATE_SUPERVISOR,ROLE_TEMPLATE_VIEW_USER,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/commands/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/security/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/plugins" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/pipeline/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/materials/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/package_repositories/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/package_definitions/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/material_test" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/pipelines" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/resources" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/environments" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/repository_check_connection" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/internal/package_check_connection" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/pipelines" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/pipelines/*" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/encrypt" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/scms/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/repositories/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/packages/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/plugin_info/**" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/admin/plugin_settings/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/agents" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/config_repos" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/elastic/profiles/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/elastic_profiles/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/admin/templates/**" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/admin/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/config-repository.git/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/jobs/scheduled.xml" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/admin/agents" access="ROLE_USER"/>
-            <security:intercept-url pattern="/admin/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/feeds/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/support" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/api/pipelines.xml" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/version" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/plugin_images/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/api/*/*.xml" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/pipelines/*/*.xml" access="ROLE_USER,ROLE_OAUTH_USER"/>
-            <security:intercept-url pattern="/api/agents/**" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/users/**" access="ROLE_USER"/>
-            <security:intercept-url pattern="/api/version_infos/**" access="ROLE_USER"/>
-            <security:intercept-url pattern="/*/environments/*" access="ROLE_SUPERVISOR"/>
+  <bean id="filterInvocationInterceptor"
+        class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+    <property name="authenticationManager" ref="goAuthenticationManager"/>
+    <property name="accessDecisionManager">
+      <bean class="org.springframework.security.access.vote.AffirmativeBased">
+        <constructor-arg>
+          <list>
+            <bean class="com.thoughtworks.go.server.security.IsSecurityEnabledVoter" autowire="autodetect"/>
+            <bean class="org.springframework.security.access.vote.RoleVoter"/>
+            <bean class="org.springframework.security.access.vote.AuthenticatedVoter"/>
+          </list>
+        </constructor-arg>
+        <property name="allowIfAllAbstainDecisions" value="false"/>
+      </bean>
+    </property>
+    <property name="objectDefinitionSource">
+      <security:filter-invocation-definition-source path-type="ant" lowercase-comparisons="true">
+        <security:intercept-url pattern="/auth/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/auth/logout" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/auth/security_check" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/compressed/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/assets/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/webhooks/github/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/webhooks/gitlab/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/webhooks/bitbucket/notify/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/v1/health/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/images/cruise.ico" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/agent" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/agent/token" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/latest-agent.status" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/agent-launcher.jar" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/tfs-impl.jar" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/agent-plugins.zip" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/admin/configuration/file/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/configuration/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/restful/configuration/**"
+                                access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/pipelines/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/pipeline_group/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/templates/**"
+                                access="ROLE_SUPERVISOR,ROLE_TEMPLATE_SUPERVISOR,ROLE_TEMPLATE_VIEW_USER,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/commands/**"
+                                access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/security/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/plugins" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/pipeline/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/materials/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/package_repositories/**"
+                                access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/package_definitions/**" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/material_test"
+                                access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/pipelines" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/resources" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/environments" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/repository_check_connection"
+                                access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/internal/package_check_connection"
+                                access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/pipelines" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/pipelines/*" access="ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/encrypt"
+                                access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/scms/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/repositories/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/packages/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/plugin_info/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/admin/plugin_settings/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/agents" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/config_repos" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/elastic/profiles/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/elastic_profiles/**" access="ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/admin/templates/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/admin/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/config-repository.git/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/jobs/scheduled.xml" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/admin/agents" access="ROLE_USER"/>
+        <security:intercept-url pattern="/admin/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/feeds/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/support" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/api/pipelines.xml" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/version" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/plugin_images/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/api/*/*.xml" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/pipelines/*/*.xml" access="ROLE_USER,ROLE_OAUTH_USER"/>
+        <security:intercept-url pattern="/api/agents/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/users/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/api/version_infos/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/*/environments/*" access="ROLE_SUPERVISOR"/>
 
-            <security:intercept-url pattern="/oauth/admin/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/oauth/admin/**" access="ROLE_SUPERVISOR"/>
 
-            <security:intercept-url pattern="/oauth/token" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-            <security:intercept-url pattern="/oauth/authorize" access="ROLE_USER"/>
-            <security:intercept-url pattern="/oauth/user_tokens" access="ROLE_USER"/>
-            <security:intercept-url pattern="/oauth/user_tokens/revoke/**" access="ROLE_USER"/>
+        <security:intercept-url pattern="/oauth/token" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/oauth/authorize" access="ROLE_USER"/>
+        <security:intercept-url pattern="/oauth/user_tokens" access="ROLE_USER"/>
+        <security:intercept-url pattern="/oauth/user_tokens/revoke/**" access="ROLE_USER"/>
 
-            <security:intercept-url pattern="/plugin/interact/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/plugin/interact/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
-            <security:intercept-url pattern="/agents" access="ROLE_USER"/>
-            <security:intercept-url pattern="/dashboard" access="ROLE_USER"/>
-            <security:intercept-url pattern="/agents/*/job_run_history*" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/agents/*/job_run_history/*" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/config_view/templates/*" access="ROLE_USER"/>
-            <security:intercept-url pattern="/add-on/*/admin/**" access="ROLE_SUPERVISOR"/>
-            <security:intercept-url pattern="/add-on/*/api/**" access="ROLE_OAUTH_USER"/>
-            <security:intercept-url pattern="/**" access="ROLE_USER"/>
-          </security:filter-invocation-definition-source>
-        </property>
-    </bean>
+        <security:intercept-url pattern="/agents" access="ROLE_USER"/>
+        <security:intercept-url pattern="/dashboard" access="ROLE_USER"/>
+        <security:intercept-url pattern="/agents/*/job_run_history*" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/agents/*/job_run_history/*" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/config_view/templates/*" access="ROLE_USER"/>
+        <security:intercept-url pattern="/add-on/*/admin/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/add-on/*/api/**" access="ROLE_OAUTH_USER"/>
+        <security:intercept-url pattern="/**" access="ROLE_USER"/>
+      </security:filter-invocation-definition-source>
+    </property>
+  </bean>
 
   <!--
    This filter is used for normal pages through the UI.
    It will redirect to the login page.
   -->
-  <bean id="sessionDenialAwareAuthenticationProcessingFilterEntryPoint" class="com.thoughtworks.go.server.security.SessionDenialAwareAuthenticationProcessingFilterEntryPoint">
-    <property name="loginFormUrl" value="/auth/login"/>
-    <property name="deniedSessionLoginFormUrl" value="/auth/login?login_error=1"/>
-    <property name="forceHttps" value="false"/>
-  </bean>
+  <!--<bean id="sessionDenialAwareAuthenticationProcessingFilterEntryPoint"-->
+        <!--class="com.thoughtworks.go.server.security.SessionDenialAwareAuthenticationProcessingFilterEntryPoint">-->
+    <!--<property name="loginFormUrl" value="/auth/login"/>-->
+    <!--<property name="deniedSessionLoginFormUrl" value="/auth/login?login_error=1"/>-->
+    <!--<property name="forceHttps" value="false"/>-->
+  <!--</bean>-->
 
 
-  <bean id="accessDeniedHandler" class="org.springframework.security.ui.AccessDeniedHandlerImpl"/>
+  <bean id="accessDeniedHandler" class="org.springframework.security.web.access.AccessDeniedHandlerImpl"/>
 
   <!--
    This filter is used for Agent communication only
    It returns a 401 if access is denied
   -->
-  <bean id="x509AccessDenied" class="org.springframework.security.ui.ExceptionTranslationFilter">
+  <bean id="x509AccessDenied" class="org.springframework.security.web.access.ExceptionTranslationFilter">
     <property name="authenticationEntryPoint">
       <bean class="org.springframework.security.ui.x509.X509ProcessingFilterEntryPoint"/>
     </property>
@@ -286,8 +260,8 @@
    clients can automatically negotiate security
   -->
   <bean id="basicAuthenticationAccessDenied"
-        class="org.springframework.security.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint"/>
+        class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
     <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
   </bean>
 

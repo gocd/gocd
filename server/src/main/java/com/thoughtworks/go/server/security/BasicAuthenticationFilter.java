@@ -23,22 +23,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+import static org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY;
+
 @Component
-public class BasicAuthenticationFilter extends BasicProcessingFilter {
+public class BasicAuthenticationFilter extends org.springframework.security.web.authentication.www.BasicAuthenticationFilter {
 
     private static ThreadLocal<Boolean> isProcessingBasicAuth = new ThreadLocal<Boolean>() {
         @Override
@@ -50,25 +51,15 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     private Localizer localizer;
 
     @Autowired
-    public BasicAuthenticationFilter(Localizer localizer) {
+    public BasicAuthenticationFilter(Localizer localizer, @Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager, @Qualifier("basicProcessingFilterEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
+        super(authenticationManager, authenticationEntryPoint);
         this.localizer = localizer;
     }
 
     @Override
-    @Autowired
-    public void setAuthenticationManager(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
-        super.setAuthenticationManager(authenticationManager);
-    }
-
-    @Override
-    @Autowired
-    public void setAuthenticationEntryPoint(@Qualifier("basicProcessingFilterEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
-        super.setAuthenticationEntryPoint(authenticationEntryPoint);
-    }
-
-    @Override
-    public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
-        // if bitbucket webhook, don't basic auth, the rails controller will handle this.
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) req;
+        HttpServletResponse httpResponse = (HttpServletResponse) res;
         if (StringUtils.defaultIfBlank(httpRequest.getHeader("User-Agent"), "").startsWith("Bitbucket-Webhooks/")) {
             chain.doFilter(httpRequest, httpResponse);
             return;
@@ -76,7 +67,7 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
 
         try {
             isProcessingBasicAuth.set(true);
-            super.doFilterHttp(httpRequest, httpResponse, chain);
+            super.doFilter(httpRequest, httpResponse, chain);
         } catch (Exception e) {
             LOG.error(e.toString()); // NPE and others do not have messages, their types are important too
             LOG.debug(e.getMessage(), e);
@@ -89,7 +80,7 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     public void handleException(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Exception e) throws IOException {
         String message = localizer.localize("AUTHENTICATION_ERROR");
         if (hasAccept(httpRequest, "text/html") || hasAccept(httpRequest, "application/xhtml")) {
-            httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
+            httpRequest.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
             httpRequest.setAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED, true);
 
             httpResponse.sendRedirect("/go/auth/login?login_error=1");

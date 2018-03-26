@@ -21,13 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.AccessDeniedHandler;
-import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -57,7 +58,7 @@ public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {
         }
 
         final Logger logger = LoggerFactory.getLogger(GoExceptionTranslationFilter.class);
-        SavedRequest savedRequest = new SavedRequest(httpRequest, getPortResolver());
+        SavedRequest savedRequest = new DefaultSavedRequest(httpRequest, new PortResolverImpl());
 
         logger.debug("Authentication entry point being called; SavedRequest added to Session: {}", savedRequest);
 

@@ -24,19 +24,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HttpInvokerProxyFactoryWrapper extends HttpInvokerProxyFactoryBean {
-
-    public HttpInvokerProxyFactoryWrapper() {
+    @Autowired
+    public HttpInvokerProxyFactoryWrapper(HttpInvokerRequestExecutor httpInvokerRequestExecutor, URLService urlService) {
         this.setServiceInterface(com.thoughtworks.go.remote.BuildRepositoryRemote.class);
-    }
-
-    @Autowired
-    public void setUrlService(URLService urlService) {
-        super.setServiceUrl(urlService.getBuildRepositoryURL());
-    }
-
-    @Override
-    @Autowired
-    public void setHttpInvokerRequestExecutor(HttpInvokerRequestExecutor httpInvokerRequestExecutor) {
-        super.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        this.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        this.setServiceUrl(urlService.getBuildRepositoryURL());
     }
 }

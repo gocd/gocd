@@ -43,8 +43,4 @@ public class SqlMapClientFactory extends org.springframework.orm.ibatis.SqlMapCl
         return (Resource[]) ArrayUtils.add(configLocations, new ClassPathResource(ibatisConfigXmlLocation));
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        super.afterPropertiesSet();
-    }
 }

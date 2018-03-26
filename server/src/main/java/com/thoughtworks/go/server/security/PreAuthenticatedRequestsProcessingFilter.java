@@ -23,16 +23,17 @@ import com.thoughtworks.go.server.security.tokens.PreAuthenticatedAuthentication
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class PreAuthenticatedRequestsProcessingFilter extends AbstractProcessingFilter {
+public class PreAuthenticatedRequestsProcessingFilter extends AbstractAuthenticationProcessingFilter {
     private final AuthorizationExtension authorizationExtension;
     private final GoConfigService configService;
 
@@ -63,18 +64,16 @@ public class PreAuthenticatedRequestsProcessingFilter extends AbstractProcessing
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
-        PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(null,
-                fetchAuthorizationServerAccessToken(request), pluginId(request));
-
-        Authentication authResult = this.getAuthenticationManager().authenticate(authRequest);
-
-        return authResult;
+    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        return isPreAuthenticationRequest(request);
     }
 
     @Override
-    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        return isPreAuthenticationRequest(request);
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(null,
+                fetchAuthorizationServerAccessToken(request), pluginId(request));
+
+        return this.getAuthenticationManager().authenticate(authRequest);
     }
 
     @Override

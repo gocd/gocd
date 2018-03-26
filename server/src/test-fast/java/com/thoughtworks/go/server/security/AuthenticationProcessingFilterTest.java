@@ -22,8 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -43,19 +43,19 @@ public class AuthenticationProcessingFilterTest {
         session = new MockHttpSession();
         request.setSession(session);
         localizer = mock(Localizer.class);
-        filter = new AuthenticationProcessingFilter(mock(GoConfigService.class), localizer);
+        filter = new AuthenticationProcessingFilter(mock(GoConfigService.class), localizer, null);
     }
 
     @Test
     public void shouldSetSecurityExceptionMessageOnSessionWhenAuthenticationServiceExceptionIsThrownBySpring() throws Exception {
         when(localizer.localize("AUTHENTICATION_SERVICE_EXCEPTION")).thenReturn("some server error");
-        filter.onUnsuccessfulAuthentication(request, null, new AuthenticationServiceException("foobar"));
+        filter.unsuccessfulAuthentication(request, null, new AuthenticationServiceException("foobar"));
         assertThat(((Exception) session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage(), is("some server error"));
     }
 
     @Test
     public void shouldNotSetSecurityExceptionMessageOnSessionWhenBadCredentialsExceptionIsThrownBySpring() throws Exception {
-        filter.onUnsuccessfulAuthentication(request, null, new BadCredentialsException("foobar"));
+        filter.unsuccessfulAuthentication(request, null, new BadCredentialsException("foobar"));
         assertThat(session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY), is(nullValue()));
     }
 

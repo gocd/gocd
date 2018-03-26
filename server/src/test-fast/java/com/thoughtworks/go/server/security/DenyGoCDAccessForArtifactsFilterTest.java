@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@ package com.thoughtworks.go.server.security;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.thoughtworks.go.server.security.SpringSecurityFilter.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.ui.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 
 public class DenyGoCDAccessForArtifactsFilterTest {
 

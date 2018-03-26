@@ -39,7 +39,10 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        if (!"XMLHttpRequest".equalsIgnoreCase(httpServletRequest.getHeader("X-Requested-With"))) {
+            httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
+        }
         ArrayList<String> acceptHeader = getAcceptHeader(request);
         String contentType = getMatchingHeader(acceptHeader, "application/vnd\\.go\\.cd\\.v.\\+json");
 

@@ -18,9 +18,16 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.update.CreateArtifactStoreConfigCommand;
+import com.thoughtworks.go.config.update.DeleteArtifactStoreConfigCommand;
+import com.thoughtworks.go.config.update.UpdateArtifactStoreConfigCommand;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.string;
 
 @Component
 public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
@@ -41,18 +48,18 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
         return goConfigService.artifactStores();
     }
 
-//    public void create(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-//        update(currentUser, newArtifactStore, result, new ArtifactStoreCreateCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
-//    }
-//
-//    public void update(Username currentUser, String md5, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-//        update(currentUser, newArtifactStore, result, new ArtifactStoreUpdateCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result, hashingService, md5));
-//    }
-//
-//    public void delete(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-//        update(currentUser, newArtifactStore, result, new ArtifactStoreDeleteCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
-//        if (result.isSuccessful()) {
-//            result.setMessage(string("RESOURCE_DELETE_SUCCESSFUL", "artifactStore", newArtifactStore.getId()));
-//        }
-//    }
+    public void create(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
+        update(currentUser, newArtifactStore, result, new CreateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
+    }
+
+    public void update(Username currentUser, String md5, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
+        update(currentUser, newArtifactStore, result, new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result, hashingService, md5));
+    }
+
+    public void delete(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
+        update(currentUser, newArtifactStore, result, new DeleteArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
+        if (result.isSuccessful()) {
+            result.setMessage(string("RESOURCE_DELETE_SUCCESSFUL", "artifactStore", newArtifactStore.getId()));
+        }
+    }
 }

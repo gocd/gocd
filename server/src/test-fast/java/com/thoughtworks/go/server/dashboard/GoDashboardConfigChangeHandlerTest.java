@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,37 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigHolder;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.GoDashboardService;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardConfigChangeHandlerTest {
     @Mock
     private GoDashboardService cacheUpdateService;
+    @Mock
+    private GoConfigService goConfigService;
 
     private GoDashboardConfigChangeHandler handler;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        handler = new GoDashboardConfigChangeHandler(cacheUpdateService);
+        when(goConfigService.combinedMD5()).thenReturn(new GoConfigHolder.Checksum("config-md5", "partials-md5"));
+        handler = new GoDashboardConfigChangeHandler(cacheUpdateService, goConfigService);
     }
 
     @Test
     public void shouldReplaceAllEntriesInCacheWithNewEntriesWhenTheWholeConfigHasChanged() throws Exception {
+        when(goConfigService.combinedMD5()).thenReturn(new GoConfigHolder.Checksum("config-md5-1", "partials-md5"));
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2");
 
         handler.call(config);
@@ -58,5 +64,17 @@ public class GoDashboardConfigChangeHandlerTest {
         handler.call(pipelineConfig);
 
         verify(cacheUpdateService).updateCacheForPipeline(pipelineConfig);
+    }
+
+    @Test
+    public void shouldUpdateTheFullConfigOnlyIfTheConfigHasChangedFromLastUpdate(){
+        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2");
+        when(goConfigService.combinedMD5()).thenReturn(new GoConfigHolder.Checksum("config-md5-1", "partials-md5"));
+
+        handler.call(config);
+        verify(cacheUpdateService).updateCacheForAllPipelinesIn(config);
+
+        handler.call(config);
+        verifyNoMoreInteractions(cacheUpdateService);
     }
 }

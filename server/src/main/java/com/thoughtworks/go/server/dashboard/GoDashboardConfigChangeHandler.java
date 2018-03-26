@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigHolder;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,18 +27,33 @@ import org.springframework.stereotype.Component;
 /* Understands what needs to be done to keep the dashboard cache updated, when the config changes. */
 @Component
 public class GoDashboardConfigChangeHandler {
+    private GoConfigHolder.Checksum configChecksum;
     private GoDashboardService cacheUpdateService;
+    private GoConfigService goConfigService;
+    private static Object mutexForConfigChecksum = new Object();
 
     @Autowired
-    public GoDashboardConfigChangeHandler(GoDashboardService cacheUpdateService) {
+    public GoDashboardConfigChangeHandler(GoDashboardService cacheUpdateService, GoConfigService goConfigService) {
         this.cacheUpdateService = cacheUpdateService;
+        this.goConfigService = goConfigService;
+        configChecksum = goConfigService.combinedMD5();
     }
 
     public void call(PipelineConfig pipelineConfig) {
-        cacheUpdateService.updateCacheForPipeline(pipelineConfig);
+        synchronized (mutexForConfigChecksum) {
+            cacheUpdateService.updateCacheForPipeline(pipelineConfig);
+            configChecksum = goConfigService.combinedMD5();
+        }
     }
 
     public void call(CruiseConfig config) {
-        cacheUpdateService.updateCacheForAllPipelinesIn(config);
+        if (!goConfigService.combinedMD5().equals(configChecksum)) {
+            synchronized (mutexForConfigChecksum) {
+                if (!goConfigService.combinedMD5().equals(configChecksum)) {
+                    cacheUpdateService.updateCacheForAllPipelinesIn(config);
+                    configChecksum = goConfigService.combinedMD5();
+                }
+            }
+        }
     }
 }

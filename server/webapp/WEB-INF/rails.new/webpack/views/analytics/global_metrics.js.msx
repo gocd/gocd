@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-(function() {
+(function () {
   "use strict";
 
   const m = require("mithril");
   const $ = require("jquery");
 
-  const PluginEndpoint           = require('rails-shared/plugin-endpoint');
-  const Frame                    = require('models/shared/frame');
-  const AnalyticsiFrameWidget    = require('views/shared/analytics_iframe_widget');
-  const Routes                   = require('gen/js-routes');
+  const GoCDLinkSupport       = require('views/analytics/helpers/gocd_link_support');
+  const PluginEndpoint        = require('rails-shared/plugin-endpoint');
+  const Frame                 = require('models/shared/frame');
+  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
+  const Routes                = require('gen/js-routes');
 
   const models = {};
 
   PluginEndpoint.define({
     "go.cd.analytics.v1.fetch-analytics": (message, trans) => {
-      const meta = message.head,
-           model = models[meta.uid],
+      const meta   = message.head,
+            model  = models[meta.uid],
 
-          params = $.extend({}, message.body),
-            type = params.type,
-          metric = params.metric;
+            params = $.extend({}, message.body),
+            type   = params.type,
+            metric = params.metric;
 
       delete params.type;
       delete params.metric;
@@ -42,6 +43,19 @@
       model.fetch(Routes.showAnalyticsPath(meta.pluginId, type, metric, params), (data, errors) => {
         trans.respond({data, errors});
       });
+    },
+
+    "go.cd.analytics.v1.link-to": (message, trans) => {
+      const params = $.extend({}, message.body);
+      const linkTo = params.link_to;
+      try {
+        GoCDLinkSupport[linkTo](params);
+        const success = `Successfully linked to ${linkTo} for ${JSON.stringify(params, null, 2)}`;
+        trans.respond({success});
+      } catch (e) {
+        const error = `Failed to link to '${linkTo}' for ${JSON.stringify(params, null, 2)}. Reason ${e}!`;
+        trans.respond({error});
+      }
     }
   });
 
@@ -58,15 +72,15 @@
 
   const GlobalMetrics = {
     view(vnode) { // eslint-disable-line no-unused-vars
-        const frames = [];
-        $.each(vnode.attrs.model.data, (pluginId, supportedAnalytics) => {
-          $.each(supportedAnalytics, (idx, sa) => {
-            const uid = `f-${pluginId}:${sa.id}:${idx}`,
-              model = ensureModel(uid, pluginId, sa.type, sa.id);
+      const frames = [];
+      $.each(vnode.attrs.model.data, (pluginId, supportedAnalytics) => {
+        $.each(supportedAnalytics, (idx, sa) => {
+          const uid   = `f-${pluginId}:${sa.id}:${idx}`,
+                model = ensureModel(uid, pluginId, sa.type, sa.id);
 
-            frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
-          });
+          frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, init: PluginEndpoint.init}));
         });
+      });
       return frames;
     }
   };

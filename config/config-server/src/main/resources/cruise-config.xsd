@@ -732,7 +732,7 @@
     <xsd:attribute name="src" type="xsd:string"/>
     <xsd:attribute name="dest" type="filePathType"/>
     <xsd:attribute name="id" type="nameType"/>
-    <xsd:attribute name="storeId" type="nameType"/>
+    <xsd:attribute name="storeId" type="xsd:string"/>
     <xsd:attribute name="type" use="required">
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">

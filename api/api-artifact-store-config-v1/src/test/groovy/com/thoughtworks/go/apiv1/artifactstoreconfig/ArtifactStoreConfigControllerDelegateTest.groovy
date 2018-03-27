@@ -110,6 +110,98 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
   }
 
   @Nested
+  class Show {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @BeforeEach
+      void setUp() {
+        when(artifactStoreService.findArtifactStore("test"))
+          .thenReturn(new ArtifactStore("docker", "cd.go.artifact.docker",
+          ConfigurationPropertyMother.create("RegistryURL", false, "http://foo")))
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "show"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath('/test'))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      HttpLocalizedOperationResult result
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+        this.result = new HttpLocalizedOperationResult()
+      }
+
+      @Test
+      void 'should render artifact store of specified id'() {
+        def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+
+        getWithApiHeader(controller.controllerPath('/test'))
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+      }
+
+      @Test
+      void 'should return 404 if the artifact store does not exist'() {
+        when(artifactStoreService.findArtifactStore('non-existent-store')).thenReturn(null)
+
+        getWithApiHeader(controller.controllerPath('/non-existent-store'))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should render 304 if etag matches'() {
+        def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker",
+          ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+
+        getWithApiHeader(controller.controllerPath('/test'), ['if-none-match': '"md5"'])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should render 200 if etag does not match'() {
+        def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker",
+          ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+
+        getWithApiHeader(controller.controllerPath('/test'), ['if-none-match': '"junk"'])
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+      }
+    }
+  }
+
+  @Nested
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {

@@ -105,6 +105,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
 
             get("", this::index);
+            get(Routes.ArtifactStoreConfig.NAME, this::show);
             post("", this::create);
             put(Routes.ArtifactStoreConfig.NAME, this::update);
             delete(Routes.ArtifactStoreConfig.NAME, this::destroy);
@@ -117,6 +118,17 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
         ArtifactStores artifactStores = artifactStoreService.getPluginProfiles();
         return writerForTopLevelObject(request, response,
                 outputWriter -> ArtifactStoresRepresenter.toJSON(outputWriter, artifactStores));
+    }
+
+    public String show(Request request, Response response) throws IOException {
+        ArtifactStore artifactStore = getEntityFromConfig(request.params("store_id"));
+
+        if (isGetOrHeadRequestFresh(request, artifactStore)) {
+            return notModified(response);
+        } else {
+            setEtagHeader(artifactStore, response);
+            return writerForTopLevelObject(request, response, writer -> ArtifactStoreRepresenter.toJSON(writer, artifactStore));
+        }
     }
 
     public String create(Request request, Response response) throws IOException {

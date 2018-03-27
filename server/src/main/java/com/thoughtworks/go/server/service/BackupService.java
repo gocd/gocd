@@ -76,7 +76,6 @@ public class BackupService implements BackupStatusProvider {
     private final ConfigRepository configRepository;
     private final Database databaseStrategy;
 
-    private GoMailSender mailSender;
     private volatile DateTime backupRunningSince;
     private volatile String backupStartedBy;
 
@@ -99,15 +98,12 @@ public class BackupService implements BackupStatusProvider {
         this.timeProvider = timeProvider;
     }
 
-    public void initialize() {
-        mailSender = goConfigService.getMailSender();
-    }
-
     public ServerBackup startBackup(Username username, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_BACKUP"), HealthStateType.unauthorised());
             return null;
         }
+        GoMailSender mailSender = goConfigService.getMailSender();
         synchronized (BACKUP_MUTEX) {
             DateTime now = timeProvider.currentDateTime();
             final File destDir = new File(backupLocation(), BACKUP + now.toString("YYYYMMdd-HHmmss"));

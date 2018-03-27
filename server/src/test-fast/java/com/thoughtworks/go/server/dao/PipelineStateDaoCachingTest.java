@@ -42,6 +42,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
@@ -117,25 +119,16 @@ public class PipelineStateDaoCachingTest {
 
     @Test
     public void lockPipeline_ShouldSavePipelineStateAndInvalidateCache() throws Exception {
-        final TransactionSynchronizationAdapter[] transactionSynchronizationAdapter = {null};
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                transactionSynchronizationAdapter[0].afterCommit();
-                return null;
-            }
-        });
-
+        final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapter[0] = adapter;
+                transactionSynchronizationAdapters.add(adapter);
                 return null;
             }
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
         PipelineState pipelineState = new PipelineState(pipeline.getName(), pipeline.getFirstStage().getIdentifier());
@@ -162,24 +155,16 @@ public class PipelineStateDaoCachingTest {
 
     @Test
     public void unlockPipeline_shouldSavePipelineStateAndInvalidateCache() throws Exception {
-        final TransactionSynchronizationAdapter[] transactionSynchronizationAdapter = {null};
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                transactionSynchronizationAdapter[0].afterCommit();
-                return null;
-            }
-        });
+        final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapter[0] = adapter;
+                transactionSynchronizationAdapters.add(adapter);
                 return null;
             }
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
         PipelineState pipelineState = new PipelineState(pipeline.getName(), pipeline.getFirstStage().getIdentifier());
@@ -194,6 +179,20 @@ public class PipelineStateDaoCachingTest {
         PipelineState savedPipelineState = pipelineStateArgumentCaptor.getValue();
         assertThat(savedPipelineState.isLocked(), is(false));
         assertThat(savedPipelineState.getLockedBy(), is(nullValue()));
+    }
+
+    private void setupTransactionTemplate(List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters) {
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+                callback.doInTransaction(new SimpleTransactionStatus());
+                for (TransactionSynchronizationAdapter synchronizationAdapter : transactionSynchronizationAdapters) {
+                    synchronizationAdapter.afterCommit();
+                }
+                return null;
+            }
+        });
     }
 
 }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -89,7 +90,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         clearLockedPipelineStateCache(stage.getIdentifier().getPipelineName());
     }
 
-    public void lockPipeline(final Pipeline pipeline) {
+    public void lockPipeline(final Pipeline pipeline, AfterCompletionCallback... callbacks) {
         synchronized (pipelineLockStateCacheKey(pipeline.getName())) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -98,6 +99,14 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                         @Override
                         public void afterCommit() {
                             clearLockedPipelineStateCache(pipeline.getName());
+                        }
+                    });
+                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCompletion(int status) {
+                            for(AfterCompletionCallback callback : callbacks) {
+                                callback.execute(status);
+                            }
                         }
                     });
                     final String pipelineName = pipeline.getName();
@@ -122,7 +131,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         goCache.remove(pipelineLockStateCacheKey(pipelineName));
     }
 
-    public void unlockPipeline(final String pipelineName) {
+    public void unlockPipeline(final String pipelineName, AfterCompletionCallback... afterCompletionCallbacks) {
         synchronized (pipelineLockStateCacheKey(pipelineName)) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -131,6 +140,14 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                         @Override
                         public void afterCommit() {
                             clearLockedPipelineStateCache(pipelineName);
+                        }
+                    });
+                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCompletion(int status) {
+                            for(AfterCompletionCallback callback : afterCompletionCallbacks) {
+                                callback.execute(status);
+                            }
                         }
                     });
 

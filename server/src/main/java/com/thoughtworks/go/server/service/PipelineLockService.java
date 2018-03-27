@@ -27,10 +27,13 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
+import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,12 +46,14 @@ public class PipelineLockService implements ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLockService.class);
     private final GoConfigService goConfigService;
     private PipelineStateDao pipelineStateDao;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
     private List<PipelineLockStatusChangeListener> listeners = new ArrayList<>();
 
     @Autowired
-    public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao) {
+    public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.goConfigService = goConfigService;
         this.pipelineStateDao = pipelineStateDao;
+        this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
     public void initialize() {
@@ -72,8 +77,14 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
-            pipelineStateDao.lockPipeline(pipeline);
-            notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
+            pipelineStateDao.lockPipeline(pipeline, new AfterCompletionCallback() {
+                @Override
+                public void execute(int status) {
+                    if(status == TransactionSynchronization.STATUS_COMMITTED) {
+                        notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
+                    }
+                }
+            });
         }
     }
 
@@ -91,8 +102,15 @@ public class PipelineLockService implements ConfigChangedListener {
     }
 
     public void unlock(String pipelineName) {
-        pipelineStateDao.unlockPipeline(pipelineName);
-        notifyListeners(PipelineLockStatusChangeListener.Event.unLock(pipelineName));
+        pipelineStateDao.unlockPipeline(pipelineName, new AfterCompletionCallback() {
+            @Override
+            public void execute(int status) {
+                if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                    return;
+                }
+                notifyListeners(PipelineLockStatusChangeListener.Event.unLock(pipelineName));
+            }
+        });
     }
 
     public boolean canScheduleStageInPipeline(PipelineIdentifier pipeline) {

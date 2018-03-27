@@ -27,9 +27,18 @@ const stageName       = (params) => params[STAGE_NAME_KEY];
 const stageCounter    = (params) => params[STAGE_COUNTER_KEY];
 const jobName         = (params) => params[JOB_NAME_KEY];
 
+const openLinkInNewTab = (link) => {
+  window.open(link, '_blank');
+};
+
 module.exports = {
   "job_details_page": (params) => {
     const jobDetailsPagePath = `/go/tab/build/detail/${pipelineName(params)}/${pipelineCounter(params)}/${stageName(params)}/${stageCounter(params)}/${jobName(params)}`;
-    window.open(jobDetailsPagePath, '_blank');
+    openLinkInNewTab(jobDetailsPagePath);
+  },
+
+  "pipeline_instance_page": (params) => {
+    const pipelineInstancePath = `/go/internal/pipelines/${pipelineName(params)}/${pipelineCounter(params)}`;
+    openLinkInNewTab(pipelineInstancePath);
   }
 };

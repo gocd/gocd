@@ -62,7 +62,7 @@
         errorAttrs = model.errors() ? { "data-error-text": model.errors() } : {};
 
       return <div class="frame-container" {...errorAttrs}>
-        <iframe sandbox="allow-scripts" {...attrs}></iframe>
+        <iframe sandbox="allow-scripts" {...attrs}/>
       </div>;
     }
 

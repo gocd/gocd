@@ -20,44 +20,16 @@
   const m = require("mithril");
   const $ = require("jquery");
 
-  const GoCDLinkSupport       = require('views/analytics/helpers/gocd_link_support');
-  const PluginEndpoint        = require('rails-shared/plugin-endpoint');
-  const Frame                 = require('models/shared/frame');
-  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
-  const Routes                = require('gen/js-routes');
+  const PluginEndpointRequestHandler = require('views/analytics/helpers/plugin_endpoint_request_handler');
+  const PluginEndpoint               = require('rails-shared/plugin-endpoint');
+  const Frame                        = require('models/shared/frame');
+  const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
+  const Routes                       = require('gen/js-routes');
 
   const models = {};
 
-  PluginEndpoint.define({
-    "go.cd.analytics.v1.fetch-analytics": (message, trans) => {
-      const meta   = message.head,
-            model  = models[meta.uid],
-
-            params = $.extend({}, message.body),
-            type   = params.type,
-            metric = params.metric;
-
-      delete params.type;
-      delete params.metric;
-
-      model.fetch(Routes.showAnalyticsPath(meta.pluginId, type, metric, params), (data, errors) => {
-        trans.respond({data, errors});
-      });
-    },
-
-    "go.cd.analytics.v1.link-to": (message, trans) => {
-      const params = $.extend({}, message.body);
-      const linkTo = params.link_to;
-      try {
-        GoCDLinkSupport[linkTo](params);
-        const success = `Successfully linked to ${linkTo} for ${JSON.stringify(params, null, 2)}`;
-        trans.respond({success});
-      } catch (e) {
-        const error = `Failed to link to '${linkTo}' for ${JSON.stringify(params, null, 2)}. Reason ${e}!`;
-        trans.respond({error});
-      }
-    }
-  });
+  PluginEndpointRequestHandler.defineLinkHandler();
+  PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
 
   function ensureModel(uid, pluginId, type, id) {
     let model = models[uid];

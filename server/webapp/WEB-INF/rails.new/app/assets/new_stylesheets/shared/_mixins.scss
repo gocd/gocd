@@ -37,5 +37,4 @@
 
 @mixin commit-message($line-count) {
   @include truncate-to-lines($line-count: $line-count);
-  font-family: $font-family-monospace;
 }

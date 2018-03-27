@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/* eslint-disable */
 (function () {
   "use strict";
 
@@ -45,12 +46,12 @@
   };
 
   var GoCDLinkSupport = {
-    "job_details_page": function job_details_page(params) {
+    "job_details_page": function jobDetailsPage(params) {
       var jobDetailsPagePath = '/go/tab/build/detail/' + pipelineName(params) + '/' + pipelineCounter(params) + '/' + stageName(params) + '/' + stageCounter(params) + '/' + jobName(params);
       openLinkInNewTab(jobDetailsPagePath);
     },
 
-    "pipeline_instance_page": function pipeline_instance_page(params) {
+    "pipeline_instance_page": function pipelineInstancePage(params) {
       var pipelineInstancePath = '/go/internal/pipelines/' + pipelineName(params) + '/' + pipelineCounter(params);
       openLinkInNewTab(pipelineInstancePath);
     }

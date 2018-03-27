@@ -24,6 +24,18 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Spark Artifact Store Index API</name>
+        <from>^/api/admin/artifact_stores</from>
+        <to last="true">/spark/api/admin/artifact_stores</to>
+    </rule>
+
+    <rule>
+        <name>Spark Artifact Store API</name>
+        <from>^/api/admin/artifact_stores/(.*)$</from>
+        <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>
+    </rule>
+
+    <rule>
         <name>Plugins SPA</name>
         <from>^/admin/plugins(/?)$</from>
         <to last="true">/spark/admin/plugins</to>

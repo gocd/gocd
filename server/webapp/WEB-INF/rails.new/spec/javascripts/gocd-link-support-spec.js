@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-describe("GoCD Link Support", () => {
-  const GoCDLinkSupport = require("views/analytics/helpers/gocd_link_support");
+'use strict';
 
-  beforeEach(() => {
+describe("GoCD Link Support", function () {
+  beforeEach(function () {
     spyOn(window, 'open');
   });
 
-  it('should link to job details page', () => {
-    const linkTo = 'job_details_page';
-    const params = {
+  it('should link to job details page', function () {
+    var linkTo = 'job_details_page';
+    var params = {
       'pipeline_name':    'up42',
       'pipeline_counter': 1,
       'stage_name':       'up42_stage',
@@ -34,7 +34,7 @@ describe("GoCD Link Support", () => {
     GoCDLinkSupport[linkTo](params);
 
     expect(window.open).toHaveBeenCalled();
-    const jobDetailsPagePath = window.open.calls.mostRecent().args[0];
-    expect(jobDetailsPagePath).toBe(`/go/tab/build/detail/${params.pipeline_name}/${params.pipeline_counter}/${params.stage_name}/${params.stage_counter}/${params.job_name}`);
+    var jobDetailsPagePath = window.open.calls.mostRecent().args[0];
+    expect(jobDetailsPagePath).toBe('/go/tab/build/detail/' + params.pipeline_name + '/' + params.pipeline_counter + '/' + params.stage_name + '/' + params.stage_counter + '/' + params.job_name);
   });
 });

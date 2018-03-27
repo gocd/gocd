@@ -5,6 +5,7 @@
     modal: function(options) {
       var div = document.createElement("div");
 
+      PluginEndpointRequestHandler.defineLinkHandler();
       PluginEndpoint.ensure();
       $(div).addClass("analytics-plugin").dialog({
         title: options.title || "Analytics",

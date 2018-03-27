@@ -20,7 +20,7 @@
   const m = require("mithril");
   const $ = require("jquery");
 
-  const PluginEndpointRequestHandler = require('views/analytics/helpers/plugin_endpoint_request_handler');
+  const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
   const PluginEndpoint               = require('rails-shared/plugin-endpoint');
   const Frame                        = require('models/shared/frame');
   const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');

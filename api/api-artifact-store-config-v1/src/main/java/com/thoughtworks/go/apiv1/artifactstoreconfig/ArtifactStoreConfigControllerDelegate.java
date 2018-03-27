@@ -40,6 +40,8 @@ import spark.Response;
 import java.io.IOException;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
 import static spark.Spark.*;
 
 public class ArtifactStoreConfigControllerDelegate extends ApiController implements CrudController<ArtifactStore> {
@@ -74,7 +76,8 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
 
     @Override
     public ArtifactStore getEntityFromRequestBody(Request req) {
-        return null;
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        return ArtifactStoreRepresenter.fromJSON(jsonReader);
     }
 
     @Override
@@ -104,6 +107,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
 
             get("", this::index);
             post("", this::create);
+            put(Routes.ArtifactStoreConfig.NAME, this::update);
         });
     }
 
@@ -114,8 +118,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     }
 
     public String create(Request request, Response response) throws IOException {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        ArtifactStore artifactStore = ArtifactStoreRepresenter.fromJSON(jsonReader);
+        ArtifactStore artifactStore = getEntityFromRequestBody(request);
 
         haltIfEntityWithSameIdExists(request, artifactStore);
 
@@ -123,6 +126,27 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
         artifactStoreService.create(currentUsername(), artifactStore, result);
 
         return handleCreateOrUpdateResponse(request, response, artifactStore, result);
+    }
+
+    public String update(Request req, Response res) throws IOException {
+        ArtifactStore artifactStoreFromServer = artifactStoreService.findArtifactStore(req.params("store_id"));
+        ArtifactStore artifactStoreFromRequest = getEntityFromRequestBody(req);
+
+        if (isRenameAttempt(artifactStoreFromServer, artifactStoreFromRequest)) {
+            throw haltBecauseRenameOfEntityIsNotSupported("artifactStore");
+        }
+
+        if (!isPutRequestFresh(req, artifactStoreFromServer)) {
+            throw haltBecauseEtagDoesNotMatch("artifactStore", artifactStoreFromServer.getId());
+        }
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        artifactStoreService.update(currentUsername(), etagFor(artifactStoreFromServer), artifactStoreFromRequest, result);
+        return handleCreateOrUpdateResponse(req, res, artifactStoreFromRequest, result);
+    }
+
+    private boolean isRenameAttempt(ArtifactStore fromServer, ArtifactStore fromRequest) {
+        return !fromServer.getId().equalsIgnoreCase(fromRequest.getId());
     }
 
     private void haltIfEntityWithSameIdExists(Request req, ArtifactStore artifactStore) throws IOException {

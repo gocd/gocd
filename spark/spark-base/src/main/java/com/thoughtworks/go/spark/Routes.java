@@ -188,6 +188,7 @@ public class Routes {
 
     public class ArtifactStoreConfig {
         public static final String BASE = "/api/admin/artifact_stores";
+        public static final String NAME = "/:store_id";
     }
 
     public class AgentsSPA {

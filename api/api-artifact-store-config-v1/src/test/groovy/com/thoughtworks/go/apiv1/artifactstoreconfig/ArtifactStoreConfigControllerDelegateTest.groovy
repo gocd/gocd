@@ -42,9 +42,8 @@ import org.mockito.invocation.InvocationOnMock
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
-import static org.mockito.Mockito.never
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<ArtifactStoreConfigControllerDelegate>, SecurityServiceTrait {
@@ -185,6 +184,69 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
           .hasJsonAtrribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStore) }))
       }
 
+    }
+  }
+
+  @Nested
+  class Update {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "update"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath("/test"), '{}')
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should fail update if etag does not match'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'some-string'], toObjectString({
+          ArtifactStoreRepresenter.toJSON(it, artifactStore)
+        }))
+
+        assertThatResponse().isPreconditionFailed()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(etagDoesNotMatch("artifactStore", "test"))
+      }
+
+      @Test
+      void 'should proceed with update if etag matches'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        def newArtifactStore = new ArtifactStore("test", "cd.go.artifact.artifactory", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+        when(entityHashingService.md5ForEntity(newArtifactStore)).thenReturn('new-md5')
+
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-md5'], toObjectString({
+          ArtifactStoreRepresenter.toJSON(it, newArtifactStore)
+        }))
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"new-md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
+      }
     }
   }
 }

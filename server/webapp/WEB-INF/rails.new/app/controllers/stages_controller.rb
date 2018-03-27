@@ -25,6 +25,7 @@ class StagesController < ApplicationController
   before_filter :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline]
   before_filter :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_filter :set_format, :only => :tests
+  before_filter :load_pipeline_instance, :only => :redirect_to_first_stage
 
   STAGE_HISTORY_PAGE_SIZE = 10
 
@@ -124,17 +125,23 @@ class StagesController < ApplicationController
   end
 
   def redirect_to_first_stage
-    pipeline_name = params[:pipeline_name]
-    pipeline_counter = params[:pipeline_counter].to_i
-    pipeline_instance = pipeline_history_service.findPipelineInstance(pipeline_name, pipeline_counter, current_user, HttpOperationResult.new)
-    stage_instance = pipeline_instance.getStageHistory.first
+    stage_instance = @pipeline_instance.getStageHistory.first
     stage_name = stage_instance.getName
     stage_counter = stage_instance.getCounter
 
-    redirect_to stage_detail_tab_path(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
+    redirect_to stage_detail_tab_path(pipeline_name: params[:pipeline_name], pipeline_counter: params[:pipeline_counter], stage_name: stage_name, stage_counter: stage_counter)
   end
 
   private
+
+  def load_pipeline_instance
+    pipeline_name = params[:pipeline_name]
+    pipeline_counter = params[:pipeline_counter].to_i
+    @pipeline_instance = pipeline_history_service.findPipelineInstance(pipeline_name, pipeline_counter, current_user, HttpOperationResult.new)
+    if @pipeline_instance.nil?
+      render_error_template "Pipeline instance for the pipeline with name:'#{pipeline_name}', counter:#{pipeline_counter} not found.", 404
+    end
+  end
 
   def can_continue result
     unless result.canContinue()

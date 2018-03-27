@@ -701,5 +701,14 @@ describe StagesController do
       expect(response.status).to eq(302)
       expect(response).to redirect_to("/pipelines/#{pipeline_name}/1/#{stage_name}/1")
     end
+
+    it 'should render not found page when pipeline instance for the provided pipeline name is not present' do
+      pipeline_name = "pipeline_name"
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with(pipeline_name, 1, @user, @status).and_return(nil)
+
+      get :redirect_to_first_stage, pipeline_name: 'pipeline_name', pipeline_counter: 1
+
+      expect(response.status).to eq(404)
+    end
   end
 end

@@ -18,7 +18,9 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.artifactstoreconfig.ArtifactStoreConfigControllerDelegate;
+import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,8 +31,10 @@ public class ArtifactStoreConfigController implements SparkSpringController {
     private final ArtifactStoreConfigControllerDelegate delegate;
 
     @Autowired
-    public ArtifactStoreConfigController(ApiAuthenticationHelper apiAuthenticationHelper, ArtifactStoreService artifactStoreService) {
-        delegate = new ArtifactStoreConfigControllerDelegate(apiAuthenticationHelper, artifactStoreService);
+    public ArtifactStoreConfigController(ApiAuthenticationHelper apiAuthenticationHelper, ArtifactStoreService artifactStoreService,
+                                         EntityHashingService entityHashingService, Localizer localizer) {
+        delegate = new ArtifactStoreConfigControllerDelegate(apiAuthenticationHelper, artifactStoreService,
+                entityHashingService, localizer);
     }
 
     @Override

@@ -18,7 +18,12 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArtifactStoreRepresenter {
     public static void toJSON(OutputWriter outputWriter, ArtifactStore store) {
@@ -30,5 +35,24 @@ public class ArtifactStoreRepresenter {
                                 listWriter.addChild(propertyWriter ->
                                         ConfigurationPropertyRepresenter.toJSON(propertyWriter, property))));
 
+    }
+
+    public static ArtifactStore fromJSON(JsonReader jsonReader) {
+        List<ConfigurationProperty> configurationProperties = readConfigurationProperties(jsonReader);
+        return new ArtifactStore(
+                jsonReader.getString("id"),
+                jsonReader.getString("plugin_id"),
+                configurationProperties.toArray(new ConfigurationProperty[]{}));
+
+    }
+
+    private static List<ConfigurationProperty> readConfigurationProperties(JsonReader jsonReader) {
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        jsonReader.readArrayIfPresent("properties", properties -> {
+            properties.forEach(property ->
+                    configurationProperties.add(ConfigurationPropertyRepresenter.fromJSON(
+                            new JsonReader(property.getAsJsonObject()))));
+        });
+        return configurationProperties;
     }
 }

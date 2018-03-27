@@ -43,4 +43,13 @@ public class StageNotificationData implements Serializable {
     public String getPipelineGroup() {
         return pipelineGroup;
     }
+
+    @Override
+    public String toString() {
+        return "StageNotificationData{" +
+                "stage=" + stage +
+                ", buildCause=" + buildCause +
+                ", pipelineGroup='" + pipelineGroup + '\'' +
+                '}';
+    }
 }

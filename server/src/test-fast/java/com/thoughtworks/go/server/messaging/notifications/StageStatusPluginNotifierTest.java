@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.plugin;
+package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -42,20 +40,16 @@ public class StageStatusPluginNotifierTest {
     @Mock
     private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
-    private PluginNotificationQueue pluginNotificationQueue;
-    @Mock
     private Stage stage;
+    @Mock
+    private PluginNotificationService pluginNotificationService;
 
-    private ArgumentCaptor<PluginNotificationMessage> captor;
     private StageStatusPluginNotifier stageStatusPluginNotifier;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-
-        captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
-
-        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, goConfigService, pipelineSqlMapDao, pluginNotificationQueue);
+        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
     @Test
@@ -64,7 +58,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService, never()).notifyStageStatus(stage);
     }
 
     @Test
@@ -76,7 +70,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService, never()).notifyStageStatus(stage);
     }
 
     @Test
@@ -91,12 +85,7 @@ public class StageStatusPluginNotifierTest {
         when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter())).thenReturn(BuildCause.createManualForced());
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(captor.capture());
-        assertThat(captor.getValue().getData() instanceof StageNotificationData, is(true));
-        StageNotificationData data = (StageNotificationData) captor.getValue().getData();
-        assertThat(data.getStage(), is(stage));
-        assertThat(data.getBuildCause(), is(BuildCause.createManualForced()));
-        assertThat(data.getPipelineGroup(), is("group1"));
+        verify(pluginNotificationService).notifyStageStatus(stage);
     }
 
     @Test
@@ -109,7 +98,7 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService).notifyStageStatus(stage);
     }
 
     @Test
@@ -122,6 +111,6 @@ public class StageStatusPluginNotifierTest {
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
-        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+        verify(pluginNotificationService).notifyStageStatus(stage);
     }
 }

@@ -68,9 +68,13 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
         String pluginId = message.pluginId();
         try {
             if (queues.containsKey(pluginId)) {
-                queues.get(pluginId).post(message, timeToLive);
+                PluginAwareMessageQueue queue = queues.get(pluginId);
+                LOGGER.debug("Posting message {} to queue {}", message, queue.queueName);
+                queue.post(message, timeToLive);
+                LOGGER.debug("Message {} posted to queue {}", message, queue.queueName);
             } else {
                 LOGGER.error("Could not find a queue for {}", pluginId);
+                //TODO: Add server health error
             }
         } catch (Exception e) {
             LOGGER.error("Failed while posting to queue for plugin {}. The error was {}", pluginId, e.getMessage(), e);

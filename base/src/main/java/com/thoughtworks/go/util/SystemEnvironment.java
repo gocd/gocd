@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,8 +142,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.session.timeout.seconds", 60 * 60 * 24 * 14);
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_COOKIE_MAX_AGE_IN_SECONDS = new GoIntSystemProperty("go.sessioncookie.maxage.seconds", 60 * 60 * 24 * 14);
     public static final GoSystemProperty<Boolean> GO_SERVER_SESSION_COOKIE_SECURE = new GoBooleanSystemProperty("go.sessioncookie.secure", false);
-
-    public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
@@ -479,10 +477,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getNumberOfDependencyMaterialUpdateListeners() {
         return DEPENDENCY_MATERIAL_UPDATE_LISTENERS.getValue();
-    }
-
-    public int getNumberOfPluginNotificationListener() {
-        return PLUGIN_NOTIFICATION_LISTENER_COUNT.getValue();
     }
 
     public String getAgentMd5() {
@@ -874,6 +868,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static Integer goSpaTimeout() {
         return GO_SPA_TIMEOUT.getValue();
+    }
+
+    public Integer getNotificationListenerCountForPlugin(String pluginId) {
+        return Integer.parseInt(getPropertyImpl("plugin." + pluginId + ".notifications.listener.count", "1"));
     }
 
     public static abstract class GoSystemProperty<T> {

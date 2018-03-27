@@ -26,7 +26,7 @@ import java.util.HashMap;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class PluginAwareMessageQueue extends GoMessageQueue {
-    final HashMap<String, ArrayList<JMSMessageListenerAdapter>> listeners = new HashMap<>();
+    protected final HashMap<String, ArrayList<JMSMessageListenerAdapter>> listeners = new HashMap<>();
     private final String pluginId;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueue.class.getName());
 

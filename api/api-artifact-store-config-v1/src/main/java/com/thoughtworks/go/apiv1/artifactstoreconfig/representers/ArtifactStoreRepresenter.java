@@ -18,12 +18,15 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ArtifactStoreRepresenter {
     public static void toJSON(OutputWriter outputWriter, ArtifactStore store) {
@@ -34,7 +37,10 @@ public class ArtifactStoreRepresenter {
                         store.forEach(property ->
                                 listWriter.addChild(propertyWriter ->
                                         ConfigurationPropertyRepresenter.toJSON(propertyWriter, property))));
-
+        if (store.hasErrors()) {
+            Map<String, String> fieldMapping = Collections.singletonMap("pluginId", "plugin_id");
+            outputWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, store));
+        }
     }
 
     public static ArtifactStore fromJSON(JsonReader jsonReader) {

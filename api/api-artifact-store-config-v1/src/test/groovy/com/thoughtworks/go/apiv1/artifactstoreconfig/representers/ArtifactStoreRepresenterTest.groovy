@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.ArtifactStore
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class ArtifactStoreRepresenterTest {
@@ -28,20 +30,45 @@ class ArtifactStoreRepresenterTest {
   def artifactStore = [
     id          : 'docker',
     plugin_id   : 'cd.go.artifact.docker',
-    "properties": [
+    properties: [
       [
         "key"  : "RegistryURL",
         "value": "http://foo"
       ]
-    ],
+    ]
   ]
 
   @Test
   void shouldCreateObjectFromJson() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(artifactStore)
-    def expectedObject = new ArtifactStore('docker', 'cd.go.artifact.docker', ConfigurationPropertyMother.create('RegistryURL', false, 'http://foo'))
+    def expectedObject = new ArtifactStore('docker', 'cd.go.artifact.docker',
+      ConfigurationPropertyMother.create('RegistryURL', false, 'http://foo'))
     def object = ArtifactStoreRepresenter.fromJSON(jsonReader)
     assertThat(object).isEqualTo(expectedObject)
+  }
+
+  @Test
+  void shouldAddErrorsToJson() {
+    def artifactStore = new ArtifactStore('docker', 'cd.go.artifact.docker',
+      ConfigurationPropertyMother.create('RegistryURL', false, 'http://foo'))
+    artifactStore.addError("pluginId", "Invalid Plugin Id")
+    def expectedJson = [
+      id          : 'docker',
+      plugin_id   : 'cd.go.artifact.docker',
+      properties: [
+        [
+          "key"  : "RegistryURL",
+          "value": "http://foo"
+        ]
+      ],
+      errors: [
+        "plugin_id": ["Invalid Plugin Id"]
+      ]
+    ]
+
+    def json = toObjectString({ ArtifactStoreRepresenter.toJSON(it, artifactStore) })
+
+    assertThatJson(json).isEqualTo(expectedJson)
   }
 
 }

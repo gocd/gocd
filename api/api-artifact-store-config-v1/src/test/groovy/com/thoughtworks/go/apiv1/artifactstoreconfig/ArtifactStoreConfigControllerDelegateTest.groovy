@@ -265,6 +265,8 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
       void 'should check for artifact store with same id'() {
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
         when(artifactStoreService.findArtifactStore("test")).thenReturn(artifactStore)
+        def artifactStoreWithError = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        artifactStoreWithError.addError("id", "Artifact store ids should be unique. Artifact store with the same id exists.")
 
         postWithApiHeader(controller.controllerPath(), toObjectString({
           ArtifactStoreRepresenter.toJSON(it, artifactStore)
@@ -276,7 +278,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
           .isUnprocessibleEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("artifactStore", "test"))
-          .hasJsonAtrribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStore) }))
+          .hasJsonAtrribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStoreWithError) }))
       }
 
     }

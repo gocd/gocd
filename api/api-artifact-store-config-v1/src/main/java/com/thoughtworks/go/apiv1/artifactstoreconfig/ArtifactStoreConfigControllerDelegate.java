@@ -30,7 +30,6 @@ import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStores
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -48,25 +47,18 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final ArtifactStoreService artifactStoreService;
     private final EntityHashingService entityHashingService;
-    private final Localizer localizer;
 
     public ArtifactStoreConfigControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, ArtifactStoreService artifactStoreService,
-                                                 EntityHashingService entityHashingService, Localizer localizer) {
+                                                 EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.artifactStoreService = artifactStoreService;
         this.entityHashingService = entityHashingService;
-        this.localizer = localizer;
     }
 
     @Override
     public String etagFor(ArtifactStore entityFromServer) {
         return entityHashingService.md5ForEntity(entityFromServer);
-    }
-
-    @Override
-    public Localizer getLocalizer() {
-        return localizer;
     }
 
     @Override
@@ -165,7 +157,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         artifactStoreService.delete(currentUsername(), artifactStore, result);
 
-        return renderHTTPOperationResult(result, request, response, localizer);
+        return renderHTTPOperationResult(result, request, response);
     }
 
     private boolean isRenameAttempt(ArtifactStore fromServer, ArtifactStore fromRequest) {

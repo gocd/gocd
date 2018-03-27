@@ -4,7 +4,7 @@
     <%= md5_field %>
     <div class="form_content exec_task_editor">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-        <h3><%= l.string("BASIC_SETTINGS") %></h3>
+        <h3>Basic Settings</h3>
         <div id="task">
             <div class="task fieldset">
                 <%== render_pluggable_form_template(scope[:tvm], form_name_provider(f), { :scope => {:task => scope[:task], :form => f}}) -%>
@@ -15,11 +15,11 @@
                 <% end %>
                 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
             </div>
-            <h3><%= l.string("TASK_ADVANCED_OPTIONS") %></h3>
+            <h3>Advanced Options</h3>
             <%= render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => f, :config_store => scope[:config_store]}} %>
         </div>
     </div>
-    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => l.string("SAVE")}} %>
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => 'SAVE'}} %>
     <%= render :partial => 'shared/convert_tool_tips.html' %>
 <% end %>
 

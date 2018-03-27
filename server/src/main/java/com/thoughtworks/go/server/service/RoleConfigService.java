@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+
 @Component
 public class RoleConfigService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RoleConfigService.class);
@@ -68,11 +71,11 @@ public class RoleConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(role), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the role config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the role config. Please check the logs for more information."));
                 }
             }
         }
@@ -94,7 +97,7 @@ public class RoleConfigService {
     public void delete(Username currentUser, Role role, LocalizedOperationResult result) {
         update(currentUser, role, result, new RoleConfigDeleteCommand(goConfigService, role, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", getTagName(role).toLowerCase(), role.getName()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful(getTagName(role).toLowerCase(), role.getName()));
         }
     }
 

@@ -24,13 +24,11 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +36,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -68,7 +68,7 @@ public class PluginProfileCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class PluginProfileCommandTest {
             if (goConfigService.isUserAdmin(currentUser)) {
                 return true;
             }
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
     }

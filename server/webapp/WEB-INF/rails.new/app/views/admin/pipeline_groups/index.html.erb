@@ -1,16 +1,16 @@
 <%- @tab_name = 'pipeline-groups' -%>
-<%- @view_title = l.string("ADMINISTRATION") %>
+<%- @view_title = 'Administration' %>
 
 <div class="group_pipelines">
   <h1>
     Pipelines
     <span class="title_secondary_info">
 			<% if @groups.size() == 0 %>
-                <%= link_to l.string("ADD_FIRST_PIPELINE"), pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
+                <%= link_to 'Create a new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
 		    <% end %>
       <% if is_user_an_admin? %>
-		            <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_PIPELINE_GROUP") -%>'})">
-		                <%= l.string("ADD_NEW_PIPELINE_GROUP") -%>
+		            <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: 'Add New Pipeline Group'})">
+		                Add New Pipeline Group
 		            </a>
 		    <% end %>
 		</span>
@@ -26,7 +26,7 @@
         <div class="title_action_wrapper">
           <ul>
             <li>
-              <%= link_to l.string("EDIT"), pipeline_group_edit_path(:group_name => group.getGroup()), :class => "group_name_edit action_icon edit_icon" %>
+              <%= link_to 'Edit', pipeline_group_edit_path(:group_name => group.getGroup()), :class => "group_name_edit action_icon edit_icon" %>
             </li>
             <li>
               <% if is_user_an_admin? %>
@@ -39,18 +39,18 @@
 
         <% if group.isEmpty() %>
             <div class="no_pipeline_in_group">
-              <div class="information"><%= l.string("NO_PIPELINE_IN_GROUP") %></div>
+              <div class="information">No pipelines associated with this group</div>
             </div>
             <div class="add_first_pipeline_in_group">
-              <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+              <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
             </div>
         <% else %>
 
             <table class="list_table">
               <thead>
               <tr class="pipeline">
-                <th class="name"><%= l.string("PIPELINE") %></th>
-                <th class="actions"><%= l.string("ACTIONS") %></th>
+                <th class="name">Pipeline</th>
+                <th class="actions">Actions</th>
               </tr>
               </thead>
               <tbody>
@@ -69,16 +69,16 @@
                       <ul>
                         <li>
                           <% if pipeline.isLocal() %>
-                                  <%= link_to l.string("EDIT"), edit_path_for_pipeline(pipeline.name()), :class => "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
+                                  <%= link_to 'Edit', edit_path_for_pipeline(pipeline.name()), :class => "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
                           <% else %>
-																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%= pipeline.name() -%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
-																					<%= l.string("EDIT") -%>
+																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%= pipeline.name() -%> action_icon" title="Cannot edit pipeline defined in configuration repository.">
+																					Edit
 																				</span>
                           <% end %>
                         </li>
                         <%- if pipeline.isLocal() && @groups.size() > 1 -%>
                             <li>
-                              <a id="a_move_<%= pipeline.name() -%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>
+                              <a id="a_move_<%= pipeline.name() -%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon">Move to
                                 <span class="for_down_arrow">&nbsp;</span>
                               </a>
                             </li>
@@ -87,12 +87,12 @@
                           <% if pipeline.isLocal() %>
                               <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
                               <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
-                                <%= l.string("CLONE") -%>
+                                Clone
                               </a>
                               <script type="text/javascript">
                                 Util.on_load(function () {
                                   jQuery("#<%=pipeline_random_id_for_clone-%>").live('click', function () {
-                                    var titleText = <%== "#{l.string("CLONE_PIPELINE")} - #{pipeline.name()}".to_json %>;
+                                    var titleText = <%== "#{'Clone Pipeline'} - #{pipeline.name()}".to_json %>;
                                     Util.ajax_modal("<%= pipeline_clone_path(:pipeline_name => pipeline.name(), :group => group.getGroup()) -%>", {
                                       width: 805,
                                       title: titleText
@@ -103,8 +103,8 @@
                                 });
                               </script>
                           <% else %>
-																				<span class="action_icon clone_icon_disabled clone_button_for_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_CLONE_REMOTE_PIPELINE") -%>">
-																					<%= l.string("CLONE") -%>
+																				<span class="action_icon clone_icon_disabled clone_button_for_<%= pipeline.name() -%>" title="Cannot clone pipeline defined in configuration repository.">
+																					Clone
 																				</span>
                           <% end %>
                         </li>
@@ -113,17 +113,17 @@
                         </li>
                         <li>
                           <% if pipeline.hasTemplate() %>
-                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE") -%>">
-                                                   <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
+                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="This pipeline is already using a template.">
+                                                   Extract Template
                                                </span>
                           <% elsif !pipeline.isLocal() %>
-	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE") -%>">
-	                                                   <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
+	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="This pipeline is defined in configuration repository.">
+	                                                   Extract Template
 	                                               </span>
                           <% else %>
                                                 <span class="title_secondary_info extract_template_for_pipeline_<%= pipeline.name() -%>">
-                                                <a href="#" class="add_link" onclick="Util.ajax_modal('<%= template_new_path(:pipelineToExtractFrom => pipeline.name()) -%>', {overlayClose: false, title: '<%= l.string("EXTRACT_NEW_TEMPLATE")-%>'}, function(text){return text})">
-                                                    <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
+                                                <a href="#" class="add_link" onclick="Util.ajax_modal('<%= template_new_path(:pipelineToExtractFrom => pipeline.name()) -%>', {overlayClose: false, title: 'Extract Template'}, function(text){return text})">
+                                                    Extract Template
                                                 </a>
                                              </span>
                           <% end %>
@@ -134,7 +134,7 @@
               <% end %>
               </tbody>
             </table>
-            <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+            <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
         <% end %>
       </div>
   <% end %>

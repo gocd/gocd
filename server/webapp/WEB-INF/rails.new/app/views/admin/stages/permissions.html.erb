@@ -1,7 +1,7 @@
 <div class="config-container">
-<h3><%= l.string('PERMISSIONS') %></h3>
+<h3>Permissions</h3>
 
-    <div class="instructions"><%= l.string("ADMIN_GROUP_ADMINS_CAN_OPERATE_MESSAGE") %></div>
+    <div class="instructions">All system administrators and pipeline group administrators can operate on this stage (this cannot be overridden).</div>
     <%= form_for(@stage,
                 :as => :stage,
                 :url => admin_stage_update_path,
@@ -13,23 +13,23 @@
         <div class="fieldset">
             <% stage_has_auth_defined = @stage.hasOperatePermissionDefined() %>
             <div class="form_item security_mode checkbox_row">
-                <span class="form_body_text"><%= l.string("FOR_THIS_STAGE") %></span>
+                <span class="form_body_text">For this stage:</span>
                 <%= radio_button_tag("stage[#{com.thoughtworks.go.config.StageConfig::SECURITY_MODE}]", "inherit", !stage_has_auth_defined, :id => "inherit_permissions", :class => "stage_security_mode") %>
-                <%= label_tag("inherit", "#{l.string("INHERIT_FROM_THE_PIPELINE_GROUP")}", :for => "inherit_permissions") %>
+                <%= label_tag("inherit", "#{'Inherit from the pipeline group'}", :for => "inherit_permissions") %>
                 <%= radio_button_tag("stage[#{com.thoughtworks.go.config.StageConfig::SECURITY_MODE}]", "define", stage_has_auth_defined, :id => "define_permissions", :class => "stage_security_mode") %>
-                <%= label_tag("", "#{l.string("SPECIFY_LOCALLY")}", :for => "define_permissions") %>
+                <%= label_tag("", "#{'Specify locally'}", :for => "define_permissions") %>
             </div>
             <div class="form_item">
                 <div class="inherited_permissions<%= " hidden" if stage_has_auth_defined %>">
                     <% unless @pipeline_group && @pipeline_group.hasOperationPermissionDefined() %>
-                        <div class="no_permissions_message information"><%= l.string("NO_OPERATE_PERMISSIONS_ON_GROUP_AND_STAGE") -%></div>
+                        <div class="no_permissions_message information">There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.</div>
                     <% else %>
                         <%= render :partial => "users_and_roles_from_group.html", :locals => {:scope => {:pipeline_group => @pipeline_group, :form => f}} %>
                     <% end %>
                 </div>
                 <div class="stage_permissions <%= " hidden" if !stage_has_auth_defined %>">
                     <% if @pipeline_group && @pipeline_group.hasOperationPermissionDefined() %>
-                        <div class="information"><%= l.string("ONLY_PIPELINE_GROUP_OPERATORS_AVAILABLE") -%></div>
+                        <div class="information">The pipeline group that this pipeline belongs to has permissions configured. You can add only those users and roles that have permissions to operate on this pipeline group.</div>
                     <% end %>
                     <% if @pipeline_group && @pipeline_group.hasOperationPermissionDefined() and !stage_has_auth_defined %>
                         <%= render :partial => "edit_permissions.html", :locals => {:scope => {:stage => @stage, :form => f, :user_collection => @pipeline_group.getOperateUsers(),

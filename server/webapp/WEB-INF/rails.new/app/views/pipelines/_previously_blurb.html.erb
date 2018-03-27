@@ -4,7 +4,7 @@
         <% scope[:active_stage] = scope[:active_pipeline_in_pipeline].activeStage() -%>
         <% if scope[:active_stage].hasPreviousStage() -%>
             <div class="previously">
-                <span class="label"><%=l.string("Previously Blurb")-%></span>
+                <span class="label">Previously: </span>
                 <% scope[:previous_stage] = scope[:active_stage].getPreviousStage() -%>
                 <% scope[:previous_stage_identifier] = scope[:previous_stage].getIdentifier() -%>
                 <% scope[:stage_result] = scope[:previous_stage].getResult() -%>

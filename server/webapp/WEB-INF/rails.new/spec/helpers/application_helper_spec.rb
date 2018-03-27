@@ -17,7 +17,6 @@
 require 'rails_helper'
 
 describe ApplicationHelper do
-  include RailsLocalizer
   include ApplicationHelper
 
   it "should generate a label tag with required asterisk" do
@@ -609,5 +608,9 @@ describe ApplicationHelper do
   it 'should encode cruise-config-md5 before allowing it to be displayed.' do
     allow(self).to receive(:cruise_config_md5).and_return("<foo>")
     expect(config_md5_field).to eq('<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="&lt;foo&gt;" />')
+  end
+
+  it 'should render duration to string' do
+    expect(duration_to_string(org.joda.time.Duration.new(1230 * 1000))).to eq('20 minutes and 30 seconds')
   end
 end

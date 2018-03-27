@@ -4,7 +4,7 @@
         new PackageMaterialCheckConnection("<%= package_repositories_check_connection_path%>").bind("#package_repositories_edit_form","#check_connection","#repository_connection_message");
 
         var url = '<%= package_repositories_plugin_config_path(:plugin => "$pluginid$") -%>';
-        var errorMessageHeading = '<%= l.string("GLOBAL_ERRORS_MESSAGE") -%>'
+        var errorMessageHeading = 'The following error(s) need to be resolved in order to perform this action:'
         new PackageRepositoryConfiguration("#package_repository_pluginConfiguration_id", "#pluginConfigurations", url, errorMessageHeading).init();
     });
 </script>

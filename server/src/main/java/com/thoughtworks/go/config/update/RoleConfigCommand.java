@@ -22,11 +22,12 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     protected final GoConfigService goConfigService;
@@ -186,7 +187,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        result.unauthorized(unauthorizedToEdit(), unauthorised());
         return false;
     }
 

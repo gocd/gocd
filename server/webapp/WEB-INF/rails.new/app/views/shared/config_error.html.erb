@@ -7,10 +7,10 @@
     </div>
     <% unless unauthorized_access -%>
         <div class="error-child-like-margin">
-            <span><%= l.string("JUMP_TO") -%></span>
-            <%= link_to l.string("PIPELINES_TITILEZED"), pipeline_groups_path -%>
-            <%= l.string("OPTION_SEPARATOR") -%>
-            <%= link_to l.string("TEMPLATES"), templates_path -%>
+            <span>Jump To:</span>
+            <%= link_to 'Pipelines', pipeline_groups_path -%>
+             | 
+            <%= link_to 'Templates', templates_path -%>
         </div>
     <% end -%>
 </div>

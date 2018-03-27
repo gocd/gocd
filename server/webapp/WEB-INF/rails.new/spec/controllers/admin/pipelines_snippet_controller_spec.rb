@@ -95,7 +95,7 @@ describe Admin::PipelinesSnippetController do
       it "should return unauthorized error if the user does not have access to the group" do
         expect(@result).to receive(:isSuccessful).and_return(false)
         expect(@result).to receive(:httpCode).and_return(401)
-        expect(@result).to receive(:message).with(anything).and_return("Unauthorized")
+        expect(@result).to receive(:message).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
         expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return(nil)
@@ -134,7 +134,7 @@ describe Admin::PipelinesSnippetController do
       it "should return unauthorized error if the user does not have access to the group" do
         expect(@result).to receive(:isSuccessful).and_return(false)
         expect(@result).to receive(:httpCode).and_return(401)
-        expect(@result).to receive(:message).with(anything).and_return("Unauthorized")
+        expect(@result).to receive(:message).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
         expect(@go_config_service).to receive(:getConfigForEditing).and_return(@config)
@@ -180,7 +180,7 @@ describe Admin::PipelinesSnippetController do
         expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
         updated_xml = "updated pipelines xml"
         expect(@result).to receive(:isSuccessful).and_return(false)
-        expect(@result).to receive(:message).with(anything).and_return("failed")
+        expect(@result).to receive(:message).and_return("failed")
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
         expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)
@@ -208,7 +208,7 @@ describe Admin::PipelinesSnippetController do
         expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
         updated_xml = "updated pipelines xml"
         expect(@result).to receive(:isSuccessful).and_return(false)
-        expect(@result).to receive(:message).with(anything).and_return("failed")
+        expect(@result).to receive(:message).and_return("failed")
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
         expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)

@@ -26,7 +26,6 @@ describe PipelinesController do
     @status = HttpOperationResult.new
     allow(HttpOperationResult).to receive(:new).and_return(@status)
     @localized_result = HttpLocalizedOperationResult.new
-    @subsection_result = SubsectionLocalizedOperationResult.new
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:current_user_entity_id).and_return(@user_id)
@@ -226,7 +225,7 @@ describe PipelinesController do
 
   it "should show error message if the user is not authorized to view the pipeline" do
     expect(@material_service).to receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
-      result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
+      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("pipeline"), nil)
     end
 
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
@@ -235,7 +234,7 @@ describe PipelinesController do
 
   it "should show error message if the user is not authorized to view the pipeline - with POST" do
     expect(@material_service).to receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
-      result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
+      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("pipeline"), nil)
     end
 
     post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
@@ -361,7 +360,7 @@ describe PipelinesController do
     context 'when the update is unauthorized' do
       it 'it returns 401' do
         allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user, @localized_result) do |_, _, _, _, result|
-          result.unauthorized(LocalizedMessage.cannotOperatePipeline("pipeline_name"), nil)
+          result.unauthorized('some message', nil)
         end
 
         post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json

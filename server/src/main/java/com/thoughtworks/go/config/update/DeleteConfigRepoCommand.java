@@ -27,6 +27,9 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
     private ConfigRepoConfig preprocessedConfigRepo;
     private SecurityService securityService;
@@ -73,7 +76,7 @@ public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<Config
 
     public boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

@@ -39,7 +39,7 @@ module Admin
 
     def search
       @users = user_search_service.search(params[:search_text], result = HttpLocalizedOperationResult.new)
-      result.hasMessage() && (@warning_message = result.message(Spring.bean('localizer')))
+      result.hasMessage() && (@warning_message = result.message())
     end
 
     def users
@@ -52,13 +52,13 @@ module Admin
     def operate
       operation = (params[:operation] || "").downcase
       if operation !~ /(enable|disable|apply_roles|add_role)/
-        redirect_with_flash(l.string("UNKNOWN_OPERATION"), :action => :users, :params => params.slice(:column, :order), :class => "error")
+        redirect_with_flash('Unknown operation', :action => :users, :params => params.slice(:column, :order), :class => "error")
         return
       end
 
       selected_users = params[:selected] || []
       if selected_users.empty?
-        redirect_with_flash(l.string("SELECT_AT_LEAST_ONE_USER"), :action => :users, :params => params.slice(:column, :order), :class => "error")
+        redirect_with_flash('Please select one or more users.', :action => :users, :params => params.slice(:column, :order), :class => "error")
         return
       end
       do_not_change_admin = TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.nochange)
@@ -71,7 +71,7 @@ module Admin
       else
         user_service.send(operation, selected_users, result = HttpLocalizedOperationResult.new)
       end
-      result_message, flash_class = result.isSuccessful ? [l.string("USER_#{params[:operation]}_SUCCESSFUL", [params[:selected].length]), "success"] : [result.message(localizer), "error"]
+      result_message, flash_class = result.isSuccessful ? [com.thoughtworks.go.i18n.LocalizedMessage::userOperationSuccessful(params[:operation], params[:selected].length), "success"] : [result.message(), "error"]
       redirect_with_flash(result_message, :action => :users, :params => params.slice(:column, :order), :class => flash_class)
     end
 

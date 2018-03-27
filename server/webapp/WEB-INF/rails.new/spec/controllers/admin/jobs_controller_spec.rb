@@ -159,7 +159,7 @@ describe Admin::JobsController do
 
       it "should load jobs back when delete fails" do
         stub_save_for_validation_error do |result, *_|
-          result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.conflict('some message')
         end
 
         delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines"
@@ -217,7 +217,7 @@ describe Admin::JobsController do
 
       it "should not redirect when update fails" do
         stub_save_for_validation_error do |result, *_|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
@@ -232,7 +232,7 @@ describe Admin::JobsController do
 
       it "should load resources for autocomplete even when update fails" do
         stub_save_for_validation_error do |result, *_|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
@@ -246,7 +246,7 @@ describe Admin::JobsController do
 
       it "should not load new config on save failure (validation / merge conflict)" do
         stub_save_for_validation_error do |result, *_|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
@@ -348,7 +348,7 @@ describe Admin::JobsController do
         expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
-          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          result.badRequest("Save failed, see errors below")
         end
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
 
@@ -380,7 +380,7 @@ describe Admin::JobsController do
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, *_|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
 
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"
@@ -399,7 +399,7 @@ describe Admin::JobsController do
         add_resource("job-2", "anything")
 
         stub_save_for_validation_error do |result, *_|
-          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          result.badRequest("Save failed, see errors below")
         end
 
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"

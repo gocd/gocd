@@ -21,13 +21,15 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.List;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
@@ -50,7 +52,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         List<CaseInsensitiveString> pipelinesAssociatedWithTemplate = preprocessedConfig.pipelinesAssociatedWithTemplate(templateConfig.name());
         if (!pipelinesAssociatedWithTemplate.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "template", templateConfig.name(), pipelinesAssociatedWithTemplate));
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines("template", templateConfig.name(), CaseInsensitiveString.toStringList(pipelinesAssociatedWithTemplate)));
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The template '%s' is being referenced by pipeline(s): %s", templateConfig.name(), pipelinesAssociatedWithTemplate));
         }
         return true;
@@ -63,7 +65,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

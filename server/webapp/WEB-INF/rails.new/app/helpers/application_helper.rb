@@ -17,7 +17,6 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Services
-  include RailsLocalizer
   include JavaImports
   include PrototypeHelper
 
@@ -66,6 +65,10 @@ module ApplicationHelper
   def stage_identifier_for_locator(stage_locator_string)
     stage_fragments = stage_locator_string.scan(/(.+)\/(\d+)\/(.+)\/(\d+)/).flatten
     com.thoughtworks.go.domain.StageIdentifier.new(stage_fragments[0], stage_fragments[1].to_i, stage_fragments[2], stage_fragments[3])
+  end
+
+  def duration_to_string(duration)
+    org.joda.time.format.PeriodFormat.getDefault().print(duration.toPeriod())
   end
 
   def tab_for(name, options = {})
@@ -412,11 +415,11 @@ module ApplicationHelper
     end
   end
 
-  def to_operation_result_json(localized_result, success_msg=localized_result.message(localizer))
+  def to_operation_result_json(localized_result, success_msg=localized_result.message())
     if localized_result.isSuccessful()
       {success: success_msg}.to_json
     else
-      {error: localized_result.message(localizer)}.to_json
+      {error: localized_result.message()}.to_json
     end
   end
 
@@ -433,18 +436,18 @@ module ApplicationHelper
   end
 
   def required_label(form, name, text)
-    text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text = text + "<span class='asterisk'>#{'*'}</span>"
     form.label(name, text.html_safe)
   end
 
   def required_label_text(text)
-    text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text = text + "<span class='asterisk'>#{'*'}</span>"
     text.html_safe
   end
 
   def label_with_hint(form, name, text, hint, required)
     if (required != nil)
-      text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+      text = text + "<span class='asterisk'>#{'*'}</span>"
     end
     text = text + "<span class='hint'>"+hint+"</span>"
     form.label(name, text.html_safe)

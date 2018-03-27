@@ -2,26 +2,26 @@
 <div class="sub_tabs_container">
     <ul class="tabs">
         <li>
-            <a href="#" onclick='location.href = "<%=agent_detail_path(:uuid => @agent.getUuid)-%>"'><%= l.string("DETAILS") -%></a>
+            <a href="#" onclick='location.href = "<%=agent_detail_path(:uuid => @agent.getUuid)-%>"'>Details</a>
         </li>
         <li class="current_tab">
-            <a href="#"><%= l.string("JOB_RUN_HISTORY") -%></a>
+            <a href="#">Job Run History</a>
         </li>
     </ul>
 </div>
 <% if @job_instances.isEmpty() %>
-    <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => l.string("AGENT_NO_JOB_RUN_HISTORY")}} -%>
+    <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'This agent has no completed job runs.'}} -%>
 <% else %>
     <div class="job_history_table">
         <table class="jobs list_table sortable_table">
             <thead>
             <tr class="header">
-                <th class="pipeline"><%== column_header(l.string("PIPELINE"), "pipeline") -%></th>
-                <th class="stage"><%== column_header(l.string("STAGE"), "stage") -%></th>
-                <th class="job"><%== column_header(l.string("JOB"), "job") -%></th>
-                <th class="result"><%== column_header(l.string("RESULT"), "result") -%></th>
-                <th class="completed"><%== column_header(l.string("COMPLETED"), "completed") -%></th>
-                <th class="duration"><%== l.string("DURATION_HEADER") -%></th>
+                <th class="pipeline"><%== column_header('Pipeline', "pipeline") -%></th>
+                <th class="stage"><%== column_header('Stage', "stage") -%></th>
+                <th class="job"><%== column_header('Job', "job") -%></th>
+                <th class="result"><%== column_header('Result', "result") -%></th>
+                <th class="completed"><%== column_header('Completed', "completed") -%></th>
+                <th class="duration"><%== 'Duration' -%></th>
             </tr>
             </thead>
             <tbody>
@@ -33,12 +33,12 @@
                         <%- if job_instance.isPipelineStillConfigured() -%>
                             <%== build_link(job_instance.getIdentifier().buildLocator(), job_instance.getName()) -%>
                         <%- else -%>
-                            <span title="<%= l.string("PIPELINE_FOR_JOB_DOESNT_EXIST") -%>"><%= job_instance.getName() -%></span>
+                            <span title="Pipeline config for this job no longer exists."><%= job_instance.getName() -%></span>
                         <%- end -%>
                     </td>
                     <td class="result"><%= job_instance.isIgnored() ? job_instance.getState() : job_instance.getResult() -%></td>
-                    <td class="completed"><%= job_instance.isIgnored() ? l.string("DOES_NOT_APPLY") : job_instance.getCompletedDate().iso8601 -%></td>
-                    <td class="duration"><%= job_instance.isIgnored() ? l.string("DOES_NOT_APPLY") : job_instance.getDuration() -%></td>
+                    <td class="completed"><%= job_instance.isIgnored() ? '-' : job_instance.getCompletedDate().iso8601 -%></td>
+                    <td class="duration"><%= job_instance.isIgnored() ? '-' : job_instance.getDuration() -%></td>
                 </tr>
             <% end %>
             </tbody>

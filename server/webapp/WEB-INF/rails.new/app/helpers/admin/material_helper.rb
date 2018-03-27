@@ -19,13 +19,13 @@ module Admin
     include JavaImports
 
     def material_options
-      {l.string("GIT") => GitMaterialConfig::TYPE,
-       l.string("SUBVERSION") => SvnMaterialConfig::TYPE,
-       l.string("MERCURIAL") => HgMaterialConfig::TYPE,
-       l.string("P4") => P4MaterialConfig::TYPE,
-       l.string("TFS") => com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE,
-       l.string("PIPELINE") => DependencyMaterialConfig::TYPE,
-       l.string("PACKAGE") => PackageMaterialConfig::TYPE
+      {'Git' => GitMaterialConfig::TYPE,
+       'Subversion' => SvnMaterialConfig::TYPE,
+       'Mercurial' => HgMaterialConfig::TYPE,
+       'Perforce' => P4MaterialConfig::TYPE,
+       'Team Foundation Server' => com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE,
+       'Pipeline' => DependencyMaterialConfig::TYPE,
+       'Package' => PackageMaterialConfig::TYPE
       }
     end
 

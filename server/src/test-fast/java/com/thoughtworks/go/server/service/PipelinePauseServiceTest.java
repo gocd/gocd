@@ -20,7 +20,6 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener.Event;
@@ -316,7 +315,7 @@ public class PipelinePauseServiceTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.httpCode(), is(SC_OK));
 
-        assertThat(result.localizable(), is(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", VALID_PIPELINE)));
+        assertThat(result.message(), is("Pipeline 'some-pipeline' paused successfully."));
     }
 
     @Test
@@ -330,7 +329,7 @@ public class PipelinePauseServiceTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.httpCode(), is(SC_OK));
 
-        assertThat(result.localizable(), is(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", VALID_PIPELINE)));
+        assertThat(result.message(), is("Pipeline 'some-pipeline' unpaused successfully."));
     }
 
 }

@@ -19,15 +19,15 @@
                 <%= error_message_on(@material, com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::SCM_ID, :css_class => "form_error") %>
             </div>
 
-            <h3><%= l.string('DESTINATION_DIR') -%></h3>
+            <h3>Destination Directory</h3>
             <div class="fieldset">
                 <%= f.text_field(com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FOLDER, {:class => "form_input", :id => nil}) -%>
                 <%= error_message_on(@material, com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FOLDER, :css_class => "form_error") %>
             </div>
 
-            <h3><%= l.string("BLACKLIST") -%></h3>
+            <h3>Blacklist</h3>
             <div class="fieldset">
-                <label><%= l.string("BLACKLIST_DESCRIPTION") -%></label>
+                <label>Enter the paths to be excluded. Separate multiple entries with a comma.</label>
                 <% @material.filter().each do |ignored_file|
                   error = ignored_file.errors().on(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN)
                   if error
@@ -41,6 +41,6 @@
             </div>
         </div>
     </div>
-    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => l.string("SAVE")}} %>
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => 'SAVE'}} %>
     <%= render :partial => 'shared/convert_tool_tips.html' %>
 <% end %>

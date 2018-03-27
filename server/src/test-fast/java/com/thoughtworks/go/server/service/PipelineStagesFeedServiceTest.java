@@ -18,21 +18,16 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.feed.FeedEntries;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.i18n.LocalizedKeyValueMessage.NO_VIEW_PERMISSION_ON_PIPELINE;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineStagesFeedServiceTest {
     private Username user;
@@ -91,10 +86,6 @@ public class PipelineStagesFeedServiceTest {
         assertThat(operationResult.isSuccessful(), is(false));
         assertThat(operationResult.httpCode(), is(401));//verify we are unauthorized
 
-        Localizer localizer = mock(Localizer.class);
-        operationResult.message(localizer);
-
-        verify(localizer).localize(NO_VIEW_PERMISSION_ON_PIPELINE, user.getDisplayName(), "cruise");//Verify the message is right
-        verifyNoMoreInteractions(localizer);
+        operationResult.message();
     }
 }

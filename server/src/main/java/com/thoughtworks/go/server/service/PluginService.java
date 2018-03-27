@@ -90,7 +90,7 @@ public class PluginService {
                 if (plugin instanceof NullPlugin) {
                     updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
                 } else {
-                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("Plugin settings for the plugin `%s` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
+                    result.unprocessableEntity(LocalizedMessage.saveFailedWithReason(String.format("Plugin settings for the plugin `%s` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
                 }
             }
         }
@@ -105,11 +105,11 @@ public class PluginService {
             if (hasPermission(currentUser, result)) {
                 final PluginSettings pluginSettingsFromDB = getPluginSettings(pluginId);
                 if (pluginSettingsFromDB == null) {
-                    result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginId), HealthStateType.notFound());
+                    result.notFound(LocalizedMessage.resourceNotFound("Plugin Settings", pluginId), HealthStateType.notFound());
                     return;
                 }
                 if (!entityHashingService.md5ForEntity(pluginSettingsFromDB).equals(md5)) {
-                    result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Plugin Settings", pluginId));
+                    result.stale(LocalizedMessage.staleResourceConfig("Plugin Settings", pluginId));
                     return;
                 }
 
@@ -158,18 +158,18 @@ public class PluginService {
             try {
                 validatePluginSettings(pluginSettings);
                 if (pluginSettings.hasErrors()) {
-                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit."));
+                    result.unprocessableEntity(LocalizedMessage.saveFailedWithReason("There are errors in the plugin settings. Please fix them and resubmit."));
                     return;
                 }
                 saveOrUpdatePluginSettingsInDB(pluginSettings);
                 notifyPluginSettingsChange(pluginSettings);
             } catch (Exception e) {
                 if (e instanceof IllegalArgumentException) {
-                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
+                    result.unprocessableEntity(LocalizedMessage.saveFailedWithReason(e.getLocalizedMessage()));
                 } else {
                     if (!result.hasMessage()) {
                         LOGGER.error(e.getMessage(), e);
-                        result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the plugin settings. Please check the logs for more information."));
+                        result.internalServerError(LocalizedMessage.saveFailedWithReason("An error occurred while saving the plugin settings. Please check the logs for more information."));
                     }
                 }
             }
@@ -216,7 +216,7 @@ public class PluginService {
             return true;
         }
 
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
         return false;
     }
 }

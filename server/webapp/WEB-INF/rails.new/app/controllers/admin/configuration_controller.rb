@@ -32,12 +32,12 @@ class Admin::ConfigurationController < AdminController
     result = HttpLocalizedOperationResult.new
     config_validity = admin_service.updateConfig(params[:go_config], result)
     unless config_validity.isValid()
-      flash.now[:error] = l.string("SAVE_FAILED")
+      flash.now[:error] = 'Save failed, see errors below'
       @errors = [config_validity.errorMessage()]
       fetch_config
       if switch_to_split_pane?(config_validity)
-        flash.now[:error] = l.string("FLASH_MESSAGE_ON_CONFLICT")
-        @flash_help_link = l.string("HELP_LINK_CONFIGURATION_REFERENCE")
+        flash.now[:error] = 'Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.'
+        @flash_help_link = "<a class='' href='https://docs.gocd.org/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>"
         @conflicted_config = GoConfig.new(params[:go_config])
         fetch_cruise_config_revision @go_config.md5
         render :split_pane and return
@@ -47,7 +47,7 @@ class Admin::ConfigurationController < AdminController
         render :edit and return
       end
     end
-    flash[:success] = config_validity.wasMerged() ? "#{l.string("SAVED_SUCCESSFULLY")} #{l.string("CONFIG_MERGED")}" : l.string("SAVED_SUCCESSFULLY")
+    flash[:success] = config_validity.wasMerged() ? "Saved successfully. The configuration was modified by someone else, but your changes were merged successfully." : 'Saved successfully.'
     redirect_to config_view_path
   end
 
@@ -70,7 +70,7 @@ class Admin::ConfigurationController < AdminController
   end
 
   def page_title
-    @view_title = l.string('ADMINISTRATION')
+    @view_title = 'Administration'
   end
 end
 

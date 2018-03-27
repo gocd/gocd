@@ -97,7 +97,7 @@ describe Admin::MaterialsController do
       stub_localized_result
       stub_save_for_validation_error do |result, config, node|
         config.errors().add("base", "someError")
-        result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+        result.badRequest('some message')
       end
 
       expect(@pipeline.materialConfigs().size).to eq(1)

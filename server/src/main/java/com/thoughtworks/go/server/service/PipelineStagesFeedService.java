@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.noViewPermissionForPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorisedForPipeline;
 
 @Service
@@ -58,7 +57,7 @@ public class PipelineStagesFeedService {
 
         private boolean userDoesNotHaveViewPermission(Username user, LocalizedOperationResult operationResult) {
             if (!securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-                operationResult.unauthorized(noViewPermissionForPipeline(CaseInsensitiveString.str(user.getUsername()), pipelineName), unauthorisedForPipeline(pipelineName));
+                operationResult.unauthorized("User '" + CaseInsensitiveString.str(user.getUsername()) + "' does not have view permission on pipeline '" + pipelineName + "'", unauthorisedForPipeline(pipelineName));
                 return true;
             }
             return false;

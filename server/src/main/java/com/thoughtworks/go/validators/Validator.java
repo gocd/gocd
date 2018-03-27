@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.validators;
 
-import com.thoughtworks.go.server.service.result.LocalizedResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public interface Validator<T> {
-    void validate(T input, LocalizedResult result);
+    void validate(T input, LocalizedOperationResult result);
 }

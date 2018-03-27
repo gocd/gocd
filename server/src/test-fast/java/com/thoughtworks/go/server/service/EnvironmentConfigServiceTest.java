@@ -38,7 +38,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -453,8 +452,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
-        assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
-        assertThat(result.toString(), containsString(environmentName));
+        assertThat(result.message(), is("Updated environment 'env_name'."));
     }
 
     @Test
@@ -470,8 +468,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
-        assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
-        assertThat(result.toString(), containsString(environmentName));
+        assertThat(result.message(), is("Updated environment 'env_name'."));
     }
 
     @Test

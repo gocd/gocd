@@ -21,10 +21,8 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.service.result.DefaultLocalizedResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedResult;
 import com.thoughtworks.go.server.web.BaseUrlProvider;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
@@ -61,7 +59,7 @@ public class ServerConfigService implements BaseUrlProvider {
         }
 
         if (!shouldAllowAutoLogin && !userService.canUserTurnOffAutoLogin()) {
-            result.notAcceptable(LocalizedMessage.string("CANNOT_TURN_OFF_AUTO_LOGIN"));
+            result.notAcceptable("Cannot disable auto login with no admins enabled.");
             return;
         }
 
@@ -71,9 +69,9 @@ public class ServerConfigService implements BaseUrlProvider {
                         purgeUpto, jobTimeout, siteUrl,
                         secureSiteUrl, taskRepositoryLocation);
                 if (ConfigSaveState.MERGED.equals(configSaveState)) {
-                    result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")));
+                    result.setMessage(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully."));
                 } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
-                    result.setMessage(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"));
+                    result.setMessage("Saved configuration successfully.");
                 }
             } catch (RuntimeException exception) {
                 updateFailed(exception.getMessage(), result);
@@ -82,46 +80,46 @@ public class ServerConfigService implements BaseUrlProvider {
     }
 
     private void updateFailed(String description, HttpLocalizedOperationResult result) {
-        result.badRequest(LocalizedMessage.string("FAILED_TO_SAVE_THE_SERVER_CONFIGURATION", description));
+        result.badRequest("Failed to save the server configuration. Reason: " + description);
     }
 
     private void validate(MailHost mailHost, LocalizedOperationResult operationResult) {
-        DefaultLocalizedResult result = (DefaultLocalizedResult) validateHostName(mailHost.getHostName());
+        HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) validateHostName(mailHost.getHostName());
         if (!result.isSuccessful()) {
-            operationResult.notAcceptable(result.localizable());
+            operationResult.notAcceptable(result.message());
         }
-        result = (DefaultLocalizedResult) validatePort(mailHost.getPort());
+        result = (HttpLocalizedOperationResult) validatePort(mailHost.getPort());
         if (!result.isSuccessful()) {
-            operationResult.notAcceptable(result.localizable());
+            operationResult.notAcceptable(result.message());
         }
-        result = (DefaultLocalizedResult) validateEmail(mailHost.getFrom());
+        result = (HttpLocalizedOperationResult) validateEmail(mailHost.getFrom());
         if (!result.isSuccessful()) {
-            operationResult.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS", mailHost.getFrom()));
+            operationResult.notAcceptable("From address is not a valid email address.");
         }
-        result = (DefaultLocalizedResult) validateEmail(mailHost.getAdminMail());
+        result = (HttpLocalizedOperationResult) validateEmail(mailHost.getAdminMail());
         if (!result.isSuccessful()) {
-            operationResult.notAcceptable(LocalizedMessage.string("INVALID_ADMIN_ADDRESS", mailHost.getAdminMail()));
+            operationResult.notAcceptable("Admin address is not a valid email address.");
         }
     }
 
-    public LocalizedResult validateHostName(String hostName) {
-        DefaultLocalizedResult result = new DefaultLocalizedResult();
+    public LocalizedOperationResult validateHostName(String hostName) {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         new HostNameValidator().validate(hostName, result);
         return result;
     }
 
-    public LocalizedResult validatePort(int port) {
-        DefaultLocalizedResult result = new DefaultLocalizedResult();
+    public LocalizedOperationResult validatePort(Integer port) {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         new PortValidator().validate(port, result);
         return result;
     }
 
-    public LocalizedResult validateEmail(String email) {
-        DefaultLocalizedResult result = new DefaultLocalizedResult();
+    public LocalizedOperationResult validateEmail(String email) {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         try {
             new InternetAddress(email, true);
         } catch (AddressException e) {
-            result.invalid("INVALID_EMAIL", email);
+            result.notAcceptable("Not a valid email address.");
         }
         return result;
     }
@@ -134,7 +132,7 @@ public class ServerConfigService implements BaseUrlProvider {
         GoMailSender sender = provider.createSender(mailHost);
         ValidationBean validationBean = sender.send(TEST_EMAIL_SUBJECT, GoSmtpMailSender.emailBody(), mailHost.getAdminMail());
         if (!validationBean.isValid()) {
-            result.notAcceptable(LocalizedMessage.string("FAILED_TO_SEND_TEST_MAIL", validationBean.getError()));
+            result.notAcceptable("Email: " + validationBean.getError());
         }
     }
 
@@ -152,7 +150,7 @@ public class ServerConfigService implements BaseUrlProvider {
         return goConfigService.getCurrentConfig().server();
     }
 
-    public String getAutoregisterKey(){
+    public String getAutoregisterKey() {
         return serverConfig().getAgentAutoRegisterKey();
     }
 

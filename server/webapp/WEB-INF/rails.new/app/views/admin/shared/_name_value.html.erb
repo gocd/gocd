@@ -21,7 +21,7 @@
                 <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", variable.getName() %>
               </td>
               <td class="name_value_cell">
-                <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+                <span class="equals_sign">=</span>
               </td>
               <td class="name_value_cell">
                 <div>
@@ -51,7 +51,7 @@
         <%- end -%>
         </tbody>
       </table>
-      <%= action_icon({:type => "add", :text => l.string("ADD"), :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
+      <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
       <table style="display: none;">
         <tbody class="template">
           <tr class="environment-variable-edit-row">
@@ -60,7 +60,7 @@
                 <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
               </td>
               <td class="name_value_cell">
-                <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+                <span class="equals_sign">=</span>
               </td>
               <td class="name_value_cell">
                 <div>

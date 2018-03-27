@@ -48,8 +48,8 @@ module MaterialsHelper
   def render_simple_comment(comment)
     if /\"TYPE\":\"PACKAGE_MATERIAL\"/.match(comment)
       package_comment_map = package_material_display_comment(comment)
-      trackback_url = package_comment_map['TRACKBACK_URL'].blank? ? l.string('NOT_PROVIDED') : package_comment_map['TRACKBACK_URL']
-      result = package_comment_map['COMMENT'] || "#{l.string('TRACKBACK')}#{trackback_url}"
+      trackback_url = package_comment_map['TRACKBACK_URL'].blank? ? 'Not Provided' : package_comment_map['TRACKBACK_URL']
+      result = package_comment_map['COMMENT'] || "#{'Trackback: '}#{trackback_url}"
       return result
     end
     comment || ""
@@ -69,7 +69,7 @@ module MaterialsHelper
 
   def render_comment_for_package_material(comment)
     package_comment_map = package_material_display_comment(comment)
-    "#{get_comment(package_comment_map)}#{l.string('TRACKBACK')}#{get_trackback_url(package_comment_map)}".html_safe
+    "#{get_comment(package_comment_map)}#{'Trackback: '}#{get_trackback_url(package_comment_map)}".html_safe
   end
 
   def render_tracking_tool_link(modification, pipeline_name)
@@ -91,7 +91,7 @@ module MaterialsHelper
   end
 
   def get_trackback_url(comment_map)
-    comment_map['TRACKBACK_URL'].blank? ? l.string('NOT_PROVIDED') : link_to(comment_map['TRACKBACK_URL'], comment_map['TRACKBACK_URL'])
+    comment_map['TRACKBACK_URL'].blank? ? 'Not Provided' : link_to(comment_map['TRACKBACK_URL'], comment_map['TRACKBACK_URL'])
   end
 
   def material_type_from_class(material)

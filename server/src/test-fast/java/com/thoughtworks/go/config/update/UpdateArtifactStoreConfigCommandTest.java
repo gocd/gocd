@@ -93,6 +93,6 @@ public class UpdateArtifactStoreConfigCommandTest {
         UpdateArtifactStoreConfigCommand command = new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
-        assertThat(result.toString()).contains("STALE_RESOURCE_CONFIG");
+        assertThat(result.message()).isEqualTo("Someone has modified the configuration for Artifact store 'docker'. Please update your copy of the config with the changes.");
     }
 }

@@ -17,7 +17,6 @@
 class ApplicationController < ActionController::Base
   include Services
   include JavaImports
-  include RailsLocalizer
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -83,10 +82,6 @@ class ApplicationController < ActionController::Base
     flash_message_service.add(FlashMessageModel.new(msg, klass))
   end
 
-  def set_error_flash(msg, *args)
-    set_flash_message(l.string(msg, args.to_java(java.lang.Object)), "error")
-  end
-
   def local_access_only
     LOCAL_ONLY_ACTIONS[params[:controller]].include?(params[:action]) ? allow_local_only : true
   end
@@ -102,7 +97,7 @@ class ApplicationController < ActionController::Base
   end
 
   def unresolved
-    render_error_response l.urlNotKnown, 404, false
+    render_error_response 'The url you are trying to reach appears to be incorrect.', 404, false
   end
 
   def error_template_for_request
@@ -111,7 +106,7 @@ class ApplicationController < ActionController::Base
 
   #FIXME could be moved to another helper
   def render_localized_operation_result(result)
-    message = result.message(Spring.bean('localizer'))
+    message = result.message()
     render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
   end
 

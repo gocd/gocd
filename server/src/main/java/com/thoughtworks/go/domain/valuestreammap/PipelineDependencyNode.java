@@ -16,20 +16,11 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
+import java.util.*;
 
 public class PipelineDependencyNode extends Node {
     private Set<Revision> revisions = new HashSet<>();
-    private Localizable message;
+    private String message;
     private boolean canEdit;
 
     public PipelineDependencyNode(String nodeId, String nodeName) {
@@ -73,30 +64,28 @@ public class PipelineDependencyNode extends Node {
     }
 
     @Override
-    public void setMessage(Localizable message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public Localizable getMessage() {
+    public String getMessage() {
         return message;
     }
 
     @Override
-    public String getMessageString(Localizer localizer) {
-        if(message == null)
-            return null;
-        return message.localize(localizer);
+    public String getMessageString() {
+        return message;
     }
 
     public void setNoPermission() {
         emptyRevisions();
-        setMessage(LocalizedMessage.string("VSM_PIPELINE_UNAUTHORIZED"));
+        setMessage("You are not authorized to view this pipeline.");
         setViewType(VSMViewType.NO_PERMISSION);
     }
 
     public void setDeleted() {
         emptyRevisions();
-        setMessage(LocalizedMessage.string("VSM_PIPELINE_DELETED"));
+        setMessage("Pipeline has been deleted.");
         setViewType(VSMViewType.DELETED);
     }
 }

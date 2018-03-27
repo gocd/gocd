@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
@@ -49,7 +48,6 @@ public class PluggableTaskServiceTest {
     private PluggableTaskService pluggableTaskService;
     private TaskExtension taskExtension;
     private String pluginId = "abc.def";
-    private Localizer localizer;
 
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
@@ -57,8 +55,7 @@ public class PluggableTaskServiceTest {
     @Before
     public void setUp() throws Exception {
         taskExtension = mock(TaskExtension.class);
-        localizer = mock(Localizer.class);
-        pluggableTaskService = new PluggableTaskService(taskExtension, localizer);
+        pluggableTaskService = new PluggableTaskService(taskExtension);
         final TaskPreference preference = mock(TaskPreference.class);
         final TaskConfig taskConfig = new TaskConfig();
         final TaskConfigProperty key1 = taskConfig.addProperty("KEY1");
@@ -90,7 +87,6 @@ public class PluggableTaskServiceTest {
         PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
-        when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
 
         pluggableTaskService.validate(modifiedTask);
 
@@ -103,7 +99,7 @@ public class PluggableTaskServiceTest {
             }
         }).findFirst().orElse(null);
         assertNotNull(validationError);
-        assertThat(validationError.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+        assertThat(validationError.getMessage(), is("This field is required"));
     }
 
     @Test

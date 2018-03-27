@@ -92,12 +92,12 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
           ]
         }
         expect(@package_repository_service).to receive(:checkConnection).with(an_instance_of(PackageRepository), result) do |repository, result|
-          result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
+          result.setMessage("Connection OK.")
         end
 
         post_with_api_header :repository_check_connection, pacakge_repository_check_connection: repository
 
-        expect(response).to have_api_message_response(200, "Connection OK. {0}")
+        expect(response).to have_api_message_response(200, "Connection OK.")
       end
     end
   end
@@ -170,12 +170,12 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
         expect(@package_repository_service).to receive(:getPackageRepository).with(anything).and_return(package_repository)
         result = HttpLocalizedOperationResult.new
         expect(@package_definition_service).to receive(:checkConnection).with(an_instance_of(PackageDefinition), result) do |package_definition, result|
-          result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
+          result.setMessage("Connection OK.")
         end
 
         post_with_api_header :package_check_connection, package_repository_check_connection: @package_definition
 
-        expect(response).to have_api_message_response(200, "Connection OK. {0}")
+        expect(response).to have_api_message_response(200, "Connection OK.")
       end
 
       it 'should error out if repository is not found' do

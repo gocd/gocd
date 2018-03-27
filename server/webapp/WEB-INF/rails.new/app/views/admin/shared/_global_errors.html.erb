@@ -1,7 +1,7 @@
 <% if @errors && !@errors.empty? %>
     <div class="form_submit_errors">
         <div class="errors">
-            <h3><%= l.string("GLOBAL_ERRORS_MESSAGE") -%></h3>
+            <h3>The following error(s) need to be resolved in order to perform this action:</h3>
             <ul>
                 <% @errors.each do |error| %>
                     <li class="error"><%= h(error.to_s) -%></li>

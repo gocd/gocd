@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -54,7 +53,6 @@ public class PipelineHistoryController {
     private PipelineScheduleQueue pipelineScheduleQueue;
     private SchedulingCheckerService schedulingCheckerService;
     private SecurityService securityService;
-    private Localizer localizer;
     private PipelinePauseService pipelinePauseService;
 
     protected PipelineHistoryController() {
@@ -65,13 +63,12 @@ public class PipelineHistoryController {
                               GoConfigService goConfigService,
                               PipelineScheduleQueue pipelineScheduleQueue,
                               SchedulingCheckerService schedulingCheckerService, SecurityService securityService,
-                              Localizer localizer, PipelinePauseService pipelinePauseService) {
+                              PipelinePauseService pipelinePauseService) {
         this.pipelineHistoryService = pipelineHistoryService;
         this.goConfigService = goConfigService;
         this.pipelineScheduleQueue = pipelineScheduleQueue;
         this.schedulingCheckerService = schedulingCheckerService;
         this.securityService = securityService;
-        this.localizer = localizer;
         this.pipelinePauseService = pipelinePauseService;
     }
 
@@ -81,7 +78,6 @@ public class PipelineHistoryController {
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             model.put("pipelineName", pipelineConfig.name());
-            model.put("l", localizer);
             model.put("isEditableViaUI", goConfigService.isPipelineEditable(pipelineName));
             return new ModelAndView("pipeline/pipeline_history", model);
         } catch (PipelineNotFoundException e) {

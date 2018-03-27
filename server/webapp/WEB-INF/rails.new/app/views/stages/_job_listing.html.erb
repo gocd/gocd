@@ -13,14 +13,14 @@
                 <%= job.getName() -%></a>
         </td>
         <td class="job_result">
-            <div class="color_code_small <%= l.string(job.getStatus()) -%>">
+            <div class="color_code_small <%= job.getStatus() -%>">
             </div>
             <%- if job.isRerun() -%>
                 <img class="rerun_job_icon" src="<%=image_path('g9/icons/icon_rerun_flag.png')%>">
             <%- end -%>
-            <%= l.string(job.getStatus()) -%>
+            <%= job.getStatus() -%>
         </td>
-        <td class="job_state"><%= l.messageFor(job.getState()) -%></td>
+        <td class="job_state"><%= job.getState() -%></td>
         <td class="duration">
             <%= render :partial => "elapsed_time.html", :locals=> {:scope => {:job => job , :show_elapsed => false}} %>
         </td>
@@ -33,7 +33,7 @@
                     <%=agent_that_job_ran_on%>
                   <%- end -%>
             <%- else -%>
-                <%=l.string('Not yet assigned')%>
+                Not yet assigned
             <%- end -%>
         </td>
     </tr>

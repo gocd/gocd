@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -65,7 +64,6 @@ public class ScheduleServiceTest {
     private StageService stageService;
     private SecurityService securityService;
     private PipelineService pipelineService;
-    private Localizer localizer;
     private TimeProvider timeProvider;
     private InstanceFactory instanceFactory = null;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
@@ -95,9 +93,7 @@ public class ScheduleServiceTest {
         assertThat(resultStage, is(spiedStage));
         assertThat(result.httpCode(), is(SC_OK));
         assertThat(result.isSuccessful(), is(true));
-        when(localizer.localize("STAGE_CANCELLED_SUCCESSFULLY", new Object[] {})).thenReturn("Stage cancelled successfully.");
-        assertThat(result.message(localizer), is("Stage cancelled successfully."));
-        verify(localizer).localize("STAGE_CANCELLED_SUCCESSFULLY", new Object[] {});
+        assertThat(result.message(), is("Stage cancelled successfully."));
 
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
         verify(stageService).cancelStage(spiedStage);
@@ -117,13 +113,9 @@ public class ScheduleServiceTest {
         assertThat(result.httpCode(), is(SC_OK));
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.hasMessage(), is(true));
-        Localizer localizer = mock(Localizer.class);
-        String respMsg = "Stage is not active. Cancellation Ignored";
-        String stageNotActiveKey = "STAGE_IS_NOT_ACTIVE_FOR_CANCELLATION";
-        when(localizer.localize(eq(stageNotActiveKey),anyVararg())).thenReturn(respMsg);
-        assertThat(result.message(localizer),is(respMsg));
+        String respMsg = "Stage is not active. Cancellation Ignored.";
+        assertThat(result.message(),is(respMsg));
         verify(stageService).stageById(stageId);
-        verify(localizer).localize(eq(stageNotActiveKey),anyVararg());
     }
 
     @Test
@@ -315,7 +307,6 @@ public class ScheduleServiceTest {
         stageService = mock(StageService.class);
         securityService = mock(SecurityService.class);
         pipelineService = mock(PipelineService.class);
-        localizer = mock(Localizer.class);
         timeProvider = new TimeProvider();
         schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         elasticProfileService = mock(ElasticProfileService.class);

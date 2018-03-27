@@ -90,7 +90,7 @@ module ApiV1
       if result.instance_of?(HttpOperationResult)
         render_message(result.detailedMessage(), status, data)
       else
-        render_message(result.message(Spring.bean('localizer')), status, data)
+        render_message(result.message(), status, data)
       end
     end
 

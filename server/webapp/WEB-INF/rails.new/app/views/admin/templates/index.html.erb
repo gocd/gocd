@@ -1,18 +1,18 @@
 <%- @tab_name = 'templates' -%>
 <%- @current_tab_name = "admin" -%>
-<%- @view_title = l.string("ADMINISTRATION") -%>
+<%- @view_title = 'Administration' -%>
 
 <div class="templates">
   <h1>
     Pipeline Templates
     <span class="title_secondary_info">
             <%- if is_user_an_admin? || is_user_a_group_admin? -%>
-                <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= template_new_path(:allow_pipeline_selection => true) -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_TEMPLATE") -%>'})">
-                      <%= l.string("ADD_NEW_TEMPLATE") -%>
+                <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= template_new_path(:allow_pipeline_selection => true) -%>', {overlayClose: false,title: 'Add New Template'})">
+                      Add New Template
                 </a>
             <%- else -%>
-                <span class="add_icon_disabled" title="<%= l.string("UNAUTHORIZED_TO_CREATE_TEMPLATE") -%>">
-                    <%= l.string("ADD_NEW_TEMPLATE") -%>
+                <span class="add_icon_disabled" title="You are unauthorized to perform this operation. Please contact a Go System Administrator to create a template.">
+                    Add New Template
                 </span>
             <%- end -%>
 		</span>
@@ -22,7 +22,7 @@
 
 
   <% if @template_to_pipelines.size() == 0 %>
-      <div class="information"><%= l.string("NO_TEMPLATES_DEFINED") %></div>
+      <div class="information">There are no templates configured or you are unauthorized to view the existing templates.</div>
   <% else %>
       <%= render :partial => 'templates_listing', :locals => {:scope => {:template_to_pipelines => @template_to_pipelines}} %>
   <% end %>

@@ -37,27 +37,27 @@ class EnvironmentsController < ApplicationController
   def create
     @environment.setConfigAttributes(params[:environment])
     if @environment.name().blank?
-      render_environment_create_error_with_message(@environment, l.string("ENVIRONMENT_NAME_REQUIRED"), 400)
+      render_environment_create_error_with_message(@environment, 'Environment name is required', 400)
       return
     end
 
     environment_config_service.createEnvironment(@environment, current_user, @result = HttpLocalizedOperationResult.new)
     render_environment_create_error_result(@environment)
-    redirect_with_flash(l.string("ADD_ENVIRONMENT_SUCCESS", [@environment.name()]), :action => :show, :name => @environment.name().to_s, :class => 'success') if @result.isSuccessful()
+    redirect_with_flash("Added environment '#{@environment.name()}'", :action => :show, :name => @environment.name().to_s, :class => 'success') if @result.isSuccessful()
   end
 
   def update
     @environment = environment_config_service.getEnvironmentForEdit(params[:name])
     @environment.setConfigAttributes(params[:environment])
     if @environment.name().blank?
-      render_error_response l.string("ENVIRONMENT_NAME_REQUIRED"), 400, true
+      render_error_response 'Environment name is required', 400, true
       return
     end
 
     result = HttpLocalizedOperationResult.new
     environment_config_service.updateEnvironment(params[:name], @environment, current_user, params[:cruise_config_md5], result)
 
-    message = result.message(Spring.bean('localizer'))
+    message = result.message()
     if result.isSuccessful()
       render :text => message, :location => url_options_with_flash(message, {:action => :show, :name => @environment.name(), :class => 'success', :only_path => true})
     else
@@ -94,12 +94,12 @@ class EnvironmentsController < ApplicationController
       @environment = env_for_display.getConfigElement()
       @cruise_config_md5 = entity_hashing_service.md5ForEntity(environment_config_service.getEnvironmentForEdit(params[:name]))
     end
-    render_if_error(result.message(Spring.bean('localizer')), result.httpCode())
+    render_if_error(result.message(), result.httpCode())
     result.isSuccessful()
   end
 
   def render_environment_create_error_result(environment)
-    render_environment_create_error_with_message(environment, @result.message(localizer), @result.httpCode()) unless @result.isSuccessful()
+    render_environment_create_error_with_message(environment, @result.message(), @result.httpCode()) unless @result.isSuccessful()
   end
 
   def render_environment_create_error_with_message(environment, message, http_code)

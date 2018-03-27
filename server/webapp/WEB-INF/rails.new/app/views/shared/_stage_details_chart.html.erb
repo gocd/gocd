@@ -22,7 +22,7 @@
                 }
             },
             title: {
-                text: "<%= l.string("STAGE_DURATION_TITLE", scope[:start_end_dates])-%>",
+                text: "<%= "Stage Duration - #{scope[:start_end_dates].first} to #{scope[:start_end_dates].second}" -%>",
                 style: {
                     fontWeight: 'bold',
                     color: 'black',
@@ -30,7 +30,7 @@
                 }
             },
             subtitle: {
-              text: "<%= l.string("CHART_ZOOM_SUBTITLE")-%>",
+              text: "Click and drag to zoom the chart",
               style: {
                 color: '#666666'
               }
@@ -51,7 +51,7 @@
                 min: 0,
                 startOnTick: false,
                 title: {
-                    text: "<%= l.string("STAGE_DURATION_SCALE", scope[:chart_scale])-%>"
+                    text: "<%= "Stage Duration ( #{scope[:chart_scale]} )" -%>"
                 },
                 events: {
                     setExtremes: function() {
@@ -64,7 +64,7 @@
                 allowDecimals : false,
                 maxZoom: 40,
                 title: {
-                    text: '<%= l.string("PIPELINE_COUNTER") %>'
+                    text: 'Pipeline Counter'
                 },
                 events: {
                     setExtremes: function() {
@@ -142,7 +142,7 @@
             jQuery('#reset_zoom').click(function() {
                 chart.xAxis[0].setExtremes(extremes_x.min, extremes_x.max);
                 chart.yAxis[0].setExtremes(extremes_y.min, extremes_y.max);
-                chart.setTitle({ text: "<%= l.string("STAGE_DURATION_TITLE", scope[:start_end_dates])-%>"});
+                chart.setTitle({ text: "Stage Duration - <%= scope[:start_end_dates].first %> to <%= scope[:start_end_dates].second -%>"});
                 $(this).hide();
             });
         });

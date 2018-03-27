@@ -33,7 +33,6 @@ import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -98,7 +97,6 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private Localizer localizer;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
@@ -1007,7 +1005,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         assertThat(pim.getComment(), is(nullValue()));
         assertThat(result.httpCode(), is(401));
-        assertThat(result.message(localizer), is("You do not have operate permissions for pipeline 'pipeline_name'."));
+        assertThat(result.message(), is("You do not have operate permissions for pipeline 'pipeline_name'."));
     }
 
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {

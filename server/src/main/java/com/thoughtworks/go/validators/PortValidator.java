@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.validators;
 
-import com.thoughtworks.go.server.service.result.LocalizedResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class PortValidator implements Validator<Integer> {
 
-    public void validate(Integer port, LocalizedResult result) {
+    public void validate(Integer port, LocalizedOperationResult result) {
         if (outOfRange(port)) {
-            result.invalid("INVALID_PORT");
+            result.notAcceptable("Invalid Port.");
         }
     }
 
-    private boolean outOfRange(int port) {
-        return (port <= 0 || port > 65535);
+    private boolean outOfRange(Integer port) {
+        return port == null || port <= 0 || port > 65535;
     }
 
 }

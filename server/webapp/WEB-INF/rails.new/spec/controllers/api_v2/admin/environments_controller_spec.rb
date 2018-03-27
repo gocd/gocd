@@ -325,7 +325,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should render error when it fails to patch environment' do
         allow(@environment_config_service).to receive(:patchEnvironment).with(@environment_config, @pipelines_to_add, @pipelines_to_remove, @agents_to_add, @agents_to_remove, @env_vars_to_add, @env_vars_to_remove, anything, @result) do |environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, env_vars_to_add, env_vars_to_remove, user, result|
-          result.badRequest(LocalizedMessage.string("PIPELINES_WITH_NAMES_NOT_FOUND", pipelines_to_add))
+          result.badRequest('Pipelines(s) with name(s) [foo] not found.')
         end
 
         patch_with_api_header :patch, name: @environment_name, :pipelines => {add: @pipelines_to_add, remove: @pipelines_to_remove}, :agents => {add: @agents_to_add, remove: @agents_to_remove}, :environment_variables => {add: @env_vars_to_add, remove: @env_vars_to_remove}
@@ -416,7 +416,7 @@ describe ApiV2::Admin::EnvironmentsController do
     describe "for_admins" do
       it 'should allow deleting environments' do
         expect(@environment_config_service).to receive(:deleteEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |envConfig, user, result|
-          result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'environment', @environment_config.name))
+          result.setMessage("The environment 'foo-environment' was deleted successfully.")
         end
 
         delete_with_api_header :destroy, name: @environment_name
@@ -517,7 +517,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should render the error occurred while creating an environment' do
         expect(@environment_config_service).to receive(:createEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
-          result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", 'environment', env.name));
+          result.conflict(com.thoughtworks.go.i18n.LocalizedMessage::resourceAlreadyExists('environment', env.name));
         end
 
         post_with_api_header :create, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}

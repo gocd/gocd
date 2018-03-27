@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.web.GoVelocityView;
 import org.junit.Before;
@@ -33,19 +32,14 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class AuthorizationControllerTest {
-
-    Localizer localizer;
-
     private AuthorizationController authorizationController;
     private MockHttpServletResponse response;
     private SecurityAuthConfigService securityAuthConfigService;
 
     @Before
     public void setUp() throws Exception {
-        localizer = mock(Localizer.class);
-
         securityAuthConfigService = mock(SecurityAuthConfigService.class);
-        authorizationController = new AuthorizationController(localizer, securityAuthConfigService);
+        authorizationController = new AuthorizationController(securityAuthConfigService);
         response = new MockHttpServletResponse();
     }
 
@@ -69,7 +63,6 @@ public class AuthorizationControllerTest {
 
         Map<String, Object> modelMap = new ModelMap() {{
             put("login_error", false);
-            put("l", localizer);
             put("security_auth_config_service", securityAuthConfigService);
             put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         }};

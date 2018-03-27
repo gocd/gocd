@@ -29,6 +29,9 @@ import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 abstract class PackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final PackageDefinition packageDefinition;
     private final HttpLocalizedOperationResult result;
@@ -64,7 +67,7 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
 
     protected boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

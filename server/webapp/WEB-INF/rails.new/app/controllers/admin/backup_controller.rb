@@ -28,6 +28,6 @@ class Admin::BackupController < ApplicationController
 
   def perform_backup
     backup_service.startBackup(current_user, op_result = HttpLocalizedOperationResult.new())
-    redirect_with_flash(op_result.message(Spring.bean("localizer")), :action => :index, :class => op_result.isSuccessful() ? "success" : "error")
+    redirect_with_flash(op_result.message(), :action => :index, :class => op_result.isSuccessful() ? "success" : "error")
   end
 end

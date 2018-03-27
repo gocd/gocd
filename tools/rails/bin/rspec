@@ -2,6 +2,15 @@
 
 ENV['BUNDLE_GEMFILE'] ||= File.join(Dir.pwd, 'Gemfile')
 
+$stdout.sync = true
+$stderr.sync = true
+
+at_exit do
+  $stdout.flush
+  $stderr.flush
+  sleep 0.1
+end
+
 require 'rubygems'
 require 'bundler/setup'
 

@@ -28,7 +28,7 @@ module FailuresHelper
   def failure_details_link(job_id, suite_name, test_name)
     id = fbh_failure_detail_popup_id_for_failure(job_id, suite_name, test_name)
     link =<<-LINK
-<a href='#{failure_details_path(job_id, suite_name, test_name)}' id=#{id} class="fbh_failure_detail_button" title='#{(l.string("VIEW_FAILURE_DETAILS")).html_safe}'>[Trace]</a>
+<a href='#{failure_details_path(job_id, suite_name, test_name)}' id=#{id} class="fbh_failure_detail_button" title='#{('View failure details').html_safe}'>[Trace]</a>
 LINK
     link.html_safe
   end

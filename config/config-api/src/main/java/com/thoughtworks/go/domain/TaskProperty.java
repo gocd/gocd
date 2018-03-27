@@ -26,10 +26,11 @@ public final class TaskProperty {
     }
 
     private static String defaultCssClass(String name) {
-       return name.toLowerCase().replaceAll(":$", "");
+        return name.toLowerCase().replaceAll(":$", "").replaceAll(" ", "_");
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("TaskProperty");
         sb.append("{name='").append(name).append('\'');
@@ -51,26 +52,14 @@ public final class TaskProperty {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         TaskProperty that = (TaskProperty) o;
 
-        if (cssClass != null ? !cssClass.equals(that.cssClass) : that.cssClass != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (value != null ? !value.equals(that.value) : that.value != null) {
-            return false;
-        }
-
-        return true;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        return cssClass != null ? cssClass.equals(that.cssClass) : that.cssClass == null;
     }
 
     @Override

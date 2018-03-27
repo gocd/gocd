@@ -235,7 +235,7 @@ public class MaterialUpdateServiceTest {
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
         HttpLocalizedOperationResult unauthorizedResult = new HttpLocalizedOperationResult();
-        unauthorizedResult.unauthorized(LocalizedMessage.string("API_ACCESS_UNAUTHORIZED"), HealthStateType.unauthorised());
+        unauthorizedResult.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised());
 
         assertThat(result, is(unauthorizedResult));
 
@@ -248,7 +248,7 @@ public class MaterialUpdateServiceTest {
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
         HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
-        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+        badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
         assertThat(result, is(badRequestResult));
 
@@ -264,7 +264,7 @@ public class MaterialUpdateServiceTest {
         service.notifyMaterialsForUpdate(username, params, result);
 
         HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
-        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+        badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
         assertThat(result, is(badRequestResult));
 
@@ -294,7 +294,7 @@ public class MaterialUpdateServiceTest {
         service.notifyMaterialsForUpdate(username, params, result);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        operationResult.notFound(LocalizedMessage.string("MATERIAL_SUITABLE_FOR_NOTIFICATION_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+        operationResult.notFound("Unable to find material. Materials must be configured not to poll for new changes before they can be used with the notification mechanism.", HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result, is(operationResult));
 
@@ -320,7 +320,7 @@ public class MaterialUpdateServiceTest {
         Mockito.verify(queue, times(1)).post(matchMaterialUpdateMessage(svnMaterial));
 
         HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
-        acceptedResult.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
+        acceptedResult.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");
 
         assertThat(result, is(acceptedResult));
     }

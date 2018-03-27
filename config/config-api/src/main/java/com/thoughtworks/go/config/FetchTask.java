@@ -106,13 +106,13 @@ public class FetchTask extends AbstractFetchTask {
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = super.getPropertiesForDisplay();
         if (!StringUtils.isBlank(srcfile)) {
-            taskProperties.add(new TaskProperty("SRC_FILE", srcfile));
+            taskProperties.add(new TaskProperty("Source File", srcfile));
         }
         if (!StringUtils.isBlank(srcdir)) {
-            taskProperties.add(new TaskProperty("SRC_DIR", srcdir));
+            taskProperties.add(new TaskProperty("Source Directory", srcdir));
         }
         if (!StringUtils.isBlank(dest)) {
-            taskProperties.add(new TaskProperty("DEST_FILE", dest));
+            taskProperties.add(new TaskProperty("Destination", dest));
         }
         return taskProperties;
     }

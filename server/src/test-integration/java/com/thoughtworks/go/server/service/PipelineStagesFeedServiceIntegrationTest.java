@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -46,7 +45,6 @@ public class PipelineStagesFeedServiceIntegrationTest {
     @Autowired private SecurityService securityService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -73,6 +71,6 @@ public class PipelineStagesFeedServiceIntegrationTest {
         FeedResolver feedResolver = new PipelineStagesFeedService(stageService, securityService).feedResolverFor("cruise");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         feedResolver.feed(new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(localizer), is("User 'evil_hacker' does not have view permission on pipeline 'cruise'"));
+        assertThat(result.message(), is("User 'evil_hacker' does not have view permission on pipeline 'cruise'"));
     }
 }

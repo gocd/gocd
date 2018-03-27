@@ -243,7 +243,7 @@ describe ApiV1::Admin::PluggableScmsController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return("Save failed")
+        allow(result).to receive(:message).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
         expect(@pluggable_scm_service).to receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), result)
 
@@ -351,14 +351,14 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).and_return('md5')
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).and_return(@scm)
         allow(@pluggable_scm_service).to receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result, anything)  do |user, scm, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity('some error')
         end
 
         params = {material_name: 'material'}
 
         put_with_api_header :update, params
 
-        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+        expect(response).to have_api_message_response(422, 'some error')
       end
 
       it 'should fail update if etag does not match' do

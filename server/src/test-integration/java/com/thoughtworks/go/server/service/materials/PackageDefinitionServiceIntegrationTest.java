@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -113,7 +114,7 @@ public class PackageDefinitionServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         String repositoryId = "Id";
-        expectedResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_NOT_FOUND", repositoryId));
+        expectedResult.unprocessableEntity(resourceNotFound("Package Repository", repositoryId));
 
         assertNull(service.find(packageUuid));
         service.createPackage(packageDefinition, repositoryId, user, result);
@@ -139,7 +140,7 @@ public class PackageDefinitionServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package definition", packageDefinition.getId()));
+        expectedResult.setMessage(LocalizedMessage.resourceDeleteSuccessful("package definition", packageDefinition.getId()));
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid), is(packageDefinition));
         service.deletePackage(packageDefinition, user, result);

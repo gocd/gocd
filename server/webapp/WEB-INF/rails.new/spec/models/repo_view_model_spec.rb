@@ -66,6 +66,6 @@ describe RepoViewModel do
     model = RepoViewModel.new nil, repo, "yum"
     expect(model.properties.size).to eq(0)
     expect(model.errors.isEmpty()).to eq(false)
-    expect(model.errors.on("pluginId")).to eq("Associated plugin 'yum' not found. Please contact the Go admin to install the plugin.")
+    expect(model.errors.on("pluginId")).to eq("Plugin 'yum' not found.")
   end
 end

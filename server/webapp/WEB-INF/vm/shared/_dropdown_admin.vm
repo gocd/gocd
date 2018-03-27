@@ -15,19 +15,19 @@
  *************************GO-LICENSE-END***********************************#
 
 <li role="presentation">
-    <a href="$req.getContextPath()/admin/pipelines">$l.localize("PIPELINES_POPUP_TITLE")</a>
+    <a href="$req.getContextPath()/admin/pipelines">Pipelines</a>
 </li>
 <li role="presentation">
-  <a href="$req.getContextPath()/admin/templates">$l.localize("TEMPLATES")</a>
+  <a href="$req.getContextPath()/admin/templates">Templates</a>
 </li>
 <li role="presentation">
     <a href="$req.getContextPath()/admin/elastic_profiles">Elastic Agent Profiles</a>
 </li>
 <li role="presentation">
-    <a href="$req.getContextPath()/admin/config_xml">$l.localize("PIPELINES_SNIPPET")</a>
+    <a href="$req.getContextPath()/admin/config_xml">Config XML</a>
 </li>
 <li role="presentation">
-    <a href="$req.getContextPath()/admin/config/server">$l.localize("SERVER_CONFIGURATION")</a>
+    <a href="$req.getContextPath()/admin/config/server">Server Configuration</a>
 </li>
 <li role="presentation">
     <a href="$req.getContextPath()/admin/users">User Summary</a>
@@ -39,10 +39,10 @@
     <a href="$req.getContextPath()/admin/backup">Backup</a>
 </li>
 <li role="presentation">
-  <a href="$req.getContextPath()/admin/plugins">$l.localize("PLUGINS_TAB")</a>
+  <a href="$req.getContextPath()/admin/plugins">Plugins</a>
 </li>
 <li role="presentation">
-    <a href="$req.getContextPath()/admin/package_repositories/new">$l.localize("PACKAGE_REPOSITORY_TAB")</a>
+    <a href="$req.getContextPath()/admin/package_repositories/new">Package Repositories</a>
 </li>
 <li role="presentation" class="sub-menu">
   <a href="#">Security</a>

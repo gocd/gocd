@@ -28,15 +28,15 @@ describe "admin/pipeline_groups/index.html.erb" do
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
-    assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_2_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_with_template_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                        CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+    assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_2_in_group_bar") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_with_template_in_group_bar") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                        CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.')
     })
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_quick_edit_page_default?).and_return(false)
@@ -255,15 +255,15 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should not show delete action if the pipeline cannot be deleted" do
-      assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", ["pipeline_in_group_foo", "env"])),
-                                          CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                          CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                          CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", ["pipeline_in_group_bar", "pipeline_in_group_foo"])),
-                                          CaseInsensitiveString.new("pipeline_2_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                          CaseInsensitiveString.new("pipeline_with_template_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                          CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", ["pipeline_in_group_bar", "pipeline_in_group_foo"])),
-                                          CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                                          CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+      assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(false, "Cannot delete pipeline 'pipeline_in_group_foo' as it is present in environment 'env'"),
+                                          CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                          CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                          CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(false, "Cannot delete pipeline 'pipeline_in_group_bar' as pipeline 'pipeline_in_group_foo' depends on it"),
+                                          CaseInsensitiveString.new("pipeline_2_in_group_bar") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                          CaseInsensitiveString.new("pipeline_with_template_in_group_bar") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                          CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(false, "Cannot delete pipeline 'pipeline_in_group_bar' as pipeline 'pipeline_in_group_foo' depends on it"),
+                                          CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.'),
+                                          CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.')
       })
 
       render
@@ -277,11 +277,11 @@ describe "admin/pipeline_groups/index.html.erb" do
       end
 
       Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_foo'][method='post']").tap do |form|
-        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline")
+        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline.")
       end
 
       Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_bar'][method='post']").tap do |form|
-        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline")
+        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline.")
       end
     end
   end

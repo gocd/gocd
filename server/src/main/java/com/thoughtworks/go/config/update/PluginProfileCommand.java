@@ -18,18 +18,17 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
     protected final GoConfigService goConfigService;
@@ -85,12 +84,12 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
             if (profile != null) {
                 profile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
             }
-            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", getObjectDescriptor().toLowerCase(), "id"));
+            result.unprocessableEntity("The " + getObjectDescriptor().toLowerCase() + " config is invalid. Attribute 'id' cannot be null.");
             throw new IllegalArgumentException(getObjectDescriptor() + " id cannot be null.");
         } else {
             T t = getPluginProfiles(cruiseConfig).find(profile.getId());
             if (t == null) {
-                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", getTagName(), profile.getId()), HealthStateType.notFound());
+                result.notFound(resourceNotFound(getTagName(), profile.getId()), notFound());
                 throw new PluginProfileNotFoundException(getObjectDescriptor() + " `" + profile.getId() + "` does not exist.");
             }
             return t;

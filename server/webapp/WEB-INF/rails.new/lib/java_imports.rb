@@ -113,7 +113,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.testinfo.TestStatus unless defined? TestStatus
   java_import com.thoughtworks.go.config.TrackingTool unless defined? TrackingTool
   java_import com.thoughtworks.go.domain.User unless defined? User
-  java_import com.thoughtworks.go.i18n.Localizer unless defined? Localizer
   java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
   java_import com.thoughtworks.go.presentation.GoPluginDescriptorModel unless defined? GoPluginDescriptorModel
   java_import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel unless defined? EnvironmentPipelineModel
@@ -147,10 +146,8 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.AgentBuildingInfo unless defined? AgentBuildingInfo
   java_import com.thoughtworks.go.server.service.ChangesetService unless defined? ChangesetService
   java_import com.thoughtworks.go.server.service.PipelineStagesFeedService unless defined? PipelineStagesFeedService
-  java_import com.thoughtworks.go.server.service.result.DefaultLocalizedResult unless defined? DefaultLocalizedResult
   java_import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult unless defined? HttpLocalizedOperationResult
   java_import com.thoughtworks.go.server.service.result.HttpOperationResult unless defined? HttpOperationResult
-  java_import com.thoughtworks.go.server.service.result.SubsectionLocalizedOperationResult unless defined? SubsectionLocalizedOperationResult
   java_import com.thoughtworks.go.server.service.UserService unless defined? UserService
   java_import com.thoughtworks.go.server.ui.AgentsViewModel unless defined? AgentsViewModel
   java_import com.thoughtworks.go.server.ui.AgentViewModel unless defined? AgentViewModel

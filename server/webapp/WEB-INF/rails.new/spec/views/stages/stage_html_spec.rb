@@ -390,23 +390,6 @@ describe 'stages/stage.html.erb' do
           expect(f).to have_selector ".downstream"
         end
       end
-
-      it "should render unsupported message if IE8" do
-        allow(view).to receive(:is_ie8?).and_return(true)
-        render
-
-        Capybara.string(response.body).find("div.vsm_not_supported.notification").tap do |f|
-          expect(f).to have_selector "p.information", :text => /^[\s\S]*Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='https:\/\/docs.gocd.org\/current\/navigation\/value_stream_map\.html' target='_blank'>Value Stream Map<\/a>.[\s\S]*$/
-        end
-      end
-
-      it "should not render unsupported message if IE9 or Firefox or Chrome or Safari or Opera" do
-        allow(view).to receive(:is_ie8?).and_return(false)
-        render
-
-        expect(response).to_not have_selector "div.vsm_not_supported.notification"
-      end
-
     end
 
     describe "fbh tab" do

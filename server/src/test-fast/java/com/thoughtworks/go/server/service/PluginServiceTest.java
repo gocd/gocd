@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
@@ -91,7 +91,6 @@ public class PluginServiceTest {
     @Mock
     private PluginManager pluginManager;
 
-    private ArgumentCaptor<Localizable> localizableArgumentCaptor;
     private List<GoPluginExtension> extensions;
     private final String authorizationPluginId = "cd.go.authorization.ldap";
     private final String elasticAgentPluginId = "cd.go.elastic-agent.docker";
@@ -99,7 +98,6 @@ public class PluginServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        localizableArgumentCaptor = ArgumentCaptor.forClass(Localizable.class);
 
         when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
         when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
@@ -338,10 +336,8 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).unauthorized(localizableArgumentCaptor.capture(), eq(HealthStateType.unauthorised()));
+        verify(result, times(1)).unauthorized(eq(LocalizedMessage.unauthorizedToEdit()), eq(HealthStateType.unauthorised()));
         verifyNoMoreInteractions(result);
-
-        assertLocalizable("UNAUTHORIZED_TO_EDIT", "");
     }
 
     @Test
@@ -353,10 +349,8 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
+        verify(result, times(1)).unprocessableEntity("Save failed. Plugin settings for the plugin `cd.go.elastic-agent.docker` already exist. In order to update the plugin settings refer the https://api.gocd.org/" + CurrentGoCDVersion.getInstance().goVersion() + "/#update-plugin-settings.");
         verifyNoMoreInteractions(result);
-
-        assertLocalizable("SAVE_FAILED_WITH_REASON", String.format("Plugin settings for the plugin `cd.go.elastic-agent.docker` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", CurrentGoCDVersion.getInstance().goVersion()));
     }
 
     @Test
@@ -373,10 +367,8 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
+        verify(result, times(1)).unprocessableEntity("Save failed. There are errors in the plugin settings. Please fix them and resubmit.");
         verifyNoMoreInteractions(result);
-
-        assertLocalizable("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit.");
     }
 
     @Test
@@ -404,10 +396,9 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).unauthorized(localizableArgumentCaptor.capture(), eq(HealthStateType.unauthorised()));
+        verify(result, times(1)).unauthorized(eq(LocalizedMessage.unauthorizedToEdit()), eq(HealthStateType.unauthorised()));
         verifyNoMoreInteractions(result);
 
-        assertLocalizable("UNAUTHORIZED_TO_EDIT", "");
     }
 
     @Test
@@ -419,10 +410,8 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).notFound(localizableArgumentCaptor.capture(), eq(HealthStateType.notFound()));
+        verify(result, times(1)).notFound(eq("Plugin Settings 'cd.go.elastic-agent.docker' not found."), eq(HealthStateType.notFound()));
         verifyNoMoreInteractions(result);
-
-        assertLocalizable("RESOURCE_NOT_FOUND", "Plugin Settings, cd.go.elastic-agent.docker");
     }
 
     @Test
@@ -435,10 +424,8 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).stale(localizableArgumentCaptor.capture());
+        verify(result, times(1)).stale("Someone has modified the configuration for Plugin Settings 'cd.go.elastic-agent.docker'. Please update your copy of the config with the changes.");
         verifyNoMoreInteractions(result);
-
-        assertLocalizable("STALE_RESOURCE_CONFIG", "Plugin Settings, cd.go.elastic-agent.docker");
     }
 
     @Test
@@ -457,9 +444,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
-
-        assertLocalizable("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit.");
+        verify(result, times(1)).unprocessableEntity("Save failed. There are errors in the plugin settings. Please fix them and resubmit.");
     }
 
     @Test
@@ -502,10 +487,6 @@ public class PluginServiceTest {
         final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
         when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(pluggableInstanceSettings);
         return elasticAgentPluginInfo;
-    }
-
-    private void assertLocalizable(final String key, final String message) {
-        assertThat(localizableArgumentCaptor.getValue().toString(), is(String.format("LocalizedKeyValueMessage{key='%s', args=[%s]}", key, message)));
     }
 
     private void addPluginSettingsMetadataToStore(String pluginId, String extensionName, PluginSettingsConfiguration configuration) {

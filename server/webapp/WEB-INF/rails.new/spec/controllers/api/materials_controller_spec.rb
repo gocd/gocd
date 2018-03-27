@@ -30,7 +30,7 @@ describe Api::MaterialsController do
 
     it "should return 401 when user is not an admin" do
       expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
-        result.unauthorized(LocalizedMessage.string('API_ACCESS_UNAUTHORIZED'), HealthStateType.unauthorised())
+        result.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised())
       end
       post :notify, @params
       expect(response.status).to eq(401)
@@ -45,7 +45,7 @@ describe Api::MaterialsController do
 
     it "should return 400 with params is empty" do
       expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
-        result.badRequest(LocalizedMessage.string('API_BAD_REQUEST'))
+        result.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.")
       end
       post :notify, @params
       expect(response.status).to eq(400)

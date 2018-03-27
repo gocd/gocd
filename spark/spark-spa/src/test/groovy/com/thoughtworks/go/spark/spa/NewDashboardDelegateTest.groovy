@@ -35,6 +35,8 @@ import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>, SecurityServiceTrait {
+  PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
+
   @Override
   NewDashboardDelegate createControllerInstance() {
     return new NewDashboardDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment, pipelineConfigService)

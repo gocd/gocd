@@ -35,7 +35,7 @@ describe "/shared/_application_nav.html.erb" do
     it 'should have the header links' do
       render :partial => partial_page
 
-      assert_header_values = {'pipelines' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'admin' => 'ADMIN'}
+      assert_header_values = {'pipelines' => 'Pipelines', 'environments' => 'Environments', 'agents' => 'Agents', 'admin' => 'Admin'}
 
       assert_header_values.each do |key, value|
         Capybara.string(response.body).find("li#cruise-header-tab-#{key}").tap do |ul_tabs_li|
@@ -48,7 +48,7 @@ describe "/shared/_application_nav.html.erb" do
       expect(view).to receive(:supports_analytics_dashboard?).and_return(true)
       render :partial => partial_page
 
-      assert_header_values = {'pipelines' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'analytics' => 'ANALYTICS', 'admin' => 'ADMIN'}
+      assert_header_values = {'pipelines' => 'Pipelines', 'environments' => 'Environments', 'agents' => 'Agents', 'analytics' => 'Analytics', 'admin' => 'Admin'}
 
       assert_header_values.each do |key, value|
         Capybara.string(response.body).find("li#cruise-header-tab-#{key}").tap do |ul_tabs_li|
@@ -251,8 +251,8 @@ describe "/shared/_application_nav.html.erb" do
 
       Capybara.string(response.body).find('ul.tabs').tap do |ul_tabs|
         ul_tabs.find("li#cruise-header-tab-admin").tap do |ul_tabs_li|
-          expect(ul_tabs_li).to have_selector("span", text: "ADMIN")
-          expect(ul_tabs_li).to_not have_selector("a[data-toggle='dropdown']", "ADMIN")
+          expect(ul_tabs_li).to have_selector("span", text: "Admin")
+          expect(ul_tabs_li).to_not have_selector("a[data-toggle='dropdown']", text: "Admin")
           expect(ul_tabs_li).to_not have_selector("ul.dropdown-menu[role='menu']")
         end
       end

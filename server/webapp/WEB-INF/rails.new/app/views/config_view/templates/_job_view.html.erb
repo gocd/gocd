@@ -10,55 +10,55 @@
         <ul>
             <li class="field resources">
                 <label>
-                    <span class="key"><%= l.string("RESOURCES") %></span>
-                    <span class="hint"><%= l.string("TOOLTIP_RESOURCES") %></span>
+                    <span class="key">Resources</span>
+                    <span class="hint">Agent resources that this job requires to run</span>
                 </label>
-                <span class="input value"><%= scope[:job].resourceConfigs().isEmpty() ? l.string("NONE") :scope[:job].resourceConfigs() %></span>
+                <span class="input value"><%= scope[:job].resourceConfigs().isEmpty() ? 'None' :scope[:job].resourceConfigs() %></span>
             </li>
             <li class="field job_timeout">
                 <label>
-                    <span class="key"><%= l.string("JOB_TIMEOUT") %></span>
-                    <span class="hint"><%= l.string("TOOLTIP_JOB_TIMEOUT") %></span>
+                    <span class="key">Job Timeout</span>
+                    <span class="hint">If this job is inactive for more than the specified period (in minutes), Go will cancel it.</span>
                 </label>
                 <% timeoutType = scope[:job].getTimeoutType() %>
-                <% timeoutValue = timeoutType == com.thoughtworks.go.config.JobConfig::DEFAULT_TIMEOUT ? l.string('DEFAULT_TIMEOUT') : timeoutType == com.thoughtworks.go.config.JobConfig::OVERRIDE_TIMEOUT ? l.string('OVERRIDE_TIMEOUT', [scope[:job].getTimeout()].to_java(java.lang.String)) : l.string('NEVER_TIMEOUT') %>
+                <% timeoutValue = timeoutType == com.thoughtworks.go.config.JobConfig::DEFAULT_TIMEOUT ? 'Use default' : timeoutType == com.thoughtworks.go.config.JobConfig::OVERRIDE_TIMEOUT ? "Cancel after '#{scope[:job].getTimeout()}' minute(s) of inactivity" : 'Never' %>
                 <span class="input value"><%= timeoutValue %></span>
             </li>
             <li class="field run_on_all_agents">
                 <label>
-                    <span class="key"><%= l.string("RUN_ON_ALL_AGENTS") %></span>
+                    <span class="key">Run on all agents</span>
                 </label>
-                <span class="input value"><%= scope[:job].isRunOnAllAgents() ? l.string('YES') : l.string('NO') %></span>
+                <span class="input value"><%= scope[:job].isRunOnAllAgents() ? 'Yes' : 'No' %></span>
             </li>
             <li class="field run_multiple_instances">
                 <label>
-                    <span class="key"><%= l.string("RUN_MULTIPLE_INSTANCES") %></span>
+                    <span class="key">Run multiple instances</span>
                 </label>
-                <span class="input value"><%= scope[:job].isRunMultipleInstanceType() ? l.string('YES') : l.string('NO') %></span>
+                <span class="input value"><%= scope[:job].isRunMultipleInstanceType() ? 'Yes' : 'No' %></span>
             </li>
         </ul>
     </fieldset>
 </div>
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#tasks_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab"><%= l.string("TASKS") %></a></li>
-    <li><a href="#artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab"><%= l.string("ARTIFACTS") %></a></li>
-    <li><a href="#environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab"><%= l.string("ENVIRONMENT_VARIABLES") %></a></li>
-    <li><a href="#custom_tabs_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab"><%= l.string("TABS") %></a></li>
+    <li class="active"><a href="#tasks_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Tasks</a></li>
+    <li><a href="#artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Artifacts</a></li>
+    <li><a href="#environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Environment Variables</a></li>
+    <li><a href="#custom_tabs_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Custom Tabs</a></li>
 </ul>
 <div class='tab-content'>
     <div id='artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>' class='tab-pane'>
         <table class="artifacts list_table">
             <thead>
             <tr>
-                <th><%= l.string("SOURCE") %></th>
-                <th><%= l.string("DESTINATION") %></th>
-                <th><%= l.string("TYPE") %></th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Type</th>
             </tr>
             </thead>
             <tbody>
             <% if scope[:job].artifactConfigs().empty() %>
                 <tr>
-                    <td align='center' colspan="3" class="name_value_cell"><%= l.string('NO_ARTIFACTS_CONFIGURED') %></td>
+                    <td align='center' colspan="3" class="name_value_cell">No artifacts have been configured</td>
                 </tr>
             <% end %>
             <% scope[:job].artifactConfigs().each do |artifact_config| %>
@@ -81,14 +81,14 @@
         <table class="variables list_table">
             <thead>
             <tr>
-                <th><%= l.string("NAME") %></th>
-                <th><%= l.string("VALUE") %></th>
+                <th>Name</th>
+                <th>Value</th>
             </tr>
             </thead>
             <tbody>
             <% if scope[:job].getVariables().isEmpty() %>
                 <tr>
-                    <td align='center' colspan="2" class="name_value_cell"><%= l.string('NO_ENVIRONMENT_VARIABLES_CONFIGURED') %></td>
+                    <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
                 </tr>
             <% end %>
             <% scope[:job].getVariables().each do |environment_variable| %>
@@ -108,14 +108,14 @@
         <table class="custom_tabs list_table">
             <thead>
             <tr>
-                <th><%= l.string("TAB_NAME") %></th>
-                <th><%= l.string("PATH") %></th>
+                <th>Tab Name</th>
+                <th>Path</th>
             </tr>
             </thead>
             <tbody>
             <% if scope[:job].getTabs().isEmpty() %>
                 <tr>
-                    <td align='center' colspan="2" class="name_value_cell"><%= l.string('NO_CUSTOM_TABS_CONFIGURED') %></td>
+                    <td align='center' colspan="2" class="name_value_cell">No custom tabs have been configured</td>
                 </tr>
             <% end %>
             <% scope[:job].getTabs().each do |tab| %>
@@ -133,24 +133,24 @@
     </div>
     <div id="tasks_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class='tab-pane active'>
         <% if scope[:job].getTasks().isEmpty() %>
-            <span><%= l.string("NO_TASKS_CONFIGURED") %></span>
+            <span>No tasks have been configured</span>
         <% else %>
             <ul class="tasks_view_list">
                 <% scope[:job].getTasks().each do |task| %>
                     <li class="<%= task.getTaskType() %>">
-                        <span class="condition">Run if <%= task.runIfConfigsAny() ? "#{l.string("FAILED")}, #{l.string("PASSED")}" : task.getConditionsForDisplay() %></span>
+                        <span class="condition">Run if <%= task.runIfConfigsAny() ? "#{'Failed'}, #{'Passed'}" : task.getConditionsForDisplay() %></span>
                         <% if task.getTypeForDisplay() == "Fetch Artifact" %>
                             <code>
-                                <span><%= l.string('FETCH_TASK') %> - </span>
-                                <span title="<%= l.string('PIPELINE_NAME') %>" class="pipeline"><%= task.getPipelineName().blank? ? "[#{l.string('CURRENT_PIPELINE')}]" : task.getPipelineName() %></span>
+                                <span>Fetch Artifact - </span>
+                                <span title="Pipeline Name" class="pipeline"><%= task.getPipelineName().blank? ? "[#{'Current pipeline'}]" : task.getPipelineName() %></span>
                                 <span class='path_separator'>&gt;</span>
-                                <span title="<%= l.string('STAGE_NAME') %>" class="stage"><%= task.getStage() %></span>
+                                <span title="Stage Name" class="stage"><%= task.getStage() %></span>
                                 <span class='path_separator'>&gt;</span>
-                                <span title="<%= l.string('JOB_NAME') %>" class="job"><%= task.getJob() %></span>
+                                <span title="Job Name" class="job"><%= task.getJob() %></span>
                                 <span class='delimiter'>:</span>
-                                <span title="<%= l.string('SOURCE') %>" class="source"><%= task.getSrc() %></span>
+                                <span title="Source" class="source"><%= task.getSrc() %></span>
                                 <span class="direction_arrow">-&gt;</span>
-                                <span title="<%= l.string('DESTINATION') %>" class="destination"><%= task.getDest() %></span>
+                                <span title="Destination" class="destination"><%= task.getDest() %></span>
                             </code>
                         <% elsif is_a_pluggable_task(task) %>
                           <code>
@@ -169,13 +169,13 @@
                                 <li>
                                   <% if is_a_pluggable_task(task.cancelTask()) %>
                                       <code>
-                                        <span class="on_cancel"> <%= l.string("ON_CANCEL") %></span>
+                                        <span class="on_cancel"> On Cancel</span>
                                         <%= render :partial => "config_view/templates/plugin_view.html", :locals => {:scope => {:task => task.cancelTask()}} -%>
                                       </code>
                                   <% else %>
                                       <code>
                                         <% working_dir_title = (task.cancelTask().getTypeForDisplay() == "Fetch Artifact" || task.cancelTask().workingDirectory()==nil || task.cancelTask().workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.cancelTask().workingDirectory() %>
-                                        <span class="on_cancel"> <%= l.string("ON_CANCEL") %></span>
+                                        <span class="on_cancel"> On Cancel</span>
                                         <span class="working_dir" title="<%= working_dir_title %>"><%= "#{task.cancelTask().workingDirectory()}$" %></span>
                                         <span class="command"><%= task.cancelTask().command() %></span>
                                         <span class="arguments"><%= task.cancelTask().arguments() %></span>

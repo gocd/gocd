@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.junitext.DatabaseChecker;
 import com.thoughtworks.go.junitext.GoJUnitExtSpringRunner;
 import com.thoughtworks.go.security.CipherProvider;
@@ -84,7 +83,6 @@ public class BackupServiceH2IntegrationTest {
     GoConfigDao goConfigDao;
     @Autowired
     ServerBackupRepository backupInfoRepository;
-    @Autowired Localizer localizer;
     @Autowired SystemEnvironment systemEnvironment;
     @Autowired ServerVersion serverVersion;
     @Autowired ConfigRepository configRepository;
@@ -156,7 +154,7 @@ public class BackupServiceH2IntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(localizer), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup completed successfully."));
 
         String location = temporaryFolder.newFolder().getAbsolutePath();
 

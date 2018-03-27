@@ -1,12 +1,12 @@
 <div class="form_item">
 
   <div class="form_item_block required">
-    <%= required_label(scope[:form], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, l.string('URL')) -%>
+    <%= required_label(scope[:form], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, 'URL') -%>
     <%= scope[:form].text_field com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, {:class => "form_input required svn_url", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, :css_class => "form_error url") %>
   </div>
   <div class="form_item_block">
-    <label><%= l.string('USERNAME') -%></label>
+    <label>Username</label>
     <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:class => "form_input svn_username", :id => nil}) -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
   </div>

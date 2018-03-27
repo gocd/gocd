@@ -79,7 +79,7 @@ describe "/server/messages_body.html.erb" do
   end
 
   def assert_message_and_desc tag, message, desc
-    expect(tag).to have_selector('.message', message)
-    expect(tag).to have_selector('.description', desc)
+    expect(tag).to have_selector('.message', text: message)
+    expect(tag).to have_selector('.description', text: desc)
   end
 end

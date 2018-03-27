@@ -29,9 +29,8 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
@@ -58,6 +57,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.update.ErrorCollector.collectFieldErrors;
 import static com.thoughtworks.go.config.update.ErrorCollector.collectGlobalErrors;
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
@@ -66,7 +67,6 @@ public class PackageRepositoryService {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
-    private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageRepositoryExtension packageRepositoryExtension;
 
@@ -74,13 +74,12 @@ public class PackageRepositoryService {
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
-                                    EntityHashingService entityHashingService, Localizer localizer) {
+                                    EntityHashingService entityHashingService) {
         this.pluginManager = pluginManager;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
-        this.localizer = localizer;
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
 
@@ -91,12 +90,12 @@ public class PackageRepositoryService {
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(updateCommand, md5, username, result);
         if (result.isSuccessful()) {
             ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success(packageRepository.getId(), result.httpCode(),
-                    configUpdateResponse.wasMerged() ? localizer.localize("CONFIG_MERGED") : localizer.localize("SAVED_CONFIGURATION_SUCCESSFULLY"));
+                    configUpdateResponse.wasMerged() ? "The configuration was modified by someone else, but your changes were merged successfully." : "Saved configuration successfully.");
             return response;
         } else {
             List<String> globalErrors = globalErrors(configUpdateResponse.getCruiseConfig().getAllErrorsExceptFor(configUpdateResponse.getSubject()));
             HashMap<String, List<String>> fieldErrors = fieldErrors(configUpdateResponse.getSubject(), "package_repository");
-            String message = result.message(localizer);
+            String message = result.message();
             ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure(packageRepository.getId(), result.httpCode(), message, fieldErrors, globalErrors);
             return response;
         }
@@ -107,13 +106,13 @@ public class PackageRepositoryService {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
-                result.connectionError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository", messages));
+                result.connectionError("Could not connect to package repository. Reason(s): " + messages);
                 return;
             }
-            result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
+            result.setMessage("Connection OK. " + messages);
             return;
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository", e.getMessage()));
+            result.internalServerError("Could not connect to package repository. Reason(s): " + e.getMessage());
         }
     }
 
@@ -126,7 +125,7 @@ public class PackageRepositoryService {
             String pluginId = packageRepository.getPluginConfiguration().getId();
             if (repositoryMetadataStore.hasOption(pluginId, key, PackageConfiguration.REQUIRED)) {
                 if (configurationProperty.getValue().isEmpty()) {
-                    configurationProperty.addErrorAgainstConfigurationValue(localizer.localize("MANDATORY_CONFIGURATION_FIELD"));
+                    configurationProperty.addErrorAgainstConfigurationValue("This field is required.");
                 }
             }
         }
@@ -164,7 +163,7 @@ public class PackageRepositoryService {
     public boolean validatePluginId(PackageRepository packageRepository) {
         String pluginId = packageRepository.getPluginConfiguration().getId();
         if (isEmpty(pluginId)) {
-            packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, localizer.localize("PLUGIN_ID_REQUIRED"));
+            packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, "Please select package repository plugin");
             return false;
         }
 
@@ -175,7 +174,7 @@ public class PackageRepositoryService {
                 return true;
             }
         }
-        packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, localizer.localize("PLUGIN_ID_INVALID"));
+        packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, "Invalid plugin id");
         return false;
     }
 
@@ -186,7 +185,7 @@ public class PackageRepositoryService {
             @Override
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
                 if (!securityService.canViewAdminPage(username)) {
-                    result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), null);
+                    result.unauthorized(LocalizedMessage.unauthorizedToEdit(), null);
                 }
             }
 
@@ -245,11 +244,11 @@ public class PackageRepositoryService {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", repository.getClass().getAnnotation(ConfigTag.class).value(), repository.getId(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(repository.getClass().getAnnotation(ConfigTag.class).value(), repository.getId(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the package repository config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package repository config. Please check the logs for more information."));
                 }
             }
         }
@@ -264,7 +263,7 @@ public class PackageRepositoryService {
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
         update(username, result, command, repository);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package repository", repository.getId()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("package repository", repository.getId()));
         }
     }
 

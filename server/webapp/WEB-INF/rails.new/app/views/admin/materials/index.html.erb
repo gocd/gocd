@@ -1,13 +1,13 @@
 <div class="config-container config-materials">
-<h3 class="section-title material-title"><%= l.string("MATERIALS") -%></h3>
+<h3 class="section-title material-title">Materials</h3>
 
 <table class="list_table">
     <thead>
     <tr>
-        <th><%= l.string("NAME") -%></th>
-        <th><%= l.string("TYPE") -%></th>
-        <th><%= l.string("URL") -%></th>
-        <th class="remove"><%= l.string("REMOVE") -%></th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>URL</th>
+        <th class="remove">Remove</th>
     </tr>
     </thead>
     <tbody>
@@ -15,11 +15,11 @@
         <tr>
             <td>
                 <% if material.getType() == 'PluggableSCMMaterial' %>
-                    <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
+                    <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {overlayClose: false, title: '<%='Edit Material' + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
                         <%= material.getDisplayName() -%>
                     </a>
                 <% else %>
-                <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + l.string(material.getTypeForDisplay().upcase())-%>'}, function(text){return text})">
+                <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%='Edit Material' + " - " + material.getTypeForDisplay() -%>'}, function(text){return text})">
                     <%= material.getDisplayName() -%>
                 </a>
                 <% end %>
@@ -28,18 +28,18 @@
             <td class="wrapped_word"><%= material.getUriForDisplay() %></td>
             <td>
                 <% if @pipeline.materialConfigs().size() <= 1 %>
-                    <%= action_icon({:type => "delete", :disabled => true, :title => l.string("MATERIAL_CANNOT_BE_DELETED")}) %>
+                    <%= action_icon({:type => "delete", :disabled => true, :title => 'Cannot delete this material as pipeline should have at least one material'}) %>
                 <% else %>
                     <% if material.isUsedInFetchArtifact(@pipeline)%>
-                        <%= action_icon({:type => "delete", :disabled => true, :title => l.string("CANNOT_DELETE_DEP_MATERIAL")}) %>
+                        <%= action_icon({:type => "delete", :disabled => true, :title => 'Cannot delete this material since it is used in a fetch artifact task.'}) %>
                     <% else %>
                         <% if material.isUsedInLabelTemplate(@pipeline) %>
-                            <%= action_icon({:type => "delete", :disabled => true, :title => l.string("MATERIAL_NAME_IN_LABEL")}) %>
+                            <%= action_icon({:type => "delete", :disabled => true, :title => "Cannot delete this material as the material name is used in this pipeline's label template"}) %>
                         <% else %>
                             <%= form_for material, :as => '', :url => admin_material_delete_path(:pipeline_name => @pipeline.name(), :finger_print => material.getPipelineUniqueFingerprint()),
                                         :html => {:id => "delete_material_#{material.getPipelineUniqueFingerprint()}", :method => "delete"} do |f| %>
                                 <%= md5_field %>
-                                <span class="icon_remove delete_parent" title="<%= l.string("REMOVE_THIS_MATERIAL") %>" id="trigger_delete_material_<%= material.getPipelineUniqueFingerprint() %>">
+                                <span class="icon_remove delete_parent" title="Remove this material" id="trigger_delete_material_<%= material.getPipelineUniqueFingerprint() %>">
                                     <%= render :partial => 'admin/shared/submit_with_prompt.html',
                                                :locals => {:scope => {
                                                        :button_id => "trigger_delete_material_#{material.getPipelineUniqueFingerprint()}",
@@ -55,41 +55,41 @@
     <% end %>
     <tr>
         <td colspan="4">
-			<%= action_icon({:type => "add", :id => "add_material_dropdown_link", :text => l.string("ADD_MATERIAL"),:menu_link => true,  :href => "#"}) %>
+			<%= action_icon({:type => "add", :id => "add_material_dropdown_link", :text => 'Add Material',:menu_link => true,  :href => "#"}) %>
             <div id="new_material_popup" class="hidden enhanced_dropdown">
                 <ul>
                     <% if @pipeline.materialConfigs().scmMaterialsHaveDestination() %>
-                        <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show('#{admin_git_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
-                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show('#{admin_svn_new_path(:controller => "admin/materials/svn", :action => "new")}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
-                        <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show('#{admin_hg_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
-                        <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show('#{admin_p4_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
-                        <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show('#{admin_tfs_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>
+                        <li><%= link_to 'Git', '#', :onclick => "Modalbox.show('#{admin_git_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Git'}'})" -%></li>
+                        <li><%= link_to 'Subversion', '#', :onclick => "Modalbox.show('#{admin_svn_new_path(:controller => "admin/materials/svn", :action => "new")}', {overlayClose: false, title: '#{'Add Material'} - #{'Subversion'}'})" -%></li>
+                        <li><%= link_to 'Mercurial', '#', :onclick => "Modalbox.show('#{admin_hg_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Mercurial'}'})" -%></li>
+                        <li><%= link_to 'Perforce', '#', :onclick => "Modalbox.show('#{admin_p4_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Perforce'}'})" -%></li>
+                        <li><%= link_to 'Team Foundation Server', '#', :onclick => "Modalbox.show('#{admin_tfs_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Team Foundation Server'}'})" -%></li>
                         <% scm_plugin_ids = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().getPlugins() %>
                         <% if (!scm_plugin_ids.isEmpty()) %>
                             <% for scm_plugin_id in scm_plugin_ids %>
                                 <% scm_name = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(scm_plugin_id) %>
-                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show('#{admin_pluggable_scm_new_path(:plugin_id => scm_plugin_id)}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
+                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show('#{admin_pluggable_scm_new_path(:plugin_id => scm_plugin_id)}', {overlayClose: false, title: '#{'Add Material'} - #{scm_name}'})" -%></li>
                             <% end %>
                         <% end %>
                     <% else %>
-                        <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
-                        <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
-                        <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
-                        <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
-                        <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>
+                        <li><%= link_to 'Git', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{'Git'}'})" -%></li>
+                        <li><%= link_to 'Subversion', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{'Subversion'}'})" -%></li>
+                        <li><%= link_to 'Mercurial', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{'Mercurial'}'})" -%></li>
+                        <li><%= link_to 'Perforce', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{'Perforce'}'})" -%></li>
+                        <li><%= link_to 'Team Foundation Server', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{'Team Foundation Server'}'})" -%></li>
                         <% scm_plugin_ids = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().getPlugins() %>
                         <% if (!scm_plugin_ids.isEmpty()) %>
                             <% for scm_plugin_id in scm_plugin_ids %>
                                 <% scm_name = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(scm_plugin_id) %>
-                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
+                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{'Add Material'} - #{scm_name}'})" -%></li>
                             <% end %>
                         <% end %>
                     <% end %>
                     <li class="menu_item_last_with_border">
-                        <%= link_to l.string("PIPELINE"), '#', :onclick => "Modalbox.show('#{admin_dependency_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("PIPELINE")}'})" -%>
+                        <%= link_to 'Pipeline', '#', :onclick => "Modalbox.show('#{admin_dependency_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Pipeline'}'})" -%>
                     </li>
                     <li>
-                        <%= link_to l.string("PACKAGE"), '#', :onclick => "Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("PACKAGE")}'})" -%>
+                        <%= link_to 'Package', '#', :onclick => "Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: '#{'Add Material'} - #{'Package'}'})" -%>
                     </li>
 
                 </ul>
@@ -102,8 +102,8 @@
 </div>
 <% if !@pipeline.materialConfigs().scmMaterialsHaveDestination() %>
     <div class="light_box_content" style="display: none">
-        <div class="warnings"><%= l.string("WARNING_DESTINATION_DIRECTORY_NEEDED") %></div>
-        <button class="right submit close_modalbox_control"><span><%= l.string('CLOSE') -%></span></button>
+        <div class="warnings">In order to configure multiple materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.</div>
+        <button class="right submit close_modalbox_control"><span>Close</span></button>
         <div class="clear"></div>
     </div>
 <% end %>

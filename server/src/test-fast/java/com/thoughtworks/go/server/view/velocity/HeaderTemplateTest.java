@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.view.velocity;
 
-import com.thoughtworks.go.i18n.Localizer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -25,15 +24,13 @@ import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class HeaderTemplateTest {
-    public static final String TEMPLATE_PATH = "/WEB-INF/vm/shared/_header.vm";
+    private static final String TEMPLATE_PATH = "/WEB-INF/vm/shared/_header.vm";
 
     @Test
-    public void shouldHaveNavigationElementsWhenLocalizerIsPresentInContext() throws Exception {
+    public void shouldHaveNavigationElements() throws Exception {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("l", mock(Localizer.class));
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
 
@@ -43,32 +40,8 @@ public class HeaderTemplateTest {
     }
 
     @Test
-    public void should_NOT_HaveHeaderWhenLocalizerIs_NULL_InContext() throws Exception {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("l", null);
-
-        TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-
-        Document actualOutput = Jsoup.parse(view.render());
-
-        assertThat(actualOutput.select("#header .application_nav").isEmpty(), is(true));
-    }
-
-    @Test
-    public void should_NOT_HaveHeaderWhenLocalizerIs_NOT_PresentInContext() throws Exception {
-        HashMap<String, Object> data = new HashMap<>();
-
-        TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-
-        Document actualOutput = Jsoup.parse(view.render());
-
-        assertThat(actualOutput.select("#header .application_nav").isEmpty(), is(true));
-    }
-
-    @Test
     public void shouldHaveLogoEvenWhenNavigationElementsAreNotPresent() throws Exception {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("l", null);
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
 

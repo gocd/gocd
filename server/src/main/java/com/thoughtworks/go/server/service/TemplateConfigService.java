@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.server.ui.TemplatesViewModel;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class TemplateConfigService {
@@ -126,7 +129,7 @@ public class TemplateConfigService {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser);
         update(currentUser, result, command, templateConfig);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "template", templateConfig.name().toString()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("template", templateConfig.name().toString()));
         }
     }
 
@@ -135,11 +138,11 @@ public class TemplateConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateConfig.name(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed("template", templateConfig.name(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the template config. Please check the logs for more information."));
                 }
             }
         }
@@ -167,7 +170,7 @@ public class TemplateConfigService {
 
     public ConfigForEdit<PipelineTemplateConfig> loadForEdit(String templateName, Username username, HttpLocalizedOperationResult result) {
         if (!securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_TEMPLATE", templateName), HealthStateType.unauthorised());
+            result.unauthorized("Unauthorized to edit '" + templateName + "' template.", HealthStateType.unauthorised());
             return null;
         }
         GoConfigHolder configHolder = goConfigService.getConfigHolder();
@@ -184,7 +187,7 @@ public class TemplateConfigService {
     private boolean doesTemplateExist(String templateName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         TemplatesConfig templates = cruiseConfig.getTemplates();
         if (!templates.hasTemplateNamed(new CaseInsensitiveString(templateName))) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Template", templateName), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.notFound(resourceNotFound("Template", templateName), general(GLOBAL));
             return false;
         }
         return true;
@@ -192,7 +195,7 @@ public class TemplateConfigService {
 
     public List<PipelineConfig> allPipelinesNotUsingTemplates(Username username, LocalizedOperationResult result) {
         if (!(securityService.isUserAdmin(username) || securityService.isUserGroupAdmin(username))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
             return null;
         }
         List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEditForUser(username);

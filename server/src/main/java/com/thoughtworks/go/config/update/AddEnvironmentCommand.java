@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
 import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
 import com.thoughtworks.go.config.validation.GoConfigValidator;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -30,6 +28,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
 
 public class AddEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
 
@@ -42,7 +42,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
             new EnvironmentPipelineValidator()
     );
 
-    public AddEnvironmentCommand(GoConfigService goConfigService, BasicEnvironmentConfig environmentConfig, Username user, Localizable.CurryableLocalizable actionFailed, LocalizedOperationResult result) {
+    public AddEnvironmentCommand(GoConfigService goConfigService, BasicEnvironmentConfig environmentConfig, Username user, String actionFailed, LocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result);
         this.goConfigService = goConfigService;
         this.environmentConfig = environmentConfig;
@@ -63,13 +63,12 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isUserAdmin(user)) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", user.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized("Failed to add environment. User '" + user.getDisplayName() + "' does not have permission to add environments", HealthStateType.unauthorised());
             return false;
         }
         CaseInsensitiveString environmentName = environmentConfig.name();
         if (goConfigService.hasEnvironmentNamed(environmentName)) {
-            result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", environmentName));
+            result.conflict(resourceAlreadyExists("environment", environmentName));
             return false;
         }
         return true;

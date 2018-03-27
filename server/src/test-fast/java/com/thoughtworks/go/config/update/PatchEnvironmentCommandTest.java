@@ -23,8 +23,6 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -46,7 +44,7 @@ public class PatchEnvironmentCommandTest {
     private BasicEnvironmentConfig environmentConfig;
     private CaseInsensitiveString environmentName;
     private HttpLocalizedOperationResult result;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
 
     private ArrayList<String> pipelinesToAdd;
     private ArrayList<String> pipelinesToRemove;
@@ -89,7 +87,7 @@ public class PatchEnvironmentCommandTest {
         agentConfig = new AgentConfig("uuid-1");
         cruiseConfig.agents().add(agentConfig);
 
-        actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", environmentConfig.name());
+        actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
     }
 
     @Test
@@ -163,7 +161,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(command.isValid(cruiseConfig));
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'invalid-agent-uuid'"));
+        expectedResult.unprocessableEntity(actionFailed + " Environment 'Dev' has an invalid agent uuid 'invalid-agent-uuid'");
 
         assertThat(result, is(expectedResult));
     }
@@ -183,7 +181,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'invalid-pipeline-name'."));
+        expectedResult.unprocessableEntity(actionFailed + " Environment 'Dev' refers to an unknown pipeline 'invalid-pipeline-name'.");
 
         assertThat(result, is(expectedResult));
     }
@@ -201,7 +199,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Pipeline 'invalid-pipeline-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed + " Pipeline 'invalid-pipeline-to-remove' does not exist in environment 'Dev'");
 
         assertThat(result, is(expectedResult));
     }
@@ -219,7 +217,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed + " Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'");
 
         assertThat(result, is(expectedResult));
     }
@@ -237,7 +235,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Environment variable with name 'invalid-env-var-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed + " Environment variable with name 'invalid-env-var-to-remove' does not exist in environment 'Dev'");
 
         assertThat(result, is(expectedResult));
     }
@@ -266,8 +264,8 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        String message = "Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.unprocessableEntity(actionFailed.addParam(message));
+        String message = actionFailed + " Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.unprocessableEntity(message);
 
         assertThat(result, is(expectedResult));
     }
@@ -296,8 +294,8 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        String message = "Agent with uuid 'remote-agent-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.unprocessableEntity(actionFailed.addParam(message));
+        String message = actionFailed + " Agent with uuid 'remote-agent-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.unprocessableEntity(message);
 
         assertThat(result, is(expectedResult));
     }
@@ -326,8 +324,8 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        String message = "Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.unprocessableEntity(actionFailed.addParam(message));
+        String message = actionFailed + " Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.unprocessableEntity(message);
 
         assertThat(result, is(expectedResult));
     }
@@ -338,8 +336,7 @@ public class PatchEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentConfig.name().toString(), currentUser.getDisplayName());
-        expectResult.unauthorized(noPermission, HealthStateType.unauthorised());
+        expectResult.unauthorized(actionFailed + " User 'user' does not have permission to update environments", HealthStateType.unauthorised());
 
         assertThat(result, is(expectResult));
     }

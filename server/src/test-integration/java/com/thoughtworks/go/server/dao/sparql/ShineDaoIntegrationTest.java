@@ -23,14 +23,13 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.testinfo.*;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.XmlApiService;
-import com.thoughtworks.go.server.service.result.SubsectionLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -71,8 +70,7 @@ import static org.junit.Assert.assertThat;
 })
 public class ShineDaoIntegrationTest {
     private ShineDao shineDao;
-    @Autowired private Localizer localizer;
-    private SubsectionLocalizedOperationResult result;
+    private HttpLocalizedOperationResult result;
     @Autowired private StageStorage stageStorage;
     @Autowired private StagesQueryCache stagesQueryCache;
     @Autowired private StageService stageService;
@@ -102,7 +100,7 @@ public class ShineDaoIntegrationTest {
         dbHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        result = new SubsectionLocalizedOperationResult();
+        result = new HttpLocalizedOperationResult();
         File tempFolder = temporaryFolder.newFolder("artifacts");
 
         String artifactsRoot = tempFolder.getAbsolutePath();
@@ -183,7 +181,7 @@ public class ShineDaoIntegrationTest {
         assertThat(details.getMessage(), is("NOT_YET_AVAILABLE"));
         assertThat(details.getStackTrace(), is("NOT_YET_AVAILABLE"));
         assertThat("not successful", result.isSuccessful(), is(false));
-        assertThat(result.replacementContent(localizer), is("Unable to retrieve failure results."));
+        assertThat(result.message(), is("Unable to retrieve failure results."));
     }
 
     @Test
@@ -249,7 +247,7 @@ public class ShineDaoIntegrationTest {
 
         shineDao.failedBuildHistoryForStage(stageId, result);
         assertThat("not successful", result.isSuccessful(), is(false));
-        assertThat(result.replacementContent(localizer), is("Unable to retrieve failure results."));
+        assertThat(result.message(), is("Unable to retrieve failure results."));
     }
 
     @Test
@@ -325,16 +323,16 @@ public class ShineDaoIntegrationTest {
     @Test
     public void shouldReturnTheTotalNumberOfFailuresAndErrorsForAPassedStage() {
         StageIdentifier stageId = failureSetup.setupPipelineInstance(false, null, Arrays.asList(new Modification("blahUser", "revision 17", "hello@world", new Date(), "17")),
-                       new TestFailureSetup.TestResultsStubbing() {
-                           public void stub(Stage stage) {
-                               dbHelper.passStage(stage);
-                               JunitXML junit1 = junitXML("testSuite1", 2).failed(2).errored(1);
-                               junit1.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(0).getIdentifier().artifactLocator("junit") + "/junit/");
+                new TestFailureSetup.TestResultsStubbing() {
+                    public void stub(Stage stage) {
+                        dbHelper.passStage(stage);
+                        JunitXML junit1 = junitXML("testSuite1", 2).failed(2).errored(1);
+                        junit1.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(0).getIdentifier().artifactLocator("junit") + "/junit/");
 
-                               JunitXML junit2 = junitXML("testSuite1", 2).errored(1);
-                               junit2.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(1).getIdentifier().artifactLocator("junit") + "/junit/");
-                           }
-                       }, new Date()).stageId;
+                        JunitXML junit2 = junitXML("testSuite1", 2).errored(1);
+                        junit2.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(1).getIdentifier().artifactLocator("junit") + "/junit/");
+                    }
+                }, new Date()).stageId;
 
         StageTestRuns testRuns = shineDao.failedBuildHistoryForStage(stageId, result);
 

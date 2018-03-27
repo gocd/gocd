@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 public class StubPackageDefinitionService extends PackageDefinitionService {
 
     public StubPackageDefinitionService() {
-        super(null, null, null, null);
+        super(null, null, null);
     }
 
     @Override

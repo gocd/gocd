@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
@@ -92,7 +93,7 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
         boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).equals(md5);
 
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "pipeline", pipelineConfig.name().toString()));
+            result.stale(staleResourceConfig("pipeline", pipelineConfig.name().toString()));
         }
 
         return freshRequest;

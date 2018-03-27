@@ -40,7 +40,7 @@ class AgentDetailsController < ApplicationController
     uuid = params[:uuid]
     @agent = agent_service.findAgentViewModel(uuid)
     if @agent.isNullAgent()
-      render_error_response(l.string("AGENT_WITH_UUID_NOT_FOUND", [uuid].to_java(java.lang.String)), 404, false)
+      render_error_response("Agent with uuid '#{uuid}' not found.", 404, false)
       false
     end
   end

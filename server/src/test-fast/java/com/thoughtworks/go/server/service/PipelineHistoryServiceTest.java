@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -939,7 +938,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
-        verify(result, times(1)).unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        verify(result, times(1)).unauthorized("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
     }
 
     @Test
@@ -953,7 +952,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat(result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
+        assertThat(result.message(), is("'Pipeline Comment' feature is turned off. Please turn it on to use it."));
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }
 

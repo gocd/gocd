@@ -34,7 +34,7 @@ module ApiV1
           template_config_service.updateTemplateAuthConfig(current_user, @template, updated_authorization, result, etag_for(@template))
           handle_update_response(result, updated_authorization)
         end
-        
+
         private
         def load_template(template_name = params[:template_name])
           result = HttpLocalizedOperationResult.new
@@ -57,7 +57,7 @@ module ApiV1
         end
 
         def stale_message
-          LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', @template.name)
+          com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('Template', @template.name)
         end
       end
     end

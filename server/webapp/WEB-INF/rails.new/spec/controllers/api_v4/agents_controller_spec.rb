@@ -547,7 +547,7 @@ describe ApiV4::AgentsController do
       it 'should allow admin users to update a group of agents' do
         uuids = %w(agent-1 agent-2)
         expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(@user, anything(), uuids, anything(), anything(), anything(), anything(), anything()) do |user, result, uuids, r_add, r_remove, e_add, e_remove, state|
-          result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", uuids.join(', ')));
+          result.setMessage('Updated agent(s) with uuid(s): [agent-1, agent-2].');
         end
 
         patch_with_api_header :bulk_update, :uuids => uuids

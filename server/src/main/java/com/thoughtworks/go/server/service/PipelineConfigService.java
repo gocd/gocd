@@ -39,6 +39,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+
 
 /**
  * @understands providing services around a pipeline configuration
@@ -68,17 +72,17 @@ public class PipelineConfigService {
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             ConfigOrigin origin = pipelineConfigOrigin(cruiseConfig, pipelineName);
             if (origin != null && !origin.isLocal()) {
-                nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_REMOTE_PIPELINE", pipelineName, origin.displayName())));
+                nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' defined in configuration repository '" + origin.displayName() + "'."));
             } else {
                 CaseInsensitiveString envName = environmentUsedIn(cruiseConfig, pipelineName);
                 if (envName != null) {
-                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineName, envName)));
+                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' as it is present in environment '" + envName + "'."));
                 } else {
                     CaseInsensitiveString downStream = downstreamOf(hashtable, pipelineName);
                     if (downStream != null) {
-                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", pipelineName, downStream)));
+                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' as pipeline '" + downStream + "' depends on it."));
                     } else {
-                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")));
+                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(true, "Delete this pipeline."));
                     }
                 }
             }
@@ -116,11 +120,11 @@ public class PipelineConfigService {
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 if (!result.hasMessage()) {
-                    result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name()), e.getMessage()));
+                    result.unprocessableEntity(entityConfigValidationFailed(pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), str(pipelineConfig.name()), e.getMessage()));
                 }
             } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
                 LOGGER.error(e.getMessage(), e);
-                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+                result.internalServerError(saveFailedWithReason(e.getMessage()));
             }
         }
     }
@@ -162,7 +166,7 @@ public class PipelineConfigService {
         DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "pipeline", pipelineConfig.name()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("pipeline", pipelineConfig.name()));
         }
     }
 

@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -47,6 +39,12 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class ChangesetService {
@@ -76,12 +74,12 @@ public class ChangesetService {
     public List<MaterialRevision> revisionsBetween(String pipelineName, Integer fromCounter, Integer toCounter, Username username, HttpLocalizedOperationResult result, boolean skipCheckForMingle,
                                                    boolean showBisect) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<>();
         }
 
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
             return new ArrayList<>();
         }
 
@@ -90,7 +88,7 @@ public class ChangesetService {
         }
 
         if (fromCounter < 0 || toCounter <= 0) {
-            result.badRequest(LocalizedMessage.string("NEGATIVE_PIPELINE_COUNTER"));
+            result.badRequest("Pipeline counters should be positive.");
             return new ArrayList<>();
         }
 

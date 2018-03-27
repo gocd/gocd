@@ -63,7 +63,7 @@ module ApiV4
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('Template', params[:template][:name])
       end
 
       def etag_for_entity_in_config

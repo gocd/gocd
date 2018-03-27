@@ -49,7 +49,7 @@ module ApiV1
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Elastic agent profile', params[:profile_id])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('Elastic agent profile', params[:profile_id])
       end
 
       def etag_for_entity_in_config

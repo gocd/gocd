@@ -1,6 +1,6 @@
 <%= pipeline_operations_blocking_form_remote_tag :url => { :controller => 'pipelines', :action => 'show_for_trigger' },
                              :html => {
-                                     :onsubmit => "PipelineOperations.onTriggerWithOptions(this, '#{scope[:pipeline].getName()}', '#{l.string('TRIGGER')}', '#{pipeline_show_with_option_path}'); return false;".html_safe
+                                     :onsubmit => "PipelineOperations.onTriggerWithOptions(this, '#{scope[:pipeline].getName()}', '#{'Trigger'}', '#{pipeline_show_with_option_path}'); return false;".html_safe
                              }
 
 -%>

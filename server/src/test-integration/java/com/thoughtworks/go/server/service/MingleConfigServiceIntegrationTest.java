@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -45,7 +44,6 @@ public class MingleConfigServiceIntegrationTest {
     @Autowired private MingleConfigService mingleConfigService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private Localizer localizer;
 
     private GoConfigFileHelper configHelper;
 
@@ -93,7 +91,7 @@ public class MingleConfigServiceIntegrationTest {
         MingleConfig mingleConfig = mingleConfigService.mingleConfigForPipelineNamed("foo", new Username(new CaseInsensitiveString("some_loser")), result);
         assertThat(mingleConfig, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("You do not have view permissions for pipeline 'foo'."));
+        assertThat(result.message(), is("You do not have view permissions for pipeline 'foo'."));
         assertThat(result.httpCode(), is(401));
     }
 

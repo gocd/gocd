@@ -22,7 +22,7 @@ describe ConfigUpdate::CheckIsSuperAdmin do
   def params
     @params = {}
   end
-  
+
   before do
     @security_service = double("security_service") #Instance variable because the module expects this to be defined
     @user = "loser" #Instance variable because the module expects this to be defined
@@ -37,7 +37,7 @@ describe ConfigUpdate::CheckIsSuperAdmin do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit configuration")
+    expect(result.message()).to eq("Unauthorized to edit.")
   end
 
   it "should return successful if user is an admin" do

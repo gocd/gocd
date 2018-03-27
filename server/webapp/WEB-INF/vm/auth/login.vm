@@ -126,27 +126,27 @@
           <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
             <div id="logo-login"><h2>&nbsp;</h2></div>
             <div id="graphic-dialog-input">
-              <!-- <h3>$l.localize("PLEASE_SIGN_IN")</h3> -->
+              <!-- <h3>Please Sign In</h3> -->
               <form action="security_check" id="login_form" method="post">
                 <p>
-                  <label for="user_login">$l.localize("USERNAME")</label>
+                  <label for="user_login">Username</label>
                   <input class="" id="user_login" name="j_username" onfocus="true"
                          type="text"/>
                 </p>
 
                 <p>
-                  <label for="user_password">$l.localize("PASSWORD")</label>
+                  <label for="user_password">Password</label>
                   <input class="" type="password" name="j_password" id="user_password"
                          value="" autocomplete="off"/>
                 </p>
 
                 <p id="login-actions">
                   <a target="_blank" href="https://gocd.org/help"
-                     title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
+                     title="Click to open help documentation" class="help">Need Help?</a>
                 ##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
 
                   <button class="submit_hover submit primary" type="submit" id="signin2" value="Sign in &#187;">
-                    <span>$l.localize("SIGN_IN")</span>
+                    <span>SIGN IN</span>
                   </button>
 
                 </p>

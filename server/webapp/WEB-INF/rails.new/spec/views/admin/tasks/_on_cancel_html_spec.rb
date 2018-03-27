@@ -34,7 +34,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
 
     Capybara.string(response.body).find('div.on_cancel').tap do |div|
-      expect(div).to have_selector("div#plugin_missing_error .warning", :text => "On Cancel task is not available because associated plugin 'curl.plugin' is missing. Please contact Go admin to verify or re-install plugin. Click on Save will replace the current On Cancel task.")
+      expect(div).to have_selector("div#plugin_missing_error .warning", :text => "On Cancel task is not available because associated plugin 'curl.plugin' is missing. Please contact Go admin to verify or re-install plugin. Click on 'Save' will replace the current On Cancel task.")
     end
   end
 

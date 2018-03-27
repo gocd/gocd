@@ -19,10 +19,11 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 
 public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand<PipelineTemplateConfig> {
@@ -55,12 +56,12 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
 
     PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
         if (templateConfig == null || templateConfig.name() == null || templateConfig.name().isBlank()) {
-            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "template", "name"));
+            result.unprocessableEntity("The template config is invalid. Attribute 'name' cannot be null.");
             throw new IllegalArgumentException("Template name cannot be null.");
         } else {
             PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.findTemplate(templateConfig.name());
             if (pipelineTemplateConfig == null) {
-                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Template", templateConfig.name()), HealthStateType.notFound());
+                result.notFound(resourceNotFound("Template", templateConfig.name()), notFound());
                 throw new NoSuchTemplateException(templateConfig.name());
             }
             return pipelineTemplateConfig;

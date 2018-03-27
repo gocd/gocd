@@ -185,7 +185,7 @@ module Admin
     def load_task
       assert_load :tasks, @job.getTasks()
       task_idx = params[:task_index].to_i
-      (@tasks.size() > task_idx) ? assert_load(:task, @tasks.get(task_idx)) : render_assertion_failure({:message => l.string("TASK_NOT_FOUND")})
+      (@tasks.size() > task_idx) ? assert_load(:task, @tasks.get(task_idx)) : render_assertion_failure({:message => 'Task not found.'})
     end
 
     def change_index &action

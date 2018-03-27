@@ -21,7 +21,7 @@ module ::GoSslHelper
 
   def mandatory_ssl_with_config_enforcement
     if Thread.current[:ssl_base_url].nil?
-      @message = l.string("SSL_ENFORCED_BUT_BASE_NOT_FOUND")
+      @message = "There is currently no 'https' URL configured. For this feature to work please configure the server's siteUrl or secureSiteUrl with an 'https' URL."
       @status = 404
       render 'shared/ssl_not_configured_error', :status => @status, :layout => true
       return false

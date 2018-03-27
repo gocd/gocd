@@ -20,8 +20,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepresenter
 import com.thoughtworks.go.domain.materials.MatchedRevision
-import com.thoughtworks.go.i18n.LocalizedKeyValueMessage
-import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -55,7 +53,7 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
 
   @Override
   MaterialSearchControllerDelegate createControllerInstance() {
-    return new MaterialSearchControllerDelegate(materialService, new ApiAuthenticationHelper(securityService, goConfigService), localizer);
+    return new MaterialSearchControllerDelegate(materialService, new ApiAuthenticationHelper(securityService, goConfigService));
   }
 
   @Nested
@@ -101,18 +99,16 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
   void 'should render 404 when pipeline or fingerprint is not found'() {
     when(materialService.searchRevisions(any(), any(), any(), any(), any())).then({ InvocationOnMock invocation ->
       HttpLocalizedOperationResult result = invocation.getArguments().last()
-      result.notFound(LocalizedMessage.materialWithFingerPrintNotFound("some-pipeline", "foo"),
+      result.notFound("some message",
         HealthStateType.general(HealthStateScope.forPipeline("some-pipeline")))
     })
-    when(localizer.localize(LocalizedKeyValueMessage.MATERIAL_WITH_FINGERPRINT_NOT_FOUND, "some-pipeline", "foo"))
-      .thenReturn("The pipeline 'some-pipeline' does not contain material with fingerprint 'foo'")
 
     getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))
 
     assertThatResponse()
       .isNotFound()
       .hasContentType(controller.mimeType)
-      .hasJsonMessage("The pipeline 'some-pipeline' does not contain material with fingerprint 'foo'")
+      .hasJsonMessage("some message")
   }
 
   @Test

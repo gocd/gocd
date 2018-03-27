@@ -28,7 +28,7 @@ class Api::ConfigurationController < Api::ApiController
       end
       render json: config_revision_api_models
     else
-      render_error_response(l.string("API_ACCESS_UNAUTHORIZED"), 401, true)
+      render_error_response('Unauthorized to access this API.', 401, true)
     end
   end
 
@@ -40,7 +40,7 @@ class Api::ConfigurationController < Api::ApiController
       config_diff = config_repository.configChangesForCommits(from_revision, to_revision)
       render text: config_diff, content_type: 'text/plain'
     else
-      render_error_response(l.string("API_ACCESS_UNAUTHORIZED"), 401, true)
+      render_error_response('Unauthorized to access this API.', 401, true)
     end
   end
 end

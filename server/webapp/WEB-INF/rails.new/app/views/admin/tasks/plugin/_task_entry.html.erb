@@ -5,7 +5,7 @@
         <% unless scope[:task_config_index] == 0 %>
             <%= form_tag(admin_task_decrement_index_path(:task_index => scope[:task_config_index]), :method => :POST) %>
             <%= md5_field %>
-            <button type="submit" value="" class="promote_button" title="<%= l.string("MOVE_TASK_UP") %>">
+            <button type="submit" value="" class="promote_button" title="Move Up">
                 <div class="promote_up"></div>
             </button>
             <%= end_form_tag %>
@@ -13,13 +13,13 @@
         <% unless scope[:task_config_index] == @tasks.size() - 1 %>
             <%= form_tag(admin_task_increment_index_path(:task_index => scope[:task_config_index]), :method => :POST) %>
             <%= md5_field %>
-            <button type="submit" value="" class="promote_button" title="<%= l.string("MOVE_TASK_DOWN") %>">
+            <button type="submit" value="" class="promote_button" title="Move Down">
                 <div class="promote_down"></div>
             </button>
             <%= end_form_tag %>
         <% end %>
     </td>
-    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {overlayClose: false, title: '#{l.string("EDIT_TASK_OF_TYPE", [scope[:tvm].getTypeForDisplay()])}'}, function(text){return text}, true)" -%>
+    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {overlayClose: false, title: 'Edit #{scope[:tvm].getTypeForDisplay()} task'}, function(text){return text}, true)" -%>
     <%== render_pluggable_template(scope[:tvm], { :scope => scope, :modify_onclick_callback => js_frag}) -%>
     <td class="">
         <%= form_tag admin_task_delete_path(:task_index => scope[:task_config_index]), {:method => :delete, :id => "delete_task_#{scope[:task_config_index]}"} %>

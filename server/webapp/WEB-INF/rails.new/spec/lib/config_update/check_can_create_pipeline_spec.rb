@@ -41,7 +41,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to create pipeline.")
+    expect(result.message()).to eq("Unauthorized to create pipeline.")
     end
 
   it "should return 401 if user is a normal user and group does not exist" do
@@ -55,7 +55,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to create pipeline.")
+    expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
   it "should return 401 if user is an admin but no group_name given(happens when using community edition)" do
@@ -67,7 +67,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to create pipeline.")
+    expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
   it "should return 401 if user is not a group admin for 'defaultGroup' and group name is empty" do
@@ -80,7 +80,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to create pipeline.")
+    expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
   it "should return 401 if user tries to create 'defaultGroup' and is not an admin" do
@@ -93,7 +93,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to create pipeline.")
+    expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
   it "should return successful result if user is a group admin of given pipeline" do

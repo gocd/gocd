@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.tasks;
 
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
@@ -35,12 +34,10 @@ import org.springframework.stereotype.Service;
 public class PluggableTaskService {
 
     private TaskExtension taskExtension;
-    private Localizer localizer;
 
     @Autowired
-    public PluggableTaskService(TaskExtension taskExtension, Localizer localizer) {
+    public PluggableTaskService(TaskExtension taskExtension) {
         this.taskExtension = taskExtension;
-        this.localizer = localizer;
     }
 
     public boolean validate(final PluggableTask modifiedTask) {
@@ -60,7 +57,7 @@ public class PluggableTaskService {
                 if (property != null) {
                     final Boolean required = property.getOption(Property.REQUIRED);
                     if (required && StringUtils.isBlank(configurationProperty.getConfigValue()))
-                        validationResult.addError(new ValidationError(property.getKey(), localizer.localize("MANDATORY_CONFIGURATION_FIELD")));
+                        validationResult.addError(new ValidationError(property.getKey(), "This field is required"));
                 }
             }
         }

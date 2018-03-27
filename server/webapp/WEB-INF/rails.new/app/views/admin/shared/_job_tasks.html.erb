@@ -4,7 +4,7 @@
     <%= scope[:job_form].fields_for com.thoughtworks.go.config.JobConfig::TASKS, tasks do |tasks_form| %>
         <div class="fieldset">
             <div class="form_item required">
-                <%= label_tag random_dom_id('task_type_'), required_label_text(l.string("TASK_TYPE")) %>
+                <%= label_tag random_dom_id('task_type_'), required_label_text('Task Type') %>
                 <%= tasks_form.select(com.thoughtworks.go.config.Tasks::TASK_OPTIONS, task_options, {:selected => tasks.getTaskOptions()}, {:class => "task_type", :id => "job_task_options"}) %>
             </div>
             <div id="job_tasks">

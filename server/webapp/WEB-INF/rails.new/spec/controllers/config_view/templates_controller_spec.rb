@@ -92,7 +92,7 @@ describe ConfigView::TemplatesController do
       result = double(HttpLocalizedOperationResult)
       expect(result).to receive(:isSuccessful).and_return(false)
       expect(result).to receive(:httpCode).and_return(404)
-      expect(result).to receive(:message).with(anything).and_return("Template Not found")
+      expect(result).to receive(:message).and_return("Template Not found")
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       template_name = 'template.name'
       expect(@template_config_service).to receive(:loadForView).with(template_name, result).and_return(nil)

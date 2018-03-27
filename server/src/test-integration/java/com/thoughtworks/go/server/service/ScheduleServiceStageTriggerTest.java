@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -98,7 +97,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private ChangesetService changesetService;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoCache goCache;
-    @Autowired private Localizer localizer;
     @Autowired private PluginManager pluginManager;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -336,7 +334,7 @@ public class ScheduleServiceStageTriggerTest {
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
         assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
         assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState(), is(StageState.Building));
-        assertThat(result.message(localizer), is("Stage cancelled successfully."));
+        assertThat(result.message(), is("Stage cancelled successfully."));
     }
 
     private void reOrderTwoStages() throws Exception {

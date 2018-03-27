@@ -15,7 +15,7 @@
             </div>
             <%= p_f.fields_for(:materials, material_configs) do |materials_form| %>
                 <div class="form_item required">
-                    <%= label_tag random_dom_id('material_type_'), required_label_text(l.string("MATERIAL_TYPE")) %>
+                    <%= label_tag random_dom_id('material_type_'), required_label_text('Material Type') %>
                     <%= select(materials_form.object_name, com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_TYPE, material_options, {:selected => material_configs.getMaterialOptions()}, {:class => "material_type", :id => "material_type_options"}) %>
                 </div>
 

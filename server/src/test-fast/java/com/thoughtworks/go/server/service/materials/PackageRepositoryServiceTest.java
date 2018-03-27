@@ -25,8 +25,6 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -71,8 +69,6 @@ public class PackageRepositoryServiceTest {
     @Mock
     private SecurityService securityService;
     @Mock
-    private Localizer localizer;
-    @Mock
     private EntityHashingService entityHashingService;
     private PackageRepositoryService service;
 
@@ -82,7 +78,7 @@ public class PackageRepositoryServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
+        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
     }
 
     @Test
@@ -103,11 +99,9 @@ public class PackageRepositoryServiceTest {
             }
         });
 
-        when(localizer.localize("SAVED_CONFIGURATION_SUCCESSFULLY")).thenReturn("SAVED_CONFIGURATION_SUCCESSFULLY");
-
         ConfigUpdateAjaxResponse response = service.savePackageRepositoryToConfig(packageRepository, "md5", username);
         assertThat(response.isSuccessful(), is(true));
-        assertThat(response.getMessage(), is("SAVED_CONFIGURATION_SUCCESSFULLY"));
+        assertThat(response.getMessage(), is("Saved configuration successfully."));
         assertThat(response.getSubjectIdentifier(), is("repoid"));
         assertThat(response.getStatusCode(), is(HttpStatus.SC_OK));
 
@@ -137,17 +131,15 @@ public class PackageRepositoryServiceTest {
             @Override
             public ConfigUpdateResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
                 LocalizedOperationResult result = (LocalizedOperationResult) invocationOnMock.getArguments()[3];
-                result.badRequest(LocalizedMessage.string("BAD_REQUEST"));
+                result.badRequest("something bad happened!");
 
                 return new ConfigUpdateResponse(cruiseConfig, cruiseConfig, packageRepository, configAwareUpdate, ConfigSaveState.UPDATED);
             }
         });
-        when(localizer.localize("BAD_REQUEST", new Object[]{})).thenReturn("Save Failed");
-
         ConfigUpdateAjaxResponse response = service.savePackageRepositoryToConfig(packageRepository, "md5", username);
 
         assertThat(response.isSuccessful(), is(false));
-        assertThat(response.getMessage(), is("Save Failed"));
+        assertThat(response.getMessage(), is("something bad happened!"));
 
         assertThat(response.getFieldErrors().size(), is(1));
         assertThat(response.getFieldErrors().get("package_repository[name]"), is(asList("Name is invalid")));
@@ -225,12 +217,11 @@ public class PackageRepositoryServiceTest {
 
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId),any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1.0", null, null, null, true));
-        when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("mandatory field");
 
         service.performPluginValidationsFor(packageRepository);
 
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
-        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required.")));
+        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required.")));
     }
 
     @Test
@@ -248,7 +239,7 @@ public class PackageRepositoryServiceTest {
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor("yum", "1.0", null, null, null, true));
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
 
-        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService,mock(Localizer.class));
+        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
         service.performPluginValidationsFor(packageRepository);
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("url format incorrect")));
     }
@@ -256,9 +247,8 @@ public class PackageRepositoryServiceTest {
     @Test
     public void shouldAddErrorWhenPluginIdIsMissing() {
         PackageRepository packageRepository = new PackageRepository();
-        when(localizer.localize("PLUGIN_ID_REQUIRED")).thenReturn("Please provide plugin id");
         service.performPluginValidationsFor(packageRepository);
-        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID), is(Arrays.asList("Please provide plugin id")));
+        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID), is(Arrays.asList("Please select package repository plugin")));
     }
 
     @Test
@@ -266,7 +256,6 @@ public class PackageRepositoryServiceTest {
         when(pluginManager.plugins()).thenReturn(Arrays.asList(new GoPluginDescriptor("valid", "1.0", null, null, null, true)));
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration("missing-plugin", "1.0"));
-        when(localizer.localize("PLUGIN_ID_INVALID")).thenReturn("Invalid plugin id");
         service.performPluginValidationsFor(packageRepository);
         assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID), is(Arrays.asList("Invalid plugin id")));
     }
@@ -289,7 +278,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenReturn(new Result().withSuccessMessages("Accessed Repo File!!!"));
@@ -299,8 +288,7 @@ public class PackageRepositoryServiceTest {
         RepositoryConfiguration packageConfigurations = argumentCaptor.getValue();
         PackageMaterialTestHelper.assertPackageConfiguration(packageConfigurations.list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful(), is(true));
-        when(localizer.localize("CONNECTION_OK", "Accessed Repo File!!!")).thenReturn("success_msg");
-        assertThat(result.message(localizer), is("success_msg"));
+        assertThat(result.message(), is("Connection OK. Accessed Repo File!!!"));
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
     }
 
@@ -310,7 +298,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
@@ -318,8 +306,7 @@ public class PackageRepositoryServiceTest {
         service.checkConnection(packageRepository, result);
 
         assertThat(result.isSuccessful(), is(false));
-        when(localizer.localize("CHECK_CONNECTION_FAILED", "package repository", "Check Connection not implemented!!")).thenReturn("error_msg");
-        assertThat(result.message(localizer), is("error_msg"));
+        assertThat(result.message(), is("Could not connect to package repository. Reason(s): Check Connection not implemented!!"));
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
     }
 
@@ -328,7 +315,7 @@ public class PackageRepositoryServiceTest {
         String pluginId = "yum";
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
@@ -339,10 +326,8 @@ public class PackageRepositoryServiceTest {
         PackageMaterialTestHelper.assertPackageConfiguration(packageConfigurations.list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful(), is(false));
 
-        when(localizer.localize("CHECK_CONNECTION_FAILED", "package repository","Repo invalid!!\nCould not connect")).thenReturn("error_msg");
-        assertThat(result.message(localizer), is("error_msg"));
+        assertThat(result.message(), is("Could not connect to package repository. Reason(s): Repo invalid!!\nCould not connect"));
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
-
     }
 
     private PackageRepository packageRepository(String pluginId) {

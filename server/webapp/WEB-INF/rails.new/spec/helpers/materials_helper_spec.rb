@@ -18,7 +18,6 @@ require 'rails_helper'
 
 describe MaterialsHelper do
   include MaterialsHelper
-  include RailsLocalizer
 
   before do
     @material = SvnMaterial.new("http://foo:bar@sf.net", "user", "pass", false)

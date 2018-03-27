@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,8 +29,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -41,7 +40,7 @@ public class CreateTemplateConfigCommandTest {
     private SecurityService securityService;
 
 
-    private LocalizedOperationResult result;
+    private HttpLocalizedOperationResult result;
 
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -95,7 +94,7 @@ public class CreateTemplateConfigCommandTest {
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test

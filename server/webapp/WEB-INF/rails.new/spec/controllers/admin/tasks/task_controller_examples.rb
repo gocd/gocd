@@ -222,7 +222,7 @@ shared_examples_for :task_controller  do
 
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          result.badRequest('some message')
           config.errors().add("base", "someError")
         end
         task_view_service = stub_service(:task_view_service)
@@ -292,7 +292,7 @@ shared_examples_for :task_controller  do
 
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          result.badRequest('some message')
           config.errors().add("base", "someError")
         end
 

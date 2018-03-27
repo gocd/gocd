@@ -71,7 +71,7 @@ class AdminController < ApplicationController
 
   def render_assertion_failure(options)
     return if @error_rendered
-    @message = options.delete(:message) || l.string("ERROR_OCCURRED_WHILE_UPDATING_CONFIG")
+    @message = options.delete(:message) || 'Error occurred while trying to complete your request.'
     @error_rendered = true
     options[:status] ||= (@update_result && @update_result.httpCode()) || 404
     render({:template => "shared/config_error.html", :layout => action_has_layout? ? "application" : nil}.merge(options))
@@ -97,7 +97,7 @@ class AdminController < ApplicationController
 
   def render_error(result, errors, options)
     @errors = flatten_all_errors(errors)
-    flash.now[:error] = result.message(localizer)
+    flash.now[:error] = result.message()
     performed? || render_error_with_options(options.merge({:status => result.httpCode()}))
   end
 
@@ -110,7 +110,7 @@ class AdminController < ApplicationController
 
     unless @update_result.isSuccessful()
       @config_file_conflict = (@update_result.httpCode() == 409)
-      flash.now[:error] = @update_result.message(localizer)
+      flash.now[:error] = @update_result.message()
       response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
     end
 
@@ -123,7 +123,7 @@ class AdminController < ApplicationController
     return if @error_rendered
 
     if @update_result.isSuccessful()
-      success_message = "#{success_message} #{l.string("CONFIG_MERGED")}" if update_response.wasMerged()
+      success_message = "#{success_message} #{'The configuration was modified by someone else, but your changes were merged successfully.'}" if update_response.wasMerged()
       yield success_message
     else
       all_errors_on_other_objects = update_response.getCruiseConfig().getAllErrorsExceptFor(@subject)

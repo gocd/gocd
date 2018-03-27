@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv1.admin.backups
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter
-import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -65,7 +64,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
 
         doAnswer({ InvocationOnMock invocationOnMock ->
           HttpLocalizedOperationResult result = invocationOnMock.arguments.last() as HttpLocalizedOperationResult
-          result.setMessage(LocalizedMessage.string("SUCCESS"))
+          result.setMessage("success!")
           return backup
         }).when(backupService).startBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
 
@@ -108,6 +107,6 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
 
   @Override
   BackupsControllerDelegate createControllerInstance() {
-    return new BackupsControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), backupService, localizer)
+    return new BackupsControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), backupService)
   }
 }

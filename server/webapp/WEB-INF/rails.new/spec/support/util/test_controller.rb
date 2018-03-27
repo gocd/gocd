@@ -63,7 +63,7 @@ class NonApiController < ApplicationController
 
   def localized_not_found_action
     hor = HttpLocalizedOperationResult.new()
-    hor.notFound(LocalizedMessage.cannotViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
+    hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
     render_localized_operation_result(hor)
   end
 
@@ -107,13 +107,13 @@ module Api
 
     def localized_not_found_action
       hor = HttpLocalizedOperationResult.new()
-      hor.notFound(LocalizedMessage.cannotViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
+      hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
       render_localized_operation_result(hor)
     end
 
     def localized_not_found_action_with_message_ending_in_newline
       hor = HttpLocalizedOperationResult.new()
-      hor.notFound(LocalizedMessage.string("GO_TEST_CASE_MESSAGE_WITH_NEWLINE"), HealthStateType.general(HealthStateScope::GLOBAL))
+      hor.notFound("Message with newline.\n", HealthStateType.general(HealthStateScope::GLOBAL))
       render_localized_operation_result(hor)
     end
 

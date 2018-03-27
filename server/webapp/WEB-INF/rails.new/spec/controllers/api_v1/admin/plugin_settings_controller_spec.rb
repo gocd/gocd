@@ -211,7 +211,7 @@ describe ApiV1::Admin::PluginSettingsController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything).and_return("Save failed")
+        allow(result).to receive(:message).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
@@ -317,7 +317,7 @@ describe ApiV1::Admin::PluginSettingsController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything).and_return("Save failed")
+        allow(result).to receive(:message).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
 
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)

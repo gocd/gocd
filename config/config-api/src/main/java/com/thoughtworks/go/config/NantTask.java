@@ -82,7 +82,7 @@ public class NantTask extends BuildTask {
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> list = super.getPropertiesForDisplay();
         if (nantPath != null) {
-            list.add(new TaskProperty(NANT_PATH, nantPath));
+            list.add(new TaskProperty("Nant Path", nantPath));
         }
         return list;
     }

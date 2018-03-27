@@ -1,16 +1,16 @@
 <div class="config-container">
-<h3><%= l.string("JOBS") %></h3>
+<h3>Jobs</h3>
 <div class="instructions">
-    <%= l.string("INSTRUCTION_JOBS_LISTING") -%>
+    Manage jobs for this stage. All these jobs will be run in parallel (given sufficient matching agents), so they should not depend on each other.
 </div>
 <table class="list_table reorderable_table jobs_list_table">
     <thead>
     <tr>
-        <th><%= l.string("JOB") %></th>
-        <th><%= l.string("RESOURCES") %></th>
-        <th><%= l.string("RUN_ON_ALL") %></th>
-        <th><%= l.string("RUN_MULTIPLE_INSTANCES") %></th>
-        <th class="remove"><%= l.string("REMOVE") %></th>
+        <th>Job</th>
+        <th>Resources</th>
+        <th>Run on all</th>
+        <th>Run multiple instances</th>
+        <th class="remove">Remove</th>
     </tr>
     </thead>
     <tbody>
@@ -18,8 +18,8 @@
         <tr>
             <td><%= link_to(job_config.name(), admin_tasks_listing_path(:job_name => job_config.name(), :current_tab => "tasks")) %></td>
             <td><%= job_config.resourceConfigs().join(', ') %></td>
-            <td><%= job_config.isRunOnAllAgents() ? l.string("YES") : l.string("NO") %></td>
-            <td><%= job_config.isRunMultipleInstanceType() ? l.string("YES") : l.string("NO") %></td>
+            <td><%= job_config.isRunOnAllAgents() ? 'Yes' : 'No' %></td>
+            <td><%= job_config.isRunMultipleInstanceType() ? 'Yes' : 'No' %></td>
             <td class="remove">
                 <% if @jobs.size() > 1 %>
                     <% unique_delete_job_id = random_dom_id("delete_job_") %>
@@ -42,7 +42,7 @@
     <% end %>
     <tr>
         <td colspan="5">
-            <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_job_new_path -%>', {overlayClose: false, title: '<%= l.string("ADD_NEW_JOB") %>'})"><%= l.string("ADD_NEW_JOB") %></a>
+            <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_job_new_path -%>', {overlayClose: false, title: 'Add new job'})">Add new job</a>
         </td>
     </tr>
     </tbody>

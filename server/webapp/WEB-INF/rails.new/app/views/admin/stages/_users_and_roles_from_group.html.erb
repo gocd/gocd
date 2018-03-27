@@ -1,5 +1,5 @@
 <div class="users">
-    <label><%= l.string("USERS") -%></label>
+    <label>Users</label>
     <table class="users_and_roles">
         <tbody>
         <%- scope[:pipeline_group].getOperateUsers().each do |permission| -%>
@@ -15,7 +15,7 @@
     </table>
 </div>
 <div class="roles">
-    <label><%= l.string("ROLES") -%></label>
+    <label>Roles</label>
     <table class="users_and_roles">
         <tbody>
         <%- scope[:pipeline_group].getOperateRoles().each do |permission| -%>

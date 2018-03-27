@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -37,7 +36,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     private EntityHashingService hashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
         super(actionFailed, newEnvironmentConfig, result);
         this.goConfigService = goConfigService;
         this.oldEnvironmentConfigName = oldEnvironmentConfigName;
@@ -75,15 +74,14 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
 
         boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfigName));
+            result.stale(LocalizedMessage.staleResourceConfig("Environment", oldEnvironmentConfigName));
         }
         return freshRequest;
     }
 
     private boolean isAuthorized(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", oldEnvironmentConfigName, username.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.composite(actionFailed, "User '" + username.getDisplayName() + "' does not have permission to update environments."), HealthStateType.unauthorised());
             return false;
         }
         return true;

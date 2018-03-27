@@ -5,9 +5,9 @@
     ) %>
 <div class="user_search_box form_item ">
     <p>
-        <label for="search_text"><%= l.string("SEARCH_FOR_USERS") %></label>
+        <label for="search_text">Search for User:</label>
         <%== text_field_tag "search_text", nil, :maxLength => 400, :class => "searchbox", :id => "search_id"-%>
-        <%== submit_button(l.string('Search'), :id => 'search_user_submit', :class => 'primary') %>
+        <%== submit_button('Search', :id => 'search_user_submit', :class => 'primary') %>
     </p>
 </div>
 <%== end_form_tag %>
@@ -21,8 +21,8 @@
     <%= render :partial => 'admin/users/user_results_table', :locals => {:scope => {:users => [] }} %>
 </div>
 <div class="actions">
-    <%== submit_button(l.string('Add Users'), :id => 'submit_add_user', :class => 'primary') %>
-    <%== submit_button(l.string('Close'), :id => 'close_add_user', :type => 'button') %>
+    <%== submit_button('Add User', :id => 'submit_add_user', :class => 'primary') %>
+    <%== submit_button('Close', :id => 'close_add_user', :type => 'button') %>
 </div>
 <%== end_form_tag %>
 

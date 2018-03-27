@@ -29,6 +29,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactStore, ArtifactStores> {
     protected final ArtifactExtension extension;
 
@@ -56,7 +59,7 @@ abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactS
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        result.unauthorized(unauthorizedToEdit(), unauthorised());
         return false;
     }
 

@@ -62,7 +62,7 @@ public class ServerStatusService {
 
     public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {
         if (!securityService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
             return null;
         }
 

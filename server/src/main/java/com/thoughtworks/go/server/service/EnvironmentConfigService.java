@@ -26,13 +26,11 @@ import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
-import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -42,6 +40,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 
 /**
  * @understands grouping of agents and pipelines within an environment
@@ -195,13 +196,13 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             EnvironmentConfig env = environments.named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
-            result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
+            result.badRequest(resourceNotFound("Environment", environmentName));
         }
         return edit;
     }
 
     public void createEnvironment(final BasicEnvironmentConfig environmentConfig, final Username user, final HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
+        String actionFailed = "Failed to add environment '" + environmentConfig.name() + "'.";
         AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result);
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
     }
@@ -241,42 +242,41 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void updateEnvironment(final String oldEnvironmentConfigName, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfigName);
+        String actionFailed = "Failed to update environment '" + oldEnvironmentConfigName + "'.";
         UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfigName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
         update(updateEnvironmentCommand, newEnvironmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfigName));
+            result.setMessage("Updated environment '" + oldEnvironmentConfigName + "'.");
         }
     }
 
     public void patchEnvironment(final EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, final Username username, final HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", environmentConfig.name());
-
+        String actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
         PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result);
         update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentConfig.name()));
+            result.setMessage("Updated environment '" + environmentConfig.name() + "'.");
         }
     }
 
     public void deleteEnvironment(final EnvironmentConfig environmentConfig, final Username username, final HttpLocalizedOperationResult result) {
         String environmentName = environmentConfig.name().toString();
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_DELETE_FAILED", environmentName);
+        String actionFailed = "Failed to delete environment '" + environmentConfig.name() + "'.";
         DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
         update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "environment", environmentName));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("environment", environmentName));
         }
     }
 
-    private void update(EntityConfigUpdateCommand command, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, Localizable.CurryableLocalizable actionFailed) {
+    private void update(EntityConfigUpdateCommand command, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, String actionFailed) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
             } else if (!result.hasMessage()) {
-                result.badRequest(actionFailed.addParam(e.getMessage()));
+                result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
             }
         }
     }

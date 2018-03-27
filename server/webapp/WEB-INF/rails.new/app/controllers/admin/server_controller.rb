@@ -35,7 +35,7 @@ class Admin::ServerController < AdminController
     if server_configuration_form.validate(result)
       server_config_service.sendTestMail(server_configuration_form.to_mail_host, result = HttpLocalizedOperationResult.new)
     end
-    render :json => to_operation_result_json(result, l.string("SENT_TEST_MAIL_SUCCESSFULLY"))
+    render :json => to_operation_result_json(result, 'Sent test email successfully.')
   end
 
   def update
@@ -52,7 +52,7 @@ class Admin::ServerController < AdminController
                                  @server_configuration_form.secureSiteUrl,
                                  @server_configuration_form.commandRepositoryLocation,
                                  result)
-      redirect_with_flash(result.message(localizer), :action => :index, :class => 'success')
+      redirect_with_flash(result.message(), :action => :index, :class => 'success')
     else
       render_index_with_error(result)
     end
@@ -64,12 +64,12 @@ class Admin::ServerController < AdminController
       if number?(params[:port])
         @result = server_config_service.validatePort(Integer(params[:port]))
       else
-        @result = DefaultLocalizedResult.new()
-        @result.invalid("INVALID_PORT");
+        @result = HttpLocalizedOperationResult.new
+        @result.invalid("Invalid Port.")
       end
     end
     @result = server_config_service.validateHostName(params[:hostName]) if params[:hostName]
-    render :json => to_operation_result_json(@result, l.string("VALID_VALUE"))
+    render :json => to_operation_result_json(@result, 'Valid')
   end
 
   private
@@ -79,7 +79,7 @@ class Admin::ServerController < AdminController
   end
 
   def render_index_with_error(result)
-    session[:notice] = FlashMessageModel.new(result.message(localizer), 'error')
+    session[:notice] = FlashMessageModel.new(result.message(), 'error')
     set_defaults
     @cruise_config_md5 = params[:cruise_config_md5]
     render :action => :index

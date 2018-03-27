@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -45,7 +43,7 @@ public class UpdateEnvironmentCommandTest {
     private CaseInsensitiveString oldEnvironmentName;
     private CaseInsensitiveString newEnvironmentName;
     private HttpLocalizedOperationResult result;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
     private String md5;
 
     @Mock
@@ -66,7 +64,7 @@ public class UpdateEnvironmentCommandTest {
         result = new HttpLocalizedOperationResult();
         md5 = "md5";
         cruiseConfig.addEnvironment(oldEnvironmentConfig);
-        actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
+        actionFailed = "Could not update environment '" + oldEnvironmentConfig.name() + "'.";
     }
 
     @Test
@@ -84,7 +82,7 @@ public class UpdateEnvironmentCommandTest {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(actionFailed.addParam("Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'"));
+        expectResult.unprocessableEntity(actionFailed + " Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'");
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -96,7 +94,7 @@ public class UpdateEnvironmentCommandTest {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(actionFailed.addParam("Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'."));
+        expectResult.unprocessableEntity(actionFailed + " Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'.");
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -113,7 +111,7 @@ public class UpdateEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
-        expectResult.unprocessableEntity(actionFailed.addParam(allErrors));
+        expectResult.unprocessableEntity(actionFailed + " " + allErrors);
 
         assertThat(result, is(expectResult));
 
@@ -125,8 +123,7 @@ public class UpdateEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", oldEnvironmentConfig.name().toString(), currentUser.getDisplayName());
-        expectResult.unauthorized(noPermission, HealthStateType.unauthorised());
+        expectResult.unauthorized(actionFailed + " User 'user' does not have permission to update environments.", HealthStateType.unauthorised());
 
         assertThat(result, is(expectResult));
     }
@@ -138,7 +135,7 @@ public class UpdateEnvironmentCommandTest {
         when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name().toString()));
+        expectResult.stale("Someone has modified the configuration for Environment 'Dev'. Please update your copy of the config with the changes.");
 
         assertThat(result, is(expectResult));
     }

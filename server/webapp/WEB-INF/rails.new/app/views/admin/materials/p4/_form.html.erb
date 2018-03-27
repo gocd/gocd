@@ -17,7 +17,7 @@
                 <%= render :partial => 'admin/materials/shared/material_name', :locals => {:scope => {:form => f}} %>
 
                 <div class="form_item_block required">
-                    <%= required_label(f, com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, l.string('P4_SERVER_AND_PORT')) -%>
+                    <%= required_label(f, com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, 'Server and Port') -%>
                     <%= f.text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, {:class => "form_input url", :id => nil} -%>
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, :css_class => "form_error") %>
                 </div>
@@ -25,7 +25,7 @@
                 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => f}} %>
 
                 <div class="form_item_block">
-                    <label><%= l.string('USERNAME') -%></label>
+                    <label>Username</label>
                     <%= f.text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME, {:class => "form_input username", :id => nil} -%>
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME, :css_class => "form_error") %>
                 </div>
@@ -37,7 +37,7 @@
                 <% end %>
 
                 <div class="form_item_block required">
-                    <%= required_label(f, com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, l.string('P4_VIEW')) -%>
+                    <%= required_label(f, com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, 'View') -%>
                     <% error = scope[:material].getP4MaterialView().errors().on(com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW)
                        if error
                            scope[:material].errors().add(com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, error)
@@ -49,7 +49,7 @@
 
                 <div class="form_item_block checkbox_row user_tickets">
                     <%= f.check_box com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS, {}, "true" %>
-                    <label for="material_<%= com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS -%>"><%= l.string('P4_USE_TICKETS') -%></label>
+                    <label for="material_<%= com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS -%>">Use tickets</label>
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS, :css_class => "form_error") %>
                 </div>
 

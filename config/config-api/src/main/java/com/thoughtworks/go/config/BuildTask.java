@@ -35,8 +35,6 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     public static final String TARGET = "target";
     public static final String WORKING_DIRECTORY = "workingDirectory";
 
-    private static final String FILE_PATH_PATTERN = "([^. ].+[^. ])|([^. ][^. ])|([^. ])";
-
     public void setBuildFile(String buildFile) {
         this.buildFile = buildFile;
     }
@@ -149,13 +147,13 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (!StringUtils.isBlank(buildFile)) {
-            taskProperties.add(new TaskProperty(BUILD_FILE, buildFile));
+            taskProperties.add(new TaskProperty("Build File", buildFile));
         }
         if (!StringUtils.isBlank(target)) {
-            taskProperties.add(new TaskProperty(TARGET, target));
+            taskProperties.add(new TaskProperty("Target", target));
         }
         if (!StringUtils.isBlank(workingDirectory)) {
-            taskProperties.add(new TaskProperty(WORKING_DIRECTORY, workingDirectory));
+            taskProperties.add(new TaskProperty("Working Directory", workingDirectory));
         }
         return taskProperties;
     }

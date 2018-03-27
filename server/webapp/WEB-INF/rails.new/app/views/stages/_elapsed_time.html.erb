@@ -1,13 +1,13 @@
 <%
    scope[:show_elapsed] = scope[:show_elapsed].nil? ? true : scope[:show_elapsed]
-   scope[:elapsed_time] = l.localizeDuration(scope[:job].getElapsedTime())
+   scope[:elapsed_time] = duration_to_string(scope[:job].getElapsedTime())
    scope[:has_elapsed_time] = !scope[:elapsed_time].empty?
    if scope[:job].isCompleted() or (scope[:job].getPercentComplete() == 0 or scope[:job].getPercentComplete() == 100) %>
     <div class="elapsed_time">
         <% if scope[:has_elapsed_time] %>
             <% if scope[:show_elapsed] %>
                 <br/>
-                <%= "#{l.string('Elapsed')}: " %>
+                Elapsed:
             <% end %>
             <%= scope[:elapsed_time] %>
         <% end %>
@@ -17,4 +17,3 @@
         <div class="progress_bar" style="width: <%= scope[:job].getPercentComplete()%>%;"></div>
     </div>
 <% end %>
- 

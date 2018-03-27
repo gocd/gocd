@@ -327,7 +327,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         result = double('HttpLocalizedOperationResult')
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return("message from server")
+        allow(result).to receive(:message).and_return("message from server")
         allow(result).to receive(:httpCode).and_return(406)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
@@ -488,7 +488,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
         result = double('HttpLocalizedOperationResult')
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return("message from server")
+        allow(result).to receive(:message).and_return("message from server")
         allow(result).to receive(:httpCode).and_return(406)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
@@ -601,7 +601,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should delete pipeline config for an admin" do
         expect(@pipeline_config_service).to receive(:deletePipelineConfig).with(anything(), @pipeline, an_instance_of(HttpLocalizedOperationResult)) do |username, pipeline, result|
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'pipeline', pipeline.name.to_s))
+          result.setMessage("The pipeline 'pipeline1' was deleted successfully.")
         end
 
         put_with_api_header :destroy, pipeline_name: @pipeline_name

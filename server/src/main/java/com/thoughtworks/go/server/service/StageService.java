@@ -143,7 +143,7 @@ public class StageService implements StageRunFinder, StageFinder {
 
     public StageSummaryModel findStageSummaryByIdentifier(StageIdentifier stageId, Username username, LocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(username, stageId.getPipelineName())) {
-            result.unauthorized(LocalizedMessage.cannotViewPipeline(stageId.getPipelineName()), HealthStateType.general(HealthStateScope.forPipeline(stageId.getPipelineName())));
+            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(stageId.getPipelineName()), HealthStateType.general(HealthStateScope.forPipeline(stageId.getPipelineName())));
             return null;
         }
         Stages stages = stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName());
@@ -153,7 +153,7 @@ public class StageService implements StageRunFinder, StageFinder {
                 return summaryModel;
             }
         }
-        result.notFound(LocalizedMessage.stageNotFound(stageId), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.notFound("Stage '" + stageId + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
         return null;
     }
 

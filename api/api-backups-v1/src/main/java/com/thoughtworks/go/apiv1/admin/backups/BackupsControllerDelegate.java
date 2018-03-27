@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
@@ -41,13 +40,11 @@ public class BackupsControllerDelegate extends ApiController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final BackupService backupService;
-    private final Localizer localizer;
 
-    public BackupsControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService, Localizer localizer) {
+    public BackupsControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.backupService = backupService;
-        this.localizer = localizer;
     }
 
     @Override
@@ -77,7 +74,7 @@ public class BackupsControllerDelegate extends ApiController {
         if (result.isSuccessful()) {
             return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
         }
-        return renderHTTPOperationResult(result, request, response, localizer);
+        return renderHTTPOperationResult(result, request, response);
     }
 
     private void verifyConfirmHeader(Request request, Response response) {

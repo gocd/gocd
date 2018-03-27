@@ -152,7 +152,7 @@ describe Admin::PipelinesController do
 
       it "should error out when user is unauthorized" do
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["HelloWorld"].to_java), HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+          result.unauthorized('Unauthorized to edit HelloWorld pipeline.', HealthStateType.unauthorised_for_pipeline("HelloWorld"))
           nil
         end
 
@@ -217,7 +217,7 @@ describe Admin::PipelinesController do
       it "should update only if configuration is valid" do
         stub_save_for_validation_error do |result, _, node|
           node.addError("labelTemplate", "invalid-label")
-          result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+          result.badRequest("Failed to update pipeline 'pipeline-name'.")
         end
 
         put :update, :pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline => {"labelTemplate" => "${COUNT}-#junk"}, :config_md5 => "md5", :stage_parent=>"pipelines"
@@ -231,7 +231,7 @@ describe Admin::PipelinesController do
         it "should report errors on deleted params that are referenced elsewhere" do
           stub_save_for_validation_error do |result, _, node|
             node.addError("labelTemplate", ParamSubstitutionHandler::NO_PARAM_FOUND_MSG.gsub("'%s'", "'to-be-deleted'"))
-            result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+            result.badRequest("Failed to update pipeline 'pipeline-name'.")
           end
 
           @pipeline.addParam(ParamConfig.new("to-be-deleted", "original-deleted-value"))
@@ -263,7 +263,7 @@ describe Admin::PipelinesController do
         it "should report errors on renamed params that are referenced elsewhere" do
           stub_save_for_validation_error do |result, _, node|
             node.addError("labelTemplate", ParamSubstitutionHandler::NO_PARAM_FOUND_MSG.gsub("'%s'", "'to-be-deleted'"))
-            result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+            result.badRequest("Failed to update pipeline 'pipeline-name'.")
           end
 
           @pipeline.addParam(ParamConfig.new("to-be-deleted", "original-deleted-value"))
@@ -487,7 +487,7 @@ describe Admin::PipelinesController do
       expect(@pipeline_selections_service).not_to receive(:updateUserPipelineSelections)
 
       stub_save_for_validation_error do |result, _, _|
-        result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE"), nil)
+        result.unauthorized("unauthorized", nil)
       end
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
     end
@@ -529,7 +529,7 @@ describe Admin::PipelinesController do
 
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         pipeline.addError("name", "empty pipeline name")
-        result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
+        result.badRequest("Save failed, see errors below");
       end
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => ""}}
@@ -573,7 +573,7 @@ describe Admin::PipelinesController do
 
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         pipeline.addError("name", "empty pipeline name")
-        result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
+        result.badRequest("Save failed, see errors below");
       end
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some_template"}}
@@ -600,7 +600,7 @@ describe Admin::PipelinesController do
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
-        result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE"), nil)
+        result.unauthorized("unauthorized", nil)
       end
 
       job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
@@ -655,7 +655,7 @@ describe Admin::PipelinesController do
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
-        result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE"), nil)
+        result.unauthorized("unauthorized", nil)
       end
 
       allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline2").and_return(@pause_info)
@@ -703,7 +703,7 @@ describe Admin::PipelinesController do
       expect(@task_view_service).to receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_validation_error do |result, cruise_config, pipeline|
-        result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+        result.badRequest("Save failed, see errors below")
       end
       expect(@task_view_service).to receive(:getTaskViewModels).and_return(Object.new())
       pipeline_name = "new-pip"
@@ -792,7 +792,7 @@ describe Admin::PipelinesController do
         @cruise_config.addPipeline("foo.bar", @pipeline)
         stub_save_for_validation_error do |result, _, node|
            node.addError("name", "Pipeline name is not unique")
-           result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+           result.badRequest("Failed to update pipeline 'pipeline-name'.")
         end
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
@@ -820,7 +820,7 @@ describe Admin::PipelinesController do
 
       it "should not update the user's pipeline selections when save clone is not successful" do
         stub_save_for_validation_error do |result, _, _|
-          result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+          result.badRequest("Failed to update pipeline 'pipeline-name'.")
         end
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s

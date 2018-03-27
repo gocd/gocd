@@ -30,10 +30,9 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -54,9 +53,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+
 @Service
 public class PackageDefinitionService {
-    private final Localizer localizer;
     private EntityHashingService entityHashingService;
     private GoConfigService goConfigService;
     PackageRepositoryExtension packageRepositoryExtension;
@@ -64,9 +65,8 @@ public class PackageDefinitionService {
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
-    public PackageDefinitionService(PackageRepositoryExtension packageRepositoryExtension, Localizer localizer, EntityHashingService entityHashingService, GoConfigService goConfigService) {
+    public PackageDefinitionService(PackageRepositoryExtension packageRepositoryExtension, EntityHashingService entityHashingService, GoConfigService goConfigService) {
         this.packageRepositoryExtension = packageRepositoryExtension;
-        this.localizer = localizer;
         this.entityHashingService = entityHashingService;
         this.goConfigService = goConfigService;
     }
@@ -83,7 +83,7 @@ public class PackageDefinitionService {
             String key = configurationProperty.getConfigurationKey().getName();
             if (PackageMetadataStore.getInstance().hasOption(packageDefinition.getRepository().getPluginConfiguration().getId(), key, PackageConfiguration.REQUIRED)) {
                 if (configurationProperty.getValue().isEmpty() && configurationProperty.doesNotHaveErrorsAgainstConfigurationValue()) {
-                    configurationProperty.addErrorAgainstConfigurationValue(localizer.localize("MANDATORY_CONFIGURATION_FIELD_WITH_NAME", configurationProperty.getConfigurationKey().getName()));
+                    configurationProperty.addErrorAgainstConfigurationValue("Field: '" + configurationProperty.getConfigurationKey().getName() + "' is required");
                 }
             }
         }
@@ -134,13 +134,13 @@ public class PackageDefinitionService {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToPackage(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
-                result.connectionError(LocalizedMessage.string("PACKAGE_CHECK_FAILED", messages));
+                result.connectionError("Package check Failed. Reason(s): " + messages);
                 return;
             }
-            result.setMessage(LocalizedMessage.string("PACKAGE_CHECK_OK", messages));
+            result.setMessage("OK. " + messages);
             return;
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("PACKAGE_CHECK_FAILED", e.getMessage()));
+            result.internalServerError("Package check Failed. Reason(s): " + e.getMessage());
         }
     }
 
@@ -155,11 +155,11 @@ public class PackageDefinitionService {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the package config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package config. Please check the logs for more information."));
                 }
             }
         }
@@ -178,7 +178,7 @@ public class PackageDefinitionService {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, username, result);
         update(username, packageDefinition, result, command);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package definition", packageDefinition.getId()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("package definition", packageDefinition.getId()));
         }
     }
 

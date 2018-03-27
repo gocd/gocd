@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -27,7 +26,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class CreateConfigRepoCommand extends ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
     private final ConfigRepoConfig configRepo;
 
-    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Localizable.CurryableLocalizable actionFailed, Username username, HttpLocalizedOperationResult result) {
+    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, String actionFailed, Username username, HttpLocalizedOperationResult result) {
         super(securityService, configRepo, actionFailed, username, result);
         this.configRepo = configRepo;
     }

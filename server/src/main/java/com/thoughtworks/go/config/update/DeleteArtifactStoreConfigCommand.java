@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
 
 public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand {
 
@@ -56,9 +57,17 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
             populateReferences(usedByPipelines, pipelineConfig);
         }
 
+        List<String> pipelineNames = new ArrayList<>();
+        for (Map<JobConfigIdentifier, List<PluggableArtifactConfig>> jobConfigIdentifierListMap : usedByPipelines) {
+            for (JobConfigIdentifier jobConfigIdentifier : jobConfigIdentifierListMap.keySet()) {
+                String toString = jobConfigIdentifier.toString();
+                pipelineNames.add(toString);
+            }
+        }
+
         if (!usedByPipelines.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", getObjectDescriptor().toLowerCase(), profile.getId(), usedByPipelines));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(usedByPipelines, ", ")));
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().toLowerCase(), profile.getId(), pipelineNames));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
         }
         return true;
     }

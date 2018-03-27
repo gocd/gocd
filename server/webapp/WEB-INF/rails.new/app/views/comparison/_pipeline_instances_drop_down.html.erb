@@ -11,7 +11,7 @@
                         <% if placeholder_stage?(sim_for_pipeline) %>
                             <div <%= scope[:html_options] -%>></div>
                         <% elsif pipeline_instance.isBisect() %>
-                            <div class="text_in_dropdown disabled_text_in_dropdown"><%= l.string("BISECT_TRIGGERED_PIPELINE") %></div>
+                            <div class="text_in_dropdown disabled_text_in_dropdown">Cannot compare with this instance because it was manually triggered with a non-sequential revision</div>
                         <% else %>
                             <a href="<%= pipeline_compare_href(scope[:pipeline_name], scope[:fixed_pipeline_counter], pipeline_instance.getCounter()) -%>" <%= scope[:html_options] -%> id="<%= "stage_detail_#{scope[:suffix]}_#{pipeline_instance.getCounter()}" %>">
                                 <span><span></span></span>
@@ -26,7 +26,7 @@
 <% if scope[:pipeline_instances].getPagination().getCurrentPage() == scope[:pipeline_instances].getPagination().getLastPage() %>
     <div class="text_in_dropdown">
         <a href="<%= pipeline_compare_href(scope[:pipeline_name], scope[:fixed_pipeline_counter], 0) -%>" id="<%= "stage_detail_#{scope[:suffix]}_0" %>">
-            <%= l.string("SINCE_CREATION") %>
+            Since pipeline was created
         </a>
     </div>
 <% end %>

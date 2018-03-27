@@ -84,7 +84,7 @@ describe Admin::BackupController do
       allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
       expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |u, r|
-        r.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"))
+        r.setMessage("Backup completed successfully.")
       end
 
       post :perform_backup
@@ -96,7 +96,7 @@ describe Admin::BackupController do
       allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
       expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |user, result|
-        result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", ["Ran out of disk space"].to_java(java.lang.String)))
+        result.badRequest("Failed to perform backup. Reason: Ran out of disk space")
       end
 
       post :perform_backup

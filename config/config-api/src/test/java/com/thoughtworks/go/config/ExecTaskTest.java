@@ -159,20 +159,20 @@ public class ExecTaskTest {
     public void shouldPopulateAllAttributesOnPropertiesForDisplay() {
         ExecTask execTask = new ExecTask("ls", "-la", "holy/dir");
         execTask.setTimeout(10l);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("COMMAND", "ls", "command"), new TaskProperty("ARGUMENTS", "-la", "arguments"), new TaskProperty("WORKING_DIR", "holy/dir", "working_dir"), new TaskProperty("TIMEOUT", "10", "timeout")));
+        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(4));
 
         execTask = new ExecTask("ls", new Arguments(new Argument("-la"), new Argument("/proc")), "holy/dir");
         execTask.setTimeout(10l);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("COMMAND", "ls", "command"), new TaskProperty("ARGUMENTS", "-la /proc", "arguments"), new TaskProperty("WORKING_DIR", "holy/dir", "working_dir"), new TaskProperty("TIMEOUT", "10", "timeout")));
+        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la /proc", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(4));
 
         execTask = new ExecTask("ls", new Arguments(new Argument()), null);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("COMMAND", "ls", "command")));
+        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(1));
 
         execTask = new ExecTask("ls", "", (String) null);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("COMMAND", "ls", "command")));
+        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(1));
     }
 

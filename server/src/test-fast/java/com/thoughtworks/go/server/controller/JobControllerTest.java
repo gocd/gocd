@@ -54,7 +54,7 @@ public class JobControllerTest {
         agentService = mock(AgentService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, null, null, null, null, stageService, null, null);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, null, null, null, null, stageService, null);
     }
 
     @Test

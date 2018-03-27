@@ -90,7 +90,7 @@ public class RoleConfigUpdateCommandTest {
         RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
+        assertThat(result.message(), equalTo("Someone has modified the configuration for role config 'foo'. Please update your copy of the config with the changes."));
     }
 
     @Test

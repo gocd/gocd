@@ -170,8 +170,8 @@ public class BuildTaskTest {
         task.setTarget("do-something");
         task.setWorkingDirectory("some/dir");
 
-        assertThat(task.getPropertiesForDisplay(), hasItems(new TaskProperty(BuildTask.BUILD_FILE, "some-file.xml", "buildfile"), new TaskProperty(BuildTask.TARGET, "do-something", "target"),
-                new TaskProperty(BuildTask.WORKING_DIRECTORY, "some/dir", "workingdirectory")));
+        assertThat(task.getPropertiesForDisplay(), hasItems(new TaskProperty("Build File", "some-file.xml", "build_file"), new TaskProperty("Target", "do-something", "target"),
+                new TaskProperty("Working Directory", "some/dir", "working_directory")));
     }
 
     @Test

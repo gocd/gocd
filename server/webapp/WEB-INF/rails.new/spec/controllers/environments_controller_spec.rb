@@ -199,7 +199,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
 
       expect(@environment_config_service).to receive(:createEnvironment).with(anything, anything, result) do |new_config, user, result|
-        result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", @environment_name))
+        result.conflict('Failed to add environment.')
       end
 
       post :create, :no_layout => true, :environment => {:name => environment_name, :pipelines => []}
@@ -256,7 +256,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
 
       expect(@environment_config_service).to receive(:updateEnvironment).with(anything,anything,anything,'md5',result) do |old_config, new_config, user, md5, result|
-        result.badRequest(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
+        result.badRequest("Failed to update environment 'foo-environment'")
       end
 
       put :update, :no_layout => true,
@@ -283,7 +283,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
 
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything) do |name, result|
-        result.unprocessableEntity(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
+        result.unprocessableEntity("Failed to update environment 'foo-environment'")
       end
 
       put :update, :no_layout => true,
@@ -301,7 +301,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
       expect(@environment_config_service).to receive(:updateEnvironment).with(anything,anything,anything,'md5',result) do |old_config, new_config, user, md5, result|
-        result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)))
+        result.setMessage("Updated environment 'foo_env'.")
       end
 
       put :update, :no_layout => true,
@@ -335,7 +335,7 @@ describe EnvironmentsController do
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env")))
 
       expect(@environment_config_service).to receive(:updateEnvironment).with(anything, anything, anything, 'md5', result) do |old_config, new_config, user, md5, result|
-        result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", ["foo_env"].to_java(java.lang.String)), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
+        result.setMessage("some message")
       end
 
 
@@ -347,8 +347,8 @@ describe EnvironmentsController do
       expect(response.location).to match(/^\/environments\/foo_env\/show\?.*?fm=/)
       flash_guid = $1 if response.location =~ /environments\/foo_env\/show\?.*?fm=(.+)/
       flash = controller.flash_message_service.get(flash_guid)
-      assert_flash_message_and_class(flash, "Updated environment 'foo_env'. The configuration was modified by someone else, but your changes were merged successfully.", "success")
-      expect(response.body).to eq("Updated environment 'foo_env'. The configuration was modified by someone else, but your changes were merged successfully.")
+      assert_flash_message_and_class(flash, "some message", "success")
+      expect(response.body).to eq("some message")
     end
   end
 

@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
@@ -88,9 +87,9 @@ public interface ControllerMethods {
         return DigestUtils.md5Hex(str);
     }
 
-    default String renderHTTPOperationResult(HttpLocalizedOperationResult result, Request request, Response response, Localizer localizer) throws IOException {
+    default String renderHTTPOperationResult(HttpLocalizedOperationResult result, Request request, Response response) throws IOException {
         response.status(result.httpCode());
-        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.message(localizer)));
+        return writerForTopLevelObject(request, response, writer -> writer.add("message", result.message()));
     }
 
     default String renderHTTPOperationResult(HttpOperationResult result, Request request, Response response) throws IOException {

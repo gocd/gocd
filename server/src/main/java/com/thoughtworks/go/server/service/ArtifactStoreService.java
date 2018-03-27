@@ -21,13 +21,12 @@ import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.update.CreateArtifactStoreConfigCommand;
 import com.thoughtworks.go.config.update.DeleteArtifactStoreConfigCommand;
 import com.thoughtworks.go.config.update.UpdateArtifactStoreConfigCommand;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static com.thoughtworks.go.i18n.LocalizedMessage.string;
 
 @Component
 public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
@@ -59,7 +58,7 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
     public void delete(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
         update(currentUser, newArtifactStore, result, new DeleteArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(string("RESOURCE_DELETE_SUCCESSFUL", "artifactStore", newArtifactStore.getId()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("artifactStore", newArtifactStore.getId()));
         }
     }
 }

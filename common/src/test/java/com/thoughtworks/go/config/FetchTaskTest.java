@@ -577,20 +577,20 @@ public class FetchTaskTest {
     @Test
     public void shouldPopulateAllFieldsInReturnedPropertiesForDisplay() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("foo-pipeline"), new CaseInsensitiveString("bar-stage"), new CaseInsensitiveString("baz-job"), "quux.c", "bang-file");
-        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("PIPELINE_NAME", "foo-pipeline", "pipeline_name"),
-                new TaskProperty("STAGE_NAME", "bar-stage", "stage_name"), new TaskProperty("JOB_NAME", "baz-job", "job_name"),
-                new TaskProperty("SRC_FILE", "quux.c", "src_file"), new TaskProperty("DEST_FILE", "bang-file", "dest_file")));
+        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Pipeline Name", "foo-pipeline", "pipeline_name"),
+                new TaskProperty("Stage Name", "bar-stage", "stage_name"), new TaskProperty("Job Name", "baz-job", "job_name"),
+                new TaskProperty("Source File", "quux.c", "source_file"), new TaskProperty("Destination", "bang-file", "destination")));
         assertThat(fetchTask.getPropertiesForDisplay().size(), is(5));
 
         fetchTask = new FetchTask(new CaseInsensitiveString("foo-pipeline"), new CaseInsensitiveString("bar-stage"), new CaseInsensitiveString("baz-job"), null, "bang-file");
         fetchTask.setSrcdir("foo/src");
-        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("PIPELINE_NAME", "foo-pipeline", "pipeline_name"),
-                new TaskProperty("STAGE_NAME", "bar-stage", "stage_name"), new TaskProperty("JOB_NAME", "baz-job", "job_name"),
-                new TaskProperty("SRC_DIR", "foo/src", "src_dir"), new TaskProperty("DEST_FILE", "bang-file", "dest_file")));
+        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Pipeline Name", "foo-pipeline", "pipeline_name"),
+                new TaskProperty("Stage Name", "bar-stage", "stage_name"), new TaskProperty("Job Name", "baz-job", "job_name"),
+                new TaskProperty("Source Directory", "foo/src", "source_directory"), new TaskProperty("Destination", "bang-file", "destination")));
         assertThat(fetchTask.getPropertiesForDisplay().size(), is(5));
 
         fetchTask = new FetchTask(new CaseInsensitiveString(null), new CaseInsensitiveString("bar-stage"), new CaseInsensitiveString("baz-job"), null, null);
-        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("STAGE_NAME", "bar-stage", "stage_name"), new TaskProperty("JOB_NAME", "baz-job", "job_name")));
+        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Stage Name", "bar-stage", "stage_name"), new TaskProperty("Job Name", "baz-job", "job_name")));
         assertThat(fetchTask.getPropertiesForDisplay().size(), is(2));
     }
 
@@ -613,8 +613,8 @@ public class FetchTaskTest {
         FetchTask fetchTask = new FetchTask(null, new CaseInsensitiveString("bar-stage"), new CaseInsensitiveString("baz-job"), "quux.c", "bang-file");
         // is null when no pipeline name is specified in config xml (manual entry)
         ReflectionUtil.setField(fetchTask, "pipelineName", null);
-        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("STAGE_NAME", "bar-stage", "stage_name"), new TaskProperty("JOB_NAME", "baz-job", "job_name"),
-                new TaskProperty("SRC_FILE", "quux.c", "src_file"), new TaskProperty("DEST_FILE", "bang-file", "dest_file")));
+        assertThat(fetchTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Stage Name", "bar-stage", "stage_name"), new TaskProperty("Job Name", "baz-job", "job_name"),
+                new TaskProperty("Source File", "quux.c", "source_file"), new TaskProperty("Destination", "bang-file", "destination")));
         assertThat(fetchTask.getPropertiesForDisplay().size(), is(4));
     }
 

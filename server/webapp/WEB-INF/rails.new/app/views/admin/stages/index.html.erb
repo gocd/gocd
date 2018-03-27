@@ -1,5 +1,5 @@
 <div class="config-container">
-  <h3><%= l.string("STAGES") %></h3>
+  <h3>Stages</h3>
 
   <% if (params[:stage_parent] == "pipelines") %>
       <%= form_for @pipeline, :as => :pipeline, :url => admin_stage_listing_path(), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
@@ -11,7 +11,7 @@
                 <div class="fieldset">
                   <div class="form_item">
                     <div class="template_selection">
-                      <%= f.label l.string("SELECT_TEMPLATE") %>
+                      <%= f.label 'Template' %>
                       <% options_for_select_template = @template_list.map() {|template_view_model| template_view_model.getTemplate().name().to_s } %>
                       <%= f.select(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME, options_for_select_template, {:selected => @pipeline.getTemplateName()}, {:id => "select_template"}) %>
                       <span id="links" />
@@ -20,12 +20,12 @@
                   </div>
                 </div>
                 <div class="form_buttons">
-                  <%= submit_button(l.string("SAVE"), :class => 'primary skip_dirty_stop', :id => "submit_pipeline_edit_form", :onclick => "return false;") %>
-                  <%= link_to l.string("RESET"), admin_stage_listing_path(:current_tab => "stages"), :class => 'reset_button link_as_button', :id => 'reset_form' -%>
+                  <%= submit_button('SAVE', :class => 'primary skip_dirty_stop', :id => "submit_pipeline_edit_form", :onclick => "return false;") %>
+                  <%= link_to 'RESET', admin_stage_listing_path(:current_tab => "stages"), :class => 'reset_button link_as_button', :id => 'reset_form' -%>
                 </div>
             <% else %>
                 <div class="no_templates_message information">
-                  <%= l.string("NO_TEMPLATES_DEFINED") %>
+                  There are no templates configured or you are unauthorized to view the existing templates.
                 </div>
             <% end %>
           </div>
@@ -34,7 +34,7 @@
             $('submit_pipeline_edit_form').observe('click', function () {
               Modalbox.show(jQuery('#warning_prompt')[0], {
                 overlayClose: false,
-                title:        '<%= l.string("CONFIRM_SAVE") %>'
+                title:        'Confirm Save'
               });
             });
           </script>
@@ -43,8 +43,8 @@
               <p>Switching to a template will cause all of the currently defined stages in this pipeline to be lost. Are you sure you want to continue?</p>
             </div>
             <div class="form_buttons actions">
-              <%= submit_button(l.string("PROCEED"), :class => "primary", :onclick => "$('pipeline_edit_form').submit()") %>
-              <%= submit_button(l.string("CANCEL"), :onclick => "Modalbox.hide()", :type => "button") %>
+              <%= submit_button('Proceed', :class => "primary", :onclick => "$('pipeline_edit_form').submit()") %>
+              <%= submit_button('Cancel', :onclick => "Modalbox.hide()", :type => "button") %>
             </div>
           </div>
 
@@ -56,11 +56,11 @@
         <table class="list_table reorderable_table stages_listing">
           <thead>
           <tr>
-            <th><%= l.string("ORDER") %></th>
-            <th><%= l.string("STAGE") %></th>
-            <th><%= l.string("STAGE_TRIGGER_TYPE") %></th>
-            <th><%= l.string("JOBS") %></th>
-            <th class="remove"><%= l.string("REMOVE") %></th>
+            <th>Order</th>
+            <th>Stage</th>
+            <th>Trigger Type</th>
+            <th>Jobs</th>
+            <th class="remove">Remove</th>
           </tr>
           </thead>
           <tbody>
@@ -71,7 +71,7 @@
                                :html => {:method => :post} do |f| %>
                       <%= md5_field %>
                       <% unless stage_config_index == 0 %>
-                          <button type="submit" value="" class="promote_button" title="<%= l.string("MOVE_STAGE_UP") %>">
+                          <button type="submit" value="" class="promote_button" title="Move Up">
                             <div class="promote_up"></div>
                           </button>
                       <% end %>
@@ -79,7 +79,7 @@
                   <%= form_for stage_config, :as => :stage_config, :url => {:action => "increment_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]}, :html => {:method => :post} do |f| %>
                       <%= md5_field %>
                       <% unless stage_config_index == @pipeline.size()-1 %>
-                          <button type="submit" value="" class="promote_button" title="<%= l.string("MOVE_STAGE_DOWN") %>">
+                          <button type="submit" value="" class="promote_button" title="Move Down">
                             <div class="promote_down"></div>
                           </button>
                       <% end %>
@@ -111,7 +111,7 @@
           <tr>
             <td>&nbsp;</td>
             <td colspan="4">
-              <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_stage_new_path -%>', {overlayClose: false, title: 'Add Stage'})"><%= l.string("ADD_NEW_STAGE") %></a>
+              <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_stage_new_path -%>', {overlayClose: false, title: 'Add Stage'})">Add new stage</a>
             </td>
           </tr>
           </tbody>

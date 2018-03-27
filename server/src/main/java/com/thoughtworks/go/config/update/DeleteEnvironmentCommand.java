@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -32,7 +32,7 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand implements Enti
     private final Username username;
     private final HttpLocalizedOperationResult result;
 
-    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result);
         this.goConfigService = goConfigService;
         this.environmentConfig = environmentConfig;
@@ -58,7 +58,7 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand implements Enti
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("NO_PERMISSION_TO_DELETE_ENVIRONMENT", environmentConfig.name().toString(), username.getDisplayName()), HealthStateType.unauthorised());
+            result.unauthorized("Failed to delete environment '" + environmentConfig.name() + "'. User '" + username.getDisplayName() + "' does not have permission to update environments.", HealthStateType.unauthorised());
             return false;
         }
         return true;

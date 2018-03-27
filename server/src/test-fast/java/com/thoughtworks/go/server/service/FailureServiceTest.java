@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageFinder;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.testinfo.FailureDetails;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -77,6 +76,6 @@ public class FailureServiceTest {
         assertThat(failureService.failureDetailsFor(jobIdentifier, "suite_name", "test_name", username, result), is(nullFailureDetails()));
         assertThat(result.httpCode(), is(401));
         assertThat(result.hasMessage(), is(true));
-        assertThat(getField(result, "message"), is(LocalizedMessage.noViewPermissionForPipeline("foo", "pipeline")));
+        assertThat(getField(result, "message"), is("User '" + "foo" + "' does not have view permission on pipeline '" + "pipeline" + "'"));
     }
 }

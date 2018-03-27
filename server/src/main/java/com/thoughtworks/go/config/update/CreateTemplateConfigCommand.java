@@ -23,6 +23,9 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
@@ -49,7 +52,7 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!(securityService.isUserAdmin(currentUser) || securityService.isUserGroupAdmin(currentUser))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

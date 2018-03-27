@@ -93,7 +93,7 @@ module Admin
         end
       end.new(params, current_user, security_service, pipeline, package_definition_service, pluggable_task_service)
 
-      save_page(params[:config_md5], nil, {:action => :new, :layout => 'application'}, save_action, l.string("PIPELINE_SAVED_SUCCESSFULLY")) do
+      save_page(params[:config_md5], nil, {:action => :new, :layout => 'application'}, save_action, 'Pipeline successfully created.') do
         assert_load(:task_view_models, task_view_service.getTaskViewModels()) if !@update_result.isSuccessful()
         assert_load(:pipeline, @subject)
 
@@ -157,7 +157,7 @@ module Admin
         load_group_list
         render layout: false
       else
-        render_error_template(l.string("RESOURCE_NOT_FOUND", 'pipeline', [pipelineName]), 404)
+        render_error_template(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('pipeline', pipelineName), 404)
       end
     end
 

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.web.GoVelocityView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +32,10 @@ import java.util.HashMap;
 
 @Controller
 public class AuthorizationController {
-    private final Localizer localizer;
     private SecurityAuthConfigService securityAuthConfigService;
 
     @Autowired
-    public AuthorizationController(Localizer localizer, SecurityAuthConfigService securityAuthConfigService) {
-        this.localizer = localizer;
+    public AuthorizationController(SecurityAuthConfigService securityAuthConfigService) {
         this.securityAuthConfigService = securityAuthConfigService;
     }
 
@@ -51,7 +48,6 @@ public class AuthorizationController {
 
         HashMap model = new HashMap();
         model.put("login_error", loginError);
-        model.put("l", localizer);
         model.put("security_auth_config_service", securityAuthConfigService);
         model.put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         return new ModelAndView("auth/login", model);

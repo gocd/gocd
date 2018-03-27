@@ -109,13 +109,13 @@ describe Admin::PackageDefinitionsController do
 
         get :show, :repo_id => "repo2", :package_id => "pkg4"
 
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
       end
 
       it "should render error if repository not found" do
         get :show, :repo_id => "deleted-repo", :package_id => "pkg4"
 
-        expect(assigns[:errors]).to eq("Could not find the repository with id 'deleted-repo'. It might have been deleted.")
+        expect(assigns[:errors]).to eq("Package Repository 'deleted-repo' not found.")
       end
     end
 
@@ -137,13 +137,13 @@ describe Admin::PackageDefinitionsController do
 
         get :show_for_new_pipeline_wizard, :repo_id => "repo2", :package_id => "pkg4"
 
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
       end
 
       it "should render error if repository not found" do
         get :show_for_new_pipeline_wizard, :repo_id => "deleted-repo", :package_id => "pkg4"
 
-        expect(assigns[:errors]).to eq("Could not find the repository with id 'deleted-repo'. It might have been deleted.")
+        expect(assigns[:errors]).to eq("Package Repository 'deleted-repo' not found.")
       end
     end
 
@@ -167,7 +167,7 @@ describe Admin::PackageDefinitionsController do
 
         get :show_with_repository_list, :repo_id => "repo2", :package_id => "pkg4"
 
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
       end
 
       it "should render 404 when repo is missing" do
@@ -187,7 +187,7 @@ describe Admin::PackageDefinitionsController do
       it "should render package configuration with just name when plugin is missing" do
         expect(@package_metadata_store).to receive(:getMetadata).with("invalid-pluginid").and_return(nil)
         get :show_with_repository_list, :repo_id => "repo2", :package_id => "pkg4"
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
         assigns[:package_configuration].name == "yum"
         expect(assigns[:package_configuration].properties.size).to eq(0)
       end
@@ -239,13 +239,13 @@ describe Admin::PackageDefinitionsController do
 
         get :new, :repo_id => "repo2"
 
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
       end
 
       it "should render error if repository not found" do
         get :new, :repo_id => "deleted-repo"
 
-        expect(assigns[:errors]).to eq("Could not find the repository with id 'deleted-repo'. It might have been deleted.")
+        expect(assigns[:errors]).to eq("Package Repository 'deleted-repo' not found.")
       end
     end
 
@@ -269,13 +269,13 @@ describe Admin::PackageDefinitionsController do
 
         get :new_for_new_pipeline_wizard, :repo_id => "repo2"
 
-        expect(assigns[:errors]).to eq("Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to eq("Plugin 'invalid-pluginid' not found.")
       end
 
       it "should render error if repository not found" do
         get :new_for_new_pipeline_wizard, :repo_id => "deleted-repo"
 
-        expect(assigns[:errors]).to eq("Could not find the repository with id 'deleted-repo'. It might have been deleted.")
+        expect(assigns[:errors]).to eq("Package Repository 'deleted-repo' not found.")
       end
     end
 
@@ -304,7 +304,7 @@ describe Admin::PackageDefinitionsController do
         expected_pkg = PackageDefinitionMother.create(nil, "pkg-name", configuration, @package_repositories.find("repo1"))
         expect(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
         expect(@result).to receive(:isSuccessful).and_return(true)
-        expect(@result).to receive(:message).with(anything).and_return("Connection OK from plugin.")
+        expect(@result).to receive(:message).and_return("Connection OK from plugin.")
         expect(@package_definition_service).to receive(:check_connection).with(expected_pkg, @result)
 
         get :check_connection, :material => {:package_definition => {:repositoryId => "repo1", :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}

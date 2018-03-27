@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service.materials.commands;
 
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
@@ -29,6 +27,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+
+import java.util.Map;
 
 public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
     protected PackageMaterialConfig packageMaterialConfig;
@@ -49,7 +49,7 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
     public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline));
         if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), null);
+            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), null);
         }
     }
 

@@ -27,7 +27,6 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
@@ -83,8 +82,6 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private GoPartialConfig goPartialConfig;
     @Autowired
     private CachedGoPartials cachedGoPartials;
-    @Autowired
-    private Localizer localizer;
     private GoConfigFileHelper configHelper;
     private final int THREE_MINUTES = 3 * 60 * 1000;
 
@@ -291,7 +288,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
                 pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
-                assertThat(result.message(localizer), result.isSuccessful(), is(true));
+                assertThat(result.message(), result.isSuccessful(), is(true));
             }
         }, "pipeline-config-save-thread" + counter);
     }

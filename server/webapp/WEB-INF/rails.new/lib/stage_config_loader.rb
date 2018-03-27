@@ -34,6 +34,6 @@ module StageConfigLoader
   def load_stage
     stage_name = CaseInsensitiveString.new(params[:stage_name])
     stage = @pipeline.find { |stage_config| stage_name == stage_config.name() }
-    assert_load :stage, stage, l.stageNotFoundInPipeline(stage_name, @pipeline.name())
+    assert_load :stage, stage, "No stage named '#{stage_name}' exists for pipeline '#{@pipeline.name()}'."
   end
 end

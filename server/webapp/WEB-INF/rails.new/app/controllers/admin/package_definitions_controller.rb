@@ -37,12 +37,12 @@ class Admin::PackageDefinitionsController < AdminController
     @repo = @cruise_config.getPackageRepositories().find(params[:repo_id])
 
     if @repo.nil? || @repo.findPackage(params[:package_id]).nil?
-      render_error_template(l.string("PACKAGE_NOT_FOUND", [params[:package_id], params[:repo_id]].to_java(java.lang.String)),404) and return
+      render_error_template("Could not find package id '#{params[:package_id]}' under repository with id '#{params[:repo_id]}'. It might have been deleted.", 404) and return
     end
 
     plugin_id = @repo.getPluginConfiguration().getId()
     @metadata = PackageMetadataStore.getInstance().getMetadata(plugin_id)
-    @errors = l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [plugin_id].to_java(java.lang.String)) unless @metadata
+    @errors = com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound("Plugin", plugin_id) unless @metadata
 
     @package_configuration = PackageViewModel.new(@metadata, @repo.findPackage(params[:package_id])).filterSecureProperties!
     package_repository_list
@@ -105,10 +105,10 @@ class Admin::PackageDefinitionsController < AdminController
 
   def initialize_variables
     @repo = @cruise_config.getPackageRepositories().find(params[:repo_id])
-    @errors = l.string("PACKAGE_REPOSITORY_NOT_FOUND", [params[:repo_id]].to_java(java.lang.String)) and return unless @repo
+    @errors = com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound("Package Repository", params[:repo_id]) and return unless @repo
     plugin_id = @repo.getPluginConfiguration().getId()
     @metadata = PackageMetadataStore.getInstance().getMetadata(plugin_id)
-    @errors = l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [plugin_id].to_java(java.lang.String)) and return unless @metadata
+    @errors = com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('Plugin', plugin_id) and return unless @metadata
   end
 
   def load_config_for_edit

@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -76,8 +75,6 @@ public class ChangesetServiceIntegrationTest {
     ChangesetService changesetService;
     @Autowired
     private GoConfigDao goConfigDao;
-    @Autowired
-    private Localizer localizer;
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
@@ -276,7 +273,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("You do not have view permissions for pipeline 'foo'."));
+        assertThat(result.message(), is("You do not have view permissions for pipeline 'foo'."));
         assertThat(result.httpCode(), is(401));
     }
 
@@ -285,7 +282,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("pipeline 'Pipeline_Not_Found' not found."));
+        assertThat(result.message(), is("pipeline 'Pipeline_Not_Found' not found."));
         assertThat(result.httpCode(), is(404));
     }
 
@@ -987,7 +984,7 @@ public class ChangesetServiceIntegrationTest {
         result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(new CaseInsensitiveString("loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Pipeline counters should be positive."));
+        assertThat(result.message(), is("Pipeline counters should be positive."));
         assertThat(result.httpCode(), is(400));
     }
 

@@ -65,7 +65,7 @@ class StagesController < ApplicationController
 
   def config_change
     @changes = go_config_service.configChangesFor(params[:later_md5], params[:earlier_md5], result = HttpLocalizedOperationResult.new)
-    @config_change_error_message = result.isSuccessful ? (l.string("NO_CONFIG_DIFF") if @changes == nil) : result.message(localizer)
+    @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
   end
 
   def pipeline
@@ -79,25 +79,25 @@ class StagesController < ApplicationController
       pipeline_name = params[:pipeline_name]
       stage_name = params[:stage_name]
       stage_identifier = StageIdentifier.new(pipeline_name, params[:pipeline_counter].to_i, stage_name, params[:stage_counter])
-      result = SubsectionLocalizedOperationResult.new()
+      result = HttpLocalizedOperationResult.new()
       if @stage.isActive()
-        @failing_tests_error_message = l.string("TEST_RESULTS_WILL_BE_GENERATED_WHEN_THE_STAGE_COMPLETES")
+        @failing_tests_error_message = 'Test Results will be generated when the stage completes.'
         render_stage
         return
       end
       unless go_config_service.stageExists(pipeline_name, stage_name)
         @failing_tests = shine_dao.failedBuildHistoryForStage(stage_identifier, result)
-        @failing_tests_error_message = result.replacementContent(Spring.bean('localizer')) unless result.isSuccessful()
+        @failing_tests_error_message = result.message() unless result.isSuccessful()
         render_stage
         return
       end
       if go_config_service.stageHasTests(pipeline_name, stage_name)
         @failing_tests = shine_dao.failedBuildHistoryForStage(stage_identifier, result)
-        result.isSuccessful() || (@failing_tests_error_message = result.replacementContent(Spring.bean('localizer')))
+        result.isSuccessful() || (@failing_tests_error_message = result.message())
         render_stage
         return
       end
-      @failing_tests_error_message = l.string("THERE_ARE_NO_TESTS_CONFIGURED_IN_THIS_STAGE")
+      @failing_tests_error_message = 'There are no tests configured in this stage.'
     end
     render_stage
   end

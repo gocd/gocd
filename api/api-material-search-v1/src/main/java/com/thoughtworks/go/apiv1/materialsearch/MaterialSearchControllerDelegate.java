@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepresenter;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -38,13 +37,11 @@ public class MaterialSearchControllerDelegate extends ApiController {
 
     private final MaterialService materialService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final Localizer localizer;
 
-    public MaterialSearchControllerDelegate(MaterialService materialService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer) {
+    public MaterialSearchControllerDelegate(MaterialService materialService, ApiAuthenticationHelper apiAuthenticationHelper) {
         super(ApiVersion.v1);
         this.materialService = materialService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.localizer = localizer;
     }
 
     @Override
@@ -75,7 +72,7 @@ public class MaterialSearchControllerDelegate extends ApiController {
         if (result.isSuccessful()) {
             return writerForTopLevelArray(request, response, outputListWriter -> MatchedRevisionRepresenter.toJSON(outputListWriter, matchedRevisions));
         } else {
-            return renderHTTPOperationResult(result, request, response, localizer);
+            return renderHTTPOperationResult(result, request, response);
         }
     }
 }

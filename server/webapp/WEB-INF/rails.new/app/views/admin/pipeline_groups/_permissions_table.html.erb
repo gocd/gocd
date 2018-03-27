@@ -8,17 +8,17 @@
         <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
             <td>
                 <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, 1, true,
-                                  :id => "viewPrivilege_#{scope[:permission_type]}_name", :title => l.string("TOOLTIP_PIPELINE_GROUP_VIEW_PRIVILEGE") %>
+                                  :id => "viewPrivilege_#{scope[:permission_type]}_name", :title => 'Allows users to view pipelines in this group.' %>
                 <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :id => nil %>
             </td>
             <td>
                 <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::OPERATE_PRIVILEGE, 0, false,
-                                  :id => "operatePrivilege_#{scope[:permission_type]}_name", :title => l.string("TOOLTIP_PIPELINE_GROUP_OPERATE_PRIVILEGE") %>
+                                  :id => "operatePrivilege_#{scope[:permission_type]}_name", :title => 'Allows users to operate (trigger) pipelines in this group.' %>
                 <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::OPERATE_PRIVILEGE, :id => nil %>
             </td>
             <td>
                 <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, 0, false,
-                                  :id => "adminPrivilege_#{scope[:permission_type]}_name", :title => l.string("TOOLTIP_PIPELINE_GROUP_ADMIN_PRIVILEGE") %>
+                                  :id => "adminPrivilege_#{scope[:permission_type]}_name", :title => 'Allows users to administer this group. This includes the ability to configure pipelines in this group and the ability to grant other users access. This permission automatically gives the user view and operate permissions.' %>
                 <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :id => nil %>
             </td>
             <td>
@@ -31,11 +31,11 @@
 
     <thead>
     <tr>
-        <th class="name"><%= l.string("NAME") -%></th>
-        <th><%= l.string("VIEW_PRIVILEGE") -%></th>
-        <th><%= l.string("OPERATE_PRIVILEGE") -%></th>
-        <th><%= l.string("ADMIN_PRIVILEGE") -%></th>
-        <th class="remove"><%= l.string("REMOVE") %></th>
+        <th class="name">Name</th>
+        <th>View</th>
+        <th>Operate</th>
+        <th>Admin</th>
+        <th class="remove">Remove</th>
     </tr>
     </thead>
     <tbody class="<%= scope[:permission_type] %>_users_and_roles">
@@ -51,17 +51,17 @@
                 <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, permission, :index => "" do |privileges_form| %>
                     <td>
                         <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, 0, false,
-                                          :id => "viewPrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => l.string("TOOLTIP_PIPELINE_GROUP_VIEW_PRIVILEGE") %>
+                                          :id => "viewPrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => 'Allows users to view pipelines in this group.' %>
                         <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, :id => nil %>
                     </td>
                     <td>
                         <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::OPERATE_PRIVILEGE, 0, false,
-                                          :id => "operatePrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => l.string("TOOLTIP_PIPELINE_GROUP_OPERATE_PRIVILEGE") %>
+                                          :id => "operatePrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => 'Allows users to operate (trigger) pipelines in this group.' %>
                         <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::OPERATE_PRIVILEGE, :id => nil %>
                     </td>
                     <td>
                         <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, 0, false,
-                                          :id => "adminPrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => l.string("TOOLTIP_PIPELINE_GROUP_ADMIN_PRIVILEGE") %>
+                                          :id => "adminPrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => 'Allows users to administer this group. This includes the ability to configure pipelines in this group and the ability to grant other users access. This permission automatically gives the user view and operate permissions.' %>
                         <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :id => nil %>
                     </td>
                     <td>
@@ -74,7 +74,7 @@
            end %>
     </tbody>
 </table>
-<%= action_icon({:type => "add", :href => "javascript:void(0);", :id => "#{scope[:permission_type]}_add_users_and_roles", :class => "skip_dirty_stop", :text => l.string("ADD_#{scope[:permission_type]}_PERMISSION") }) %>
+<%= action_icon({:type => "add", :href => "javascript:void(0);", :id => "#{scope[:permission_type]}_add_users_and_roles", :class => "skip_dirty_stop", :text => "Add #{scope[:permission_type].to_s.downcase} permission"}) %>
 
 <script type="text/javascript">
 

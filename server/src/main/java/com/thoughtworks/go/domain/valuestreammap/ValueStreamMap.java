@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.valuestreammap.CrossingMinimization;
 import com.thoughtworks.go.server.valuestreammap.DummyNodeCreation;
@@ -184,7 +183,7 @@ public class ValueStreamMap {
 
     private void addWarning(Node node) {
         node.setViewType(VSMViewType.WARNING);
-        node.setMessage(LocalizedMessage.string("VSM_WARNING"));
+        node.setMessage("Built from incompatible revisions.");
     }
 
     @Override

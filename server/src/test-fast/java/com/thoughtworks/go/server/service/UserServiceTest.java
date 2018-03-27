@@ -481,8 +481,7 @@ public class UserServiceTest {
 
         verify(userDao).deleteUsers(usernames);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.toString(), containsString("RESOURCES_DELETE_SUCCESSFUL"));
-        assertThat(result.toString(), containsString("[john, joan]"));
+        assertThat(result.message(), is("Users 'john, joan' were deleted successfully."));
     }
 
     @Test
@@ -501,7 +500,7 @@ public class UserServiceTest {
         BulkDeletionFailureResult bulkDeletionFailureResult = userService.deleteUsers(usernames, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.toString(), containsString("USER_ENABLED_OR_NOT_FOUND"));
+        assertThat(result.message(), containsString("Deletion failed because some users were either enabled or do not exist."));
         assertThat(bulkDeletionFailureResult.getNonExistentUsers(), is(expectedBulkDeletionFailureResult.getNonExistentUsers()));
         assertThat(bulkDeletionFailureResult.getEnabledUsers(), is(expectedBulkDeletionFailureResult.getEnabledUsers()));
     }
@@ -522,7 +521,7 @@ public class UserServiceTest {
         BulkDeletionFailureResult bulkDeletionFailureResult = userService.deleteUsers(usernames, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.toString(), containsString("USER_ENABLED_OR_NOT_FOUND"));
+        assertThat(result.message(), is("Deletion failed because some users were either enabled or do not exist."));
         assertThat(bulkDeletionFailureResult.getNonExistentUsers(), is(expectedBulkDeletionFailureResult.getNonExistentUsers()));
         assertThat(bulkDeletionFailureResult.getEnabledUsers(), is(expectedBulkDeletionFailureResult.getEnabledUsers()));
     }
@@ -535,7 +534,7 @@ public class UserServiceTest {
         userService.deleteUsers(usernames, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.toString(), containsString("NO_USERS_SELECTED"));
+        assertThat(result.message(), is("No users selected."));
     }
 
     @Test
@@ -546,7 +545,7 @@ public class UserServiceTest {
         userService.deleteUsers(usernames, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.toString(), containsString("NO_USERS_SELECTED"));
+        assertThat(result.message(), is("No users selected."));
     }
 
     @Test

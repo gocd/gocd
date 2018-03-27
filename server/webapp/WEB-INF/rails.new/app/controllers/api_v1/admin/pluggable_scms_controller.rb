@@ -59,7 +59,7 @@ module ApiV1
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('SCM', params[:material_name])
       end
 
       def etag_for_entity_in_config(material_name = params[:material_name])

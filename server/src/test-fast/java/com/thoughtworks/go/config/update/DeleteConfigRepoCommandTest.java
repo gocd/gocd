@@ -30,8 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -75,7 +75,7 @@ public class DeleteConfigRepoCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(401));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test

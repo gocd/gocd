@@ -139,7 +139,7 @@ describe Admin::PipelineGroupsController do
 
       it "should show an error when new pipeline group could not be created" do
         stub_save_for_validation_error @config do |result, config, node|
-          result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', ["foo"].to_java(java.lang.String)))
+          result.badRequest('some message')
         end
 
         post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
@@ -154,12 +154,12 @@ describe Admin::PipelineGroupsController do
       before(:each) do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@pipeline_config_service).to receive(:canDeletePipelines).and_return({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
 
@@ -168,12 +168,12 @@ describe Admin::PipelineGroupsController do
 
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
         assert_template layout: "admin"
       end
@@ -201,12 +201,12 @@ describe Admin::PipelineGroupsController do
         @pipeline = @groups.get(0).get(0)
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@pipeline_config_service).to receive(:canDeletePipelines).and_return({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
 
@@ -217,18 +217,18 @@ describe Admin::PipelineGroupsController do
 
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
 
       it "should return 400 when the pipeline is not found" do
         stub_save_for_validation_error(@config) do |result, config, node|
-          result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', []))
+          result.badRequest('some request')
         end
 
         delete :destroy, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"
@@ -236,12 +236,12 @@ describe Admin::PipelineGroupsController do
         expect(response.status).to eq(400)
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
         assert_template layout: "admin"
       end
@@ -315,7 +315,7 @@ describe Admin::PipelineGroupsController do
 
       it "should error out if group is not found with new config object attributes assigned" do
         stub_save_for_validation_error(@config) do |result, config, node|
-          result.notFound(LocalizedMessage.string("DELETE_TEMPLATE"), HealthStateType.general(HealthStateScope::GLOBAL))
+          result.notFound("not found", HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
         put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
@@ -336,12 +336,12 @@ describe Admin::PipelineGroupsController do
         @pipeline = @groups.get(0).get(0)
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@pipeline_config_service).to receive(:canDeletePipelines).and_return({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
 
@@ -352,12 +352,12 @@ describe Admin::PipelineGroupsController do
 
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
     end
@@ -369,12 +369,12 @@ describe Admin::PipelineGroupsController do
         @destroy_group_config = BasicCruiseConfig.new(@empty_group.to_a.to_java(PipelineConfigs))
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@destroy_group_config)
         expect(@pipeline_config_service).to receive(:canDeletePipelines).and_return({
-                "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_3" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_4" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
-                "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+                "pipeline_1" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_2" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_3" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_4" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_5" => CanDeleteResult.new(true, 'Delete this pipeline'),
+                "pipeline_6" => CanDeleteResult.new(true, 'Delete this pipeline')
         })
       end
 

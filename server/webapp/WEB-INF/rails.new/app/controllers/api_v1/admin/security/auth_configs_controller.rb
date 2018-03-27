@@ -69,7 +69,7 @@ module ApiV1
         end
 
         def stale_message
-          LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Security auth config', params[:auth_config_id])
+          com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('Security auth config', params[:auth_config_id])
         end
 
         def etag_for_entity_in_config

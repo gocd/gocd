@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,28 +28,24 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class AuthenticationProcessingFilterTest {
 
     private AuthenticationProcessingFilter filter;
     private MockHttpServletRequest request;
     private MockHttpSession session;
-    private Localizer localizer;
 
     @Before public void setUp() throws Exception {
         request = new MockHttpServletRequest();
         session = new MockHttpSession();
         request.setSession(session);
-        localizer = mock(Localizer.class);
-        filter = new AuthenticationProcessingFilter(mock(GoConfigService.class), localizer);
+        filter = new AuthenticationProcessingFilter(mock(GoConfigService.class));
     }
 
     @Test
     public void shouldSetSecurityExceptionMessageOnSessionWhenAuthenticationServiceExceptionIsThrownBySpring() throws Exception {
-        when(localizer.localize("AUTHENTICATION_SERVICE_EXCEPTION")).thenReturn("some server error");
         filter.onUnsuccessfulAuthentication(request, null, new AuthenticationServiceException("foobar"));
-        assertThat(((Exception) session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage(), is("some server error"));
+        assertThat(((Exception) session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage(), is("Failed to authenticate with your authentication provider. Please check if your authentication provider is up and available to serve requests."));
     }
 
     @Test

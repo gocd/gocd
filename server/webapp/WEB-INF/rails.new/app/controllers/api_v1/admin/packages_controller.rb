@@ -65,7 +65,7 @@ module ApiV1
         @repository = package_repository_service.getPackageRepository(repository_id)
         if @repository.blank?
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string('PACKAGE_REPOSITORY_NOT_FOUND', repository_id))
+          result.unprocessableEntity(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('Package Repository', repository_id))
           render_http_operation_result(result)
         end
       end
@@ -81,7 +81,7 @@ module ApiV1
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'package', params[:package_id])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('package', params[:package_id])
       end
 
       def etag_for_entity_in_config

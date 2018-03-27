@@ -2,17 +2,17 @@
   <%= hidden_field_tag("server_time", Time.now.to_i, :id => "server_timestamp") -%>
         <ul class="user">
           <li class="help">
-            <%= link_to(l.string("HELP_SMALL"), "https://gocd.org/help", :target => "_blank") %>
+            <%= link_to('Need Help?', "https://gocd.org/help", :target => "_blank") %>
           </li>
           <% unless @user.anonymous? %>
             <li class="current_user icon">
                 <a href="#" class="current_user_name dropdown-arrow-icon"><%= @user.display_name %></a>
                 <ul class='enhanced_dropdown hidden'>
                     <li>
-                        <%= link_to l.string('PREFERENCES_LOWER'), preferences_notifications_path %>
+                        <%= link_to 'Preferences', preferences_notifications_path %>
                     </li>
                     <li class="logout">
-                        <%= link_to l.string('Sign out'), url_for_path('auth/logout'), :id => "nav-logout", :class => "sign_out" %>
+                        <%= link_to 'Sign out', url_for_path('auth/logout'), :id => "nav-logout", :class => "sign_out" %>
                     </li>
                 </ul>
             </li>
@@ -33,22 +33,22 @@
   <% unless @no_tabs %>
     <ul class="tabs">
         <li id='cruise-header-tab-pipelines' class="<%= "current" if @current_tab_name == "pipelines" %>">
-            <%= link_to l.string('PIPELINES'), main_app.pipeline_dashboard_path -%>
+            <%= link_to 'Pipelines', main_app.pipeline_dashboard_path -%>
         </li>
         <li id='cruise-header-tab-environments' class="<%= "current" if @current_tab_name == "environments" %>">
-            <%= link_to l.string('ENVIRONMENTS_CAPS'), main_app.environments_path -%>
+            <%= link_to 'Environments', main_app.environments_path -%>
         </li>
         <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
-            <%= link_to l.string('AGENTS'), '/go/agents' -%>
+            <%= link_to 'Agents', '/go/agents' -%>
         </li>
         <% with_analytics_dashboard_support do %>
             <li id='cruise-header-tab-analytics' class="<%= "current" if @current_tab_name == "analytics" %>">
-                <%= link_to l.string('ANALYTICS'), main_app.analytics_path -%>
+                <%= link_to 'Analytics', main_app.analytics_path -%>
             </li>
         <% end %>
         <li id="cruise-header-tab-admin" class="<%="current" if @current_tab_name == "admin"%>">
             <%
-               admin_header_link_label = l.string("ADMIN")
+               admin_header_link_label = 'Admin'
             %>
             <% unless can_view_admin_page? -%>
                 <span><%= admin_header_link_label -%></span>

@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter
 import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter
 import com.thoughtworks.go.config.*
-import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -59,7 +58,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
   @Override
   RolesControllerV1Delegate createControllerInstance() {
-    new RolesControllerV1Delegate(roleConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, localizer)
+    new RolesControllerV1Delegate(roleConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
@@ -279,7 +278,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         when(roleConfigService.create(any(), any(), any())).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last()
-          result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"))
+          result.unprocessableEntity("validation failed")
         })
 
         postWithApiHeader(controller.controllerPath(), toObjectString({ RoleRepresenter.toJSON(it, role) }))
@@ -287,7 +286,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("ENTITY_CONFIG_VALIDATION_FAILED")
+          .hasJsonMessage("validation failed")
       }
 
       @Test
@@ -457,7 +456,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'role', role.getName()))
+          result.setMessage("something bad happened")
         }).when(roleConfigService).delete(any(), eq(role), any())
 
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
@@ -465,7 +464,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage('RESOURCE_DELETE_SUCCESSFUL')
+          .hasJsonMessage('something bad happened')
       }
 
       @Test
@@ -476,7 +475,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
-          result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", 'validation error'))
+          result.unprocessableEntity("some error happened!")
         }).when(roleConfigService).delete(any(), eq(role), any())
 
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
@@ -484,7 +483,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage('SAVE_FAILED_WITH_REASON')
+          .hasJsonMessage("some error happened!")
       }
     }
   }

@@ -1,5 +1,5 @@
 <div class="form_item_block required">
-    <label><%= l.string('PIPELINE') -%> <span class="autocomplete_stage">[<%= l.string('STAGE') -%>]</span><span class="asterisk"><%= l.string("REQUIRED_FIELD") -%></span></label>
+    <label>Pipeline <span class="autocomplete_stage">[Stage]</span><span class="asterisk">*</span></label>
     <%= scope[:form].text_field com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME, :class => "form_input required", :id => "material_pipelineStageName" -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME, :css_class => "form_error") %>
     <div class="autocomplete"></div>

@@ -34,6 +34,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -91,7 +93,7 @@ public class DeletePackageRepositoryCommandTest {
     @Test
     public void shouldNotContinueIfTheUserIsNotAdmin() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 

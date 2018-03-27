@@ -33,6 +33,6 @@ module JobConfigLoader
 
   def load_job
     job_name = CaseInsensitiveString.new(params[:job_name])
-    assert_load :job, @stage.getJobs().find { |job_config| job_name == job_config.name() }, l.jobNotFoundInStage(job_name, @stage.name(), @pipeline.name())
+    assert_load :job, @stage.getJobs().find { |job_config| job_name == job_config.name() }, "No job named '#{job_name}' exists for stage '#{@stage.name()}' of pipeline '#{@pipeline.name()}'."
   end
 end

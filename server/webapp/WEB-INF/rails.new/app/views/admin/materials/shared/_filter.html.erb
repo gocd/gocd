@@ -1,7 +1,7 @@
-<h3><%= l.string("BLACKLIST") -%></h3>
+<h3>Blacklist</h3>
 
 <div class="fieldset">
-    <label><%= l.string("BLACKLIST_DESCRIPTION") -%></label>
+    <label>Enter the paths to be excluded. Separate multiple entries with a comma.</label>
     <% scope[:form].object.filter().each do |ignored_file|
         error = ignored_file.errors().on(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN)
         if error
@@ -15,7 +15,7 @@
 
     <div class="form_item_block checkbox_row material_options">
       <%= scope[:form].check_box(com.thoughtworks.go.config.materials.ScmMaterialConfig::INVERT_FILTER, {:class => "form_input"}, "true") -%>
-      <%= scope[:form].label(com.thoughtworks.go.config.materials.ScmMaterialConfig::INVERT_FILTER, l.string('INVERT_FILTER')) %>
+      <%= scope[:form].label(com.thoughtworks.go.config.materials.ScmMaterialConfig::INVERT_FILTER, 'Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.') %>
     </div>
 
 </div>

@@ -26,6 +26,9 @@ import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
+
 public class RoleConfigDeleteCommand extends RoleConfigCommand {
 
     public RoleConfigDeleteCommand(GoConfigService goConfigService, Role role, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
@@ -49,7 +52,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!roleExists(cruiseConfig)) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "role", role.getName()), HealthStateType.notFound());
+            result.notFound(resourceNotFound("role", role.getName()), notFound());
             return false;
         }
         return super.canContinue(cruiseConfig);

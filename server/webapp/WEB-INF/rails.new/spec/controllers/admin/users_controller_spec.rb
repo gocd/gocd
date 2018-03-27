@@ -83,7 +83,7 @@ describe Admin::UsersController do
       users = [UserModel.new(User.new("user-1", ["Foo", "fOO", "FoO"], "foo@cruise.go", true), ["user", "loser"], false),
                  UserModel.new(User.new("loser-1", ["baR", "bAR", "BaR"], "bar@cruise.com", false), ["loser"], true)]
       expect(@user_service).to receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult)) do |u, r|
-        r.badRequest(LocalizedMessage.string("SELECT_AT_LEAST_ONE_USER"))
+        r.badRequest("Please select one or more users.")
       end
       post :operate, :operation => "Enable", :selected => users
       assert_redirected_with_flash("/admin/users", "Please select one or more users.", 'error')
@@ -199,7 +199,7 @@ describe Admin::UsersController do
 
     it "should warn user if search results in warnings and show the results" do
       allow(@result).to receive(:hasMessage).with(no_args).and_return(true)
-      allow(@result).to receive(:message).with(any_args).and_return("some ldap error")
+      allow(@result).to receive(:message).and_return("some ldap error")
 
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
       allow(controller).to receive(:current_user).and_return(current_user_name)

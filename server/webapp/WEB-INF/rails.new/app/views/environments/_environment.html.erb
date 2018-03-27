@@ -11,7 +11,7 @@
       <%- if display_pipeline_instances_on_environments_page %>
         <% scope[:pipeline_models] = scope[:environment].getPipelineModels() %>
         <% if scope[:pipeline_models].empty? %>
-            <span><%= l.string('NO_PIPELINES_CONFIGURED_FOR_ENVIRONMENT')-%></span>
+            <span>There are no pipelines configured for this environment.</span>
         <% else %>
             <% scope[:pipeline_models].each do |pipeline_model_in_environment| %>
                 <div id="<%= env_pipeline_dom_id(pipeline_model_in_environment) %>" class="pipeline hidereveal_collapsed">

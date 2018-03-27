@@ -92,7 +92,7 @@ shared_examples_for :material_controller do
       it "should assign config_errors for display when create fails due to validation errors" do
         stub_save_for_validation_error do |result, cruise_config, node|
           cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest('some message')
         end
 
         post :create, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload
@@ -164,7 +164,7 @@ shared_examples_for :material_controller do
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
           config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest('some message')
         end
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()

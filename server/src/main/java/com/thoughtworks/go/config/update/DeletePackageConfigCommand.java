@@ -23,16 +23,18 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final GoConfigService goConfigService;
@@ -60,7 +62,7 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = goConfigService.getPackageUsageInPipelines();
         List<String> pipelinesUsingPackages = populateList(packageUsageInPipelines);
         if (!pipelinesUsingPackages.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "package definition", packageDefinition.getId(), pipelinesUsingPackages));
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines("package definition", packageDefinition.getId(), pipelinesUsingPackages));
             return false;
         }
         return true;
@@ -93,7 +95,7 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

@@ -1,5 +1,5 @@
 <div class="users">
-    <label><%= l.string("USERS") -%></label>
+    <label>Users</label>
     <%= render :partial => "edit_user_or_role.html", :locals => {:scope => {:stage => scope[:stage],
                                                                             :form => scope[:form],
                                                                             :collection => scope[:user_collection],
@@ -8,7 +8,7 @@
                                                                             :autocomplete_suggestions => @autocomplete_users}} %>
 </div>
 <div class="roles">
-    <label><%= l.string("ROLES") -%></label>
+    <label>Roles</label>
     <%= render :partial => "edit_user_or_role.html", :locals => {:scope => {:stage => scope[:stage],
                                                                             :form => scope[:form],
                                                                             :collection => scope[:role_collection],

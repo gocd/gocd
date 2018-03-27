@@ -35,10 +35,10 @@
 
             <div class="sub_tabs_container <%= params[:current_tab] -%>">
               <ul>
-                <li id="settings"><%= link_to l.string('STAGE_SETTINGS'), admin_stage_edit_path(:current_tab => "settings") %></li>
-                <li id="jobs"><%= link_to "#{l.string('JOBS')}", admin_job_listing_path(:current_tab => "jobs") %></li>
-                <li id="environment_variables"><%= link_to l.string("ENVIRONMENT_VARIABLES"), admin_stage_edit_path(:current_tab => "environment_variables") %></li>
-                <li id="permissions"><%= link_to l.string("PERMISSIONS"), admin_stage_edit_path(:current_tab => "permissions") %></li>
+                <li id="settings"><%= link_to 'Stage Settings', admin_stage_edit_path(:current_tab => "settings") %></li>
+                <li id="jobs"><%= link_to 'Jobs', admin_job_listing_path(:current_tab => "jobs") %></li>
+                <li id="environment_variables"><%= link_to 'Environment Variables', admin_stage_edit_path(:current_tab => "environment_variables") %></li>
+                <li id="permissions"><%= link_to 'Permissions', admin_stage_edit_path(:current_tab => "permissions") %></li>
               </ul>
             </div>
             <div id="form_parent">

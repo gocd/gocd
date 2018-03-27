@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.admin.backups.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.backups.BackupsControllerDelegate;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ public class BackupsController implements SparkSpringController {
     private final BackupsControllerDelegate delegate;
 
     @Autowired
-    public BackupsController(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService, Localizer localizer) {
-        delegate = new BackupsControllerDelegate(apiAuthenticationHelper, backupService, localizer);
+    public BackupsController(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService) {
+        delegate = new BackupsControllerDelegate(apiAuthenticationHelper, backupService);
     }
 
     @Override

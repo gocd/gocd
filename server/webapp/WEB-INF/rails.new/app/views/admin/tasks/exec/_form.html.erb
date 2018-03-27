@@ -4,15 +4,15 @@
 
 <div class="form_item required">
     <div class="form_item_block">
-        <%= label_tag scope[:command_id] = random_dom_id('command_'), required_label_text(l.string('COMMAND')) -%>
+        <%= label_tag scope[:command_id] = random_dom_id('command_'), required_label_text('Command') -%>
         <%= scope[:form].text_field com.thoughtworks.go.config.ExecTask::COMMAND, {:class => "form_input required exec-task-command", :id => scope[:command_id]} -%>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_TASK_COMMAND") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The command or script to be executed, relative to the working directory"></div>
         <%= error_message_on(scope[:task], com.thoughtworks.go.config.ExecTask::COMMAND, :css_class => "form_error") %>
     </div>
 
     <div class="form_item_block">
         <div>
-            <%= label_tag scope[:arguments_id] = random_dom_id('arguments_'), l.string('ARGUMENTS') -%>
+            <%= label_tag scope[:arguments_id] = random_dom_id('arguments_'), 'Arguments' -%>
         </div>
         <% if !scope[:task].getArgs().empty? %>
             <%= scope[:form].text_field com.thoughtworks.go.config.ExecTask::ARGS, {:class => "form_input", :id => scope[:arguments_id]} -%>
@@ -26,16 +26,16 @@
             end %>
             <%= scope[:form].text_area com.thoughtworks.go.config.ExecTask::ARG_LIST_STRING, {:class => "form_input code_text exec-task-arguments", :wrap => "off" , :rows => 5, :cols => 50, :id => scope[:arguments_id]} -%>
             <div style='margin:3px 0 10px;' class="inline_instruction">
-                <%= l.string("EXEC_ARGUMENT_LIST_INSTRUCTION") -%>
+                Enter each argument on a new line
             </div>
             <%= error_message_on(scope[:task], com.thoughtworks.go.config.ExecTask::ARG_LIST_STRING, :css_class => "form_error") %>
         <% end %>
     </div>
 
     <div class="form_item_block">
-        <%= label_tag scope[:work_dir_id] = random_dom_id('working_dir_'), l.string('WORKING_DIRECTORY') -%>
+        <%= label_tag scope[:work_dir_id] = random_dom_id('working_dir_'), 'Working Directory' -%>
         <%= scope[:form].text_field com.thoughtworks.go.config.ExecTask::WORKING_DIR, {:class => "form_input", :id => scope[:work_dir_id]} -%>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_TASK_WORKING_DIRECTORY") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."></div>
         <%= error_message_on(scope[:task], com.thoughtworks.go.config.ExecTask::WORKING_DIR, :css_class => "form_error") %>
     </div>
 </div>

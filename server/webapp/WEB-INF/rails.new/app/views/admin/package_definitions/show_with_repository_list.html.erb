@@ -22,12 +22,12 @@
                         <%- end %>
                     </fieldset>
                     <% if @package_to_pipeline_map.get(params[:package_id]) == nil %>
-                        <div class="information"><%=l.string("PACKAGE_NOT_USED_IN_ANY_PIPELINE")-%></div>
+                        <div class="information">No Pipelines currently use this package</div>
                     <% else %>
                         <fieldset>
-                            <legend><span><%= l.string("PIPELINES_CURRENTLY_ASSOCIATED_WITH_PACKAGE") -%></span></legend>
+                            <legend><span>Pipelines currently associated with this package</span></legend>
                             <div id="pipelines_used_in">
-                                   <a id="show_pipelines_used_in" href="#"><%=l.string("PACKAGE_USED_IN_PIPELINES_LINK")-%></a>
+                                   <a id="show_pipelines_used_in" href="#">Show pipelines using this package</a>
                             </div>
                         </fieldset>
                     <% end %>
@@ -39,8 +39,8 @@
                             <%= md5_field %>
                             <span id="trigger_package_delete_<%=params[:package_id]%>">
                                  <div class="form_buttons">
-                                     <button type="button" class="submit" title="<%=l.string("DELETE_PACKAGE_TITLE")-%>" id="delete_button_<%=params[:package_id]%>">
-                                         <span><%= l.string("DELETE") -%></span>
+                                     <button type="button" class="submit" title="Delete this package." id="delete_button_<%=params[:package_id]%>">
+                                         <span>Delete</span>
                                      </button>
                                  </div>
                                 <%= render :partial => 'admin/shared/submit_with_prompt.html',
@@ -49,7 +49,7 @@
                     <% end %>
                 <% else %>
                     <div class="form_buttons">
-                        <button type="submit" class="submit" id="delete_package" disabled="disabled" title="<%=l.string("PACKAGE_USED_IN_PIPELINES")-%>"><span><%= l.string("DELETE") -%></span></button>
+                        <button type="submit" class="submit" id="delete_package" disabled="disabled" title="This package is being used in one or more pipeline(s), cannot delete the package"><span>Delete</span></button>
                     </div>
                 <% end %>
             <% end %>

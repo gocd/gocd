@@ -8,15 +8,15 @@
         <%= md5_field %>
         <div class="form_content">
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-            <h3><%= l.string("GENERAL_OPTIONS") -%></h3>
+            <h3>General Options</h3>
 
             <div class="instructions">
-                <%= l.string("INSTRUCTION_ADD_TEMPLATE") -%>
+                Provides options to create a new template from scratch or from an existing pipeline
             </div>
             <div class="fieldset required">
                 <div class="form_item_block">
                     <%= f.fields_for com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::TEMPLATE, @pipeline.templateConfig() do |t| %>
-                        <%= required_label(t, com.thoughtworks.go.config.PipelineTemplateConfig::NAME, l.string("TEMPLATE_NAME")) -%>
+                        <%= required_label(t, com.thoughtworks.go.config.PipelineTemplateConfig::NAME, 'Template Name') -%>
                         <%= t.text_field com.thoughtworks.go.config.PipelineTemplateConfig::NAME %>
                         <%= error_message_on(@pipeline.templateConfig(), com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :css_class => "form_error") %>
                     <% end %>
@@ -29,7 +29,7 @@
                            check_box_label_options = {}
                            if pipelineEmptyOrPegged
                              check_box_options[:disabled] = "disabled"
-                             check_box_label_options[:class] = "disabled" 
+                             check_box_label_options[:class] = "disabled"
                            end
                            check_box_options[:checked] = "checked" if extract_from
                            use_existing_pipeline_value = extract_from ? "1" : "0"
@@ -38,9 +38,13 @@
                         <%= f.hidden_field com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, :value => use_existing_pipeline_value %>
                         <%= f.check_box com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, check_box_options %>
 
-                        <%= f.label com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, l.string("EXTRACT_TEMPLATE_FROM_PIPELINE_LABEL"), check_box_label_options %>
-                        <% extract_pipeline_tool_tip= @pipeline.pipelineNames.empty? ? "CREATE_TEMPLATE_FROM_PIPELINE_DISABLED_TOOL_TIP" : "CREATE_TEMPLATE_FROM_PIPELINE_TOOL_TIP" %>
-                        <div class="contextual_help has_go_tip_right" title="<%=l.string(extract_pipeline_tool_tip)-%>"></div>
+                        <%= f.label com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, 'Extract From Pipeline', check_box_label_options %>
+                        <% extract_pipeline_tool_tip = if @pipeline.pipelineNames.empty?
+                                                        'No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.'
+                                                      else
+                                                        'If a pipeline is not selected, a template with a default stage and default job is created. If a pipeline is selected, the template will use the stages from the pipeline and the pipeline itself will start using this template.'
+                                                      end %>
+                        <div class="contextual_help has_go_tip_right" title="<%= extract_pipeline_tool_tip -%>"></div>
                     </div>
                     <% if !allow_pipeline_selection? %>
                         <div id="pipelines_to_extract_from">
@@ -48,14 +52,14 @@
                                 <%= f.select(com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::PIPELINE_NAMES, @pipeline.pipelineNames, {:selected => extract_from}, {:disabled => "disabled"}) %>
                                 <%= f.hidden_field(com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::SELECTED_PIPELINE_NAME) %>
                             </div>
-                            <div><%= l.string("THIS_PIPELINE_WILL_NOW_START_USING_NEWLY_CREATED_TEMPLATE") -%></div>
+                            <div>This pipeline will now start using the newly created template.</div>
                         </div>
                     <% else %>
                         <div id="pipelines_to_extract_from" class='<%= @pipeline.useExistingPipeline ? "" :"hidden" %>'>
                             <div class="form_item_block">
                                 <%= f.select(com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::SELECTED_PIPELINE_NAME, @pipeline.pipelineNames, {:selected => @pipeline.selectedPipelineName()}) %>
                             </div>
-                            <div><%= l.string("THIS_PIPELINE_WILL_NOW_START_USING_NEWLY_CREATED_TEMPLATE") -%></div>
+                            <div>This pipeline will now start using the newly created template.</div>
                         </div>
                     <% end %>
                 </div>

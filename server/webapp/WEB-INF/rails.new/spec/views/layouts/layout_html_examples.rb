@@ -25,8 +25,8 @@ shared_examples :layout do
 
   it "should display all the tabs" do
     render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to have_selector("li a", /AGENTS/)
-    expect(response.body).to have_selector("li a", /ENVIRONMENTS/)
+    expect(response.body).to have_selector("li a", text: /Agents/)
+    expect(response.body).to have_selector("li a", text: /Environments/)
   end
 
   it "should not display auth block when user not logged in" do
@@ -38,11 +38,11 @@ shared_examples :layout do
     assign(:user, com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("maulik suchak")))
 
     render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to have_selector(".current_user a[href='#']", "maulik suchak")
-    expect(response.body).to have_selector(".current_user a[href='/preferences/notifications']", "Preferences")
-    expect(response.body).to have_selector(".current_user .logout a[href='/auth/logout']", "Sign out")
+    expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
+    expect(response.body).to have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
+    expect(response.body).to have_selector(".current_user .logout a[href='/auth/logout']", text: "Sign out")
 
-    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", "Help")
+    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
   end
 
   it "should not display username and logout botton if anonymous user is logged in" do
@@ -50,21 +50,21 @@ shared_examples :layout do
 
     render :inline => '<div>content</div>', :layout => @layout_name
 
-    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", "Help")
+    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
 
-    expect(response.body).to_not have_selector(".current_user a[href='#']", "maulik suchak")
-    expect(response.body).to_not have_selector(".current_user a[href='/preferences/notifications']", "Preferences")
-    expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", "Sign out")
+    expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
+    expect(response.body).to_not have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
+    expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
   end
 
   it "should link all the tabs right" do
     allow(view).to receive(:mycruise_available?).and_return(true)
     render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("a[href='/pipelines']", 'PIPELINES')
-    expect(response.body).to have_selector("a[href='/go/agents']", 'AGENTS')
-    expect(response.body).to have_selector("a[href='/path/to/environments']", 'ENVIRONMENTS')
-    expect(response.body).to have_selector("a[href='https://gocd.org/help']", 'Help')
-    expect(response.body).to have_selector("a[data-toggle='dropdown']", 'ADMIN')
+    expect(response.body).to have_selector("a[href='/path/to/pipeline/dashboard']", text: 'Pipelines')
+    expect(response.body).to have_selector("a[href='/go/agents']", text: 'Agents')
+    expect(response.body).to have_selector("a[href='/path/to/environments']", text: 'Environments')
+    expect(response.body).to have_selector("a[href='https://gocd.org/help']", text: 'Help')
+    expect(response.body).to have_selector("a[data-toggle='dropdown']", text: 'Admin')
   end
 
   it "should disable mycruise tab when mycruise is not available" do
@@ -81,7 +81,7 @@ shared_examples :layout do
 
   it "should enable admin tab when user is an administrator" do
     render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("li a[data-toggle='dropdown']", "ADMIN")
+    expect(response.body).to have_selector("li a[data-toggle='dropdown']", text: "Admin")
   end
 
   it "should render page error" do

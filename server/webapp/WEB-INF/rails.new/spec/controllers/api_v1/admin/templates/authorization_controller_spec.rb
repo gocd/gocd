@@ -218,12 +218,12 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         allow(@template_config_service).to receive(:loadForView).and_return(@template)
         allow(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), result, anything)  do |user, template, auth, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity('some error')
         end
 
         put_with_api_header :update, template_name: 'some-template'
 
-        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+        expect(response).to have_api_message_response(422, 'some error')
       end
     end
     describe 'route' do

@@ -20,14 +20,14 @@
         <table class="artifact">
             <thead>
             <tr >
-                <th><h4 class="src"><%= l.string("SOURCE") -%></h4>
-                    <span class="contextual_help has_go_tip_right" title="<%=l.string("TOOLTIP_ARTIFACT_SOURCE")-%>"></span>
+                <th><h4 class="src">Source</h4>
+                    <span class="contextual_help has_go_tip_right" title="The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name)."></span>
                 </th>
-                <th><h4 class="dest"><%= l.string("DESTINATION") -%></h4>
-                    <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_ARTIFACT_DESTINATION") -%>"></span>
+                <th><h4 class="dest">Destination</h4>
+                    <span class="contextual_help has_go_tip_right" title="The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory"></span>
                 </th>
-                <th><h4 class="type" ><%= l.string("INSTRUCTION_TEST_ARTIFACT") %></h4>
-                    <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_TEST_ARTIFACT") -%>"></span>
+                <th><h4 class="type" >Type</h4>
+                    <span class="contextual_help has_go_tip_right" title="When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs."></span>
                 </th>
                 <th>&nbsp;</th>
             </tr>
@@ -55,7 +55,7 @@
             <%- end -%>
             </tbody>
         </table>
-		<%= action_icon({:type => "add", :text => l.string("ADD"), :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
+		<%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
     </div>
     <div class="clear"></div>
 </div>

@@ -1,14 +1,14 @@
 <div class="fieldset">
     <div class="form_item checkbox_row">
-        <label><%= l.string("CONFIGURATION_TYPE") %></label>
+        <label>Configuration Type</label>
         <% if scope[:pipeline].getConfigurationType == com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES %>
-            <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => l.string("DEFINE_STAGES") %>
-            <%= label_tag("pipeline_configurationType_stages", l.string("DEFINE_STAGES"))-%>
+            <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => 'Define Stages' %>
+            <%= label_tag("pipeline_configurationType_stages", 'Define Stages')-%>
         <% else %>
-            <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => l.string("TOOLTIP_DEFINE_STAGES_DISABLED"), :disabled => "disabled" %>
-            <%= scope[:form].label com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, l.string("DEFINE_STAGES"), :title => l.string("TOOLTIP_DEFINE_STAGES_DISABLED"), :class => "disabled" %>
+            <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => "Once a pipeline is associated with a template, it cannot be reverted to this mode via the UI. To disassociate this pipeline from a template, please configure it via the 'Config XML' tab from the Admin screen.", :disabled => "disabled" %>
+            <%= scope[:form].label com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, 'Define Stages', :title => "Once a pipeline is associated with a template, it cannot be reverted to this mode via the UI. To disassociate this pipeline from a template, please configure it via the 'Config XML' tab from the Admin screen.", :class => "disabled" %>
         <% end %>
-        <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :id => "pipeline_configurationType_template", :title => l.string("USE_TEMPLATE") %>
-        <%= label_tag("pipeline_configurationType_template", l.string("USE_TEMPLATE"))-%>
+        <%= scope[:form].radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :id => "pipeline_configurationType_template", :title => 'Use Template' %>
+        <%= label_tag("pipeline_configurationType_template", 'Use Template')-%>
     </div>
 </div>

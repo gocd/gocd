@@ -4,47 +4,47 @@
         <div class="should_perform_backup_content">
             <div class="message"></div>
             <div class="warning_message">
-                <div><%=l.string("BACKUP_WARNING")-%></div>
+                <div>Jobs that are building may get rescheduled if the backup process takes a long time. Proceed with backup?</div>
             </div>
             <%= form_tag(perform_backup_path, :id => 'backup_server_form', :method => 'POST', :onsubmit => "return performBackup(this);")-%>
                 <div class="form_buttons actions">
                     <div class="hidden backup_spinny"></div>
-                    <%= submit_button(l.string("PROCEED"), :class => "primary") -%>
-                    <button class="left submit close_modalbox_control"><span><%= l.string('CANCEL') -%></span></button>
+                    <%= submit_button('Proceed', :class => "primary") -%>
+                    <button class="left submit close_modalbox_control"><span>Cancel</span></button>
                 </div>
             <%= end_form_tag-%>
         </div>
     </div>
     <div class="backup_storage_message information">
-        <span class="info"><%=l.string("BACKUPS_STORED_IN")-%> <strong class="location"><%=@backup_location-%></strong></span>
+        <span class="info">Backups are stored in <strong class="location"><%=@backup_location-%></strong></span>
     </div>
     <div class='backup_action'>
-        <%=default_button( l.string("BACKUP_SERVER"),:id => "backup_server", :class => "primary")-%>
+        <%=default_button( 'Perform Backup',:id => "backup_server", :class => "primary")-%>
     </div>
     <div class='available_disk_space'>
-        <strong><%= l.string("ARTIFACT_DIRECTORY_DISK_SPACE") -%></strong>&nbsp;<%= @available_disk_space_on_artifacts_directory -%>
+        <strong>Available disk space in backup directory:</strong>&nbsp;<%= @available_disk_space_on_artifacts_directory -%>
     </div>
     <div class="last_backup">
         <%if @last_backup_time-%>
-            <span><%=l.string("BACKUP_LAST_TAKEN_ON", [@last_backup_user, @last_backup_time.iso8601()].to_java(java.lang.String))-%></span>
+            <span>Last backup was taken by '<%= @last_backup_user %>' on <%= @last_backup_time.iso8601() %></span>
         <%else-%>
-            <span><%=l.string("BACKUP_NEVER_PERFORMED")-%></span>
+            <span>Go has not performed a backup yet.</span>
         <%end-%>
     </div>
     <div class='help'>
-        <div><strong><%= l.string("BACKUP_HELP_HEADING") -%></strong></div>
+        <div><strong>On performing a backup, Go will create a backup of:</strong></div>
         <ul>
-            <li><%= l.string("BACKUP_HELP_CONFIG") -%></li>
-            <li><%= l.string("BACKUP_HELP_DB") -%></li>
-            <li><%= l.string("BACKUP_HELP_CONFIG_REPOSITORY") -%></li>
-            <li><%= l.string("BACKUP_HELP_VERSION") -%></li>
+            <li>Configuration - An archive named config-dir.zip containing XML configuration, Jetty server configuration, keystores and other Go internal configurations.</li>
+            <li>Database - The database is archived to a file which could be used to restore Go's database.</li>
+            <li>XML Configuration Version Repository - An archive named config-repo.zip containing a Git repository of the XML configuration file.</li>
+            <li>Go Version - A flat file named version.txt containing the version of Go that the backup was taken against.</li>
         </ul>
     </div>
     <script type="text/javascript">
         AjaxForm.error_box_selector = '.should_perform_backup_content .message';
         Util.on_load(function() {
             jQuery("#backup_server").click(function() {
-                Modalbox.show(jQuery('.should_perform_backup_content')[0], {overlayClose: false, title: '<%= l.string("BACKUP_SERVER_CONFIRM_POPUP") %>'});
+                Modalbox.show(jQuery('.should_perform_backup_content')[0], {overlayClose: false, title: 'Server Backup Confirmation'});
             });
         });
 

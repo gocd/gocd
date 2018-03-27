@@ -78,7 +78,7 @@ public class DeleteArtifactStoreConfigCommandTest {
         DeleteArtifactStoreConfigCommand command = new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult());
 
         thrown.expect(GoConfigInvalidException.class);
-        thrown.expectMessage("The artifact store 'foo' is being referenced by pipeline(s): {JobConfigIdentifier[up42:up42_stage:dev]=[PluggableArtifactConfig{id='installers', storeId='foo'}]}.");
+        thrown.expectMessage("The artifact store 'foo' is being referenced by pipeline(s): JobConfigIdentifier[up42:up42_stage:dev].");
 
         command.isValid(cruiseConfig);
     }

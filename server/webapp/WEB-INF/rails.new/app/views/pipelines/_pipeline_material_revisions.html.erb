@@ -13,19 +13,19 @@
         <ul>
             <li id="materials_tab" class="current_tab">
                 <a class="tab_button_body_match_text">materials</a>
-                <a><%= l.string('MATERIALS') -%></a>
+                <a>Materials</a>
             </li>
             <% if !@variables.empty? %>
                 <li id="environment_variables_tab">
                     <a class="tab_button_body_match_text">environment-variables</a>
-                    <a><%= l.string('ENVIRONMENT_VARIABLES') -%></a>
+                    <a>Environment Variables</a>
                 </li>
             <% end %>
             <% scope[:secure_variables] = @variables.getSecureVariables() %>
             <% unless scope[:secure_variables].empty? %>
                 <li id="secure_environment_variables_tab">
                     <a class="tab_button_body_match_text">secure-environment-variables</a>
-                    <a><%= l.string('SECURE_ENVIRONMENT_VARIABLES') -%></a>
+                    <a>Secure Variables</a>
                 </li>
             <% end %>
         </ul>
@@ -72,7 +72,7 @@
                                     <dd><span class="material_name" title="<%= material_in_pmr.getDisplayName() %>"><%= material_in_pmr.getTruncatedDisplayName() %></span></dd>
 
                                     <% scope[:folder_not_set] = material_in_pmr.getFolder() == nil -%>
-                                    <dt><%= l.string('DEST') %></dt>
+                                    <dt>Dest:</dt>
                                     <dd class='folder
                                 <% if scope[:folder_not_set] %> not_set
                                 <% end %>'>
@@ -80,28 +80,28 @@
                                             <% else %><%= material_in_pmr.getFolder() -%>
                                         <% end %></dd>
 
-                                    <dt><%= l.string('DATE') %></dt>
-                                    <dd class="date" title="<%= (scope[:revision] && scope[:revision].getDateOfLatestModification().iso8601) || l.string("NOT_APPLICABLE") %>">
-                                        <%= (scope[:revision] && scope[:revision].getDateOfLatestModification().display_time) || l.string("NOT_APPLICABLE") %>
+                                    <dt>Date:</dt>
+                                    <dd class="date" title="<%= (scope[:revision] && scope[:revision].getDateOfLatestModification().iso8601) || 'N/A' %>">
+                                        <%= (scope[:revision] && scope[:revision].getDateOfLatestModification().display_time) || 'N/A' %>
                                     </dd>
 
                                     <% if scope[:is_dependency_material] %>
-                                        <dt><%= l.string('LABEL:') %></dt>
-                                        <dd class="label"><%= (scope[:revision] && h(scope[:revision].getLatestModification().getPipelineLabel())) || l.string("NOT_APPLICABLE") -%></dd>
+                                        <dt>Instance:</dt>
+                                        <dd class="label"><%= (scope[:revision] && h(scope[:revision].getLatestModification().getPipelineLabel())) || 'N/A' -%></dd>
                                     <% else %>
-                                        <dt><%= l.string('USER') %></dt>
-                                        <dd class='user'><%= (scope[:revision] && h(scope[:revision].getLatestUser())) || l.string("NOT_APPLICABLE") %></dd>
+                                        <dt>User:</dt>
+                                        <dd class='user'><%= (scope[:revision] && h(scope[:revision].getLatestUser())) || 'N/A' %></dd>
 
-                                        <dt><%= l.string('COMMENT:') %></dt>
-                                        <dd class="comment"><%= (scope[:revision] && h(render_simple_comment(scope[:revision].getLatestComment()))) || l.string("NOT_APPLICABLE") %></dd>
+                                        <dt>Comment:</dt>
+                                        <dd class="comment"><%= (scope[:revision] && h(render_simple_comment(scope[:revision].getLatestComment()))) || 'N/A' %></dd>
                                     <% end %>
 
-                                    <dt><%= scope[:show_on_pipelines] ? l.string('LAST_RUN_WITH') : l.string('CURRENTLY_DEPLOYED') -%></dt>
+                                    <dt><%= scope[:show_on_pipelines] ? 'Last run with:' : 'Currently Deployed:' -%></dt>
                                     <dd>
-                                        <span id="currently-deployed-<%= index_in_pmr %>" class="revision_number" title="<%= (scope[:revision] && scope[:revision].getLatestRevisionString()) || l.string("NOT_APPLICABLE") %>"><%= (scope[:revision] && scope[:revision].getLatestShortRevision()) || l.string("NOT_APPLICABLE") %></span>
+                                        <span id="currently-deployed-<%= index_in_pmr %>" class="revision_number" title="<%= (scope[:revision] && scope[:revision].getLatestRevisionString()) || 'N/A' %>"><%= (scope[:revision] && scope[:revision].getLatestShortRevision()) || 'N/A' %></span>
                                     </dd>
 
-                                    <dt><%= scope[:show_on_pipelines] ? l.string('REVISION_TO_TRIGGER_WITH') : l.string('REVISION_TO_DEPLOY') -%></dt>
+                                    <dt><%= scope[:show_on_pipelines] ? 'Revision to trigger with:' : 'Revision to Deploy:' -%></dt>
                                     <dd>
                                         <%
                                            if scope[:current_or_latest_revision].hasModifications()
@@ -138,7 +138,7 @@
                                                 </script>
                                             <% end %>
                                         <% else -%>
-                                            <div id="material-number-<%= index_in_pmr %>-latest" title="<%= l.string('LATEST_AVAILABLE_REVISION') %>">latest</div>
+                                            <div id="material-number-<%= index_in_pmr %>-latest" title="Latest Available Revision">latest</div>
                                         <% end -%>
                                     </dd>
                                 </dl>
@@ -153,7 +153,7 @@
             <% if !@variables.empty? %>
                 <div class="variables" id="tab-content-of-environment-variables" style="display: none;">
                     <%= content_wrapper_tag %>
-                    <span><%= l.string('Override Environment and Pipeline level variables') -%></span>
+                    <span>Override Environment and Pipeline level variables:</span>
                     <% @variables.each_with_index do |variable, index| %>
                         <% unless variable.isSecure() %>
                             <div class="variable">
@@ -171,7 +171,7 @@
             <% unless scope[:secure_variables].empty? %>
                 <div class="secure_variables" id="tab-content-of-secure-environment-variables" style="display: none;">
                     <%= content_wrapper_tag %>
-                    <span><%= l.string('OVERRIDE_SECURE_ENVIRONMENT_AND_PIPELINE_LEVEL_VARIABLES') -%></span>
+                    <span>Override secure Environment and Pipeline level variables:</span>
                     <% scope[:secure_variables].each_with_index do |variable, index| %>
                         <div>
                             <%= label_tag "secure_variables[#{variable.getName()}]", variable.getName(), :class => 'inline' -%>
@@ -215,12 +215,12 @@
     </div>
     <div class="actions">
         <% if scope[:show_on_pipelines]
-            scope[:button_value]=l.string('TRIGGER_PIPELINE')
+            scope[:button_value]='Trigger Pipeline'
         else
-            scope[:button_value]=l.string('DEPLOY_CHANGES')
+            scope[:button_value]='Deploy Changes'
         end %>
         <%= submit_button(scope[:button_value], :class => 'primary', :disabled => !@pipeline.canRun()) %>
-        <%= submit_button(l.string('Close'), :id => 'close', :type => 'button') %>
+        <%= submit_button('Close', :id => 'close', :type => 'button') %>
     </div>
 </div>
 

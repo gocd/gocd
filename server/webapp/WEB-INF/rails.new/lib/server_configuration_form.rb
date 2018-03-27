@@ -98,27 +98,27 @@ class ServerConfigurationForm
       return true
     end
     if !hostName
-      result.badRequest(LocalizedMessage.string("HOSTNAME_REQUIRED"))
+      result.badRequest("Hostname is required.")
       return false
     end
     if !port
-      result.badRequest(LocalizedMessage.string("PORT_REQUIRED"))
+      result.badRequest("Port is required.")
       return false
     end
     if !from
-      result.badRequest(LocalizedMessage.string("FROM_ADDRESS_REQUIRED"))
+      result.badRequest("From email address is required.")
       return false
     end
     if !adminMail
-      result.badRequest(LocalizedMessage.string("ADMIN_ADDRESS_REQUIRED"))
+      result.badRequest("Admin email address is required.")
       return false
     end
     if !number?(port)
-      result.badRequest(LocalizedMessage.string("INVALID_PORT"))
+      result.badRequest("Invalid port.")
       return false
     end
     if tls !~ /true|false/
-      result.badRequest(LocalizedMessage.string("INVALID_TLS"))
+      result.badRequest("TLS should be selected.")
       return false
     end
     true

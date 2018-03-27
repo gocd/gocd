@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,10 @@ import java.io.IOException;
 public class AuthenticationProcessingFilter extends org.springframework.security.ui.webapp.AuthenticationProcessingFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationProcessingFilter.class);
     private GoConfigService goConfigService;
-    private Localizer localizer;
 
     @Autowired
-    public AuthenticationProcessingFilter(GoConfigService goConfigService, Localizer localizer) {
+    public AuthenticationProcessingFilter(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.localizer = localizer;
     }
 
     @Override
@@ -52,7 +49,7 @@ public class AuthenticationProcessingFilter extends org.springframework.security
     protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         super.onUnsuccessfulAuthentication(request, response, failed);
         if (failed.getClass() == AuthenticationServiceException.class) {
-            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new Exception(localizer.localize("AUTHENTICATION_SERVICE_EXCEPTION")));
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new Exception("Failed to authenticate with your authentication provider. Please check if your authentication provider is up and available to serve requests."));
             LOGGER.error(failed.getMessage());
             LOGGER.trace(failed.getMessage(), failed);
         }

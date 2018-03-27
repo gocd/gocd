@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -41,7 +39,7 @@ public class DeleteEnvironmentCommandTest {
     private BasicEnvironmentConfig environmentConfig;
     private CaseInsensitiveString environmentName;
     private HttpLocalizedOperationResult result;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
 
     @Mock
     private GoConfigService goConfigService;
@@ -55,7 +53,7 @@ public class DeleteEnvironmentCommandTest {
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
         cruiseConfig.addEnvironment(environmentConfig);
-        actionFailed = LocalizedMessage.string("ENV_DELETE_FAILED", environmentName);
+        actionFailed = "Could not delete environment " + environmentName;
     }
 
     @Test
@@ -73,7 +71,6 @@ public class DeleteEnvironmentCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(401));
-        assertThat(result.toString(), containsString("NO_PERMISSION_TO_DELETE_ENVIRONMENT"));
-        assertThat(result.toString(), containsString(currentUser.getUsername().toString()));
+        assertThat(result.message(), containsString("Failed to delete environment 'Dev'. User 'user' does not have permission to update environments."));
     }
 }

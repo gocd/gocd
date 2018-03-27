@@ -16,15 +16,18 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
@@ -73,7 +76,7 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", groupName), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEditGroup(groupName), unauthorised());
             return false;
         }
         return true;

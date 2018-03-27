@@ -66,7 +66,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
   @Override
   ArtifactStoreConfigControllerDelegate createControllerInstance() {
     def apiAuthenticationHelper = new ApiAuthenticationHelper(securityService, goConfigService)
-    return new ArtifactStoreConfigControllerDelegate(apiAuthenticationHelper, artifactStoreService, entityHashingService, localizer)
+    return new ArtifactStoreConfigControllerDelegate(apiAuthenticationHelper, artifactStoreService, entityHashingService)
   }
 
   @Nested
@@ -249,7 +249,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         when(artifactStoreService.create(Mockito.any() as Username, Mockito.any() as ArtifactStore, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last()
-          result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"))
+          result.unprocessableEntity("validation failed")
         })
 
         postWithApiHeader(controller.controllerPath(), toObjectString({
@@ -259,7 +259,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("ENTITY_CONFIG_VALIDATION_FAILED")
+          .hasJsonMessage("validation failed")
       }
 
       @Test
@@ -423,7 +423,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'artifactStore', artifactStore.getId()))
+          result.setMessage(LocalizedMessage.resourceDeleteSuccessful('artifactStore', artifactStore.getId()))
         }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
 
         deleteWithApiHeader(controller.controllerPath('/test'))
@@ -431,7 +431,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage('RESOURCE_DELETE_SUCCESSFUL')
+          .hasJsonMessage(LocalizedMessage.resourceDeleteSuccessful('artifactStore', artifactStore.getId()))
       }
 
       @Test
@@ -442,7 +442,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
-          result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", 'validation error'))
+          result.unprocessableEntity("save failed")
         }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
 
         deleteWithApiHeader(controller.controllerPath('/test'))
@@ -450,7 +450,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage('SAVE_FAILED_WITH_REASON')
+          .hasJsonMessage('save failed')
       }
     }
   }

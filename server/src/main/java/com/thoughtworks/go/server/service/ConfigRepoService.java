@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
@@ -33,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 @Service
 public class ConfigRepoService {
@@ -57,11 +59,11 @@ public class ConfigRepoService {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", ConfigRepoConfig.class.getAnnotation(ConfigTag.class).value(), repoId, e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(ConfigRepoConfig.class.getAnnotation(ConfigTag.class).value(), repoId, e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the package config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package config. Please check the logs for more information."));
                 }
             }
         }
@@ -76,23 +78,23 @@ public class ConfigRepoService {
 
         update(username, repoId, result, command);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "config repo", repoId));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("config repo", repoId));
         }
     }
 
     public void createConfigRepo(ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("RESOURCE_ADD_FAILED", "Config repo");
+        String actionFailed = "Failed to add config repo '" + configRepo.getId() + "'.";
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, username, result);
         update(username, configRepo.getId(), result, command);
     }
 
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username, HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("RESOURCE_UPDATE_FAILED", "Config repo");
+        String actionFailed = "Failed to update config repo '" + repoIdToUpdate + "'.";
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate, newConfigRepo, actionFailed, md5, username, result);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_UPDATE_SUCCESSFUL", "Config repo", repoIdToUpdate));
+            result.setMessage("The config repo '" + repoIdToUpdate + "' was updated successfully.");
         }
     }
 }

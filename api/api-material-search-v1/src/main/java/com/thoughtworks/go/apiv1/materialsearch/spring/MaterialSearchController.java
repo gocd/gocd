@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.materialsearch.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.materialsearch.MaterialSearchControllerDelegate;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ public class MaterialSearchController implements SparkSpringController {
     private final MaterialSearchControllerDelegate delegate;
 
     @Autowired
-    public MaterialSearchController(MaterialService materialService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer) {
-        delegate = new MaterialSearchControllerDelegate(materialService, apiAuthenticationHelper, localizer);
+    public MaterialSearchController(MaterialService materialService, ApiAuthenticationHelper apiAuthenticationHelper) {
+        delegate = new MaterialSearchControllerDelegate(materialService, apiAuthenticationHelper);
     }
 
     @Override

@@ -4,17 +4,17 @@
         <div class="autocomplete"></div>
         <div class="enhanced_dropdown <%= scope[:suffix]%> hidden">
             <div class="compare_search_instructions">
-                <p><%=l.string("SEARCH_PIPELINE_INSTRUCTIONS")-%></p>
-                <p><%=l.string("OR")%></p>
+                <p>Search for a pipeline instance by label, commiter, date, etc.</p>
+                <p>or</p>
                 <p><a class="more_pipelines" id="browse_timeline_link_<%= scope[:suffix]%>">
-                    <%=l.string("BROWSE_TIMELINE")%>
+                    Browse the timeline
                  </a></p>
             </div>
         </div>
     </div>
     <% if scope[:pipeline].isBisect() && !show_bisect? %>
         <div class="pipeline_counter_information">
-            <%= l.string("NO_COMPARISON_FOR_BISECT") %>
+            This pipeline instance cannot be used to perform a comparison because it was triggered with a non-sequential material revision.
         </div>
     <% else %>
         <div class="selected_pipeline_<%= scope[:suffix] -%> stages">
@@ -96,7 +96,7 @@
            Modalbox.show('<%= compare_pipelines_timeline_path(:pipeline_name => scope[:pipeline].name(), :page => 1, :other_pipeline_counter => scope[:fixed_pipeline].getCounter(), :suffix => scope[:suffix]) -%>',
                 {
                     overlayClose: false,
-                    title: "<%=l.string("SELECT_PIPELINE_TO_COMPARE")%>"
+                    title: "Select a pipeline to compare"
                 });
         });
     });

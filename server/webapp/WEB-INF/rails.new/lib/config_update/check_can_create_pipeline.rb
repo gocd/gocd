@@ -28,8 +28,7 @@ module ConfigUpdate
     def checkPermission(cruise_config, result)
       return if has_permission(cruise_config)
 
-      message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE")
-      result.unauthorized(message, nil)
+      result.unauthorized("Unauthorized to create pipeline.", nil)
     end
   end
 end

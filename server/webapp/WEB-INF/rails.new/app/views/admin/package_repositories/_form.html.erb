@@ -13,7 +13,7 @@
         <div class="content">
 
             <% if package_material_plugins.length < 2 %>
-                <div class="information" style="margin: 0 !important;"> <%= l.string("NO_PLUGINS_INSTALLED")-%></div>
+                <div class="information" style="margin: 0 !important;"> No plugins found. To configure a package repository you must have plugin(s) installed.</div>
             <%- end -%>
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
             <div id="ajax_form_submit_errors" class="form_submit_errors">
@@ -26,12 +26,12 @@
                     </div>
 
                     <div class="field required">
-                        <%= label_with_hint f, com.thoughtworks.go.domain.packagerepository.PackageRepository::NAME, l.string("NAME"), "Enter a globally unique name", "required" %>
+                        <%= label_with_hint f, com.thoughtworks.go.domain.packagerepository.PackageRepository::NAME, 'Name', "Enter a globally unique name", "required" %>
                         <%= f.text_field com.thoughtworks.go.domain.packagerepository.PackageRepository::NAME, :class => 'important' -%>
                     </div>
                     <%= f.fields_for com.thoughtworks.go.domain.packagerepository.PackageRepository::PLUGIN_CONFIGURATION, scope[:package_repository].getPluginConfiguration() do |plugin_configuration_form| %>
                         <div class="field required">
-                            <%= label_with_hint plugin_configuration_form, com.thoughtworks.go.domain.config.PluginConfiguration::ID, l.string("TYPE"), "Choose from available plugins", "required" -%>
+                            <%= label_with_hint plugin_configuration_form, com.thoughtworks.go.domain.config.PluginConfiguration::ID, 'Type', "Choose from available plugins", "required" -%>
                             <%= plugin_configuration_form.select com.thoughtworks.go.domain.config.PluginConfiguration::ID, package_material_plugins, {:selected => scope[:package_repository].getPluginConfiguration().getId()}, {} -%>
                         </div>
                     <% end %>
@@ -41,8 +41,8 @@
                 </div>
                 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
                 <div class="form_buttons">
-                        <button type="submit" class="submit primary" id="submit_form"><span><%= l.string("SAVE") -%></span></button>
-                        <button type="reset" class="submit" id="reset_form"><span><%= l.string("RESET") -%></span></button>
+                        <button type="submit" class="submit primary" id="submit_form"><span>SAVE</span></button>
+                        <button type="reset" class="submit" id="reset_form"><span>RESET</span></button>
                 </div>
             <% end %>
         </div>

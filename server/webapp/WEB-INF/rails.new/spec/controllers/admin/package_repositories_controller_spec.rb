@@ -254,7 +254,7 @@ describe Admin::PackageRepositoriesController do
         expect(assigns[:repository_configuration]).to_not be_nil
         expect(assigns[:repository_configuration].properties.size).to eq(0)
         expect(assigns[:errors].size).to eq(1)
-        expect(assigns[:errors]).to include("Associated plugin 'missing' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:errors]).to include("Plugin 'missing' not found.")
         expect(assigns[:package_repositories]).to eq(@cruise_config.getPackageRepositories())
         expect(assigns[:tab_name]).to eq("package-repositories")
       end
@@ -263,7 +263,7 @@ describe Admin::PackageRepositoriesController do
         get :edit, :id => "missing-repo-id"
 
         expect(response.response_code).to eq(404)
-        expect(assigns[:message]).to eq("Could not find the repository with id 'missing-repo-id'. It might have been deleted.")
+        expect(assigns[:message]).to eq("Package Repository 'missing-repo-id' not found.")
         expect(assigns[:status]).to eq(404)
       end
     end
@@ -321,7 +321,7 @@ describe Admin::PackageRepositoriesController do
       it "should check connection for given package repository" do
         package_repository = PackageRepositoryMother.create("repo-id", "name", "yum", nil, Configuration.new([ConfigurationPropertyMother.create("key", false, "value")].to_java(ConfigurationProperty)))
         expect(@result).to receive(:isSuccessful).and_return(true)
-        expect(@result).to receive(:message).with(anything).and_return("Connection OK from plugin.")
+        expect(@result).to receive(:message).and_return("Connection OK from plugin.")
         expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
@@ -334,7 +334,7 @@ describe Admin::PackageRepositoriesController do
       it "should show error when check connection fails for given package repository" do
         package_repository = PackageRepositoryMother.create("repo-id", "name", "yum", nil, Configuration.new([ConfigurationPropertyMother.create("key", false, "value")].to_java(ConfigurationProperty)))
         expect(@result).to receive(:isSuccessful).and_return(false)
-        expect(@result).to receive(:message).twice.with(anything).and_return("Connection To Repo Failed. Bad Url")
+        expect(@result).to receive(:message).twice.and_return("Connection To Repo Failed. Bad Url")
         expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
@@ -388,7 +388,7 @@ describe Admin::PackageRepositoriesController do
         expect(@cruise_config).to receive(:getGroups).and_return(pipeline_groups)
         expect(@cruise_config).to receive(:getAllErrorsExceptFor).and_return([])
         expect(@go_config_service).to receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) { |action, md5, user, r|
-          r.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          r.badRequest("Save failed, see errors below")
         }.and_return(@update_response)
 
         delete :destroy, :id => repository_id, :config_md5 => @config_md5

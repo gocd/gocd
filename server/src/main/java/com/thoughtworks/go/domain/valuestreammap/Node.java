@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -168,11 +166,11 @@ public abstract class Node implements Comparable<Node>{
         return depth;
     }
 
-    public String getMessageString(Localizer localizer) {
+    public String getMessageString() {
         return null;
     }
 
-    public void setMessage(Localizable message) {
+    public void setMessage(String message) {
     }
 
     public VSMViewType getViewType() {

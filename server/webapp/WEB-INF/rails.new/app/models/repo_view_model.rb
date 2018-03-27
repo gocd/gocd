@@ -16,13 +16,12 @@
 
 class RepoViewModel
   attr_accessor :properties, :errors
-  include RailsLocalizer
 
   def initialize(metadata, repository, plugin_id)
     @properties = []
     @errors = com.thoughtworks.go.domain.ConfigErrors.new
     unless metadata
-      @errors.add("pluginId", l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [plugin_id].to_java(java.lang.String)))
+      @errors.add("pluginId", com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound("Plugin", plugin_id))
       return
     end
 

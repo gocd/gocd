@@ -31,7 +31,6 @@ import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.MaterialsMother
 import com.thoughtworks.go.helper.ModificationsMother
-import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
@@ -39,7 +38,10 @@ import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.domain.MaterialForScheduling
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.service.*
+import com.thoughtworks.go.server.service.PipelineHistoryService
+import com.thoughtworks.go.server.service.PipelinePauseService
+import com.thoughtworks.go.server.service.PipelineTriggerService
+import com.thoughtworks.go.server.service.PipelineUnlockApiService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
@@ -58,7 +60,8 @@ import org.mockito.invocation.InvocationOnMock
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.*
+import static org.mockito.Mockito.doAnswer
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<PipelineOperationsControllerV1Delegate> {
@@ -78,7 +81,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
   @Override
   PipelineOperationsControllerV1Delegate createControllerInstance() {
-    new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthenticationHelper(securityService, goConfigService), localizer, goConfigService, pipelineHistoryService)
+    new PipelineOperationsControllerV1Delegate(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, pipelineHistoryService)
   }
 
   @Nested
@@ -116,7 +119,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(3)
-          result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
+          result.setMessage("success!")
           return result
         }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -125,7 +128,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("PIPELINE_PAUSE_SUCCESSFUL")
+          .hasJsonMessage("success!")
       }
 
       @Test
@@ -133,7 +136,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(3)
-          result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName))
+          result.setMessage("success!")
           return result
         }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -142,7 +145,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("PIPELINE_PAUSE_SUCCESSFUL")
+          .hasJsonMessage("success!")
       }
 
       @Test
@@ -150,7 +153,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(3)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName))
+          result.conflict("already paused")
           return result
         }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -159,7 +162,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isConflict()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("PIPELINE_ALREADY_PAUSED")
+          .hasJsonMessage("already paused")
       }
     }
   }
@@ -199,7 +202,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
-          result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName))
+          result.setMessage("success!")
           return result
         }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -208,7 +211,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("PIPELINE_UNPAUSE_SUCCESSFUL")
+          .hasJsonMessage("success!")
       }
 
       @Test
@@ -216,7 +219,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
-          result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName))
+          result.conflict("already unpaused!")
           return result
         }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
@@ -225,7 +228,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
         assertThatResponse()
           .isConflict()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("PIPELINE_ALREADY_UNPAUSED")
+          .hasJsonMessage("already unpaused!")
       }
     }
   }

@@ -1,5 +1,5 @@
-<h3><%= l.string('ARTIFACTS') -%></h3>
-<span class="contextual_help has_go_tip_right" title="<%= l.string("INSTRUCTION_ARTIFACTS") -%>">&nbsp;</span>
+<h3>Artifacts</h3>
+<span class="contextual_help has_go_tip_right" title="Publish build artifacts to the artifact repository">&nbsp;</span>
 <%= form_for @job,
                 :as => :job,
                 :url => admin_job_update_path(:current_tab => "artifacts"),

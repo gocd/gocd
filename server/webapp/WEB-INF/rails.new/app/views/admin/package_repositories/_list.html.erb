@@ -1,5 +1,5 @@
 <%- new_repo_class = (scope[:current_repo] == nil) ? "selected" : "" %>
-<%= link_to content_tag(:span, l.string("ADD_NEW_REPOSITORY")), package_repositories_new_path(), :class => ['add ', new_repo_class] %>
+<%= link_to content_tag(:span, 'Add New Repository'), package_repositories_new_path(), :class => ['add ', new_repo_class] %>
 <%- if scope[:package_repositories].empty? %>
     <p id="no-items">No repository found.</p>
 <%- else %>
@@ -23,11 +23,11 @@
                     <%= form_for repo, :as => :repo, :url => package_repositories_delete_path(:id => repo.getId()), :html => {:id => "delete_repository_"+repo.getId, :method => :delete} do |f| %>
                         <% if @cruise_config.canDeletePackageRepository(repo) %>
                             <%= md5_field %>
-                            <button title='<%= l.string("DELETE_REPOSITORY") %>' type="button" class="remove" id="button_for_repository_delete_from_tree_<%= repo.getId() %>"></button>
+                            <button title='Delete this repository.' type="button" class="remove" id="button_for_repository_delete_from_tree_<%= repo.getId() %>"></button>
                             <%= render :partial => 'admin/shared/submit_with_prompt.html',
                                        :locals => {:scope => {:button_container => "delete_repository_#{repo.getId()}", :button_id => "button_for_repository_delete_from_tree_#{repo.getId()}", :message => "You are about to delete repository #{repo.getName()}", :on_confirmation_js => "$('#{"delete_repository_#{repo.getId()}"}').submit()"}} %>
                         <% else %>
-                            <button type="button" title="<%= l.string('CANNOT_DELETE_REPOSITORY') %>" class="remove" id="delete_repository_button_<%= repo.getId() %>" disabled="disabled"></button>
+                            <button type="button" title="One or more packages in this repository are being used by pipeline(s). Cannot delete repository." class="remove" id="delete_repository_button_<%= repo.getId() %>" disabled="disabled"></button>
                         <% end %>
                     <% end %>
                 </div>
@@ -45,12 +45,12 @@
                                         <% if scope[:package_to_pipeline_map].get(pkg.getId()) == nil %>
                                             <%= md5_field %>
                                             <span id="package_delete_from_tree_<%= pkg.getId() %>">
-                                        <button title='<%= l.string("DELETE_PACKAGE_TITLE") -%>' type="button" class="remove" id="delete_button_from_tree_<%= pkg.getId() %>"></button>
+                                        <button title='Delete this package.' type="button" class="remove" id="delete_button_from_tree_<%= pkg.getId() %>"></button>
                                                 <%= render :partial => 'admin/shared/submit_with_prompt.html',
                                                            :locals => {:scope => {:button_container => "package_delete_from_tree_#{pkg.getId()}", :button_id => "delete_button_from_tree_#{pkg.getId()}", :message => "You are about to delete package #{pkg.getName()}", :on_confirmation_js => "$('#{"delete_package_#{pkg.getId()}"}').submit()"}} %>
                                     </span>
                                         <% else %>
-                                            <button title='<%= l.string("PACKAGE_USED_IN_PIPELINES") -%>' type="button" class="remove" id="delete_button_<%= pkg.getId() %>" disabled="disabled"></button>
+                                            <button title='This package is being used in one or more pipeline(s), cannot delete the package' type="button" class="remove" id="delete_button_<%= pkg.getId() %>" disabled="disabled"></button>
                                         <% end %>
                                     <% end %>
                                 </div>

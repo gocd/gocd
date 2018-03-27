@@ -19,30 +19,26 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import java.util.List;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class ConfigRepoCommand {
 
     private final SecurityService securityService;
     private ConfigRepoConfig preprocessedconfigRepo;
     private ConfigRepoConfig configRepo;
-    private final Localizable.CurryableLocalizable actionFailed;
+    private final String actionFailed;
     private final Username username;
     private final HttpLocalizedOperationResult result;
 
-    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Localizable.CurryableLocalizable actionFailed, Username username, HttpLocalizedOperationResult result) {
+    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, String actionFailed, Username username, HttpLocalizedOperationResult result) {
         this.securityService = securityService;
         this.configRepo = configRepo;
         this.actionFailed = actionFailed;
@@ -60,8 +56,8 @@ public class ConfigRepoCommand {
         preprocessedconfigRepo.validate(new ConfigSaveValidationContext(preprocessedConfig));
 
         if (!configRepos.getAllErrors().isEmpty()) {
-            List<String> errors = configRepos.getAllErrors().getAll();
-            result.unprocessableEntity(actionFailed.addParam(errors));
+            String errors = configRepos.getAllErrors().asString();
+            result.unprocessableEntity(LocalizedMessage.composite(actionFailed, errors));
             return false;
         }
 
@@ -82,7 +78,7 @@ public class ConfigRepoCommand {
 
     public boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

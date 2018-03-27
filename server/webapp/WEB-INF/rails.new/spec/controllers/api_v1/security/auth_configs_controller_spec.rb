@@ -254,7 +254,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return('Save failed')
+        allow(result).to receive(:message).and_return('Save failed')
         allow(result).to receive(:httpCode).and_return(422)
         expect(@security_auth_config_service).to receive(:create).with(anything, an_instance_of(SecurityAuthConfig), result)
 
@@ -446,7 +446,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         expect(@security_auth_config_service).to receive(:findProfile).and_return(auth_config)
         result = HttpLocalizedOperationResult.new
         allow(@security_auth_config_service).to receive(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
-          result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'auth_config', 'foo'))
+          result.setMessage("The auth_config 'foo' was deleted successfully.")
         end
         delete_with_api_header :destroy, auth_config_id: 'foo'
 
@@ -458,11 +458,11 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         expect(@security_auth_config_service).to receive(:findProfile).and_return(auth_config)
         result = HttpLocalizedOperationResult.new
         allow(@security_auth_config_service).to receive(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
-          result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
+          result.unprocessableEntity('some error')
         end
         delete_with_api_header :destroy, auth_config_id: 'foo'
 
-        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+        expect(response).to have_api_message_response(422, 'some error')
       end
     end
 

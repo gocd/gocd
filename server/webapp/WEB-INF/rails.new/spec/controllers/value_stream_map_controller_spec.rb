@@ -130,7 +130,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
       end
 
       it "should get the pipeline dependency graph json when pipeline quick edit toggle is set to true" do
@@ -147,7 +147,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_quick_edit).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_quick_edit).to_json)
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
@@ -177,7 +177,7 @@ describe ValueStreamMapController do
         allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
 
         expect(@value_stream_map_service).to receive(:getValueStreamMap) do |pipeline, pipeline_counter, user, result|
-          allow(result).to receive(:message).with(anything).and_return("error")
+          allow(result).to receive(:message).and_return("error")
         end
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
@@ -345,14 +345,14 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
       end
 
       it "should display error message when the pipeline does not exist" do
         fingerprint = 'fingerprint'
         revision = 'revision'
         expect(@value_stream_map_service).to receive(:getValueStreamMap) do |fingerprint, revision, user, result|
-          allow(result).to receive(:message).with(anything).and_return("error")
+          allow(result).to receive(:message).and_return("error")
         end
 
         get :show_material, material_fingerprint: fingerprint, revision: revision, format: "json"

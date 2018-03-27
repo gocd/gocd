@@ -30,7 +30,6 @@ import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -49,15 +48,13 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
     private final RoleConfigService roleConfigService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
-    private final Localizer localizer;
 
     public RolesControllerV1Delegate(RoleConfigService roleConfigService, ApiAuthenticationHelper apiAuthenticationHelper,
-                                     EntityHashingService entityHashingService, Localizer localizer) {
+                                     EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.roleConfigService = roleConfigService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
-        this.localizer = localizer;
     }
 
     @Override
@@ -149,7 +146,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         roleConfigService.delete(UserHelper.getUserName(), role, result);
 
 
-        return renderHTTPOperationResult(result, req, res, localizer);
+        return renderHTTPOperationResult(result, req, res);
     }
 
     @Override
@@ -159,11 +156,6 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
 
     public boolean isRenameAttempt(Role fromServer, Role fromRequest) {
         return !fromServer.getName().equals(fromRequest.getName());
-    }
-
-    @Override
-    public Localizer getLocalizer() {
-        return localizer;
     }
 
     @Override

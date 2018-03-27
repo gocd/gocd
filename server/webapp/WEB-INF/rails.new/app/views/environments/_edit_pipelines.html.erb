@@ -1,13 +1,13 @@
 <div id="pipelines_form" class="form_content hidereveal_collapsed" >
         <% if (scope[:available_pipelines].empty?)  && (scope[:unavailable_pipelines].empty?) && (scope[:remote_pipelines].empty?) %>
-                <%= l.string("NO_PIPELINES") %>
+                There are no pipelines configured
         <% else %>
 
           <div class="pipeline_list">
             <% if scope[:available_pipelines].empty? %>
-                <div class="information"><%= l.string("NO_AVAILABLE_PIPELINES") -%></div>
+                <div class="information">There are no available pipelines.</div>
             <%else%>
-                <span class="available_pipelines"><%= l.string("SHOW_AVAILABLE_PIPELINES") -%></span>
+                <span class="available_pipelines">Available pipelines</span>
             <%end%>
             <div class="input">
                  <% selected_pipeline_names = scope[:environment].pipelines.map(&:name).map(&:to_s)
@@ -20,7 +20,7 @@
                  <% end %>
             </div>
             <% if !scope[:remote_pipelines].empty? %>
-                <div class="available_pipelines"><%= l.string("SHOW_UNAVAILABLE_REMOTE_PIPELINES") -%></div>
+                <div class="available_pipelines">Pipelines associated with this environment in configuration repository</div>
                 <div class="input">
                      <% scope[:remote_pipelines].each do |remote_pipeline| %>
                                <div class="pipeline_selector">
@@ -32,7 +32,7 @@
                 </div>
             <% end %>
             <% if !(scope[:unavailable_pipelines].empty?) %>
-                <a id="show_unavailable_pipelines" class="hidereveal_expander"><%= l.string("SHOW_UNAVAILABLE_PIPELINES") -%></a>
+                <a id="show_unavailable_pipelines" class="hidereveal_expander">Unavailable pipelines (Already associated with environments)</a>
                 <div class="unavailable_pipelines hidereveal_content">
                      <%  scope[:unavailable_pipelines].each do |unavailable_pipeline| %>
                          <label class="label"><%= unavailable_pipeline.getPipelineName() -%> (<%= unavailable_pipeline.getEnvironmentName() -%>)</label>

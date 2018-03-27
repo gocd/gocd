@@ -67,6 +67,9 @@ import java.io.StringReader;
 import java.util.*;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
+import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 
@@ -167,7 +170,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return false;
         }
         if (!isUserAdminOfGroup(username.getUsername(), groupName)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
+            result.unauthorized(unauthorizedToEditPipeline(pipelineName), unauthorisedForPipeline(pipelineName));
             return false;
         }
         return true;
@@ -175,7 +178,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
             return false;
         }
         return true;
@@ -309,7 +312,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return latestUpdateResponse(command, updateCommand, updatedConfigResolver, clonedConfigForEdit(), configSaveState);
         } catch (ConfigFileHasChangedException e) {
             CruiseConfig updatedConfig = handleMergeException(md5, updateCommand);
-            result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            result.conflict(saveFailedWithReason(e.getMessage()));
             return latestUpdateResponse(command, updateCommand, new OldNodeSubjectResolver(), updatedConfig, null);
         } catch (ConfigUpdateCheckFailedException e) {
             //result is already set
@@ -318,7 +321,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             ConfigMergePostValidationException mergePostValidationException = ExceptionUtils.getCause(e, ConfigMergePostValidationException.class);
             if (mergeException != null || mergePostValidationException != null) {
                 CruiseConfig updatedConfig = handleMergeException(md5, updateCommand);
-                result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+                result.conflict(saveFailedWithReason(e.getMessage()));
                 return latestUpdateResponse(command, updateCommand, new OldNodeSubjectResolver(), updatedConfig, null);
             }
             GoConfigInvalidException ex = ExceptionUtils.getCause(e, GoConfigInvalidException.class);
@@ -327,10 +330,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                 setMD5(md5, badConfig);
                 Validatable node = updatedConfigResolver.getNode(command, updateCommand.cruiseConfig());
                 BasicCruiseConfig.copyErrors(command.updatedNode(badConfig), node);
-                result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
+                result.badRequest("Save failed, see errors below");
                 return new ConfigUpdateResponse(badConfig, node, subjectFromNode(command, updatedConfigResolver, node), updateCommand, null);
             } else {
-                result.badRequest(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+                result.badRequest(saveFailedWithReason(e.getMessage()));
             }
         }
 
@@ -881,7 +884,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean isValidGroup(String groupName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         if (!cruiseConfig.hasPipelineGroup(groupName)) {
-            result.notFound(LocalizedMessage.string("PIPELINE_GROUP_NOT_FOUND", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
+            result.notFound(LocalizedMessage.resourceNotFound("Pipeline group", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
             return false;
         }
         return true;
@@ -889,7 +892,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean isAdminOfGroup(String toGroupName, Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdminOfGroup(username.getUsername(), toGroupName)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", toGroupName), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEditGroup(toGroupName), unauthorised());
             return false;
         }
         return true;
@@ -903,7 +906,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     @Deprecated()
     public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
         }
         return clonedConfigForEdit();
     }
@@ -937,9 +940,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         try {
             return configRepository.configChangesFor(laterMd5, earlierMd5);
         } catch (IllegalArgumentException e) {
-            result.badRequest(LocalizedMessage.string("CONFIG_VERSION_NOT_FOUND"));
+            result.badRequest("Historical configuration is not available for this stage run.");
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("COULD_NOT_RETRIEVE_CONFIG_DIFF"));
+            result.internalServerError("Could not retrieve config changes for this revision.");
         }
         return null;
     }

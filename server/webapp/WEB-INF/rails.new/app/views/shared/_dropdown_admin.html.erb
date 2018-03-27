@@ -1,17 +1,17 @@
 <li role="presentation">
-    <%= link_to l.string("PIPELINES_POPUP_TITLE"), main_app.pipeline_groups_path -%>
+    <%= link_to 'Pipelines', main_app.pipeline_groups_path -%>
 </li>
 <li role="presentation">
-  <%= link_to l.string("TEMPLATES"), main_app.templates_path -%>
+  <%= link_to 'Templates', main_app.templates_path -%>
 </li>
 <li role="presentation">
   <%= link_to 'Elastic Agent Profiles', '/go/admin/elastic_profiles' -%>
 </li>
 <li role="presentation">
-    <%= link_to l.string("PIPELINES_SNIPPET"), main_app.config_view_path -%>
+    <%= link_to 'Config XML', main_app.config_view_path -%>
 </li>
 <li role="presentation">
-    <%= link_to l.string("SERVER_CONFIGURATION"), main_app.edit_server_config_path -%>
+    <%= link_to 'Server Configuration', main_app.edit_server_config_path -%>
 </li>
 <li role="presentation">
     <%= link_to "User Summary", main_app.user_listing_path -%>
@@ -23,10 +23,10 @@
     <%= link_to "Backup", main_app.backup_server_path -%>
 </li>
 <li role="presentation">
-  <%= link_to l.string("PLUGINS_TAB"), '/go/admin/plugins' -%>
+  <%= link_to 'Plugins', '/go/admin/plugins' -%>
 </li>
 <li role="presentation">
-    <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), main_app.package_repositories_new_path -%>
+    <%= link_to 'Package Repositories', main_app.package_repositories_new_path -%>
 </li>
 <li role="presentation" class="sub-menu">
   <a href="#">Security</a>

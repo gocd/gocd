@@ -22,8 +22,6 @@ import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -35,6 +33,7 @@ import org.junit.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -341,10 +340,7 @@ public class TemplateConfigServiceTest {
         assertThat(configForEdit, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(401));
-
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("UNAUTHORIZED_TO_EDIT_TEMPLATE", templateName)).thenReturn("No template for you");
-        assertThat(result.message(localizer), is("No template for you"));
+        assertThat(result.message(), is("Unauthorized to edit 'templateName' template."));
     }
 
     @Test
@@ -379,10 +375,7 @@ public class TemplateConfigServiceTest {
 
         assertThat(result.isSuccessful(), is(false));
 
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("UNAUTHORIZED_TO_ADMINISTER", new Object[0])).thenReturn("foo");
-
-        assertThat(result.message(localizer), is("foo"));
+        assertThat(result.message(), is("Unauthorized to edit."));
         assertThat(pipelineConfigs, is(nullValue()));
     }
 
@@ -409,7 +402,7 @@ public class TemplateConfigServiceTest {
         service.createTemplateConfig(user, pipelineTemplateConfig, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateName, errorMessage));
+        expectedResult.unprocessableEntity(entityConfigValidationFailed("template", templateName, errorMessage));
 
         assertThat(result.toString(), is(expectedResult.toString()));
     }

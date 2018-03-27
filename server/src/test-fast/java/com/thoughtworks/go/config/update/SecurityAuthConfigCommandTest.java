@@ -69,7 +69,7 @@ public class SecurityAuthConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class SecurityAuthConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test

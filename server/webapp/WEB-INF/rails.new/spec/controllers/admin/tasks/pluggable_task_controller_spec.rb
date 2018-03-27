@@ -87,7 +87,7 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          result.badRequest('some message')
         end
 
         expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
@@ -112,7 +112,7 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          result.badRequest('some message')
         end
         task_view_service = stub_service(:task_view_service)
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))

@@ -17,7 +17,6 @@
 require 'rails_helper'
 
 describe "admin/configuration/split_pane.html.erb" do
-  include RailsLocalizer
 
   before :each do
     allow(view).to receive(:config_view_path).and_return("config_view_path")
@@ -41,7 +40,7 @@ describe "admin/configuration/split_pane.html.erb" do
     assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
     assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
     date = java.util.Date.new(1366866649)
-    difference = "#{time_ago_in_words(date.to_string)} #{l.string('AGO')}"
+    difference = "#{time_ago_in_words(date.to_string)} #{'ago'}"
     cruise_config_revision = double("cruise config revision")
     expect(cruise_config_revision).to receive(:getTime).and_return(date)
     expect(cruise_config_revision).to receive(:getUsername).and_return("Ali")

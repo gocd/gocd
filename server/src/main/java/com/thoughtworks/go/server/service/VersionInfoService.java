@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.domain.exception.VersionFormatException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class VersionInfoService {
         try {
             versionInfo = manager.updateLatestVersion(latestVersion);
         } catch (VersionFormatException e) {
-            result.badRequest(LocalizedMessage.string("INVALID_VERSION_STRING_FORMAT", e.getMessage()));
+            result.badRequest("Invalid version string format: " + e.getMessage());
         }
         return versionInfo;
     }

@@ -55,11 +55,6 @@ describe Admin::ServerController do
     allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
     allow(controller).to receive(:server_config_service).and_return(@server_config_service = double(ServerConfigService))
 
-    allow(controller).to receive(:l).and_return(localizer = Class.new do
-      def method_missing method, *args
-        com.thoughtworks.go.i18n.LocalizedMessage.string(args[0], args[1..-1].to_java(java.lang.Object)).localize(Spring.bean("localizer"))
-      end
-    end.new)
   end
 
   describe "index" do
@@ -130,12 +125,12 @@ describe Admin::ServerController do
     it "should render success message returned by service while updating server config" do
       allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       expect(@server_config_service).to receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
-        operation_result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
+        operation_result.setMessage("foo")
       end
 
       post :update, :server_configuration_form => @valid_server_params, :cruise_config_md5 => "foo_bar_baz"
 
-      assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully. The configuration was modified by someone else, but your changes were merged successfully.", 'success',[])
+      assert_redirected_with_flash("/admin/config/server", "foo", 'success',[])
     end
 
     it "should assign server config details" do
@@ -210,7 +205,7 @@ describe Admin::ServerController do
     it "should render error message if there is an error reported by the service" do
       result = nil
       expect(@server_config_service).to receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
-        operation_result.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS"))
+        operation_result.notAcceptable("From address is not a valid email address.")
         result = operation_result
       end
 
@@ -244,7 +239,7 @@ describe Admin::ServerController do
     end
 
     def localized_success_message
-      LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")
+      "Saved configuration successfully."
     end
 
     def stub_update_server_config(mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, repo_location, localizable_message,md5)
@@ -267,7 +262,7 @@ describe Admin::ServerController do
   describe "validate" do
 
     before :each do
-      @default_localized_result = DefaultLocalizedResult.new
+      @default_localized_result = HttpLocalizedOperationResult.new
     end
 
     it "should resolve /admin/config/server/validate" do
@@ -276,7 +271,7 @@ describe Admin::ServerController do
     end
 
     it "should validate email" do
-      @default_localized_result.invalid("INVALID_EMAIL", ["@foo.com"].to_java(java.lang.String))
+      @default_localized_result.notAcceptable("Not a valid email address")
       expect(@server_config_service).to receive(:validateEmail).with("@foo.com").and_return(@default_localized_result)
 
       get :validate, :email => "@foo.com"
@@ -285,7 +280,7 @@ describe Admin::ServerController do
     end
 
     it "should validate port" do
-      @default_localized_result.invalid("INVALID_PORT", ["-1"].to_java(java.lang.String))
+      @default_localized_result.notAcceptable("Invalid Port.")
       expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
 
       get :validate, :port => "-1"
@@ -303,12 +298,12 @@ describe Admin::ServerController do
 
     it "should return success if valid" do
       expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
-      @default_localized_result.invalid("INVALID_PORT", [].to_java(java.lang.Object))
+      @default_localized_result.notAcceptable("Invalid Port.")
 
       get :validate, :port => "-1"
 
       json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Invalid port.")
+      expect(json["error"]).to eq("Invalid Port.")
       expect(json["success"]).to eq(nil)
     end
 
@@ -335,14 +330,14 @@ describe Admin::ServerController do
 
       res = nil
       expect(@server_config_service).to receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult)) do |mail_host, op_result|
-        op_result.badRequest(LocalizedMessage.string('INVALID_PORT'))
+        op_result.badRequest("Invalid Port.")
         res = op_result
       end
 
       post :test_email, :server_configuration_form => @valid_mail_host_params
 
       json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Invalid port.")
+      expect(json["error"]).to eq("Invalid Port.")
       expect(json["success"]).to eq(nil)
     end
 

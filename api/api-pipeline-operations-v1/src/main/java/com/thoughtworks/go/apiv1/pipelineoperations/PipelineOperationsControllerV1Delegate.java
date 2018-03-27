@@ -29,7 +29,6 @@ import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
 import com.thoughtworks.go.server.service.*;
@@ -48,19 +47,17 @@ import static spark.Spark.*;
 public class PipelineOperationsControllerV1Delegate extends ApiController {
     private final PipelinePauseService pipelinePauseService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final Localizer localizer;
     private final PipelineUnlockApiService pipelineUnlockApiService;
     private final PipelineTriggerService pipelineTriggerService;
     private final GoConfigService goConfigService;
     private final PipelineHistoryService pipelineHistoryService;
 
-    public PipelineOperationsControllerV1Delegate(PipelinePauseService pipelinePauseService, PipelineUnlockApiService pipelineUnlockApiService, PipelineTriggerService pipelineTriggerService, ApiAuthenticationHelper apiAuthenticationHelper, Localizer localizer, GoConfigService goConfigService, PipelineHistoryService pipelineHistoryService) {
+    public PipelineOperationsControllerV1Delegate(PipelinePauseService pipelinePauseService, PipelineUnlockApiService pipelineUnlockApiService, PipelineTriggerService pipelineTriggerService, ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PipelineHistoryService pipelineHistoryService) {
         super(ApiVersion.v1);
         this.pipelinePauseService = pipelinePauseService;
         this.pipelineUnlockApiService = pipelineUnlockApiService;
         this.pipelineTriggerService = pipelineTriggerService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.localizer = localizer;
         this.goConfigService = goConfigService;
         this.pipelineHistoryService = pipelineHistoryService;
     }
@@ -104,14 +101,14 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
         String pipelineName = req.params("pipeline_name");
         String pauseCause = requestBody.optString("pause_cause").orElse(null);
         pipelinePauseService.pause(pipelineName, pauseCause, currentUsername(), result);
-        return renderHTTPOperationResult(result, req, res, localizer);
+        return renderHTTPOperationResult(result, req, res);
     }
 
     public String unpause(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String pipelineName = req.params("pipeline_name");
         pipelinePauseService.unpause(pipelineName, currentUsername(), result);
-        return renderHTTPOperationResult(result, req, res, localizer);
+        return renderHTTPOperationResult(result, req, res);
     }
 
     public String unlock(Request req, Response res) throws IOException {

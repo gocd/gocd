@@ -1,8 +1,8 @@
 <div class="gist_based_auto_complete form_item_block">
-    <%= label_tag 'lookup_command', l.string("LABEL_COMMAND_REPOSITORY") -%>
-    <%= text_field_tag nil, nil, :placeholder => l.string("COMMAND_LOOKUP_PLACEHOLDER_TEXT"), :class => "lookup_command" -%>
-    <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_COMMAND_LOOKUP") -%>"></div>
-    <div class="error-message-for-old-args hidden"><%== l.string("MESSAGE_ABOUT_COMMAND_LOOKUP_DISABLED_DUE_TO_OLD_STYLE_ARGS") -%></div>
+    <%= label_tag 'lookup_command', 'Lookup Commands' -%>
+    <%= text_field_tag nil, nil, :placeholder => 'Enter command name or keyword', :class => "lookup_command" -%>
+    <div class="contextual_help has_go_tip_right" title="Lookup sample command snippets from your local <a class='' href='https://docs.gocd.org/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>."></div>
+    <div class="error-message-for-old-args hidden">The lookup feature is only available for the <a class='' href='https://docs.gocd.org/current/advanced_usage/command_repository.html#args-style-commands' target='_blank'>new style</a> of custom commands.</div>
 </div>
 <div class="snippet_details hidden">
     <div class="name">
@@ -28,11 +28,11 @@
 <% unless @invalid_commands.empty? -%>
     <div class="invalid_snippets">
         <div class="warnings">
-            <span><%= l.string("INVALID_SNIPPETS_FOUND", [@invalid_commands.size.to_s].to_java(java.lang.String)) -%> <a href="#" class="show_snippets"><%= l.string("DETAILS") -%></a></span>
+            <span><%= @invalid_commands.size.to_s %> invalid commands found. <a href="#" class="show_snippets">Details</a></span>
         </div>
 
         <div class="snippets hidden">
-            <h5><%= l.string("INVALID_SNIPPETS") -%></h5>
+            <h5>Invalid Commands</h5>
             <ul>
                 <% @invalid_commands.each do |invalid_command_snippet| -%>
                 <li>

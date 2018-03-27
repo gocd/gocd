@@ -71,7 +71,7 @@ describe "admin/tasks/index.html.erb" do
             expect(li).to have_selector("span.name", :text => "Arguments:")
             expect(li).to have_selector("span.value", :text => "-la")
           end
-          ul.find("li.working_dir") do |li|
+          ul.find("li.working_directory") do |li|
             expect(li).to have_selector("span.name", :text => "Working Directory:")
             expect(li).to have_selector("span.value", :text => "hero/ka/directory")
           end
@@ -98,11 +98,11 @@ describe "admin/tasks/index.html.erb" do
             expect(li).to have_selector("span.name", :text => "Target:")
             expect(li).to have_selector("span.value", :text => "compile")
           end
-          ul.find("li.buildfile") do |li|
+          ul.find("li.build_file") do |li|
             expect(li).to have_selector("span.name", :text => "Build File:")
             expect(li).to have_selector("span.value", :text => "build.xml")
           end
-          ul.find("li.workingdirectory") do |li|
+          ul.find("li.working_directory") do |li|
             expect(li).to have_selector("span.name", :text => "Working Directory:")
             expect(li).to have_selector("span.value", :text => "default/wd")
           end
@@ -125,11 +125,11 @@ describe "admin/tasks/index.html.erb" do
             expect(li).to have_selector("span.name", :text => "Target:")
             expect(li).to have_selector("span.value", :text => "compile")
           end
-          ul.find("li.buildfile") do |li|
+          ul.find("li.build_file") do |li|
             expect(li).to have_selector("span.name", :text => "Build File:")
             expect(li).to have_selector("span.value", :text => "default.build")
           end
-          ul.find("li.workingdirectory") do |li|
+          ul.find("li.working_directory") do |li|
             expect(li).to have_selector("span.name", :text => "Working Directory:")
             expect(li).to have_selector("span.value", :text => "default/wd")
           end
@@ -247,7 +247,7 @@ describe "admin/tasks/index.html.erb" do
 
         Capybara.string(response.body).find('table.list_table').tap do |table|
           table.find("tr.missing_plugin").tap do |tr|
-            expect(tr.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            expect(tr.find("label.missing_plugin_link")['title']).to eq("Plugin 'MISSING' not found.")
           end
         end
       end
@@ -262,7 +262,7 @@ describe "admin/tasks/index.html.erb" do
 
         Capybara.string(response.body).find('table.list_table').tap do |table|
           table.find("td.has_on_cancel") do |td|
-            expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            expect(td.find("label.missing_plugin_link")['title']).to eq("Plugin 'MISSING' not found.")
           end
         end
       end
@@ -277,9 +277,9 @@ describe "admin/tasks/index.html.erb" do
 
         Capybara.string(response.body).find('table.list_table').tap do |table|
           table.find("tr.missing_plugin").tap do |tr|
-            expect(tr.all("label.missing_plugin_link")[0]['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            expect(tr.all("label.missing_plugin_link")[0]['title']).to eq("Plugin 'MISSING' not found.")
             tr.find("td.has_on_cancel") do |td|
-              expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+              expect(td.find("label.missing_plugin_link")['title']).to eq("Plugin 'MISSING' not found.")
             end
           end
         end

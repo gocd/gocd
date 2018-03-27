@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.Tabs;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
@@ -73,8 +75,6 @@ public class JobController {
     @Autowired
     private StageService stageService;
     @Autowired
-    private Localizer localizer;
-    @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
@@ -86,7 +86,7 @@ public class JobController {
             JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService,
-            Localizer localizer, JobAgentMetadataDao jobAgentMetadataDao) {
+            JobAgentMetadataDao jobAgentMetadataDao) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
         this.jobInstanceDao = jobInstanceDao;
@@ -96,7 +96,6 @@ public class JobController {
         this.artifactService = artifactService;
         this.propertiesService = propertiesService;
         this.stageService = stageService;
-        this.localizer = localizer;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
     }
 
@@ -124,7 +123,6 @@ public class JobController {
         Map data = new HashMap();
         data.put("presenter", presenter);
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
-        data.put("l", localizer);
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
         addElasticAgentInfo(jobDetail, data);

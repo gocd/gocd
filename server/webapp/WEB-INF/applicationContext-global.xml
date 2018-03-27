@@ -33,7 +33,7 @@
 
     <context:component-scan base-package="com.thoughtworks.go.spark.spa.spring"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security.spring" />
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard.spring"/>
@@ -85,28 +85,6 @@
     </aop:aspectj-autoproxy>
 
     <!--OVERIDE THE SPRING ADAPTERS STARTS-->
-    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basenames">
-            <list>
-                <value>message</value>
-                <value>localize</value>
-            </list>
-        </property>
-        <property name="cacheSeconds">
-            <value>-1</value>
-        </property>
-    </bean>
-
-    <bean id="messageSouceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
-        <constructor-arg ref="messageSource"/>
-    </bean>
-
-    <bean id="currentLocale" class="com.thoughtworks.go.i18n.CurrentLocale"/>
-
-    <bean id="localizer" class="com.thoughtworks.go.i18n.Localizer">
-        <constructor-arg index="0" ref="messageSouceAccessor"/>
-        <constructor-arg index="1" ref="currentLocale"/>
-    </bean>
 
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
         <property name="supportedMethods">

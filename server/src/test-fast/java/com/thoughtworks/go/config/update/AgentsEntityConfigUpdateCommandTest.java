@@ -27,12 +27,10 @@ import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -103,7 +103,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         assertFalse(command.canContinue(cruiseConfig));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(LocalizedMessage.string("NO_OPERATION_PERFORMED_ON_AGENTS"));
+        expectedResult.badRequest("No Operation performed on agents.");
         assertThat(result, is(expectedResult));
     }
 
@@ -114,7 +114,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertFalse(command.canContinue(cruiseConfig));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
         assertThat(result, is(expectedResult));
     }
 

@@ -6,7 +6,7 @@
         <div class="form_content">
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
             <div class="fieldset">
-                <%= render :partial => 'basic_new_pipeline_fields.html', :locals => {:scope => {:form => f, :pipeline => @pipeline, :pipeline_group => @pipeline_group, :pipeline_name_label => "NEW_PIPELINE_NAME"}} %>
+                <%= render :partial => 'basic_new_pipeline_fields.html', :locals => {:scope => {:form => f, :pipeline => @pipeline, :pipeline_group => @pipeline_group, :pipeline_name_label => "New Pipeline Name"}} %>
             </div>
         </div>
         <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => "SAVE"}} %>

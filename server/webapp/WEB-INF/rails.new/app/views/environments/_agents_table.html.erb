@@ -127,11 +127,11 @@ Util.on_load(function() {
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('resources') -%>
-                <%== piped_cell(agent_in_agent_table.getResources(), l.string("NO_RESOURCES_SPECIFIED"), "resources") %>
+                <%== piped_cell(agent_in_agent_table.getResources(), 'no resources specified', "resources") %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('environments') -%>
-                <%== piped_cell(agent_in_agent_table.getEnvironments(), l.string("NO_ENVIRONMENTS_SPECIFIED"), "environments") %>
+                <%== piped_cell(agent_in_agent_table.getEnvironments(), 'no environments specified', "environments") %>
             <% end -%>
 
 

@@ -37,7 +37,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.security.GoCipher;
@@ -51,8 +50,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jdom2.input.JDOMParseException;
@@ -856,25 +853,21 @@ public class GoConfigServiceTest {
     @Test
     public void shouldUpdateResultAsConfigRevisionNotFoundWhenConfigChangeIsNotFound() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Localizer localizer = mock(Localizer.class);
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new IllegalArgumentException("something"));
         goConfigService.configChangesFor("md5-5", "md5-4", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_BAD_REQUEST));
-        result.message(localizer);
-        verify(localizer).localize("CONFIG_VERSION_NOT_FOUND", new Object[]{});
+        assertThat(result.message(), is("Historical configuration is not available for this stage run."));
     }
 
     @Test
     public void shouldUpdateResultAsCouldNotRetrieveConfigDiffWhenGenericExceptionOccurs() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Localizer localizer = mock(Localizer.class);
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new RuntimeException("something"));
         goConfigService.configChangesFor("md5-5", "md5-4", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
-        result.message(localizer);
-        verify(localizer).localize("COULD_NOT_RETRIEVE_CONFIG_DIFF", new Object[]{});
+        assertThat(result.message(), is("Could not retrieve config changes for this revision."));
     }
 
     @Test

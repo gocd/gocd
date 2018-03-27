@@ -277,7 +277,7 @@ describe ApiV3::Admin::TemplatesController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return("Save failed")
+        allow(result).to receive(:message).and_return("Save failed")
         allow(result).to receive(:httpCode).and_return(422)
         expect(@template_config_service).to receive(:createTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result)
 
@@ -406,12 +406,12 @@ describe ApiV3::Admin::TemplatesController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         expect(@template_config_service).to receive(:loadForView).and_return(@template)
         allow(@template_config_service).to receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result, anything)  do |user, template, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity('some error')
         end
 
         put_with_api_header :update, template_name: 'some-template'
 
-        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+        expect(response).to have_api_message_response(422, 'some error')
       end
     end
     describe "route" do
@@ -504,7 +504,7 @@ describe ApiV3::Admin::TemplatesController do
         expect(@template_config_service).to receive(:loadForView).and_return(@template)
         result = HttpLocalizedOperationResult.new
         allow(@template_config_service).to receive(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
-          result.setMessage(LocalizedMessage::string("RESOURCE_DELETE_SUCCESSFUL", 'template', 'some-template'))
+          result.setMessage("The template 'some-template' was deleted successfully.")
         end
         delete_with_api_header :destroy, template_name: 'some-template'
 
@@ -515,7 +515,7 @@ describe ApiV3::Admin::TemplatesController do
         expect(@template_config_service).to receive(:loadForView).and_return(@template)
         result = HttpLocalizedOperationResult.new
         allow(@template_config_service).to receive(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity("Save failed. Validation failed")
         end
         delete_with_api_header :destroy, template_name: 'some-template'
 

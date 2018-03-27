@@ -115,7 +115,7 @@ public class MaterialServiceTest {
         when(securityService.hasViewPermissionForPipeline(pavan, "pipeline")).thenReturn(false);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
         materialService.searchRevisions("pipeline", "sha", "search-string", pavan, operationResult);
-        verify(operationResult).unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
+        verify(operationResult).unauthorized(LocalizedMessage.unauthorizedToViewPipeline("pipeline"), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class MaterialServiceTest {
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenThrow(new RuntimeException("Not found"));
 
         materialService.searchRevisions("pipeline", "sha", "23", pavan, operationResult);
-        verify(operationResult).notFound(LocalizedMessage.materialWithFingerPrintNotFound("pipeline", "sha"), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
+        verify(operationResult).notFound("Pipeline '" + "pipeline" + "' does not contain material with fingerprint '" + "sha" + "'.", HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
     @DataPoint public static RequestDataPoints GIT_LATEST_MODIFICATIONS = new RequestDataPoints(new GitMaterial("url") {

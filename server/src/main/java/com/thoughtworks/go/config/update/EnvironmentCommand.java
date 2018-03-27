@@ -20,15 +20,15 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.AllConfigErrors;
-import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class EnvironmentCommand {
-    private Localizable.CurryableLocalizable actionFailed;
+    protected String actionFailed;
     private EnvironmentConfig config;
     private LocalizedOperationResult result;
 
-    public EnvironmentCommand(Localizable.CurryableLocalizable actionFailed, EnvironmentConfig config, LocalizedOperationResult result) {
+    public EnvironmentCommand(String actionFailed, EnvironmentConfig config, LocalizedOperationResult result) {
         this.actionFailed = actionFailed;
         this.config = config;
         this.result = result;
@@ -40,7 +40,7 @@ public class EnvironmentCommand {
 
         if (!isValid) {
             String allErrors = new AllConfigErrors(preprocessedConfig.getAllErrors()).asString();
-            result.unprocessableEntity(actionFailed.addParam(allErrors));
+            result.unprocessableEntity(LocalizedMessage.composite(actionFailed, allErrors));
         }
 
         return isValid;

@@ -20,15 +20,12 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +34,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorisedForPipeline;
 
 @Service
 public class PipelinePauseService {
@@ -68,15 +71,15 @@ public class PipelinePauseService {
             pauseCause = "";
         }
         if (isPipelinePaused(pipelineName)) {
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+            result.conflict("Failed to pause pipeline '" +pipelineName + "'. Pipeline '" +pipelineName + "' is already paused.");
             return;
         }
         try {
             pausePipeline(pipelineName, pauseCause, pausedBy);
-            result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName));
+            result.setMessage("Pipeline '" + pipelineName + "' paused successfully.");
         } catch (Exception e) {
             LOGGER.error("[Pipeline Pause] Failed to pause pipeline", e);
-            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+            result.internalServerError("Server error occured. Check log for details.");
         }
     }
 
@@ -94,15 +97,15 @@ public class PipelinePauseService {
             return;
         }
         if (!isPipelinePaused(pipelineName)) {
-            result.conflict(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+            result.conflict("Failed to unpause pipeline '" + pipelineName + "'. Pipeline '" + pipelineName + "' is already unpaused.");
             return;
         }
         try {
             unpausePipeline(pipelineName, unpausedBy);
-            result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName));
+            result.setMessage("Pipeline '" + pipelineName + "' unpaused successfully.");
         } catch (Exception e) {
             LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
-            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+            result.internalServerError("Server error occured. Check log for details.");
         }
     }
 
@@ -137,7 +140,7 @@ public class PipelinePauseService {
         if (securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(pauseBy), cruiseConfig.findGroupOfPipeline(pipelineConfig).getGroup())) {
             return false;
         }
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
+        result.unauthorized(unauthorizedToEditPipeline(pipelineName), unauthorisedForPipeline(pipelineName));
         return true;
     }
 
@@ -146,7 +149,7 @@ public class PipelinePauseService {
         if (cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             return false;
         }
-        result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
         return true;
     }
 

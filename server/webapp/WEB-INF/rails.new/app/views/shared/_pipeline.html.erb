@@ -48,9 +48,9 @@
 
                 <% if scope[:show_compare] %>
                 <span class="compare_pipeline dashboard" >
-                    <%= link_to("#{l.string("COMPARE")}",
+                    <%= link_to('Compare',
                                     compare_pipelines_path(:pipeline_name => scope[:pipeline_name], :from_counter => active_pipeline_in_pipeline.getCounter() - 1, :to_counter => active_pipeline_in_pipeline.getCounter()),
-                                    :title => l.string("TOOLTIP_COMPARE_WITH_PREVIOUS"))
+                                    :title => 'Compare with the previous build')
                     %>
                 </span>
                 <% end %>
@@ -65,7 +65,7 @@
                     <% end %>
 
                     <span class="changes_button_wrapper">
-                        <%= link_to(l.string("CHANGES"), build_cause_path(:pipeline_name => active_pipeline_in_pipeline.getName(), :pipeline_counter => active_pipeline_in_pipeline.getCounter()), :id => scope[:show_changes_id], :class => "show_panel submit_small dashboard_build_cause_button") -%>
+                        <%= link_to('Changes', build_cause_path(:pipeline_name => active_pipeline_in_pipeline.getName(), :pipeline_counter => active_pipeline_in_pipeline.getCounter()), :id => scope[:show_changes_id], :class => "show_panel submit_small dashboard_build_cause_button") -%>
                     </span>
                 <% end -%>
                 <span class="separator">&nbsp;</span>
@@ -81,8 +81,8 @@
 
 <div class="pipeline_operations">
     <% if scope[:show_controls] && scope[:pipeline_model].canOperate() -%>
-        <% scope[:trigger_label] = l.string('TRIGGER')
-           scope[:trigger_with_option_label] = l.string('TRIGGER_WITH_OPTIONS')
+        <% scope[:trigger_label] = 'Trigger'
+           scope[:trigger_with_option_label] = 'Trigger with options'
         -%>
         <%= render :partial=>"shared/trigger_pipeline.html", :locals => {:scope => {:pipeline_model=> scope[:pipeline_model], :label=>"#{scope[:trigger_label]}"}} -%>
 

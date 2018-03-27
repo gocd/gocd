@@ -135,7 +135,7 @@ module Admin
 
     def load_stage
       stage_name = ConfigUpdate::LoadConfig.for(params).stage_name
-      assert_load(:stage, @pipeline.getStage(stage_name), l.stageNotFoundInPipeline(stage_name, @pipeline.name()))
+      assert_load(:stage, @pipeline.getStage(stage_name), "No stage named '#{stage_name}' exists for pipeline '#{@pipeline.name()}'.")
     end
 
     def load_stage_usage

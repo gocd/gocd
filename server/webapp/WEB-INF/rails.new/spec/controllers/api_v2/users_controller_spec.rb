@@ -165,7 +165,7 @@ describe ApiV2::UsersController do
         login_as_admin
 
         expect(@user_service).to receive(:deleteUser).with(@john.name, an_instance_of(HttpLocalizedOperationResult)) do |username, result|
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username))
+          result.setMessage("The user 'jdoe' was deleted successfully.")
         end
 
         delete_with_api_header :destroy, login_name: @john.name
@@ -245,7 +245,7 @@ describe ApiV2::UsersController do
         @user_service = double('user_service')
         allow(controller).to receive(:user_service).and_return(@user_service)
         expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "users", users))
+          result.setMessage("The users '[\"jdoe\", \"jrowling\"]' was deleted successfully.")
         end
 
         delete_with_api_header :bulk_delete, users: [@john.name, @joanne.name]
@@ -267,7 +267,7 @@ describe ApiV2::UsersController do
 
         bulkDeletionFailureResult = BulkDeletionFailureResult.new(non_existent_users, enabled_users)
         expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
-          result.unprocessableEntity(LocalizedMessage.string("USER_ENABLED_OR_NOT_FOUND", [users[0]], [users[1]]))
+          result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
           bulkDeletionFailureResult
         end
 
@@ -283,7 +283,7 @@ describe ApiV2::UsersController do
         allow(controller).to receive(:user_service).and_return(@user_service)
 
         expect(@user_service).to receive(:deleteUsers).with([], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
-          result.badRequest(LocalizedMessage.string("NO_USERS_SELECTED"))
+          result.badRequest("No users selected.")
           BulkDeletionFailureResult.new()
         end
 

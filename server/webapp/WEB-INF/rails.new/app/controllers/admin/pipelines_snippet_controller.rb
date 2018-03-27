@@ -42,11 +42,10 @@ class Admin::PipelinesSnippetController < AdminController
     pipeline_configs = cruise_config_repsonse.getConfigElement()
     validity = cruise_config_repsonse.getValidity()
     @errors = [validity.errorMessage()] if (validity.isMergeConflict() || validity.isPostValidationError())
-    localizer = Spring.bean('localizer')
 
-    redirect_to pipelines_snippet_show_path(pipeline_configs.get_group, :fm => set_flash_message(result.message(localizer),'success')) and return if result.isSuccessful()
+    redirect_to pipelines_snippet_show_path(pipeline_configs.get_group, :fm => set_flash_message(result.message(),'success')) and return if result.isSuccessful()
 
-    flash.now[:error] = result.message(localizer)
+    flash.now[:error] = result.message()
     @modifiable_groups = security_service.modifiableGroupsForUser(current_user)
     @group_name = params[:group_name]
     @group_as_xml = params[:group_xml]

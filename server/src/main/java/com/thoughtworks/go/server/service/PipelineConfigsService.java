@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse;
@@ -31,6 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorisedForGroup;
 
 @Service
 public class PipelineConfigsService {
@@ -59,8 +61,8 @@ public class PipelineConfigsService {
             handleError(groupName, goConfigValidity, result);
             return new GoConfigOperationalResponse<>(goConfigValidity, null);
         }
-        Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
-        Localizable localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
+        String savedSuccessMessage = "Saved configuration successfully.";
+        String localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, "The configuration was modified by someone else, but your changes were merged successfully.") : savedSuccessMessage;
         result.setMessage(localizableMessage);
         PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, BasicPipelineConfigs.class);
         return new GoConfigOperationalResponse<>(goConfigValidity, pipelineConfigs);
@@ -75,7 +77,7 @@ public class PipelineConfigsService {
 
     private void handleError(String groupName, GoConfigValidity goConfigValidity, HttpLocalizedOperationResult result) {
         if (goConfigValidity.isMergeConflict() || goConfigValidity.isPostValidationError()) {
-            result.badRequest(LocalizedMessage.string("FLASH_MESSAGE_ON_CONFLICT"));
+            result.badRequest("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.");
         } else {
             result.internalServerError(updateFailedMessage(groupName, goConfigValidity.errorMessage()));
         }
@@ -99,18 +101,18 @@ public class PipelineConfigsService {
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {
             if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-                result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", groupName), HealthStateType.unauthorisedForGroup(groupName));
+                result.unauthorized(unauthorizedToEditGroup(groupName), unauthorisedForGroup(groupName));
                 return false;
             }
         } catch (Exception e) {
-            result.notFound(LocalizedMessage.string("PIPELINE_GROUP_NOT_FOUND", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
+            result.notFound(LocalizedMessage.resourceNotFound("Pipeline group", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
             return false;
         }
         return true;
     }
 
-    private Localizable.CurryableLocalizable updateFailedMessage(String groupName, String message) {
-        return LocalizedMessage.string("UPDATE_GROUP_XML_FAILED", groupName, message);
+    private String updateFailedMessage(String groupName, String message) {
+        return "Failed to update group '" + groupName + "'. " + message;
     }
 
 }

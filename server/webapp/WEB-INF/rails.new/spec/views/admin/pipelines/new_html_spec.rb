@@ -67,15 +67,15 @@ describe "admin/pipelines/new.html.erb" do
     Capybara.string(response.body).find('div.steps_wrapper').tap do |div|
       div.find("ul.tabs") do |ul|
         ul.find("li#step1_link.disabled") do |li|
-          expect(li).to have_selector("a[href='#']", :text => "Step 1:Basic Settings")
+          expect(li).to have_selector("a[href='#']", :text => "Step 1: Basic Settings")
           expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "basic-settings")
         end
         ul.find("li#step2_link.disabled") do |li|
-          expect(li).to have_selector("a[href='#']", :text => "Step 2:Materials")
+          expect(li).to have_selector("a[href='#']", :text => "Step 2: Materials")
           expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "materials")
         end
         ul.find("li#step3_link.disabled") do |li|
-          expect(li).to have_selector("a[href='#']", :text => "Step 3:Stage/Job")
+          expect(li).to have_selector("a[href='#']", :text => "Step 3: Stage/Job")
           expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "stage-and-job")
         end
       end

@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -36,7 +35,10 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -116,14 +118,14 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void notifyMaterialsForUpdate(Username username, Object params, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("API_ACCESS_UNAUTHORIZED"), HealthStateType.unauthorised());
+            result.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised());
             return;
         }
         final Map attributes = (Map) params;
         if (attributes.containsKey(MaterialUpdateService.TYPE)) {
             PostCommitHookMaterialType materialType = postCommitHookMaterialType.toType((String) attributes.get(MaterialUpdateService.TYPE));
             if (!materialType.isKnown()) {
-                result.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+                result.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
                 return;
             }
             final PostCommitHookImplementer materialTypeImplementer = materialType.getImplementer();
@@ -132,7 +134,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             final Set<Material> prunedMaterialList = materialTypeImplementer.prune(allUniquePostCommitSchedulableMaterials, attributes);
 
             if (prunedMaterialList.isEmpty()) {
-                result.notFound(LocalizedMessage.string("MATERIAL_SUITABLE_FOR_NOTIFICATION_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+                result.notFound("Unable to find material. Materials must be configured not to poll for new changes before they can be used with the notification mechanism.", HealthStateType.general(HealthStateScope.GLOBAL));
                 return;
             }
 
@@ -140,9 +142,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                 updateMaterial(material);
             }
 
-            result.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
+            result.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");
         } else {
-            result.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+            result.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
         }
     }
 

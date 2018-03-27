@@ -1,9 +1,9 @@
 <%
-   time = l.string("UNKNOWN")
-   config_modified_by = l.string("UNKNOWN")
+   time = 'Unknown'
+   config_modified_by = 'Unknown'
    if @go_config_revision
        config_modified_time = @go_config_revision.getTime().to_s
-       time = "#{time_ago_in_words(Time.parse(config_modified_time))} #{l.string('AGO')}"
+       time = "#{time_ago_in_words(Time.parse(config_modified_time))} #{'ago'}"
        config_modified_by = @go_config_revision.getUsername()
    end
 -%>
@@ -13,8 +13,8 @@
         <div class="admin_holder" id="admin-holder-for-admin-config-source-xml">
             <div class='form_heading'>
                 <div class="buttons-group">
-                    <div class="config_change_timestamp" title='<%= "#{l.string("LAST_MODIFIED")}: #{(time)} #{l.string("BY")} #{(config_modified_by)}" -%>'><%= "#{l.string("LAST_MODIFIED")}: #{(time)} #{l.string("BY")} #{(config_modified_by)}" -%></div>
-                    <%= link_to(l.string("EDIT"), config_edit_path(), :class => "link_as_button primary", :id => "edit_config") %>
+                    <div class="config_change_timestamp" title='<%= "#{'Last modified'}: #{(time)} #{'by'} #{(config_modified_by)}" -%>'><%= "#{'Last modified'}: #{(time)} #{'by'} #{(config_modified_by)}" -%></div>
+                    <%= link_to('Edit', config_edit_path(), :class => "link_as_button primary", :id => "edit_config") %>
                 </div>
             </div>
             <div id="content_area">

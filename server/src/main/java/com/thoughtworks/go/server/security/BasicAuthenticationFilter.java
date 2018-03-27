@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.i18n.Localizer;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
@@ -42,11 +40,8 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
         }
     };
     private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticationFilter.class);
-    private Localizer localizer;
 
-    @Autowired
-    public BasicAuthenticationFilter(Localizer localizer) {
-        this.localizer = localizer;
+    public BasicAuthenticationFilter() {
     }
 
     @Override
@@ -70,7 +65,7 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     }
 
     public void handleException(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Exception e) throws IOException {
-        String message = localizer.localize("AUTHENTICATION_ERROR");
+        String message = "There was an error authenticating you. Please check the go server logs, or contact the go server administrator.";
         if (hasAccept(httpRequest, "text/html") || hasAccept(httpRequest, "application/xhtml")) {
             httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
             httpRequest.setAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED, true);

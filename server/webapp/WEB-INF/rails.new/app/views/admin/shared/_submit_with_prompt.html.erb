@@ -8,7 +8,7 @@
     <%- message = scope[:message] -%>
     <%- on_confirmation_js = scope[:on_confirmation_js] -%>
     jQuery(Util.escapeDotsFromId('<%=button_selector-%>')).click(function() {
-        Modalbox.show(jQuery(Util.escapeDotsFromId('<%=prompt_selector-%>'))[0], {overlayClose: false, title: '<%= l.string("CONFIRM_DELETION") %>'});
+        Modalbox.show(jQuery(Util.escapeDotsFromId('<%=prompt_selector-%>'))[0], {overlayClose: false, title: 'Confirm Deletion'});
     });
 </script>
 <div id="warning_prompt" class="warning" style="display:none;">
@@ -16,7 +16,7 @@
         <p><%= message %></p>
     </div>
     <div class="form_buttons actions">
-        <%= submit_button(l.string("PROCEED"), :class=> "primary", :onclick => on_confirmation_js ) %>
-        <%= submit_button(l.string("CANCEL"), :onclick => "Modalbox.hide()", :type => "button") %>
+        <%= submit_button('Proceed', :class=> "primary", :onclick => on_confirmation_js ) %>
+        <%= submit_button('Cancel', :onclick => "Modalbox.hide()", :type => "button") %>
     </div>
 </div>

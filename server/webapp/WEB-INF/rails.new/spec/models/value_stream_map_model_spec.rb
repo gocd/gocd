@@ -21,7 +21,6 @@ describe ValueStreamMapModel do
 
   before :each do
     @result = double("HttpLocalizedOperationResult")
-    @l = Spring.bean("localizer")
   end
 
   it "should initialize graph model correctly" do
@@ -37,7 +36,7 @@ describe ValueStreamMapModel do
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), "current", material_revision)
     noop_proc = proc {}
 
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, noop_proc, noop_proc, noop_proc, proc {|pipeline_name| "/edit/#{pipeline_name}"})
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, noop_proc, noop_proc, noop_proc, proc {|pipeline_name| "/edit/#{pipeline_name}"})
     materialNames = Array.new
     materialNames << "git1"
     materialNames << "git2"
@@ -88,7 +87,7 @@ describe ValueStreamMapModel do
   end
 
   it "should set error on model if result was not successful" do
-    graph_model = ValueStreamMapModel.new(nil, "error message", @l)
+    graph_model = ValueStreamMapModel.new(nil, "error message")
     expect(graph_model.current_pipeline).to eq(nil)
     expect(graph_model.levels).to eq(nil)
     expect(graph_model.error).to eq("error message")
@@ -130,7 +129,7 @@ describe ValueStreamMapModel do
     stage_detail_path_partial = proc do |pipeline_name, counter, stage_name, stage_counter|
       "path/to/stage/#{pipeline_name}/#{counter}/#{stage_name}/#{stage_counter}"
     end
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
     expect(nodeThatTheGraphIsBuiltFor.id).to eq("current")
@@ -222,7 +221,7 @@ describe ValueStreamMapModel do
 
     p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new("p3", "p3"), "current");
     p3_node.setViewType(com.thoughtworks.go.domain.valuestreammap.VSMViewType::NO_PERMISSION)
-    p3_node.setMessage(com.thoughtworks.go.i18n.LocalizedMessage.string("VSM_PIPELINE_UNAUTHORIZED", [].to_java(java.lang.Object)))
+    p3_node.setMessage("You are not authorized to view this pipeline")
 
 
     vsm_path_partial = proc do |pipeline_name, counter|
@@ -234,7 +233,7 @@ describe ValueStreamMapModel do
     stage_detail_path_partial = proc do |pipeline_name, counter, stage_name, stage_counter|
       "path/to/stage/#{pipeline_name}/#{counter}/#{stage_name}/#{stage_counter}"
     end
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
     expect(nodeThatTheGraphIsBuiltFor.id).to eq("current")
@@ -291,7 +290,7 @@ describe ValueStreamMapModel do
     vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
     modifications = modifications()
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), "current", material_revision)
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil)
     git_node = graph_model.levels[0].nodes[0]
 
     expect(git_node.material_revisions.size).to eq(1)
@@ -313,7 +312,7 @@ describe ValueStreamMapModel do
     vsm = ValueStreamMap.new(material, nil, modifications[0])
     vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
 
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil)
     expect(graph_model.current_pipeline).to eq(nil)
     expect(graph_model.current_material).to eq(material.getFingerprint())
 

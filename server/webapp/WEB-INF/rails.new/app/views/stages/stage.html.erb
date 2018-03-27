@@ -1,15 +1,15 @@
-<% @view_title = l.string("Stage Detail") -%>
+<% @view_title = 'Stage Detail' -%>
 
 <% @show_stage_status_bar = true -%>
 <div class="sub_tabs_container">
     <ul>
-        <%= link_with_current_tab l.string("OVERVIEW"), "overview" %>
-        <%= link_with_current_tab l.string("PIPELINE_DEPENDENCIES"), "pipeline" %>
-        <%= link_with_current_tab l.string("MATERIALS"), "materials" %>
-        <%= link_with_current_tab l.string("JOBS"), "jobs" %>
-        <%= link_with_current_tab l.string("TESTS"), "tests" %>
-        <%= link_with_current_tab l.string("CONFIG"), "stage_config" %>
-        <%= link_with_current_tab l.string("GRAPHS"), "stats" %>
+        <%= link_with_current_tab 'Overview', "overview" %>
+        <%= link_with_current_tab 'Pipeline Dependencies', "pipeline" %>
+        <%= link_with_current_tab 'Materials', "materials" %>
+        <%= link_with_current_tab 'Jobs', "jobs" %>
+        <%= link_with_current_tab 'Tests', "tests" %>
+        <%= link_with_current_tab 'Config', "stage_config" %>
+        <%= link_with_current_tab 'Graphs', "stats" %>
     </ul>
 </div>
 
@@ -26,13 +26,6 @@
             <%= render :partial => 'shared/build_cause.html', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
         </div>
     <% when 'pipeline' %>
-        <% if is_ie8?(request.env["HTTP_USER_AGENT"]) -%>
-            <div class="vsm_not_supported notification">
-                <p class="information">
-                    <%= l.string("VSM_UNSUPPORTED_ON_IE8")  -%>
-                </p>
-            </div>
-        <% end -%>
         <div id="pipeline_visualization">
             <%= render :partial => "pipelines/pipeline_dependencies", :locals => {:scope => {}} %>
         </div>

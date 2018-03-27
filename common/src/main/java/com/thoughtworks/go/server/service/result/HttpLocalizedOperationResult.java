@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.http.HttpStatus;
 
@@ -27,21 +24,12 @@ import org.apache.http.HttpStatus;
  * We suck at this
  */
 public class HttpLocalizedOperationResult implements LocalizedOperationResult {
-    private Localizable message;
+    private String message;
     private HealthStateType healthStateType;
     private int httpCode = 200;
 
-    public static LocalizedOperationResult badRequest(String messageKey) {
-        LocalizedOperationResult result = successfulResult();
-        result.badRequest(LocalizedMessage.string(messageKey));
-        return result;
-    }
-
-    public static LocalizedOperationResult successfulResult() {
-        return new HttpLocalizedOperationResult();
-    }
-
-    public void setMessage(Localizable message) {
+    @Override
+    public void setMessage(String message) {
         this.message = message;
     }
 
@@ -50,67 +38,75 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         return message != null;
     }
 
-    public void notImplemented(Localizable message) {
+    @Override
+    public void notImplemented(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_IMPLEMENTED;
     }
 
     @Override
-    public void unprocessableEntity(Localizable message) {
+    public void unprocessableEntity(String message) {
         this.message = message;
         this.httpCode = HttpStatus.SC_UNPROCESSABLE_ENTITY;
     }
 
     @Override
-    public void preconditionFailed(Localizable message) {
+    public void preconditionFailed(String message) {
         this.message = message;
         this.httpCode = HttpStatus.SC_PRECONDITION_FAILED;
     }
 
-    public void unauthorized(Localizable message, HealthStateType healthStateType) {
+    @Override
+    public void unauthorized(String message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
         httpCode = HttpStatus.SC_UNAUTHORIZED;
     }
 
     @Override
-    public void stale(Localizable message) {
+    public void stale(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_PRECONDITION_FAILED;
     }
 
-    public void notFound(Localizable message, HealthStateType healthStateType) {
+    @Override
+    public void notFound(String message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
         httpCode = HttpStatus.SC_NOT_FOUND;
     }
 
-    public void conflict(Localizable message) {
+    @Override
+    public void conflict(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_CONFLICT;
     }
 
-    public void internalServerError(Localizable message) {
+    @Override
+    public void internalServerError(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
     }
 
-    public void badRequest(Localizable message) {
+    @Override
+    public void badRequest(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_BAD_REQUEST;
     }
 
-    public void accepted(Localizable message) {
+    @Override
+    public void accepted(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_ACCEPTED;
     }
 
-    public void notAcceptable(Localizable message) {
+    public void notAcceptable(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
     }
 
-    public void failedDependency(Localizable message) {
+    @Override
+    public void failedDependency(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_FAILED_DEPENDENCY;
     }
@@ -119,7 +115,8 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         return 200 <= httpCode && httpCode < 300; // I hate java
     }
 
-    public void connectionError(Localizable message) {
+    @Override
+    public void connectionError(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_BAD_REQUEST;
     }
@@ -128,15 +125,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         return httpCode;
     }
 
-    public String message(Localizer localizer) {
-        if (message == null) return null;
-        return message.localize(localizer);
-    }
-
-    /**
-     * Used only in tests
-     */
-    public Localizable localizable() {
+    public String message() {
         return message;
     }
 

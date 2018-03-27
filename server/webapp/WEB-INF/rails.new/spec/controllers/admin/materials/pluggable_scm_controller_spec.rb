@@ -116,7 +116,7 @@ describe Admin::Materials::PluggableScmController do
       it "should assign config_errors for display when choose material fails due to validation errors" do
         stub_save_for_validation_error do |result, cruise_config, node|
           cruise_config.errors().add('base', 'someError')
-          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
+          result.badRequest('some message')
         end
 
         post :choose_existing, :pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')
@@ -171,7 +171,7 @@ describe Admin::Materials::PluggableScmController do
       it "should assign config_errors for display when create fails due to validation errors" do
         stub_save_for_validation_error do |result, cruise_config, node|
           cruise_config.errors().add('base', 'someError')
-          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
+          result.badRequest('some message')
         end
 
         post :create, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload
@@ -227,7 +227,7 @@ describe Admin::Materials::PluggableScmController do
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
           config.errors().add('base', 'someError')
-          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
+          result.badRequest('some message')
         end
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()

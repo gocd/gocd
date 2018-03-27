@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 class PackageViewModel
-  include RailsLocalizer
   attr_accessor :properties, :name
 
   def initialize(metadata, package)

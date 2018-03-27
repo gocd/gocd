@@ -23,17 +23,18 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
     private final GoConfigService goConfigService;
@@ -62,7 +63,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
         boolean canDeleteRepository = preprocessedConfig.canDeletePackageRepository(existingPackageRepository);
         if (!canDeleteRepository) {
             Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = goConfigService.getPackageUsageInPipelines();
-            Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "package repository", repository.getId(), populateList(packageUsageInPipelines));
+            String message = cannotDeleteResourceBecauseOfDependentPipelines("package repository", repository.getId(), populateList(packageUsageInPipelines));
             this.result.unprocessableEntity(message);
         }
         return canDeleteRepository;
@@ -96,7 +97,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

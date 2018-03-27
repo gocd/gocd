@@ -254,7 +254,7 @@ describe ApiV1::Elastic::ProfilesController do
         result = double('HttpLocalizedOperationResult')
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
         allow(result).to receive(:isSuccessful).and_return(false)
-        allow(result).to receive(:message).with(anything()).and_return('Save failed')
+        allow(result).to receive(:message).and_return('Save failed')
         allow(result).to receive(:httpCode).and_return(422)
         expect(@elastic_profile_service).to receive(:create).with(anything, an_instance_of(ElasticProfile), result)
 
@@ -452,7 +452,7 @@ describe ApiV1::Elastic::ProfilesController do
         expect(@elastic_profile_service).to receive(:findProfile).and_return(profile)
         result = HttpLocalizedOperationResult.new
         allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
-          result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'profile', 'foo'))
+          result.setMessage("The profile 'foo' was deleted successfully.")
         end
         delete_with_api_header :destroy, profile_id: 'foo'
 
@@ -464,11 +464,11 @@ describe ApiV1::Elastic::ProfilesController do
         expect(@elastic_profile_service).to receive(:findProfile).and_return(profile)
         result = HttpLocalizedOperationResult.new
         allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
-          result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
+          result.unprocessableEntity('some error')
         end
         delete_with_api_header :destroy, profile_id: 'foo'
 
-        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+        expect(response).to have_api_message_response(422, 'some error')
       end
     end
 

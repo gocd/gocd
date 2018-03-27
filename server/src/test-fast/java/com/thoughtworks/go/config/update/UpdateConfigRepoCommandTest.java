@@ -21,17 +21,17 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -45,7 +45,7 @@ public class UpdateConfigRepoCommandTest {
     private String oldConfigRepoId;
     private String newConfigRepoId;
     private HttpLocalizedOperationResult result;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
     private String md5;
 
     @Mock
@@ -66,7 +66,7 @@ public class UpdateConfigRepoCommandTest {
         result = new HttpLocalizedOperationResult();
         md5 = "md5";
         cruiseConfig.getConfigRepos().add(oldConfigRepo);
-        actionFailed = LocalizedMessage.string("RESOURCE_UPDATE_FAILED", "Config repo", oldConfigRepoId);
+        actionFailed = "Could not update config repo " + oldConfigRepoId;
     }
 
     @Test
@@ -84,7 +84,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -96,7 +96,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Config repo", oldConfigRepoId));
+        expectedResult.stale(staleResourceConfig("Config repo", oldConfigRepoId));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

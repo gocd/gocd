@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.InvalidAgentException;
 import com.thoughtworks.go.server.GoUnauthorizedException;
@@ -438,7 +437,7 @@ public class ScheduleService {
         if (stage == null) {
             String stageLocator = String.format("(pipeline name: %s, stage name %s)", pipelineName, stageName);
             LOGGER.warn("[Stage Cancellation] Failed to retrieve stage{}", stageLocator);
-            result.notFound(LocalizedMessage.string("STAGE_FOR_LOCATOR_NOT_FOUND", stageLocator), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.notFound("Stage '" + stageLocator + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
         return cancelAndTriggerRelevantStages(stage.getId(), userName, result);
@@ -453,12 +452,12 @@ public class ScheduleService {
             stageForId = stageService.stageById(stageId);
         } catch (Exception e) {
             LOGGER.error("[Stage Cancellation] Failed to retrieve stage identifier", e);
-            opResult.notFound(LocalizedMessage.string("STAGE_FOR_LOCATOR_NOT_FOUND", stageId), HealthStateType.general(HealthStateScope.GLOBAL));
+            opResult.notFound("Stage '" + stageId + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
 
         if (!stageForId.isActive()) {
-            opResult.setMessage(LocalizedMessage.string("STAGE_IS_NOT_ACTIVE_FOR_CANCELLATION"));
+            opResult.setMessage("Stage is not active. Cancellation Ignored.");
             return stageForId;
         }
 
@@ -472,7 +471,7 @@ public class ScheduleService {
             String user = username == null ? null : username.getUsername().toString();
 
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, user)) {
-                opResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE_STAGE", stageName), HealthStateType.unauthorised());
+                opResult.unauthorized("Unauthorized to operate stage named " + stageName, HealthStateType.unauthorised());
                 return null;
             }
 
@@ -491,7 +490,7 @@ public class ScheduleService {
                 }
             });
 
-            opResult.setMessage(LocalizedMessage.string("STAGE_CANCELLED_SUCCESSFULLY"));
+            opResult.setMessage("Stage cancelled successfully.");
 
             return stage;
         }

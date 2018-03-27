@@ -40,7 +40,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit my-pipeline pipeline.")
+    expect(result.message()).to eq("Unauthorized to edit 'my-pipeline' pipeline.")
   end
 
   it "should return successful result if user is a group admin of given pipeline" do
@@ -78,7 +78,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit my-pipeline pipeline.")
+    expect(result.message()).to eq("Unauthorized to edit 'my-pipeline' pipeline.")
   end
 
   it "should give a generic unauthorized message when pipeline name and group name are not available" do
@@ -91,7 +91,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit.")
+    expect(result.message()).to eq("Unauthorized to edit.")
   end
 
   it "should return unsuccessful result if user is not a group admin of given pipeline group" do
@@ -105,6 +105,6 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
 
     expect(result.isSuccessful()).to be_falsey
     expect(result.httpCode()).to eq(401)
-    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit 'my-pipeline-group' group.")
+    expect(result.message()).to eq("Unauthorized to edit 'my-pipeline-group' group.")
   end
 end

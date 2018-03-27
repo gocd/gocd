@@ -16,23 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.security.CipherProvider;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
@@ -49,11 +34,20 @@ import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -100,7 +94,7 @@ public class BackupService implements BackupStatusProvider {
 
     public ServerBackup startBackup(Username username, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_BACKUP"), HealthStateType.unauthorised());
+            result.unauthorized("Unauthorized to initiate Go backup as you are not a Go administrator", HealthStateType.unauthorised());
             return null;
         }
         GoMailSender mailSender = goConfigService.getMailSender();
@@ -108,7 +102,7 @@ public class BackupService implements BackupStatusProvider {
             DateTime now = timeProvider.currentDateTime();
             final File destDir = new File(backupLocation(), BACKUP + now.toString("YYYYMMdd-HHmmss"));
             if (!destDir.mkdirs()) {
-                result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", "Could not create the backup directory."));
+                result.badRequest("Failed to perform backup. Reason: Could not create the backup directory.");
                 return null;
             }
 
@@ -127,11 +121,11 @@ public class BackupService implements BackupStatusProvider {
                 ServerBackup serverBackup = new ServerBackup(destDir.getAbsolutePath(), now.toDate(), username.getUsername().toString());
                 serverBackupRepository.save(serverBackup);
                 mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));
-                result.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"));
+                result.setMessage("Backup completed successfully.");
                 return serverBackup;
             } catch (Exception e) {
                 FileUtils.deleteQuietly(destDir);
-                result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", e.getMessage()));
+                result.badRequest("Failed to perform backup. Reason: " + e.getMessage());
                 LOGGER.error("[Backup] Failed to backup Go.", e);
                 mailSender.send(EmailMessageDrafter.backupFailedMessage(e.getMessage(), goConfigService.adminEmail()));
             } finally {
@@ -214,7 +208,7 @@ class DirectoryStructureWalker extends DirectoryWalker {
     private final ZipOutputStream zipStream;
     private final ArrayList<String> excludeFiles;
 
-    public DirectoryStructureWalker(String configDirectory, ZipOutputStream zipStream, File ...excludeFiles) {
+    public DirectoryStructureWalker(String configDirectory, ZipOutputStream zipStream, File... excludeFiles) {
         this.excludeFiles = new ArrayList<>();
         for (File excludeFile : excludeFiles) {
             this.excludeFiles.add(excludeFile.getAbsolutePath());
@@ -226,7 +220,7 @@ class DirectoryStructureWalker extends DirectoryWalker {
 
     @Override
     protected boolean handleDirectory(File directory, int depth, Collection results) throws IOException {
-        if (! directory.getAbsolutePath().equals(configDirectory)) {
+        if (!directory.getAbsolutePath().equals(configDirectory)) {
             ZipEntry e = new ZipEntry(fromRoot(directory) + "/");
             zipStream.putNextEntry(e);
         }

@@ -26,6 +26,8 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
+
 public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
 
     private final EntityHashingService hashingService;
@@ -58,7 +60,7 @@ public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
         SecurityAuthConfig existingProfile = findExistingProfile(cruiseConfig);
         boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", getObjectDescriptor(), existingProfile.getId()));
+            result.stale(staleResourceConfig(getObjectDescriptor(), existingProfile.getId()));
         }
         return freshRequest;
     }

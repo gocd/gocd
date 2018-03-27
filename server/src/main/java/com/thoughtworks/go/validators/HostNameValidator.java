@@ -16,19 +16,17 @@
 
 package com.thoughtworks.go.validators;
 
-import com.thoughtworks.go.server.service.result.LocalizedResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class HostNameValidator implements Validator<String> {
 
     private static final String IPV6_ADDRESS_PATTERN = "([a-fA-F0-9]+\\:)*[a-fA-F0-9]+";
     static final String HOSTNAME_PATTERN = "([-_0-9\\w]*\\.)*[-_0-9\\w]+";
-    public static final String HOSTNAME_ERROR_MESSAGE = "Not a legal hostname or IP address. "
-            + "A legal hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)";
-    public static final String INVALID_HOSTNAME_KEY = "INVALID_HOSTNAME";
+    static final String INVALID_HOSTNAME_KEY = "INVALID_HOSTNAME";
 
-    public void validate(String hostname, LocalizedResult result) {
+    public void validate(String hostname, LocalizedOperationResult result) {
         if (hostname == null || (!hostname.matches(HOSTNAME_PATTERN) && !hostname.matches(IPV6_ADDRESS_PATTERN))) {
-            result.invalid(INVALID_HOSTNAME_KEY, String.valueOf(hostname));
+            result.notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
         }
     }
 }

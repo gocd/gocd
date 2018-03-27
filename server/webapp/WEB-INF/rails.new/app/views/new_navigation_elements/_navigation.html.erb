@@ -37,7 +37,7 @@
     <div class="top-bar-right">
       <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
         <li class="server-health-summary"><!-- filled in later by mithril --></li>
-        <li><%= link_to(l.string('HELP_SMALL'), 'https://gocd.org/help', :target => '_blank') %></li>
+        <li><%= link_to('Need Help?', 'https://gocd.org/help', :target => '_blank') %></li>
         <% unless @user.anonymous? %>
             <li class="current-user">
               <a href="#" onclick="return false;"><i class="user"></i><%= @user.display_name %></a>

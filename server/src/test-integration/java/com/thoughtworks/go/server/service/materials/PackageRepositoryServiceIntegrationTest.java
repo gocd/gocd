@@ -39,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -94,7 +96,7 @@ public class PackageRepositoryServiceIntegrationTest {
         service.deleteRepository(username, npmRepo, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package repository", npmRepo.getId()));
+        expectedResult.setMessage(LocalizedMessage.resourceDeleteSuccessful("package repository", npmRepo.getId()));
 
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(0));
@@ -109,7 +111,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -129,7 +131,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -145,7 +147,7 @@ public class PackageRepositoryServiceIntegrationTest {
     @Test
     public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String oldRepoId = "npmOrg";

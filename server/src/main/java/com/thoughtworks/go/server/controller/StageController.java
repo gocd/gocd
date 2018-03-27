@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.StageNotFoundException;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.ScheduleService;
@@ -51,16 +50,14 @@ public class StageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageController.class);
 
     private ScheduleService scheduleService;
-    private Localizer localizer;
     private HeaderConstraint headerConstraint;
 
     protected StageController() {
     }
 
     @Autowired
-    public StageController(ScheduleService scheduleService, Localizer localizer, SystemEnvironment systemEnvironment) {
+    public StageController(ScheduleService scheduleService, SystemEnvironment systemEnvironment) {
         this.scheduleService = scheduleService;
-        this.localizer = localizer;
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
     }
 
@@ -109,7 +106,7 @@ public class StageController {
 
     private ModelAndView handleResult(HttpLocalizedOperationResult cancelResult, HttpServletResponse response) {
         if (cancelResult.httpCode() == HttpServletResponse.SC_UNAUTHORIZED) {
-            return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, cancelResult.message(localizer));
+            return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, cancelResult.message());
         }
         return jsonOK().respond(response);
     }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.i18n.Localizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +48,6 @@ public class BasicAuthenticationFilterTest {
     private MockHttpServletRequest httpRequest;
     private MockHttpServletResponse httpResponse;
     private BasicAuthenticationFilter filter;
-    private Localizer localizer;
 
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
@@ -59,14 +57,12 @@ public class BasicAuthenticationFilterTest {
         errorMessage = "There was an error authenticating you. Please check the go server logs, or contact the go server administrator.";
         httpRequest = new MockHttpServletRequest();
         httpResponse = new MockHttpServletResponse();
-        localizer = mock(Localizer.class);
-        filter = new BasicAuthenticationFilter(localizer);
-        when(localizer.localize("AUTHENTICATION_ERROR")).thenReturn(errorMessage);
+        filter = new BasicAuthenticationFilter();
     }
 
     @Test
     public void shouldConvey_itsBasicProcessingFilter() throws IOException, ServletException {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(localizer);
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
         final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
 
         filter.setAuthenticationManager(new AuthenticationManager() {
@@ -96,7 +92,6 @@ public class BasicAuthenticationFilterTest {
         SecurityContext context = SecurityContextHolder.getContext();
 
         filter.handleException(httpRequest, httpResponse, new Exception("some error"));
-        verify(localizer).localize("AUTHENTICATION_ERROR");
 
         assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(errorMessage));
         assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
@@ -109,7 +104,6 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/vnd.go.cd.v1+json");
 
         filter.handleException(httpRequest, httpResponse, null);
-        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals("application/vnd.go.cd.v1+json; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -121,7 +115,6 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/XML");
 
         filter.handleException(httpRequest, httpResponse, null);
-        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals("application/xml; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -132,7 +125,6 @@ public class BasicAuthenticationFilterTest {
     public void testShouldRender500WithWithHTMLWithNoAcceptHeader() throws Exception {
 
         filter.handleException(httpRequest, httpResponse, new Exception("foo"));
-        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals(500, httpResponse.getStatus());
         assertEquals("foo", httpResponse.getErrorMessage());
     }

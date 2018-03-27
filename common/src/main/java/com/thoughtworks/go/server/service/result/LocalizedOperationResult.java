@@ -16,40 +16,42 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 /**
  * @understands the current status of a given task.
  */
 public interface LocalizedOperationResult {
-    void unauthorized(Localizable message, HealthStateType id);
 
-    void stale(Localizable message);
+    void unauthorized(String message, HealthStateType id);
 
-    void notFound(Localizable message, HealthStateType healthStateType);
+    void stale(String message);
 
-    void failedDependency(Localizable message);
+    void notFound(String message, HealthStateType healthStateType);
+
+    void failedDependency(String message);
 
     boolean isSuccessful();
 
-    void connectionError(Localizable message);
+    void connectionError(String message);
 
-    void conflict(Localizable message);
+    void conflict(String message);
 
-    void badRequest(Localizable message);
+    void badRequest(String message);
 
-    void notAcceptable(Localizable localizable);
+    void notAcceptable(String message);
 
-    void internalServerError(Localizable message);
+    void internalServerError(String message);
 
-    void setMessage(Localizable message);
+    void setMessage(String message);
 
     boolean hasMessage();
 
-    void notImplemented(Localizable localizable);
+    void notImplemented(String message);
 
-    void unprocessableEntity(Localizable localizable);
+    void unprocessableEntity(String message);
 
-    void preconditionFailed(Localizable localizable);
+    void preconditionFailed(String message);
+
+    void accepted(String message);
 }

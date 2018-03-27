@@ -7,7 +7,7 @@
     <ul>
         <% scope[:props].each do |task_property_in_properties_list| %>
             <li class="task_property <%= task_property_in_properties_list.getCssClass() %>">
-                <span class="name"><%= h(l.string(task_property_in_properties_list.getName()) + l.string("SEPARATOR")) -%></span>
+                <span class="name"><%= h(task_property_in_properties_list.getName()) -%>:</span>
                 <span class="value"><%= h(task_property_in_properties_list.getValue()) -%></span>
             </li>
         <% end %>
@@ -17,11 +17,11 @@
     <%- is_plugin_missing = scope[:tvm_of_cancel_task].instance_of? com.thoughtworks.go.presentation.MissingPluggableTaskViewModel %>
     <%- if (scope[:task_config].hasCancelTask()) %>
         <%- if (is_plugin_missing) %>
-            <%= label_tag "", scope[:tvm_of_cancel_task].getTypeForDisplay(), :title => l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [scope[:tvm_of_cancel_task].getTypeForDisplay()].to_java(java.lang.Object)), :class => "missing_plugin_link instant-tooltip" -%>
+            <%= label_tag "", scope[:tvm_of_cancel_task].getTypeForDisplay(), :title => com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound("Plugin", scope[:tvm_of_cancel_task].getTypeForDisplay()), :class => "missing_plugin_link instant-tooltip" -%>
         <%- else %>
             <%= scope[:tvm_of_cancel_task].getTypeForDisplay() %>
         <%- end %>
     <%- else %>
-        <%= l.string("NO") %>
+        No
     <%- end %>
 </td>

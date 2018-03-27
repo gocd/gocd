@@ -31,7 +31,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
@@ -100,8 +100,6 @@ public class PipelineConfigServiceIntegrationTest {
     private GoPartialConfig goPartialConfig;
     @Autowired
     private CachedGoPartials cachedGoPartials;
-    @Autowired
-    private Localizer localizer;
     @Autowired
     private ServerHealthService serverHealthService;
 
@@ -587,7 +585,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.httpCode(), is(401));
-        assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_EDIT_PIPELINE"), is(true));
+        assertThat(result.toString(), result.message().equals("Unauthorized to edit '" + pipelineConfig.name() + "' pipeline."), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));
@@ -625,7 +623,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
 
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find repository for given package id:[packageid]"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
@@ -657,7 +655,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
 
         assertFalse(result.isSuccessful());
-        assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_DELETE_PIPELINE"), is(true));
+        assertThat(result.message(), is(LocalizedMessage.unauthorizedToDelete("Pipeline", pipelineConfig.name())));
         assertThat(result.httpCode(), is(401));
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter, is(pipelineCountBefore));
@@ -678,7 +676,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(user, pipeline, result);
 
         assertFalse(result.isSuccessful());
-        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT"), is(true));
+        assertThat(result.message(), is("Cannot delete pipeline '" + pipeline.name() + "' as it is present in environment '" + env.name() + "'."));
         assertThat(result.httpCode(), is(422));
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter, is(pipelineCountBefore));
@@ -696,7 +694,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
 
         assertFalse(result.isSuccessful());
-        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS"), is(true));
+        assertThat(result.message(), is("Cannot delete pipeline '" + pipelineConfig.name() + "' as pipeline '" + dependency.name() + " (" + dependency.getOriginDisplayName() + ")' depends on it"));
         assertThat(result.httpCode(), is(422));
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter, is(pipelineCountBefore));
@@ -780,7 +778,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("base"), is(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)", pipelineConfig.name())));
-        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
     }
 
     @Test
@@ -846,7 +844,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig), is(true));
@@ -978,7 +976,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. " +
+        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
                 "Error(s): [Merged update operation failed on VALID 2 partials. Falling back to using LAST KNOWN 2 partials. " +
                 "Exception message was: [Validation failed. Stage with name 'stage' does not exist on pipeline '%s', " +
                 "it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)]" +
@@ -1032,7 +1030,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. " +
+        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
                 "Error(s): [Merged update operation failed on VALID 2 partials. Falling back to using LAST KNOWN 2 partials. " +
                 "Exception message was: [Validation failed. Stage with name 'stage' does not exist on pipeline '%s', " +
                 "it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)]" +

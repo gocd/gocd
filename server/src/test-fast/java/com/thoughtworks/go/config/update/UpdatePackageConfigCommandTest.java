@@ -23,17 +23,17 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -98,7 +98,7 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -112,7 +112,7 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "package", oldPackageDefinition.getId()));
+        expectedResult.stale(staleResourceConfig("package", oldPackageDefinition.getId()));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -222,7 +222,7 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "package"));
+        expectResult.unprocessableEntity("Changing the package id is not supported by this API.");
 
         newPackageDefinition.setRepository(new PackageRepository(oldPackageDefinition.getRepository().getId(), "name", null, null));
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
@@ -239,7 +239,7 @@ public class UpdatePackageConfigCommandTest {
         newPackageDefinition.setRepository(new PackageRepository("id", "name", null, null));
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_NOT_FOUND", "id"));
+        expectedResult.unprocessableEntity(resourceNotFound("Package Repository", "id"));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

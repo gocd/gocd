@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -56,8 +55,6 @@ public class ServerConfigServiceIntegrationTest {
     UserService userService;
     @Autowired
     GoConfigDao goConfigDao;
-    @Autowired
-    Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -169,8 +166,8 @@ public class ServerConfigServiceIntegrationTest {
                 goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), containsString("Failed to save the server configuration. Reason: "));
-        assertThat(result.message(localizer), containsString("Timeout cannot be a negative number as it represents number of minutes"));
+        assertThat(result.message(), containsString("Failed to save the server configuration. Reason: "));
+        assertThat(result.message(), containsString("Timeout cannot be a negative number as it represents number of minutes"));
     }
 
     @Test
@@ -184,7 +181,7 @@ public class ServerConfigServiceIntegrationTest {
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), containsString("Cannot disable auto login with no admins enabled."));
+        assertThat(result.message(), containsString("Cannot disable auto login with no admins enabled."));
     }
 
     @Test
@@ -195,7 +192,7 @@ public class ServerConfigServiceIntegrationTest {
                 "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)."));
+        assertThat(result.message(), is("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)."));
         assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
     }
 
@@ -207,7 +204,7 @@ public class ServerConfigServiceIntegrationTest {
                 "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Invalid port."));
+        assertThat(result.message(), is("Invalid Port."));
         assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
     }
 
@@ -220,7 +217,7 @@ public class ServerConfigServiceIntegrationTest {
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("From address is not a valid email address."));
+        assertThat(result.message(), is("From address is not a valid email address."));
         assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
     }
 
@@ -233,7 +230,7 @@ public class ServerConfigServiceIntegrationTest {
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Admin address is not a valid email address."));
+        assertThat(result.message(), is("Admin address is not a valid email address."));
         assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
     }
 

@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -38,10 +37,9 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
     private final List<EnvironmentVariableConfig> envVarsToAdd;
     private final List<String> envVarsToRemove;
     private final Username username;
-    private final Localizable.CurryableLocalizable actionFailed;
     private final HttpLocalizedOperationResult result;
 
-    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result);
 
         this.goConfigService = goConfigService;
@@ -53,7 +51,6 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         this.envVarsToAdd = envVarsToAdd;
         this.envVarsToRemove = envVarsToRemove;
         this.username = username;
-        this.actionFailed = actionFailed;
         this.result = result;
     }
 
@@ -105,7 +102,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
                 String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(new CaseInsensitiveString(pipelineToRemove)).displayName();
                 String message = String.format("Pipeline '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
                         pipelineToRemove, environmentConfig.name(), origin);
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -118,7 +115,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
                 String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForAgent(agentToRemove).displayName();
                 String message = String.format("Agent with uuid '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
                         agentToRemove, environmentConfig.name(), origin);
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -132,7 +129,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
                 String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForEnvironmentVariable(variableName).displayName();
                 String message = String.format("Environment variable with name '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
                         variableName, environmentConfig.name(), origin);
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -152,7 +149,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         for (String agentToRemove : agentsToRemove) {
             if (!environmentConfig.hasAgent(agentToRemove)) {
                 String message = String.format("Agent with uuid '%s' does not exist in environment '%s'", agentToRemove, environmentConfig.name());
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -165,7 +162,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         for (String pipelineToRemove : pipelinesToRemove) {
             if (!environmentConfig.containsPipeline(new CaseInsensitiveString(pipelineToRemove))) {
                 String message = String.format("Pipeline '%s' does not exist in environment '%s'", pipelineToRemove, environmentConfig.name());
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -178,7 +175,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         for (String variableName : envVarsToRemove) {
             if (!environmentConfig.getVariables().hasVariable(variableName)) {
                 String message = String.format("Environment variable with name '%s' does not exist in environment '%s'", variableName, environmentConfig.name());
-                result.unprocessableEntity(actionFailed.addParam(message));
+                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;
             }
         }
@@ -200,8 +197,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentConfig.name().toString(), username.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized("Failed to update environment '" + environmentConfig.name() + "'. User '" + username.getDisplayName() + "' does not have permission to update environments", HealthStateType.unauthorised());
             return false;
         }
         return true;

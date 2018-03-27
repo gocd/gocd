@@ -4,28 +4,28 @@
     <%= form_for(@pipeline, :as => :template, :url => update_template_permissions_path(:template_name => @pipeline.name().toString()), :html => {:method => "post", :id => "template_edit_form"}) do |f| %>
 
         <div class="form_content">
-            <h3><%= l.string("BASIC_SETTINGS") -%></h3>
+            <h3>Basic Settings</h3>
 
             <div class="fieldset">
                 <%= md5_field %>
-                <%= f.label com.thoughtworks.go.config.PipelineTemplateConfig::NAME, l.string('TEMPLATE_NAME') -%>
+                <%= f.label com.thoughtworks.go.config.PipelineTemplateConfig::NAME, 'Template Name' -%>
                 <%= f.text_field com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :readonly => :readonly, :disabled=> :disabled -%>
                 <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :css_class => "form_error") %>
                 <div class="clear"></div>
             </div>
 
           <div class="permissions">
-            <h3> <%= l.string("USER_PERMISSIONS") -%> </h3>
+            <h3> User Permissions </h3>
             <div class="allow">
               <%= f.check_box com.thoughtworks.go.config.Authorization::ALLOW_GROUP_ADMINS, {:class => "form_input"}, "true", "false" %>
-              <label class="inline"><%= l.string("ALLOW_GROUP_ADMINS", @pipeline.name()) -%></label>
+              <label class="inline">Allow all pipeline group administrators view access to <%= @pipeline.name %> template.</label>
             </div>
             <div class="fieldset user_permissions_for_template">
               <%= render :partial => 'permissions_table',
                          :locals => {:scope => {:permissions => @pipeline.getAuthorization().getUserAuthorizations(), :permission_type => com.thoughtworks.go.config.Authorization::UserType::USER, :f => f, :autocomplete_suggestions => @autocomplete_users}} %>
               <div class="clear"></div>
             </div>
-            <h3> <%= l.string("ROLE_PERMISSIONS") -%> </h3>
+            <h3> Role Permissions </h3>
             <div class="fieldset role_permissions_for_template">
               <%= render :partial => 'permissions_table',
                          :locals => {:scope => {:permissions => @pipeline.getAuthorization().getRoleAuthorizations(), :permission_type => com.thoughtworks.go.config.Authorization::UserType::ROLE, :f => f, :autocomplete_suggestions => @autocomplete_roles}} %>

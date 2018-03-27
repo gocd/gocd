@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -60,7 +59,7 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         }
 
         if (!usedByRolesConfig.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_OTHER_RESOURCE", getObjectDescriptor().toLowerCase(), profile.getId(), "role", usedByRolesConfig));
+            result.unprocessableEntity("Cannot delete the " + getObjectDescriptor().toLowerCase() + " '" + profile.getId() + "' as it is used by role(s): '" + usedByRolesConfig + "'");
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by role(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(usedByRolesConfig, ", ")));
         }
         return true;

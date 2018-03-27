@@ -72,7 +72,7 @@ public class ValueStreamMapService {
     public ValueStreamMapPresentationModel getValueStreamMap(String pipelineName, int counter, Username username, LocalizedOperationResult result) {
         try {
             if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-                result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+                result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
                 return null;
             }
             ValueStreamMap valueStreamMap = buildValueStreamMap(pipelineName, counter, username, result);
@@ -81,7 +81,7 @@ public class ValueStreamMapService {
             }
             return valueStreamMap.presentationModel();
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("VSM_INTERNAL_SERVER_ERROR", pipelineName, counter));
+            result.internalServerError("Value Stream Map of pipeline '" + pipelineName + "' with counter '" + counter + "' can not be rendered. Please check the server log for details.");
             LOGGER.error("[Value Stream Map] Pipeline {} with counter {} could not be rendered.", pipelineName, counter, e);
             return null;
         }
@@ -94,7 +94,7 @@ public class ValueStreamMapService {
             pipelineName = pipelineNameWithSameCaseAsConfig(pipelineName, cruiseConfig);
             buildCauseForPipeline = pipelineService.buildCauseFor(pipelineName, counter);
         } catch (PipelineNotFoundException e) {
-            result.notFound(LocalizedMessage.string("PIPELINE_WITH_COUNTER_NOT_FOUND", pipelineName, counter), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound("Pipeline '" + pipelineName + "' with counter '" + counter + "' not found.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return null;
         }
         String label = pipelineService.findPipelineByCounterOrLabel(pipelineName, String.valueOf(counter)).getLabel();
@@ -105,7 +105,7 @@ public class ValueStreamMapService {
         traverseUpstream(pipelineName, buildCauseForPipeline, valueStreamMap, new ArrayList<>());
 
         if (valueStreamMap.hasCycle()) {
-            result.notImplemented(LocalizedMessage.string("VSM_CYCLIC_DEPENDENCY", pipelineName, counter));
+            result.notImplemented("Value Stream Map of Pipeline '" + pipelineName + "' with counter '" + counter + "' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.");
             LOGGER.error("[Value Stream Map] Cyclic dependency for pipeline {} with counter {}. Graph is {}", pipelineName, counter, valueStreamMap);
             return null;
         }
@@ -139,19 +139,19 @@ public class ValueStreamMapService {
             }
 
             if (materialConfig == null) {
-                result.notFound(LocalizedMessage.string("MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND", materialFingerprint), HealthStateType.general(HealthStateScope.GLOBAL));
+                result.notFound("Material with fingerprint '" + materialFingerprint + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
                 return null;
             }
 
             if (!hasViewPermissionForMaterial) {
-                result.unauthorized(LocalizedMessage.cannotViewMaterial(materialFingerprint), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+                result.unauthorized("You do not have view permissions for material with fingerprint '" + materialFingerprint + "'.", HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
                 return null;
             }
 
             MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
             if (materialInstance == null) {
-                result.notFound(LocalizedMessage.string("MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND", materialFingerprint), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+                result.notFound("Material Instance with fingerprint '" + materialFingerprint + "' not found.", HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
                 return null;
             }
 
@@ -159,7 +159,7 @@ public class ValueStreamMapService {
             Modification modification = materialRepository.findModificationWithRevision(material, revision);
 
             if (modification == null) {
-                result.notFound(LocalizedMessage.string("MATERIAL_MODIFICATION_NOT_FOUND", materialFingerprint, revision), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+                result.notFound("Modification '" + revision + "' for material with fingerprint '" + materialFingerprint + "' not found.", HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
                 return null;
             }
 
@@ -169,7 +169,7 @@ public class ValueStreamMapService {
             }
             return valueStreamMap.presentationModel();
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL", materialFingerprint, revision));
+            result.internalServerError("Value Stream Map of material with fingerprint '" + materialFingerprint + "' with revision '" + revision + "' can not be rendered. Please check the server log for details.");
             LOGGER.error("[Value Stream Map] Material {} with revision {} could not be rendered.", materialFingerprint, revision, e);
             return null;
         }

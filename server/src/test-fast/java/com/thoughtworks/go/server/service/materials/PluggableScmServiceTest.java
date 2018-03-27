@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -55,8 +54,6 @@ public class PluggableScmServiceTest {
     @Mock
     private SCMExtension scmExtension;
     @Mock
-    private Localizer localizer;
-    @Mock
     private SCMPreference preference;
     @Mock
     private GoConfigService goConfigService;
@@ -72,7 +69,7 @@ public class PluggableScmServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        pluggableScmService = new PluggableScmService(scmExtension, localizer, goConfigService, entityHashingService);
+        pluggableScmService = new PluggableScmService(scmExtension, goConfigService, entityHashingService);
 
         SCMPropertyConfiguration scmConfig = new SCMPropertyConfiguration();
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));
@@ -120,7 +117,6 @@ public class PluggableScmServiceTest {
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
-        when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -128,7 +124,7 @@ public class PluggableScmServiceTest {
         assertFalse(validationErrors.isEmpty());
         final ValidationError validationError = getValidationErrorFor(validationErrors, "KEY1");
         assertNotNull(validationError);
-        assertThat(validationError.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+        assertThat(validationError.getMessage(), is("This field is required"));
     }
 
     @Test
@@ -140,7 +136,6 @@ public class PluggableScmServiceTest {
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
-        when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -148,10 +143,10 @@ public class PluggableScmServiceTest {
         assertFalse(validationErrors.isEmpty());
         final ValidationError validationErrorForKey1 = getValidationErrorFor(validationErrors, "KEY1");
         assertNotNull(validationErrorForKey1);
-        assertThat(validationErrorForKey1.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+        assertThat(validationErrorForKey1.getMessage(), is("This field is required"));
         final ValidationError validationErrorForKey2 = getValidationErrorFor(validationErrors, "KEY2");
         assertNotNull(validationErrorForKey2);
-        assertThat(validationErrorForKey2.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+        assertThat(validationErrorForKey2.getMessage(), is("This field is required"));
     }
 
     @Test

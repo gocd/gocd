@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Test;
@@ -26,11 +24,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
 public class HttpLocalizedOperationResultTest {
 
@@ -44,33 +38,29 @@ public class HttpLocalizedOperationResultTest {
     @Test
     public void shouldNotReturnSuccessfulIfUnauthorized() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.unauthorized(LocalizedMessage.cannotViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(result.isSuccessful(), is(false));
     }
 
     @Test
     public void shouldNotReturnSuccessfulIfNotFound() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.notFound(LocalizedMessage.cannotViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.notFound(LocalizedMessage.unauthorizedToViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(result.isSuccessful(), is(false));
     }
 
     @Test
     public void shouldReturn404AndLocalizeWhenNotFound() {
-        Localizable message = mock(Localizable.class);
-        Localizer localizer = mock(Localizer.class);
-
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(message.localize(localizer)).thenReturn("Seriously, whateva");
-        result.notFound(message, HealthStateType.general(HealthStateScope.GLOBAL));
+        result.notFound("foo", HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(localizer), is("Seriously, whateva"));
+        assertThat(result.message(), is("foo"));
     }
 
     @Test
     public void shouldReturn401WhenNotAuthorized() {
-        Localizable message = LocalizedMessage.cannotViewPipeline("whateva");
+        String message = LocalizedMessage.unauthorizedToViewPipeline("whateva");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.unauthorized(message, HealthStateType.general(HealthStateScope.GLOBAL));
 
@@ -79,12 +69,8 @@ public class HttpLocalizedOperationResultTest {
 
     @Test
     public void shouldReturnMessageAndStatus501WhenNotImplemented() {
-        Localizable message = mock(Localizable.class);
-        Localizer localizer = mock(Localizer.class);
-
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(message.localize(localizer)).thenReturn("Seriously, whateva");
-        result.notImplemented(message);
+        result.notImplemented(null);
 
         assertThat(result.httpCode(), is(501));
     }
@@ -92,27 +78,25 @@ public class HttpLocalizedOperationResultTest {
     @Test
     public void shouldReturnAccepted() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Localizable localizable = LocalizedMessage.string("KEY");
-        result.accepted(localizable);
+        result.accepted("foo");
 
         assertThat(result.httpCode(), is(202));
-        assertThat(result.localizable(), is(localizable));
+        assertThat(result.message(), is("foo"));
     }
 
     @Test
     public void shouldNotFailWhenNoMessageSet() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Localizer localizer = mock(Localizer.class);
-        assertThat(result.message(localizer), is(nullValue()));
+        assertThat(result.message(), is(nullValue()));
     }
 
     @Test
     public void shouldTestEquality() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.unauthorized("foo", HealthStateType.general(HealthStateScope.GLOBAL));
 
         HttpLocalizedOperationResult equalResult = new HttpLocalizedOperationResult();
-        equalResult.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+        equalResult.unauthorized("foo", HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result, is(equalResult));
     }
@@ -120,10 +104,10 @@ public class HttpLocalizedOperationResultTest {
     @Test
     public void shouldTestInEquality() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.unauthorized("foo", HealthStateType.general(HealthStateScope.GLOBAL));
 
         HttpLocalizedOperationResult equalResult = new HttpLocalizedOperationResult();
-        equalResult.unauthorized(LocalizedMessage.string("ANOTHERKEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+        equalResult.unauthorized("bar", HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result, is(not(equalResult)));
     }
@@ -132,7 +116,7 @@ public class HttpLocalizedOperationResultTest {
     public void shouldTellWhetherTheMessageIsPresentOrNot() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         assertFalse(result.hasMessage());
-        result.setMessage(LocalizedMessage.string("Some Message"));
+        result.setMessage("foo");
         assertTrue(result.hasMessage());
     }
 }

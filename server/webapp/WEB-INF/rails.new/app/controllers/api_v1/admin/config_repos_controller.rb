@@ -75,7 +75,7 @@ module ApiV1
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'config repo', params[:id])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('config repo', params[:id])
       end
 
       def etag_for_entity_in_config

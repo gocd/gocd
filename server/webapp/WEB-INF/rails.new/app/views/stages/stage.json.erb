@@ -1,9 +1,9 @@
 {
     <%case params[:action]
         when 'overview' %>
-            "jobs_failed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "FAILED_JOBS", :jobs => @stage.nonPassedJobs(),:parent_id=>"jobs_failed"}} %>},
-            "jobs_passed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "PASSED_JOBS", :jobs => @stage.passedJobs(),:parent_id=>"jobs_passed"}} %>},
-            "jobs_in_progress": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "IN_PROGRESS_JOBS", :jobs => @stage.inProgressJobs(),:parent_id=>"jobs_in_progress"}} %>},
+            "jobs_failed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "Failed: #{@stage.nonPassedJobs().size()}", :jobs => @stage.nonPassedJobs(),:parent_id=>"jobs_failed"}} %>},
+            "jobs_passed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "Passed: #{@stage.passedJobs().size()}", :jobs => @stage.passedJobs(),:parent_id=>"jobs_passed"}} %>},
+            "jobs_in_progress": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "In Progress: #{@stage.inProgressJobs().size()}", :jobs => @stage.inProgressJobs(),:parent_id=>"jobs_in_progress"}} %>},
 
         <%when 'jobs'%>
             "jobs_grid": {"html": <%== render_json :partial=> 'jobs.html', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => @has_operate_permissions }}  %>},

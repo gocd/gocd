@@ -22,9 +22,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedKeyValueMessage;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -84,15 +82,13 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldThrowExceptionWhenTheGroupIsNotFound_onGetXml() {
         String groupName = "non-existent-group_name";
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("PIPELINE_GROUP_NOT_FOUND", groupName)).thenReturn("Not found");
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new PipelineGroupNotFoundException());
 
         service.getXml(groupName, validUser, result);
 
         assertThat(result.httpCode(), is(404));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Not found"));
+        assertThat(result.message(), is("Pipeline group 'non-existent-group_name' not found."));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
         verify(goConfigService, never()).getConfigForEditing();
 
@@ -101,8 +97,6 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnauthorizedResultWhenUserIsNotAuthorizedToViewGroup_onGetXml() {
         String groupName = "some-secret-group";
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("UNAUTHORIZED_TO_EDIT_GROUP", groupName)).thenReturn("Unauthorized!");
         Username invalidUser = new Username(new CaseInsensitiveString("invalidUser"));
         when(securityService.isUserAdminOfGroup(invalidUser.getUsername(), groupName)).thenReturn(false);
 
@@ -111,7 +105,7 @@ public class PipelineConfigsServiceTest {
         assertThat(actual, is(nullValue()));
         assertThat(result.httpCode(), is(401));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Unauthorized!"));
+        assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
         verify(goConfigService, never()).getConfigForEditing();
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }
@@ -142,10 +136,8 @@ public class PipelineConfigsServiceTest {
 
     @Test
     public void shouldReturnUnsuccessfulResultWhenXmlIsInvalid_onUpdateXml() throws Exception {
-        String errorMessage = "Can not parse xml";
+        String errorMessage = "Can not parse xml.";
         final String groupName = "group_name";
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("UPDATE_GROUP_XML_FAILED", groupName, errorMessage)).thenReturn("Invalid");
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         String md5 = "md5";
         when(goConfigService.configFileMd5()).thenReturn(md5);
@@ -161,7 +153,7 @@ public class PipelineConfigsServiceTest {
         assertThat(configs, is(nullValue()));
         assertThat(result.httpCode(), is(500));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Invalid"));
+        assertThat(result.message(), is("Failed to update group 'group_name'. Can not parse xml."));
         assertThat(validity.isValid(), is(false));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
     }
@@ -169,8 +161,6 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnsuccessfulResultWhenTheGroupIsNotFound_onUpdateXml() throws Exception {
         String groupName = "non-existent-group_name";
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("PIPELINE_GROUP_NOT_FOUND", groupName)).thenReturn("Not found");
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new PipelineGroupNotFoundException());
         when(goConfigService.configFileMd5()).thenReturn("md5");
 
@@ -181,7 +171,7 @@ public class PipelineConfigsServiceTest {
         assertThat(configs, is(nullValue()));
         assertThat(result.httpCode(), is(404));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Not found"));
+        assertThat(result.message(), is("Pipeline group 'non-existent-group_name' not found."));
         assertThat(validity.isValid(), is(true));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
     }
@@ -189,8 +179,6 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnauthorizedResultWhenUserIsNotAuthorizedToViewGroup_onUpdateXml() throws Exception {
         String groupName = "some-secret-group";
-        Localizer localizer = mock(Localizer.class);
-        when(localizer.localize("UNAUTHORIZED_TO_EDIT_GROUP", groupName)).thenReturn("Unauthorized!");
         Username invalidUser = new Username(new CaseInsensitiveString("invalidUser"));
         when(securityService.isUserAdminOfGroup(invalidUser.getUsername(), groupName)).thenReturn(false);
         when(goConfigService.configFileMd5()).thenReturn("md5");
@@ -202,7 +190,7 @@ public class PipelineConfigsServiceTest {
         assertThat(configElement, is(nullValue()));
         assertThat(result.httpCode(), is(401));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Unauthorized!"));
+        assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
         assertThat(validity.isValid(), is(true));
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }
@@ -220,7 +208,7 @@ public class PipelineConfigsServiceTest {
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, groupXml(), md5, validUser, result);
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(result.localizable(), is(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
+        assertThat(result.message(), is("Saved configuration successfully."));
         assertThat(validity.isValid(), is(true));
     }
 
@@ -236,7 +224,7 @@ public class PipelineConfigsServiceTest {
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, groupXml(), "md5", validUser, result);
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(result.localizable(), is(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED"))));
+        assertThat(result.message(), is(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
         assertThat(validity.isValid(), is(true));
     }
 
@@ -257,9 +245,7 @@ public class PipelineConfigsServiceTest {
         assertThat(result.isSuccessful(), is(false));
         assertThat(validity.isValid(), is(false));
         assertThat(validity.isMergeConflict(), is(true));
-        LocalizedKeyValueMessage message = (LocalizedKeyValueMessage) ReflectionUtil.getField(result, "message");
-        String key = (String) ReflectionUtil.getField(message, "key");
-        assertThat(key, is("FLASH_MESSAGE_ON_CONFLICT"));
+        assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
     }
 
     @Test
@@ -279,9 +265,7 @@ public class PipelineConfigsServiceTest {
         assertThat(result.isSuccessful(), is(false));
         assertThat(validity.isValid(), is(false));
         assertThat(validity.isPostValidationError(), is(true));
-        LocalizedKeyValueMessage message = (LocalizedKeyValueMessage) ReflectionUtil.getField(result, "message");
-        String key = (String) ReflectionUtil.getField(message, "key");
-        assertThat(key, is("FLASH_MESSAGE_ON_CONFLICT"));
+        assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
     }
 
 	@Test

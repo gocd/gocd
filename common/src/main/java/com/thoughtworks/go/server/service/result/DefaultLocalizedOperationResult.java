@@ -16,46 +16,64 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 
 public class DefaultLocalizedOperationResult implements LocalizedOperationResult {
 
-    public void unauthorized(Localizable message, HealthStateType id) {
+    @Override
+    public void unauthorized(String message, HealthStateType id) {
+
     }
 
     @Override
-    public void stale(Localizable message) {
-    }
-
-    public void notFound(Localizable message, HealthStateType healthStateType) {
-    }
-
-    public void failedDependency(Localizable message) {
+    public void stale(String message) {
 
     }
 
+    @Override
+    public void notFound(String message, HealthStateType healthStateType) {
+
+    }
+
+    @Override
+    public void failedDependency(String message) {
+
+    }
+
+    @Override
     public boolean isSuccessful() {
         return true;
     }
 
-    public void connectionError(Localizable message) {
+    @Override
+    public void connectionError(String message) {
+
     }
 
-    public void conflict(Localizable message) {
+    @Override
+    public void conflict(String message) {
+
     }
 
-    public void badRequest(Localizable message) {
+    @Override
+    public void badRequest(String message) {
+
     }
 
-    public void notAcceptable(Localizable localizable) {
+    @Override
+    public void notAcceptable(String message) {
+
     }
 
-    public void internalServerError(Localizable message) {
+    @Override
+    public void internalServerError(String message) {
+
     }
 
-    public void setMessage(Localizable message) {
+    @Override
+    public void setMessage(String message) {
+
     }
 
     @Override
@@ -63,16 +81,24 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
         return false;
     }
 
-    @Override
-    public void notImplemented(Localizable localizable) {
-    }
 
     @Override
-    public void unprocessableEntity(Localizable localizable) {
+    public void notImplemented(String message) {
 
     }
 
     @Override
-    public void preconditionFailed(Localizable localizable) {
+    public void unprocessableEntity(String message) {
+
+    }
+
+    @Override
+    public void preconditionFailed(String message) {
+
+    }
+
+    @Override
+    public void accepted(String message) {
+
     }
 }

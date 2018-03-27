@@ -16,16 +16,14 @@
 
 package com.thoughtworks.go.server.presentation;
 
-import com.thoughtworks.go.i18n.Localizable;
-
 /**
  * @understands being a view model of whether a pipeline can be deleted or not
  */
 public class CanDeleteResult {
     private final boolean canDelete;
-    private final Localizable message;
+    private final String message;
 
-    public CanDeleteResult(boolean canDelete, Localizable message) {
+    public CanDeleteResult(boolean canDelete, String message) {
         this.canDelete = canDelete;
         this.message = message;
     }
@@ -34,7 +32,7 @@ public class CanDeleteResult {
         return canDelete;
     }
 
-    public Localizable message() {
+    public String message() {
         return message;
     }
 

@@ -184,7 +184,7 @@ describe ApiV1::Admin::PackagesController do
       it 'should allow deleting package' do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         expect(@package_definition_service).to receive(:deletePackage).with(@package, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
-          result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'package definition', @package.getId))
+          result.setMessage("The package definition '#{@package_id}' was deleted successfully.")
         end
 
         delete_with_api_header :destroy, package_id: @package_id
@@ -284,17 +284,17 @@ describe ApiV1::Admin::PackagesController do
 
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
         expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, repo_id, user, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity('some error')
         end
 
         post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
-        expect(response).to have_api_message_response(422, "Save failed. Validation failed")
+        expect(response).to have_api_message_response(422, "some error")
       end
 
       it 'should render error when the repository to which the package belongs is not found' do
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
         post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
-        expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
+        expect(response).to have_api_message_response(422, "Package Repository '#{@package_repo_id}' not found.")
       end
     end
 
@@ -411,7 +411,7 @@ describe ApiV1::Admin::PackagesController do
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
         put_with_api_header :update, package_id: @package_id, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
-        expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
+        expect(response).to have_api_message_response(422, "Package Repository '#{@package_repo_id}' not found.")
       end
     end
 

@@ -4,7 +4,7 @@
   <% else %>
       <div class="fieldset">
         <div class="form_item">
-          <%= scope[:form].label l.string("SELECT_TEMPLATE") %>
+          <%= scope[:form].label 'Template' %>
           <%- scope[:template_names] = scope[:template_list].map() { |template_view_model| template_view_model.getTemplate().name() } -%>
           <%= scope[:form].select(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME, scope[:template_names], {:selected => scope[:pipeline].getTemplateName()}, {:id => "select_template"}) %>
           <span id="links"/>
@@ -14,12 +14,12 @@
             <%- scope[:dom_container_id] = random_dom_id("template_body_") -%>
             <textarea class="hidden" id="<%= scope[:dom_container_id] -%>">
                     <%- if template.getTemplate().referredParams().size() > 0 %>
-                        <label><%= l.string("DEFINE_PARAMETERS") %></label>
+                        <label>Define Parameters</label>
                   <%- template.getTemplate().referredParams().each do |param| -%>
                             <div>
                                 <%= scope[:form].fields_for "params", param, :index => "" do |form| %>
                                     <%= form.text_field :name, :class => "", :id => nil, :readonly => true -%>
-                                  <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+                                  <span class="equals_sign">=</span>
                                   <%= form.text_field :valueForDisplay, :class => "", :id => nil -%>
                                 <% end %>
                             </div>

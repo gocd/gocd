@@ -169,7 +169,7 @@ describe Admin::TemplatesController do
 
       it "should assign users for autocomplete on error" do
         stub_save_for_validation_error(@cruise_config) do |result, config, node|
-          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          result.badRequest("Save failed, see errors below")
         end
 
         put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template"}
@@ -182,7 +182,7 @@ describe Admin::TemplatesController do
 
       it "should assign roles for autocomplete on error" do
         stub_save_for_validation_error(@cruise_config) do |result, config, node|
-          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          result.badRequest("Save failed, see errors below")
         end
 
         put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template"}
@@ -230,7 +230,7 @@ describe Admin::TemplatesController do
         template_with_dependent_pipelines.put(CaseInsensitiveString.new("Template1"),list_of_pipelines)
         allow(@template_config_service).to receive(:templatesWithPipelinesForUser).and_return(template_with_dependent_pipelines)
 
-        allow(controller).to receive(:set_error_flash).and_return("Error!")
+        allow(controller).to receive(:set_flash_message).and_return("Error!")
 
         delete :destroy, :pipeline_name => "Template1", :config_md5 => "abcd1234"
         expect(response).to redirect_to templates_path(:fm => "Error!")
@@ -347,7 +347,7 @@ describe Admin::TemplatesController do
           @cruise_config.errors().add("base", "someError")
           @cruise_config.getTemplates().get(0).addError("name", "foo")
           @cruise_config.getTemplates().get(1).addError("name", "foo")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"))
+          result.badRequest(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToEdit())
         end
         pipeline2 = PipelineConfigMother.pipeline_config("pipeline.2")
         @cruise_config.addPipeline('default', pipeline2)

@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -31,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -42,7 +41,7 @@ public class AddEnvironmentCommandTest {
     private BasicEnvironmentConfig environmentConfig;
     private CaseInsensitiveString environmentName;
     private HttpLocalizedOperationResult result;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
 
     @Mock
     private GoConfigService goConfigService;
@@ -56,7 +55,7 @@ public class AddEnvironmentCommandTest {
         environmentName = new CaseInsensitiveString("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
-        actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
+        actionFailed = "Could not add environment " + environmentConfig.name();
     }
 
     @Test
@@ -73,7 +72,7 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'"));
+        expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'");
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -85,7 +84,7 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'."));
+        expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'.");
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -101,7 +100,7 @@ public class AddEnvironmentCommandTest {
 
         assertThat(command.isValid(cruiseConfig), is(false));
         String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
-        expectedResult.unprocessableEntity(actionFailed.addParam(allErrors));
+        expectedResult.unprocessableEntity("Could not add environment Dev Environment Variable name 'foo' is not unique for environment 'Dev'., Environment Variable name 'foo' is not unique for environment 'Dev'.");
         assertThat(result, is(expectedResult));
     }
 
@@ -110,7 +109,7 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", currentUser.getDisplayName()), HealthStateType.unauthorised());
+        expectedResult.unauthorized("Failed to add environment. User 'user' does not have permission to add environments", HealthStateType.unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -122,7 +121,7 @@ public class AddEnvironmentCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", environmentName));
+        expectedResult.conflict(resourceAlreadyExists("environment", environmentName));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

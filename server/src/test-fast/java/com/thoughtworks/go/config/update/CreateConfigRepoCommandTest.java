@@ -21,18 +21,15 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -48,17 +45,17 @@ public class CreateConfigRepoCommandTest {
 
     @Mock
     private SecurityService securityService;
-    private Localizable.CurryableLocalizable actionFailed;
+    private String actionFailed;
 
     @Before
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
-        actionFailed = LocalizedMessage.string("RESOURCE_ADD_FAILED", "Configs repo");
         result = new HttpLocalizedOperationResult();
 
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         configRepo = new ConfigRepoConfig(new GitMaterialConfig("https://foo.git", "master"), "json-plugin", repoId);
+        actionFailed = "Could not add config repo " + configRepo.getId();
     }
 
     @Test
@@ -74,7 +71,7 @@ public class CreateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -88,7 +85,7 @@ public class CreateConfigRepoCommandTest {
         String error = "You have defined multiple configuration repositories with the same id - repo-1";
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam(Arrays.asList(error)));
+        expectedResult.unprocessableEntity("Could not add config repo repo-1 " + error);
 
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
         command.update(cruiseConfig);
@@ -105,7 +102,7 @@ public class CreateConfigRepoCommandTest {
 
         String error = "You have defined multiple configuration repositories with the same repository - https://foo.git";
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(actionFailed.addParam(Arrays.asList(error)));
+        expectedResult.unprocessableEntity("Could not add config repo repo-1 " + error);
 
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
         command.update(cruiseConfig);

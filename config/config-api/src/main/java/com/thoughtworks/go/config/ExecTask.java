@@ -185,16 +185,16 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
-        taskProperties.add(new TaskProperty("COMMAND", command));
+        taskProperties.add(new TaskProperty("Command", command));
         String arguments = arguments();
         if (!arguments.isEmpty()) {
-            taskProperties.add(new TaskProperty("ARGUMENTS", arguments));
+            taskProperties.add(new TaskProperty("Arguments", arguments));
         }
         if (workingDirectory != null) {
-            taskProperties.add(new TaskProperty("WORKING_DIR", workingDirectory));
+            taskProperties.add(new TaskProperty("Working Directory", workingDirectory));
         }
         if (!(timeout == null || timeout.equals(NO_TIMEOUT_FOR_COMMANDLINE))) {
-            taskProperties.add(new TaskProperty("TIMEOUT", timeout.toString()));
+            taskProperties.add(new TaskProperty("Timeout", timeout.toString()));
         }
         return taskProperties;
     }

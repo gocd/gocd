@@ -51,7 +51,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
         update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "elastic agent profile", elasticProfile.getId()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("elastic agent profile", elasticProfile.getId()));
         }
     }
 

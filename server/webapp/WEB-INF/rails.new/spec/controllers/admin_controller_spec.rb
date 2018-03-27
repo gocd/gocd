@@ -180,7 +180,7 @@ describe AdminController do
 
   it "should use update_result http code if available when assert_load fails" do
     stub_save_for_validation_error do |result, _, _|
-      result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", ["message"].to_java(java.lang.String)))
+      result.conflict("Save failed. message")
     end
     allow(controller).to receive(:response).and_return(response = double('response'))
     allow(response).to receive(:headers).and_return({})

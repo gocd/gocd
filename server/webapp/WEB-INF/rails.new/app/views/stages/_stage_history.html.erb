@@ -1,5 +1,5 @@
 <div class="stage_history">
-    <h3><%= l.string("STAGE_HISTORY") %></h3>
+    <h3>Stage History</h3>
     <%
        current_config_version = scope[:current_config_version]
        stage_history_page = scope[:stage_history_page]
@@ -31,7 +31,7 @@
                      <%- end -%>
                     <span class="pipeline_label wrapped_word"><%= stage_in_stage_history.getIdentifier().getPipelineLabel() %></span>
                     <% if stage_in_stage_history.getIdentifier().getStageCounter().to_i > 1 %>
-                        <span class="stage_counter secondary"><%= l.string("STAGE_RUN_NUMBER", [stage_in_stage_history.getIdentifier().getStageCounter()]) %></span>
+                        <span class="stage_counter secondary">(run <%= stage_in_stage_history.getIdentifier().getStageCounter() -%>)</span>
                     <% end %>
                 </div>
             </a>

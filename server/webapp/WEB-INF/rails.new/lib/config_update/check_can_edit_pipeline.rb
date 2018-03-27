@@ -26,9 +26,9 @@ module ConfigUpdate
     def checkPermission(cruise_config, result)
       return if has_permission(cruise_config)
 
-      message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_EDIT")
-      message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", [pipeline_group_name]) if !pipeline_group_name.nil?
-      message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", [pipeline_name]) if !pipeline_name.isBlank()
+      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit()
+      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup(pipeline_group_name) if !pipeline_group_name.nil?
+      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditPipeline(pipeline_name) if !pipeline_name.isBlank()
 
       result.unauthorized(message, nil)
     end

@@ -15,22 +15,19 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.validators;
 
-import com.thoughtworks.go.server.service.result.LocalizedResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Test;
 
-import static com.thoughtworks.go.validators.HostNameValidator.INVALID_HOSTNAME_KEY;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class HostNameValidatorTest {
     @Test
     public void shouldMarkANullHostnameAsInvalid() throws Exception {
-        LocalizedResult result = mock(LocalizedResult.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
 
         new HostNameValidator().validate(null, result);
 
-        verify(result).invalid(INVALID_HOSTNAME_KEY, "null");
+        verify(result).notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
     }
 
     @Test
@@ -61,14 +58,14 @@ public class HostNameValidatorTest {
     }
 
     private void assertValid(String hostname) {
-        LocalizedResult result = mock(LocalizedResult.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
         new HostNameValidator().validate(hostname, result);
         verifyZeroInteractions(result);
     }
 
     private void assertInvalid(String hostname) {
-        LocalizedResult result = mock(LocalizedResult.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
         new HostNameValidator().validate(hostname, result);
-        verify(result).invalid(INVALID_HOSTNAME_KEY, hostname);
+        verify(result).notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
     }
 }

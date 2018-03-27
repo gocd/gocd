@@ -20,12 +20,14 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private final GoConfigService goConfigService;
@@ -72,7 +74,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private boolean isRepositoryPresent(CruiseConfig cruiseConfig) {
         String repoId = newPackage.getRepository().getRepoId();
         if (cruiseConfig.getPackageRepositories().find(repoId) == null) {
-            result.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_NOT_FOUND", repoId));
+            result.unprocessableEntity(resourceNotFound("Package Repository", repoId));
             return false;
         }
         return true;
@@ -81,7 +83,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private boolean isIdSame() {
         boolean isPackageIdSame = newPackage.getId().equals(oldPackageId);
         if (!isPackageIdSame) {
-            result.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "package"));
+            result.unprocessableEntity("Changing the package id is not supported by this API.");
         }
         return isPackageIdSame;
     }
@@ -90,7 +92,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
         PackageDefinition oldPackage = goConfigService.getConfigForEditing().getPackageRepositories().findPackageDefinitionWith(oldPackageId);
         boolean freshRequest = entityHashingService.md5ForEntity(oldPackage).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "package", oldPackage.getId()));
+            result.stale(staleResourceConfig("package", oldPackage.getId()));
         }
         return freshRequest;
     }

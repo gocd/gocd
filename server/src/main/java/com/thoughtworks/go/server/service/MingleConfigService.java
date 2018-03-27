@@ -42,7 +42,7 @@ public class MingleConfigService {
 
     public MingleConfig mingleConfigForPipelineNamed(String pipelineName, Username user, HttpLocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-            result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
+            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
             return null;
         }
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));

@@ -29,6 +29,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
 
     private final ElasticAgentExtension extension;
@@ -55,7 +58,7 @@ public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<El
 
     protected final boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

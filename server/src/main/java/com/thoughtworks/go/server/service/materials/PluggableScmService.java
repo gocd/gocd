@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.update.CreateSCMConfigCommand;
 import com.thoughtworks.go.config.update.UpdateSCMConfigCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -39,18 +37,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+
 @Service
 public class PluggableScmService {
     private SCMExtension scmExtension;
-    private Localizer localizer;
     private GoConfigService goConfigService;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
     private EntityHashingService entityHashingService;
 
     @Autowired
-    public PluggableScmService(SCMExtension scmExtension, Localizer localizer, GoConfigService goConfigService, EntityHashingService entityHashingService) {
+    public PluggableScmService(SCMExtension scmExtension, GoConfigService goConfigService, EntityHashingService entityHashingService) {
         this.scmExtension = scmExtension;
-        this.localizer = localizer;
         this.goConfigService = goConfigService;
         this.entityHashingService = entityHashingService;
     }
@@ -68,7 +66,7 @@ public class PluggableScmService {
                 ConfigurationProperty property = scmConfig.getConfiguration().getProperty(key);
                 String configValue = property == null ? null : property.getValue();
                 if (isRequired && StringUtils.isBlank(configValue)) {
-                    validationResult.addError(new ValidationError(key, localizer.localize("MANDATORY_CONFIGURATION_FIELD")));
+                    validationResult.addError(new ValidationError(key, "This field is required"));
                 }
             }
         }
@@ -140,7 +138,7 @@ public class PluggableScmService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (!result.hasMessage()) {
-                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the material config. Please check the logs for more information."));
+                result.internalServerError(saveFailedWithReason("An error occurred while saving the material config. Please check the logs for more information."));
                 LOGGER.error(e.getMessage(), e);
             }
         }

@@ -716,7 +716,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(pipelineName, 1, newUser, result);
 
-		assertResult(SC_UNAUTHORIZED, "PIPELINE_CANNOT_VIEW");
+		assertResult(SC_UNAUTHORIZED, "You do not have view permissions for pipeline 'p1'.");
     }
 
     @Test
@@ -746,7 +746,7 @@ public class ValueStreamMapServiceTest {
         PipelineDependencyNode node = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
         assertThat(node.revisions().toString(), node.revisions().isEmpty(), is(true));
         assertThat(node.getViewType(), is(VSMViewType.DELETED));
-        assertThat(ReflectionUtil.getField((node.getMessage()), "key"), is("VSM_PIPELINE_DELETED"));
+        assertThat(node.getMessage(), is("Pipeline has been deleted."));
     }
 
     @Test
@@ -762,7 +762,7 @@ public class ValueStreamMapServiceTest {
 
         assertThat(graph, is(IsNull.nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(ReflectionUtil.getField(result.localizable(), "key"), is("VSM_INTERNAL_SERVER_ERROR"));
+        assertThat(result.message(), is("Value Stream Map of pipeline 'MYPIPELINE' with counter '1' can not be rendered. Please check the server log for details."));
 
     }
 
@@ -820,12 +820,12 @@ public class ValueStreamMapServiceTest {
 		// unknown material
 		valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_NOT_FOUND, "MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND");
+		assertResult(SC_NOT_FOUND, "Material with fingerprint 'unknown-material' not found.");
 
 		// unauthorized
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_UNAUTHORIZED, "MATERIAL_CANNOT_VIEW");
+        assertResult(SC_UNAUTHORIZED, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
 
 		// material config exists but no material instance
 		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
@@ -833,7 +833,7 @@ public class ValueStreamMapServiceTest {
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_NOT_FOUND, "MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND");
+        assertResult(SC_NOT_FOUND, "Material Instance with fingerprint '" + gitConfig.getFingerprint() + "' not found.");
 
 		// modification (revision) doesn't exist
 		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
@@ -841,20 +841,20 @@ public class ValueStreamMapServiceTest {
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_NOT_FOUND, "MATERIAL_MODIFICATION_NOT_FOUND");
+		assertResult(SC_NOT_FOUND, "Modification 'r1' for material with fingerprint '" + gitMaterial.getFingerprint() + "' not found.");
 
 		// internal error
 		when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_INTERNAL_SERVER_ERROR, "VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL");
+		assertResult(SC_INTERNAL_SERVER_ERROR, "Value Stream Map of material with fingerprint '" + gitMaterial.getFingerprint() + "' with revision 'r1' can not be rendered. Please check the server log for details.");
 	}
 
 	private void assertResult(int httpCode, String msgKey) {
 		assertThat(result.isSuccessful(), is(false));
 		assertThat(result.httpCode(), is(httpCode));
-		assertThat(ReflectionUtil.getField((result.localizable()), "key"), is(msgKey));
+        assertThat(result.message(), is(msgKey));
 	}
 
     private void assertLayerHasDummyNodeWithDependents(List<Node> nodesOfLevel, String... dependents) {

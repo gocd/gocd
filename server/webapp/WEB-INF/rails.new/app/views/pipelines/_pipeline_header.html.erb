@@ -25,18 +25,18 @@
                 </div>
             <% else %>
                 <div class="locked_instance">
-                  <span><%= l.string('LOCKED') -%></span>
+                  <span>LOCKED</span>
                 </div>
             <% end %>
         <% else %>
             <div class="locked_instance">
-              (<%= link_to(l.string("LOCKED_BY_LABEL", [@lockedPipeline.getPipelineLabel()]), stage_detail_pipeline_tab_for_identifier(@lockedPipeline)) %>
+              (<%= link_to("Locked by #{@lockedPipeline.getPipelineLabel()}" , stage_detail_pipeline_tab_for_identifier(@lockedPipeline)) %>
               )
             </div>
         <% end %>
     <% elsif @pipeline.isLockable() %>
         <div class="locked_instance">
-          <span><%= l.string('UNLOCKED') -%></span>
+          <span>UNLOCKED</span>
         </div>
     <% end %>
     <a href="<%= api_pipeline_stage_feed_path(:name => @pipeline.getName()) -%>">

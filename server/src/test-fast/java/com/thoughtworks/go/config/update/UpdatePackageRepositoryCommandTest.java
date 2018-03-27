@@ -24,17 +24,18 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -150,7 +151,7 @@ public class UpdatePackageRepositoryCommandTest {
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -162,7 +163,7 @@ public class UpdatePackageRepositoryCommandTest {
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
         when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("foobar");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", repoId));
+        expectResult.stale(staleResourceConfig("Package Repository", repoId));
 
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
 
@@ -176,7 +177,7 @@ public class UpdatePackageRepositoryCommandTest {
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
         when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("md5");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "repository"));
+        expectResult.unprocessableEntity("Changing the repository id is not supported by this API.");
 
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, "old-repo-id");
 

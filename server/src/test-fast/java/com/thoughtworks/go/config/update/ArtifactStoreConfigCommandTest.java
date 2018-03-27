@@ -71,7 +71,7 @@ public class ArtifactStoreConfigCommandTest {
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), is("Unauthorized to edit."));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ArtifactStoreConfigCommandTest {
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), is("Unauthorized to edit."));
     }
 
     @Test

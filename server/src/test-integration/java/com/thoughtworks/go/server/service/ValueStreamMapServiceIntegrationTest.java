@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.valuestreammap.*;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -70,7 +69,6 @@ public class ValueStreamMapServiceIntegrationTest {
     @Autowired private ValueStreamMapService valueStreamMapService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private Localizer localizer;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -297,7 +295,7 @@ public class ValueStreamMapServiceIntegrationTest {
         assertThat(valueStreamMapService.getValueStreamMap(pipeline, 1, username, result), is(IsNull.nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_FOUND));
-        assertThat(result.message(localizer), is("Pipeline 'NewlyCreated' with counter '1' not found."));
+        assertThat(result.message(), is("Pipeline 'NewlyCreated' with counter '1' not found."));
     }
 
     @Test
@@ -305,7 +303,7 @@ public class ValueStreamMapServiceIntegrationTest {
         assertThat(valueStreamMapService.getValueStreamMap("does_not_exist", 1, username, result), is(IsNull.nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_FOUND));
-        assertThat(result.message(localizer), is("Pipeline 'does_not_exist' with counter '1' not found."));
+        assertThat(result.message(), is("Pipeline 'does_not_exist' with counter '1' not found."));
     }
 
     @Test
@@ -398,7 +396,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p1_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertThat(p1_node.revisions().toString(), p1_node.revisions().isEmpty(), is(true));
-        assertThat(ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(p1_node.getMessage(), is("You are not authorized to view this pipeline."));
         assertThat(p1_node.getViewType(), Is.is(VSMViewType.NO_PERMISSION));
 
         PipelineDependencyNode currentNode = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
@@ -412,7 +410,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p4_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL + 2).get(0);
         assertThat(p4_node.revisions().toString(), p4_node.revisions().isEmpty(), is(true));
-        assertThat(ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(p4_node.getMessage(), is("You are not authorized to view this pipeline."));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
     }
 
@@ -454,7 +452,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p1_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertThat(p1_node.revisions().toString(), p1_node.revisions().isEmpty(), is(true));
-        assertThat(ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(p1_node.getMessage(), is("You are not authorized to view this pipeline."));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
 
         PipelineDependencyNode currentNode = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
@@ -468,7 +466,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p4_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL + 2).get(0);
         assertThat(p4_node.revisions().toString(), p4_node.revisions().isEmpty(), is(true));
-        assertThat(ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(p4_node.getMessage(), is("You are not authorized to view this pipeline."));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
     }
 
@@ -535,7 +533,7 @@ public class ValueStreamMapServiceIntegrationTest {
         valueStreamMapService.getValueStreamMap("p1", 2, username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat(result.message(localizer), is(String.format(
+        assertThat(result.message(), is(String.format(
                 "Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.",
                 "p1", 2)));
     }

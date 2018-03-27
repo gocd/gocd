@@ -1,6 +1,6 @@
 <div class="run_results section">
     <div class="run">
-        <span class="label"><%= l.string("Run:") %></span>
+        <span class="label">Run:</span>
         <span id="current_stage_run">
             <%= render :partial => "stages/current_stage_run.html", :locals => {:scope => {}} %>
         </span>
@@ -25,7 +25,7 @@
         other_stages_popup_shower.cleanup_buttons();
         $('show_other_stage_runs') && other_stages_popup_shower.bindShowButton($('show_other_stage_runs'));
     }
-    
+
     Util.on_load(function() {
         var other_stages_popup = new MicroContentPopup($('other_stage_runs'), new MicroContentPopup.NoOpHandler());
         other_stages_popup_shower = new MicroContentPopup.ClickShower(other_stages_popup);

@@ -73,7 +73,6 @@ module Services
     :go_dashboard_service,
     :job_instance_service,
     :job_presentation_service,
-    :localizer,
     :luau_service,
     :material_config_service,
     :material_service,

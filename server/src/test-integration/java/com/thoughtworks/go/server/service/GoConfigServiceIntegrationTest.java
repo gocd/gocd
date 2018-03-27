@@ -27,8 +27,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -47,6 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
@@ -66,7 +65,6 @@ public class GoConfigServiceIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private Localizer localizer;
     @Autowired private CachedGoConfig cachedGoConfig;
 
     private GoConfigFileHelper configHelper;
@@ -113,7 +111,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit, is(nullValue()));
         assertThat(result.httpCode(), is(401));
-        assertThat(result.message(localizer), is("Unauthorized to edit my-pipeline pipeline."));
+        assertThat(result.message(), is("Unauthorized to edit 'my-pipeline' pipeline."));
 
         result = new HttpLocalizedOperationResult();
         configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("pipeline_admin")), result);
@@ -133,7 +131,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit, is(nullValue()));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(localizer), is("pipeline 'non-existent-pipeline' not found."));
+        assertThat(result.message(), is("pipeline 'non-existent-pipeline' not found."));
     }
 
     private void setupSecurity() throws IOException {
@@ -151,7 +149,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(goConfigService.loadForEdit("my-invalid-pipeline", new Username(new CaseInsensitiveString("root")), result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(localizer), is("pipeline 'my-invalid-pipeline' not found."));
+        assertThat(result.message(), is("pipeline 'my-invalid-pipeline' not found."));
     }
 
     @Test
@@ -185,8 +183,7 @@ public class GoConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(401));
-        assertThat(result.message(localizer), is("Unauthorized to edit configuration"));
-
+        assertThat(result.message(), is("Unauthorized to edit."));
     }
 
     @Test
@@ -281,7 +278,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_one", new Username(new CaseInsensitiveString("loser")), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Unauthorized to edit 'group_one' group."));
+        assertThat(result.message(), is("Unauthorized to edit 'group_one' group."));
         assertThat(configForEdit, is(nullValue()));
     }
 
@@ -293,7 +290,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_foo", new Username(new CaseInsensitiveString("loser")), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Pipeline group named 'group_foo' does not exist."));
+        assertThat(result.message(), is("Pipeline group 'group_foo' not found."));
         assertThat(configForEdit, is(nullValue()));
     }
 
@@ -481,7 +478,7 @@ public class GoConfigServiceIntegrationTest {
         final CruiseConfig[] configObtainedInCheckPermissions = new CruiseConfig[1];
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-                result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", "groupName"), null);
+                result.unauthorized(unauthorizedToEditGroup("groupName"), null);
                 configObtainedInCheckPermissions[0] = cruiseConfig;
             }
         }, md5, Username.ANONYMOUS, result);
@@ -497,7 +494,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(response.getNode(), is(pipelineConfig));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(401));
-        assertThat(result.message(localizer), is("Unauthorized to edit 'groupName' group."));
+        assertThat(result.message(), is("Unauthorized to edit 'groupName' group."));
     }
 
     @Test
@@ -732,7 +729,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(config.getMd5(), is(md5BeforeAddingGroupAtBeginning));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_CONFLICT));
-        assertThat(result.message(localizer), is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."));
+        assertThat(result.message(), is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."));
     }
 
     @Test
@@ -792,7 +789,7 @@ public class GoConfigServiceIntegrationTest {
 
     private void assertFailedResult(HttpLocalizedOperationResult result, final String message) {
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is(message));
+        assertThat(result.message(), is(message));
     }
 
     private void assertStageError(StageConfig duplicatedStage, final String message, final String field) {

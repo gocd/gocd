@@ -67,7 +67,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.PipelineTemplateConfig unless defined? PipelineTemplateConfig
   java_import com.thoughtworks.go.config.TemplatesConfig unless defined? TemplatesConfig
   java_import com.thoughtworks.go.server.presentation.CanDeleteResult unless defined? CanDeleteResult
-  java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
   java_import com.thoughtworks.go.security.GoCipher unless defined? GoCipher
   java_import com.thoughtworks.go.config.update.ConfigUpdateResponse unless defined? ConfigUpdateResponse
   java_import com.thoughtworks.go.config.materials.perforce.P4MaterialView unless defined? P4MaterialView

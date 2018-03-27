@@ -240,7 +240,7 @@ describe Admin::StagesController do
         @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
         expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
-          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+          result.badRequest("Save failed, see errors below")
         end
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
 
@@ -259,7 +259,7 @@ describe Admin::StagesController do
 
       it "should populate config_file_conflict when the md5 has already been changed" do
         stub_save_for_validation_error do |result, config, node|
-          result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.conflict('some message')
         end
 
         expect(@task_view_service).to receive(:taskInstanceFor).with("ant").and_return(AntTask.new())
@@ -295,7 +295,7 @@ describe Admin::StagesController do
         expect(@task_view_service).to receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         stub_save_for_validation_error do |result, config, node|
-          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
 
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
@@ -310,7 +310,7 @@ describe Admin::StagesController do
       it "should assign config_errors for display when save fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
           @cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest('some message')
         end
 
         expect(@task_view_service).to receive(:taskInstanceFor).with("exec").and_return(ExecTask.new('ls', '', 'work'))
@@ -332,7 +332,7 @@ describe Admin::StagesController do
           pipeline.addError("name", "bad-pipeline-name")
           pipeline.get(1).addError("name", "bad-stage-name")
           pipeline.get(1).getJobs().get(0).addError("name", "bad-job-name")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest('some message')
         end
 
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(tvms = [].to_java(TaskViewModel))
@@ -477,7 +477,7 @@ describe Admin::StagesController do
 
       it "should render the form again if save fails" do
         stub_save_for_validation_error do |result, _, _|
-          result.conflict(LocalizedMessage.modifiedBy("loser", Time.now.to_s))
+          result.conflict("modified already")
         end
 
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}

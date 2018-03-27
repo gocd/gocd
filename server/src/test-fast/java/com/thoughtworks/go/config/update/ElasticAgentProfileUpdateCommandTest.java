@@ -85,6 +85,6 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
+        assertThat(result.toString(), containsString("Someone has modified the configuration for"));;
     }
 }

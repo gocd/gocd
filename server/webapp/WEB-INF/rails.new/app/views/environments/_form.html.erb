@@ -11,18 +11,18 @@
                 <ul class="tabs">
                     <li id="step1_link" class="current_tab">
                         <a href="#">
-                            <div><%= l.string("WIZARD_STEP", [1]) -%></div><%= l.string("NAME") -%></a>
+                            <div>Step 1:</div>Name</a>
                         <a href="#" class="tab_button_body_match_text">env-name</a></li>
                     <li id="step2_link" class="subsequent_tab">
                         <a href="#">
-                            <div><%= l.string("WIZARD_STEP", [2]) -%></div><%= l.string("ADD_PIPELINES") -%></a>
+                            <div>Step 2:</div>Add Pipelines</a>
                         <a href="#" class="tab_button_body_match_text">env-pipelines</a></li>
                     <li id="step3_link" class="subsequent_tab">
                         <a href="#">
-                            <div><%= l.string("WIZARD_STEP", [3]) -%></div><%= l.string("ADD_AGENTS") -%></a>
+                            <div>Step 3:</div>Add Agents</a>
                         <a href="#" class="tab_button_body_match_text">env-agents</a></li>
                     <li id="step4_link" class="subsequent_tab"><a href="#">
-                        <div><%= l.string("WIZARD_STEP", [4]) -%></div><%= l.string("ADD_ENV_VARIABLES") -%></a>
+                        <div>Step 4:</div>Add Environment Variables</a>
                         <a href="#" class="tab_button_body_match_text">env-vars</a></li>
                 </ul>
             </div>
@@ -30,47 +30,47 @@
             <div class="steps_panes panes sub_tab_container_content">
                 <!-- Name tab -->
                 <div id="tab-content-of-env-name">
-                   <h2 class="section_title"><%= l.string('Environment Name') -%></h2>
+                   <h2 class="section_title">Environment Name:</h2>
                     <div class="form_content">
                         <div class="environment_name">
                             <%= f.text_field :name, :id => "environment_name", :maxLength => 255, :class => "width-medium" -%>
                         </div>
                     </div>
                     <div class="form_buttons actions">
-                        <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
-                        <button id="next_to_name" class="right primary next submit"><span><%= l.string('NEXT_BUTTON') -%></span></button>
+                        <button class="left submit cancel_button"><span>Cancel</span></button>
+                        <button id="next_to_name" class="right primary next submit"><span>Next</span></button>
                         <%= submit_button("Finish", :class => 'primary finish') %>
                     </div>
                 </div>
 
                 <!-- Add pipelines tab -->
                 <div id="tab-content-of-env-pipelines">
-                   <h2 class="section_title"><%= l.string('PIPELINES_TO_ADD') -%></h2>
+                   <h2 class="section_title">Pipelines to add:</h2>
                     <%= render :partial => "edit_pipelines.html", :locals => {:scope => {:environment => scope[:environment], :available_pipelines => scope[:available_pipelines],:remote_pipelines => scope[:remote_pipelines], :unavailable_pipelines => scope[:unavailable_pipelines]}} %>
                     <div class="form_buttons actions">
-                        <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
-                        <button id="next_to_pipelines" class="right primary next submit"><span><%= l.string('NEXT_BUTTON') -%></span></button>
+                        <button class="left submit cancel_button"><span>Cancel</span></button>
+                        <button id="next_to_pipelines" class="right primary next submit"><span>Next</span></button>
                         <%= submit_button("Finish", :class => 'primary finish') %>
                     </div>
                 </div>
 
                 <!-- Add agents tab -->
                 <div id="tab-content-of-env-agents">
-                   <h2 class="section_title"><%= l.string('AGENTS_TO_ADD') -%></h2>
+                   <h2 class="section_title">Agents to add:</h2>
                     <%= render :partial => "edit_agents.html", :locals => {:scope => {:environment => scope[:environment], :agents => scope[:agents]}} %>
                     <div class="form_buttons actions">
-                        <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
-                        <button id="next_to_agents" class="right primary next submit"><span><%= l.string('NEXT_BUTTON') -%></span></button>
+                        <button class="left submit cancel_button"><span>Cancel</span></button>
+                        <button id="next_to_agents" class="right primary next submit"><span>Next</span></button>
                         <%= submit_button("Finish", :class => 'primary finish') %>
                     </div>
                 </div>
 
                 <!-- Add env var tab -->
                 <div id="tab-content-of-env-vars">
-                   <h2 class="section_title"><%= l.string("ENV_VAR_TO_ADD") -%></h2>
+                   <h2 class="section_title">Environment Variables (Name = Value)</h2>
                     <%= render :partial => "edit_environment_variables.html", :locals => {:scope => {:form => f}} %>
                     <div class="form_buttons actions">
-                        <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
+                        <button class="left submit cancel_button"><span>Cancel</span></button>
                         <%= submit_button("Finish", :class => 'primary finish') %>
                     </div>
                 </div>

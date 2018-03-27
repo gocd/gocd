@@ -38,7 +38,7 @@ module StagesHelper
     tab_aware_path_for_stage identifier, 'pipeline'
   end
 
-  def tab_aware_path_for_stage stage_identifier, tab    
+  def tab_aware_path_for_stage stage_identifier, tab
     stage_detail_tab_path :pipeline_name => stage_identifier.getPipelineName(),
                           :pipeline_counter => stage_identifier.getPipelineCounter(),
                           :stage_name => stage_identifier.getStageName(),
@@ -56,7 +56,7 @@ module StagesHelper
   end
 
   def stage_bar_options sim
-    tag_options(:class => "stage_bar #{sim.getState()}", :title => "%s (%s)" % [sim.getName(), l.messageFor(sim.getState())])
+    tag_options(:class => "stage_bar #{sim.getState()}", :title => "%s (%s)" % [sim.getName(), sim.getState()])
   end
 
   def stage_history_pagination_handler page, tab

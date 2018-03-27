@@ -102,10 +102,10 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = new ArrayList<>();
         if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
-            taskProperties.add(new TaskProperty("PIPELINE_NAME", CaseInsensitiveString.str(pipelineName.getPath())));
+            taskProperties.add(new TaskProperty("Pipeline Name", CaseInsensitiveString.str(pipelineName.getPath())));
         }
-        taskProperties.add(new TaskProperty("STAGE_NAME", CaseInsensitiveString.str(stage)));
-        taskProperties.add(new TaskProperty("JOB_NAME", job.toString()));
+        taskProperties.add(new TaskProperty("Stage Name", CaseInsensitiveString.str(stage)));
+        taskProperties.add(new TaskProperty("Job Name", job.toString()));
         return taskProperties;
     }
 

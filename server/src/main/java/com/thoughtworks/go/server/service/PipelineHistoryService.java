@@ -576,7 +576,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit, Username userName, HttpLocalizedOperationResult result) {
         pattern = escapeWildCardsAndTrim(pattern.trim());
         if (!securityService.hasViewPermissionForPipeline(userName, pipelineName)) {
-            result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
         PipelineInstanceModels models = pipelineDao.findMatchingPipelineInstances(pipelineName, pattern, limitForPipeline(pipelineName, limit));
@@ -602,14 +602,14 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username, HttpLocalizedOperationResult result) {
         if (!Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)) {
-            result.notImplemented(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment"));
+            result.notImplemented("'Pipeline Comment' feature is turned off. Please turn it on to use it.");
             return;
         }
 
         if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
         } else {
-            result.unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.unauthorized("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         }
     }
 

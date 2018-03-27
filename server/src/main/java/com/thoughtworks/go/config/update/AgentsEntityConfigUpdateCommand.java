@@ -23,19 +23,22 @@ import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationExcepti
 import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.validation.AgentConfigsUpdateValidator;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
 
 public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     private AgentInstances agentInstances;
@@ -73,7 +76,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             return true;
         }
 
-        result.badRequest(LocalizedMessage.string("NO_OPERATION_PERFORMED_ON_AGENTS"));
+        result.badRequest("No Operation performed on agents.");
         return false;
     }
 
@@ -138,7 +141,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             }
         }
         if (!unknownUUIDs.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Agents", unknownUUIDs));
+            result.badRequest(resourceNotFound("Agent(s)", unknownUUIDs.toString()));
             throw new NoSuchAgentException(unknownUUIDs);
         }
     }
@@ -147,7 +150,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         for (String environment : environmentsToOperate) {
             CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
             if (!allEnvironmentNames.contains(environmentName)) {
-                result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
+                result.badRequest(resourceNotFound("Environment", environmentName));
                 throw new NoSuchEnvironmentException(environmentName);
             }
         }
@@ -157,7 +160,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         if (goConfigService.isAdministrator(username.getUsername())) {
             return true;
         }
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        result.unauthorized(unauthorizedToEdit(), unauthorised());
         return false;
     }
 
@@ -185,7 +188,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
         List<String> pendingAgentUuids = getPendingAgentUuids(pendingAgents);
         if (!(state.isTrue() || state.isFalse())) {
-            result.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", pendingAgentUuids));
+            result.badRequest("Pending agents [" + StringUtils.join(pendingAgentUuids, ", ") + "] must be explicitly enabled or disabled when performing any operations on them.");
             throw new InvalidPendingAgentOperationException(pendingAgentUuids);
         }
     }
@@ -208,7 +211,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             return;
         }
 
-        result.badRequest(LocalizedMessage.string("CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT", elasticAgentUUIDs));
+        result.badRequest("Resources on elastic agents with uuids [" + StringUtils.join(elasticAgentUUIDs, ", ") + "] can not be updated." );
         throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
     }
 
@@ -228,7 +231,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(uuids);
         boolean isValid = validator.isValid(preprocessedConfig);
         if (!isValid) {
-           result.unprocessableEntity(LocalizedMessage.string("BULK_AGENT_UPDATE_FAILED", agents.getAllErrors()));
+           result.unprocessableEntity("Validations failed for bulk update of agents. Error(s): " + agents.getAllErrors());
         }
         return isValid;
     }

@@ -81,7 +81,7 @@ describe ComparisonController, "view" do
       expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
-      result.unauthorized(LocalizedMessage.cannotViewPipeline("some_pipeline"), HealthStateType.unauthorisedForPipeline("some_pipeline"))
+      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("some_pipeline"), HealthStateType.unauthorisedForPipeline("some_pipeline"))
 
       expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
 
@@ -182,7 +182,7 @@ describe ComparisonController, "view" do
       expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
       expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
-        result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipleine', ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
+        result.notFound("pipleine '[\"some_pipeline\"]' not found.", HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :no_layout => true #Using No layout here so that we can assert on that message.

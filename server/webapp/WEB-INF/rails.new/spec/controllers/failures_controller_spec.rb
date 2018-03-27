@@ -42,7 +42,7 @@ describe FailuresController do
 
   it "should render error message when fails" do
     expect(@failure_service).to receive(:failureDetailsFor) do |_, _, _, _, result|
-      result.connectionError(LocalizedMessage.string("ON"))
+      result.connectionError("on")
     end
 
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "suite_name", :test_name => "test_name", :no_layout => true

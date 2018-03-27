@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.UserRoleMatcherMother;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -84,8 +83,6 @@ public class UserServiceIntegrationTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private DatabaseAccessHelper dbHelper;
-    @Autowired
-    private Localizer localizer;
     @Autowired
     private GoCache goCache;
     @Autowired
@@ -278,7 +275,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(foo), result);
 
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(localizer), is("User 'fooUser' successfully added."));
+        assertThat(result.message(), is("User 'fooUser' successfully added."));
     }
 
     @Test
@@ -288,7 +285,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(anonymous), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to add user. Username 'anonymous' is not permitted."));
+        assertThat(result.message(), is("Failed to add user. Username 'anonymous' is not permitted."));
     }
 
     @Test
@@ -299,7 +296,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(foo), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to add user. The user 'fooUser' already exists."));
+        assertThat(result.message(), is("Failed to add user. The user 'fooUser' already exists."));
     }
 
     @Test
@@ -307,7 +304,7 @@ public class UserServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(new ArrayList<>(), result);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("No users selected."));
+        assertThat(result.message(), is("No users selected."));
     }
 
     @Test
@@ -376,7 +373,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(searchModel), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to add user. Validations failed. Invalid email address."));
+        assertThat(result.message(), is("Failed to add user. Validations failed. Invalid email address."));
     }
 
     @Test
@@ -408,7 +405,7 @@ public class UserServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.message(localizer), is("Did not disable any of the selected users. Ensure that all configured admins are not being disabled."));
+        assertThat(result.message(), is("Did not disable any of the selected users. Ensure that all configured admins are not being disabled."));
     }
 
     @Test
@@ -449,7 +446,7 @@ public class UserServiceIntegrationTest {
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection(".dev+", TriStateSelection.Action.add)), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), containsString("Failed to add role. Reason - "));
+        assertThat(result.message(), containsString("Failed to add role. Reason - "));
     }
 
     @Test
@@ -483,7 +480,7 @@ public class UserServiceIntegrationTest {
 
         assertThat(userDao.findUser("user-1"), is(instanceOf(NullUser.class)));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), containsString("User 'user-1' does not exist in the database."));
+        assertThat(result.message(), containsString("User 'user-1' does not exist in the database."));
     }
 
     @Test

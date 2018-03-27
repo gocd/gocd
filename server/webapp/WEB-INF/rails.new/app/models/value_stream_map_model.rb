@@ -21,7 +21,7 @@ class ValueStreamMapModel
   NODE_TYPE_FOR_PIPELINE = com.thoughtworks.go.domain.valuestreammap.DependencyNodeType::PIPELINE.to_s
   NODE_TYPE_FOR_MATERIAL = com.thoughtworks.go.domain.valuestreammap.DependencyNodeType::MATERIAL.to_s
 
-  def initialize(vsm, error, localizer, vsm_path_partial = proc do
+  def initialize(vsm, error, vsm_path_partial = proc do
     ""
   end, vsm_material_path_partial = proc do
     ""
@@ -42,11 +42,11 @@ class ValueStreamMapModel
           if (node_type == NODE_TYPE_FOR_MATERIAL)
             level.nodes << VSMSCMDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
                                                          node.getParents().map { |parent| parent.getId() }, node.getMaterialType().upcase,
-                                                         node.getDepth(), node.getMaterialNames(), vsm_material_path_partial, node.getMaterialRevisions(), node.getViewType(), node.getMessageString(localizer))
+                                                         node.getDepth(), node.getMaterialNames(), vsm_material_path_partial, node.getMaterialRevisions(), node.getViewType(), node.getMessageString())
           elsif (node_type == NODE_TYPE_FOR_PIPELINE)
             level.nodes << VSMPipelineDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
                                                               node.getParents().map { |parent| parent.getId() }, node_type,
-                                                              node.getDepth(), node.revisions(), node.getMessageString(localizer), node.getViewType(),
+                                                              node.getDepth(), node.revisions(), node.getMessageString(), node.getViewType(),
                                                               node.canEdit(), vsm_path_partial, stage_detail_path_partial, pipeline_edit_path_partial)
           else
             level.nodes << VSMDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
@@ -124,7 +124,6 @@ class VSMPipelineInstanceModel
 end
 
 class VSMSCMMaterialRevisionsModel
-  include RailsLocalizer
 
   attr_accessor :modifications
 
@@ -134,7 +133,6 @@ class VSMSCMMaterialRevisionsModel
 end
 
 class VSMSCMModificationsModel
-  include RailsLocalizer
 
   attr_accessor :revision, :user, :comment, :modified_time, :locator
 

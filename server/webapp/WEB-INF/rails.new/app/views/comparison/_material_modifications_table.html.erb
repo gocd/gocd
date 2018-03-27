@@ -4,9 +4,9 @@
     </div>
     <table class="list_table material_modifications">
         <tr>
-            <th class="revision"><%= l.string("REVISION") -%></th>
-            <th class="modified_by"><%= l.string("MODIFIED_BY") -%></th>
-            <th class="comment"><%= l.string("COMMENT") -%></th>
+            <th class="revision">Revision</th>
+            <th class="modified_by">Modified by</th>
+            <th class="comment">Comment: </th>
         </tr>
         <% scope[:material_revision_in_diff_revisions].getModifications().each do |modification_in_diff_material_revision| %>
             <tr class="change">

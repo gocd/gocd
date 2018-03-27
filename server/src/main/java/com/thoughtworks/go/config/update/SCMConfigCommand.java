@@ -28,6 +28,9 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+
 public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM> {
     protected final SCM globalScmConfig;
     protected final LocalizedOperationResult result;
@@ -76,7 +79,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            result.unauthorized(unauthorizedToEdit(), unauthorised());
             return false;
         }
         return true;

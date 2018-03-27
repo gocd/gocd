@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -90,8 +89,6 @@ public class PipelineTriggerServiceIntegrationTest {
     private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired
     private PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired
-    Localizer localizer;
     private String pipelineName;
     private String stageName;
     private String jobName;

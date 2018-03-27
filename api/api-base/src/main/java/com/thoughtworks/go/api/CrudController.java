@@ -18,7 +18,6 @@ package com.thoughtworks.go.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
@@ -50,8 +49,6 @@ public interface CrudController<Entity> extends ControllerMethods {
         return entity;
     }
 
-    Localizer getLocalizer();
-
     Entity doGetEntityFromConfig(String name);
 
     Entity getEntityFromRequestBody(Request req);
@@ -65,7 +62,7 @@ public interface CrudController<Entity> extends ControllerMethods {
 
             JsonNode jsonNode = entity == null ? null : jsonNode(req, entity);
             return writerForTopLevelObject(req, res, writer -> {
-                    writer.add("message", result.message(getLocalizer()));
+                    writer.add("message", result.message());
 
                     if (jsonNode != null) {
                         writer.add("data", jsonNode);

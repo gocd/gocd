@@ -30,52 +30,52 @@
                         <ul>
                             <li class="field stage_type">
                                 <label>
-                                    <span class="key"><%= l.string("STAGE_TYPE_LABEL") %></span>
-                                    <span class="hint"><%= l.string("RADIO_BUTTON_TITLE_APPROVAL").html_safe %></span>
+                                    <span class="key">Stage Type</span>
+                                    <span class="hint"><%= "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.".html_safe %></span>
                                 </label>
-                                <span class="input value"><%= stage.getApproval().isManual() ? l.string("MANUAL") : l.string("AUTO") %></span>
+                                <span class="input value"><%= stage.getApproval().isManual() ? 'Manual' : 'On Success' %></span>
                             </li>
                             <li class="field fetch_materials">
                                 <label>
-                                    <span class="key"><%= l.string("FETCH_MATERIALS") %></span>
-                                    <span class="hint"><%= l.string("TOOLTIP_FETCH_MATERIALS") %></span>
+                                    <span class="key">Fetch Materials</span>
+                                    <span class="hint">Perform material updates or checkouts</span>
                                 </label>
-                                <span class="input value"><%= stage.isFetchMaterials() ? l.string("YES") : l.string("NO") %></span>
+                                <span class="input value"><%= stage.isFetchMaterials() ? 'Yes' : 'No' %></span>
                             </li>
                             <li class="field never_cleanup_artifacts">
                                 <label>
-                                    <span class="key"><%= l.string("ARTIFACT_CLEANUP_PROHIBITED") %></span>
-                                    <span class="hint"><%= l.string("TOOLTIP_ARTIFACT_CLEANUP_PROHIBITED") %></span>
+                                    <span class="key">Never Cleanup Artifacts</span>
+                                    <span class="hint">Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level</span>
                                 </label>
-                                <span class="input value"><%= stage.isArtifactCleanupProhibited() ? l.string("YES") : l.string("NO") %></span>
+                                <span class="input value"><%= stage.isArtifactCleanupProhibited() ? 'Yes' : 'No' %></span>
                             </li>
                             <li class="field clean_working_directory">
                                 <label>
-                                    <span class="key"><%= l.string("CLEAN_WORKING_DIRECTORY") %></span>
-                                    <span class="hint"><%= l.string("TOOLTIP_CLEAN_WORKING_DIRECTORY") %></span>
+                                    <span class="key">Clean Working Directory</span>
+                                    <span class="hint">Remove all files/directories in the working directory on the agent</span>
                                 </label>
-                                <span class="input value"><%= stage.isCleanWorkingDir() ? l.string("YES") : l.string("NO") %></span>
+                                <span class="input value"><%= stage.isCleanWorkingDir() ? 'Yes' : 'No' %></span>
                             </li>
                         </ul>
                     </fieldset>
                 </div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a href="#environment_variables_stage_<%= i %>" data-toggle="tab" class="active"><%= l.string("ENVIRONMENT_VARIABLES") %></a></li>
-                    <li><a href="#permissions_stage_<%= i %>" data-toggle="tab"><%= l.string("PERMISSIONS") %></a></li>
+                    <li class="active"><a href="#environment_variables_stage_<%= i %>" data-toggle="tab" class="active">Environment Variables</a></li>
+                    <li><a href="#permissions_stage_<%= i %>" data-toggle="tab">Permissions</a></li>
                 </ul>
                 <div class="tab-content">
                     <div id="environment_variables_stage_<%= i %>" class="tab-pane active">
                         <table class="variables list_table">
                             <thead>
                             <tr>
-                                <th><%= l.string("NAME") %></th>
-                                <th><%= l.string("VALUE") %></th>
+                                <th>Name</th>
+                                <th>Value</th>
                             </tr>
                             </thead>
                             <tbody>
                             <% if stage.getVariables().isEmpty() %>
                                 <tr>
-                                    <td align='center' colspan="2" class="name_value_cell"><%= l.string('NO_ENVIRONMENT_VARIABLES_CONFIGURED') %></td>
+                                    <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
                                 </tr>
                             <% end %>
                             <% stage.getVariables().each do |environment_variable| %>
@@ -94,14 +94,14 @@
                     <div id="permissions_stage_<%= i %>" class="tab-pane">
                         <% if !stage.hasOperatePermissionDefined() %>
                             <div class="information">
-                                <%= l.string("NO_OPERATE_PERMISSIONS_ON_GROUP_AND_STAGE") %>
+                                There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.
                             </div>
                         <% else %>
                             <% if !stage.getOperateUsers().isEmpty() %>
                                 <table class="stage_operate_users list_table">
                                     <thead>
                                     <tr>
-                                        <th><%= l.string("USERS") %></th>
+                                        <th>Users</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -119,7 +119,7 @@
                                 <table class="stage_operate_roles list_table">
                                     <thead>
                                     <tr>
-                                        <th><%= l.string("ROLES") %></th>
+                                        <th>Roles</th>
                                     </tr>
                                     </thead>
                                     <tbody>

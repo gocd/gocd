@@ -16,16 +16,12 @@
 
 package com.thoughtworks.go.server.dao.sparql;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.testinfo.FailureDetails;
 import com.thoughtworks.go.domain.testinfo.StageTestRuns;
 import com.thoughtworks.go.domain.testinfo.TestStatus;
 import com.thoughtworks.go.domain.testinfo.TestSuite;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.service.PipelineInstanceLoader;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -34,10 +30,8 @@ import com.thoughtworks.studios.shine.cruise.stage.StagesQuery;
 import com.thoughtworks.studios.shine.semweb.BoundVariables;
 import com.thoughtworks.studios.shine.xunit.XUnitOntology;
 import org.apache.commons.lang.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +68,7 @@ public class ShineDao {
             return stageTestRuns;
         } catch (RuntimeException e) {
             LOGGER.error("can not retrieve shine test history!", e);
-            result.connectionError(LocalizedMessage.unableToRetrieveFailureResults());
+            result.connectionError("Unable to retrieve failure results.");
             return new StageTestRuns(0, 0, 0);
         }
     }
@@ -110,7 +104,7 @@ public class ShineDao {
             }).get(0);
         } catch (RuntimeException e) {
             LOGGER.error("can not retrieve shine test history!", e);
-            result.connectionError(LocalizedMessage.unableToRetrieveFailureResults());
+            result.connectionError("Unable to retrieve failure results.");
             return FailureDetails.nullFailureDetails();
         }
     }

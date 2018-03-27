@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageFinder;
 import com.thoughtworks.go.domain.testinfo.FailureDetails;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -49,7 +48,7 @@ public class FailureService {
         if (securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             return shineDao.failureDetailsForTest(jobIdentifier, suiteName, testName, result);
         }
-        result.unauthorized(LocalizedMessage.noViewPermissionForPipeline(CaseInsensitiveString.str(username.getUsername()), pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
+        result.unauthorized("User '" + CaseInsensitiveString.str(username.getUsername()) + "' does not have view permission on pipeline '" + pipelineName + "'", HealthStateType.unauthorisedForPipeline(pipelineName));
         return FailureDetails.nullFailureDetails();
     }
 }

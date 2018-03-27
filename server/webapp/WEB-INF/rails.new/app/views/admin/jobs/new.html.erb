@@ -12,11 +12,11 @@
         <input type="hidden" name="current_tab" value="jobs" />
         <div class="form_content">
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-            <h3><%= l.string("JOB_INFORMATION") -%></h3>
+            <h3>Job Information</h3>
             <%= render :partial => "job_basic_settings.html", :locals => { :scope => { :job => @job, :form => f, :cruise_config => @cruise_config}} -%>
-            <h3><%= l.string("INITIAL_TASK") -%></h3>
+            <h3>Initial Task</h3>
             <div class="instructions">
-                <%= l.string('INSTRUCTION_JOB_TASK') -%>
+                This job requires at least one task. You can add more tasks once this job has been created
             </div>
             <div class="form_item tasks">
                 <%= render :partial => "admin/shared/job_tasks.html", :locals => { :scope => { :job => @job, :job_form => f}} -%>

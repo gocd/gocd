@@ -93,7 +93,7 @@ public class UserSearchServiceTest  {
     public void shouldReturnWarningMessageWhenSearchReturnsNoResults() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search("foo", result);
-        assertThat(result.localizable(), is(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR")));
+        assertThat(result.message(), is("No results found."));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class UserSearchServiceTest  {
         userSearchService.search(smallSearchText, result);
 
         verifyZeroInteractions(authorizationExtension);
-        assertThat(result.localizable(), is(LocalizedMessage.string("SEARCH_STRING_TOO_SMALL")));
+        assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class UserSearchServiceTest  {
         userSearchService.search(smallSearchText, result);
 
         verifyZeroInteractions(authorizationExtension);
-        assertThat(result.localizable(), is(LocalizedMessage.string("SEARCH_STRING_TOO_SMALL")));
+        assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
     }
 
     private User getUser(Integer userId) {

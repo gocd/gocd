@@ -97,14 +97,17 @@ testSets {
 
 sourceSets {
 
-  sharedTest {
-    compileClasspath += configurations.compileOnly
-    runtimeClasspath += configurations.compileOnly
-
+  test {
     resources {
       srcDirs += ['properties/test', 'webapp', 'test/data']
       exclude "WEB-INF/rails.new/"
     }
+  }
+
+  sharedTest {
+    compileClasspath += configurations.compileOnly
+    runtimeClasspath += configurations.compileOnly
+
   }
 
   fastUnitTest {

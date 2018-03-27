@@ -32,7 +32,7 @@ class Admin::TemplatesController < AdminController
       assert_load :pipeline, create_empty_template_view_model
       render :layout => false
     else
-      render_error_template(l.string("RESOURCE_NOT_FOUND", 'pipeline', [pipelineName]), 404)
+      render_error_template(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('pipeline', [pipelineName]), 404)
     end
   end
 
@@ -113,7 +113,7 @@ class Admin::TemplatesController < AdminController
     template_name = params[:pipeline_name]
     load_templates_from_service
     dependent_pipelines = @template_to_pipelines[CaseInsensitiveString.new(template_name)]
-    redirect_to templates_path(:fm => set_error_flash("TEMPLATE_HAS_DEPENDENT_PIPELINES_ERROR", template_name)) and return if !dependent_pipelines.empty?
+    redirect_to templates_path(:fm => set_flash_message("Cannot delete template '#{template_name}' as it is used by at least one pipeline.", 'error')) and return if !dependent_pipelines.empty?
     save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsTemplateAdmin) do
       include ::ConfigUpdate::TemplatesNode
       include ::ConfigUpdate::TemplatesTemplateSubject

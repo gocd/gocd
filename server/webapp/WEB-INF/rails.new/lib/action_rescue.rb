@@ -22,7 +22,7 @@ module ActionRescue
       redirect_to root_url
       return
     end
-    render_error_template l.string("INTERNAL_SERVER_ERROR"), 500
+    render_error_template 'Server error occured. Check log for details.', 500
   end
 
   def format_exception(exception)

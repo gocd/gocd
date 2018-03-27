@@ -26,8 +26,6 @@ import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.CipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -96,7 +94,6 @@ public class BackupServiceIntegrationTest {
     @Autowired
     ServerBackupRepository backupInfoRepository;
     @Autowired TimeProvider timeProvider;
-    @Autowired Localizer localizer;
     @Autowired SystemEnvironment systemEnvironment;
     @Autowired ServerVersion serverVersion;
     @Autowired ConfigRepository configRepository;
@@ -141,7 +138,7 @@ public class BackupServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         backupService.startBackup(new Username(new CaseInsensitiveString("loser")), result);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Unauthorized to initiate Go backup as you are not a Go administrator"));
+        assertThat(result.message(), is("Unauthorized to initiate Go backup as you are not a Go administrator"));
     }
 
     @Test
@@ -158,7 +155,7 @@ public class BackupServiceIntegrationTest {
 
             backupService.startBackup(admin, result);
             assertThat(result.isSuccessful(), is(true));
-            assertThat(result.message(localizer), is("Backup completed successfully."));
+            assertThat(result.message(), is("Backup completed successfully."));
 
             File configZip = backedUpFile("config-dir.zip");
             assertThat(fileContents(configZip, "foo"), is("foo_foo"));
@@ -185,7 +182,7 @@ public class BackupServiceIntegrationTest {
 
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(localizer), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup completed successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
         File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
@@ -210,7 +207,7 @@ public class BackupServiceIntegrationTest {
         BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository, databaseStrategy);
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(localizer), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup completed successfully."));
         File version = backedUpFile("version.txt");
         assertThat(FileUtils.readFileToString(version, UTF_8), is("some-test-version-007"));
     }
@@ -263,7 +260,7 @@ public class BackupServiceIntegrationTest {
         String body = String.format("Backup of the Go server at '%s' has failed. The reason is: %s", ipAddress, "Oh no!");
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to perform backup. Reason: Oh no!"));
+        assertThat(result.message(), is("Failed to perform backup. Reason: Oh no!"));
         verify(goMailSender).send(new SendEmailMessage("Server Backup Failed", body, "mail@admin.com"));
         verifyNoMoreInteractions(goMailSender);
 
@@ -277,7 +274,7 @@ public class BackupServiceIntegrationTest {
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult() {
-            @Override public void setMessage(Localizable message) {
+            @Override public void setMessage(String message) {
                 waitForBackupToStart.release();
                 super.setMessage(message);
                 try {
@@ -313,7 +310,7 @@ public class BackupServiceIntegrationTest {
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult() {
-            @Override public void setMessage(Localizable message) {
+            @Override public void setMessage(String message) {
                 waitForBackupToStart.release();
                 super.setMessage(message);
                 try {

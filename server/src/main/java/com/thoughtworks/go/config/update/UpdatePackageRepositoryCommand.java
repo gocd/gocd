@@ -19,12 +19,13 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
@@ -61,7 +62,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private boolean isIdSame() {
         boolean isRepoIdSame = newRepo.getRepoId().equals(oldRepoId);
         if(!isRepoIdSame) {
-            result.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "repository"));
+            result.unprocessableEntity("Changing the repository id is not supported by this API.");
         }
         return isRepoIdSame;
     }
@@ -70,7 +71,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
         PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getRepoId());
         boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", newRepo.getRepoId()));
+            result.stale(staleResourceConfig("Package Repository", newRepo.getRepoId()));
         }
         return freshRequest;
     }

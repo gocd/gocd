@@ -39,7 +39,7 @@ class Admin::PackageRepositoriesController < AdminController
   def edit
     @package_repository = @cruise_config.getPackageRepositories().find(params[:id])
     if @package_repository.nil?
-      render_error_template(l.string("PACKAGE_REPOSITORY_NOT_FOUND", [params[:id]].to_java(java.lang.String)),404) and return
+      render_error_template(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound("Package Repository", params[:id]),404) and return
     end
     set_repository_configuration @package_repository, @package_repository.getPluginConfiguration().getId()
   end

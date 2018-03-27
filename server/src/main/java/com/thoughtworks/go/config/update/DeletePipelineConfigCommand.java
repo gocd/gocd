@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -53,16 +52,14 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     public boolean isValid(CruiseConfig preprocessedConfig) {
         for (PipelineConfig pipeline : preprocessedConfig.getAllPipelineConfigs()) {
             if(pipeline.materialConfigs().hasDependencyMaterial(pipelineConfig)){
-                Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", pipelineConfig.name(), String.format("%s (%s)", pipeline.name(), pipeline.getOriginDisplayName()));
-                this.result.unprocessableEntity(message);
+                this.result.unprocessableEntity("Cannot delete pipeline '" + pipelineConfig.name() + "' as pipeline '" + String.format("%s (%s)", pipeline.name(), pipeline.getOriginDisplayName()) + "' depends on it");
                 return false;
             }
         }
 
         for (EnvironmentConfig environment : preprocessedConfig.getEnvironments()) {
             if(environment.getPipelineNames().contains(pipelineConfig.name())){
-                Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineConfig.name(), environment.name());
-                this.result.unprocessableEntity(message);
+                this.result.unprocessableEntity("Cannot delete pipeline '" + pipelineConfig.name() + "' as it is present in environment '" + environment.name() + "'.");
                 return false;
             }
         }
@@ -84,7 +81,7 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     public boolean canContinue(CruiseConfig cruiseConfig) {
         String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
         if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_DELETE_PIPELINE", groupName), HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.unauthorizedToDelete("Pipeline", pipelineConfig.getName()), HealthStateType.unauthorised());
             return false;
         }
         return true;

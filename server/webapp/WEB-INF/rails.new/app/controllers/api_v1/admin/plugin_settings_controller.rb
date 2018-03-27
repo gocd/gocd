@@ -71,7 +71,7 @@ module ApiV1
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Plugin Settings', params[:plugin_setting][:plugin_id])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('Plugin Settings', params[:plugin_setting][:plugin_id])
       end
     end
   end

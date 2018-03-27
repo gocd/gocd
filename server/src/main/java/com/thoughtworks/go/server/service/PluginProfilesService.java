@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+
 public abstract class PluginProfilesService<M extends PluginProfile> {
     protected final GoConfigService goConfigService;
     protected final EntityHashingService hashingService;
@@ -89,11 +92,11 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pluginProfile.getClass().getAnnotation(ConfigTag.class).value(), pluginProfile.getId(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(pluginProfile.getClass().getAnnotation(ConfigTag.class).value(), pluginProfile.getId(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the profile config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the profile config. Please check the logs for more information."));
                 }
             }
         }

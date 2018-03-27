@@ -76,13 +76,13 @@ module ApiV4
       def check_for_attempted_pipeline_rename
         unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:pipeline_name])
           result = HttpLocalizedOperationResult.new
-          result.notAcceptable(LocalizedMessage::string("RENAMING_NOT_ALLOWED", 'pipeline'))
+          result.notAcceptable(com.thoughtworks.go.i18n.LocalizedMessage::renamingNotAllowed('pipeline'))
           render_http_operation_result(result)
         end
       end
 
       def stale_message
-        LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name])
+        com.thoughtworks.go.i18n.LocalizedMessage::staleResourceConfig('pipeline', params[:pipeline_name])
       end
 
       def etag_for_entity_in_config
@@ -97,7 +97,7 @@ module ApiV4
       def check_if_pipeline_by_same_name_already_exists
         if (!pipeline_config_service.getPipelineConfig(params[:pipeline][:name]).nil?)
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string("RESOURCE_ALREADY_EXISTS", 'pipeline', params[:pipeline][:name]))
+          result.unprocessableEntity(com.thoughtworks.go.i18n.LocalizedMessage::resourceAlreadyExists('pipeline', params[:pipeline][:name]))
           render_http_operation_result(result)
         end
       end
@@ -107,7 +107,7 @@ module ApiV4
           result = HttpLocalizedOperationResult.new
           pipeline_name = @pipeline_config.name()
           origin = @pipeline_config.getOrigin().displayName()
-          result.unprocessableEntity(LocalizedMessage.string("CAN_NOT_OPERATE_ON_REMOTE_ENTITY", "pipeline", pipeline_name, origin))
+          result.unprocessableEntity("Can not operate on pipeline '#{pipeline_name}' as it is defined remotely in '#{origin}'.")
           render_http_operation_result(result)
         end
       end
@@ -115,7 +115,7 @@ module ApiV4
       def check_group_not_blank
         if (params[:group].blank?)
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string("PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE"))
+          result.unprocessableEntity("Pipeline group must be specified for creating a pipeline.")
           render_http_operation_result(result)
         end
       end

@@ -40,7 +40,6 @@ describe StagesController do
     @status = double(HttpOperationResult)
     allow(HttpOperationResult).to receive(:new).and_return(@status)
     @localized_result = double(HttpLocalizedOperationResult)
-    @subsection_result = SubsectionLocalizedOperationResult.new
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:stage_service).and_return(@stage_service)
@@ -356,7 +355,7 @@ describe StagesController do
 
       it "should assign fbh when stage is completed" do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(failing_tests = double('StageTestResuls'))
+        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @localized_result).and_return(failing_tests = double('StageTestResuls'))
         allow(failing_tests).to receive(:failingCounters).and_return([])
         expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(true)
         expect(@go_config_service).to receive(:stageHasTests).with("pipeline", "stage").and_return(true)
@@ -366,7 +365,7 @@ describe StagesController do
 
       it "should assign fbh when stage does not exist in config" do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(:failing_tests)
+        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @localized_result).and_return(:failing_tests)
         expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(false)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:failing_tests)).to eq :failing_tests

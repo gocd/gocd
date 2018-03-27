@@ -176,7 +176,7 @@ describe ApiV1::Admin::ConfigReposController do
       it 'should allow deleting config repo' do
         allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         expect(@config_repo_service).to receive(:deleteConfigRepo).with(@config_repo_id, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
-          result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'config repo', @config_repo_id))
+          result.setMessage("The config repo '#{@config_repo_id}' was deleted successfully.")
         end
 
         delete_with_api_header :destroy, id: @config_repo_id
@@ -255,14 +255,14 @@ describe ApiV1::Admin::ConfigReposController do
         expect(response.status).to be(200)
         expect(actual_response).to eq(expected_response(@config_repo, ApiV1::Config::ConfigRepoRepresenter))
       end
-      
+
       it 'should render the error occurred while creating a package' do
         expect(@config_repo_service).to receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
-          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+          result.unprocessableEntity('some error')
         end
 
         post_with_api_header :create, :config_repo => get_config_repo_json(@config_repo_id)
-        expect(response).to have_api_message_response(422, "Save failed. Validation failed")
+        expect(response).to have_api_message_response(422, "some error")
       end
     end
 
@@ -353,7 +353,7 @@ describe ApiV1::Admin::ConfigReposController do
         put_with_api_header :update, id: 'non-existent-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
-      
+
     end
 
     describe "security" do

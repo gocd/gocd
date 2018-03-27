@@ -28,6 +28,8 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
+
 public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     private String md5;
@@ -57,7 +59,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
         SCM existingSCM = findSCM(cruiseConfig);
         boolean freshRequest =  entityHashingService.md5ForEntity(existingSCM).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "SCM", globalScmConfig.getName()));
+            result.stale(staleResourceConfig("SCM", globalScmConfig.getName()));
         }
 
         return freshRequest;
@@ -67,7 +69,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
         SCMs scms = modifiedConfig.getSCMs();
         SCM existingSCM = scms.find(globalScmConfig.getSCMId());
         if (existingSCM == null) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND"), HealthStateType.notFound());
+            result.notFound(LocalizedMessage.resourceNotFound("SCM", globalScmConfig.getSCMId()), HealthStateType.notFound());
             throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getSCMId()));
         } else {
             return existingSCM;

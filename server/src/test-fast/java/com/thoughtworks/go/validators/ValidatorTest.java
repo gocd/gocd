@@ -16,21 +16,19 @@
 
 package com.thoughtworks.go.validators;
 
-import com.thoughtworks.go.server.service.result.LocalizedResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class ValidatorTest {
 
     @Test
     public void shouldValidateHostname() {
-        LocalizedResult result = mock(LocalizedResult.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
 
         new HostNameValidator().validate("pavan%pavan", result);
-        verify(result).invalid("INVALID_HOSTNAME", "pavan%pavan");
+        verify(result).notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
 
         new HostNameValidator().validate("hostname", result);
         new HostNameValidator().validate("hostname_1", result);
@@ -40,12 +38,21 @@ public class ValidatorTest {
 
     @Test
     public void shouldValidatePort() {
-        LocalizedResult result = mock(LocalizedResult.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
 
         new PortValidator().validate(1, result);
+        verifyZeroInteractions(result);
 
-        result = mock(LocalizedResult.class);
+        result = mock(LocalizedOperationResult.class);
         new PortValidator().validate(234444, result);
-        verify(result).invalid("INVALID_PORT");
+        verify(result).notAcceptable("Invalid Port.");
+
+        result = mock(LocalizedOperationResult.class);
+        new PortValidator().validate(0, result);
+        verify(result).notAcceptable("Invalid Port.");
+
+        result = mock(LocalizedOperationResult.class);
+        new PortValidator().validate(null, result);
+        verify(result).notAcceptable("Invalid Port.");
     }
 }

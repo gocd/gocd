@@ -176,7 +176,7 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should allow deleting package repositories' do
         allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(@package_repo)
         expect(@package_repository_service).to receive(:deleteRepository).with(an_instance_of(Username), @package_repo, an_instance_of(HttpLocalizedOperationResult)) do |user, repo, result|
-          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'package repository', @package_repo.getId()))
+          result.setMessage("The package repository 'npm' was deleted successfully.")
         end
 
         delete_with_api_header :destroy, repo_id: @repo_id
@@ -270,7 +270,7 @@ describe ApiV1::Admin::RepositoriesController do
 
       it 'should render the error occurred while creating a package repository' do
         expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |repo, user, result|
-          result.unprocessableEntity(LocalizedMessage.string("PLUGIN_ID_INVALID", 'invalid_id'));
+          result.unprocessableEntity("Invalid plugin id");
         end
 
         post_with_api_header :create, :repository => {name: @repo_id, type: 'invalid_id', configuration: []}

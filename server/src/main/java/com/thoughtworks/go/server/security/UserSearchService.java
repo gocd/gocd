@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -61,7 +60,7 @@ public class UserSearchService {
         searchUsingPlugins(searchText, userSearchModels);
 
         if (userSearchModels.size() == 0 && !result.hasMessage()) {
-            result.setMessage(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR"));
+            result.setMessage("No results found.");
         }
         return userSearchModels;
     }
@@ -96,7 +95,7 @@ public class UserSearchService {
 
     private boolean isInputValid(String searchText, HttpLocalizedOperationResult result) {
         if (searchText.trim().length() < MINIMUM_SEARCH_STRING_LENGTH) {
-            result.badRequest(LocalizedMessage.string("SEARCH_STRING_TOO_SMALL"));
+            result.badRequest("Please use a search string that has at least two (2) letters.");
             return true;
         }
         return false;

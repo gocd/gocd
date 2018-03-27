@@ -1,7 +1,7 @@
 <% if @config_file_conflict -%>
     <div id="config_save_actions" class="flash">
-        <button id="reload_config" class="reload_config primary"><%=l.string("RELOAD")-%></button>
-        <label class="inline"><%=l.string("REFRESH_CONFIG")%></label>
+        <button id="reload_config" class="reload_config primary">Reload</button>
+        <label class="inline">This will refresh the page and you will lose your changes on this page.</label>
     </div>
     <script type="text/javascript">
         Util.on_load(function() {

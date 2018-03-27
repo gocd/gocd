@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 module PipelinesHelper
-  include RailsLocalizer
   include JavaImports
   include ERB::Util
 
@@ -30,18 +29,18 @@ module PipelinesHelper
 
   def trigger_message(actual_date_time, pim)
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
-      "Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>"
+      "Triggered&nbsp;#{'by'}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>"
     else
     ""
     end
   end
 
   def trigger_message_with_formatted_date_time(date_time, who)
-    on = "&nbsp;#{l.string("on")}&nbsp;<span class='time' data='#{date_time.getTime()}' title='#{date_time.to_long_display_date_time} server time'></span>"
+    on = "&nbsp;on&nbsp;<span class='time' data='#{date_time.getTime()}' title='#{date_time.to_long_display_date_time} server time'></span>"
     if who == GoConstants::DEFAULT_APPROVED_BY
-      "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}".html_safe
+      "<span class='label'>Automatically triggered</span>#{on}".html_safe
     else
-      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{h who}</span>#{on}".html_safe
+      "<span class='label'>Triggered</span>&nbsp;by&nbsp;<span class='who'>#{h who}</span>#{on}".html_safe
     end
   end
 

@@ -41,7 +41,7 @@ public class ServerConfigServiceTest {
                 ConfigSaveState.MERGED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
-        assertThat(result.localizable(), Is.is(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED"))));
+        assertThat(result.message(), Is.is(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ServerConfigServiceTest {
                 ConfigSaveState.UPDATED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
-        assertThat(result.localizable(), Is.is(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
+        assertThat(result.message(), Is.is("Saved configuration successfully."));
 
     }
 

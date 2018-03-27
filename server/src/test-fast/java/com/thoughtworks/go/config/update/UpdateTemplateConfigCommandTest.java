@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,8 +31,9 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -45,7 +45,7 @@ public class UpdateTemplateConfigCommandTest {
     @Mock
     private SecurityService securityService;
 
-    private LocalizedOperationResult result;
+    private HttpLocalizedOperationResult result;
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
@@ -144,7 +144,7 @@ public class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+        assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
+        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
     }
 
     @Test

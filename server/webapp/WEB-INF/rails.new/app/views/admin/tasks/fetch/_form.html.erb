@@ -2,40 +2,40 @@
 
 <div class="form_item required">
     <div class="form_item_block">
-        <%= label_tag random_dom_id('pipeline_'), l.string('PIPELINE') -%>
+        <%= label_tag random_dom_id('pipeline_'), 'Pipeline' -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::PIPELINE_NAME %>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_PIPELINE") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material. Defaults to current pipeline if not specified."></div>
         <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::PIPELINE_NAME, :css_class => "form_error") %>
     </div>
     <div class="form_item_block required">
-        <%= label_tag random_dom_id('pipeline_'), required_label_text(l.string('STAGE')) -%>
+        <%= label_tag random_dom_id('pipeline_'), required_label_text('Stage') -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::STAGE %>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_STAGE") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The name of the stage to fetch artifacts from."></div>
         <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::STAGE, :css_class => "form_error") %>
     </div>
     <div class="form_item_block required">
-        <%= label_tag random_dom_id('pipeline_'), required_label_text(l.string('JOB')) -%>
+        <%= label_tag random_dom_id('pipeline_'), required_label_text('Job') -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::JOB %>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_JOB") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The name of the job to fetch artifacts from."></div>
         <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
     </div>
 
     <div class="form_item_block required source">
-        <%= label_tag source_dir_name = random_dom_id('source_'), required_label_text(l.string('SOURCE')) -%>
+        <%= label_tag source_dir_name = random_dom_id('source_'), required_label_text('Source') -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::SRC, {:class => "form_input", :id => source_dir_name} -%>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_SOURCE") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The path of the artifact directory or file of a specific job, relative to the sandbox directory. If the directory or file does not exist, the job is failed."></div>
         <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::SRC, :css_class => "form_error") %>
     </div>
 
     <div class="form_item_block file_or_dir">
         <%= f.check_box(com.thoughtworks.go.config.FetchTask::IS_SOURCE_A_FILE, :class => "is_source_a_file", :id => "is_source_a_file") -%>
-        <%= label_tag :is_source_a_file, l.string("SOURCE_IS_A_FILE"), :class => "inline" -%>
+        <%= label_tag :is_source_a_file, 'Source is a file(Not a directory)', :class => "inline" -%>
     </div>
 
     <div class="form_item_block">
-        <%= label_tag destination = random_dom_id('dest_'), l.string('DESTINATION') -%>
+        <%= label_tag destination = random_dom_id('dest_'), 'Destination' -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::DEST, {:class => "form_input", :id => destination} -%>
-        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_DEST") -%>"></div>
+        <div class="contextual_help has_go_tip_right" title="The path of the directory where the artifact is fetched to. The directory is overwritten if it already exists. The directory path is relative to the pipeline working directory."></div>
         <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::DEST, :css_class => "form_error") %>
     </div>
 </div>

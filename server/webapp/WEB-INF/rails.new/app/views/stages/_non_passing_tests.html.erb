@@ -3,44 +3,44 @@
         <span class="error"><%= @failing_tests_error_message %></span>
     <% elsif @failing_tests.numberOfTests() == 0 %>
         <h3>
-            <span class="message"><%= l.string("There are tests configured in this stage but could not compute results.") %></span>
+            <span class="message">There are tests configured in this stage but could not compute results.</span>
         </h3>
     <% elsif @stage.getState().equals(com.thoughtworks.go.domain.StageState::Passed) %>
         <h3>
             <div class="counts">
-                <span class="total"><%= l.string("Tests Run: X", [@failing_tests.numberOfTests()]) %></span>
-                <span class="failures"><%= l.string("TOTAL_FAILURES_COUNT", [@failing_tests.totalFailureCount()]) %></span>
-                <span class="errors"><%= l.string("TOTAL_ERRORS_COUNT", [@failing_tests.totalErrorCount()]) %></span>
+                <span class="total">Tests Run: <%= @failing_tests.numberOfTests() -%></span>
+                <span class="failures">Total Failures: <%= @failing_tests.totalFailureCount() %></span>
+                <span class="errors">Total Errors: <%= @failing_tests.totalErrorCount() %></span>
             </div>
             <% if @failing_tests.totalFailureCount() > 0 || @failing_tests.totalErrorCount() > 0 %>
-                <div class="message"><%= l.string("THE_STAGE_PASSED_WITH_WARNING") %></div>
-                <div class="message"><%= l.string("THE_STAGE_PASSED_WITH_WARNING_FIX") %></div>
+                <div class="message">Although all the jobs in this stage have passed, there are some tests that have failed.</div>
+                <div class="message"> This is may be due to the test task configuration in the build script. You might want to fail the build on test failures.</div>
             <% else %>
-                <span class="message"><%= l.string("THE_STAGE_PASSED") %></span>
+                <span class="message">The stage passed</span>
             <% end %>
         </h3>
     <% else %>
         <h3>
             <div class="counts">
-                <span class="total"><%= l.string("Tests Run: X", [@failing_tests.numberOfTests()]) %></span>
-                <span class="failures"><%= l.string("TOTAL_FAILURES_COUNT", [@failing_tests.totalFailureCount()]) %></span>
-                <span class="errors"><%= l.string("TOTAL_ERRORS_COUNT", [@failing_tests.totalErrorCount()]) %></span>
+                <span class="total">Tests Run: <%= @failing_tests.numberOfTests() -%></span>
+                <span class="failures">Total Failures: <%= @failing_tests.totalFailureCount() %></span>
+                <span class="errors">Total Errors: <%= @failing_tests.totalErrorCount() %></span>
             </div>
-            <span class="message"><%= l.string("New Tests Broken Since:") %> <span class="secondary">(<%= l.string("ordered by check-in/material time") %>)</span></span>
+            <span class="message">New Tests Broken Since: <span class="secondary">(ordered by check-in/material time)</span></span>
         </h3>
         <ol>
             <% @failing_tests.failingTestsInPipelines().each_with_index do |pipeline_in_non_passing_tests, idx_in_non_passing_tests| %>
                 <li class="failing_pipeline" id="failing_pipeline<%= idx_in_non_passing_tests %>">
                     <div class="pipeline_bar">
                         <div class="counts secondary">
-                            <span class="failures"><%= l.string("UNIQUE_FAILURES_COUNT", [pipeline_in_non_passing_tests.failureCount()]) %></span>
-                            <span class="errors"><%= l.string("UNIQUE_ERRORS_COUNT", [pipeline_in_non_passing_tests.errorCount()]) %></span></div>
+                            <span class="failures">Unique Failures: <%= pipeline_in_non_passing_tests.failureCount() %></span>
+                            <span class="errors">Unique Errors: <%= pipeline_in_non_passing_tests.errorCount() %></span></div>
                         <div class="color_code Failed"></div>
                         <div class="pipeline_details">
-                            <span class="pipeline_label secondary"><%= l.string("Pipeline Label:") %> <%= pipeline_in_non_passing_tests.getLabel() %></span>
+                            <span class="pipeline_label secondary">Pipeline Label: <%= pipeline_in_non_passing_tests.getLabel() %></span>
                             <% scope[:changes_button_id] = build_cause_popup_id_for_pipeline_counter(pipeline_in_non_passing_tests.getCounter(), "changes_button_") -%>
                             <span class="changes_button_wrapper">
-                                <%= link_to(l.string("CHANGES"), build_cause_path(:pipeline_name => @stage.getIdentifier().getPipelineName(), :pipeline_counter => pipeline_in_non_passing_tests.getCounter()), :id => scope[:changes_button_id], :class => "show_panel submit_small fbh_build_cause_button") -%>
+                                <%= link_to('Changes', build_cause_path(:pipeline_name => @stage.getIdentifier().getPipelineName(), :pipeline_counter => pipeline_in_non_passing_tests.getCounter()), :id => scope[:changes_button_id], :class => "show_panel submit_small fbh_build_cause_button") -%>
                             </span>
                         </div>
                         <script type="text/javascript">
@@ -55,7 +55,7 @@
                             These changes did not break any of the currently failing tests.
                         <%end%>
                         <% pipeline_in_non_passing_tests.failingSuites().each do |suite_in_non_passing_tests| %>
-                            <div class="suite"><%= l.string("Suite:") %> <span class="suite_name"><%= suite_in_non_passing_tests.fullName() -%></span></div>
+                            <div class="suite">Suite: <span class="suite_name"><%= suite_in_non_passing_tests.fullName() -%></span></div>
                             <table class="test_suite">
                                 <tr>
                                     <td colspan="3">

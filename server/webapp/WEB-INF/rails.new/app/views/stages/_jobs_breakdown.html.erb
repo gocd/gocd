@@ -1,4 +1,4 @@
-<span class="hidereveal_expander"><%= l.string(scope[:message], [scope[:jobs].size()]) %></span>
+<span class="hidereveal_expander"><%= scope[:message] %></span>
 <% if scope[:jobs].size()>0 %>
     <ul class="hidereveal_content">
         <% scope[:jobs].each do |job_in_job_breakdown| %>

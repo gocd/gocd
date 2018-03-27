@@ -34,8 +34,6 @@ import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +43,11 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
 import java.util.function.Predicate;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class UserService {
@@ -74,7 +77,7 @@ public class UserService {
     public void disable(final List<String> usersToBeDisabled, LocalizedOperationResult result) {
         synchronized (disableUserMutex) {
             if (willDisableAllAdmins(usersToBeDisabled)) {
-                result.badRequest(LocalizedMessage.string("CANNOT_DISABLE_LAST_ADMIN"));
+                result.badRequest("Did not disable any of the selected users. Ensure that all configured admins are not being disabled.");
                 return;
             }
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -146,7 +149,7 @@ public class UserService {
         try {
             saveOrUpdate(user);
         } catch (ValidationException e) {
-            result.badRequest(LocalizedMessage.string("USER_FIELD_VALIDATIONS_FAILED", e.getMessage()));
+            result.badRequest("Failed to add user. Validations failed. " + e.getMessage());
         }
 
         return user;
@@ -172,7 +175,7 @@ public class UserService {
         Users allUsers = userDao.allUsers();
         for (String user : users) {
             if (!allUsers.containsUserNamed(user)) {
-                result.badRequest(LocalizedMessage.string("USER_DOES_NOT_EXIST_IN_DB", user));
+                result.badRequest("User '" + user + "' does not exist in the database.");
                 return;
             }
         }
@@ -182,7 +185,7 @@ public class UserService {
             command.addCommand(goConfigService.modifyAdminPrivilegesCommand(users, adminPrivilege));
             goConfigService.updateConfig(command);
         } catch (Exception e) {
-            result.badRequest(LocalizedMessage.string("INVALID_ROLE_NAME", e.getMessage()));
+            result.badRequest("Failed to add role. Reason - '" + e.getMessage() + "'");
         }
     }
 
@@ -250,17 +253,17 @@ public class UserService {
     public void deleteUser(String username, HttpLocalizedOperationResult result) {
         try {
             userDao.deleteUser(username);
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("user", username));
         } catch (UserNotFoundException e) {
-            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "User", username), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.notFound(resourceNotFound("User", username), general(GLOBAL));
         } catch (UserEnabledException e) {
-            result.badRequest(LocalizedMessage.string("USER_NOT_DISABLED", username));
+            result.badRequest("User '" + username + "' is not disabled.");
         }
     }
 
     public BulkDeletionFailureResult deleteUsers(List<String> userNames, HttpLocalizedOperationResult result) {
         if (userNames == null || userNames.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("NO_USERS_SELECTED"));
+            result.badRequest("No users selected.");
             return null;
         }
         synchronized (enableUserMutex) {
@@ -268,9 +271,9 @@ public class UserService {
 
             if (bulkDeletionFailureResult.isEmpty()) {
                 userDao.deleteUsers(userNames);
-                result.setMessage(LocalizedMessage.string("RESOURCES_DELETE_SUCCESSFUL", "users", userNames));
+                result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", userNames));
             } else {
-                result.unprocessableEntity(LocalizedMessage.string("USER_ENABLED_OR_NOT_FOUND"));
+                result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.");
             }
             return bulkDeletionFailureResult;
         }
@@ -492,7 +495,7 @@ public class UserService {
 
     public void create(List<UserSearchModel> userSearchModels, HttpLocalizedOperationResult result) {
         if (userSearchModels.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("NO_USERS_SELECTED"));
+            result.badRequest("No users selected.");
             return;
         }
         synchronized (enableUserMutex) {
@@ -500,12 +503,12 @@ public class UserService {
                 User user = userSearchModel.getUser();
 
                 if (userExists(user)) {
-                    result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "user", user.getName(), user.getDisplayName(), user.getEmail()));
+                    result.conflict(resourceAlreadyExists("user", user.getName()));
                     return;
                 }
 
                 if (user.isAnonymous()) {
-                    result.badRequest(LocalizedMessage.string("USERNAME_NOT_PERMITTED", user.getName()));
+                    result.badRequest("Failed to add user. Username '" + user.getName() + "' is not permitted.");
                     return;
                 }
 
@@ -513,7 +516,7 @@ public class UserService {
                     return;
                 }
                 userDao.saveOrUpdate(user);
-                result.setMessage(LocalizedMessage.string("USER_SUCCESSFULLY_ADDED", user.getName()));
+                result.setMessage("User '" + user.getName() + "' successfully added.");
             }
         }
     }
@@ -549,7 +552,7 @@ public class UserService {
         try {
             validate(user);
         } catch (ValidationException e) {
-            result.badRequest(LocalizedMessage.string("USER_FIELD_VALIDATIONS_FAILED", e.getMessage()));
+            result.badRequest("Failed to add user. Validations failed. " + e.getMessage());
             return true;
         }
         return false;

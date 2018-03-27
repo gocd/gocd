@@ -29,6 +29,7 @@ import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreR
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -39,9 +40,7 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 public class ArtifactStoreConfigControllerDelegate extends ApiController implements CrudController<ArtifactStore> {
@@ -71,7 +70,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
 
     @Override
     public ArtifactStore doGetEntityFromConfig(String name) {
-        return null;
+        return artifactStoreService.findArtifactStore(name);
     }
 
     @Override
@@ -108,6 +107,9 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
             get("", this::index);
             post("", this::create);
             put(Routes.ArtifactStoreConfig.NAME, this::update);
+            delete(Routes.ArtifactStoreConfig.NAME, this::destroy);
+
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
@@ -143,6 +145,14 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         artifactStoreService.update(currentUsername(), etagFor(artifactStoreFromServer), artifactStoreFromRequest, result);
         return handleCreateOrUpdateResponse(req, res, artifactStoreFromRequest, result);
+    }
+
+    public String destroy(Request request, Response response) throws IOException {
+        ArtifactStore artifactStore = getEntityFromConfig(request.params("store_id"));
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        artifactStoreService.delete(currentUsername(), artifactStore, result);
+
+        return renderHTTPOperationResult(result, request, response, localizer);
     }
 
     private boolean isRenameAttempt(ArtifactStore fromServer, ArtifactStore fromRequest) {

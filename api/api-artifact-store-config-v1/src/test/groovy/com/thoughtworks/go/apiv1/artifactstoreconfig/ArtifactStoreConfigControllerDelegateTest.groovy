@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreRepresenter
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter
 import com.thoughtworks.go.config.ArtifactStore
@@ -43,6 +44,8 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -246,6 +249,78 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
           .hasEtag('"new-md5"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
+      }
+    }
+  }
+
+  @Nested
+  class Destroy {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "destroy"
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath('/test'))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should raise an error if artifact store is not found'() {
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(null)
+        deleteWithApiHeader(controller.controllerPath('/test'))
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should render the success message on deleting an artifact store'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.arguments.last()
+          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'artifactStore', artifactStore.getId()))
+        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
+
+        deleteWithApiHeader(controller.controllerPath('/test'))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage('RESOURCE_DELETE_SUCCESSFUL')
+      }
+
+      @Test
+      void 'should render the validation errors on failure to delete'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.arguments.last()
+          result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", 'validation error'))
+        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
+
+        deleteWithApiHeader(controller.controllerPath('/test'))
+
+        assertThatResponse()
+          .isUnprocessibleEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage('SAVE_FAILED_WITH_REASON')
       }
     }
   }

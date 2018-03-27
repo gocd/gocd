@@ -29,8 +29,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -193,5 +192,78 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(new CaseInsensitiveString("non-existent-template")).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldGetAllGroupsForAnAdminUser() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "p1", "s1", "j1");
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "superadmin");
+
+        List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("superadmin"), new ArrayList<>());
+
+        assertThat(groupsForUser, contains("group"));
+    }
+
+    @Test
+    public void shouldGetAllGroupsForUserInAnAdminRole() {
+        GoConfigMother goConfigMother = new GoConfigMother();
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group", "p1", "s1", "j1");
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+
+        Role role = goConfigMother.createRole("role1", "foo", "bar");
+        cruiseConfig.server().security().addRole(role);
+        goConfigMother.addRoleAsSuperAdmin(cruiseConfig, "role1");
+
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(role);
+
+        List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("foo"), roles);
+
+        assertThat(groupsForUser, contains("group"));
+    }
+
+    @Test
+    public void shouldGetSpecificGroupsForAGroupAdminUser() {
+        GoConfigMother goConfigMother = new GoConfigMother();
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "superadmin");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group1", "p1", "s1", "j1");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group2", "p2", "s1", "j1");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group3", "p3", "s1", "j1");
+
+        goConfigMother.addAdminUserForPipelineGroup(cruiseConfig, "foo", "group1");
+        goConfigMother.addAdminUserForPipelineGroup(cruiseConfig, "foo", "group2");
+
+        List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("foo"), new ArrayList<>());
+
+        assertThat(groupsForUser, not(contains("group3")));
+        assertThat(groupsForUser, containsInAnyOrder("group2", "group1"));
+    }
+
+    @Test
+    public void shouldGetSpecificGroupsForAUserInGroupAdminRole() {
+        GoConfigMother goConfigMother = new GoConfigMother();
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "superadmin");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group1", "p1", "s1", "j1");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group2", "p2", "s1", "j1");
+        goConfigMother.addPipelineWithGroup(cruiseConfig, "group3", "p3", "s1", "j1");
+
+        Role role = goConfigMother.createRole("role1", "foo", "bar");
+        cruiseConfig.server().security().addRole(role);
+        goConfigMother.addAdminRoleForPipelineGroup(cruiseConfig, "role1", "group1");
+        goConfigMother.addAdminRoleForPipelineGroup(cruiseConfig, "role1", "group2");
+
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(role);
+        List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("foo"), roles);
+
+        assertThat(groupsForUser, not(contains("group3")));
+        assertThat(groupsForUser, containsInAnyOrder("group2", "group1"));
     }
 }

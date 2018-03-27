@@ -933,8 +933,8 @@ public class GoConfigServiceTest {
     @Test
     public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-        expectLoad(cruiseConfig);
-        goConfigService.getAllPipelinesInGroup("group");
+        when(goConfigDao.loadForEditing()).thenReturn(cruiseConfig);
+        goConfigService.getAllPipelinesForEditInGroup("group");
         verify(cruiseConfig).pipelines("group");
     }
 
@@ -1072,6 +1072,42 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1")).getGroup(), is("group1"));
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline2")).getGroup(), is("group1"));
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline3")).getGroup(), is("group2"));
+    }
+
+    @Test
+    public void shouldReturnAllPipelinesForASuperAdmin() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin");
+        PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "p1", "s1", "j1");
+        when(goConfigDao.loadForEditing()).thenReturn(config);
+        expectLoad(config);
+
+        List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("superadmin"));
+
+        assertThat(pipelines, contains(pipelineConfig));
+    }
+
+    @Test
+    public void shouldReturnSpecificPipelinesForAGroupAdmin() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin");
+
+        PipelineConfig pipelineConfig1 = configMother.addPipelineWithGroup(config, "group1", "p1", "s1", "j1");
+        PipelineConfig pipelineConfig2 = configMother.addPipelineWithGroup(config, "group2", "p2", "s1", "j1");
+
+        configMother.addAdminUserForPipelineGroup(config, "groupAdmin", "group1");
+
+        when(goConfigDao.loadForEditing()).thenReturn(config);
+        expectLoad(config);
+
+        List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("groupAdmin"));
+
+        assertThat(pipelines, contains(pipelineConfig1));
+        assertThat(pipelines, not(contains(pipelineConfig2)));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

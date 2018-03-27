@@ -131,7 +131,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     }
 
     public String update(Request req, Response res) throws IOException {
-        ArtifactStore artifactStoreFromServer = artifactStoreService.findArtifactStore(req.params("store_id"));
+        ArtifactStore artifactStoreFromServer = getEntityFromConfig(req.params("store_id"));
         ArtifactStore artifactStoreFromRequest = getEntityFromRequestBody(req);
 
         if (isRenameAttempt(artifactStoreFromServer, artifactStoreFromRequest)) {

@@ -216,6 +216,22 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
       }
 
       @Test
+      void 'should return 404 if store_id is not found'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(null)
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'some-string'], toObjectString({
+          ArtifactStoreRepresenter.toJSON(it, artifactStore)
+        }))
+
+        assertThatResponse().isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+      }
+
+      @Test
       void 'should fail update if etag does not match'() {
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
 

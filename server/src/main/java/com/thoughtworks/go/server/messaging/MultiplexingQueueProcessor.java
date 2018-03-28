@@ -33,7 +33,7 @@ import static java.text.MessageFormat.format;
 public class MultiplexingQueueProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiplexingQueueProcessor.class);
     private Thread processorThread;
-    private final BlockingQueue<Action> queue;
+    protected final BlockingQueue<Action> queue;
     private String queueName;
 
     public MultiplexingQueueProcessor(String processorNameForLogging) {

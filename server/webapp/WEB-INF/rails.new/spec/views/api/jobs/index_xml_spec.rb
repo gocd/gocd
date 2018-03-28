@@ -23,9 +23,9 @@ describe "/api/jobs" do
     @properties.add(com.thoughtworks.go.domain.Property.new("foo", "value_of_property_foo"))
 
     @plans = ArrayList.new
-    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "artifact", "blahartifact/path"))
-    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-artifact", "log-path"))
-    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "test.xml", ""))
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "artifact", "blahartifact/path"))
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "logs/log-artifact", "log-path"))
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::unit, "test.xml", ""))
 
     @resources = com.thoughtworks.go.domain.Resources.new("linux, teapot")
 
@@ -108,9 +108,9 @@ describe "/api/jobs" do
       properties.add(com.thoughtworks.go.domain.Property.new("prop<er\"ty", "val<ue_of_prop\"erty_foo"))
 
       plans = ArrayList.new
-      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "artifact", "blah<artif\"act/path"))
-      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-arti\"fact", "log-path"))
-      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "te<s\"t.xml", ""))
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "artifact", "blah<artif\"act/path"))
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "logs/log-arti\"fact", "log-path"))
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::unit, "te<s\"t.xml", ""))
 
       variables = com.thoughtworks.go.domain.EnvironmentVariables.new
       variables.add("VARIA<BLE_NA\"ME", "varia<ble-val\"ue")

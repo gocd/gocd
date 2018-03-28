@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.domain.ArtifactType;
+import org.junit.Test;
 
-import java.io.Serializable;
-import java.util.List;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-@ConfigInterface
-public interface ArtifactConfig extends Serializable, Validatable {
-    ArtifactType getArtifactType();
-
-    String getArtifactTypeValue();
-
-    boolean validateTree(ValidationContext validationContext);
-
-    void validateUniqueness(List<ArtifactConfig> existingArtifactConfigList);
+public class ArtifactPlanTypeTest {
+    @Test
+    public void shouldConvertArtifactTypeToArtifactPlanType() {
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.plugin), is(ArtifactPlanType.plugin));
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.test), is(ArtifactPlanType.unit));
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.build), is(ArtifactPlanType.file));
+    }
 }

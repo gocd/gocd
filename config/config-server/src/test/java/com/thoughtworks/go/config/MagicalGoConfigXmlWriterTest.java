@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,10 @@ import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.security.CipherProviderHelper;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -282,7 +285,7 @@ public class MagicalGoConfigXmlWriterTest {
                         + "    <jobs>\n"
                         + "      <job name=\"functional\">\n"
                         + "        <artifacts>\n"
-                        + "          <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "          <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "        </artifacts>\n"
                         + "      </job>\n"
                         + "    </jobs>\n"
@@ -295,7 +298,7 @@ public class MagicalGoConfigXmlWriterTest {
                         + "  <jobs>\n"
                         + "    <job name=\"functional\">\n"
                         + "      <artifacts>\n"
-                        + "        <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "        <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "      </artifacts>\n"
                         + "    </job>\n"
                         + "  </jobs>\n"
@@ -305,7 +308,7 @@ public class MagicalGoConfigXmlWriterTest {
         assertThat(xmlWriter.toXmlPartial(build), is(
                 "<job name=\"functional\">\n"
                         + "  <artifacts>\n"
-                        + "    <artifact src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "    <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "  </artifacts>\n"
                         + "</job>"
         ));
@@ -487,7 +490,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteAllowOnlyKnownUsersFlag() throws Exception {
-        String content = ConfigFileFixture.configwithSecurity("<security>\n" +
+        String content = ConfigFileFixture.configWithSecurity("<security>\n" +
                 "      <authConfigs>\n" +
                 "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
                 "          <property>\n" +
@@ -1144,6 +1147,26 @@ public class MagicalGoConfigXmlWriterTest {
 
         String writtenConfigXml = this.output.toString();
         assertThat(writtenConfigXml, not(containsString("allGroupAdminsAreViewers")));
+    }
+
+    @Test
+    public void shouldWriteArtifactsConfigXMLWithType() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("s3", "cd.go.artifact.docker"));
+        final PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStage("Test", "test-stage");
+        final JobConfig jobConfig = pipelineConfig.getStage("test-stage").jobConfigByConfigName("dev");
+        jobConfig.artifactConfigs().add(new BuildArtifactConfig("build/libs/*.jar", "dist"));
+        jobConfig.artifactConfigs().add(new TestArtifactConfig("test-result/*", "reports"));
+        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("installers", "s3"));
+        cruiseConfig.addPipeline("TestGroup", pipelineConfig);
+
+        xmlWriter.write(cruiseConfig, output, false);
+
+        String actualXML = this.output.toString();
+
+        assertThat(actualXML, containsString("<artifact type=\"build\" src=\"build/libs/*.jar\" dest=\"dist\" />"));
+        assertThat(actualXML, containsString("<artifact type=\"test\" src=\"test-result/*\" dest=\"reports\" />"));
+        assertThat(actualXML, containsString("<artifact type=\"external\" id=\"installers\" storeId=\"s3\" />"));
     }
 
     private ConfigurationProperty getConfigurationProperty(String key, boolean isSecure, String value) {

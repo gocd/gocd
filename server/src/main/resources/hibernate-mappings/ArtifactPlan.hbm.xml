@@ -28,9 +28,9 @@
     <property name="buildId"/>
     <property name="src"/>
     <property name="dest"/>
-    <property name="artifactType">
+    <property name="artifactPlanType" column="artifactType">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">com.thoughtworks.go.domain.ArtifactType</param>
+        <param name="enumClass">com.thoughtworks.go.domain.ArtifactPlanType</param>
         <param name="type">12</param>
       </type>
     </property>

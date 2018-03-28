@@ -22,14 +22,9 @@ module ApiV4
 
         error_representer({"src" => "source", "dest" => "destination"})
 
-        ARTIFACT_TYPE_TO_STRING_TYPE_MAP = {
-          ArtifactType::unit => 'test',
-          ArtifactType::file => 'build'
-        }
-
         ARTIFACT_TYPE_TO_ARTIFACT_CLASS_MAP = {
           'test' => TestArtifactConfig,
-          'build' => ArtifactConfig
+          'build' => BuildArtifactConfig
         }
 
         property :source
@@ -37,7 +32,7 @@ module ApiV4
         property :type, exec_context: :decorator, skip_parse: true
 
         def type
-          ARTIFACT_TYPE_TO_STRING_TYPE_MAP[artifact.getArtifactType]
+          artifact.getArtifactType.name
         end
 
         class << self

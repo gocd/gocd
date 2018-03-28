@@ -20,19 +20,16 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 
 import java.lang.reflect.Type;
 
-public class TaskTypeAdapter implements JsonDeserializer<CRTask>, JsonSerializer<CRTask> {
+public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRTask>, JsonSerializer<CRTask> {
     private static final String TYPE = "type";
 
     @Override
     public CRTask deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject jsonObject =  json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(TYPE);
-        String typeName = prim.getAsString();
-
-        Class<?> klass = classForName(typeName);
-        return context.deserialize(jsonObject, klass);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
     }
-    private Class<?> classForName(String typeName) {
+
+    @Override
+    protected Class<?> classForName(String typeName) {
         if(typeName.equals(CRExecTask.TYPE_NAME))
             return CRExecTask.class;
         if(typeName.equals(CRBuildTask.RAKE_TYPE_NAME))

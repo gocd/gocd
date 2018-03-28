@@ -16,12 +16,27 @@
 
 package com.thoughtworks.go.domain;
 
-public enum ArtifactType {
-    test,
-    build,
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
+public enum ArtifactPlanType {
+    unit,
+    file,
     plugin;
 
     public boolean isTest() {
-        return this.equals(test);
+        return this.equals(unit);
+    }
+
+    public static ArtifactPlanType fromArtifactType(ArtifactType artifactType) {
+        switch (artifactType) {
+            case test:
+                return ArtifactPlanType.unit;
+            case build:
+                return ArtifactPlanType.file;
+            case plugin:
+                return ArtifactPlanType.plugin;
+            default:
+                throw bomb("Illegal name in for the artifact type.[" + artifactType + "].");
+        }
     }
 }

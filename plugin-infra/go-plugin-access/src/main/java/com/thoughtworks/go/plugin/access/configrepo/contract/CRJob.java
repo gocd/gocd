@@ -27,7 +27,6 @@ public class CRJob extends CRBase {
     private Collection<CRTab> tabs = new ArrayList<>();
     private Collection<String> resources = new ArrayList<>();
     private Collection<CRArtifact> artifacts = new ArrayList<>();
-    private Collection<CRPluggableArtifact> pluggable_artifacts = new ArrayList<>();
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
     private String elastic_profile_id;
     private String run_instance_count;
@@ -35,17 +34,16 @@ public class CRJob extends CRBase {
 
     private List<CRTask> tasks = new ArrayList<>();
 
-    public CRJob()
-    {
+    public CRJob() {
     }
-    public CRJob(String name, CRTask... tasks)
-    {
+
+    public CRJob(String name, CRTask... tasks) {
         this.name = name;
         this.tasks = Arrays.asList(tasks);
     }
 
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts, Collection<CRPluggableArtifact> pluggableArtifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  String runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
@@ -54,7 +52,6 @@ public class CRJob extends CRBase {
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
-        this.pluggable_artifacts = pluggableArtifacts;
         this.properties = artifactPropertiesGenerators;
         this.run_instance_count = runInstanceCount;
         this.timeout = timeout;
@@ -62,7 +59,7 @@ public class CRJob extends CRBase {
     }
 
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts, Collection<CRPluggableArtifact> pluggableArtifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
@@ -71,7 +68,6 @@ public class CRJob extends CRBase {
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
-        this.pluggable_artifacts = pluggableArtifacts;
         this.properties = artifactPropertiesGenerators;
         this.run_instance_count = Integer.toString(runInstanceCount);
         this.timeout = timeout;
@@ -81,78 +77,62 @@ public class CRJob extends CRBase {
     }
 
     @Override
-    public void getErrors(ErrorCollection errors,String parentLocation) {
+    public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
         errors.checkMissing(location, "name", name);
         validateEnvironmentVariableUniqueness(errors, location);
         validateTabs(errors, location);
         validateArtifacts(errors, location);
-        validatePluggableArtifacts(errors, location);
         validateProperties(errors, location);
         validateTasks(errors, location);
         validateElasticProfile(errors, location);
     }
 
     private void validateElasticProfile(ErrorCollection errors, String location) {
-        if(elastic_profile_id != null)
-        {
-            if(this.resources != null && this.resources.size() > 0) {
-                errors.addError(location,"elastic_profile_id cannot be specified together with resources");
+        if (elastic_profile_id != null) {
+            if (this.resources != null && this.resources.size() > 0) {
+                errors.addError(location, "elastic_profile_id cannot be specified together with resources");
             }
         }
     }
 
     private void validateTasks(ErrorCollection errors, String location) {
-        errors.checkMissing(location,"tasks",tasks);
-        if(tasks != null)
-            for(CRTask task : tasks)
-            {
-                task.getErrors(errors,location);
+        errors.checkMissing(location, "tasks", tasks);
+        if (tasks != null)
+            for (CRTask task : tasks) {
+                task.getErrors(errors, location);
             }
     }
 
     private void validateProperties(ErrorCollection errors, String location) {
-        if(properties != null)
-            for(CRPropertyGenerator gen : properties)
-            {
-                gen.getErrors(errors,location);
+        if (properties != null)
+            for (CRPropertyGenerator gen : properties) {
+                gen.getErrors(errors, location);
             }
     }
 
     private void validateArtifacts(ErrorCollection errors, String location) {
-        if(artifacts == null)
+        if (artifacts == null)
             return;
-        for(CRArtifact artifact : artifacts)
-        {
-            artifact.getErrors(errors,location);
-        }
-    }
-
-    private void validatePluggableArtifacts(ErrorCollection errors, String location) {
-        if(pluggable_artifacts == null)
-            return;
-        for(CRPluggableArtifact pluggableArtifact : pluggable_artifacts)
-        {
-            pluggableArtifact.getErrors(errors,location);
+        for (CRArtifact artifact : artifacts) {
+            artifact.getErrors(errors, location);
         }
     }
 
     private void validateTabs(ErrorCollection errors, String location) {
-        if(tabs == null)
+        if (tabs == null)
             return;
-        for(CRTab tab : tabs)
-        {
-            tab.getErrors(errors,location);
+        for (CRTab tab : tabs) {
+            tab.getErrors(errors, location);
         }
     }
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(CREnvironmentVariable var : environment_variables)
-        {
+        for (CREnvironmentVariable var : environment_variables) {
             String error = var.validateNameUniqueness(keys);
-            if(error != null)
-                errors.addError(location,error);
+            if (error != null)
+                errors.addError(location, error);
         }
     }
 
@@ -163,9 +143,9 @@ public class CRJob extends CRBase {
             return true;
         }
 
-        CRJob that = (CRJob)o;
-        if(that == null)
-            return  false;
+        CRJob that = (CRJob) o;
+        if (that == null)
+            return false;
 
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
             return false;
@@ -185,21 +165,17 @@ public class CRJob extends CRBase {
         if (artifacts != null ? !CollectionUtils.isEqualCollection(this.artifacts, that.artifacts) : that.artifacts != null) {
             return false;
         }
-        if (pluggable_artifacts != null ? !CollectionUtils.isEqualCollection(this.pluggable_artifacts, that.pluggable_artifacts) : that.pluggable_artifacts != null) {
-            return false;
-        }
         if (tasks != null ? this.tasks.size() != that.tasks.size() : that.tasks != null) {
             return false;
         }
-        for(int i = 0 ; i< this.tasks.size(); i++)
-        {
-            if(!tasks.get(i).equals(that.tasks.get(i)))
+        for (int i = 0; i < this.tasks.size(); i++) {
+            if (!tasks.get(i).equals(that.tasks.get(i)))
                 return false;
         }
         if (run_instance_count != null ? !run_instance_count.equals(that.run_instance_count) : that.run_instance_count != null) {
             return false;
         }
-        if(this.timeout != that.timeout)
+        if (this.timeout != that.timeout)
             return false;
 
         return true;
@@ -212,7 +188,6 @@ public class CRJob extends CRBase {
         result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
         result = 31 * result + (resources != null ? resources.hashCode() : 0);
         result = 31 * result + (artifacts != null ? artifacts.hashCode() : 0);
-        result = 31 * result + (pluggable_artifacts != null ? pluggable_artifacts.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         result = 31 * result + (elastic_profile_id != null ? elastic_profile_id.hashCode() : 0);
         result = 31 * result + (run_instance_count != null ? run_instance_count.hashCode() : 0);
@@ -221,12 +196,11 @@ public class CRJob extends CRBase {
         return result;
     }
 
-    public void addTask(CRTask task)
-    {
+    public void addTask(CRTask task) {
         tasks.add(task);
     }
 
-    public void addEnvironmentVariable(String key,String value){
+    public void addEnvironmentVariable(String key, String value) {
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
         this.environment_variables.add(variable);
@@ -276,10 +250,6 @@ public class CRJob extends CRBase {
         return properties;
     }
 
-    public Collection<CRPluggableArtifact> getPluggableArtifacts() {
-        return pluggable_artifacts;
-    }
-
     public void setArtifactPropertiesGenerators(Collection<CRPropertyGenerator> artifactPropertiesGenerators) {
         this.properties = artifactPropertiesGenerators;
     }
@@ -289,14 +259,14 @@ public class CRJob extends CRBase {
     }
 
     public void setRunOnAllAgents(boolean runOnAllAgents) {
-        if(runOnAllAgents)
+        if (runOnAllAgents)
             this.run_instance_count = "all";
         else
             this.run_instance_count = null;
     }
 
     public Integer getRunInstanceCount() {
-        if(run_instance_count == null)
+        if (run_instance_count == null)
             return null;
         return Integer.parseInt(run_instance_count);
     }
@@ -334,8 +304,8 @@ public class CRJob extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> names) {
-        if(names.contains(this.getName()))
-            return String.format("Job %s is defined more than once",this.getName());
+        if (names.contains(this.getName()))
+            return String.format("Job %s is defined more than once", this.getName());
         else
             names.add(this.getName());
         return null;
@@ -345,7 +315,7 @@ public class CRJob extends CRBase {
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
         String stage = getName() == null ? "unknown name" : getName();
-        return String.format("%s; Job (%s)",myLocation,stage);
+        return String.format("%s; Job (%s)", myLocation, stage);
     }
 
     public String getElasticProfileId() {

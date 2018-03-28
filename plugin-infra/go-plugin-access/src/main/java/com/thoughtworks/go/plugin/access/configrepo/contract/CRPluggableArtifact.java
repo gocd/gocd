@@ -21,17 +21,17 @@ import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class CRPluggableArtifact extends CRBase {
+public class CRPluggableArtifact extends CRArtifact {
     private String id;
     private String store_id;
     private Collection<CRConfigurationProperty> configuration;
 
     public CRPluggableArtifact(String id, String store_id, CRConfigurationProperty... configurationProperties) {
+        super(CRArtifactType.external);
         this.id = id;
         this.store_id = store_id;
         this.configuration = Arrays.asList(configurationProperties);
     }
-
 
     public String getId() {
         return id;
@@ -70,14 +70,9 @@ public class CRPluggableArtifact extends CRBase {
     }
 
     @Override
-    public String getLocation(String parent) {
-        String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Pluggable Artifacts", myLocation);
-    }
-
-    @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        super.getErrors(errors, parentLocation);
         errors.checkMissing(location, "id", id);
         errors.checkMissing(location, "store_id", store_id);
         if (this.configuration != null) {

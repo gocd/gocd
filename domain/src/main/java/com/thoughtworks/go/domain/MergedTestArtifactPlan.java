@@ -22,7 +22,7 @@ import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
 
 public class MergedTestArtifactPlan extends ArtifactPlan {
     public MergedTestArtifactPlan(ArtifactPlan artifactPlan) {
-        super(ArtifactType.unit, null, TEST_OUTPUT_FOLDER);
+        super(ArtifactPlanType.unit, null, TEST_OUTPUT_FOLDER);
         add(artifactPlan);
     }
 

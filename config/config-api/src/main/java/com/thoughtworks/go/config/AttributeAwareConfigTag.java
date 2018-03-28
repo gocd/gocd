@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,30 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ArtifactType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.io.Serializable;
-import java.util.List;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@ConfigInterface
-public interface Artifact extends Serializable, Validatable {
-    ArtifactType getArtifactType();
+/**
+ * Signifies the tag name that this class represents
+ */
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface AttributeAwareConfigTag {
+    /**
+     * The tag name
+     */
+    String value();
 
-    String getArtifactTypeValue();
+    String label() default "";
 
-    boolean validateTree(ValidationContext validationContext);
+    String namespaceURI() default "";
 
-    void validateUniqueness(List<Artifact> existingArtifactList);
+    String namespacePrefix() default "";
+
+    String attribute();
+
+    String attributeValue();
 }

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import org.junit.Test;
 
@@ -26,24 +27,24 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class CRArtifactTest extends CRBaseTest<CRArtifact> {
+public class CRBuiltInArtifactTest extends CRBaseTest<CRBuiltInArtifact> {
 
-    private final CRArtifact artifact;
-    private final CRArtifact invalidNoSource;
+    private final CRBuiltInArtifact artifact;
+    private final CRBuiltInArtifact invalidNoSource;
 
-    public CRArtifactTest()
+    public CRBuiltInArtifactTest()
     {
-        artifact = new CRArtifact("src","dest",CRArtifactType.build);
-        invalidNoSource = new CRArtifact(null,"dest",CRArtifactType.test);
+        artifact = new CRBuiltInArtifact("src","dest",CRArtifactType.build);
+        invalidNoSource = new CRBuiltInArtifact(null,"dest",CRArtifactType.test);
     }
 
     @Override
-    public void addGoodExamples(Map<String, CRArtifact> examples) {
+    public void addGoodExamples(Map<String, CRBuiltInArtifact> examples) {
         examples.put("artifact",artifact);
     }
 
     @Override
-    public void addBadExamples(Map<String, CRArtifact> examples) {
+    public void addBadExamples(Map<String, CRBuiltInArtifact> examples) {
         examples.put("invalidNoSource",invalidNoSource);
     }
 
@@ -57,10 +58,10 @@ public class CRArtifactTest extends CRBaseTest<CRArtifact> {
                 "      \"type\": \"test\"\n" +
                 "    }";
         CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
-
-        assertThat(deserializedValue.getSource(),is("test"));
-        assertThat(deserializedValue.getDestination(),is("res1"));
-        assertThat(deserializedValue.getType(),is(CRArtifactType.test));
+        CRBuiltInArtifact crBuiltInArtifact = (CRBuiltInArtifact) deserializedValue;
+        assertThat(crBuiltInArtifact.getSource(),is("test"));
+        assertThat(crBuiltInArtifact.getDestination(),is("res1"));
+        assertThat(crBuiltInArtifact.getType(),is(CRArtifactType.test));
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertTrue(errors.isEmpty());
@@ -74,13 +75,9 @@ public class CRArtifactTest extends CRBaseTest<CRArtifact> {
                 "      \"destination\": \"res1\",\n" +
                 "      \"type\": \"bla\"\n" +
                 "    }";
-        CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
 
-        assertThat(deserializedValue.getSource(),is("test"));
-        assertThat(deserializedValue.getDestination(),is("res1"));
-        assertNull(deserializedValue.getType());
-
-        ErrorCollection errors = deserializedValue.getErrors();
-        assertFalse(errors.isEmpty());
+        thrown.expect(JsonParseException.class);
+        thrown.expectMessage("Invalid or unknown task type 'bla'");
+        gson.fromJson(json,CRArtifact.class);
     }
 }

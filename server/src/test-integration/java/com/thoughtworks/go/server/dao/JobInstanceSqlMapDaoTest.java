@@ -450,8 +450,8 @@ public class JobInstanceSqlMapDaoTest {
 
         assertThat(jobPlanFromDb.getArtifactPlans().size(), is(2));
         assertThat(jobPlanFromDb.getArtifactPlans(), Matchers.containsInAnyOrder(
-                new ArtifactPlan(ArtifactType.unit, "unit", "unit"),
-                new ArtifactPlan(ArtifactType.unit, "integration", "integration")
+                new ArtifactPlan(ArtifactPlanType.unit, "unit", "unit"),
+                new ArtifactPlan(ArtifactPlanType.unit, "integration", "integration")
         ));
         assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
         assertThat(jobPlanFromDb.getResources().size(), is(0));
@@ -481,8 +481,8 @@ public class JobInstanceSqlMapDaoTest {
 
         assertThat(jobPlanFromDb.getArtifactPlans().size(), is(2));
         assertThat(jobPlanFromDb.getArtifactPlans(), Matchers.containsInAnyOrder(
-                new ArtifactPlan(ArtifactType.unit, "unit", "unit"),
-                new ArtifactPlan(ArtifactType.unit, "integration", "integration")
+                new ArtifactPlan(ArtifactPlanType.unit, "unit", "unit"),
+                new ArtifactPlan(ArtifactPlanType.unit, "integration", "integration")
         ));
         assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
         assertThat(jobPlanFromDb.getResources().size(), is(0));
@@ -1091,10 +1091,10 @@ public class JobInstanceSqlMapDaoTest {
 
     private List<ArtifactPlan> artifactPlans() {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src", "dest"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src1", "dest2"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "unit", "unit"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "integration", "integration"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, "src", "dest"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, "src1", "dest2"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "unit", "unit"));
+        artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "integration", "integration"));
         return artifactPlans;
     }
 

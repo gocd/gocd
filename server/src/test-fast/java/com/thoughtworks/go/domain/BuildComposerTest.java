@@ -218,8 +218,8 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     private static String willUpload(String file) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
                 + "   <artifacts>\n"
-                + "      <artifact src=\"something-not-there.txt\" dest=\"dist\" />\n"
-                + "      <artifact src=\"" + file + "\" dest=\"dist\\test\" />\n"
+                + "      <artifact type=\"build\" src=\"something-not-there.txt\" dest=\"dist\" />\n"
+                + "      <artifact type=\"build\" src=\"" + file + "\" dest=\"dist\\test\" />\n"
                 + "   </artifacts>"
                 + "  <tasks>\n"
                 + "    <exec command=\"echo\">\n"
@@ -233,7 +233,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     private static String willUploadToDest(String file, String dest) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
                 + "   <artifacts>\n"
-                + "      <artifact src=\"" + file + "\" dest=\"" + dest + "\" />\n"
+                + "      <artifact type=\"build\" src=\"" + file + "\" dest=\"" + dest + "\" />\n"
                 + "   </artifacts>"
                 + "  <tasks>\n"
                 + "    <exec command=\"echo\">\n"
@@ -247,7 +247,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     private static String willUploadTestArtifact(String path, String dest) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
                 + "   <artifacts>\n"
-                + "      <test src=\"" + path + "\" dest=\"" + dest + "\" />\n"
+                + "      <artifact type=\"test\" src=\"" + path + "\" dest=\"" + dest + "\" />\n"
                 + "   </artifacts>"
                 + "  <tasks>\n"
                 + "    <exec command=\"echo\">\n"

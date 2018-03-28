@@ -71,8 +71,8 @@ public class JobXmlViewModel implements XmlRepresentable {
         artifacts.addAttribute("baseUri", writerContext.artifactBaseUrl(identifier)).addAttribute("pathFromArtifactRoot", writerContext.artifactRootPath(identifier));
 
         JobPlan jobPlan = writerContext.planFor(identifier);
-        for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlansOfType(ArtifactType.unit)) {
-            artifacts.addElement("artifact").addAttribute("src", artifactPlan.getSrc()).addAttribute("dest", artifactPlan.getDest()).addAttribute("type", artifactPlan.getArtifactType().toString());
+        for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlansOfType(ArtifactPlanType.unit)) {
+            artifacts.addElement("artifact").addAttribute("src", artifactPlan.getSrc()).addAttribute("dest", artifactPlan.getDest()).addAttribute("type", artifactPlan.getArtifactPlanType().toString());
         }
 
         // Retain the top level elements for backward-compatibility

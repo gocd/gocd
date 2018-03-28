@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,61 +18,29 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
-public class CRArtifact extends CRBase {
-    private String source;
-    private String destination;
+public abstract class CRArtifact extends CRBase {
     private CRArtifactType type;
 
-    public CRArtifact(){}
-    public CRArtifact(String src, String dest,CRArtifactType type) {
-        this.source = src;
-        this.destination = dest;
+    public CRArtifact() {
+    }
+
+    public CRArtifact(CRArtifactType type) {
         this.type = type;
     }
 
-    public CRArtifact(String src, String dest) {
-        this.source = src;
-        this.destination = dest;
-        this.type = CRArtifactType.build;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CRArtifact that = (CRArtifact) o;
+
+        return type == that.type;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String src) {
-        this.source = src;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public boolean equals(Object other) {
-        return this == other || other != null && other instanceof CRArtifact && equals((CRArtifact) other);
-    }
-
-    private boolean equals(CRArtifact other) {
-        if (destination != null ? !destination.equals(other.destination) : other.destination != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(other.type) : other.type != null) {
-            return false;
-        }
-        return !(source != null ? !source.equals(other.source) : other.source != null) ;
-
-    }
-
+    @Override
     public int hashCode() {
-        int result = 0;
-        result = 31 * result + (source != null ? source.hashCode() : 0);
-        result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        return type != null ? type.hashCode() : 0;
     }
 
     public CRArtifactType getType() {
@@ -86,13 +54,12 @@ public class CRArtifact extends CRBase {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location,"type",type);
-        errors.checkMissing(location,"source",source);
+        errors.checkMissing(location, "type", type);
     }
 
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Artifacts",myLocation);
+        return String.format("%s; Artifacts", myLocation);
     }
 }

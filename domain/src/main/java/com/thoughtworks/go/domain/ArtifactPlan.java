@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.Artifact;
 import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
@@ -46,7 +46,7 @@ public class ArtifactPlan extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactPlan.class);
     public static final Gson GSON = new Gson();
     private long buildId;
-    private ArtifactType artifactType;
+    private ArtifactPlanType artifactPlanType;
     private String src;
     private String dest;
     private String pluggableArtifactConfigJson;
@@ -56,30 +56,30 @@ public class ArtifactPlan extends PersistentObject {
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(Artifact artifact) {
-        this.artifactType = artifact.getArtifactType();
-        if (artifact instanceof PluggableArtifactConfig) {
-            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifact).toJSON();
+    public ArtifactPlan(ArtifactConfig artifactConfig) {
+        this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifactConfig.getArtifactType());
+        if (artifactConfig instanceof PluggableArtifactConfig) {
+            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactConfig).toJSON();
         } else {
-            ArtifactConfig artifactConfig = (ArtifactConfig) artifact;
-            setSrc(artifactConfig.getSource());
-            setDest(artifactConfig.getDestination());
+            BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) artifactConfig;
+            setSrc(buildArtifactConfig.getSource());
+            setDest(buildArtifactConfig.getDestination());
         }
     }
 
     public ArtifactPlan(ArtifactPlan artifactPlan) {
-        this(artifactPlan.artifactType, artifactPlan.src, artifactPlan.dest);
+        this(artifactPlan.artifactPlanType, artifactPlan.src, artifactPlan.dest);
         this.pluggableArtifactConfigJson = artifactPlan.pluggableArtifactConfigJson;
     }
 
-    public ArtifactPlan(ArtifactType artifactType, String src, String dest) {
-        this.artifactType = artifactType;
+    public ArtifactPlan(ArtifactPlanType artifactType, String src, String dest) {
+        this.artifactPlanType = artifactType;
         setSrc(src);
         setDest(dest);
     }
 
     public ArtifactPlan(String pluggableArtifactConfigJson) {
-        artifactType = ArtifactType.plugin;
+        artifactPlanType = ArtifactPlanType.plugin;
         this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 
@@ -87,8 +87,8 @@ public class ArtifactPlan extends PersistentObject {
         return buildId;
     }
 
-    public ArtifactType getArtifactType() {
-        return artifactType;
+    public ArtifactPlanType getArtifactPlanType() {
+        return artifactPlanType;
     }
 
     public String getSrc() {
@@ -103,8 +103,8 @@ public class ArtifactPlan extends PersistentObject {
         this.buildId = buildId;
     }
 
-    public void setArtifactType(ArtifactType artifactType) {
-        this.artifactType = artifactType;
+    public void setArtifactPlanType(ArtifactPlanType artifactType) {
+        this.artifactPlanType = artifactType;
     }
 
     public void setSrc(String src) {
@@ -116,7 +116,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public void printArtifactInfo(StringBuilder builder) {
-        if (artifactType == ArtifactType.file || artifactType == ArtifactType.unit) {
+        if (artifactPlanType == ArtifactPlanType.file || artifactPlanType == ArtifactPlanType.unit) {
             builder.append('[').append(getSrc()).append(']');
         } else {
             builder.append('[').append(getPluggableArtifactConfiguration().get("id")).append(']');
@@ -124,7 +124,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public void publish(GoPublisher publisher, final File rootPath) {
-        switch (artifactType) {
+        switch (artifactPlanType) {
             case unit:
                 publishTestArtifact(publisher, rootPath);
                 break;
@@ -223,8 +223,8 @@ public class ArtifactPlan extends PersistentObject {
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        for (Artifact artifact : artifactConfigs) {
-            artifactPlans.add(new ArtifactPlan(artifact));
+        for (ArtifactConfig artifactConfig : artifactConfigs) {
+            artifactPlans.add(new ArtifactPlan(artifactConfig));
         }
         return artifactPlans;
     }
@@ -242,7 +242,7 @@ public class ArtifactPlan extends PersistentObject {
 
         ArtifactPlan that = (ArtifactPlan) o;
 
-        if (artifactType != that.artifactType) return false;
+        if (artifactPlanType != that.artifactPlanType) return false;
         if (src != null ? !src.equals(that.src) : that.src != null) return false;
         if (dest != null ? !dest.equals(that.dest) : that.dest != null) return false;
         return pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.equals(that.pluggableArtifactConfigJson) : that.pluggableArtifactConfigJson == null;
@@ -250,7 +250,7 @@ public class ArtifactPlan extends PersistentObject {
 
     @Override
     public int hashCode() {
-        int result = artifactType != null ? artifactType.hashCode() : 0;
+        int result = artifactPlanType != null ? artifactPlanType.hashCode() : 0;
         result = 31 * result + (src != null ? src.hashCode() : 0);
         result = 31 * result + (dest != null ? dest.hashCode() : 0);
         result = 31 * result + (pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.hashCode() : 0);

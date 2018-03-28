@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -483,12 +483,6 @@ public class ConfigConverter {
             }
         }
 
-        if(crJob.getPluggableArtifacts() != null) {
-            for (CRPluggableArtifact crPluggableArtifact: crJob.getPluggableArtifacts()) {
-                artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
-            }
-        }
-
         ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
         if (crJob.getArtifactPropertiesGenerators() != null)
             for (CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators()) {
@@ -513,16 +507,22 @@ public class ConfigConverter {
     }
 
     public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
-        if (crArtifact.getType() == CRArtifactType.test) {
-            return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
-        }
-        return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
-    }
+        switch (crArtifact.getType()) {
+            case build:
+                CRBuiltInArtifact crBuildArtifact = (CRBuiltInArtifact) crArtifact;
+                return new BuildArtifactConfig(crBuildArtifact.getSource(), crBuildArtifact.getDestination());
+            case test:
+                CRBuiltInArtifact crTestArtifact = (CRBuiltInArtifact) crArtifact;
+                return new TestArtifactConfig(crTestArtifact.getSource(), crTestArtifact.getDestination());
+            case external:
+                CRPluggableArtifact crPluggableArtifact = (CRPluggableArtifact) crArtifact;
+                Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
+                ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
+                return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
 
-    public PluggableArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
-        Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
-        ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
-        return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
+            default:
+                throw new RuntimeException(String.format("Unsupported CR Artifact Type: %s.", crArtifact.getType()));
+        }
     }
 
     private Tab toTab(CRTab crTab) {

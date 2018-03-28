@@ -1969,6 +1969,76 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(cruiseConfig.pipelines("second").findBy(str("up13")).getTrackingTool().getLink(), is("http://github.com/gocd/gocd/issues/${ID}"));
     }
 
+    @Test
+    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"104\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"some_stage\">"
+                + "             <jobs>"
+                + "             <job name=\"some_job\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact src='foo.txt' dest='cruise-output' />"
+                + "                     <artifact src='dir/**' dest='dir' />"
+                + "                     <artifact src='build' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 104);
+
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"build\"/>"));
+    }
+
+    @Test
+    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"104\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"some_stage\">"
+                + "             <jobs>"
+                + "             <job name=\"some_job\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <test src='foo.txt' dest='cruise-output' />"
+                + "                     <test src='dir/**' dest='dir' />"
+                + "                     <test src='build' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 104);
+
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"dir/**\" dest=\"dir\"/>"));
+        assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"build\"/>"));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

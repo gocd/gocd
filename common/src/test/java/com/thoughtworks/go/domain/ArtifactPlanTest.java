@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
@@ -59,7 +59,7 @@ public class ArtifactPlanTest {
     @Test
     public void shouldPublishArtifacts() {
         final DefaultGoPublisher publisher = context.mock(DefaultGoPublisher.class);
-        final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         context.checking(new Expectations() {
             {
                 one(publisher).upload(new File(testFolder, "src"), "dest");
@@ -72,11 +72,11 @@ public class ArtifactPlanTest {
 
     @Test
     public void shouldIgnoreIdAndBuildIdAsPartOfEqualAndHashCodeCheck() {
-        final ArtifactPlan installer_1 = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        final ArtifactPlan installer_1 = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         installer_1.setId(100);
         installer_1.setBuildId(1000);
 
-        final ArtifactPlan installer_2 = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        final ArtifactPlan installer_2 = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         installer_2.setId(200);
         installer_2.setBuildId(2000);
 
@@ -85,57 +85,57 @@ public class ArtifactPlanTest {
 
     @Test
     public void shouldNormalizePath() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "folder\\src", "folder\\dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "folder\\src", "folder\\dest");
         assertThat(artifactPlan.getSrc(), is("folder/src"));
         assertThat(artifactPlan.getDest(), is("folder/dest"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDest() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/**/*/a.log", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/**/*/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/a/b"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingDoubleStart() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "**/*/a.log", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "**/*/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/test/a/b"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathProvidedAreSame() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/a/b/a.log", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/b/a.log")), is("logs"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingSingleStarToMatchFile() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/a/b/*.log", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/*.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathMatchingAtTheRoot() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "*.jar", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "*.jar", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/a.jar")), is("logs"));
     }
 
     @Test
     public void shouldTrimThePath() {
-        assertThat(new ArtifactPlan(ArtifactType.file, "pkg   ", "logs "),
-                is(new ArtifactPlan(ArtifactType.file, "pkg", "logs")));
+        assertThat(new ArtifactPlan(ArtifactPlanType.file, "pkg   ", "logs "),
+                is(new ArtifactPlan(ArtifactPlanType.file, "pkg", "logs")));
     }
 
     @Test
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
-                new ArtifactConfig("source", "destination"),
+                new BuildArtifactConfig("source", "destination"),
                 new TestArtifactConfig("test-source", "test-destination"),
                 artifactConfig
         ));
@@ -143,8 +143,8 @@ public class ArtifactPlanTest {
         final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactConfigs);
 
         assertThat(artifactPlans, containsInAnyOrder(
-                new ArtifactPlan(ArtifactType.file, "source", "destination"),
-                new ArtifactPlan(ArtifactType.unit, "test-source", "test-destination"),
+                new ArtifactPlan(ArtifactPlanType.file, "source", "destination"),
+                new ArtifactPlan(ArtifactPlanType.unit, "test-source", "test-destination"),
                 new ArtifactPlan(artifactConfig.toJSON())
         ));
     }
@@ -155,7 +155,7 @@ public class ArtifactPlanTest {
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(artifactConfig);
 
-        assertThat(artifactPlan.getArtifactType(), is(ArtifactType.plugin));
+        assertThat(artifactPlan.getArtifactPlanType(), is(ArtifactPlanType.plugin));
         assertThat(artifactPlan.getPluggableArtifactConfiguration().size(), is(3));
         assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("id", "ID"));
         assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("storeId", "StoreID"));

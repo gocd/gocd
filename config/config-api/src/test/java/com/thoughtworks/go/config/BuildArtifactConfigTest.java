@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +24,24 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ArtifactConfigTest {
+public class BuildArtifactConfigTest {
     @Test
     public void validate_shouldFailIfSourceIsEmpty() {
-        ArtifactConfig artifactPlan = new ArtifactConfig(null, "bar");
+        BuildArtifactConfig artifactPlan = new BuildArtifactConfig(null, "bar");
         artifactPlan.validate(ConfigSaveValidationContext.forChain(new JobConfig("jobname")));
-        assertThat(artifactPlan.errors().on(ArtifactConfig.SRC), is("Job 'jobname' has an artifact with an empty source"));
+        assertThat(artifactPlan.errors().on(BuildArtifactConfig.SRC), is("Job 'jobname' has an artifact with an empty source"));
     }
 
     @Test
     public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
-        ArtifactConfig artifactPlan = new ArtifactConfig("foo/bar", "..");
+        BuildArtifactConfig artifactPlan = new BuildArtifactConfig("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(ArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(BuildArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
     }
 
     @Test
     public void validate_shouldNotFailWhenDestinationIsNotSet() {
-        ArtifactConfig artifactPlan = new ArtifactConfig(null, null);
+        BuildArtifactConfig artifactPlan = new BuildArtifactConfig(null, null);
         artifactPlan.setSource("source");
         artifactPlan.validate(null);
         assertThat(artifactPlan.errors().isEmpty(), is(true));
@@ -49,18 +49,18 @@ public class ArtifactConfigTest {
 
     @Test
     public void shouldErrorOutWhenDuplicateArtifactConfigsExists() {
-        List<Artifact> plans = new ArrayList<>();
-        ArtifactConfig existingPlan = new ArtifactConfig("src", "dest");
+        List<ArtifactConfig> plans = new ArrayList<>();
+        BuildArtifactConfig existingPlan = new BuildArtifactConfig("src", "dest");
         plans.add(existingPlan);
-        ArtifactConfig artifactPlan = new ArtifactConfig("src", "dest");
+        BuildArtifactConfig artifactPlan = new BuildArtifactConfig("src", "dest");
 
         artifactPlan.validateUniqueness(plans);
 
         assertThat(artifactPlan.errors().isEmpty(), is(false));
-        assertThat(artifactPlan.errors().on(ArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactPlan.errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
         assertThat(existingPlan.errors().isEmpty(), is(false));
-        assertThat(existingPlan.errors().on(ArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
     }
 }

@@ -68,6 +68,6 @@ public interface JobPlan extends Serializable {
 
     void setElasticProfile(ElasticProfile elasticProfile);
 
-    List<ArtifactPlan> getArtifactPlansOfType(final ArtifactType file);
+    List<ArtifactPlan> getArtifactPlansOfType(final ArtifactPlanType file);
 
 }

@@ -221,7 +221,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private void deleteJobPlanAssociatedEntities(JobInstance job) {
         JobPlan jobPlan = loadPlan(job.getId());
         environmentVariableDao.deleteAll(jobPlan.getVariables());
-        artifactPlanRepository.deleteAll(jobPlan.getArtifactPlansOfType(ArtifactType.file));
+        artifactPlanRepository.deleteAll(jobPlan.getArtifactPlansOfType(ArtifactPlanType.file));
         artifactPropertiesGeneratorRepository.deleteAll(jobPlan.getPropertyGenerators());
         resourceRepository.deleteAll(jobPlan.getResources());
         if (jobPlan.requiresElasticAgent()) {

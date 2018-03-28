@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,10 +79,10 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldValidateUniquenessOnId() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
-        final List<Artifact> artifactConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
-        newConfig.validateUniqueness(artifactConfigs);
+        newConfig.validateUniqueness(artifactConfigConfigs);
 
         assertTrue(newConfig.hasErrors());
         assertTrue(existingConfig.hasErrors());
@@ -94,10 +94,10 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldValidateArtifactPropertiesConfig() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "Store-ID", create("Foo", false, "Bar"));
-        final List<Artifact> artifactConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "Store-ID", create("Foo", false, "Bar"));
-        newConfig.validateUniqueness(artifactConfigs);
+        newConfig.validateUniqueness(artifactConfigConfigs);
 
         assertTrue(newConfig.hasErrors());
         assertTrue(existingConfig.hasErrors());
@@ -109,10 +109,10 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldNotErrorWhenArtifactPropertiesConfigurationIsSameForDifferentStores() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "storeId1", create("Foo", false, "Bar"));
-        final List<Artifact> artifactConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "storeId2", create("Foo", false, "Bar"));
-        newConfig.validateUniqueness(artifactConfigs);
+        newConfig.validateUniqueness(artifactConfigConfigs);
 
         assertFalse(newConfig.hasErrors());
         assertFalse(existingConfig.hasErrors());

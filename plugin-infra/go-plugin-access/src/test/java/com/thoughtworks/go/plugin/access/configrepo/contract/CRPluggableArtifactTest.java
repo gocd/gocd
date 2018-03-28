@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.configrepo;
+package com.thoughtworks.go.plugin.access.configrepo.contract;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRBaseTest;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPluggableArtifact;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -42,6 +41,7 @@ public class CRPluggableArtifactTest extends CRBaseTest<CRPluggableArtifact> {
         invalidArtifactWithNoStoreId = new CRPluggableArtifact("id", null);
         invalidArtifactWithInvalidConfiguration = new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("foo", "bar", "baz"));
     }
+
     @Override
     public void addGoodExamples(Map<String, CRPluggableArtifact> examples) {
         examples.put("validArtifactWithNoConfiguration", validArtifactWithNoConfiguration);
@@ -58,14 +58,50 @@ public class CRPluggableArtifactTest extends CRBaseTest<CRPluggableArtifact> {
     @Test
     public void shouldDeserializeWhenConfigurationIsNull() {
         String json = "{\n" +
-                "              \"id\" : \"id\",\n" +
-                "              \"store_id\" : \"s3\"\n" +
+                "           \"id\" : \"id\",\n" +
+                "           \"store_id\" : \"s3\",\n" +
+                "           \"type\": \"external\"\n" +
                 "            }";
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
         assertThat(crPluggableArtifact.getId(), is("id"));
         assertThat(crPluggableArtifact.getStoreId(), is("s3"));
+        assertThat(crPluggableArtifact.getType(), is(CRArtifactType.external));
         assertNull(crPluggableArtifact.getConfiguration());
+    }
+
+
+    @Test
+    public void shouldCheckForTypeWhileDeserializing() {
+        String json = "{\n" +
+                "           \"id\" : \"id\",\n" +
+                "           \"store_id\" : \"s3\"\n" +
+                "            }";
+
+        CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
+
+        assertThat(crPluggableArtifact.getId(), is("id"));
+        assertThat(crPluggableArtifact.getStoreId(), is("s3"));
+        assertNull(crPluggableArtifact.getType());
+        assertNull(crPluggableArtifact.getConfiguration());
+
+        assertFalse(crPluggableArtifact.getErrors().isEmpty());
+    }
+
+    @Test
+    public void shouldDeserializePluggableArtifacts() {
+        String json = "{\n" +
+                "              \"id\" : \"id\",\n" +
+                "              \"store_id\" : \"s3\",\n" +
+                "              \"type\": \"external\",\n" +
+                "              \"configuration\": [{\"key\":\"image\", \"value\": \"gocd-agent\"}]" +
+                "            }";
+
+        CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
+
+        assertThat(crPluggableArtifact.getId(), is("id"));
+        assertThat(crPluggableArtifact.getStoreId(), is("s3"));
+        assertThat(crPluggableArtifact.getConfiguration(), is(Arrays.asList(new CRConfigurationProperty("image", "gocd-agent"))));
     }
 }

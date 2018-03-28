@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.thoughtworks.go.config.ArtifactConfig.DEST;
-import static com.thoughtworks.go.config.ArtifactConfig.SRC;
+import static com.thoughtworks.go.config.BuildArtifactConfig.DEST;
+import static com.thoughtworks.go.config.BuildArtifactConfig.SRC;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -40,8 +40,8 @@ public class ArtifactConfigsTest {
     public void shouldAddDuplicatedArtifactSoThatValidationKicksIn() throws Exception {
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         assertThat(artifactConfigs.size(), is(0));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
         assertThat(artifactConfigs.size(), is(2));
     }
 
@@ -54,7 +54,7 @@ public class ArtifactConfigsTest {
         HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
-        artifactPlan2.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan2.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
         List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
@@ -68,7 +68,7 @@ public class ArtifactConfigsTest {
         plan.setSource("blah");
         plan.setDestination("something");
         assertThat(artifactConfigs.get(0), is(plan));
-        assertThat(artifactConfigs.get(1), is(new ArtifactConfig("blah2", "something2")));
+        assertThat(artifactConfigs.get(1), is(new BuildArtifactConfig("blah2", "something2")));
     }
 
     @Test
@@ -80,12 +80,12 @@ public class ArtifactConfigsTest {
         HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
-        artifactPlan2.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan2.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
         HashMap<String, String> artifactPlan3 = new HashMap<>();
         artifactPlan3.put(SRC, "");
         artifactPlan3.put(DEST, "");
-        artifactPlan3.put("artifactTypeValue", ArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
+        artifactPlan3.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
         List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
@@ -100,13 +100,13 @@ public class ArtifactConfigsTest {
         plan.setSource("blah");
         plan.setDestination("something");
         assertThat(artifactConfigs.get(0), is(plan));
-        assertThat(artifactConfigs.get(1), is(new ArtifactConfig("blah2", "something2")));
+        assertThat(artifactConfigs.get(1), is(new BuildArtifactConfig("blah2", "something2")));
     }
 
     @Test
     public void shouldClearAllArtifactsWhenTheMapIsNull() {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
 
         artifactConfigs.setConfigAttributes(null);
 
@@ -116,61 +116,61 @@ public class ArtifactConfigsTest {
     @Test
     public void shouldValidateTree() {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "../a"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "../a"));
 
         artifactConfigs.validateTree(null);
-        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN));
+        assertThat(artifactConfigs.get(0).errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(0).errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(2).errors().on(BuildArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN));
     }
 
     @Test
     public void shouldErrorOutWhenDuplicateArtifactConfigExists() {
-        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
-        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(new BuildArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
+        artifactConfigs.add(new BuildArtifactConfig("src", "dest"));
 
         artifactConfigs.validate(null);
 
         assertFalse(artifactConfigs.get(0).errors().isEmpty());
-        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(0).errors().on(BuildArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(0).errors().on(BuildArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
 
         assertFalse(artifactConfigs.get(1).errors().isEmpty());
-        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(BuildArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(1).errors().on(BuildArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
 
         assertFalse(artifactConfigs.get(2).errors().isEmpty());
-        assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(2).errors().on(BuildArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactConfigs.get(2).errors().on(BuildArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
     }
 
     @Test
     public void getArtifactConfigs_shouldReturnBuiltinArtifactConfigs() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new ArtifactConfig("src", "dest"));
-        allConfigs.add(new ArtifactConfig("java", null));
+        allConfigs.add(new BuildArtifactConfig("src", "dest"));
+        allConfigs.add(new BuildArtifactConfig("java", null));
         allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
         allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
 
-        final List<ArtifactConfig> artifactConfigs = allConfigs.getArtifactConfigs();
+        final List<BuildArtifactConfig> artifactConfigs = allConfigs.getArtifactConfigs();
 
         assertThat(artifactConfigs, hasSize(2));
         assertThat(artifactConfigs, containsInAnyOrder(
-                new ArtifactConfig("src", "dest"),
-                new ArtifactConfig("java", null)
+                new BuildArtifactConfig("src", "dest"),
+                new BuildArtifactConfig("java", null)
         ));
     }
 
     @Test
     public void getPluggableArtifactConfigs_shouldReturnPluggableArtifactConfigs() {
         ArtifactConfigs allConfigs = new ArtifactConfigs();
-        allConfigs.add(new ArtifactConfig("src", "dest"));
-        allConfigs.add(new ArtifactConfig("java", null));
+        allConfigs.add(new BuildArtifactConfig("src", "dest"));
+        allConfigs.add(new BuildArtifactConfig("java", null));
         allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
         allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
 

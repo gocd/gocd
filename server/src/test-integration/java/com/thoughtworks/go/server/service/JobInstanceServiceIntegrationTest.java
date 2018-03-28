@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -487,7 +487,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.setRunInstanceCount(2);
         jobConfig.addResourceConfig("blah");
         jobConfig.getProperties().add(new ArtifactPropertyConfig("prop1", "props.xml", "//somepath"));
-        jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
+        jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
@@ -524,7 +524,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.setRunOnAllAgents(true);
         jobConfig.addResourceConfig("blah");
         jobConfig.getProperties().add(new ArtifactPropertyConfig("prop1", "props.xml", "//somepath"));
-        jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
+        jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(localAgentWithResources("blah"), localAgentWithResources("blah")));

@@ -21,7 +21,9 @@ import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -36,6 +38,9 @@ public abstract class CRBaseTest<T extends CRBase> {
 
     private boolean printExamples = false;
     protected Gson gson;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void SetUp()

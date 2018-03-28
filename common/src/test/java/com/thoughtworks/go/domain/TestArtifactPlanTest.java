@@ -62,7 +62,7 @@ public class TestArtifactPlanTest {
     @Test
     public void shouldNotThrowExceptionIfFolderNotFound() throws Exception {
         final MergedTestArtifactPlan compositeTestArtifact = new MergedTestArtifactPlan(
-                new ArtifactPlan(ArtifactType.unit, "some_random_path_that_does_not_exist", "testoutput")
+                new ArtifactPlan(ArtifactPlanType.unit, "some_random_path_that_does_not_exist", "testoutput")
         );
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
         verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR,
@@ -74,7 +74,7 @@ public class TestArtifactPlanTest {
         temporaryFolder.newFolder("tempFolder");
         File nonFolderFileThatExists = temporaryFolder.newFile("tempFolder/nonFolderFileThatExists");
         final ArtifactPlan compositeTestArtifact = new ArtifactPlan(
-                new ArtifactPlan(ArtifactType.unit, nonFolderFileThatExists.getPath(), "testoutput")
+                new ArtifactPlan(ArtifactPlanType.unit, nonFolderFileThatExists.getPath(), "testoutput")
         );
 
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
@@ -83,7 +83,7 @@ public class TestArtifactPlanTest {
 
     @Test
     public void shouldSupportGlobPatternsInSourcePath() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.unit, "**/*/a.log", "logs");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.unit, "**/*/a.log", "logs");
         MergedTestArtifactPlan testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
 
         File first = new File("target/test/report/a.log");

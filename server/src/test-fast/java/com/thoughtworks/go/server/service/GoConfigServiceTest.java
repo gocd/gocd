@@ -240,8 +240,8 @@ public class GoConfigServiceTest {
     public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
         PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.unit));
-        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.file));
+        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test));
+        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build));
         newPipelines.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipelines));
         assertThat(goConfigService.stageHasTests("pipeline", "stage1"), is(true));

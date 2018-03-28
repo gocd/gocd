@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,27 +24,27 @@ import java.util.List;
 import java.util.Map;
 
 @ConfigTag("artifacts")
-@ConfigCollection(Artifact.class)
-public class ArtifactConfigs extends BaseCollection<Artifact> implements Validatable, ParamsAttributeAware {
+@ConfigCollection(ArtifactConfig.class)
+public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements Validatable, ParamsAttributeAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public ArtifactConfigs() {
     }
 
-    public ArtifactConfigs(List<Artifact> artifactConfigs) {
-        super(artifactConfigs);
+    public ArtifactConfigs(List<ArtifactConfig> artifactConfigConfigs) {
+        super(artifactConfigConfigs);
     }
 
-    public ArtifactConfigs(Artifact... artifactConfigs) {
-        super(artifactConfigs);
+    public ArtifactConfigs(ArtifactConfig... artifactConfigConfigs) {
+        super(artifactConfigConfigs);
     }
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 
-        for (Artifact artifact : this) {
-            isValid = artifact.validateTree(validationContext) && isValid;
+        for (ArtifactConfig artifactConfig : this) {
+            isValid = artifactConfig.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
@@ -59,9 +59,9 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
     }
 
     public void validate(ValidationContext validationContext) {
-        List<Artifact> plans = new ArrayList<>();
-        for (Artifact artifact : this) {
-            artifact.validateUniqueness(plans);
+        List<ArtifactConfig> plans = new ArrayList<>();
+        for (ArtifactConfig artifactConfig : this) {
+            artifactConfig.validateUniqueness(plans);
         }
     }
 
@@ -80,8 +80,8 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
         }
         List<Map> attrList = (List<Map>) attributes;
         for (Map attrMap : attrList) {
-            String source = (String) attrMap.get(ArtifactConfig.SRC);
-            String destination = (String) attrMap.get(ArtifactConfig.DEST);
+            String source = (String) attrMap.get(BuildArtifactConfig.SRC);
+            String destination = (String) attrMap.get(BuildArtifactConfig.DEST);
             if (source.trim().isEmpty() && destination.trim().isEmpty()) {
                 continue;
             }
@@ -90,16 +90,16 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
             if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type)) {
                 this.add(new TestArtifactConfig(source, destination));
             } else {
-                this.add(new ArtifactConfig(source, destination));
+                this.add(new BuildArtifactConfig(source, destination));
             }
         }
     }
 
-    public List<ArtifactConfig> getArtifactConfigs() {
-        final List<ArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (Artifact artifact : this) {
-            if (artifact instanceof ArtifactConfig) {
-                artifactConfigs.add((ArtifactConfig) artifact);
+    public List<BuildArtifactConfig> getArtifactConfigs() {
+        final List<BuildArtifactConfig> artifactConfigs = new ArrayList<>();
+        for (ArtifactConfig artifactConfig : this) {
+            if (artifactConfig instanceof BuildArtifactConfig) {
+                artifactConfigs.add((BuildArtifactConfig) artifactConfig);
             }
         }
         return artifactConfigs;
@@ -107,9 +107,9 @@ public class ArtifactConfigs extends BaseCollection<Artifact> implements Validat
 
     public List<PluggableArtifactConfig> getPluggableArtifactConfigs() {
         final List<PluggableArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (Artifact artifact : this) {
-            if (artifact instanceof PluggableArtifactConfig) {
-                artifactConfigs.add((PluggableArtifactConfig) artifact);
+        for (ArtifactConfig artifactConfig : this) {
+            if (artifactConfig instanceof PluggableArtifactConfig) {
+                artifactConfigs.add((PluggableArtifactConfig) artifactConfig);
             }
         }
         return artifactConfigs;

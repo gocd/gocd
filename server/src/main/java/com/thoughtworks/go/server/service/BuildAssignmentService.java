@@ -331,7 +331,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {
         final Set<String> storeIds = new HashSet<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
-            if (artifactPlan.getArtifactType() == ArtifactType.plugin) {
+            if (artifactPlan.getArtifactPlanType() == ArtifactPlanType.plugin) {
                 storeIds.add((String) artifactPlan.getPluggableArtifactConfiguration().get("storeId"));
             }
         }

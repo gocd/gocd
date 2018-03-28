@@ -24,11 +24,10 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.security.tokens.PreAuthenticatedAuthenticationToken;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.web.SiteUrlProvider;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -38,14 +37,14 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class WebBasedAuthenticationFilterTest {
+public class WebBasedThirdPartyRedirectFilterTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain filterChain;
-    private WebBasedAuthenticationFilter filter;
+    private WebBasedThirdPartyRedirectFilter filter;
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
     private SecurityConfig securityConfig;
@@ -65,7 +64,7 @@ public class WebBasedAuthenticationFilterTest {
         securityAuthConfig = new SecurityAuthConfig("github", "github.oauth", new ConfigurationProperty());
         securityConfig.securityAuthConfigs().add(securityAuthConfig);
         when(goConfigService.security()).thenReturn(securityConfig);
-        filter = new WebBasedAuthenticationFilter(authorizationExtension, goConfigService, siteUrlProvider);
+        filter = new WebBasedThirdPartyRedirectFilter(authorizationExtension, goConfigService, siteUrlProvider);
     }
 
     @Test

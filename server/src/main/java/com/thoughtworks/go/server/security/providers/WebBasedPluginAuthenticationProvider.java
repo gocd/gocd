@@ -43,7 +43,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Component
-public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider {
+public class WebBasedPluginAuthenticationProvider implements AuthenticationProvider {
     private final AuthorizationExtension authorizationExtension;
     private final PluginRoleService pluginRoleService;
     private final UserService userService;
@@ -51,8 +51,8 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private GoConfigService configService;
 
     @Autowired
-    public PreAuthenticatedAuthenticationProvider(AuthorizationExtension authorizationExtension, PluginRoleService pluginRoleService,
-                                                  UserService userService, AuthorityGranter authorityGranter, GoConfigService configService) {
+    public WebBasedPluginAuthenticationProvider(AuthorizationExtension authorizationExtension, PluginRoleService pluginRoleService,
+                                                UserService userService, AuthorityGranter authorityGranter, GoConfigService configService) {
         this.authorizationExtension = authorizationExtension;
         this.pluginRoleService = pluginRoleService;
         this.userService = userService;

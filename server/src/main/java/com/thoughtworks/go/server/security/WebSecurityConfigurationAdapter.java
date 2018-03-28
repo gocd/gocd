@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider;
 import com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider;
-import com.thoughtworks.go.server.security.providers.PreAuthenticatedAuthenticationProvider;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -59,7 +59,9 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     @Autowired
     private OauthAuthenticationProvider oauthAuthenticationProvider;
     @Autowired
-    private PreAuthenticatedAuthenticationProvider preAuthenticatedAuthenticationProvider;
+    private WebBasedPluginAuthenticationProcessingFilter webBasedPluginAuthenticationProcessingFilter;
+    @Autowired
+    private WebBasedThirdPartyRedirectFilter webBasedThirdPartyRedirectFilter;
 
     @Autowired
     @Qualifier("filterChainProxy")
@@ -76,6 +78,8 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         configureLogout(http);
         configureSession(http);
         http.addFilterAfter(filterChainProxy, SwitchUserFilter.class);
+        http.addFilterBefore(webBasedThirdPartyRedirectFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(webBasedPluginAuthenticationProcessingFilter, WebBasedThirdPartyRedirectFilter.class);
     }
 
     private void disableCsrf(HttpSecurity http) throws Exception {
@@ -87,7 +91,6 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         auth
                 .authenticationProvider(oauthAuthenticationProvider)
                 .authenticationProvider(pluginAuthenticationProvider)
-                .authenticationProvider(preAuthenticatedAuthenticationProvider)
                 .authenticationProvider(new AnonymousAuthenticationProvider("anonymousKey"))
         ;
     }
@@ -96,10 +99,6 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         http
                 .securityContext()
                 .securityContextRepository(new CustomHttpSessionSecurityContextRepository(userService));
-
-//        http
-//                .anonymous();
-
         http
                 .authorizeRequests()
                 .antMatchers("/auth/login").permitAll()
@@ -221,7 +220,7 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         http
                 .sessionManagement()
                 .sessionFixation()
-                .changeSessionId()
+                .newSession()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
     }
 

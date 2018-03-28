@@ -37,11 +37,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.springframework.security.Authentication;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +53,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-public class PreAuthenticatedAuthenticationProviderTest {
+public class WebBasedPluginAuthenticationProviderTest {
     private AuthorizationExtension authorizationExtension;
     private String pluginId;
     private AuthorityGranter authorityGranter;
     private UserService userService;
     private PluginRoleService pluginRoleService;
-    private PreAuthenticatedAuthenticationProvider authenticationProvider;
+    private WebBasedPluginAuthenticationProvider authenticationProvider;
     private User user;
-    private GrantedAuthority[] authorities;
+    private List<GrantedAuthority> authorities;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -71,14 +72,14 @@ public class PreAuthenticatedAuthenticationProviderTest {
     public void setUp() throws Exception {
         pluginId = "github.oauth";
         user = new User("username", "displayname", "emailId");
-        authorities = new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()};
+        authorities = Arrays.asList(GoAuthority.ROLE_USER.asAuthority());
 
         authorizationExtension = mock(AuthorizationExtension.class);
         authorityGranter = mock(AuthorityGranter.class);
         userService = mock(UserService.class);
         pluginRoleService = mock(PluginRoleService.class);
         goConfigService = mock(GoConfigService.class);
-        authenticationProvider = new PreAuthenticatedAuthenticationProvider(authorizationExtension, pluginRoleService, userService, authorityGranter, goConfigService);
+        authenticationProvider = new WebBasedPluginAuthenticationProvider(authorizationExtension, pluginRoleService, userService, authorityGranter, goConfigService);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
 
         securityConfig = new SecurityConfig();

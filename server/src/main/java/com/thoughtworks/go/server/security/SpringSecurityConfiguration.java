@@ -70,10 +70,6 @@ public class SpringSecurityConfiguration {
     private Filter agentRemotingFilterInvocationInterceptor = new NoOpFilter();
     @Autowired
     private ReAuthenticationFilter reAuthenticationFilter;
-    //    @Autowired
-//    private PreAuthenticatedRequestsProcessingFilter preAuthenticationFilter;
-    @Autowired
-    private WebBasedAuthenticationFilter webBasedAuthFilter;
     @Autowired
     private OauthAuthenticationFilter oauthProcessingFilter;
     @Autowired
@@ -88,7 +84,7 @@ public class SpringSecurityConfiguration {
         listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), modeAwareFilter, i18nlocaleResolver, apiSessionFilter, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, basicAuthenticationAccessDenied, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
         listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), modeAwareFilter, i18nlocaleResolver, apiSessionFilter, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, basicAuthenticationAccessDenied, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
         listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/files/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, cruiseLoginOrBasicAuthentication, filterInvocationInterceptor, flashLoader, urlRewriter));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), modeAwareFilter, i18nlocaleResolver, disallowExternalReAuthenticationFilter, removeAdminPermissionFilter, oauthProcessingFilter, webBasedAuthFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, cruiseLoginOrBasicAuthentication, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), modeAwareFilter, i18nlocaleResolver, disallowExternalReAuthenticationFilter, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, cruiseLoginOrBasicAuthentication, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
         return new FilterChainProxy(listOfFilterChains);
     }
 

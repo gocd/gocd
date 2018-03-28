@@ -25,8 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
+public class WebBasedThirdPartyRedirectFilter implements Filter {
     private static final Pattern LOGIN_REQUEST_PATTERN = Pattern.compile("^/go/plugin/([\\w\\-.]+)/login$");
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
@@ -43,22 +42,34 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     private String DEFAULT_TARGET_URL = "/";
 
     @Autowired
-    public WebBasedAuthenticationFilter(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
-                                        SiteUrlProvider siteUrlProvider) {
+    public WebBasedThirdPartyRedirectFilter(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
+                                            SiteUrlProvider siteUrlProvider) {
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
         this.siteUrlProvider = siteUrlProvider;
     }
 
     @Override
-    public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
-        if(isWebBasedPluginLoginRequest(httpRequest)) {
-            String redirectUrl = isAuthenticated() ? DEFAULT_TARGET_URL : authorizationServerUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest));
-            httpResponse.sendRedirect(redirectUrl);
+    public void init(FilterConfig filterConfig) {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest httpRequest, ServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
+        HttpServletResponse response = (HttpServletResponse) httpResponse;
+        HttpServletRequest request = (HttpServletRequest) httpRequest;
+        if (isWebBasedPluginLoginRequest(request)) {
+            String redirectUrl = isAuthenticated() ? DEFAULT_TARGET_URL : authorizationServerUrl(pluginId(request), siteUrlProvider.siteUrl(request));
+            response.sendRedirect(redirectUrl);
             return;
         }
 
         chain.doFilter(httpRequest, httpResponse);
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
     private String pluginId(HttpServletRequest request) {
@@ -79,10 +90,5 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
 
     private boolean isAuthenticated() {
         return SecurityContextHolder.getContext().getAuthentication() != null;
-    }
-
-    @Override
-    public int getOrder() {
-        return FilterChainOrder.PRE_AUTH_FILTER - 1;
     }
 }

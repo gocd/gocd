@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.security.tokens.PreAuthenticatedAuthenticationToken;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +44,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-public class PreAuthenticatedRequestsProcessingFilterTest {
+public class WebBasedPluginAuthenticationProcessingFilterTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
@@ -53,7 +52,7 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
     private HttpServletResponse response;
     private FilterChain filterChain;
     private AuthenticationManager authenticationManager;
-    private PreAuthenticatedRequestsProcessingFilter filter;
+    private WebBasedPluginAuthenticationProcessingFilter filter;
     private AuthorizationExtension authorizationExtension;
     private GoConfigService configService;
     private SecurityConfig securityConfig;
@@ -66,7 +65,7 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
         authenticationManager = mock(AuthenticationManager.class);
         authorizationExtension = mock(AuthorizationExtension.class);
         configService = mock(GoConfigService.class);
-        filter = new PreAuthenticatedRequestsProcessingFilter(authorizationExtension, configService);
+        filter = new WebBasedPluginAuthenticationProcessingFilter(authorizationExtension, configService);
         securityConfig = new SecurityConfig();
 
         filter.setAuthenticationManager(authenticationManager);

@@ -53,7 +53,8 @@ public class DisallowExternalReAuthenticationFilter extends SpringSecurityFilter
 
     private boolean isUserAuthenticated() {
         return SecurityContextHolder.getContext().getAuthentication() != null &&
-                SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
+                SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+                !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(GoAuthority.ROLE_ANONYMOUS.asAuthority());
     }
 
     @Override

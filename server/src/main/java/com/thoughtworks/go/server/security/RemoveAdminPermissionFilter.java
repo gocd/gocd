@@ -75,7 +75,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
             chain.doFilter(request, response);
             return;
         }
-        synchronized (request.getRequestedSessionId().intern()) {
+        synchronized (request.getSession().getId()) {
             long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);
             if (previousLastChangedTime == null) {

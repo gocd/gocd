@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.fixture;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collections;
 
 public class IntegrationTestsFixture {
 
     public static void login(String username, String password) {
-        UserDetails principal = new User(username, password, true, true, true, true, new GrantedAuthority[0]);
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(principal, password));
+        UserDetails principal = new User(username, password, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(principal, password));
     }
 
 }

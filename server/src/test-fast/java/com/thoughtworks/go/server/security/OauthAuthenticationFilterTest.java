@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.ClearSingleton;
 import org.junit.*;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.User;
@@ -38,7 +38,7 @@ public class OauthAuthenticationFilterTest {
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
     private static SecurityContext originalContext;
-    private AuthenticationManager authenticationManager;
+    private AuthenticationProvider authenticationProvider;
     private OauthAuthenticationFilter filter;
     private HttpServletRequest req;
     private HttpServletResponse res;
@@ -59,8 +59,8 @@ public class OauthAuthenticationFilterTest {
     public void setUp() throws Exception {
         securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
-        authenticationManager = mock(AuthenticationManager.class);
-        filter = new OauthAuthenticationFilter(authenticationManager);
+        authenticationProvider = mock(AuthenticationProvider.class);
+        filter = new OauthAuthenticationFilter(authenticationProvider);
         req = mock(HttpServletRequest.class);
         res = mock(HttpServletResponse.class);
         chain = mock(FilterChain.class);
@@ -91,7 +91,7 @@ public class OauthAuthenticationFilterTest {
         when(req.getHeader(OauthAuthenticationFilter.AUTHORIZATION)).thenReturn("Token token=\"valid-token\"");
         OauthAuthenticationToken authenticatedToken = new OauthAuthenticationToken(
                 new User("user-name", "valid-token", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_SUPERVISOR.asAuthority()}));
-        when(authenticationManager.authenticate(new OauthAuthenticationToken("valid-token"))).thenReturn(authenticatedToken);
+        when(authenticationProvider.authenticate(new OauthAuthenticationToken("valid-token"))).thenReturn(authenticatedToken);
 
         filter.doFilterHttp(req, res, chain);
         verify(securityContext).setAuthentication(authenticatedToken);
@@ -102,7 +102,7 @@ public class OauthAuthenticationFilterTest {
     @Test
     public void shouldContinueExecutingFilterChainEvenIfTokenAuthenticationFails() throws IOException, ServletException {
         when(req.getHeader(OauthAuthenticationFilter.AUTHORIZATION)).thenReturn("Token token=\"invalid-token\"");
-        when(authenticationManager.authenticate(new OauthAuthenticationToken("invalid-token"))).thenThrow(new BadCredentialsException("failed to auth"));
+        when(authenticationProvider.authenticate(new OauthAuthenticationToken("invalid-token"))).thenThrow(new BadCredentialsException("failed to auth"));
 
         filter.doFilterHttp(req, res, chain);
         verify(securityContext).setAuthentication(null);

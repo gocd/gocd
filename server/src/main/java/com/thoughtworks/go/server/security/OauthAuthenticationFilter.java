@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,13 +33,13 @@ import java.util.regex.Pattern;
 
 @Component
 public class OauthAuthenticationFilter extends SpringSecurityFilter {
-    private final AuthenticationManager authenticationManager;
+    private final OauthAuthenticationProvider authenticationProvider;
     private static final Pattern OAUTH_TOKEN_PATTERN = Pattern.compile("^Token token=\"(.*?)\"$");
     static final String AUTHORIZATION = "Authorization";
 
     @Autowired
-    public OauthAuthenticationFilter(@Qualifier("goAuthenticationManager") AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+    public OauthAuthenticationFilter(OauthAuthenticationProvider authenticationProvider) {
+        this.authenticationProvider = authenticationProvider;
     }
 
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -53,7 +52,7 @@ public class OauthAuthenticationFilter extends SpringSecurityFilter {
                 String token = matcher.group(1);
                 OauthAuthenticationToken authenticationToken = new OauthAuthenticationToken(token);
                 try {
-                    Authentication authResult = authenticationManager.authenticate(authenticationToken);
+                    Authentication authResult = authenticationProvider.authenticate(authenticationToken);
                     SecurityContextHolder.getContext().setAuthentication(authResult);
                 } catch (AuthenticationException e) {
                     logger.debug("Oauth authentication request for token: " + token, e);

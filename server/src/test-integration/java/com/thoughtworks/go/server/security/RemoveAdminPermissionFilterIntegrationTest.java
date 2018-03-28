@@ -90,7 +90,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         session = mock(HttpSession.class);
         timeProvider = mock(TimeProvider.class);
 
-        when(request.getRequestedSessionId()).thenReturn("session_id");
+        when(session.getId()).thenReturn("session_id");
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
         when(request.getSession()).thenReturn(session);
     }

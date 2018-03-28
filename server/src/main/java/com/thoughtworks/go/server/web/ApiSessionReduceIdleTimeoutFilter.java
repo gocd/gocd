@@ -16,10 +16,13 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.security.SpringSecurityFilter;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -30,18 +33,30 @@ import java.io.IOException;
 
 /* API requests should not start long-lived session. */
 @Component
-public class ApiSessionFilter extends SpringSecurityFilter {
+public class ApiSessionReduceIdleTimeoutFilter extends OncePerRequestFilter {
     private final int idleTimeoutInSeconds;
+    private static final RequestMatcher REQUEST_MATCHER = new OrRequestMatcher(
+            new AntPathRequestMatcher("/api/**"),
+            new AntPathRequestMatcher("/cctray.xml")
+    );
 
     @Autowired
-    public ApiSessionFilter(SystemEnvironment systemEnvironment) {
+    public ApiSessionReduceIdleTimeoutFilter(SystemEnvironment systemEnvironment) {
         idleTimeoutInSeconds = systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS);
     }
 
-    @Override
-    protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        boolean hadSessionBeforeStarting = request.getSession(false) != null;
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        if (REQUEST_MATCHER.matches(request)) {
+            maybeSetSessionIdleTimeout(request, response, chain);
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
+
+    private void maybeSetSessionIdleTimeout(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        boolean hadSessionBeforeStarting = request.getSession(false) != null;
         try {
             chain.doFilter(request, response);
         } finally {
@@ -49,13 +64,9 @@ public class ApiSessionFilter extends SpringSecurityFilter {
             boolean hasSessionNow = session != null;
 
             if (!hadSessionBeforeStarting && hasSessionNow) {
-               session.setMaxInactiveInterval(idleTimeoutInSeconds);
+                session.setMaxInactiveInterval(idleTimeoutInSeconds);
             }
         }
     }
 
-    @Override
-    public int getOrder() {
-        return FilterChainOrder.HTTP_SESSION_CONTEXT_FILTER + 1;
-    }
 }

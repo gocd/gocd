@@ -25,12 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ApiSessionFilterTest {
+public class ApiSessionReduceIdleTimeoutFilterTest {
     public static final int INACTIVE_INTERVAL = 10;
     @Mock
     private SystemEnvironment systemEnvironment;
@@ -42,31 +41,36 @@ public class ApiSessionFilterTest {
     private FilterChain chain;
     @Mock
     private HttpSession session;
-    private ApiSessionFilter filter;
+    private ApiSessionReduceIdleTimeoutFilter filter;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
         when(systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS)).thenReturn(INACTIVE_INTERVAL);
-        filter = new ApiSessionFilter(systemEnvironment);
+        filter = new ApiSessionReduceIdleTimeoutFilter(systemEnvironment);
     }
 
     @Test
     public void shouldUseShortLivedSessionWhenSessionDoesNotExistForThisRequest() throws Exception {
         ensureNoSessionExistsBeforeReachingFilter();
 
-        filter.doFilterHttp(request, response, chain);
+        filter.doFilter(request, response, chain);
 
         verify(chain, times(1)).doFilter(request, response);
         verify(session).setMaxInactiveInterval(INACTIVE_INTERVAL);
     }
 
     @Test
+    public void shouldReduceSessionTimeoutForApiUrlsOnly() {
+        fail("Implement me!");
+    }
+
+    @Test
     public void shouldNotUseShortLivedSessionWhenSessionExistsForThisRequest() throws Exception {
         ensureSessionExistsBeforeReachingFilter();
 
-        filter.doFilterHttp(request, response, chain);
+        filter.doFilter(request, response, chain);
 
         verify(chain, times(1)).doFilter(request, response);
         verify(session, times(0)).setMaxInactiveInterval(INACTIVE_INTERVAL);

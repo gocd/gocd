@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml"
 })
-public class ApiSessionFilterIntegrationTest {
+public class ApiSessionReduceIdleTimeoutFilterIntegrationTest {
     @Autowired
     FilterChainProxy filterChainProxy;
     @Autowired

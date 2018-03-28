@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider
 import com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.server.web.ApiSessionReduceIdleTimeoutFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +56,7 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     private static final String TEMPLATE_SUPERVISOR = GoAuthority.ROLE_TEMPLATE_SUPERVISOR.name();
     private static final String USER = GoAuthority.ROLE_USER.name();
     private static final String OAUTH_USER = GoAuthority.ROLE_OAUTH_USER.name();
+
     @Autowired
     private PluginAuthenticationProvider pluginAuthenticationProvider;
     @Autowired
@@ -62,6 +65,8 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     private WebBasedPluginAuthenticationProcessingFilter webBasedPluginAuthenticationProcessingFilter;
     @Autowired
     private WebBasedThirdPartyRedirectFilter webBasedThirdPartyRedirectFilter;
+    @Autowired
+    private ApiSessionReduceIdleTimeoutFilter apiSessionReduceIdleTimeoutFilter;
 
     @Autowired
     @Qualifier("filterChainProxy")
@@ -78,8 +83,10 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         configureLogout(http);
         configureSession(http);
         http.addFilterAfter(filterChainProxy, SwitchUserFilter.class);
+        http.addFilterBefore(apiSessionReduceIdleTimeoutFilter, SecurityContextPersistenceFilter.class);
         http.addFilterBefore(webBasedThirdPartyRedirectFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(webBasedPluginAuthenticationProcessingFilter, WebBasedThirdPartyRedirectFilter.class);
+        http.exceptionHandling().accessDeniedHandler(new GoAccessDeniedHandler());
     }
 
     private void disableCsrf(HttpSecurity http) throws Exception {

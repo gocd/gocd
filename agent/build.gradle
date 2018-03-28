@@ -29,7 +29,7 @@ testSets {
 dependencies {
   compile project(':agent-common')
   compile project(':common')
-  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
+  compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty
@@ -134,7 +134,7 @@ task verifyJar(type: VerifyJarTask) {
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "nanohttpd-2.3.1.jar",
-      "objenesis-1.2.jar",
+      "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "plugin-metadata-store-${project.version}.jar",
       "quartz-1.6.5.jar",

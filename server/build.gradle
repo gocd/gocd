@@ -183,7 +183,7 @@ dependencies {
   compile group: 'com.google.guava', name: 'guava', version: '20.0'
   compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
   compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
-  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
+  compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
 
   // needed by jdom2 for some XPATH stuff
   compile(group: 'jaxen', name: 'jaxen', version: '1.1.6') {
@@ -683,7 +683,7 @@ task verifyWar(type: VerifyJarTask) {
         "jta-1.1.jar",
         "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
-        "objenesis-1.2.jar",
+        "objenesis-${project.versions.objenesis}.jar",
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",
         "org.eclipse.jgit.http.server-${project.versions.jgit}.jar",

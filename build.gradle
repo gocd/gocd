@@ -170,6 +170,7 @@ rootProject.ext.versions = [
   mockito2            : '2.13.0',
   nanohttpd           : '2.3.1',
   oro                 : '2.0.8',
+  objenesis           : '2.6',
   rack                : '1.1.21',
   rhino               : '1.7.7.2',
   slf4j               : '1.7.25',

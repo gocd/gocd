@@ -19,6 +19,8 @@ describe("Agent Row Widget", () => {
   const Stream = require('mithril/stream');
   require('jasmine-jquery');
 
+  const PluginInfos = require('models/shared/plugin_infos');
+
   const Agents          = require('models/agents/agents');
   const AgentsRowWidget = require("views/agents/agent_row_widget");
   const AgentsVM        = require("views/agents/models/agents_widget_view_model");
@@ -89,7 +91,7 @@ describe("Agent Row Widget", () => {
   it('should contain link to agent status report page for elastic agents', () => {
     agents(allAgents);
     const model = Stream(true);
-    mount(agents().lastAgent(), model, true, {'capabilities': () => ({'supportsAgentStatusReport': () => true})});
+    mount(agents().lastAgent(), model, true, true);
 
     const row         = $root.find('tr')[0];
     const information = $(row).find('td');
@@ -184,7 +186,10 @@ describe("Agent Row Widget", () => {
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
-  const mount = (agent, model, isUserAdmin, pluginInfo = {'capabilities': () => ({'supportsAgentStatusReport': () => false})}) => {
+  const mount = (agent, model, isUserAdmin, supportsAgentStatusReportPage = false) => {
+    elasticAgentPluginInfo.extensions[0]['capabilities']['supports_agent_status_report'] = supportsAgentStatusReportPage;
+
+    const pluginInfos = PluginInfos.fromJSON([elasticAgentPluginInfo]);
     m.mount(root, {
       view() {
         return m(AgentsRowWidget, {
@@ -192,9 +197,7 @@ describe("Agent Row Widget", () => {
           'checkBoxModel': model,
           'dropdown':      agentsVM.dropdown,
           isUserAdmin,
-          'pluginInfos':   () => ({
-            'findById': () => (pluginInfo)
-          })
+          'pluginInfos':   () => pluginInfos
         });
       }
     });
@@ -347,4 +350,52 @@ describe("Agent Row Widget", () => {
       }
     }
   ];
+
+  const elasticAgentPluginInfo = {
+    "id":         "cd.go.contrib.elasticagent.kubernetes",
+    "status":     {
+      "state": "active"
+    },
+    "about":      {
+      "name":                     "Docker Elastic Agent Plugin",
+      "version":                  "0.6.1",
+      "target_go_version":        "16.12.0",
+      "description":              "Docker Based Elastic Agent Plugins for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    "extensions": [
+      {
+        "type":             "elastic-agent",
+        "plugin_settings":  {
+          "configurations": [
+            {
+              "key":      "instance_type",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "elastic agent plugin settings view"
+          }
+        },
+        "profile_settings": {
+          "configurations": [
+          ],
+          "view":           {
+            "template": 'some cool template!'
+          }
+        },
+        "capabilities":     {
+          "supports_status_report":       true,
+          "supports_agent_status_report": true
+        }
+      }
+    ]
+  };
 });

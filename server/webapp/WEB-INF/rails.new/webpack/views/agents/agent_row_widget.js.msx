@@ -49,7 +49,7 @@ const supportsAgentStatusReport = function (pluginInfos, pluginId) {
 
   const pluginInfo = pluginInfos().findById(pluginId);
   if (pluginInfo) {
-    return pluginInfo.capabilities().supportsAgentStatusReport();
+    return pluginInfo.extensions()['elastic-agent'].capabilities().supportsAgentStatusReport();
   }
 
   return false;

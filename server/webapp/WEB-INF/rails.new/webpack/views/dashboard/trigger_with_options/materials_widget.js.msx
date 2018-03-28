@@ -44,7 +44,7 @@ const MaterialsForTriggerWidget = {
         <li class={self.activeClassForMaterial(name)}
             onclick={vm.selectMaterial.bind(vm, name)}>
           <span class="material-name">{material.name}</span>
-          <span class="latest-revision">{material.revision.lastRunRevision}</span>
+          <span class="latest-revision">{material.revision.lastRunRevision || "latest"}</span>
         </li>
       );
     });

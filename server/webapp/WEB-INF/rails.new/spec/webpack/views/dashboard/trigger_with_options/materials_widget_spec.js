@@ -75,6 +75,12 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     m.redraw();
   });
 
+  it("should show latest if material revision is not present", () => {
+    const headings = $root.find('.v-tab_tab-head li');
+
+    expect(headings.get(1)).toContainText("latest");
+  });
+
   it("it should render material select tabs", () => {
     const headings = $root.find('.v-tab_tab-head li');
 
@@ -83,7 +89,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     expect(headings.get(0)).toContainText(json.materials[0].revision.last_run_revision);
     expect(headings.get(0)).toContainText(json.materials[0].name);
 
-    expect(headings.get(1)).toContainText(json.materials[1].revision.last_run_revision);
+    expect(headings.get(1)).toContainText("latest");
     expect(headings.get(1)).toContainText(json.materials[1].name);
   });
 
@@ -133,7 +139,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
           "date":              "2018-02-08T04:32:11Z",
           "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
           "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
-          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
+          "last_run_revision": null
         }
       }
     ]

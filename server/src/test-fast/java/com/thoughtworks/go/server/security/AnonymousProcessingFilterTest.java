@@ -58,7 +58,7 @@ public class AnonymousProcessingFilterTest {
     }
 
     @Test
-    public void shouldGiveAnonymousUserRoleAnonymousAuthorityWhenSecurityIsONInCruiseConfig()  {
+    public void shouldGiveAnonymousUserRoleAnonymousAuthorityWhenSecurityIsONInCruiseConfig() {
         context.checking(new Expectations() {
             {
                 allowing(goConfigService).isSecurityEnabled();
@@ -73,7 +73,7 @@ public class AnonymousProcessingFilterTest {
     }
 
     @Test
-    public void shouldGiveAnonymousUserRoleSupervisorAuthorityWhenSecurityIsOFFInCruiseConfig()  {
+    public void shouldGiveAnonymousUserRoleSupervisorAuthorityWhenSecurityIsOFFInCruiseConfig() {
         context.checking(new Expectations() {
             {
                 allowing(goConfigService).isSecurityEnabled();
@@ -87,10 +87,9 @@ public class AnonymousProcessingFilterTest {
         assertTrue(authentication.getDetails() instanceof WebAuthenticationDetails);
     }
 
-//    @Test
-//    public void shouldInitialiseKeyAndAuthoritiesByDefault()  {
-//        AnonymousProcessingFilter testFilter = new AnonymousProcessingFilter(null);
-//        assertThat(testFilter.getKey(), is("anonymousKey"));
-//        assertThat(testFilter.getUserAttribute().getPassword(), is("anonymousUser"));
-//    }
+    @Test
+    public void shouldInitialiseKeyAndAuthoritiesByDefault() {
+        AnonymousProcessingFilter testFilter = new AnonymousProcessingFilter(null);
+        assertThat(testFilter.getPrincipal(), is("anonymousUser"));
+    }
 }

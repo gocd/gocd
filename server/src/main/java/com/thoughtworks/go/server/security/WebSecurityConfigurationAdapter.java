@@ -67,6 +67,10 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     private WebBasedThirdPartyRedirectFilter webBasedThirdPartyRedirectFilter;
     @Autowired
     private ApiSessionReduceIdleTimeoutFilter apiSessionReduceIdleTimeoutFilter;
+    @Autowired
+    private AnonymousProcessingFilter anonymousProcessingFilter;
+    @Autowired
+    private RemoveAdminPermissionFilter removeAdminPermissionFilter;
 
     @Autowired
     @Qualifier("filterChainProxy")
@@ -76,14 +80,19 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     private UserService userService;
 
     protected void configure(HttpSecurity http) throws Exception {
+        http.anonymous()
+                .authenticationFilter(anonymousProcessingFilter);
+
         disableCsrf(http);
         configureAuthority(http);
         configureFormLogin(http);
         configureBasicAuth(http);
         configureLogout(http);
         configureSession(http);
+
         http.addFilterAfter(filterChainProxy, SwitchUserFilter.class);
         http.addFilterBefore(apiSessionReduceIdleTimeoutFilter, SecurityContextPersistenceFilter.class);
+        http.addFilterAfter(removeAdminPermissionFilter, SecurityContextPersistenceFilter.class);
         http.addFilterBefore(webBasedThirdPartyRedirectFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(webBasedPluginAuthenticationProcessingFilter, WebBasedThirdPartyRedirectFilter.class);
     }

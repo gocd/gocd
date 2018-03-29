@@ -29,8 +29,6 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import javax.servlet.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,66 +37,34 @@ import java.util.List;
 @Order(1)
 public class SpringSecurityConfiguration {
     @Autowired
-    private ModeAwareFilter modeAwareFilter;
-    @Autowired
     private ArtifactSizeEnforcementFilter artifactSizeEnforcementFilter;
     @Autowired
     private LocaleResolver i18nlocaleResolver;
-    private Filter filterInvocationInterceptor = new NoOpFilter();
     @Autowired
     private FlashLoadingFilter flashLoader;
     @Autowired
     private DenyGoCDAccessForArtifactsFilter denyGoCDAccessForArtifactsFilter;
-
     @Autowired
     private GoUrlRewriteFilter urlRewriter;
-
-    //    @Autowired
-    private Filter basicAuthenticationAccessDenied = new NoOpFilter();
-    //    @Autowired
-    private Filter cruiseLoginOrBasicAuthentication = new NoOpFilter();
-    @Autowired
-    private AnonymousProcessingFilter anonymousProcessingFilter;
-    //    @Autowired
-    private Filter authenticationProcessingFilter = new NoOpFilter();
-    @Autowired
-    private RemoveAdminPermissionFilter removeAdminPermissionFilter;
-    //    @Autowired
-    private Filter agentRemotingFilterInvocationInterceptor = new NoOpFilter();
     @Autowired
     private ReAuthenticationFilter reAuthenticationFilter;
     @Autowired
     private OauthAuthenticationFilter oauthProcessingFilter;
     @Autowired
     private DisallowExternalReAuthenticationFilter disallowExternalReAuthenticationFilter;
+    @Autowired
+    private ModeAwareFilter modeAwareFilter;
 
     @Bean(name = "filterChainProxy")
     public FilterChainProxy getFilterChainProxy() {
         List<SecurityFilterChain> listOfFilterChains = new ArrayList<>();
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/config-repository.git/**"), modeAwareFilter, removeAdminPermissionFilter, authenticationProcessingFilter, anonymousProcessingFilter, basicAuthenticationAccessDenied, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/remoting/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, agentRemotingFilterInvocationInterceptor, flashLoader, urlRewriter));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/agent-websocket/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, agentRemotingFilterInvocationInterceptor));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), modeAwareFilter, i18nlocaleResolver, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, basicAuthenticationAccessDenied, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), modeAwareFilter, i18nlocaleResolver, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, basicAuthenticationAccessDenied, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/files/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, cruiseLoginOrBasicAuthentication, filterInvocationInterceptor, flashLoader, urlRewriter));
-        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), modeAwareFilter, i18nlocaleResolver, disallowExternalReAuthenticationFilter, removeAdminPermissionFilter, oauthProcessingFilter, authenticationProcessingFilter, reAuthenticationFilter, anonymousProcessingFilter, cruiseLoginOrBasicAuthentication, denyGoCDAccessForArtifactsFilter, filterInvocationInterceptor, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/config-repository.git/**"), modeAwareFilter, denyGoCDAccessForArtifactsFilter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/remoting/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/agent-websocket/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), modeAwareFilter, i18nlocaleResolver, oauthProcessingFilter, reAuthenticationFilter, denyGoCDAccessForArtifactsFilter, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), modeAwareFilter, i18nlocaleResolver, oauthProcessingFilter, reAuthenticationFilter, denyGoCDAccessForArtifactsFilter, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/files/**"), modeAwareFilter, artifactSizeEnforcementFilter, i18nlocaleResolver, oauthProcessingFilter, reAuthenticationFilter, flashLoader, urlRewriter));
+        listOfFilterChains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), modeAwareFilter, i18nlocaleResolver, disallowExternalReAuthenticationFilter, oauthProcessingFilter, reAuthenticationFilter, denyGoCDAccessForArtifactsFilter, flashLoader, urlRewriter));
         return new FilterChainProxy(listOfFilterChains);
-    }
-
-    private static class NoOpFilter implements Filter {
-        @Override
-        public void init(FilterConfig filterConfig) throws ServletException {
-
-        }
-
-        @Override
-        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-            filterChain.doFilter(servletRequest, servletResponse);
-        }
-
-        @Override
-        public void destroy() {
-
-        }
     }
 }

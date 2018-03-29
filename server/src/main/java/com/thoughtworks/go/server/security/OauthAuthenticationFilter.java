@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class OauthAuthenticationFilter extends SpringSecurityFilter {
+public class OauthAuthenticationFilter extends OncePerRequestFilter {
     private final OauthAuthenticationProvider authenticationProvider;
     private static final Pattern OAUTH_TOKEN_PATTERN = Pattern.compile("^Token token=\"(.*?)\"$");
     static final String AUTHORIZATION = "Authorization";
@@ -42,7 +43,8 @@ public class OauthAuthenticationFilter extends SpringSecurityFilter {
         this.authenticationProvider = authenticationProvider;
     }
 
-    protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader(AUTHORIZATION);//Token token="ACCESS_TOKEN"
 
         if (header != null) {
@@ -61,9 +63,5 @@ public class OauthAuthenticationFilter extends SpringSecurityFilter {
             }
         }
         chain.doFilter(request, response);
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.BASIC_PROCESSING_FILTER - 1;
     }
 }

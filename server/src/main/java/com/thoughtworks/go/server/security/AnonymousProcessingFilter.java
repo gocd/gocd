@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 public class AnonymousProcessingFilter extends AnonymousAuthenticationFilter {
@@ -33,7 +34,7 @@ public class AnonymousProcessingFilter extends AnonymousAuthenticationFilter {
 
     @Autowired
     public AnonymousProcessingFilter(GoConfigService configService) {
-        super("anonymousKey", "anonymousUser", Collections.singletonList(GoAuthority.ROLE_ANONYMOUS.asAuthority()));
+        super(UUID.randomUUID().toString(), "anonymousUser", Collections.singletonList(GoAuthority.ROLE_ANONYMOUS.asAuthority()));
         this.configService = configService;
     }
 

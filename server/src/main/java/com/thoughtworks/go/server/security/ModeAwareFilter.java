@@ -22,14 +22,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class ModeAwareFilter implements Filter {
+public class ModeAwareFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger("GO_MODE_AWARE_FILTER");
     private final SystemEnvironment systemEnvironment;
 
@@ -39,14 +41,10 @@ public class ModeAwareFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        if (shouldBlockRequest((HttpServletRequest) servletRequest)) {
+    public void doFilterInternal(HttpServletRequest servletRequest, HttpServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        if (shouldBlockRequest(servletRequest)) {
             LOGGER.warn("Got a non-GET request: {}", servletRequest);
-            ((HttpServletResponse) servletResponse).sendRedirect(systemEnvironment.getWebappContextPath() + "/errors/inactive");
+            servletResponse.sendRedirect(systemEnvironment.getWebappContextPath() + "/errors/inactive");
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
@@ -65,9 +63,5 @@ public class ModeAwareFilter implements Filter {
     private boolean isReadOnlyRequest(HttpServletRequest servletRequest) {
         return RequestMethod.GET.name().equalsIgnoreCase(servletRequest.getMethod()) ||
                 RequestMethod.HEAD.name().equalsIgnoreCase(servletRequest.getMethod());
-    }
-
-    @Override
-    public void destroy() {
     }
 }

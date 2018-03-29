@@ -48,6 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.hamcrest.Matchers.is;
@@ -103,7 +104,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         agentAssignment.clear();
         goCache.clear();
 
-        CONFIG_HELPER.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig("file:///home/cruise/projects/cruisen/manual-testing/ant_hg/dummy"), "job1", "job2");
+        CONFIG_HELPER.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig(UUID.randomUUID().toString()), "job1", "job2");
         CONFIG_HELPER.makeJobRunOnAllAgents("blahPipeline", "blahStage", "job2");
         notifier.disableUpdates();
 

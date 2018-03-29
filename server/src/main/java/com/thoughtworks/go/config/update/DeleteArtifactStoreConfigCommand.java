@@ -40,11 +40,11 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
-        ArtifactStore existingArtifactStore = findExistingProfile(modifiedConfig);
-        if (existingArtifactStore == null) {
+        preprocessedProfile = findExistingProfile(modifiedConfig);
+        if (preprocessedProfile == null) {
             throw new PluginProfileNotFoundException();
         }
-        getPluginProfiles(modifiedConfig).remove(existingArtifactStore);
+        getPluginProfiles(modifiedConfig).remove(preprocessedProfile);
     }
 
     @Override

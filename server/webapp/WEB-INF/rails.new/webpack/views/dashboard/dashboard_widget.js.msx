@@ -104,7 +104,7 @@ const DashboardWidget = {
                    placeholder="Search for pipeline"/>
             <button class="filter_btn"
                     onclick={vnode.state.togglePersonalizeDropdown.bind(vnode.state)}>
-              Filter View <i class="fa fa-filter"/>
+              Filter View
             </button>
           </div>
           {personalizeView}

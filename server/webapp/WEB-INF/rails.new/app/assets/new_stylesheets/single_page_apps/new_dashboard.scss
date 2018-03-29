@@ -1031,6 +1031,7 @@ body {
 
 .pipeline-trigger-with-options {
   margin: 5px 0 5px 10px;
+  min-height: 200px;
 
   .last-run-revision .value {
     @include ellipsis();

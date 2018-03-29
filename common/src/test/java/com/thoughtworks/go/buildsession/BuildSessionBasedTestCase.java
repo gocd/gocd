@@ -102,7 +102,7 @@ public class BuildSessionBasedTestCase {
     }
 
     protected String execSleepScriptProcessCommand() {
-        return SystemUtils.IS_OS_WINDOWS ? "PING.EXE" : "sleep";
+        return SystemUtils.IS_OS_WINDOWS ? "powershell.exe" : "sleep";
     }
 
 }

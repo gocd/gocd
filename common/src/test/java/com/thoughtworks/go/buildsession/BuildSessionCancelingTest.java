@@ -50,7 +50,6 @@ import static org.junit.Assert.assertTrue;
 public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelLongRunningBuild() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -72,7 +71,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelLongRunningTestCommand() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -94,7 +92,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void doubleCancelDoNothing() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {
@@ -129,7 +126,6 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelShouldProcessOnCancelCommandOfCommandThatIsRunning() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         Thread buildingThread = new Thread(new Runnable() {

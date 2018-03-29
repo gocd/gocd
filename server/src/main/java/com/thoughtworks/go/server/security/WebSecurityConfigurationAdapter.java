@@ -86,7 +86,6 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         http.addFilterBefore(apiSessionReduceIdleTimeoutFilter, SecurityContextPersistenceFilter.class);
         http.addFilterBefore(webBasedThirdPartyRedirectFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(webBasedPluginAuthenticationProcessingFilter, WebBasedThirdPartyRedirectFilter.class);
-        http.exceptionHandling().accessDeniedHandler(new GoAccessDeniedHandler());
     }
 
     private void disableCsrf(HttpSecurity http) throws Exception {
@@ -94,7 +93,7 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth
                 .authenticationProvider(oauthAuthenticationProvider)
                 .authenticationProvider(pluginAuthenticationProvider)

@@ -78,7 +78,7 @@ public class MultiplexingQueueProcessorTest {
         }
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void shouldLogAndIgnoreAnyActionsWhichFail() throws Exception {
         Action successfulAction1 = mock(Action.class);
         Action successfulAction2 = mock(Action.class);
@@ -90,9 +90,10 @@ public class MultiplexingQueueProcessorTest {
             queueProcessor.add(successfulAction1);
             queueProcessor.add(failingAction);
             queueProcessor.add(successfulAction2);
-
             queueProcessor.start();
-            waitForProcessingToHappen();
+            while (!queueProcessor.queue.isEmpty()) {
+                waitForProcessingToHappen(100);
+            }
 
             synchronized (logFixture) {
                 assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue"), is(true));
@@ -145,7 +146,11 @@ public class MultiplexingQueueProcessorTest {
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {
-        Thread.sleep(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
+        waitForProcessingToHappen(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
+    }
+
+    private void waitForProcessingToHappen(int time) throws InterruptedException {
+        Thread.sleep(time);
     }
 
     private class ThreadNameAccumulator {

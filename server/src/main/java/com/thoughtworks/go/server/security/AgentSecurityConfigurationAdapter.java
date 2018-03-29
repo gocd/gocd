@@ -16,26 +16,19 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.server.newsecurity.CachingSubjectDnX509PrincipalExtractor;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
-import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 
-import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 @Configuration
@@ -68,47 +61,6 @@ public class AgentSecurityConfigurationAdapter extends WebSecurityConfigurerAdap
         X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter();
         x509AuthenticationFilter.setPrincipalExtractor(new CachingSubjectDnX509PrincipalExtractor(userCache));
         return x509AuthenticationFilter;
-    }
-
-    private static class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
-        private final SubjectDnX509PrincipalExtractor delegate = new SubjectDnX509PrincipalExtractor();
-        private static final Logger LOGGER = LoggerFactory.getLogger(CachingSubjectDnX509PrincipalExtractor.class);
-
-        private final Cache cache;
-
-        public CachingSubjectDnX509PrincipalExtractor(Cache cache) {
-            this.cache = cache;
-        }
-
-        @Override
-        public Object extractPrincipal(X509Certificate cert) {
-            Element element = null;
-
-            try {
-                element = cache.get(cert);
-            } catch (CacheException cacheException) {
-                throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                String subjectDN = "unknown";
-
-                if ((cert != null) && (cert.getSubjectDN() != null)) {
-                    subjectDN = cert.getSubjectDN().toString();
-                }
-
-                LOGGER.debug("X.509 Cache hit. SubjectDN: {}", subjectDN);
-            }
-
-            if (element == null) {
-                element = new Element(cert, delegate.extractPrincipal(cert));
-                cache.put(element);
-            }
-
-            return element.getValue();
-        }
-
-
     }
 
     private static class X509UserDetailService implements org.springframework.security.core.userdetails.UserDetailsService {

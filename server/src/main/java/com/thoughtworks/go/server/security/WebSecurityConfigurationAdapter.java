@@ -114,6 +114,7 @@ public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapte
         http
                 .securityContext()
                 .securityContextRepository(new CustomHttpSessionSecurityContextRepository(userService));
+
         http
                 .authorizeRequests()
                 .antMatchers("/auth/login").permitAll()

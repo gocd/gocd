@@ -27,7 +27,7 @@ import java.util.Collection;
  */
 public class GoUserPrinciple extends User {
     private final String displayName;
-    private String loginName;
+    private final String loginName;
 
     public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) throws IllegalArgumentException {
         this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities, username);

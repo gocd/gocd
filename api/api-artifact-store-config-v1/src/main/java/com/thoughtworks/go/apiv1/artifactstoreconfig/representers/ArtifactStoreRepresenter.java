@@ -22,6 +22,7 @@ import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.spark.Routes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,10 @@ import java.util.Map;
 public class ArtifactStoreRepresenter {
     public static void toJSON(OutputWriter outputWriter, ArtifactStore store) {
         outputWriter
+                .addLinks(linksWriter -> linksWriter
+                        .addLink("self", Routes.ArtifactStoreConfig.id(store.getId()))
+                        .addAbsoluteLink("doc", Routes.ArtifactStoreConfig.DOC)
+                        .addLink("find", Routes.ArtifactStoreConfig.find()))
                 .add("id", store.getId())
                 .add("plugin_id", store.getPluginId())
                 .addChildList("properties", listWriter ->

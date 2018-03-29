@@ -24,7 +24,10 @@ public class ArtifactStoresRepresenter {
 
     public static void toJSON(OutputWriter writer, ArtifactStores stores) {
         writer.addLinks(
-                outputLinkWriter -> outputLinkWriter.addLink("self", Routes.ArtifactStoreConfig.BASE))
+                outputLinkWriter -> outputLinkWriter
+                        .addLink("self", Routes.ArtifactStoreConfig.BASE)
+                        .addAbsoluteLink("doc", Routes.ArtifactStoreConfig.DOC)
+                        .addLink("find", Routes.ArtifactStoreConfig.find()))
                 .addChild("_embedded",
                         embeddedWriter -> embeddedWriter.addChildList("artifact_stores",
                                 artifactStoresWriter -> stores.forEach(

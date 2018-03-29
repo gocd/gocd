@@ -28,8 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat
 class ArtifactStoreRepresenterTest {
 
   def artifactStore = [
-    id          : 'docker',
-    plugin_id   : 'cd.go.artifact.docker',
+    id        : 'docker',
+    plugin_id : 'cd.go.artifact.docker',
     properties: [
       [
         "key"  : "RegistryURL",
@@ -53,15 +53,20 @@ class ArtifactStoreRepresenterTest {
       ConfigurationPropertyMother.create('RegistryURL', false, 'http://foo'))
     artifactStore.addError("pluginId", "Invalid Plugin Id")
     def expectedJson = [
-      id          : 'docker',
-      plugin_id   : 'cd.go.artifact.docker',
+      _links    : [
+        self: [href: 'http://test.host/go/api/admin/artifact_stores/docker'],
+        doc : [href: 'https://api.gocd.org/current/#artifact_stores'],
+        find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
+      ],
+      id        : 'docker',
+      plugin_id : 'cd.go.artifact.docker',
       properties: [
         [
           "key"  : "RegistryURL",
           "value": "http://foo"
         ]
       ],
-      errors: [
+      errors    : [
         "plugin_id": ["Invalid Plugin Id"]
       ]
     ]

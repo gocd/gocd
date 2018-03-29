@@ -186,9 +186,18 @@ public class Routes {
         public static final String PATH = "/:pipeline_name/:pipeline_counter";
     }
 
-    public class ArtifactStoreConfig {
+    public static class ArtifactStoreConfig {
         public static final String BASE = "/api/admin/artifact_stores";
-        public static final String NAME = "/:store_id";
+        public static final String ID = "/:id";
+        public static final String DOC = "https://api.gocd.org/current/#artifact_stores";
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":id", id);
+        }
     }
 
     public class AgentsSPA {

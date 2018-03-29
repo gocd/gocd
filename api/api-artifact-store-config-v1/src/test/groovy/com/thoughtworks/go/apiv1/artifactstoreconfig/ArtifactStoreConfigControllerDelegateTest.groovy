@@ -44,6 +44,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -359,6 +360,25 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
           .hasEtag('"new-md5"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
+      }
+
+      @Test
+      void 'should not allow rename of id'() {
+        def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+        def newArtifactStore = new ArtifactStore("test1", "cd.go.artifact.artifactory", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
+
+        when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
+        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+        when(entityHashingService.md5ForEntity(newArtifactStore)).thenReturn('new-md5')
+
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-md5'], toObjectString({
+          ArtifactStoreRepresenter.toJSON(it, newArtifactStore)
+        }))
+
+        assertThatResponse()
+          .isUnprocessibleEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(renameOfEntityIsNotSupportedMessage('artifactStore'))
       }
     }
   }

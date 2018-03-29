@@ -44,6 +44,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 public class ArtifactStoreConfigControllerDelegate extends ApiController implements CrudController<ArtifactStore> {
+    private static final String ID_PARAM = "id";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final ArtifactStoreService artifactStoreService;
     private final EntityHashingService entityHashingService;
@@ -105,10 +106,10 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
 
             get("", this::index);
-            get(Routes.ArtifactStoreConfig.NAME, this::show);
+            get(Routes.ArtifactStoreConfig.ID, this::show);
             post("", this::create);
-            put(Routes.ArtifactStoreConfig.NAME, this::update);
-            delete(Routes.ArtifactStoreConfig.NAME, this::destroy);
+            put(Routes.ArtifactStoreConfig.ID, this::update);
+            delete(Routes.ArtifactStoreConfig.ID, this::destroy);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -121,7 +122,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     }
 
     public String show(Request request, Response response) throws IOException {
-        ArtifactStore artifactStore = getEntityFromConfig(request.params("store_id"));
+        ArtifactStore artifactStore = getEntityFromConfig(request.params(ID_PARAM));
 
         if (isGetOrHeadRequestFresh(request, artifactStore)) {
             return notModified(response);
@@ -143,7 +144,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     }
 
     public String update(Request req, Response res) throws IOException {
-        ArtifactStore artifactStoreFromServer = getEntityFromConfig(req.params("store_id"));
+        ArtifactStore artifactStoreFromServer = getEntityFromConfig(req.params(ID_PARAM));
         ArtifactStore artifactStoreFromRequest = getEntityFromRequestBody(req);
 
         if (isRenameAttempt(artifactStoreFromServer, artifactStoreFromRequest)) {
@@ -160,7 +161,7 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
     }
 
     public String destroy(Request request, Response response) throws IOException {
-        ArtifactStore artifactStore = getEntityFromConfig(request.params("store_id"));
+        ArtifactStore artifactStore = getEntityFromConfig(request.params(ID_PARAM));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         artifactStoreService.delete(currentUsername(), artifactStore, result);
 

@@ -15,9 +15,9 @@
  */
 
 
-const m        = require('mithril');
-const $        = require('jquery');
-const mrequest = require('helpers/mrequest');
+const m         = require('mithril');
+const $         = require('jquery');
+const mrequest  = require('helpers/mrequest');
 
 function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, contentType = false} = {}) {
   return $.Deferred(function () {
@@ -48,6 +48,7 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
 }
 
 module.exports = class AjaxHelper {
+
   static GET({url, apiVersion, type, timeout = mrequest.timeout} = {}) {
     return makeRequest({method: 'GET', url, apiVersion, type, timeout});
   }

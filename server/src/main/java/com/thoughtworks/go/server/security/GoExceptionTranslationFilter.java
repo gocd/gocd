@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         //TODO: This is a hack for bug #3175, we should revisit this code in V2.0
-        if (isJson(httpRequest) || isJsonFormat(httpRequest)) {
+        if (isJson(httpRequest) || isJsonFormat(httpRequest) || isAnApiRequest(httpRequest)) {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -78,6 +78,10 @@ public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {
             return basicAuthenticationEntryPoint;
         }
         return point;
+    }
+
+    private boolean isAnApiRequest(HttpServletRequest httpRequest) {
+        return httpRequest.getRequestURI().startsWith("/go/api/");
     }
 
     private boolean isJsonFormat(HttpServletRequest httpRequest) {

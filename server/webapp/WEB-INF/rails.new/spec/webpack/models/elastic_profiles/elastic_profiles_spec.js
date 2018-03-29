@@ -79,7 +79,7 @@ describe('Elastic Agent Profile', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -137,7 +137,7 @@ describe('Elastic Agent Profile', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -204,7 +204,7 @@ describe('Elastic Agent Profile', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -300,7 +300,7 @@ describe('Elastic Agent Profile', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }

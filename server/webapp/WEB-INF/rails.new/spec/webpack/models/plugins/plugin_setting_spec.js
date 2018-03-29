@@ -77,7 +77,7 @@ describe('Plugin Settings', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/admin/plugin_settings/${pluginSettingJSON['plugin_id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -139,7 +139,7 @@ describe('Plugin Settings', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/plugin_settings', undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -241,7 +241,7 @@ describe('Plugin Settings', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/admin/plugin_settings/${pluginSetting.pluginId()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }

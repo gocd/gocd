@@ -229,7 +229,7 @@ describe("AuthConfigsWidget", () => {
     it("should render error if index call fails", () => {
       jasmine.Ajax.stubRequest(authConfigIndexUrl).andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       m.mount(root, {
@@ -290,7 +290,7 @@ describe("AuthConfigsWidget", () => {
     it("should display error message", () => {
       jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'POST').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.add-auth-config').get(0), 'click');
@@ -348,7 +348,7 @@ describe("AuthConfigsWidget", () => {
     it("should display error message if fails to fetch auth config", () => {
       jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.edit-auth-config').get(0), 'click');
@@ -402,7 +402,7 @@ describe("AuthConfigsWidget", () => {
     it("should show error message when deletion of auth config fails", () => {
       jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${authConfigJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.delete-auth-config-confirm').get(0), 'click');

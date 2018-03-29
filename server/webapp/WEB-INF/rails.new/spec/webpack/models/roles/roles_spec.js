@@ -144,7 +144,7 @@ describe('Roles Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -210,7 +210,7 @@ describe('Roles Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${roleIndexUrl}/${role.name()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -306,7 +306,7 @@ describe('Roles Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -402,7 +402,7 @@ describe('Roles Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON['name']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }

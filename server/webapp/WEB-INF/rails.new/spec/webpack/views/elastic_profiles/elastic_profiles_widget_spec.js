@@ -228,7 +228,7 @@ describe("ElasticProfilesWidget", () => {
     it("should render error if index call fails", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       m.mount(root, {
@@ -308,7 +308,7 @@ describe("ElasticProfilesWidget", () => {
 
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .save').get(0), 'click');
@@ -362,7 +362,7 @@ describe("ElasticProfilesWidget", () => {
     it("should display error message if fetching a profile fails", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${dockerElasticProfileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.edit-profile').get(0), 'click');
@@ -417,7 +417,7 @@ describe("ElasticProfilesWidget", () => {
     it("should show error message when deleting profile fails", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${dockerElasticProfileJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.delete-profile-confirm').get(0), 'click');
@@ -452,7 +452,7 @@ describe("ElasticProfilesWidget", () => {
     it("should display error message if fetching a profile fails", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${dockerElasticProfileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');

@@ -86,7 +86,7 @@ describe('Authorization Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(authConfigIndexUrl).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -144,7 +144,7 @@ describe('Authorization Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfig.id()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -221,7 +221,7 @@ describe('Authorization Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -317,7 +317,7 @@ describe('Authorization Configuration', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfigJSON()['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }

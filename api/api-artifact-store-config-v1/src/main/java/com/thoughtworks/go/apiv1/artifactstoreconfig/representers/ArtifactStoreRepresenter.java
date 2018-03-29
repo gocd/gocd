@@ -49,12 +49,11 @@ public class ArtifactStoreRepresenter {
     }
 
     public static ArtifactStore fromJSON(JsonReader jsonReader) {
-        List<ConfigurationProperty> configurationProperties = readConfigurationProperties(jsonReader);
-        return new ArtifactStore(
+        ArtifactStore artifactStore = new ArtifactStore(
                 jsonReader.getString("id"),
-                jsonReader.getString("plugin_id"),
-                configurationProperties.toArray(new ConfigurationProperty[]{}));
-
+                jsonReader.getString("plugin_id"));
+        artifactStore.addConfigurations(readConfigurationProperties(jsonReader));
+        return artifactStore;
     }
 
     private static List<ConfigurationProperty> readConfigurationProperties(JsonReader jsonReader) {

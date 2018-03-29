@@ -19,6 +19,12 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig.representers
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.ArtifactStore
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo
+import com.thoughtworks.go.plugin.domain.common.Metadata
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -27,23 +33,24 @@ import static org.assertj.core.api.Assertions.assertThat
 
 class ArtifactStoreRepresenterTest {
 
-  def artifactStore = [
-    id        : 'docker',
-    plugin_id : 'cd.go.artifact.docker',
-    properties: [
-      [
-        "key"  : "RegistryURL",
-        "value": "http://foo"
-      ]
-    ]
-  ]
-
   @Test
   void shouldCreateObjectFromJson() {
+    def artifactStore = [
+      id        : 'docker',
+      plugin_id : 'cd.go.artifact.docker',
+      properties: [
+        [
+          "key"  : "RegistryURL",
+          "value": "http://foo"
+        ]
+      ]
+    ]
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(artifactStore)
     def expectedObject = new ArtifactStore('docker', 'cd.go.artifact.docker',
       ConfigurationPropertyMother.create('RegistryURL', false, 'http://foo'))
+
     def object = ArtifactStoreRepresenter.fromJSON(jsonReader)
+
     assertThat(object).isEqualTo(expectedObject)
   }
 
@@ -76,4 +83,45 @@ class ArtifactStoreRepresenterTest {
     assertThatJson(json).isEqualTo(expectedJson)
   }
 
+  @Test
+  void shouldEncryptSecureValues(){
+    def artifactStore = [
+      id        : 'docker',
+      plugin_id : 'cd.go.artifact.docker',
+      properties: [
+        [
+          "key"  : "Password",
+          "value": "passw0rd1"
+        ]
+      ]
+    ]
+    def artifactMetadataStore = ArtifactMetadataStore.instance()
+    PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(Arrays.asList(
+      new PluginConfiguration("Password", new Metadata(true, true))))
+    artifactMetadataStore.setPluginInfo(new ArtifactPluginInfo(pluginDescriptor(), pluggableInstanceSettings, null, null, null, null))
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(artifactStore)
+
+    def object = ArtifactStoreRepresenter.fromJSON(jsonReader)
+
+    assertThat(object.getProperty("Password").isSecure()).isTrue()
+  }
+
+  private static PluginDescriptor pluginDescriptor() {
+    return new PluginDescriptor() {
+      @Override
+      String id() {
+        return "cd.go.artifact.docker"
+      }
+
+      @Override
+      String version() {
+        return null
+      }
+
+      @Override
+      PluginDescriptor.About about() {
+        return null
+      }
+    }
+  }
 }

@@ -20,7 +20,7 @@ package com.thoughtworks.go.server.security;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.BadCredentialsException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.servlet.ServletException;
 import java.io.IOException;

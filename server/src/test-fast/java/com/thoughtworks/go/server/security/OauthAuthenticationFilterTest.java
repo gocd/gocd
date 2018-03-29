@@ -17,19 +17,19 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider;
 import org.junit.*;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.*;
 
@@ -38,7 +38,7 @@ public class OauthAuthenticationFilterTest {
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
     private static SecurityContext originalContext;
-    private AuthenticationProvider authenticationProvider;
+    private OauthAuthenticationProvider authenticationProvider;
     private OauthAuthenticationFilter filter;
     private HttpServletRequest req;
     private HttpServletResponse res;
@@ -59,7 +59,7 @@ public class OauthAuthenticationFilterTest {
     public void setUp() throws Exception {
         securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
-        authenticationProvider = mock(AuthenticationProvider.class);
+        authenticationProvider = mock(OauthAuthenticationProvider.class);
         filter = new OauthAuthenticationFilter(authenticationProvider);
         req = mock(HttpServletRequest.class);
         res = mock(HttpServletResponse.class);
@@ -90,7 +90,7 @@ public class OauthAuthenticationFilterTest {
     public void shouldAuthenticateToken() throws IOException, ServletException {
         when(req.getHeader(OauthAuthenticationFilter.AUTHORIZATION)).thenReturn("Token token=\"valid-token\"");
         OauthAuthenticationToken authenticatedToken = new OauthAuthenticationToken(
-                new User("user-name", "valid-token", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_SUPERVISOR.asAuthority()}));
+                new User("user-name", "valid-token", Arrays.asList(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
         when(authenticationProvider.authenticate(new OauthAuthenticationToken("valid-token"))).thenReturn(authenticatedToken);
 
         filter.doFilterHttp(req, res, chain);

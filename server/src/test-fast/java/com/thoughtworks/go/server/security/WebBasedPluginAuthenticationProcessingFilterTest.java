@@ -20,14 +20,15 @@ import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.server.security.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.security.tokens.PreAuthenticatedAuthenticationToken;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -56,6 +57,7 @@ public class WebBasedPluginAuthenticationProcessingFilterTest {
     private AuthorizationExtension authorizationExtension;
     private GoConfigService configService;
     private SecurityConfig securityConfig;
+    private WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -65,7 +67,8 @@ public class WebBasedPluginAuthenticationProcessingFilterTest {
         authenticationManager = mock(AuthenticationManager.class);
         authorizationExtension = mock(AuthorizationExtension.class);
         configService = mock(GoConfigService.class);
-        filter = new WebBasedPluginAuthenticationProcessingFilter(authorizationExtension, configService);
+        webBasedPluginAuthenticationProvider = mock(WebBasedPluginAuthenticationProvider.class);
+        filter = new WebBasedPluginAuthenticationProcessingFilter(authorizationExtension, configService, webBasedPluginAuthenticationProvider);
         securityConfig = new SecurityConfig();
 
         filter.setAuthenticationManager(authenticationManager);
@@ -75,10 +78,10 @@ public class WebBasedPluginAuthenticationProcessingFilterTest {
     }
 
     @Test
-    public void shouldAttemptAuthenticationOnlyForPluginAuthRequests() throws IOException, ServletException {
+    public void shouldAttemptAuthenticationOnlyForPluginAuthRequests() {
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/authenticate");
 
-        filter.attemptAuthentication(request);
+        filter.attemptAuthentication(request, response);
 
         verify(authenticationManager).authenticate(any(PreAuthenticatedAuthenticationToken.class));
     }
@@ -155,7 +158,6 @@ public class WebBasedPluginAuthenticationProcessingFilterTest {
                 Collections.singletonMap("code", "some_auth_code"), Collections.singletonList(githubAuthConfig))).
                 thenReturn(Collections.singletonMap("access_token", "token"));
         when(authenticationManager.authenticate(any(PreAuthenticatedAuthenticationToken.class))).thenReturn(token);
-        filter.setDefaultTargetUrl("/");
 
         filter.doFilter(request, response, filterChain);
 

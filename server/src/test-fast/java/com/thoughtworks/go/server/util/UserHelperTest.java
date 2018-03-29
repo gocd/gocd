@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
+import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.junit.After;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class UserHelperTest {
 
     @Test
     public void shouldUnderstandByACEGIRoleWetherAgent() {
-        stubSecurityContextForRole(X509AuthoritiesPopulator.ROLE_AGENT);
+        stubSecurityContextForRole(GoAuthority.ROLE_AGENT.name());
         assertThat(UserHelper.isAgent(), is(true));
         stubSecurityContextForRole("junk");
         assertThat(UserHelper.isAgent(), is(false));
@@ -96,14 +96,14 @@ public class UserHelperTest {
     public void shouldReturnTrueWhenCheckIsAgentIfGrantedAuthorityContainsAgentRole() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(null, null,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_AGENT")));
-        assertThat(UserHelper.matchesRole(authentication, X509AuthoritiesPopulator.ROLE_AGENT), is(true));
+        assertThat(UserHelper.matchesRole(authentication, GoAuthority.ROLE_AGENT.name()), is(true));
     }
 
     @Test
     public void shouldReturnFalseWhenCheckIsAgentIfGrantedAuthorityNotContainsAgentRole() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(null, null,
                 Collections.singletonList(new SimpleGrantedAuthority("anything")));
-        assertThat(UserHelper.matchesRole(authentication, X509AuthoritiesPopulator.ROLE_AGENT), is(false));
+        assertThat(UserHelper.matchesRole(authentication, GoAuthority.ROLE_AGENT.name()), is(false));
     }
 
     @Test
@@ -114,17 +114,18 @@ public class UserHelperTest {
     }
 
     @Test
-    public void shouldSetUserIdIntoSession(){
+    public void shouldSetUserIdIntoSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);
 
         UserHelper.setUserId(request, 123L);
 
-        verify(session).setAttribute("USERID",123L);
+        verify(session).setAttribute("USERID", 123L);
     }
+
     @Test
-    public void shouldGetUserIdFromSession(){
+    public void shouldGetUserIdFromSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);

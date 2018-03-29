@@ -17,28 +17,27 @@
 package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.server.oauth.OauthDataSource;
+import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.security.OauthAuthenticationToken;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-
-import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.OauthAuthenticationToken;
-import org.junit.Test;
-import org.junit.Before;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.userdetails.UserDetails;
 
 public class OauthAuthenticationProviderTest {
     private OauthDataSource dataSource;
 
     private OauthAuthenticationProvider provider;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         dataSource = mock(OauthDataSource.class);
         provider = new OauthAuthenticationProvider(dataSource);
     }

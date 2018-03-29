@@ -1,3 +1,4 @@
+
 /*************************GO-LICENSE-START*********************************
  * Copyright 2014 ThoughtWorks, Inc.
  *
@@ -19,11 +20,12 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.ClearSingleton;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -41,7 +43,7 @@ public class ConfigModifyingUserTest {
     @Test
     public void shouldIdentifyLoggedInUserAsModifyingUser_WhenNoModifyingUserIsGiven() {
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", Collections.emptyList()), null));
         ConfigModifyingUser user = new ConfigModifyingUser();
         assertThat(user.getUserName(), is("loser_boozer"));
     }

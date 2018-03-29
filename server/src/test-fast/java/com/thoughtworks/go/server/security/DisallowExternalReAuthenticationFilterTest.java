@@ -20,8 +20,8 @@ import com.thoughtworks.go.ClearSingleton;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;

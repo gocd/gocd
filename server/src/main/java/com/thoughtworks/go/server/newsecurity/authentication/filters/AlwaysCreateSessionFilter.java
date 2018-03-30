@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.newsecurity;
+package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
-import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
+@Component
+public class AlwaysCreateSessionFilter extends OncePerRequestFilter {
 
-    protected boolean hasUser(HttpServletRequest request) {
-        return getUser(request) == null;
+    @Override
+    protected
+    void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        request.getSession();
+        filterChain.doFilter(request, response);
     }
 
-    protected User getUser(HttpServletRequest request) {
-        return (User) request.getSession().getAttribute(AuthenticationFilter.CURRENT_USER);
-    }
-
-    protected void setUser(User user, HttpServletRequest request) {
-        request.getSession().setAttribute(AuthenticationFilter.CURRENT_USER, user);
-    }
-
-    protected void logout(HttpServletRequest request, HttpServletResponse response) {
-        request.getSession().invalidate();
-    }
 }

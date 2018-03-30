@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.newsecurity;
+package com.thoughtworks.go.server.newsecurity.authentication.handlers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public interface RequestHandler {
-    void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
+class GenericRequestHandler implements RequestHandler {
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You are not authorized to access this resource!");
+    }
 }

@@ -15,6 +15,7 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.newsecurity.authentication.filters.ApiSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;

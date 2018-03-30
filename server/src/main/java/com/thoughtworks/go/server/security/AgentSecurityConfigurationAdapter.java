@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.server.newsecurity.CachingSubjectDnX509PrincipalExtractor;
+import com.thoughtworks.go.server.newsecurity.authentication.filters.CachingSubjectDnX509PrincipalExtractor;
 import net.sf.ehcache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

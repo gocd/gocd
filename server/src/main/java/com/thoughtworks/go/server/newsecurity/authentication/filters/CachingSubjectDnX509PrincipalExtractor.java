@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.newsecurity;
+package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;

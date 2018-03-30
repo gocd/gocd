@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.newsecurity;
+package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
+import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletRequest;
+import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletResponse;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-public class AuthenticationFilterTest {
-    private final HttpServletRequest request = new MockHttpServletRequest();
-    private final HttpServletResponse response = mock(HttpServletResponse.class);
+public class AlwaysCreateSessionFilterTest {
+    private HttpServletResponse response;
+    private MockHttpServletRequest request;
+    private AlwaysCreateSessionFilter alwaysCreateSessionFilter;
+
+    @Before
+    public void setUp() throws Exception {
+        response = new MockHttpServletResponse();
+        request = new MockHttpServletRequest();
+        alwaysCreateSessionFilter = new AlwaysCreateSessionFilter();
+    }
 
     @Test
     public void shouldCreateASessionIfOneNotExist() throws ServletException, IOException {
@@ -40,10 +48,9 @@ public class AuthenticationFilterTest {
 
         assertThat(request.getSession(false)).isNull();
 
-        new OldAuthenticationFilter(pluginAuthenticationProvider, goConfigService).doFilter(request, response, filterChain);
+        alwaysCreateSessionFilter.doFilter(request, response, filterChain);
 
         assertThat(request.getSession(false)).isNotNull();
-        verify(filterChain).doFilter(request, response);
     }
 
     @Test
@@ -51,11 +58,11 @@ public class AuthenticationFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
 
         final HttpSession session = request.getSession(true);
+
         assertThat(session).isNotNull();
 
-        new OldAuthenticationFilter(pluginAuthenticationProvider, goConfigService).doFilter(request, response, filterChain);
+        alwaysCreateSessionFilter.doFilter(request, response, filterChain);
 
         assertThat(request.getSession(false)).isEqualTo(session);
-        verify(filterChain).doFilter(request, response);
     }
 }

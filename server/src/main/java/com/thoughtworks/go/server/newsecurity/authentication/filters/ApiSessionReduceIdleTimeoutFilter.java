@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.web;
+package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,10 +32,6 @@ import java.io.IOException;
 @Component
 public class ApiSessionReduceIdleTimeoutFilter extends OncePerRequestFilter {
     private final int idleTimeoutInSeconds;
-    private static final RequestMatcher REQUEST_MATCHER = new OrRequestMatcher(
-            new AntPathRequestMatcher("/api/**"),
-            new AntPathRequestMatcher("/cctray.xml")
-    );
 
     @Autowired
     public ApiSessionReduceIdleTimeoutFilter(SystemEnvironment systemEnvironment) {
@@ -48,22 +41,18 @@ public class ApiSessionReduceIdleTimeoutFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if (REQUEST_MATCHER.matches(request)) {
-            maybeSetSessionIdleTimeout(request, response, chain);
-        } else {
-            chain.doFilter(request, response);
-        }
+        maybeSetSessionIdleTimeout(request, response, chain);
     }
 
     private void maybeSetSessionIdleTimeout(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        boolean hadSessionBeforeStarting = request.getSession(false) != null;
+        boolean hadNoSessionBeforeStarting = request.getSession(false) == null;
         try {
             chain.doFilter(request, response);
         } finally {
             HttpSession session = request.getSession(false);
             boolean hasSessionNow = session != null;
 
-            if (!hadSessionBeforeStarting && hasSessionNow) {
+            if (hadNoSessionBeforeStarting && hasSessionNow) {
                 session.setMaxInactiveInterval(idleTimeoutInSeconds);
             }
         }

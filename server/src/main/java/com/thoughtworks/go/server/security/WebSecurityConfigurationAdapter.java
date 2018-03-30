@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider
 import com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.web.ApiSessionReduceIdleTimeoutFilter;
+import com.thoughtworks.go.server.newsecurity.authentication.filters.ApiSessionReduceIdleTimeoutFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;

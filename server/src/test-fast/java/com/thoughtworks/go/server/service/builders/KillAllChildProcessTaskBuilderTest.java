@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.studios.shine.io.StringOutputStream;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,8 +48,8 @@ public class KillAllChildProcessTaskBuilderTest {
 
     @Test(timeout = 11 * 60 * 1000)//11 minutes
     public void shouldKillAllChildProcessOnbuild() throws Exception {
-        ProcessWrapper processWrapper = CommandLine.createCommandLine("sleep").withArg(String.valueOf(10 * 60)).withEncoding("utf-8").execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
-                null);//60 mins
+        ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding("utf-8").execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
+                null);//10 mins
 
         assertThat(processWrapper.isRunning(), is(true));
 
@@ -62,6 +63,13 @@ public class KillAllChildProcessTaskBuilderTest {
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
         assertThat(getSystemTime() - before, is(lessThan(10 * 60 * 1000 * 1000 * 1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;
+    }
+
+    private CommandLine platformSpecificSleepCommand() {
+        if(SystemUtils.IS_OS_WINDOWS){
+            return CommandLine.createCommandLine("powershell").withArg("sleep");
+        }
+        return CommandLine.createCommandLine("sleep");
     }
 
     @Test

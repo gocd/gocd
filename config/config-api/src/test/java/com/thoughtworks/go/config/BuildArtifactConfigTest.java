@@ -29,14 +29,14 @@ public class BuildArtifactConfigTest {
     public void validate_shouldFailIfSourceIsEmpty() {
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig(null, "bar");
         artifactPlan.validate(ConfigSaveValidationContext.forChain(new JobConfig("jobname")));
-        assertThat(artifactPlan.errors().on(BuildArtifactConfig.SRC), is("Job 'jobname' has an artifact with an empty source"));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC), is("Job 'jobname' has an artifact with an empty source"));
     }
 
     @Test
     public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(BuildArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
     }
 
     @Test
@@ -57,11 +57,11 @@ public class BuildArtifactConfigTest {
         artifactPlan.validateUniqueness(plans);
 
         assertThat(artifactPlan.errors().isEmpty(), is(false));
-        assertThat(artifactPlan.errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactPlan.errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
         assertThat(existingPlan.errors().isEmpty(), is(false));
-        assertThat(existingPlan.errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
     }
 
     @Test

@@ -80,8 +80,8 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         }
         List<Map> attrList = (List<Map>) attributes;
         for (Map attrMap : attrList) {
-            String source = (String) attrMap.get(BuildArtifactConfig.SRC);
-            String destination = (String) attrMap.get(BuildArtifactConfig.DEST);
+            String source = (String) attrMap.get(BuiltinArtifactConfig.SRC);
+            String destination = (String) attrMap.get(BuiltinArtifactConfig.DEST);
             if (source.trim().isEmpty() && destination.trim().isEmpty()) {
                 continue;
             }

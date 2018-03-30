@@ -791,8 +791,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertTestArtifactConfigWhenDestinationIsNull() {
-        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.test));
-        assertThat(buildArtifactConfig.getDestination(), is("testoutput"));
+        TestArtifactConfig testArtifactConfig = (TestArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.test));
+        assertThat(testArtifactConfig.getDestination(), is("testoutput"));
     }
 
     @Test

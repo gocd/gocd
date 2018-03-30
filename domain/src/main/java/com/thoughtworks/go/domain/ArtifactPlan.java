@@ -18,10 +18,7 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.ArtifactConfig;
-import com.thoughtworks.go.config.BuildArtifactConfig;
-import com.thoughtworks.go.config.ArtifactConfigs;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -61,7 +58,7 @@ public class ArtifactPlan extends PersistentObject {
         if (artifactConfig instanceof PluggableArtifactConfig) {
             this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactConfig).toJSON();
         } else {
-            BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) artifactConfig;
+            BuiltinArtifactConfig buildArtifactConfig = (BuiltinArtifactConfig) artifactConfig;
             setSrc(buildArtifactConfig.getSource());
             setDest(buildArtifactConfig.getDestination());
         }

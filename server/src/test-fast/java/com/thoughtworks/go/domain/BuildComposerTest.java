@@ -198,7 +198,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
 
     private static final String SLEEP_TEN_SECONDS_ON_WINDOWS = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
             + "  <tasks>\n"
-            + "    <exec command=\"echo before sleep &amp; ping 1.1.1.1 -n 1 -w 100000 >NULL\">\n"
+            + "    <exec command=\"echo before sleep &amp; powershell sleep 100\">\n"
             + "      <oncancel>\n"
             + "        <exec command=\"echo\">\n"
             + "           <arg>executing on cancel task</arg>\n"

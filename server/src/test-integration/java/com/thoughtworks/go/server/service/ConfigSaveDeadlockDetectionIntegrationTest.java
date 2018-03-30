@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.Gson;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -107,7 +108,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 protected void failed(Throwable e, Description description) {
                     if (e.getMessage().contains("test timed out") || e instanceof TimeoutException) {
                         try {
-                            fail("Test timed out, possible deadlock. Thread Dump:" + serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult()));
+                            fail("Test timed out, possible deadlock. Thread Dump:" + new Gson().toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())));
                         } catch (Exception e1) {
                             throw new RuntimeException(e1);
                         }

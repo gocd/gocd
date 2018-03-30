@@ -63,4 +63,16 @@ public class BuildArtifactConfigTest {
         assertThat(existingPlan.errors().on(BuildArtifactConfig.SRC), is("Duplicate artifacts defined."));
         assertThat(existingPlan.errors().on(BuildArtifactConfig.DEST), is("Duplicate artifacts defined."));
     }
+
+    @Test
+    public void validate_shouldNotFailWhenComparingBuildAndTestArtifacts() {
+        List<ArtifactConfig> plans = new ArrayList<>();
+        TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", "dest");
+        plans.add(testArtifactConfig);
+        BuildArtifactConfig buildArtifactConfig = new BuildArtifactConfig("src", "dest");
+
+        buildArtifactConfig.validateUniqueness(plans);
+
+        assertThat(buildArtifactConfig.errors().isEmpty(), is(true));
+    }
 }

@@ -120,6 +120,9 @@ public class BuildArtifactConfig implements ArtifactConfig {
         if (!(o instanceof BuildArtifactConfig)) return false;
 
         BuildArtifactConfig that = (BuildArtifactConfig) o;
+        if (!that.getArtifactType().equals(this.getArtifactType())) {
+            return false;
+        }
 
         if (source != null ? !source.equals(that.source) : that.source != null) return false;
         return destination != null ? destination.equals(that.destination) : that.destination == null;

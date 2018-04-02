@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
-import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
@@ -36,7 +35,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.when;
 
 public class PackageMaterialPluginInfoBuilderTest {
@@ -57,12 +55,12 @@ public class PackageMaterialPluginInfoBuilderTest {
         repoSettings.add(new PackageMaterialProperty("foo", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.DISPLAY_ORDER, 1));
         repoSettings.add(new PackageMaterialProperty("bar", null).with(Property.REQUIRED, true).with(Property.SECURE, true).with(Property.DISPLAY_ORDER, 2));
 
-        stub(extension.getPackageConfiguration("plugin1")).toReturn(packageSettings);
-        stub(extension.getRepositoryConfiguration("plugin1")).toReturn(repoSettings);
-        stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
+        when(extension.getPackageConfiguration("plugin1")).thenReturn(packageSettings);
+        when(extension.getRepositoryConfiguration("plugin1")).thenReturn(repoSettings);
+        when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(new PluginSettingsProperty("k1", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.DISPLAY_ORDER, 3));
-        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(pluginSettingsConfiguration);
+        when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(pluginSettingsConfiguration);
     }
 
     @Test

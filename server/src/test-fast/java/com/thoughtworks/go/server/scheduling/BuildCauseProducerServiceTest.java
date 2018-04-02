@@ -52,11 +52,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -250,13 +248,10 @@ public class BuildCauseProducerServiceTest {
     private MaterialUpdateStatusListener extractMaterialListenerInstanceFromRegisterCall() {
         final MaterialUpdateStatusListener[] listener = new MaterialUpdateStatusListener[1];
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(any(PipelineConfig.class),
-                argThat(new BaseMatcher<MaterialUpdateStatusListener>() {
-                    public boolean matches(Object o) {
-                        listener[0] = (MaterialUpdateStatusListener) o;
+                argThat(new ArgumentMatcher<MaterialUpdateStatusListener>() {
+                    public boolean matches(MaterialUpdateStatusListener o) {
+                        listener[0] = o;
                         return true;
-                    }
-
-                    public void describeTo(Description description) {
                     }
                 }));
         return listener[0];
@@ -519,26 +514,26 @@ public class BuildCauseProducerServiceTest {
         assertThat(serverHealthState.isSuccess(), is(true));
     }
 
-    private TypeSafeMatcher<ServerHealthState> hasErrorHealthState(final String message, final String description) {
-        return new TypeSafeMatcher<ServerHealthState>() {
+    private ArgumentMatcher<ServerHealthState> hasErrorHealthState(final String message, final String description) {
+        return new ArgumentMatcher<ServerHealthState>() {
             @Override
-            public boolean matchesSafely(ServerHealthState item) {
+            public boolean matches(ServerHealthState item) {
                 assertThat("isSuccess", item.isSuccess(), is(false));
                 assertThat("message", item.getMessage(), is(message));
                 assertThat("description", item.getDescription(), is(description));
                 return true;
             }
 
-            public void describeTo(Description description) {
-                description.appendText("message = [" + message + "] and description = [" + description + "]");
+            public String toString() {
+                return "hasErrorHealthState(" + message + ")";
             }
         };
     }
 
-    private TypeSafeMatcher<BuildCause> containsRevisions(final MaterialRevision... revisions) {
-        return new TypeSafeMatcher<BuildCause>() {
+    private ArgumentMatcher<BuildCause> containsRevisions(final MaterialRevision... revisions) {
+        return new ArgumentMatcher<BuildCause>() {
             @Override
-            public boolean matchesSafely(BuildCause item) {
+            public boolean matches(BuildCause item) {
                 for (MaterialRevision revision : revisions) {
                     if (!item.getMaterialRevisions().getRevisions().contains(revision)) {
                         return false;
@@ -547,8 +542,9 @@ public class BuildCauseProducerServiceTest {
                 return true;
             }
 
-            public void describeTo(Description description) {
-                description.appendText("should contain revisions " + Arrays.toString(revisions));
+            @Override
+            public String toString() {
+                return "should contain revisions " + Arrays.toString(revisions);
             }
         };
     }

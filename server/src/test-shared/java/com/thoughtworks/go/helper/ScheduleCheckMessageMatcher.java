@@ -17,24 +17,23 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.server.scheduling.ScheduleCheckMessage;
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 
 import static org.mockito.Matchers.argThat;
 
 public class ScheduleCheckMessageMatcher {
     public static ScheduleCheckMessage matchScheduleCheckMessage(final String expectedPipelineName) {
-        return argThat(new BaseMatcher<ScheduleCheckMessage>() {
+        return argThat(new ArgumentMatcher<ScheduleCheckMessage>() {
 
             @Override
-            public boolean matches(Object o) {
-                ScheduleCheckMessage message = (ScheduleCheckMessage) o;
-                return expectedPipelineName.equals(message.getPipelineName());
+            public boolean matches(ScheduleCheckMessage o) {
+                return expectedPipelineName.equals(o.getPipelineName());
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText(expectedPipelineName);
+            public String toString() {
+                return "matchScheduleCheckMessage(" + expectedPipelineName + ")";
             }
         });
     }

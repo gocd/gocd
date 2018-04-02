@@ -25,11 +25,10 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 
 import java.io.File;
@@ -210,36 +209,34 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     private ServerHealthState serverHealthMessageWhichSaysItsOk() {
-        return argThat(new BaseMatcher<ServerHealthState>() {
+        return argThat(new ArgumentMatcher<ServerHealthState>() {
             @Override
-            public boolean matches(Object o) {
-                return ((ServerHealthState) o).isRealSuccess();
+            public boolean matches(ServerHealthState o) {
+                return o.isRealSuccess();
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected success health message.");
+            public String toString() {
+                return "Expected success health message.";
             }
         });
     }
 
     private ServerHealthState serverHealthWarningMessageWhichContains(final String expectedPartOfMessage) {
-        return argThat(new BaseMatcher<ServerHealthState>() {
+        return argThat(new ArgumentMatcher<ServerHealthState>() {
             @Override
-            public boolean matches(Object o) {
-                ServerHealthState serverHealthState = (ServerHealthState) o;
-                String description = serverHealthState.getDescription();
+            public boolean matches(ServerHealthState o) {
+                String description = o.getDescription();
 
                 boolean isTheMessageWeHaveBeenWaitingFor = description.contains(expectedPartOfMessage);
                 if (isTheMessageWeHaveBeenWaitingFor) {
-                    assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.WARNING));
+                    assertThat(o.getLogLevel(), is(HealthStateLevel.WARNING));
                 }
                 return isTheMessageWeHaveBeenWaitingFor;
             }
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected message to contain: " + expectedPartOfMessage);
+            public String toString() {
+                return "Expected message to contain: " + expectedPartOfMessage;
             }
         });
     }

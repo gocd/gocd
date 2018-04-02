@@ -27,13 +27,10 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +72,7 @@ public class PipelineSelectionsServiceTest {
         expectLoad(cruiseConfig);
         this.clock = mock(Clock.class);
         userDao = mock(UserDao.class);
-        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(false);
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = mock(GoConfigService.class);
@@ -86,7 +83,7 @@ public class PipelineSelectionsServiceTest {
     public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasNeverSelectedPipelines() {
         pipelineSelectionsService.updateUserPipelineSelections(null, null, new CaseInsensitiveString("pipelineNew"));
 
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(isA(PipelineSelections.class));
     }
 
     @Test
@@ -96,7 +93,7 @@ public class PipelineSelectionsServiceTest {
         pipelineSelectionsService.updateUserPipelineSelections("1", null, new CaseInsensitiveString("pipelineNew"));
 
         verify(pipelineRepository).findPipelineSelectionsById("1");
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(isA(PipelineSelections.class));
     }
 
     @Test
@@ -118,7 +115,7 @@ public class PipelineSelectionsServiceTest {
         pipelineSelectionsService.updateUserPipelineSelections(null, 1L, new CaseInsensitiveString("pipelineNew"));
 
         verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(isA(PipelineSelections.class));
     }
 
     @Test
@@ -138,7 +135,7 @@ public class PipelineSelectionsServiceTest {
         Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
         when(clock.currentTime()).thenReturn(date);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig("pipeline1"), pipelineConfig("pipeline2"), pipelineConfig("pipelineX"), pipelineConfig("pipeline3")));
-        Matcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, null);
+        ArgumentMatcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, null);
         when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
         assertThat(pipelineSelectionsService.persistSelectedPipelines(null, null, Arrays.asList("pipelineX", "pipeline3"), true), is(2l));
         verify(pipelineRepository).saveSelectedPipelines(argThat(pipelineSelectionsMatcher));
@@ -170,7 +167,7 @@ public class PipelineSelectionsServiceTest {
         Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
         when(clock.currentTime()).thenReturn(date);
         User user = getUser("badger", 10L);
-        Matcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, user.getId());
+        ArgumentMatcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, user.getId());
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig("pipeline1"), pipelineConfig("pipeline2"), pipelineConfig("pipelineX"), pipelineConfig("pipeline3")));
@@ -342,9 +339,9 @@ public class PipelineSelectionsServiceTest {
         return user;
     }
 
-    private Matcher<PipelineSelections> hasValues(final List<String> isVisible, final List<String> isNotVisible, final Date today, final Long userId) {
-        return new BaseMatcher<PipelineSelections>() {
-            public boolean matches(Object o) {
+    private ArgumentMatcher<PipelineSelections> hasValues(final List<String> isVisible, final List<String> isNotVisible, final Date today, final Long userId) {
+        return new ArgumentMatcher<PipelineSelections>() {
+            public boolean matches(PipelineSelections o) {
                 PipelineSelections pipelineSelections = (PipelineSelections) o;
                 assertHasSelected(pipelineSelections, isVisible);
                 assertHasSelected(pipelineSelections, isNotVisible, false);
@@ -352,25 +349,18 @@ public class PipelineSelectionsServiceTest {
                 assertThat(pipelineSelections.userId(), is(userId));
                 return true;
             }
-
-            public void describeTo(Description description) {
-            }
         };
     }
 
-    private Matcher<PipelineSelections> isAPipelineSelectionsInstanceWith(final boolean isBlacklist, final String... pipelineSelectionsInInstance) {
-        return new BaseMatcher<PipelineSelections>() {
-            public boolean matches(Object o) {
-                PipelineSelections pipelineSelections = (PipelineSelections) o;
-                assertThat(pipelineSelections.isBlacklist(), is(isBlacklist));
+    private ArgumentMatcher<PipelineSelections> isAPipelineSelectionsInstanceWith(final boolean isBlacklist, final String... pipelineSelectionsInInstance) {
+        return new ArgumentMatcher<PipelineSelections>() {
+            public boolean matches(PipelineSelections o) {
+                assertThat(o.isBlacklist(), is(isBlacklist));
 
                 List<String> expectedSelectionsAsList = Arrays.asList(pipelineSelectionsInInstance);
-                assertEquals(pipelineSelections.getSelections(), StringUtils.join(expectedSelectionsAsList, ","));
+                assertEquals(o.getSelections(), StringUtils.join(expectedSelectionsAsList, ","));
 
                 return true;
-            }
-
-            public void describeTo(Description description) {
             }
         };
     }

@@ -1539,7 +1539,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("invertFilter='true'")));
         assertThat(migratedContent, not(containsString("shallowClone='true'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
         assertThat(materialConfig.isAutoUpdate(), is(true));
         assertThat(materialConfig.isInvertFilter(), is(false));
@@ -1573,7 +1573,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("dest='dest'")));
         assertThat(migratedContent, not(containsString("invertFilter='true'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
         assertThat(materialConfig.isAutoUpdate(), is(true));
         assertThat(materialConfig.isInvertFilter(), is(false));
@@ -1607,7 +1607,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("<filter>")));
         assertThat(migratedContent, not(containsString("invertFilter='true'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
         assertThat(materialConfig.isAutoUpdate(), is(true));
         assertThat(materialConfig.isInvertFilter(), is(false));
@@ -1640,7 +1640,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("dest='dest'")));
         assertThat(migratedContent, not(containsString("invertFilter='true'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
         assertThat(materialConfig.isAutoUpdate(), is(true));
         assertThat(materialConfig.isInvertFilter(), is(false));
@@ -1673,7 +1673,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("dest='dest'")));
         assertThat(migratedContent, not(containsString("invertFilter='true'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
         assertThat(materialConfig.isAutoUpdate(), is(true));
         assertThat(materialConfig.isInvertFilter(), is(false));
@@ -1703,7 +1703,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, not(containsString("<filter>")));
         assertThat(migratedContent, not(containsString("dest='dest'")));
 
-        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter().size(), is(0));
 
     }

@@ -64,7 +64,7 @@ public class WebBasedAuthenticationFilterTest {
 
         securityAuthConfig = new SecurityAuthConfig("github", "github.oauth", new ConfigurationProperty());
         securityConfig.securityAuthConfigs().add(securityAuthConfig);
-        stub(goConfigService.security()).toReturn(securityConfig);
+        when(goConfigService.security()).thenReturn(securityConfig);
         filter = new WebBasedAuthenticationFilter(authorizationExtension, goConfigService, siteUrlProvider);
     }
 
@@ -83,7 +83,7 @@ public class WebBasedAuthenticationFilterTest {
         String redirectUrl = "http://github/oauth/login";
 
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
-        when(authorizationExtension.getAuthorizationServerUrl(eq("github.oauth"), any(List.class), any(String.class))).thenReturn(redirectUrl);
+        when(authorizationExtension.getAuthorizationServerUrl(eq("github.oauth"), any(List.class), nullable(String.class))).thenReturn(redirectUrl);
 
         filter.doFilter(request, response, filterChain);
 

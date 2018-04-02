@@ -35,10 +35,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -188,7 +188,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
-        when(entityHashingService.md5ForEntity(any(PackageRepository.class))).thenReturn("md5");
+        when(entityHashingService.md5ForEntity(nullable(PackageRepository.class))).thenReturn("md5");
 
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
 
@@ -199,7 +199,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
-        when(entityHashingService.md5ForEntity(any(PackageRepository.class))).thenReturn("md5");
+        when(entityHashingService.md5ForEntity(nullable(PackageRepository.class))).thenReturn("md5");
 
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
 

@@ -60,6 +60,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.util.*;
@@ -109,7 +110,7 @@ public class GoConfigServiceTest {
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
         userDao = mock(UserDao.class);
-        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(false);
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
@@ -618,7 +619,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldRegisterBaseUrlChangeListener() throws Exception {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
-        stub(goConfigDao.load()).toReturn(cruiseConfig);
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
         goConfigService.initialize();
         verify(goConfigDao).registerListener(any(BaseUrlChangeListener.class));
     }
@@ -1139,10 +1140,10 @@ public class GoConfigServiceTest {
         return new GoConfigInvalidException(new BasicCruiseConfig(), list.asString());
     }
 
-    private Matcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {
-        return new Matcher<UpdateConfigCommand>() {
+    private ArgumentMatcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {
+        return new ArgumentMatcher<UpdateConfigCommand>() {
             @Override
-            public boolean matches(Object item) {
+            public boolean matches(UpdateConfigCommand item) {
                 UpdateConfigCommand configCommand = (UpdateConfigCommand) item;
                 CruiseConfig updatedConfig = null;
                 try {
@@ -1160,17 +1161,8 @@ public class GoConfigServiceTest {
                 return true;
             }
 
-            @Override
-            public void describeMismatch(Object o, Description description) {
-                description.appendText("There was a mismatch!");
-            }
-
-            @Override
-            public void _dont_implement_Matcher___instead_extend_BaseMatcher_() {
-            }
-
-            @Override
-            public void describeTo(Description description) {
+            public String toString() {
+                return "There was a mismatch!";
             }
         };
     }

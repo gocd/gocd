@@ -166,7 +166,7 @@ public class FileUtilTest {
         assertThat(FileUtil.getCanonicalPath(f), is(f.getCanonicalPath()));
         File spyFile = spy(new File("/xyz/non-existent-file"));
         IOException canonicalPathException = new IOException("Failed to build the canonical path");
-        stub(spyFile.getCanonicalPath()).toThrow(canonicalPathException);
+        when(spyFile.getCanonicalPath()).thenThrow(canonicalPathException);
         try {
             FileUtil.getCanonicalPath(spyFile);
         } catch (RuntimeException e) {

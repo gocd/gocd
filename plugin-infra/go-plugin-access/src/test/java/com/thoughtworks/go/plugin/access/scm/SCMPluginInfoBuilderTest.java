@@ -33,7 +33,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.when;
 
 public class SCMPluginInfoBuilderTest {
@@ -49,8 +48,8 @@ public class SCMPluginInfoBuilderTest {
         SCMPropertyConfiguration value = new SCMPropertyConfiguration();
         value.add(new SCMProperty("username", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.PART_OF_IDENTITY, true).with(Property.DISPLAY_ORDER, 1));
         value.add(new SCMProperty("password", null).with(Property.REQUIRED, true).with(Property.SECURE, true).with(Property.PART_OF_IDENTITY, false).with(Property.DISPLAY_ORDER, 2));
-        stub(extension.getSCMConfiguration("plugin1")).toReturn(value);
-        stub(extension.getSCMView("plugin1")).toReturn(new SCMView() {
+        when(extension.getSCMConfiguration("plugin1")).thenReturn(value);
+        when(extension.getSCMView("plugin1")).thenReturn(new SCMView() {
             @Override
             public String displayValue() {
                 return "some scm plugin";
@@ -63,8 +62,8 @@ public class SCMPluginInfoBuilderTest {
         });
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(new PluginSettingsProperty("k1", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.DISPLAY_ORDER, 3));
-        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(pluginSettingsConfiguration);
-        stub(extension.getPluginSettingsView("plugin1")).toReturn("settings view");
+        when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(pluginSettingsConfiguration);
+        when(extension.getPluginSettingsView("plugin1")).thenReturn("settings view");
     }
 
     @Test

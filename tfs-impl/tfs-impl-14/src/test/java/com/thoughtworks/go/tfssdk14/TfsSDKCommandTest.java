@@ -35,6 +35,7 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.*;
 
 public class TfsSDKCommandTest {
@@ -101,7 +102,7 @@ public class TfsSDKCommandTest {
     @Test
     public void shouldReturnChangeSetsFromAPreviouslyKnownRevisionUptilTheLatest() throws Exception {
         Changeset[] changeSets = getChangeSets(42);
-        when(client.queryHistory(eq(TFS_PROJECT), any(ChangesetVersionSpec.class), anyInt())).thenReturn(changeSets);
+        when(client.queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt())).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
         doReturn(null).when(spy).getModifiedFiles(changeSets[0]);
 
@@ -109,18 +110,19 @@ public class TfsSDKCommandTest {
 
         assertThat(modifications.isEmpty(), is(false));
 
-        verify(client, times(2)).queryHistory(eq(TFS_PROJECT), any(ChangesetVersionSpec.class), anyInt());
+        verify(client, times(2)).queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt());
     }
 
     @Test
     public void shouldCreateWorkspaceAndMapDirectory() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
+        when(workingDirectory.getCanonicalPath()).thenReturn("/some-random-path/");
         GoTfsWorkspace[] workspaces = {};
         when(client.queryWorkspaces(TFS_WORKSPACE, USERNAME)).thenReturn(workspaces);
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.createWorkspace(TFS_WORKSPACE)).thenReturn(workspace);
-        when(workspace.isLocalPathMapped(anyString())).thenReturn(false);
+        when(workspace.isLocalPathMapped("/some-random-path/")).thenReturn(false);
         doNothing().when(workspace).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
         TfsSDKCommand spy = spy(tfsCommand);
         doNothing().when(spy).retrieveFiles(workingDirectory, null);
@@ -138,10 +140,11 @@ public class TfsSDKCommandTest {
     public void shouldOnlyMapDirectoryAndNotCreateAWorkspaceIfWorkspaceIsAlreadyCreated() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
+        when(workingDirectory.getCanonicalPath()).thenReturn("/some-random-path/");
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         GoTfsWorkspace[] workspaces = {workspace};
         when(client.queryWorkspaces(TFS_WORKSPACE, USERNAME)).thenReturn(workspaces);
-        when(workspace.isLocalPathMapped(anyString())).thenReturn(false);
+        when(workspace.isLocalPathMapped("/some-random-path/")).thenReturn(false);
         doNothing().when(workspace).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
         TfsSDKCommand spy = spy(tfsCommand);
         doNothing().when(spy).retrieveFiles(workingDirectory, null);
@@ -150,7 +153,7 @@ public class TfsSDKCommandTest {
 
         verify(client, times(1)).queryWorkspaces(TFS_WORKSPACE, USERNAME);
         verify(client, never()).createWorkspace(TFS_WORKSPACE);
-        verify(workspace, times(1)).isLocalPathMapped(anyString());
+        verify(workspace, times(1)).isLocalPathMapped("/some-random-path/");
         verify(workspace, times(1)).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
         verify(spy).retrieveFiles(workingDirectory, null);
     }

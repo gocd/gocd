@@ -47,6 +47,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -196,7 +197,7 @@ public class PipelineRepositoryTest {
                 }
             }
         });
-        when(session.createSQLQuery(anyString())).thenReturn(sqlQuery);
+        when(session.createSQLQuery(nullable(String.class))).thenReturn(sqlQuery);
         when(sqlQuery.list()).thenReturn(Arrays.asList(rows));
     }
 }

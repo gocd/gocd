@@ -59,7 +59,7 @@ public class DependencyMaterialUpdateNotifierTest {
         notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier = spy(notifier);
 
-        stub(notifier.pipelineConfigChangedListener()).toReturn(entityConfigChangedListener);
+        when(notifier.pipelineConfigChangedListener()).thenReturn(entityConfigChangedListener);
 
         notifier.initialize();
 

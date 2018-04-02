@@ -252,7 +252,7 @@ public class GoSmtpMailSenderTest {
         }
 
         public void verifyMessageWasSent() throws Exception {
-            verify(transport).sendMessage(eq(message), any(Address[].class));
+            verify(transport).sendMessage(eq(message), nullable(Address[].class));
         }
 
         public void verifyThatConnectionWasMadeTo(String hostName, int port, String username, String password) throws Exception {

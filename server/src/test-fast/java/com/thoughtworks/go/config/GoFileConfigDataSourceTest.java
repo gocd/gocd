@@ -622,9 +622,9 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, null, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
-        stub(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
-                toReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
+        when(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);
 
@@ -643,9 +643,9 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
-        stub(fullConfigSaveMergeFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
-                toReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
+        when(fullConfigSaveMergeFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);
 
@@ -667,8 +667,8 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
-        stub(cachedGoPartials.lastValidPartials()).toReturn(valid);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
+        when(cachedGoPartials.lastValidPartials()).thenReturn(valid);
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
                 thenThrow(new Exception());
         when(fullConfigSaveNormalFlow.execute(updatingCommand, valid, "loser_boozer")).
@@ -692,7 +692,7 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
                 thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
@@ -713,8 +713,8 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
-        stub(cachedGoPartials.lastValidPartials()).toReturn(valid);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
+        when(cachedGoPartials.lastValidPartials()).thenReturn(valid);
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
                 thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
@@ -733,7 +733,7 @@ public class GoFileConfigDataSourceTest {
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, false);
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);

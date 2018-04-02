@@ -126,6 +126,7 @@ public class PluggableTaskServiceTest {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
 
         when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(new ValidationResult());
 
@@ -173,6 +174,7 @@ public class PluggableTaskServiceTest {
         PluggableTask pluggableTask = mock(PluggableTask.class);
 
         when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(pluggableTask.getConfiguration()).thenReturn(configuration);
         when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
@@ -192,6 +194,7 @@ public class PluggableTaskServiceTest {
         PluggableTask pluggableTask = mock(PluggableTask.class);
 
         when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(pluggableTask.getConfiguration()).thenReturn(new Configuration());
         when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);

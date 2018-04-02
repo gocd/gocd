@@ -74,8 +74,8 @@ public class ReAuthenticationFilterTest {
         systemEnvironment = mock(SystemEnvironment.class);
         filter = new ReAuthenticationFilter(systemEnvironment, timeProvider);
 
-        stub(request.getSession()).toReturn(session);
-        stub(session.getId()).toReturn("session_id");
+        when(request.getSession()).thenReturn(session);
+        when(session.getId()).thenReturn("session_id");
     }
 
     @Test

@@ -755,7 +755,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("MYPIPELINE", new MaterialConfigs(new GitMaterialConfig("sampleGit")));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
 
-        when(pipelineService.findPipelineByCounterOrLabel("MYPIPELINE", "1")).thenThrow(Exception.class);
+        when(pipelineService.findPipelineByCounterOrLabel("MYPIPELINE", "1")).thenThrow(RuntimeException.class);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap("MYPIPELINE", 1, user, result);

@@ -39,7 +39,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
-        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities(SupportedAuthType.Password, true, true));
+        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(SupportedAuthType.Password, true, true));
     }
 
     @Test

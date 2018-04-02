@@ -565,14 +565,14 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void shouldCachePipelineInstancesTriggeredOutOfDependencyMaterialCaseInsensitively() throws Exception {
         List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString())).thenReturn(results);
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn(results);
 
         pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
 
         //Query second time should return from cache
         pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1".toUpperCase(), new PipelineIdentifier("P", 1));
 
-        verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString());
+        verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any());
     }
 
     @Test
@@ -624,7 +624,7 @@ public class PipelineSqlMapDaoCachingTest {
     public void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial_WhenADifferentPipelineInstanceIsCreatedWithDifferentRevision() throws Exception {
         String cacheKey = (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + "p1_p_1").intern();
         List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString())).thenReturn(result);
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn(result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual, Matchers.is(result));
@@ -644,7 +644,7 @@ public class PipelineSqlMapDaoCachingTest {
 		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
-		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(results);
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(results);
 
 		assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
@@ -653,14 +653,14 @@ public class PipelineSqlMapDaoCachingTest {
 		pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1".toUpperCase(), materialInstance, "r1");
 		assertThat(goCache.get(cacheKey), is(actual));
 
-		verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString());
+		verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any());
 	}
 
 	@Test
 	public void shouldCacheEmptyPipelineInstancesTriggeredOutOfMaterialRevision() throws Exception {
 		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
-		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(new ArrayList());
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(new ArrayList());
 
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 
@@ -673,7 +673,7 @@ public class PipelineSqlMapDaoCachingTest {
 		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(result);
 
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 		assertThat(actual, hasSize(1));
@@ -706,7 +706,7 @@ public class PipelineSqlMapDaoCachingTest {
 		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(result);
 
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 		assertThat(actual, Matchers.is(result));

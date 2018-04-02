@@ -18,23 +18,21 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.materials.MaterialUpdateMessage;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 
 import static org.mockito.Matchers.argThat;
 
 public class MaterialUpdateMessageMatcher {
     public static MaterialUpdateMessage matchMaterialUpdateMessage(final Material expectedMaterial) {
-        return argThat(new BaseMatcher<MaterialUpdateMessage>() {
+        return argThat(new ArgumentMatcher<MaterialUpdateMessage>() {
             @Override
-            public boolean matches(Object o) {
-                MaterialUpdateMessage message = (MaterialUpdateMessage) o;
-                return expectedMaterial.equals(message.getMaterial());
+            public boolean matches(MaterialUpdateMessage o) {
+                return expectedMaterial.equals(o.getMaterial());
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected material to be: " + expectedMaterial);
+            public String toString() {
+                return "Expected material to be: " + expectedMaterial;
             }
         });
     }

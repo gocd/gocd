@@ -45,7 +45,7 @@ public class PluginRoleServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
         securityConfig = new SecurityConfig();
-        stub(goConfigService.security()).toReturn(securityConfig);
+        when(goConfigService.security()).thenReturn(securityConfig);
     }
 
     @After

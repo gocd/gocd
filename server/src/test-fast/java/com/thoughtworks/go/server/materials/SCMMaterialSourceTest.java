@@ -108,7 +108,7 @@ public class SCMMaterialSourceTest {
         EntityConfigChangedListener entityConfigChangedListener = mock(EntityConfigChangedListener.class);
         source = spy(source);
 
-        stub(source.pipelineConfigChangedListener()).toReturn(entityConfigChangedListener);
+        when(source.pipelineConfigChangedListener()).thenReturn(entityConfigChangedListener);
 
         source.initialize();
 

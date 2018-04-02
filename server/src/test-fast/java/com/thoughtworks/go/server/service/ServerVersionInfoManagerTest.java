@@ -48,7 +48,7 @@ public class ServerVersionInfoManagerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
 
-        stub(systemEnvironment.isProductionMode()).toReturn(true);
+        when(systemEnvironment.isProductionMode()).thenReturn(true);
         when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
     }
 

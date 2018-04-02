@@ -33,13 +33,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentMatcher;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -49,9 +48,9 @@ import java.util.Properties;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
 public class RemoteRegistrationRequesterTest {
@@ -80,7 +79,7 @@ public class RemoteRegistrationRequesterTest {
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
         when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(response);
+        when(httpClient.execute(isA(HttpUriRequest.class))).thenReturn(response);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
@@ -100,7 +99,7 @@ public class RemoteRegistrationRequesterTest {
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
         when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(response);
+        when(httpClient.execute(isA(HttpUriRequest.class))).thenReturn(response);
 
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
@@ -115,10 +114,10 @@ public class RemoteRegistrationRequesterTest {
         verify(httpClient).execute(argThat(hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker")));
     }
 
-    private TypeSafeMatcher<HttpRequestBase> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
-        return new TypeSafeMatcher<HttpRequestBase>() {
+    private ArgumentMatcher<HttpRequestBase> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
+        return new ArgumentMatcher<HttpRequestBase>() {
             @Override
-            public boolean matchesSafely(HttpRequestBase item) {
+            public boolean matches(HttpRequestBase item) {
                 try {
                     HttpEntityEnclosingRequestBase postMethod = (HttpEntityEnclosingRequestBase) item;
                     List<NameValuePair> params = URLEncodedUtils.parse(postMethod.getEntity());
@@ -148,10 +147,6 @@ public class RemoteRegistrationRequesterTest {
                     }
                 }
                 return null;
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("params containing");
             }
         };
     }

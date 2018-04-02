@@ -107,7 +107,7 @@ public class BuildAssignmentServiceTest {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan.getElasticProfile(), jobPlan.getIdentifier())).thenReturn(true);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan.getElasticProfile(), jobPlan.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
@@ -120,7 +120,7 @@ public class BuildAssignmentServiceTest {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan1);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile(), null)).thenReturn(false);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), null)).thenReturn(false);
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
@@ -135,8 +135,8 @@ public class BuildAssignmentServiceTest {
         JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().last(), schedulingContext);
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile(), jobPlan1.getIdentifier())).thenReturn(false);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan2.getElasticProfile(), jobPlan2.getIdentifier())).thenReturn(true);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getIdentifier())).thenReturn(false);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan2.getElasticProfile(), jobPlan2.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
 
 

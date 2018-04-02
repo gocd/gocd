@@ -25,7 +25,6 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.when;
 
 public class SiteUrlProviderTest {
@@ -44,7 +43,7 @@ public class SiteUrlProviderTest {
         Request httpRequest = mock(Request.class);
         String requestRootUrl = "http://localhost:8153";
 
-        stub(httpRequest.getRootURL()).toReturn(new StringBuilder(requestRootUrl));
+        when(httpRequest.getRootURL()).thenReturn(new StringBuilder(requestRootUrl));
         when(configService.siteUrlFor(requestRootUrl, true)).thenReturn("https://secure_site_url");
 
         String siteUrl = siteUrlProvider.siteUrl(httpRequest);
@@ -58,7 +57,7 @@ public class SiteUrlProviderTest {
         Request httpRequest = mock(Request.class);
         String requestRootUrl = "http://localhost:8153";
 
-        stub(httpRequest.getRootURL()).toReturn(new StringBuilder(requestRootUrl));
+        when(httpRequest.getRootURL()).thenReturn(new StringBuilder(requestRootUrl));
         when(configService.siteUrlFor(requestRootUrl, true)).thenReturn(requestRootUrl);
         when(configService.siteUrlFor(requestRootUrl, false)).thenReturn("http://site_url");
 
@@ -73,7 +72,7 @@ public class SiteUrlProviderTest {
         Request httpRequest = mock(Request.class);
         String requestRootUrl = "http://localhost:8153";
 
-        stub(httpRequest.getRootURL()).toReturn(new StringBuilder(requestRootUrl));
+        when(httpRequest.getRootURL()).thenReturn(new StringBuilder(requestRootUrl));
         when(configService.siteUrlFor(requestRootUrl, true)).thenReturn(requestRootUrl);
         when(configService.siteUrlFor(requestRootUrl, false)).thenReturn(requestRootUrl);
 

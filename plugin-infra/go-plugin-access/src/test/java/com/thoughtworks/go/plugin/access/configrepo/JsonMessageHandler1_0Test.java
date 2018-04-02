@@ -17,11 +17,9 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 
-import com.sdicons.json.validator.impl.predicates.Int;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -29,12 +27,11 @@ import static com.thoughtworks.go.util.TestUtils.contains;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.any;
-import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.nullable;
 
 public class JsonMessageHandler1_0Test {
 
@@ -88,8 +85,8 @@ public class JsonMessageHandler1_0Test {
         handler.responseMessageForParseDirectory("{ \"target_version\": \"0\", \"something\": \"value\" }");
 
         verify(configRepoMigrator).migrate(anyString(), eq(1));
-        verify(configRepoMigrator).migrate(anyString(), eq(2));
-        verify(configRepoMigrator, times(JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION)).migrate(anyString(), anyInt());
+        verify(configRepoMigrator).migrate(nullable(String.class), eq(2));
+        verify(configRepoMigrator, times(JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION)).migrate(nullable(String.class), anyInt());
     }
 
     private void makeMigratorReturnSameJSON() {

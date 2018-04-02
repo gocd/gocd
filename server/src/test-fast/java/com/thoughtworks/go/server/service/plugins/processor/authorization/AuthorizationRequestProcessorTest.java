@@ -55,9 +55,9 @@ public class AuthorizationRequestProcessorTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(pluginDescriptor.id()).thenReturn("cd.go.authorization.github");
-        stub(goConfigService.security()).toReturn(securityConfig);
+        when(goConfigService.security()).thenReturn(securityConfig);
         securityAuthConfigsSpy = spy(new SecurityAuthConfigs());
-        stub(securityConfig.securityAuthConfigs()).toReturn(securityAuthConfigsSpy);
+        when(securityConfig.securityAuthConfigs()).thenReturn(securityAuthConfigsSpy);
     }
 
     @Test

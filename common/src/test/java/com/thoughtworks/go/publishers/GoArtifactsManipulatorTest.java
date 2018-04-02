@@ -64,6 +64,7 @@ public class GoArtifactsManipulatorTest {
         httpService = mock(HttpService.class);
         artifactFolder = temporaryFolder.newFolder("artifact_folder");
         tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
+        FileUtils.writeStringToFile(tempFile, "some-random-data", UTF_8);
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
@@ -72,8 +73,7 @@ public class GoArtifactsManipulatorTest {
 
     @Test
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
-        long size = anyLong();
-        when(httpService.upload(any(String.class), size, any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
         CircularFifoBuffer buffer = (CircularFifoBuffer) ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
         synchronized (buffer) {
@@ -81,7 +81,7 @@ public class GoArtifactsManipulatorTest {
                 goArtifactsManipulatorStub.publish(goPublisher, "some_dest", tempFile, jobIdentifier);
                 fail("should have thrown request entity too large error");
             } catch (RuntimeException e) {
-                String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: "+size+") was denied by the server. This usually happens when server runs out of disk space.";
+                String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: "+ tempFile.length() +") was denied by the server. This usually happens when server runs out of disk space.";
                 assertThat(e.getMessage(), is("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413"));
                 assertThat(buffer.toString().contains(expectedMessage), is(true));
             }

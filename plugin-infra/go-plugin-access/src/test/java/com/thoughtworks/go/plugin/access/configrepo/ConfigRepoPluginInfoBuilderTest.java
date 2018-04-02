@@ -34,9 +34,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.*;
 
 public class ConfigRepoPluginInfoBuilderTest {
     private ConfigRepoExtension extension;
@@ -48,13 +46,13 @@ public class ConfigRepoPluginInfoBuilderTest {
         PluginSettingsConfiguration value = new PluginSettingsConfiguration();
         value.add(new PluginSettingsProperty("username", null).with(Property.REQUIRED, true).with(Property.SECURE, false));
         value.add(new PluginSettingsProperty("password", null).with(Property.REQUIRED, true).with(Property.SECURE, true));
-        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(value);
+        when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(value);
     }
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
+        when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(

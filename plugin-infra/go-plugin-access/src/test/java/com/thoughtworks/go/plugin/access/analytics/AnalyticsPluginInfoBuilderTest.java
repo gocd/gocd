@@ -43,7 +43,7 @@ public class AnalyticsPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AnalyticsExtension.class);
-        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities(Collections.emptyList()));
+        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(Collections.emptyList()));
     }
 
     @Test
@@ -86,8 +86,8 @@ public class AnalyticsPluginInfoBuilderTest {
         value.add(new PluginSettingsProperty("username", null).with(Property.REQUIRED, true).with(Property.SECURE, false));
         value.add(new PluginSettingsProperty("password", null).with(Property.REQUIRED, true).with(Property.SECURE, true));
 
-        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(value);
-        stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
+        when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(value);
+        when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
 
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 

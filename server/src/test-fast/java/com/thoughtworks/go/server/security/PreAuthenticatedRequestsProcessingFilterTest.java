@@ -71,8 +71,8 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
 
         filter.setAuthenticationManager(authenticationManager);
         filter.setFilterProcessesUrl("^/go/plugin/([\\w\\-.]+)/authenticate$");
-        stub(configService.security()).toReturn(securityConfig);
-        stub(request.getHeaderNames()).toReturn(Collections.emptyEnumeration());
+        when(configService.security()).thenReturn(securityConfig);
+        when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
     }
 
     @Test

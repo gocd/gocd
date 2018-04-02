@@ -38,8 +38,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static org.hamcrest.core.Is.is;
@@ -68,7 +68,7 @@ public class TaskExtensionTest {
         initMocks(this);
         extension = new TaskExtension(pluginManager);
         pluginId = "plugin-id";
-        when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(ArrayList.class))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(List.class))).thenReturn("1.0");
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
@@ -142,11 +142,11 @@ public class TaskExtensionTest {
     @Test
     public void shouldExecuteTheTask() {
         ActionWithReturn actionWithReturn = mock(ActionWithReturn.class);
-        when(actionWithReturn.execute(any(JsonBasedPluggableTask.class), any(GoPluginDescriptor.class))).thenReturn(ExecutionResult.success("yay"));
+        when(actionWithReturn.execute(any(JsonBasedPluggableTask.class), nullable(GoPluginDescriptor.class))).thenReturn(ExecutionResult.success("yay"));
 
         ExecutionResult executionResult = extension.execute(pluginId, actionWithReturn);
 
-        verify(actionWithReturn).execute(any(JsonBasedPluggableTask.class), any(GoPluginDescriptor.class));
+        verify(actionWithReturn).execute(any(JsonBasedPluggableTask.class), nullable(GoPluginDescriptor.class));
         assertThat(executionResult.getMessagesForDisplay(), is("yay"));
         assertTrue(executionResult.isSuccessful());
     }

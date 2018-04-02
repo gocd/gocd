@@ -290,7 +290,7 @@ public class CcTrayConfigChangeHandlerTest {
         PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
 
         handler.call(pipeline1Config);
-        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = new ArgumentCaptor<>();
+        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = ArgumentCaptor.forClass(ArrayList.class);
         verify(cache).putAll(argumentCaptor.capture());
 
         List<ProjectStatus> allValues = argumentCaptor.getValue();
@@ -316,7 +316,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(pipelinePermissionsAuthority.permissionsForPipeline(pipeline1Config.name())).thenReturn(new Permissions(viewers("user1", "user2"), null, null, null));
 
         handler.call(pipeline1Config);
-        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = new ArgumentCaptor<>();
+        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = ArgumentCaptor.forClass(ArrayList.class);
         verify(cache).putAll(argumentCaptor.capture());
 
         List<ProjectStatus> allValues = argumentCaptor.getValue();

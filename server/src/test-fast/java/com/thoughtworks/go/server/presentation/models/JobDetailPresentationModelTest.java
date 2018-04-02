@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.StageMother.custom;
@@ -55,8 +56,11 @@ public class JobDetailPresentationModelTest {
         Stage stage = new Stage();
         stage.setArtifactsDeleted(true);
 
+        File file = new File(UUID.randomUUID().toString());
+        when(artifactsService.findArtifact(jobInstance.getIdentifier(), "")).thenReturn(file);
+
         DirectoryEntries directoryEntries = new DirectoryEntries();
-        when(directoryReader.listEntries(any(File.class), any(String.class))).thenReturn(directoryEntries);
+        when(directoryReader.listEntries(eq(file), any(String.class))).thenReturn(directoryEntries);
 
         JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null, null
                 , null, null, null, artifactsService, null, stage);

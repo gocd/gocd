@@ -22,12 +22,11 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -192,9 +191,9 @@ public class CommandRepositoryInitializerTest {
     }
 
     private ServerHealthState serverHealthErrorMessageWhichContains(final String expectedPartOfMessage) {
-        return argThat(new BaseMatcher<ServerHealthState>() {
+        return argThat(new ArgumentMatcher<ServerHealthState>() {
             @Override
-            public boolean matches(Object o) {
+            public boolean matches(ServerHealthState o) {
                 ServerHealthState serverHealthState = (ServerHealthState) o;
                 String description = serverHealthState.getDescription();
 
@@ -206,8 +205,8 @@ public class CommandRepositoryInitializerTest {
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected message to contain: " + expectedPartOfMessage);
+            public String toString() {
+                return "Expected message to contain: " + expectedPartOfMessage;
             }
         });
     }

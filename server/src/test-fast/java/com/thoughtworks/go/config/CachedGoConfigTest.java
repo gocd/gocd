@@ -53,7 +53,7 @@ public class CachedGoConfigTest {
         initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
         cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment);
-        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(true);
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(dataSource.load()).thenReturn(configHolder);
     }
 

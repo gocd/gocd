@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ArtifactsService;
@@ -39,9 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
 
-import static com.thoughtworks.go.util.GoConstants.CHECKSUM_MULTIPART_FILENAME;
-import static com.thoughtworks.go.util.GoConstants.REGULAR_MULTIPART_FILENAME;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -108,6 +105,8 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldReturnHttpErrorCodeWhenChecksumFileSaveFails() throws Exception {
         File artifactFile = new File("junk");
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline-1", 1, "1", "stage-1", "2", "job-1", 122l);
+        when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1", 122l)).thenReturn(jobIdentifier);
         when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
         when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
         when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);

@@ -82,9 +82,9 @@ public class PreAuthenticatedAuthenticationProviderTest {
         AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
 
         securityConfig = new SecurityConfig();
-        stub(goConfigService.security()).toReturn(securityConfig);
-        stub(authorizationExtension.authenticateUser(any(String.class), any(Map.class), any(List.class), any(List.class))).toReturn(authenticationResponse);
-        stub(authorityGranter.authorities(anyString())).toReturn(authorities);
+        when(goConfigService.security()).thenReturn(securityConfig);
+        when(authorizationExtension.authenticateUser(any(String.class), any(Map.class), any(List.class), any(List.class))).thenReturn(authenticationResponse);
+        when(authorityGranter.authorities(anyString())).thenReturn(authorities);
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
     }
 

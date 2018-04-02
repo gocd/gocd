@@ -46,7 +46,7 @@ public class RoleConfigServiceTest {
         entityHashingService = mock(EntityHashingService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
-        stub(configService.cruiseConfig()).toReturn(cruiseConfig);
+        when(configService.cruiseConfig()).thenReturn(cruiseConfig);
         roleConfigService = new RoleConfigService(configService, entityHashingService, extension, configurationValidator);
     }
 

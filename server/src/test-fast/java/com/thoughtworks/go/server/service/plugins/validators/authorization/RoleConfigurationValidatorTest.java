@@ -45,7 +45,7 @@ public class RoleConfigurationValidatorTest {
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         validator = new RoleConfigurationValidator(extension);
-        stub(extension.validateRoleConfiguration(any(String.class), any(Map.class))).toReturn(new ValidationResult());
+        when(extension.validateRoleConfiguration(any(String.class), any(Map.class))).thenReturn(new ValidationResult());
     }
 
     @Test

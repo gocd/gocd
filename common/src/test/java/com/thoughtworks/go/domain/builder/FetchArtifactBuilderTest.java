@@ -17,14 +17,16 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.TestingClock;
+import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +39,6 @@ import java.util.zip.Deflater;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class FetchArtifactBuilderTest {
@@ -138,8 +139,8 @@ public class FetchArtifactBuilderTest {
 
         builder.fetch(downloadAction, urlService);
 
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log"), any(ChecksumFileHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), isA(FetchHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log"), isA(FileHandler.class));
         verifyNoMoreInteractions(downloadAction);
     }
 
@@ -165,8 +166,8 @@ public class FetchArtifactBuilderTest {
 
         builder.fetch(downloadAction, urlService);
 
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log?sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D"), any(ChecksumFileHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log?sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D"), any(FileHandler.class));
         verifyNoMoreInteractions(downloadAction);
     }
 
@@ -188,8 +189,8 @@ public class FetchArtifactBuilderTest {
 
         builder.fetch(downloadAction, urlService);
 
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));
-        verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output.zip"), any(ChecksumFileHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), isA(FetchHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output.zip"), isA(DirHandler.class));
         verifyNoMoreInteractions(downloadAction);
     }
 

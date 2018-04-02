@@ -18,9 +18,10 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.TestStreamConsumer;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -58,25 +59,20 @@ public class UrlBasedArtifactsRepositoryTest {
     public void setUp() throws Exception {
         artifactFolder = temporaryFolder.newFolder("artifact_folder");
         tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
+        FileUtils.writeStringToFile(tempFile, "some-random-junk", UTF_8);
         console = new TestStreamConsumer();
         artifactsRepository = new UrlBasedArtifactsRepository(httpService, "http://baseurl/artifacts/", "http://baseurl/properties/", new ZipUtil());
     }
 
-    @After
-    public void tearDown() throws IOException {
-        FileUtil.tryDeleting(artifactFolder);
-    }
-
     @Test
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
-        long size = anyLong();
-        when(httpService.upload(any(String.class), size, any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
         try {
             artifactsRepository.upload(console, tempFile, "some_dest", "build42");
             fail("should have thrown request entity too large error");
         } catch (RuntimeException e) {
-            String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: " + size + ") was denied by the server. This usually happens when server runs out of disk space.";
+            String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: " + tempFile.length() + ") was denied by the server. This usually happens when server runs out of disk space.";
             assertThat(e.getMessage(), is("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413"));
             assertThat(console.output().contains(expectedMessage), is(true));
         }

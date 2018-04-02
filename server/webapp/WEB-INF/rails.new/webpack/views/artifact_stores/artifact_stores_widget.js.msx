@@ -14,21 +14,53 @@
  * limitations under the License.
  */
 
-const m       = require('mithril');
-const Spinner = require('views/shared/spinner');
+const m              = require('mithril');
+const Spinner        = require('views/shared/spinner');
+const ArtifactStores = require('models/artifact_stores/artifact_stores');
 
-const ArtifactStoresWidget = {
+const ArtifactStoresWidget = (function () {
 
-  oninit() {
+  let artifactStores = undefined;
+  let error          = false;
 
-  },
+  function oninit() {
+    artifactStores = undefined;
+    error          = false;
 
-  view() {
+    const onSuccess = (response) => {
+      artifactStores = response;
+      m.redraw();
+    };
+
+    const onFailure = () => {
+      error = true;
+    };
+
+    ArtifactStores.all().then(onSuccess, onFailure);
+  }
+
+  function view() {
+    if (error) {
+      return (
+        <div class="alert callout">
+          <h5>There was a problem fetching the artifact stores</h5>
+          <p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem
+            persists, check the server logs.</p>
+        </div>
+      );
+    }
+    if (artifactStores) {
+      return (
+        <h5>Loaded</h5>
+      );
+    }
     return (
       <Spinner/>
     );
   }
 
-};
+  return {oninit, view};
+
+})();
 
 module.exports = ArtifactStoresWidget;

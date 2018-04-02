@@ -21,7 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "test")
-public class TestArtifactConfig extends BuildArtifactConfig {
+public class TestArtifactConfig extends BuiltinArtifactConfig {
     public static final String TEST_PLAN_DISPLAY_NAME = "Test Artifact";
     public static final String TEST_OUTPUT_FOLDER = "testoutput";
 
@@ -29,7 +29,8 @@ public class TestArtifactConfig extends BuildArtifactConfig {
     }
 
     public TestArtifactConfig(String src, String dest) {
-        super(src, dest);
+        setSource(src);
+        setDestination(dest);
     }
 
     @Override
@@ -44,6 +45,6 @@ public class TestArtifactConfig extends BuildArtifactConfig {
 
     @Override
     public String getDestination() {
-        return StringUtils.isBlank(super.getDestination()) ? TEST_OUTPUT_FOLDER : FilenameUtils.separatorsToUnix(super.getDestination());
+        return StringUtils.isBlank(destination) ? TEST_OUTPUT_FOLDER : FilenameUtils.separatorsToUnix(destination);
     }
 }

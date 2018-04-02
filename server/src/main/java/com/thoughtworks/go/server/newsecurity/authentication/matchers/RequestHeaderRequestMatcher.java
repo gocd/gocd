@@ -25,21 +25,18 @@ public class RequestHeaderRequestMatcher {
     private final String expectedHeaderName;
     private final Pattern valueMatcherPattern;
 
-    public RequestHeaderRequestMatcher(String expectedHeaderName) {
-        this(expectedHeaderName, null);
-    }
-
     public RequestHeaderRequestMatcher(String expectedHeaderName, Pattern valueMatcherPattern) {
         Assert.notNull(expectedHeaderName, "headerName cannot be null.");
+        Assert.notNull(valueMatcherPattern, "valueMatcherPattern cannot be null.");
+
         this.expectedHeaderName = expectedHeaderName;
         this.valueMatcherPattern = valueMatcherPattern;
     }
 
     public boolean matches(HttpServletRequest request) {
         String actualHeaderValue = request.getHeader(expectedHeaderName);
-
-        if (valueMatcherPattern == null) {
-            return actualHeaderValue != null;
+        if (actualHeaderValue == null) {
+            return false;
         }
 
         return valueMatcherPattern.matcher(actualHeaderValue).matches();

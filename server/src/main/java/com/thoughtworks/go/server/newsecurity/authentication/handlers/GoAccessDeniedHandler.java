@@ -47,7 +47,7 @@ public class GoAccessDeniedHandler implements RequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (isAjaxRequest(request)) {
+        if (!isAjaxRequest(request)) {
             response.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
         }
 

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
 import com.thoughtworks.go.server.newsecurity.authentication.providers.PasswordBasedPluginAuthenticationProvider;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,23 +34,35 @@ public class FormLoginFilter extends AbstractAuthenticationFilter {
     public static final RequestMatcher LOGIN_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/auth/security_check", "POST");
     public final static String USERNAME = "j_username";
     public final static String PASSWORD = "j_password";
-    private final GoConfigService goConfigService;
+    private final SecurityService securityService;
     private final PasswordBasedPluginAuthenticationProvider authenticationProvider;
 
     @Autowired
-    public FormLoginFilter(GoConfigService goConfigService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
-        this.goConfigService = goConfigService;
+    public FormLoginFilter(SecurityService securityService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
+        this.securityService = securityService;
         this.authenticationProvider = authenticationProvider;
     }
 
     @Override
     protected boolean isSecurityEnabled() {
-        return goConfigService.isSecurityEnabled();
+        return securityService.isSecurityEnabled();
     }
 
     @Override
-    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response) {
+    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        request.getSession().invalidate();
+        if (exception instanceof BadCredentialsException) {
+            request.getSession().setAttribute("AUTHENTICATION_ERROR", exception.getMessage());
+        } else {
+            request.getSession().setAttribute("AUTHENTICATION_ERROR", "There was an unknown error authenticating you. Please contact the server administrator for help.");
+        }
         LOGGER.debug(String.format("[Basic Authentication Failure] Failed to authenticate user %s", request.getParameter(USERNAME)));
+    }
+
+    @Override
+    protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
+        super.onAuthenticationSuccess(request, response);
+        request.getSession().removeAttribute("AUTHENTICATION_ERROR");
     }
 
     @Override

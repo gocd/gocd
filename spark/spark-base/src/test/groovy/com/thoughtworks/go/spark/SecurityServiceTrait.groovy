@@ -24,9 +24,8 @@ import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.AfterEach
-import org.springframework.security.GrantedAuthority
-import org.springframework.security.context.SecurityContextHolder
-import org.springframework.security.providers.TestingAuthenticationToken
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -138,7 +137,7 @@ trait SecurityServiceTrait {
     def hex = SecureRandom.hex(20)
     String loginName = "jdoe-${hex}"
     String displayName = "Jon Doe ${hex}"
-    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName, "password", true, true, true, true, new GrantedAuthority[0], null)
+    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName, "password", Collections.emptyList(), null)
     Username username = new Username(principal.username, principal.displayName)
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null)
     SecurityContextHolder.getContext().setAuthentication(authentication)

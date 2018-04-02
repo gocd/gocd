@@ -17,8 +17,10 @@
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
 import com.thoughtworks.go.server.security.GoAuthority;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,10 +31,10 @@ import java.util.Collections;
 @Component
 public class X509AuthenticationFilter extends AbstractAuthenticationFilter {
     private static final String X509_HEADER_KEY = "javax.servlet.request.X509Certificate";
-    private static final RequestHeaderRequestMatcher X509_HEADER_MATCHER = new RequestHeaderRequestMatcher(X509_HEADER_KEY);
     private final CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor;
 
-    private X509AuthenticationFilter(CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor) {
+    @Autowired
+    public X509AuthenticationFilter(CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor) {
         this.subjectDnX509PrincipalExtractor = subjectDnX509PrincipalExtractor;
     }
 
@@ -55,23 +57,20 @@ public class X509AuthenticationFilter extends AbstractAuthenticationFilter {
     }
 
     @Override
-    protected User attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    protected User attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         final X509Certificate x509Certificate = extractClientCertificate(request);
 
         if (x509Certificate == null) {
-            response.setStatus(401);
-            request.getSession().invalidate();
+            throw new BadCredentialsException("No certificate provided by client!");
         } else {
             String subjectDN = (String) subjectDnX509PrincipalExtractor.extractPrincipal(x509Certificate);
             return new User("_go_agent_" + subjectDN, "", Collections.singletonList(GoAuthority.ROLE_AGENT.asAuthority()));
         }
-
-        return null;
     }
 
     @Override
     protected boolean canHandleRequest(HttpServletRequest request) {
-        return X509_HEADER_MATCHER.matches(request);
+        return true;
     }
 
     @Override
@@ -80,7 +79,7 @@ public class X509AuthenticationFilter extends AbstractAuthenticationFilter {
     }
 
     @Override
-    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response) {
-        // ignore
+    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        response.setStatus(403);
     }
 }

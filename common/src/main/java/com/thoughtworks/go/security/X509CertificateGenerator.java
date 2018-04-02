@@ -51,7 +51,8 @@ import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_PUBLIC_KEY
 public class X509CertificateGenerator {
     private static final int YEARS = 10;
     private static final String PASSWORD = "Crui3CertSigningPassword";
-    @Deprecated private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
+    @Deprecated
+    private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
     public static final String AGENT_CERT_OU = "Cruise agent certificate";
     private static final String INTERMEDIATE_CERT_OU = "Cruise intermediate certificate";
     private static final String CERT_EMAIL = "support@thoughtworks.com";
@@ -65,7 +66,7 @@ public class X509CertificateGenerator {
     }
 
     public void createAndStoreX509Certificates(File keystore, File truststore, File agentKeystore,
-                                      String password, String principalDn) {
+                                               String password, String principalDn) {
         if (!keystore.exists()) {
             storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
         }
@@ -78,8 +79,8 @@ public class X509CertificateGenerator {
     private void storeX509Certificate(File file, String passwd, Registration entry) {
         try {
             PKCS12BagAttributeSetter.usingBagAttributeCarrier(entry.getPrivateKey())
-                .setFriendlyName(FRIENDLY_NAME)
-                .setLocalKeyId(entry.getPublicKey());
+                    .setFriendlyName(FRIENDLY_NAME)
+                    .setLocalKeyId(entry.getPublicKey());
 
             keyStoreManager.storeX509Certificate(FRIENDLY_NAME, file, passwd, entry);
         } catch (Exception e) {
@@ -119,9 +120,9 @@ public class X509CertificateGenerator {
         X509Principal issuerDn = PrincipalUtil.getSubjectX509Principal(caCert);
 
         X509Principal subjectDn = createX509Principal(
-                                      withOU(INTERMEDIATE_CERT_OU),
-                                      withEmailAddress(CERT_EMAIL)
-                                  );
+                withOU(INTERMEDIATE_CERT_OU),
+                withEmailAddress(CERT_EMAIL)
+        );
 
         X509CertificateGenerator.V3X509CertificateGenerator v3CertGen = new V3X509CertificateGenerator(startDate,
                 issuerDn, subjectDn, keyPair.getPublic(), serialNumber());
@@ -211,9 +212,9 @@ public class X509CertificateGenerator {
             KeyStore.PrivateKeyEntry intermediateEntry = (KeyStore.PrivateKeyEntry) store.getEntry("ca-intermediate",
                     new KeyStore.PasswordProtection(PASSWORD_AS_CHAR_ARRAY));
 
-            Certificate[] chain = new Certificate[3];
-            chain[2] = store.getCertificate("ca-cert");
-            chain[1] = intermediateEntry.getCertificate();
+            X509Certificate[] chain = new X509Certificate[3];
+            chain[2] = (X509Certificate) store.getCertificate("ca-cert");
+            chain[1] = (X509Certificate) intermediateEntry.getCertificate();
             chain[0] = createAgentCertificate(agentKeyPair.getPublic(),
                     intermediateEntry.getPrivateKey(),
                     chain[1].getPublicKey(), agentHostname, epoch);

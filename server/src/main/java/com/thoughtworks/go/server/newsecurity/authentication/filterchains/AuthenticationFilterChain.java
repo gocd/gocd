@@ -32,15 +32,18 @@ import java.util.Arrays;
 public class AuthenticationFilterChain extends FilterChainProxy {
 
     @Autowired
-    public AuthenticationFilterChain(X509AuthenticationFilter x509AuthenticationFilter, BasicAuthenticationFilter basicAuthWithChallenge,
-                                     OauthAuthenticationFilter oauthAuthenticationFilter, FormLoginFilter formLoginFilter) {
-
+    public AuthenticationFilterChain(X509AuthenticationFilter x509AuthenticationFilter,
+                                     BasicAuthenticationFilter basicAuthenticationFilter,
+                                     OauthAuthenticationFilter oauthAuthenticationFilter,
+                                     FormLoginFilter formLoginFilter,
+                                     AssumeAnonymousUserFilter assumeAnonymousUserFilter) {
         super(Arrays.asList(
                 new DefaultSecurityFilterChain(new AntPathRequestMatcher("/remoting/**"), x509AuthenticationFilter),
                 new DefaultSecurityFilterChain(new AntPathRequestMatcher("/agent-websocket/**"), x509AuthenticationFilter),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), basicAuthWithChallenge),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), basicAuthWithChallenge),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), basicAuthWithChallenge, formLoginFilter, oauthAuthenticationFilter)
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), basicAuthenticationFilter, assumeAnonymousUserFilter),
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), basicAuthenticationFilter, assumeAnonymousUserFilter),
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/add-on/*/api/**"), oauthAuthenticationFilter, assumeAnonymousUserFilter),
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), basicAuthenticationFilter, formLoginFilter, assumeAnonymousUserFilter)
         ));
     }
 }

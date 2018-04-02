@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +35,10 @@ public class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtr
     private final SubjectDnX509PrincipalExtractor delegate = new SubjectDnX509PrincipalExtractor();
     private static final Logger LOGGER = LoggerFactory.getLogger(CachingSubjectDnX509PrincipalExtractor.class);
 
-    private final Cache cache;
+    private final Ehcache cache;
 
     @Autowired
-    public CachingSubjectDnX509PrincipalExtractor(@Qualifier("userCache") Cache cache) {
+    public CachingSubjectDnX509PrincipalExtractor(@Qualifier("userCache") Ehcache cache) {
         this.cache = cache;
     }
 

@@ -116,7 +116,7 @@ public class ReAuthenticationFilterTest {
 
     @Test
     public void shouldContinueWithChainAndReturnIfAuthenticationDoesNotHavePrincipalDefined() throws IOException, ServletException {
-        Authentication authentication = new TestingAuthenticationToken(null, null, new GrantedAuthority[]{});
+        Authentication authentication = new TestingAuthenticationToken(null, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authentication.setAuthenticated(true);
 

@@ -17,104 +17,123 @@
 package com.thoughtworks.go.server.newsecurity.authentication.filterchains;
 
 import com.thoughtworks.go.server.newsecurity.authentication.filters.AlwaysCreateSessionFilter;
+import com.thoughtworks.go.server.newsecurity.authentication.filters.ApiSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletResponse;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.ApiSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class CreateSessionFilterChainTest {
-    private ApiSessionReduceIdleTimeoutFilterStub apiSessionReduceIdleTimeoutFilter;
-    private AlwaysCreateSessionFilterStub alwaysCreateSessionFilter;
+    private ApiSessionReduceIdleTimeoutFilter apiSessionReduceIdleTimeoutFilter;
+    private AlwaysCreateSessionFilter alwaysCreateSessionFilter;
     private HttpServletResponse response;
     private MockHttpServletRequest request;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
-        apiSessionReduceIdleTimeoutFilter = new ApiSessionReduceIdleTimeoutFilterStub();
-        alwaysCreateSessionFilter = new AlwaysCreateSessionFilterStub();
+        apiSessionReduceIdleTimeoutFilter = spy(new ApiSessionReduceIdleTimeoutFilter(new SystemEnvironment()));
+        alwaysCreateSessionFilter = spy(new AlwaysCreateSessionFilter());
     }
 
-    @Test
-    public void shouldCreateASessionIfOneNotExist() throws ServletException, IOException {
-        request.setServletPath("/cctray.xml");
-        FilterChain filterChain = mock(FilterChain.class);
-
-        assertThat(request.getSession(false)).isNull();
-        assertFalse(apiSessionReduceIdleTimeoutFilter.isDoFilterCalled());
-        assertFalse(alwaysCreateSessionFilter.isDoFilterCalled());
-
-        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
-                .doFilter(request, response, filterChain);
-
-        assertThat(request.getSession(false)).isNotNull();
-        assertTrue(apiSessionReduceIdleTimeoutFilter.isDoFilterCalled());
-        assertTrue(alwaysCreateSessionFilter.isDoFilterCalled());
-    }
-
-    @Test
-    public void shouldNotCreateASessionIfOneExist() throws ServletException, IOException {
-        request.setServletPath("/cctray.xml");
-        FilterChain filterChain = mock(FilterChain.class);
-
-        final HttpSession session = request.getSession(true);
-
-        assertThat(session).isNotNull();
-        assertFalse(apiSessionReduceIdleTimeoutFilter.isDoFilterCalled());
-        assertFalse(alwaysCreateSessionFilter.isDoFilterCalled());
-
-        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
-                .doFilter(request, response, filterChain);
-
-        assertThat(request.getSession(false)).isEqualTo(session);
-        assertTrue(apiSessionReduceIdleTimeoutFilter.isDoFilterCalled());
-        assertTrue(alwaysCreateSessionFilter.isDoFilterCalled());
-    }
-
-    class ApiSessionReduceIdleTimeoutFilterStub extends ApiSessionReduceIdleTimeoutFilter {
-        boolean isDoFilterCalled;
-
-        public ApiSessionReduceIdleTimeoutFilterStub() {
-            super(new SystemEnvironment());
-        }
+    @Nested
+    class CCTray extends UrlTest {
 
         @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-            super.doFilterInternal(request, response, chain);
-            isDoFilterCalled = true;
-        }
-
-        public boolean isDoFilterCalled() {
-            return isDoFilterCalled;
+        protected String url() {
+            return "/cctray.xml";
         }
     }
 
-    class AlwaysCreateSessionFilterStub extends AlwaysCreateSessionFilter {
-        boolean isDoFilterCalled;
+    @Nested
+    class API extends UrlTest {
 
         @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-            super.doFilterInternal(request, response, chain);
-            isDoFilterCalled = true;
-        }
-
-        public boolean isDoFilterCalled() {
-            return isDoFilterCalled;
+        protected String url() {
+            return "/api/foo";
         }
     }
+
+    @Nested
+    class EverythingElse {
+
+        private static final String URL = "/foobar";
+
+        @Test
+        public void shouldCreateASessionIfOneNotExistForEverythingElse() throws ServletException, IOException {
+            request.setServletPath(URL);
+            FilterChain filterChain = mock(FilterChain.class);
+
+            assertThat(request.getSession(false)).isNull();
+
+            new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+
+            assertThat(request.getSession(false)).isNotNull();
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();
+        }
+
+        @Test
+        public void shouldNotCreateASessionIfOneExistForEverythingElse() throws ServletException, IOException {
+            request.setServletPath(URL);
+            FilterChain filterChain = mock(FilterChain.class);
+
+            final HttpSession session = request.getSession(true);
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();
+
+            assertThat(session).isNotNull();
+
+            new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+
+            assertThat(request.getSession(false)).isEqualTo(session);
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();
+        }
+
+    }
+
+    private abstract class UrlTest {
+        @Test
+        public void shouldCreateASessionIfOneNotExist() throws ServletException, IOException {
+            request.setServletPath(url());
+            FilterChain filterChain = mock(FilterChain.class);
+
+            assertThat(request.getSession(false)).isNull();
+
+            new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+
+            assertThat(request.getSession(false)).isNotNull();
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isEqualTo(new SystemEnvironment().get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS));
+        }
+
+        @Test
+        public void shouldNotCreateASessionIfOneExist() throws ServletException, IOException {
+            request.setServletPath(url());
+            FilterChain filterChain = mock(FilterChain.class);
+
+            final HttpSession session = request.getSession(true);
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();
+
+            assertThat(session).isNotNull();
+
+            new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+
+            assertThat(request.getSession(false)).isEqualTo(session);
+            assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();
+        }
+
+        protected abstract String url();
+    }
+
 }

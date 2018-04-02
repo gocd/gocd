@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,14 +26,15 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
+public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
     public static final String CURRENT_USER = "CURRENT_USER";
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     protected boolean hasUser(HttpServletRequest request) {
-        return getUser(request) == null;
+        return getUser(request) != null;
     }
 
     protected User getUser(HttpServletRequest request) {
@@ -57,30 +59,28 @@ abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        LOGGER.debug("[Authentication] Request is not authenticated requires an authentication.");
-
         if (canHandleRequest(request)) {
+            LOGGER.debug("[Authentication] Request is not authenticated, attempting authentication.");
             try {
-                setUser(attemptAuthentication(request, response), request);
+                User user = attemptAuthentication(request, response);
+                if (user == null) {
+                    LOGGER.debug("[Authentication] Request could not be authenticated.");
+                } else {
+                    setUser(user, request);
+                    LOGGER.debug("[Authentication] Request successfully authenticated.");
+                    final HttpSession session = request.getSession();
+//                    session.g
+                    onAuthenticationSuccess(request, response);
+                }
             } catch (Exception e) {
                 LOGGER.error("[Authentication] Failed to authenticate request: ", e);
-                onAuthenticationFailure(request, response);
+                onAuthenticationFailure(request, response, e);
                 return;
             }
-
-            if (hasUser(request)) {
-                LOGGER.debug("[Authentication] Request successfully authenticated.");
-                onAuthenticationSuccess(request, response);
-            } else {
-                //TODO: need to decide should we give a call back to implementor or not and if yes then what it would be!
-//                onAuthenticationFailure(request, response);
-            }
-
-            filterChain.doFilter(request, response);
         } else {
-            LOGGER.debug(String.format("[Authentication] Filter[%s] cannot handle the request. Proceeding with the next filter in chain.", getClass().getSimpleName()));
-            filterChain.doFilter(request, response);
+            LOGGER.debug(String.format("[Authentication] Filter %s cannot handle the request. Proceeding with the next filter in chain.", getClass().getSimpleName()));
         }
+        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -94,12 +94,12 @@ abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
 
     protected abstract boolean isSecurityEnabled();
 
-    protected abstract void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    protected abstract void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
 
     protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
     }
 
-    protected abstract User attemptAuthentication(HttpServletRequest request, HttpServletResponse response);
+    protected abstract User attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException;
 
     protected abstract boolean canHandleRequest(HttpServletRequest request);
 }

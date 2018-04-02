@@ -34,15 +34,14 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
@@ -51,6 +50,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -62,12 +62,18 @@ public class ScheduleStageTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigDao dao;
-    @Autowired private StageDao stageDao;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao dao;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -130,11 +136,11 @@ public class ScheduleStageTest {
         assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables(), is(expectedVariableOrder));
     }
 
-     @Test
+    @Test
     public void shouldResolveEnvironmentVariablesForJobReRun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
-       Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
+        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
 
         EnvironmentVariablesConfig pipelineVariables = new EnvironmentVariablesConfig();
         pipelineVariables.add("pipelineEnv", "pipelineFoo");
@@ -282,7 +288,7 @@ public class ScheduleStageTest {
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new org.springframework.security.core.userdetails.User("loser", "pass", Collections.emptyList()), null));
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());

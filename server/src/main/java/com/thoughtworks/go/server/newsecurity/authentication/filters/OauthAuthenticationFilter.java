@@ -46,7 +46,7 @@ public class OauthAuthenticationFilter extends AbstractAuthenticationFilter {
     }
 
     @Override
-    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
         //TODO: set a status code on response if needed
     }
 

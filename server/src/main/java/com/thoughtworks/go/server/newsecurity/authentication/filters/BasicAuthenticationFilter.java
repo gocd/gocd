@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.newsecurity.authentication.filters;
 import com.thoughtworks.go.server.newsecurity.authentication.handlers.GoAccessDeniedHandler;
 import com.thoughtworks.go.server.newsecurity.authentication.matchers.RequestHeaderRequestMatcher;
 import com.thoughtworks.go.server.newsecurity.authentication.providers.PasswordBasedPluginAuthenticationProvider;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
@@ -42,22 +42,22 @@ public class BasicAuthenticationFilter extends AbstractAuthenticationFilter {
 
     private final GoAccessDeniedHandler accessDeniedHandler;
     private final PasswordBasedPluginAuthenticationProvider authenticationProvider;
-    private final GoConfigService goConfigService;
+    private final SecurityService securityService;
 
     @Autowired
-    BasicAuthenticationFilter(GoConfigService goConfigService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
-        this.goConfigService = goConfigService;
+    public BasicAuthenticationFilter(SecurityService securityService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
+        this.securityService = securityService;
         this.accessDeniedHandler = new GoAccessDeniedHandler();
         this.authenticationProvider = authenticationProvider;
     }
 
     @Override
     protected boolean isSecurityEnabled() {
-        return goConfigService.isSecurityEnabled();
+        return securityService.isSecurityEnabled();
     }
 
     @Override
-    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
         LOGGER.debug("[Basic Authentication Failure] Failed to authenticate user using basic auth.");
         accessDeniedHandler.handle(request, response);
     }

@@ -79,12 +79,36 @@ $analytics-min-width: 849.5px;
       border:          0;
       display:         flex;
       flex-flow:       row wrap;
-      justify-content: center;
 
-      select {
-        width:      calc(50vw - 100px);
-        min-width:  $analytics-min-width;
-        margin:     0 25%;
+      &.global {
+        justify-content: center;
+      }
+
+      &.pipeline {
+        justify-content: left;
+      }
+
+      span {
+        margin-right:   25%;
+        height:         40px;
+        font-family:    OpenSans;
+        font-size:      14px;
+        font-weight:    600;
+        font-style:     normal;
+        font-stretch:   normal;
+        line-height:    normal;
+        letter-spacing: normal;
+        text-align:     left;
+        color:          #333;
+
+        select {
+          height:      30px;
+          font-weight: normal;
+          font-size:   13px;
+          color:       #050505;
+          width:       300px;
+          margin-left: 10px;
+        }
       }
 
       .frame-container {

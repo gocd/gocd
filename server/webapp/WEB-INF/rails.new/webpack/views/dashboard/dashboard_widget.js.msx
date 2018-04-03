@@ -91,7 +91,7 @@ const DashboardWidget = {
                                             vm={vnode.state.pipelineSelectionVM}/>);
     }
 
-    const oldDashboardLink = (<a class="toggle-old-view" href={"/go/old_dashboard/"}>Old Dashboard</a>);
+    const oldDashboardLink = (<a class="toggle-old-view" href={"/go/old_dashboard"}>Old Dashboard</a>);
     return (
       <div class="pipeline_wrapper">
         <div class="page_header" key="page-header">

@@ -103,18 +103,18 @@ public class PasswordBasedPluginAuthenticationProvider {
             final List<PluginRoleConfig> roleConfigs = configService.security().getRoles().pluginRoleConfigsFor(authConfig.getId());
 
             try {
-                LOGGER.debug("[Authenticate] Authenticating user: `{}` using the authorization plugin: `{}`", username, pluginId);
+                LOGGER.debug("Authenticating user: `{}` using the authorization plugin: `{}`", username, pluginId);
                 AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, singletonList(authConfig), roleConfigs);
                 com.thoughtworks.go.plugin.access.authorization.models.User user = ensureDisplayNamePresent(response.getUser());
                 if (user != null) {
                     pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                    LOGGER.debug("[Authenticate] Successfully authenticated user: `{}` using the authorization plugin: `{}`", username, pluginId);
+                    LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", username, pluginId);
                     return user;
                 }
             } catch (Exception e) {
-                LOGGER.error("[Authenticate] Error while authenticating user: `{}` using the authorization plugin: {} ", username, pluginId);
+                LOGGER.error("Error while authenticating user: `{}` using the authorization plugin: {} ", username, pluginId);
             }
-            LOGGER.debug("[Authenticate] Authentication failed for user: `{}` using the authorization plugin: `{}`", username, pluginId);
+            LOGGER.debug("Authentication failed for user: `{}` using the authorization plugin: `{}`", username, pluginId);
         }
         return null;
     }

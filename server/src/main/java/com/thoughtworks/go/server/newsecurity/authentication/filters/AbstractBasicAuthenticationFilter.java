@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
-import com.thoughtworks.go.server.newsecurity.authentication.handlers.GoAccessDeniedHandler;
+import com.thoughtworks.go.server.newsecurity.authentication.handlers.RequestHandler;
 import com.thoughtworks.go.server.newsecurity.authentication.matchers.RequestHeaderRequestMatcher;
 import com.thoughtworks.go.server.newsecurity.authentication.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,19 +33,21 @@ import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-@Component
-public class BasicAuthenticationFilter extends AbstractAuthenticationFilter {
+//@Component
+public abstract class AbstractBasicAuthenticationFilter extends AbstractAuthenticationFilter {
     private static final Pattern BASIC_AUTH_EXTRACTOR_PATTERN = Pattern.compile("basic (.*)", Pattern.CASE_INSENSITIVE);
     private static final RequestHeaderRequestMatcher AUTHORIZATION_HEADER_MATCHER = new RequestHeaderRequestMatcher("Authorization", BASIC_AUTH_EXTRACTOR_PATTERN);
 
-    private final GoAccessDeniedHandler accessDeniedHandler;
+    private final RequestHandler accessDeniedHandler;
     private final PasswordBasedPluginAuthenticationProvider authenticationProvider;
     private final SecurityService securityService;
 
-    @Autowired
-    public BasicAuthenticationFilter(SecurityService securityService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
+    //    @Autowired
+    protected AbstractBasicAuthenticationFilter(SecurityService securityService,
+                                                PasswordBasedPluginAuthenticationProvider authenticationProvider,
+                                                RequestHandler accessDeniedHandler) {
         this.securityService = securityService;
-        this.accessDeniedHandler = new GoAccessDeniedHandler();
+        this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationProvider = authenticationProvider;
     }
 
@@ -58,7 +58,7 @@ public class BasicAuthenticationFilter extends AbstractAuthenticationFilter {
 
     @Override
     protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
-        LOGGER.debug("[Basic Authentication Failure] Failed to authenticate user using basic auth.");
+        LOGGER.debug("Failed to authenticate user using basic auth.");
         accessDeniedHandler.handle(request, response);
     }
 
@@ -67,10 +67,10 @@ public class BasicAuthenticationFilter extends AbstractAuthenticationFilter {
         final BasicAuthenticationDetails basicAuthenticationDetails = extractBasicAuthenticationCredentials(request);
 
         if (basicAuthenticationDetails == null) {
-            throw new BadCredentialsException("[Basic Authentication] Invalid basic authentication credentials specified in request.");
+            throw new BadCredentialsException("Invalid basic authentication credentials specified in request.");
         }
 
-        LOGGER.debug("[Basic Authentication] Requesting authentication for basic auth.");
+        LOGGER.debug("Requesting authentication for basic auth.");
         return authenticationProvider.authenticate(basicAuthenticationDetails.getUsername(), basicAuthenticationDetails.getPassword());
     }
 
@@ -94,13 +94,13 @@ public class BasicAuthenticationFilter extends AbstractAuthenticationFilter {
 
             final int indexOfSeparator = decodedCredentials.indexOf(':');
             if (indexOfSeparator == -1) {
-                throw new BadCredentialsException("[Basic Authentication] Invalid basic authentication credentials specified in request.");
+                throw new BadCredentialsException("Invalid basic authentication credentials specified in request.");
             }
 
             final String username = decodedCredentials.substring(0, indexOfSeparator);
             final String password = decodedCredentials.substring(indexOfSeparator + 1);
 
-            LOGGER.debug(String.format("[Basic Authentication] Authorization header found for user '%s'", username));
+            LOGGER.debug("[Basic Authentication] Authorization header found for user '{}'", username);
 
             return new BasicAuthenticationDetails(username, password);
         }

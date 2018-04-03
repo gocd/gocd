@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.authentication.filterchains;
 
-import com.thoughtworks.go.server.newsecurity.authentication.filters.BasicAuthenticationFilter;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.FormLoginFilter;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.OauthAuthenticationFilter;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.X509AuthenticationFilter;
+import com.thoughtworks.go.server.newsecurity.authentication.filters.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -33,17 +30,18 @@ public class AuthenticationFilterChain extends FilterChainProxy {
 
     @Autowired
     public AuthenticationFilterChain(X509AuthenticationFilter x509AuthenticationFilter,
-                                     BasicAuthenticationFilter basicAuthenticationFilter,
+                                     BasicAuthenticationWithChallengeFilter basicAuthenticationWithChallengeFilterFilter,
+                                     BasicAuthenticationWithRedirectToLoginFilter basicAuthenticationWithRedirectToLoginFilter,
                                      OauthAuthenticationFilter oauthAuthenticationFilter,
                                      FormLoginFilter formLoginFilter,
                                      AssumeAnonymousUserFilter assumeAnonymousUserFilter) {
         super(Arrays.asList(
                 new DefaultSecurityFilterChain(new AntPathRequestMatcher("/remoting/**"), x509AuthenticationFilter),
                 new DefaultSecurityFilterChain(new AntPathRequestMatcher("/agent-websocket/**"), x509AuthenticationFilter),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), basicAuthenticationFilter, assumeAnonymousUserFilter),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), basicAuthenticationFilter, assumeAnonymousUserFilter),
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/cctray.xml"), basicAuthenticationWithChallengeFilterFilter, assumeAnonymousUserFilter),
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/api/**"), basicAuthenticationWithChallengeFilterFilter, assumeAnonymousUserFilter),
                 new DefaultSecurityFilterChain(new AntPathRequestMatcher("/add-on/*/api/**"), oauthAuthenticationFilter, assumeAnonymousUserFilter),
-                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), basicAuthenticationFilter, formLoginFilter, assumeAnonymousUserFilter)
+                new DefaultSecurityFilterChain(new AntPathRequestMatcher("/**"), basicAuthenticationWithRedirectToLoginFilter, formLoginFilter, assumeAnonymousUserFilter)
         ));
     }
 }

@@ -407,7 +407,9 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			throw new IllegalStateException("Cannot send redirect - response is already committed");
 		}
 		Assert.notNull(url, "Redirect URL must not be null");
+		setStatus(302);
 		this.redirectedUrl = url;
+		setHeader("location", url);
 		setCommitted(true);
 	}
 

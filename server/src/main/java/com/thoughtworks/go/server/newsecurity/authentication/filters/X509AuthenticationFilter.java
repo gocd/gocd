@@ -43,14 +43,14 @@ public class X509AuthenticationFilter extends AbstractAuthenticationFilter {
 
         if (certs != null && certs.length > 0) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[X509 Client Authentication] Client certificate found in request: %s", certs[0]));
+                LOGGER.debug("Client certificate found in request: {}", certs[0]);
             }
 
             return certs[0];
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[X509 Client Authentication] No client certificate found in request.");
+            LOGGER.debug("No client certificate found in request.");
         }
 
         return null;

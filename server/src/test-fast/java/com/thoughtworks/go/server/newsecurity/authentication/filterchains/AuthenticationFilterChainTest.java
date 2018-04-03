@@ -19,10 +19,7 @@ package com.thoughtworks.go.server.newsecurity.authentication.filterchains;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.newsecurity.authentication.HttpRequestBuilder;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.BasicAuthenticationFilter;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.CachingSubjectDnX509PrincipalExtractor;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.FormLoginFilter;
-import com.thoughtworks.go.server.newsecurity.authentication.filters.X509AuthenticationFilter;
+import com.thoughtworks.go.server.newsecurity.authentication.filters.*;
 import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.server.newsecurity.authentication.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.newsecurity.authentication.providers.PasswordBasedPluginAuthenticationProvider;
@@ -42,7 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.thoughtworks.go.server.newsecurity.authentication.filters.AbstractAuthenticationFilter.CURRENT_USER;
+import static com.thoughtworks.go.server.newsecurity.authentication.utils.SessionUtils.AUTHENTICATION_ERROR;
+import static com.thoughtworks.go.server.newsecurity.authentication.utils.SessionUtils.CURRENT_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -92,7 +90,8 @@ public class AuthenticationFilterChainTest {
         private final FormLoginFilter formLoginFilter = new FormLoginFilter(securityService, authenticationProvider);
         private final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(
                 null,
-                new BasicAuthenticationFilter(securityService, authenticationProvider),
+                new BasicAuthenticationWithChallengeFilter(securityService, authenticationProvider),
+                new BasicAuthenticationWithRedirectToLoginFilter(securityService, authenticationProvider),
                 null,
                 formLoginFilter, assumeAnonymousUserFilter);
         private final MockHttpServletResponse response = new MockHttpServletResponse();
@@ -165,11 +164,10 @@ public class AuthenticationFilterChainTest {
 
                 authenticationFilterChainChain.doFilter(request, response, filterChain);
 
-                assertThat(response.getStatus()).isEqualTo(200);
-                final User user = (User) request.getSession(false).getAttribute(CURRENT_USER);
-                assertThat(user.getUsername()).isEqualTo("bob");
-                assertThat(user.getPassword()).isEqualTo("p@ssw0rd");
-                assertThat(user.getAuthorities()).hasSize(1).containsExactly(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+                assertThat(response.getStatus()).isEqualTo(302);
+                assertThat(response.getHeader("location")).isEqualTo("/auth/login");
+                assertThat(request.getSession(false).getAttribute(CURRENT_USER)).isNull();
+                assertThat(request.getSession(false).getAttribute(AUTHENTICATION_ERROR)).isEqualTo("Invalid credentials. Either your username and password are incorrect, or there is a problem with your browser cookies. Please check with your administrator.");
             }
         }
 
@@ -182,7 +180,7 @@ public class AuthenticationFilterChainTest {
         @Test
         public void shouldRespondWith403IfAuthenticationNotProvided() throws Exception {
             MockHttpServletRequest request = HttpRequestBuilder.GET(url()).build();
-            final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(new X509AuthenticationFilter(mock(CachingSubjectDnX509PrincipalExtractor.class)), null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(new X509AuthenticationFilter(mock(CachingSubjectDnX509PrincipalExtractor.class)), null, null, null, null, null);
 
             final MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -203,7 +201,7 @@ public class AuthenticationFilterChainTest {
                     .withAttribute("javax.servlet.request.X509Certificate", registration.getChain())
                     .build();
             final CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor = new CachingSubjectDnX509PrincipalExtractor(mock(Ehcache.class));
-            final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(new X509AuthenticationFilter(subjectDnX509PrincipalExtractor), null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(new X509AuthenticationFilter(subjectDnX509PrincipalExtractor), null, null, null, null, null);
 
             final MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -235,7 +233,8 @@ public class AuthenticationFilterChainTest {
         private final AssumeAnonymousUserFilter assumeAnonymousUserFilter = new AssumeAnonymousUserFilter(securityService);
         private final AuthenticationFilterChain authenticationFilterChainChain = new AuthenticationFilterChain(
                 null,
-                new BasicAuthenticationFilter(securityService, authenticationProvider),
+                new BasicAuthenticationWithChallengeFilter(securityService, authenticationProvider),
+                null,
                 null,
                 null, assumeAnonymousUserFilter);
         private final MockHttpServletResponse response = new MockHttpServletResponse();

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
+import com.thoughtworks.go.server.newsecurity.authentication.handlers.RedirectToLoginPageHandler;
 import com.thoughtworks.go.server.newsecurity.authentication.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.service.SecurityService;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Component
 public class FormLoginFilter extends AbstractAuthenticationFilter {
@@ -36,11 +38,13 @@ public class FormLoginFilter extends AbstractAuthenticationFilter {
     public final static String PASSWORD = "j_password";
     private final SecurityService securityService;
     private final PasswordBasedPluginAuthenticationProvider authenticationProvider;
+    private final RedirectToLoginPageHandler accessDeniedHandler;
 
     @Autowired
     public FormLoginFilter(SecurityService securityService, PasswordBasedPluginAuthenticationProvider authenticationProvider) {
         this.securityService = securityService;
         this.authenticationProvider = authenticationProvider;
+        this.accessDeniedHandler = new RedirectToLoginPageHandler();
     }
 
     @Override
@@ -49,20 +53,31 @@ public class FormLoginFilter extends AbstractAuthenticationFilter {
     }
 
     @Override
-    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+    protected void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
         request.getSession().invalidate();
+        request.getSession().setAttribute("GOCD_SECURITY_AUTHENTICATION_ERROR", getMessage(exception));
+        accessDeniedHandler.handle(request, response);
+        LOGGER.debug("Failed to authenticate user {}", request.getParameter(USERNAME), exception);
+    }
+
+    private String getMessage(Exception exception) {
         if (exception instanceof BadCredentialsException) {
-            request.getSession().setAttribute("AUTHENTICATION_ERROR", exception.getMessage());
+            return exception.getMessage();
         } else {
-            request.getSession().setAttribute("AUTHENTICATION_ERROR", "There was an unknown error authenticating you. Please contact the server administrator for help.");
+            return "There was an unknown error authenticating you. Please contact the server administrator for help.";
         }
-        LOGGER.debug(String.format("[Basic Authentication Failure] Failed to authenticate user %s", request.getParameter(USERNAME)));
     }
 
     @Override
-    protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
+    protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) throws IOException {
         super.onAuthenticationSuccess(request, response);
-        request.getSession().removeAttribute("AUTHENTICATION_ERROR");
+        request.getSession().removeAttribute("GOCD_SECURITY_AUTHENTICATION_ERROR");
+        String redirectUrl = (String) request.getSession().getAttribute("REDIRECT_URL");
+        if (redirectUrl == null) {
+            redirectUrl = "/";
+        }
+
+        response.sendRedirect(redirectUrl);
     }
 
     @Override
@@ -71,11 +86,15 @@ public class FormLoginFilter extends AbstractAuthenticationFilter {
         final String password = request.getParameter(PASSWORD);
 
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            throw new BadCredentialsException("[Form Authentication] Username and password must be specified!");
+            throw new BadCredentialsException("Username and password must be specified!");
         }
 
-        LOGGER.debug("[Basic Authentication] Requesting authentication for form auth.");
-        return authenticationProvider.authenticate(username, password);
+        LOGGER.debug("Requesting authentication for form auth.");
+        final User user = authenticationProvider.authenticate(username, password);
+        if (user == null) {
+            throw new BadCredentialsException("Invalid credentials. Either your username and password are incorrect, or there is a problem with your browser cookies. Please check with your administrator.");
+        }
+        return user;
     }
 
     @Override

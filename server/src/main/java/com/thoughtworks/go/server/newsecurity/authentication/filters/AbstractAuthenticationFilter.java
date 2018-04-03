@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.authentication.filters;
 
+import com.thoughtworks.go.server.newsecurity.authentication.utils.SessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
@@ -26,59 +27,43 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
-    public static final String CURRENT_USER = "CURRENT_USER";
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    protected boolean hasUser(HttpServletRequest request) {
-        return getUser(request) != null;
-    }
-
-    protected User getUser(HttpServletRequest request) {
-        return (User) request.getSession().getAttribute(CURRENT_USER);
-    }
-
-    protected void setUser(User user, HttpServletRequest request) {
-        request.getSession().setAttribute(CURRENT_USER, user);
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (isSecurityDisabled()) {
-            LOGGER.debug(String.format("[Authentication] Security is disabled. Skipping authentication for request %s.", request.getRequestURI()));
+            LOGGER.debug("Security is disabled. Skipping authentication for request {}.", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (hasUser(request)) {
-            LOGGER.debug("[Authentication] Already authenticated request.");
+        if (SessionUtils.hasUser(request)) {
+            LOGGER.debug("Already authenticated request.");
             filterChain.doFilter(request, response);
             return;
         }
 
         if (canHandleRequest(request)) {
-            LOGGER.debug("[Authentication] Request is not authenticated, attempting authentication.");
+            LOGGER.debug("Request is not authenticated, attempting authentication.");
             try {
                 User user = attemptAuthentication(request, response);
                 if (user == null) {
-                    LOGGER.debug("[Authentication] Request could not be authenticated.");
+                    LOGGER.debug("Request could not be authenticated.");
                 } else {
-                    setUser(user, request);
-                    LOGGER.debug("[Authentication] Request successfully authenticated.");
-                    final HttpSession session = request.getSession();
-//                    session.g
+                    SessionUtils.setUser(user, request);
+                    LOGGER.debug("Request successfully authenticated.");
                     onAuthenticationSuccess(request, response);
                 }
             } catch (Exception e) {
-                LOGGER.error("[Authentication] Failed to authenticate request: ", e);
+                LOGGER.error("Failed to authenticate request: ", e);
                 onAuthenticationFailure(request, response, e);
                 return;
             }
         } else {
-            LOGGER.debug(String.format("[Authentication] Filter %s cannot handle the request. Proceeding with the next filter in chain.", getClass().getSimpleName()));
+            LOGGER.debug("Filter {} cannot handle the request. Proceeding with the next filter in chain.", getClass().getSimpleName());
         }
         filterChain.doFilter(request, response);
     }
@@ -96,7 +81,7 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
     protected abstract void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
 
-    protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
+    protected void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) throws IOException {
     }
 
     protected abstract User attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException;

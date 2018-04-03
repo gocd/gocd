@@ -24,7 +24,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
 
 import javax.servlet.http.Cookie;
-import java.net.URISyntaxException;
+import javax.servlet.http.HttpSession;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -40,42 +40,48 @@ public class HttpRequestBuilder {
         this.request = new MockHttpServletRequest();
     }
 
-    public HttpRequestBuilder withPath(String path) throws URISyntaxException {
-        URIBuilder uri = new URIBuilder(CONTEXT_PATH + path);
-        request.setServerName("test.host");
-        request.setContextPath(CONTEXT_PATH);
-        request.setParameters(splitQuery(uri));
-        request.setRequestURI(uri.getPath());
-        request.setServletPath(path);
-        request.setQueryString(URLEncodedUtils.format(uri.getQueryParams(), UTF_8));
-        return this;
+    public HttpRequestBuilder withPath(String path) {
+        try {
+            URIBuilder uri = new URIBuilder(CONTEXT_PATH + path);
+            request.setServerName("test.host");
+            request.setContextPath(CONTEXT_PATH);
+            request.setParameters(splitQuery(uri));
+            request.setRequestURI(uri.getPath());
+            request.setServletPath(path);
+            if (!uri.getQueryParams().isEmpty()) {
+                request.setQueryString(URLEncodedUtils.format(uri.getQueryParams(), UTF_8));
+            }
+            return this;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public MockHttpServletRequest build() {
         return request;
     }
 
-    public static HttpRequestBuilder GET(String path) throws URISyntaxException {
+    public static HttpRequestBuilder GET(String path) {
         return new HttpRequestBuilder().withMethod("GET").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
-    public static HttpRequestBuilder HEAD(String path) throws URISyntaxException {
+    public static HttpRequestBuilder HEAD(String path) {
         return new HttpRequestBuilder().withMethod("HEAD").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
-    public static HttpRequestBuilder PUT(String path) throws URISyntaxException {
+    public static HttpRequestBuilder PUT(String path) {
         return new HttpRequestBuilder().withMethod("PUT").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
-    public static HttpRequestBuilder POST(String path) throws URISyntaxException {
+    public static HttpRequestBuilder POST(String path) {
         return new HttpRequestBuilder().withMethod("POST").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
-    public static HttpRequestBuilder PATCH(String path) throws URISyntaxException {
+    public static HttpRequestBuilder PATCH(String path) {
         return new HttpRequestBuilder().withMethod("PATCH").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
-    public static HttpRequestBuilder DELETE(String path) throws URISyntaxException {
+    public static HttpRequestBuilder DELETE(String path) {
         return new HttpRequestBuilder().withMethod("DELETE").withPath(StringUtils.isBlank(path) ? "/" : path);
     }
 
@@ -173,6 +179,11 @@ public class HttpRequestBuilder {
         }
 
         request.setParameter(name, value);
+        return this;
+    }
+
+    public HttpRequestBuilder withSession(HttpSession session) {
+        request.setSession(session);
         return this;
     }
 }

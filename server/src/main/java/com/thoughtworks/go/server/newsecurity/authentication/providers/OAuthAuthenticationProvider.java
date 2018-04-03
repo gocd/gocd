@@ -42,7 +42,7 @@ public class OAuthAuthenticationProvider {
         OauthDataSource.OauthTokenDTO oauthToken = oauthDataSource.findOauthTokenByAccessToken(accessToken);
 
         if (oauthToken == null) {
-            throw new BadCredentialsException(String.format("[OAuth Authentication Failure] No match for OAuth token: %s", accessToken));
+            throw new BadCredentialsException("No match for OAuth token: " + accessToken);
         }
 
         String username = oauthToken.getUserId();

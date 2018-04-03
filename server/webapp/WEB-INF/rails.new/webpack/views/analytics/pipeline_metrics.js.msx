@@ -55,7 +55,7 @@
         }
       });
 
-      return m("select", {
+      const select = m("select", {
         onchange: function() { // eslint-disable-line object-shorthand
           currentPipeline = $(this).val();
           $.each(models, (uid, model) => {
@@ -63,6 +63,8 @@
           });
         }
       }, pipelineOptions);
+
+      return (<span>Analytics For Pipeline: {select} </span>);
     }
 
     function view(vnode) { // eslint-disable-line no-unused-vars

@@ -26,6 +26,7 @@
 // scss-lint:disable SelectorDepth
 
 $golden-ratio: 1.61803398875;
+$analytics-min-width: 809px;
 
 .analytics-container {
   display:         flex;
@@ -82,7 +83,7 @@ $golden-ratio: 1.61803398875;
 
       select {
         width:      calc(50vw - 100px);
-        min-width:  650px;
+        min-width:  $analytics-min-width;
         margin:     0 25%;
       }
 
@@ -91,8 +92,8 @@ $golden-ratio: 1.61803398875;
         width:      calc(50vw - 104px);
         height:     calc(50vw / #{$golden-ratio} - 104px / #{$golden-ratio});
 
-        min-width:  646px;
-        min-height: calc(646px / #{$golden-ratio});
+        min-width:  $analytics-min-width;
+        min-height: calc(#{$analytics-min-width} / #{$golden-ratio});
 
         iframe {
           height: 100%;

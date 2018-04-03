@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

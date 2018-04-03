@@ -149,7 +149,7 @@ Graph_Renderer = function (container) {
                     list_of_material_name += material_name + ', ';
                 }
             }
-            gui += '<ul class="instances" data-materialname=' + node.id + '>';
+            gui += '<ul class="instances" data-materialname=' + node.id + ' style="display: none;">';
             gui += '<li></li>';
             for (var i = 0; i < instancesCount; i++) {
                 gui += '<li class="material_revision_header"><div title="' + node.name + '">' + node.name + '</div></li>'

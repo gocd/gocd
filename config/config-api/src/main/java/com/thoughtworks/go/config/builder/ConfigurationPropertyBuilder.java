@@ -62,7 +62,7 @@ public class ConfigurationPropertyBuilder {
                 configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
             }
 
-            if (isNotBlank(value)) {
+            if (value != null) {
                 configurationProperty.setConfigurationValue(new ConfigurationValue(value));
             }
         }

@@ -313,6 +313,17 @@ public class DefaultPluginManagerTest {
         inOrder.verify(monitor).addPluginJarChangeListener(jarChangeListener);
     }
 
+    @Test
+    public void isPluginLoaded_shouldCheckPluginIsLoadedOrNor() {
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(mock(GoPluginDescriptor.class));
+        when(registry.getPlugin("cd.go.elastic-agent.foo")).thenReturn(null);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertTrue(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
+        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.foo"));
+    }
+
     @After
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(BUNDLE_DIR);

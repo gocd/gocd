@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.server.domain;
 
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -28,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PluginSettings {
+public class PluginSettings implements Validatable {
     private String pluginId;
     private List<ConfigurationProperty> settingsMap = new ArrayList<>();
     private boolean hasErrors = false;
@@ -39,6 +43,11 @@ public class PluginSettings {
 
     public PluginSettings(String pluginId) {
         this.pluginId = pluginId;
+    }
+
+    private PluginSettings(String pluginId, ArrayList<ConfigurationProperty> settingsMap) {
+        this(pluginId);
+        this.settingsMap = settingsMap;
     }
 
     public String getPluginId() {
@@ -55,11 +64,12 @@ public class PluginSettings {
 
     public void addConfigurations(PluginInfo pluginInfo, List<ConfigurationProperty> configurationProperties) {
         settingsMap.clear();
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurationProperties) {
-            final ConfigurationProperty configurationProperty = ConfigurationProperty.builder(property.getConfigKeyName())
-                    .value(property.getValue())
-                    .secure(isSecure(pluginInfo, property.getConfigKeyName()))
-                    .build();
+            ConfigurationProperty configurationProperty = builder.create(property.getConfigKeyName(),
+                    property.getConfigValue(),
+                    property.getEncryptedValue(),
+                    pluginInfo.isSecure(property.getConfigKeyName()));
             settingsMap.add(configurationProperty);
         }
     }
@@ -86,7 +96,7 @@ public class PluginSettings {
         }
 
         if (getErrorFor(settingsKey) == null) {
-            errors().add(settingsKey, errorMessage);
+            addError(settingsKey, errorMessage);
         }
     }
 
@@ -107,26 +117,43 @@ public class PluginSettings {
         return errors().getAllOn(settingsKey);
     }
 
+    @Override
+    public void validate(ValidationContext validationContext) {
+
+    }
+
     public ConfigErrors errors() {
         return errors;
     }
 
-    public static PluginSettings from(Plugin plugin, PluginInfo pluginInfo) {
-        final PluginSettings pluginSettings = new PluginSettings(plugin.getPluginId());
-        for (String key : plugin.getAllConfigurationKeys()) {
-            final ConfigurationProperty configurationProperty = ConfigurationProperty.builder(key)
-                    .value(plugin.getConfigurationValue(key))
-                    .secure(isSecure(pluginInfo, key))
-                    .build();
-
-            pluginSettings.settingsMap.add(configurationProperty);
-        }
-
-        return pluginSettings;
+    @Override
+    public void addError(String fieldName, String message) {
+        errors.add(fieldName, fieldName);
     }
 
-    private static boolean isSecure(PluginInfo pluginInfo, String key) {
-        return pluginInfo.getPluginSettings().getConfiguration(key) != null &&
-                pluginInfo.getPluginSettings().getConfiguration(key).isSecure();
+    public static PluginSettings from(Plugin plugin, PluginInfo pluginInfo) {
+        ArrayList<ConfigurationProperty> settingsMap = new ArrayList<>();
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+
+        for (String key : plugin.getAllConfigurationKeys()) {
+            ConfigurationProperty configurationProperty = builder.create(key,
+                    plugin.getConfigurationValue(key),
+                    null,
+                    pluginInfo.isSecure(key));
+
+            settingsMap.add(configurationProperty);
+        }
+
+        return new PluginSettings(plugin.getPluginId(), settingsMap);
+    }
+
+    public void validateTree() {
+        ConfigSaveValidationContext validationContext = new ConfigSaveValidationContext(this);
+        for (ConfigurationProperty configurationProperty : settingsMap) {
+            configurationProperty.validate(validationContext);
+            if (configurationProperty.hasErrors()) {
+                hasErrors = true;
+            }
+        }
     }
 }

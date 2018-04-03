@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataS
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
@@ -47,15 +48,20 @@ public class PluginService {
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private DefaultPluginInfoFinder defaultPluginInfoFinder;
+    private final PluginManager pluginManager;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService, EntityHashingService entityHashingService, DefaultPluginInfoFinder defaultPluginInfoFinder) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService,
+                         EntityHashingService entityHashingService, DefaultPluginInfoFinder defaultPluginInfoFinder,
+                         PluginManager pluginManager) {
+
         this.extensions = extensions;
         this.pluginDao = pluginDao;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.defaultPluginInfoFinder = defaultPluginInfoFinder;
+        this.pluginManager = pluginManager;
     }
 
     public PluginInfo pluginInfoForExtensionThatHandlesPluginSettings(String pluginId) {
@@ -64,12 +70,7 @@ public class PluginService {
     }
 
     public boolean isPluginLoaded(String pluginId) {
-        for (GoPluginExtension extension : extensions) {
-            if (extension.canHandlePlugin(pluginId)) {
-                return true;
-            }
-        }
-        return false;
+        return pluginManager.isPluginLoaded(pluginId);
     }
 
     public PluginSettings getPluginSettings(String pluginId) {
@@ -82,33 +83,31 @@ public class PluginService {
     }
 
     public void createPluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result) {
-        final String pluginId = newPluginSettings.getPluginId();
-        if (hasPermission(currentUser, result) && checkPluginLoaded(pluginId, result) && checkPluginSupportsPluginSettings(pluginId, result)) {
-            final String keyToLockOn = keyToLockOn(newPluginSettings.getPluginId());
-            synchronized (keyToLockOn) {
+        final String keyToLockOn = keyToLockOn(newPluginSettings.getPluginId());
+        synchronized (keyToLockOn) {
+            if (hasPermission(currentUser, result)) {
                 final Plugin plugin = pluginDao.findPlugin(newPluginSettings.getPluginId());
                 if (plugin instanceof NullPlugin) {
                     updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
                 } else {
-                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("The plugin settings for plugin[%s] is already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
+                    result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("Plugin settings for the plugin `%s` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
                 }
             }
         }
+
     }
 
     public void updatePluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result, String md5) {
         final String pluginId = newPluginSettings.getPluginId();
 
-        if (hasPermission(currentUser, result) && checkPluginLoaded(pluginId, result) && checkPluginSupportsPluginSettings(pluginId, result)) {
-            final String keyToLockOn = keyToLockOn(pluginId);
-            synchronized (keyToLockOn) {
-                final Plugin plugin = pluginDao.findPlugin(pluginId);
-                if (plugin instanceof NullPlugin) {
+        final String keyToLockOn = keyToLockOn(pluginId);
+        synchronized (keyToLockOn) {
+            if (hasPermission(currentUser, result)) {
+                final PluginSettings pluginSettingsFromDB = getPluginSettings(pluginId);
+                if (pluginSettingsFromDB == null) {
                     result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Plugin Settings", pluginId), HealthStateType.notFound());
                     return;
                 }
-
-                final PluginSettings pluginSettingsFromDB = getPluginSettings(pluginId);
                 if (!entityHashingService.md5ForEntity(pluginSettingsFromDB).equals(md5)) {
                     result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Plugin Settings", pluginId));
                     return;
@@ -122,7 +121,12 @@ public class PluginService {
         }
     }
 
-    void validatePluginSettingsFor(PluginSettings pluginSettings) {
+    void validatePluginSettings(PluginSettings pluginSettings) {
+        pluginSettings.validateTree();
+        if (pluginSettings.hasErrors()) {
+            return;
+        }
+
         final String pluginId = pluginSettings.getPluginId();
         final PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
 
@@ -152,7 +156,7 @@ public class PluginService {
     private void updatePluginSettingsAndNotifyPluginSettingsChangeListeners(LocalizedOperationResult result, PluginSettings pluginSettings) {
         synchronized (keyToLockOn(pluginSettings.getPluginId())) {
             try {
-                validatePluginSettingsFor(pluginSettings);
+                validatePluginSettings(pluginSettings);
                 if (pluginSettings.hasErrors()) {
                     result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit."));
                     return;
@@ -214,22 +218,5 @@ public class PluginService {
 
         result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
         return false;
-    }
-
-    private boolean checkPluginLoaded(String pluginId, LocalizedOperationResult result) {
-        if (!isPluginLoaded(pluginId)) {
-            result.failedDependency(LocalizedMessage.string("FAILED_DEPENDENCY", String.format("The plugin with id %s is not loaded.", pluginId)));
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkPluginSupportsPluginSettings(String pluginId, LocalizedOperationResult result) {
-        final PluginInfo pluginInfo = pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
-        if (pluginInfo == null) {
-            result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", String.format("The plugin with id %s does not support plugin settings.", pluginId)));
-            return false;
-        }
-        return true;
     }
 }

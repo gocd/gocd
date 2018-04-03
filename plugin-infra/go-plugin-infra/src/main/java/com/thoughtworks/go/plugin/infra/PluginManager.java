@@ -25,6 +25,8 @@ import java.util.List;
 public interface PluginManager {
     List<GoPluginDescriptor> plugins();
 
+    boolean isPluginLoaded(String pluginId);
+
     GoPluginDescriptor getPluginDescriptorFor(String pluginId);
 
     void startInfrastructure(boolean shouldPoll);

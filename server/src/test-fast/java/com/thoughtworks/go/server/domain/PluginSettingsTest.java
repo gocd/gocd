@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,17 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.security.GoCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -42,7 +46,6 @@ import static org.mockito.Mockito.when;
 
 public class PluginSettingsTest {
     public static final String PLUGIN_ID = "plugin-id";
-
 
     @Test
     public void shouldGetSettingsMapAsKeyValueMap() {
@@ -134,6 +137,33 @@ public class PluginSettingsTest {
         assertThat(pluginSettingsProperties.size(), is(2));
         assertThat(pluginSettingsProperties.get(0), is(configProperty1));
         assertThat(pluginSettingsProperties.get(1), is(configProperty2));
+    }
+
+    @Test
+    public void shouldValidateThatEncryptedVariablesAreEncryptedWithTheCorrectCipher(){
+        final PluginInfo pluginInfo = mock(PluginInfo.class);
+        String secureKey = "supposedly-secure-key";
+        when(pluginInfo.isSecure(secureKey)).thenReturn(true);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher") )));
+        pluginSettings.validateTree();
+
+        assertThat(pluginSettings.hasErrors(), is(true));
+        assertThat(pluginSettings.getPluginSettingsProperties().get(0).errors().firstError(), is("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+    }
+
+    @Test
+    public void shouldPassValidationIfEncryptedVariablesAreEncryptedWithTheCorrectCipher() throws InvalidCipherTextException {
+        final PluginInfo pluginInfo = mock(PluginInfo.class);
+        String secureKey = "supposedly-secure-key";
+        when(pluginInfo.isSecure(secureKey)).thenReturn(true);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue(new GoCipher().encrypt("secure")) )));
+        pluginSettings.validateTree();
+
+        assertThat(pluginSettings.hasErrors(), is(false));
     }
 
     private Plugin getPlugin(String pluginId) {

@@ -49,8 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -136,7 +135,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() throws Exception {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("new_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("new_user"), "credentials", Arrays.asList(GoAuthority.ROLE_USER.asAuthority()));
         assertThat(userDao.findUser("new_user"), isANullUser());
         userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
         User loadedUser = userDao.findUser("new_user");
@@ -147,7 +146,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void addUserIfDoesNotExist_shouldNotAddUserIfExists() throws Exception {
         User user = new User("old_user");
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("old_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("old_user"), "credentials", Arrays.asList(GoAuthority.ROLE_USER.asAuthority()));
         addUser(user);
         userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
     }
@@ -159,8 +158,8 @@ public class UserServiceIntegrationTest {
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }
 
-    private org.springframework.security.userdetails.User getAuthUser(String userName) {
-        return new org.springframework.security.userdetails.User(userName, "pass", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
+    private org.springframework.security.core.userdetails.User getAuthUser(String userName) {
+        return new org.springframework.security.core.userdetails.User(userName, "pass", Arrays.asList(GoAuthority.ROLE_USER.asAuthority()));
     }
 
     @Test

@@ -30,6 +30,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -45,20 +48,29 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
+@ContextConfiguration
 public class MultipleExtensionPluginWithPluginManagerIntegrationTest extends SystemPropertyAffectingTestBase {
     private static final String EXTENSION_1_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.task_extension.";
     private static final String EXTENSION_2_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.analytics_extension.";
 
     private static final String PLUGIN_DIR_NAME = "./tmp-MultipleExtensionDefPlgnMgrIntTest";
     private static final String BUNDLE_DIR_NAME = "./tmp-bundles-MultipleExtensionDefPlgnMgrIntTest";
+
     private static final File PLUGIN_DIR = new File(PLUGIN_DIR_NAME);
     private static final File BUNDLE_DIR = new File(BUNDLE_DIR_NAME);
     private static final String PLUGIN_ID = "valid-plugin-with-multiple-extensions";
 
     @Autowired DefaultPluginManager pluginManager;
     @Autowired DefaultPluginJarChangeListener jarChangeListener;
-    @Autowired SystemEnvironment systemEnvironment;
+
+    @Configuration
+    @ComponentScan("com.thoughtworks.go.plugin.infra")
+    public static class SpringConfig {
+        @Bean
+        SystemEnvironment get() {
+            return new SystemEnvironment();
+        }
+    }
 
     @BeforeClass
     public static void overrideProperties() {

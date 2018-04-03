@@ -85,6 +85,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Autowired private SCMMaterialSource scmMaterialSource;
     @Autowired private ResourceMonitoring resourceMonitoring;
+    @Autowired
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
 

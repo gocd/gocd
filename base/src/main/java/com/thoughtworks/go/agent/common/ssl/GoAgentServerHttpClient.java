@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,63 +18,14 @@ package com.thoughtworks.go.agent.common.ssl;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.security.auth.x500.X500Principal;
-import java.io.Closeable;
 import java.io.IOException;
 
-public class GoAgentServerHttpClient implements Closeable {
-    private static final Logger LOG = LoggerFactory.getLogger(GoAgentServerHttpClient.class);
+public interface GoAgentServerHttpClient {
+    CloseableHttpResponse execute(HttpUriRequest request) throws IOException;
 
-    private CloseableHttpClient client;
-    private X500Principal principal;
-    private GoAgentServerHttpClientBuilder builder;
+    CloseableHttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException;
 
-    public GoAgentServerHttpClient(GoAgentServerHttpClientBuilder builder) {
-        this.builder = builder;
-    }
-
-    // called by spring
-    public void init() throws Exception {
-        this.client = builder.build();
-        this.principal = builder.principal();
-    }
-
-
-    public CloseableHttpResponse execute(HttpUriRequest request) throws IOException {
-        return client.execute(request);
-    }
-
-    public CloseableHttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException {
-        return client.execute(request, context);
-    }
-
-    @Override
-    public synchronized void close() {
-        try {
-            if (this.client != null) {
-                this.client.close();
-            }
-        } catch (Exception e) {
-            LOG.warn("Could not close http client", e);
-        }
-
-        try {
-            init();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void reset() throws IOException {
-        close();
-    }
-
-    public X500Principal principal() {
-        return this.principal;
-    }
+    void reset() throws IOException;
 }

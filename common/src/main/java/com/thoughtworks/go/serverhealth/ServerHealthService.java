@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,24 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.CruiseConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class ServerHealthService {
+@EnableScheduling
+public class ServerHealthService implements ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(ServerHealthService.class);
 
     private HashMap<ServerHealthState, Set<String>> pipelinesWithErrors;
     private Map<HealthStateType, ServerHealthState> serverHealth;
+    private ApplicationContext applicationContext;
 
     public ServerHealthService() {
         this.serverHealth = new ConcurrentHashMap<>();
@@ -74,8 +81,10 @@ public class ServerHealthService {
     }
 
     // called from spring timer
-    public synchronized void onTimer(CruiseConfigProvider provider) {
-        CruiseConfig currentConfig = provider.getCurrentConfig();
+    @Scheduled(initialDelay = 10000, fixedDelay = 5000)
+    public synchronized void onTimer() {
+
+        CruiseConfig currentConfig = applicationContext.getBean(CruiseConfigProvider.class).getCurrentConfig();
         purgeStaleHealthMessages(currentConfig);
         LOG.debug("Recomputing material to pipeline mappings.");
 
@@ -160,5 +169,10 @@ public class ServerHealthService {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

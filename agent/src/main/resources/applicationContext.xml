@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -18,117 +18,35 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd"
        default-init-method="init">
 
-  <import resource="classpath:applicationContext-plugin-infra.xml"/>
   <context:annotation-config/>
   <context:component-scan base-package="com.thoughtworks.go.agent.statusapi"/>
 
-  <!-- Loads the System Properties -->
-  <bean id="propertyConfigurer"
-        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="locations">
-      <list>
-        <value>classpath*:agent.properties</value>
-      </list>
-    </property>
-    <!--SYSTEM_PROPERTIES_MODE_OVERRIDE : Check system properties first, before trying the specified properties.
-        This allows system properties to override any other property source.-->
-    <property name="systemPropertiesMode" value="2"/>
-  </bean>
+  <context:component-scan base-package="com.thoughtworks.go.plugin.infra"/>
+  <context:component-scan base-package="com.thoughtworks.go.util"/>
+  <context:component-scan base-package="com.thoughtworks.go.util.scheduling"/>
+  <context:component-scan base-package="com.thoughtworks.go.agent"/>
+  <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
+  <context:component-scan base-package="com.thoughtworks.go.publishers"/>
+  <context:component-scan base-package="com.thoughtworks.go.config"/>
 
-  <bean id="buildLoopServer" class="com.thoughtworks.go.agent.service.HttpInvokerProxyFactoryWrapper"
-        p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote">
-    <property name="httpInvokerRequestExecutor">
-      <bean class="com.thoughtworks.go.agent.GoHttpClientHttpInvokerRequestExecutor">
-        <constructor-arg ref="httpClient"/>
-        <constructor-arg ref="systemEnvironment"/>
-      </bean>
-    </property>
-  </bean>
-
-  <bean id="urlService" class="com.thoughtworks.go.util.URLService"/>
-  <bean id="httpService" class="com.thoughtworks.go.util.HttpService"/>
-  <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
-  <bean id="sslInfrastructureService" class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
-  <bean id="agentUpgradeService" class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>
-  <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
+  <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
+  <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
   <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
-  <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
-  <bean id="packageRepositoryExtension"
-        class="com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension"/>
-  <bean id="scmExtension" class="com.thoughtworks.go.plugin.access.scm.SCMExtension"/>
-  <bean id="taskExtension" class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
-  <bean id="artifactExtension" class="com.thoughtworks.go.plugin.access.artifact.ArtifactExtension"/>
-  <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">
+
+  <!-- Loads the System Properties -->
+  <context:property-placeholder location="classpath*:agent.properties"/>
+
+  <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock"/>
+
+  <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.DefaultGoAgentServerHttpClient">
     <constructor-arg ref="httpClientBuilder"/>
   </bean>
+
   <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder">
     <constructor-arg ref="systemEnvironment"/>
-  </bean>
-
-  <bean id="webSocketClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder">
-    <constructor-arg ref="systemEnvironment"/>
-  </bean>
-
-  <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
-  <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>
-
-  <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
-  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
-
-  <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock" />
-
-  <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-        p:targetObject-ref="agentController"
-        p:targetMethod="loop"/>
-
-  <bean id="agentControllerPinger" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-        p:targetObject-ref="agentController"
-        p:targetMethod="ping"/>
-
-  <bean id="agentControllerInstructionExecutor"
-        class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-        p:targetObject-ref="agentController"
-        p:targetMethod="execute"/>
-
-
-  <!-- worker thread -->
-  <bean name="loopThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.get.work.delay}"
-              p:period="${agent.get.work.interval}"
-              p:timerTask-ref="agentControllerLooper"/>
-      </list>
-    </property>
-  </bean>
-
-  <!-- ping thread -->
-  <bean name="pingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.ping.delay}"
-              p:period="${agent.ping.interval}"
-              p:timerTask-ref="agentControllerPinger"/>
-      </list>
-    </property>
-  </bean>
-
-  <!-- instruction checker -->
-  <bean name="instructionExecuteThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.instruction.delay}"
-              p:period="${agent.instruction.interval}"
-              p:timerTask-ref="agentControllerInstructionExecutor"/>
-      </list>
-    </property>
   </bean>
 </beans>

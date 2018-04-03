@@ -16,16 +16,20 @@
 
 package com.thoughtworks.go.server.transaction;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.server.cache.GoCache;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
+@Component
 public class TransactionCacheInterceptor extends EmptyInterceptor {
 
     private final GoCache goCache;
 
+    @Autowired
     public TransactionCacheInterceptor(GoCache goCache) {
         this.goCache = goCache;
     }

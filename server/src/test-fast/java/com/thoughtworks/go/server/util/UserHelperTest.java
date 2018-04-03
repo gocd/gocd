@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,25 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
+import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -56,7 +60,7 @@ public class UserHelperTest {
 
     @Test
     public void shouldUnderstandByACEGIRoleWetherAgent() {
-        stubSecurityContextForRole(X509AuthoritiesPopulator.ROLE_AGENT);
+        stubSecurityContextForRole(GoAuthority.ROLE_AGENT.name());
         assertThat(UserHelper.isAgent(), is(true));
         stubSecurityContextForRole("junk");
         assertThat(UserHelper.isAgent(), is(false));
@@ -69,58 +73,59 @@ public class UserHelperTest {
     public static void stubSecurityContextForRole(String roleName) {
         GrantedAuthority agentAuth = mock(GrantedAuthority.class);
         when(agentAuth.getAuthority()).thenReturn(roleName);
-        GrantedAuthority[] grantedAuthorities = roleName == null ? new GrantedAuthority[] {} : new GrantedAuthority[] {agentAuth};
+        Collection<? extends GrantedAuthority> grantedAuthorities = roleName == null ? Collections.emptyList() : Arrays.asList(agentAuth);
         stubSecurityContextForGrantedAuthorities(grantedAuthorities);
     }
 
-    private static void stubSecurityContextForGrantedAuthorities(GrantedAuthority[] grantedAuthorities) {
+    private static void stubSecurityContextForGrantedAuthorities(Collection<? extends GrantedAuthority> grantedAuthorities) {
         SecurityContext context = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
         when(context.getAuthentication()).thenReturn(authentication);
-        when(authentication.getAuthorities()).thenReturn(grantedAuthorities);
+        when(authentication.getAuthorities()).thenReturn((Collection) grantedAuthorities);
         SecurityContextHolder.setContext(context);
     }
 
     @Test
     public void shouldGetNameFromUserDetails() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-                new User("user", "pass", true, false, true, true, new GrantedAuthority[0]), null, null);
+                new User("user", "pass", true, false, true, true, Collections.emptyList()), null, Collections.emptyList());
         assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("user"));
     }
 
     @Test
     public void shouldReturnTrueWhenCheckIsAgentIfGrantedAuthorityContainsAgentRole() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(null, null,
-                new GrantedAuthorityImpl[]{new GrantedAuthorityImpl("ROLE_AGENT")});
-        assertThat(UserHelper.matchesRole(authentication, X509AuthoritiesPopulator.ROLE_AGENT), is(true));
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_AGENT")));
+        assertThat(UserHelper.matchesRole(authentication, GoAuthority.ROLE_AGENT.name()), is(true));
     }
 
     @Test
     public void shouldReturnFalseWhenCheckIsAgentIfGrantedAuthorityNotContainsAgentRole() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(null, null,
-                new GrantedAuthorityImpl[]{new GrantedAuthorityImpl("anything")});
-        assertThat(UserHelper.matchesRole(authentication, X509AuthoritiesPopulator.ROLE_AGENT), is(false));
+                Collections.singletonList(new SimpleGrantedAuthority("anything")));
+        assertThat(UserHelper.matchesRole(authentication, GoAuthority.ROLE_AGENT.name()), is(false));
     }
 
     @Test
     public void shouldGetDisplayNameForAPasswordFileUser() {
-        GrantedAuthority[] authorities = {new GrantedAuthorityImpl("anything")};
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("anything"));
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(new GoUserPrinciple("user", "Full Name", "password", true, true, true, true, authorities), null, authorities);
         assertThat(UserHelper.getUserName(authentication), is(new Username(new CaseInsensitiveString("user"), "Full Name")));
     }
 
     @Test
-    public void shouldSetUserIdIntoSession(){
+    public void shouldSetUserIdIntoSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);
 
         UserHelper.setUserId(request, 123L);
 
-        verify(session).setAttribute("USERID",123L);
+        verify(session).setAttribute("USERID", 123L);
     }
+
     @Test
-    public void shouldGetUserIdFromSession(){
+    public void shouldGetUserIdFromSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands when to reload the config file or other config source
  */
 @Component
+@EnableScheduling
 public class CachedGoConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedGoConfig.class);
     private final GoFileConfigDataSource dataSource;
@@ -80,6 +83,7 @@ public class CachedGoConfig {
     }
 
     //NOTE: This method is called on a thread from Spring
+    @Scheduled(initialDelay = 5000, fixedDelayString = "${cruise.config.refresh.interval}")
     public void onTimer() {
         this.forceReload();
     }

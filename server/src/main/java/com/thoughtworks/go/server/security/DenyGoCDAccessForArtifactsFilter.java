@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server.security;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,9 +29,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static com.thoughtworks.go.server.security.SpringSecurityFilter.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.springframework.security.ui.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 
+@Component
 public class DenyGoCDAccessForArtifactsFilter extends SpringSecurityFilter {
 
     @Override

@@ -31,7 +31,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStor
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import org.junit.rules.ExternalResource;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class ClearSingleton extends ExternalResource {
 

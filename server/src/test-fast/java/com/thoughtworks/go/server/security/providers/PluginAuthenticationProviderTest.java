@@ -43,15 +43,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -90,7 +91,7 @@ public class PluginAuthenticationProviderTest {
 
         when(authenticationToken.getCredentials()).thenReturn("password");
         userAuthority = GoAuthority.ROLE_USER.asAuthority();
-        when(authorityGranter.authorities("username")).thenReturn(new GrantedAuthority[]{userAuthority});
+        when(authorityGranter.authorities("username")).thenReturn(Collections.singletonList(userAuthority));
 
         provider = new PluginAuthenticationProvider(authorizationExtension, authorityGranter,
                 goConfigService, pluginRoleService, userService);
@@ -120,17 +121,17 @@ public class PluginAuthenticationProviderTest {
         GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
         assertThat(goUserPrincipal.getUsername(), is("username"));
         assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+        assertThat(goUserPrincipal.getAuthorities().size(), is(1));
+        assertThat(goUserPrincipal.getAuthorities(), contains(userAuthority));
     }
 
     @Test(expected = BadCredentialsException.class)
-    public void shouldValidatePresenceOfPassword() throws Exception {
+    public void shouldValidatePresenceOfPassword() {
         provider.retrieveUser("username", new UsernamePasswordAuthenticationToken("principal", " \t"));
     }
 
     @Test
-    public void shouldTryAuthenticatingAgainstEachAuthorizationPluginInCaseOfErrors() throws Exception {
+    public void shouldTryAuthenticatingAgainstEachAuthorizationPluginInCaseOfErrors() {
         SecurityAuthConfig fileAuthConfig = new SecurityAuthConfig("file_based", "file");
         SecurityAuthConfig ldapAuthConfig = new SecurityAuthConfig("ldap_based", "ldap");
 
@@ -150,7 +151,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void shouldRelyOnTheAuthConfigOrderWhileAuthenticatingUser() throws Exception {
+    public void shouldRelyOnTheAuthConfigOrderWhileAuthenticatingUser() {
         SecurityAuthConfig sha1Passwords = new SecurityAuthConfig("sha1Passwords", "file");
         SecurityAuthConfig corporateLDAP = new SecurityAuthConfig("corporateLDAP", "ldap");
         SecurityAuthConfig bcryptPasswords = new SecurityAuthConfig("bcryptPasswords", "file");
@@ -177,7 +178,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticateUserShouldReceiveAuthConfigAndCorrespondingRoleConfigs() throws Exception {
+    public void authenticateUserShouldReceiveAuthConfigAndCorrespondingRoleConfigs() {
         SecurityAuthConfig corporateLDAP = new SecurityAuthConfig("corporateLDAP", "ldap");
         SecurityAuthConfig internalLDAP = new SecurityAuthConfig("internalLDAP", "ldap");
         PluginRoleConfig admin = new PluginRoleConfig("admin", "corporateLDAP", new ConfigurationProperty());
@@ -201,7 +202,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void shouldThrowUpWhenNoPluginCouldAuthenticateUser() throws Exception {
+    public void shouldThrowUpWhenNoPluginCouldAuthenticateUser() {
         exception.expect(UsernameNotFoundException.class);
         exception.expectMessage("Unable to authenticate user: bob");
 
@@ -257,7 +258,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticatedUsersUsernameShouldBeUsedToAssignRoles() throws Exception {
+    public void authenticatedUsersUsernameShouldBeUsedToAssignRoles() {
         String pluginId1 = "cd.go.ldap";
 
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
@@ -288,7 +289,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com");
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", Collections.emptyList(), "foo@bar.com");
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 
@@ -301,7 +302,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfGoUserPrinciple() throws Exception {
+    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfGoUserPrinciple() {
         String pluginId1 = "cd.go.ldap";
 
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
@@ -321,7 +322,7 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfLoginNameInGoUserPrinciple() throws Exception {
+    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfLoginNameInGoUserPrinciple() {
         String pluginId1 = "cd.go.ldap";
 
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
@@ -332,7 +333,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null);
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", Collections.emptyList(), null);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 

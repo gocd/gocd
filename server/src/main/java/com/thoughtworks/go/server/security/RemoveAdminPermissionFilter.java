@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security;
 
@@ -24,15 +24,12 @@ import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.TimeProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -43,6 +40,7 @@ import java.io.IOException;
 /**
  * @understands when a logged in user's authorization needs to be redone to get the new roles.
  */
+@Component
 public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener, PluginRoleChangeListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveAdminPermissionFilter.class);
 
@@ -53,6 +51,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
     private PluginRoleService pluginRoleService;
     private volatile long lastChangedTime;
 
+    @Autowired
     public RemoveAdminPermissionFilter(GoConfigService goConfigService, TimeProvider timeProvider, PluginRoleService pluginRoleService) {
         this.goConfigService = goConfigService;
         this.timeProvider = timeProvider;
@@ -76,7 +75,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
             chain.doFilter(request, response);
             return;
         }
-        synchronized (request.getRequestedSessionId().intern()) {
+        synchronized (request.getSession().getId()) {
             long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);
             if (previousLastChangedTime == null) {

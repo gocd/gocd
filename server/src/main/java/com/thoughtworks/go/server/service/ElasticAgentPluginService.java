@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -54,6 +56,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
+@EnableScheduling
 public class ElasticAgentPluginService implements JobStatusListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginService.class);
 
@@ -105,6 +108,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         this.elasticAgentMetadataStore = elasticAgentMetadataStore;
     }
 
+    @Scheduled(initialDelay = 3000, fixedDelayString = "${go.elasticplugin.heartbeat.interval}")
     public void heartbeat() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgentsOfMissingPlugins = agentService.allElasticAgents();
 //      pingMessage TTL is set lesser than elasticPluginHeartBeatInterval to ensure there aren't multiple ping request for the same plugin

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
@@ -41,7 +42,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import ch.qos.logback.classic.Level;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
@@ -52,11 +52,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -130,7 +129,7 @@ public class GoFileConfigDataSourceTest {
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         configHelper.addConfigRepo(repoConfig);
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", Collections.emptyList()), null));
     }
 
     @After
@@ -163,7 +162,7 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException, IOException {
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", Collections.emptyList()), null));
         goConfigDao.updateMailHost(getMailHost("mailhost.local"));
 
         CruiseConfig cruiseConfig = goConfigDao.load();

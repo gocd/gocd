@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.server.transaction;
 
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 
+@Component
 public class TransactionSynchronizationManager {
     public void registerSynchronization(TransactionSynchronization synchronization) {
         TransactionTemplate.txnCtx().registerSynchronization(synchronization);

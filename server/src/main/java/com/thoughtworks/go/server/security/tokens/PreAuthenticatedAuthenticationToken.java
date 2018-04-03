@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.server.security.tokens;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.AbstractAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationToken {
@@ -27,7 +28,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
     private final Map<String, String> credentials;
     private final String pluginId;
 
-    public PreAuthenticatedAuthenticationToken(UserDetails principal, Map<String, String> credentials, String pluginId, GrantedAuthority[] authorities) {
+    public PreAuthenticatedAuthenticationToken(UserDetails principal, Map<String, String> credentials, String pluginId, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;

@@ -28,7 +28,7 @@ import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.vote.AccessDecisionVoter;
+import org.springframework.security.access.AccessDecisionVoter;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;

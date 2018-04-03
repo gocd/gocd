@@ -43,8 +43,11 @@ import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
@@ -59,6 +62,7 @@ import static org.hibernate.criterion.Restrictions.isNull;
 /**
  * @understands how to store and retrieve Materials from the database
  */
+@Component
 public class MaterialRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
 
@@ -69,7 +73,8 @@ public class MaterialRepository extends HibernateDaoSupport {
     private int latestModificationsCacheLimit;
     private MaterialExpansionService materialExpansionService;
 
-    public MaterialRepository(SessionFactory sessionFactory, GoCache goCache, int latestModificationsCacheLimit, TransactionSynchronizationManager transactionSynchronizationManager,
+    @Autowired
+    public MaterialRepository(SessionFactory sessionFactory, GoCache goCache, @Value("${cruise.material.modifications.cache.limit}") int latestModificationsCacheLimit, TransactionSynchronizationManager transactionSynchronizationManager,
                               MaterialConfigConverter materialConfigConverter, MaterialExpansionService materialExpansionService, Database databaseStrategy) {
         this.goCache = goCache;
         this.latestModificationsCacheLimit = latestModificationsCacheLimit;

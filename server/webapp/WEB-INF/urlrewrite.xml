@@ -308,7 +308,7 @@
             This is to handle RESTful agent communication.
             Acegi uses the /remoting url to use x509 authentication.
         </note>
-        <from>^/remoting/([^/]+)/(.*)</from>
+        <from>^/remoting/(remoteBuildRepository|files|properties)/(.*)</from>
         <to last="false">/$1/$2</to>
     </rule>
 

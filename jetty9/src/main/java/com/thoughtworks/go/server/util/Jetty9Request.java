@@ -18,10 +18,16 @@ package com.thoughtworks.go.server.util;
 
 import org.eclipse.jetty.server.Request;
 
+import javax.servlet.ServletRequestWrapper;
+
 public class Jetty9Request implements ServletRequest {
     private Request request;
 
     public Jetty9Request(javax.servlet.ServletRequest request) {
+        while (request instanceof ServletRequestWrapper) {
+            request = ((ServletRequestWrapper) request).getRequest();
+        }
+
         this.request = (Request) request;
     }
 

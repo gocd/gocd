@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,205 +15,24 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd"
        default-init-method="init">
 
-    <context:annotation-config/>
-    <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
-    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+  <context:annotation-config/>
+  <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
+  <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
 
-    <import resource="propertyConfigurer.xml"/>
+  <import resource="propertyConfigurer.xml"/>
 
-    <task:scheduled-tasks>
-        <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.repo.gc.cron}" />
-        <task:scheduled ref="configRepositoryGCWarningService" method="checkRepoAndAddWarningIfRequired" fixed-delay="${go.config.repo.gc.check.interval}"/>
-    </task:scheduled-tasks>
+  <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"
+        p:service-ref="buildRepositoryImpl"
+        p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote"/>
 
-    <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"
-          p:service-ref="buildRepositoryImpl"
-          p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote"/>
-
-    <bean id="produceBuildCausesTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="pipelineScheduler"
-          p:targetMethod="onTimer"/>
-
-    <bean id="serverHealthRecomputeTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="serverHealthService"
-          p:targetMethod="onTimer"
-          p:arguments-ref="goConfigService"
-    />
-
-    <bean id="consumeBuildCausesTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="scheduleService"
-          p:targetMethod="autoSchedulePipelinesFromRequestBuffer"/>
-
-    <bean id="rescheduleHungBuildTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="scheduleService"
-          p:targetMethod="rescheduleHungJobs"/>
-
-    <bean id="elasticAgentPluginPingTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="elasticAgentPluginService"
-          p:targetMethod="heartbeat"/>
-
-    <bean id="cancelHungJob" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="scheduleService"
-          p:targetMethod="cancelHungJobs"/>
-
-    <bean id="checkDiskSpaceTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-        p:targetObject-ref="goDiskSpaceMonitor"
-        p:targetMethod="onTimer"/>
-
-    <bean id="buildAssignmentServiceRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="buildAssignmentService"
-          p:targetMethod="onTimer"/>
-
-    <bean id="cachedGoConfigRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="cachedGoConfig"
-          p:targetMethod="onTimer"/>
-
-    <bean id="materialUpdaterExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="materialUpdateService"
-          p:targetMethod="onTimer"/>
-
-    <!-- auto build cause producing thread -->
-    <bean name="produceBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="${cruise.produce.build.cause.delay}"
-                      p:period="${cruise.produce.build.cause.interval}"
-                      p:timerTask-ref="produceBuildCausesTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean name="recomputeMaterialPipelineMappingsThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="10000"
-                      p:period="5000"
-                      p:timerTask-ref="serverHealthRecomputeTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean name="materialUpdateThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="${cruise.material.update.delay}"
-                      p:period="${cruise.material.update.interval}"
-                      p:timerTask-ref="materialUpdaterExecutor"/>
-            </list>
-        </property>
-    </bean>
-
-    <!--Build Cause consume thread-->
-    <bean name="consumeBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="10000"
-                      p:period="${cruise.buildCause.consumer.interval}"
-                      p:timerTask-ref="consumeBuildCausesTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- reschedule a building job whose agent has not pinged the server in a while -->
-    <bean name="rescheduleHungBuildThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="3000"
-                      p:period="${cruise.reschedule.hung.builds.interval}"
-                      p:timerTask-ref="rescheduleHungBuildTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- a heartbeat/ping call to elastic agent plugins -->
-    <bean name="elasticAgentPluginPingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="3000"
-                      p:period="${go.elasticplugin.heartbeat.interval}"
-                      p:timerTask-ref="elasticAgentPluginPingTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- cancel a hung job thread -->
-    <bean name="cancelHungJobThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="3000"
-                      p:period="${cruise.cancel.hung.jobs.interval}"
-                      p:timerTask-ref="cancelHungJob"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- buildAssignmentServiceRefreshExecutorThread -->
-    <bean name="buildAssignmentServiceRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="10000"
-                      p:period="${cruise.build.assignment.service.interval}"
-                      p:timerTask-ref="buildAssignmentServiceRefreshExecutor"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- cachedGoConfigRefreshExecutorThread -->
-    <bean name="cachedGoConfigRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="5000"
-                      p:period="${cruise.config.refresh.interval}"
-                      p:timerTask-ref="cachedGoConfigRefreshExecutor"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- goDiskSpaceMonitorThread -->
-    <bean name="goDiskSpaceMonitorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="5000"
-                      p:period="${cruise.disk.space.check.interval}"
-                      p:timerTask-ref="checkDiskSpaceTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="buildRepositoryRemoteImpl" class="com.thoughtworks.go.remote.BuildRepositoryRemoteImpl" />
-
-    <bean id="buildRepositoryImpl" class="com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer" autowire="constructor"/>
-
-    <bean id="agentServiceRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="agentService"
-          p:targetMethod="refresh"/>
-
-    <bean name="agentServiceRefreshThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="10000"
-                      p:period="${cruise.agent.service.refresh.interval}"
-                      p:timerTask-ref="agentServiceRefreshExecutor"/>
-            </list>
-        </property>
-    </bean>
+  <bean id="buildRepositoryRemoteImpl" class="com.thoughtworks.go.remote.BuildRepositoryRemoteImpl"/>
+  <bean id="buildRepositoryImpl" class="com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer"/>
 </beans>

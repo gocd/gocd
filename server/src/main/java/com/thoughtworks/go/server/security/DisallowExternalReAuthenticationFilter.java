@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.server.security;
 
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -27,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+@Component
 public class DisallowExternalReAuthenticationFilter extends SpringSecurityFilter {
     private final Pattern LOGIN_REQUEST_PATTERN = Pattern.compile("^/go/auth/login$");
     private final Pattern AUTHENTICATION_REQUEST_PATTERN = Pattern.compile("^/go/auth/security_check");
@@ -53,7 +53,8 @@ public class DisallowExternalReAuthenticationFilter extends SpringSecurityFilter
 
     private boolean isUserAuthenticated() {
         return SecurityContextHolder.getContext().getAuthentication() != null &&
-                SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
+                SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+                !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(GoAuthority.ROLE_ANONYMOUS.asAuthority());
     }
 
     @Override

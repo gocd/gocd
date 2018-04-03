@@ -24,9 +24,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableScheduling
 public class GoDiskSpaceMonitor {
     private static final Logger LOG = LoggerFactory.getLogger(GoDiskSpaceMonitor.class);
     private GoConfigService goConfigService;
@@ -78,6 +81,7 @@ public class GoDiskSpaceMonitor {
     }
 
     //Note: This method is called from a Spring timer task
+    @Scheduled(initialDelay = 5000, fixedDelayString = "${cruise.disk.space.check.interval}")
     public void onTimer() {
         lowOnDisk = lowOnDisk(lowOnDisk, new DiskSpaceOperationResult(serverHealthService), checkers);
     }

@@ -58,6 +58,16 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         return null;
     }
 
+    public List<PluggableArtifactConfig> findByStoreId(String storeId) {
+        final ArrayList<PluggableArtifactConfig> pluggableArtifactConfigs = new ArrayList<>();
+        for (PluggableArtifactConfig artifact : getPluggableArtifactConfigs()) {
+            if (artifact.getStoreId().equals(storeId)) {
+                pluggableArtifactConfigs.add(artifact);
+            }
+        }
+        return pluggableArtifactConfigs;
+    }
+
     public void validate(ValidationContext validationContext) {
         List<ArtifactConfig> plans = new ArrayList<>();
         for (ArtifactConfig artifactConfig : this) {

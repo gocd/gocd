@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin.security.representers;
+package com.thoughtworks.go.api.representers;
 
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.LinkedHashMap;

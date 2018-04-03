@@ -44,6 +44,7 @@
     <context:component-scan base-package="com.thoughtworks.go.apiv1.materialsearch.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineselection.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.buildcause.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactstoreconfig.spring"/>
 
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>

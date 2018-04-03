@@ -24,6 +24,18 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Spark Artifact Store Index API</name>
+        <from>^/api/admin/artifact_stores(/?)$</from>
+        <to last="true">/spark/api/admin/artifact_stores</to>
+    </rule>
+
+    <rule>
+        <name>Spark Artifact Store API</name>
+        <from>^/api/admin/artifact_stores/(.*)$</from>
+        <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>
+    </rule>
+
+    <rule>
         <name>Plugins SPA</name>
         <from>^/admin/plugins(/?)$</from>
         <to last="true">/spark/admin/plugins</to>
@@ -49,38 +61,38 @@
 
     <rule>
         <name>Spark pipeline selection internal API</name>
-        <from>^/api/internal/pipeline_selection$</from>
+        <from>^/api/internal/pipeline_selection(/?)$</from>
         <to last="true">/spark/api/internal/pipeline_selection</to>
     </rule>
 
     <rule>
         <name>Material Search API</name>
-        <from>^/api/internal/material_search$</from>
+        <from>^/api/internal/material_search(/?)$</from>
         <to last="true">/spark/api/internal/material_search</to>
     </rule>
 
     <rule>
         <name>Spark Server Health Messages API</name>
-        <from>^/api/server_health_messages</from>
+        <from>^/api/server_health_messages(/?)$</from>
         <to last="true">/spark/api/server_health_messages</to>
     </rule>
 
     <rule>
         <name>Spark Dashboard API</name>
         <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
-        <from>^/api/dashboard</from>
+        <from>^/api/dashboard(/?)$</from>
         <to last="true">/spark/api/dashboard</to>
     </rule>
 
     <rule>
         <name>Roles Config SPA</name>
-        <from>^/admin/security/roles$</from>
+        <from>^/admin/security/roles(/?)$</from>
         <to last="true">/spark/admin/security/roles</to>
     </rule>
 
     <rule>
         <name>Spark Security Role Configs API Index API</name>
-        <from>^/api/admin/security/roles</from>
+        <from>^/api/admin/security/roles(/?)$</from>
         <to last="true">/spark/api/admin/security/roles</to>
     </rule>
 
@@ -105,19 +117,19 @@
 
     <rule>
         <name>Encryption API</name>
-        <from>^/api/admin/encrypt</from>
+        <from>^/api/admin/encrypt(/?)$</from>
         <to last="true">/spark/api/admin/encrypt</to>
     </rule>
 
     <rule>
         <name>Current User API</name>
-        <from>^/api/current_user$</from>
+        <from>^/api/current_user(/?)$</from>
         <to last="true">/spark/api/current_user</to>
     </rule>
 
     <rule>
         <name>Backup API</name>
-        <from>^/api/backups$</from>
+        <from>^/api/backups(/?)$</from>
         <to last="true">/spark/api/backups</to>
     </rule>
 
@@ -195,7 +207,7 @@
 
     <rule>
         <name>Auth Config SPA</name>
-        <from>^/admin/security/auth_configs$</from>
+        <from>^/admin/security/auth_configs(/?)$</from>
         <to last="true">/spark/admin/security/auth_configs</to>
     </rule>
 

@@ -73,6 +73,11 @@ public abstract class PluginProfile extends Configuration implements Validatable
         errors().add(fieldName, message);
     }
 
+    @Override
+    public boolean hasErrors() {
+        return super.hasErrors() || !errors().isEmpty();
+    }
+
     public void validateTree(ValidationContext validationContext) {
         validate(validationContext);
         super.validateTree();

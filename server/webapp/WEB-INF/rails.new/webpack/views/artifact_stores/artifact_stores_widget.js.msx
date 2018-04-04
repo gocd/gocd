@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const m              = require('mithril');
-const Spinner        = require('views/shared/spinner');
-const ArtifactStores = require('models/artifact_stores/artifact_stores');
+const m                  = require('mithril');
+const Spinner            = require('views/shared/spinner');
+const ErrorCalloutWidget = require('views/shared/error_callout');
+const ArtifactStores     = require('models/artifact_stores/artifact_stores');
 
 const ArtifactStoresWidget = (function () {
 
@@ -34,6 +35,7 @@ const ArtifactStoresWidget = (function () {
 
     const onFailure = () => {
       error = true;
+      m.redraw();
     };
 
     ArtifactStores.all().then(onSuccess, onFailure);
@@ -42,11 +44,7 @@ const ArtifactStoresWidget = (function () {
   function view() {
     if (error) {
       return (
-        <div class="alert callout">
-          <h5>There was a problem fetching the artifact stores</h5>
-          <p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem
-            persists, check the server logs.</p>
-        </div>
+        <ErrorCalloutWidget message="There was a problem fetching the artifact stores"/>
       );
     }
     if (artifactStores) {

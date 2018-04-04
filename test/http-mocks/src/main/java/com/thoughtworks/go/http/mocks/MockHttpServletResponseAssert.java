@@ -29,6 +29,7 @@ import javax.activation.MimeTypeParseException;
 import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
 
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual;
 import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty;
@@ -39,7 +40,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         super(actual, selfType);
     }
 
-    static MockHttpServletResponseAssert assertThat(MockHttpServletResponse actual) {
+    public static MockHttpServletResponseAssert assertThat(MockHttpServletResponse actual) {
         return new MockHttpServletResponseAssert(actual, MockHttpServletResponseAssert.class);
     }
 
@@ -144,19 +145,34 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(200);
     }
 
+    public SELF isEntityTooLarge() {
+        return hasStatus(SC_REQUEST_ENTITY_TOO_LARGE);
+    }
+
     public SELF redirectsTo(String url) {
-        if (actual.getStatus() != 302) {
-            failWithMessage("Expected status code <%s> but was <%s>", 302, actual.getStatus());
-        }
-        if(!(actual.containsHeader("location") && actual.getHeader("location").equals(url))) {
+        if (!(actual.containsHeader("location") && actual.getHeader("location").equals(url))) {
             failWithMessage("Expected location header to be set to `%s` but was `%s`", url, actual.getHeader("location"));
         }
-        return myself;
+        return hasStatus(302);
     }
 
     public SELF hasNoRedirectUrlSet() {
         if (actual.getRedirectedUrl() != null) {
             failWithMessage("Expected redirect url to not be set, but was `%s`", actual.getRedirectedUrl());
+        }
+        return myself;
+    }
+
+    public SELF doesNotContainHeader(String header) {
+        if (actual.containsHeader(header)) {
+            failWithMessage("Expected response to not contain header `%s: %s`", header, actual.getHeaders(header));
+        }
+        return myself;
+    }
+
+    public SELF containsHeader(String header) {
+        if (!actual.containsHeader(header)) {
+            failWithMessage("Expected response to contain header `%s`", header);
         }
         return myself;
     }
@@ -214,4 +230,18 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
 
+    public SELF isForbidden() {
+        return hasStatus(403);
+    }
+
+    public SELF isUnauthorized() {
+        return hasStatus(401);
+    }
+
+    public SELF doesNotRedirect() {
+        if (actual.getStatus() >= 300 && actual.getStatus() <= 399) {
+            failWithMessage("Unexpected redirect status code <%s>", actual.getStatus());
+        }
+        return doesNotContainHeader("location");
+    }
 }

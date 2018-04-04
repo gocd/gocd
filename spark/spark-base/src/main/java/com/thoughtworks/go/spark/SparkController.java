@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -69,11 +69,11 @@ public interface SparkController {
     void setupRoutes();
 
     default Username currentUsername() {
-        return UserHelper.getUserName();
+        return SessionUtils.currentUsername();
     }
 
     default Long currentUserId(Request request) {
-        return UserHelper.getUserId(request.raw());
+        return SessionUtils.getUserId(request.raw());
     }
 
     default CaseInsensitiveString currentUserLoginName() {

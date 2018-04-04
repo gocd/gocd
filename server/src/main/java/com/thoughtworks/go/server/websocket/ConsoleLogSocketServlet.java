@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -55,7 +55,7 @@ public class ConsoleLogSocketServlet extends WebSocketServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Username userName = UserHelper.getUserName();
+        Username userName = SessionUtils.currentUsername();
         String pipeline = pipeline(request);
 
         if (authorizedToViewPipeline(userName, pipeline)) {

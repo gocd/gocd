@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,12 @@ public class AuthorizationMetadataStoreTest {
     @Before
     public void setUp() throws Exception {
         store = new AuthorizationMetadataStore();
-        plugin1 = pluginInfo("plugin-1", SupportedAuthType.Web);
-        plugin2 = pluginInfo("plugin-2", SupportedAuthType.Password);
-        plugin3 = pluginInfo("plugin-3", SupportedAuthType.Web);
+        plugin1 = pluginInfo("web.plugin-1", SupportedAuthType.Web);
+        plugin2 = pluginInfo("password.plugin-2", SupportedAuthType.Password);
+        plugin3 = pluginInfo("web.plugin-3", SupportedAuthType.Web);
         store.setPluginInfo(plugin1);
         store.setPluginInfo(plugin2);
         store.setPluginInfo(plugin3);
-
     }
 
     @Test
@@ -67,8 +66,15 @@ public class AuthorizationMetadataStoreTest {
 
     @Test
     public void shouldBeAbleToAnswerIfPluginSupportsPasswordBasedAuthentication() throws Exception {
-        assertTrue(store.doesPluginSupportPasswordBasedAuthentication("plugin-2"));
-        assertFalse(store.doesPluginSupportPasswordBasedAuthentication("plugin-1"));
+        assertTrue(store.doesPluginSupportPasswordBasedAuthentication("password.plugin-2"));
+        assertFalse(store.doesPluginSupportPasswordBasedAuthentication("web.plugin-1"));
+    }
+
+    @Test
+    public void shouldBeAbleToAnswerIfPluginSupportsWebBasedAuthentication() throws Exception {
+        assertTrue(store.doesPluginSupportWebBasedAuthentication("web.plugin-1"));
+        assertFalse(store.doesPluginSupportWebBasedAuthentication("password.plugin-2"));
+        assertTrue(store.doesPluginSupportWebBasedAuthentication("web.plugin-3"));
     }
 
     private AuthorizationPluginInfo pluginInfo(String pluginId, SupportedAuthType supportedAuthType) {

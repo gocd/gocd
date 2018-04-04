@@ -20,6 +20,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Deprecated
+//TODO: ketanpkr newer spring has this baked in.
 public class DefaultHeadersFilter implements Filter {
     public void destroy() {
     }

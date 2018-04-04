@@ -30,10 +30,10 @@ import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.Routes;
 import org.springframework.http.HttpStatus;
 import spark.Request;
@@ -118,7 +118,7 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         haltIfEntityBySameNameInRequestExists(req, role);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        roleConfigService.create(UserHelper.getUserName(), role, result);
+        roleConfigService.create(SessionUtils.currentUsername(), role, result);
 
         return handleCreateOrUpdateResponse(req, res, role, result);
     }
@@ -136,14 +136,14 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        roleConfigService.update(UserHelper.getUserName(), etagFor(roleFromServer), roleFromRequest, result);
+        roleConfigService.update(SessionUtils.currentUsername(), etagFor(roleFromServer), roleFromRequest, result);
         return handleCreateOrUpdateResponse(req, res, roleFromRequest, result);
     }
 
     public String destroy(Request req, Response res) throws IOException {
         Role role = getEntityFromConfig(req.params("role_name"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        roleConfigService.delete(UserHelper.getUserName(), role, result);
+        roleConfigService.delete(SessionUtils.currentUsername(), role, result);
 
 
         return renderHTTPOperationResult(result, req, res);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class PipelinePauseService {
     }
 
     public void unpause(String pipelineName) {
-        unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
+        unpause(pipelineName, SessionUtils.currentUsername(), new DefaultLocalizedOperationResult());
     }
 
     public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {

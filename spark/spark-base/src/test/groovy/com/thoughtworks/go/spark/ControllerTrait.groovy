@@ -22,7 +22,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.util.UserHelper
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.mocks.TestApplication
 import com.thoughtworks.go.spark.mocks.TestRequestContext
@@ -44,7 +44,7 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
-  HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder();
+  HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder()
 
   void get(String path) {
     sendRequest('get', path, [:], null)
@@ -122,7 +122,7 @@ trait ControllerTrait<T extends SparkController> {
     }
 
     if (!currentUsername().isAnonymous()) {
-      httpRequestBuilder.withSessionAttr(UserHelper.getSessionKeyForUserId(), currentUserLoginId())
+      httpRequestBuilder.withSessionAttr(SessionUtils.CURRENT_USER_ID, currentUserLoginId())
     }
 
     request = httpRequestBuilder.build()
@@ -166,7 +166,7 @@ trait ControllerTrait<T extends SparkController> {
   }
 
   Username currentUsername() {
-    return UserHelper.getUserName()
+    return SessionUtils.currentUsername()
   }
 
   CaseInsensitiveString currentUserLoginName() {

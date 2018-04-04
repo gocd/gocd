@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -34,11 +36,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -51,23 +52,29 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml"
 })
 public class ScheduleStageTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigDao dao;
-    @Autowired private StageDao stageDao;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao dao;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -130,11 +137,11 @@ public class ScheduleStageTest {
         assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables(), is(expectedVariableOrder));
     }
 
-     @Test
+    @Test
     public void shouldResolveEnvironmentVariablesForJobReRun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
-       Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
+        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
 
         EnvironmentVariablesConfig pipelineVariables = new EnvironmentVariablesConfig();
         pipelineVariables.add("pipelineEnv", "pipelineFoo");
@@ -281,13 +288,12 @@ public class ScheduleStageTest {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
+        SessionUtilsHelper.loginAs("looser");
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
-        assertThat(loadedLatestStage.getApprovedBy(), is("loser"));
-        assertThat(oldStage.getApprovedBy(), is(not("loser")));
+        assertThat(loadedLatestStage.getApprovedBy(), is("looser"));
+        assertThat(oldStage.getApprovedBy(), is(not("looser")));
         assertThat(result.canContinue(), is(true));
     }
 

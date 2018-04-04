@@ -38,7 +38,7 @@
         data(r.data);
         view(r.view_path);
       }).fail((xhr) => {
-        errors(xhr.responseText);
+        errors(xhr);
       }).always(() => {
         callback();
       });
@@ -54,7 +54,7 @@
       }).done((r) => {
         handler(r.data, null);
       }).fail((xhr) => {
-        errors(xhr.responseText);
+        errors(xhr);
         handler(null, errors());
       });
     }

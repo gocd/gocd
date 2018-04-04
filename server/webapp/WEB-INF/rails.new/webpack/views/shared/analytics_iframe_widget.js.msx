@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-(function() {
+(function () {
   "use strict";
 
   const m = require("mithril");
 
-  const AnalyticsiFrameWidget = function() {
+  const AnalyticsiFrameWidget = function () {
     let currentUrl = null;
+
     function oncreate(vnode) {
       const iframe = vnode.dom.firstChild;
 
       iframe.onload = () => {
         vnode.attrs.init(iframe.contentWindow, {
-          uid: vnode.attrs.uid,
-          pluginId: vnode.attrs.pluginId,
+          uid:         vnode.attrs.uid,
+          pluginId:    vnode.attrs.pluginId,
           initialData: vnode.attrs.model.data()
         });
       };
@@ -43,8 +44,8 @@
         if (currentUrl !== vnode.attrs.model.url()) {
           iframe.onload = () => {
             vnode.attrs.init(iframe.contentWindow, {
-              uid: vnode.attrs.uid,
-              pluginId: vnode.attrs.pluginId,
+              uid:         vnode.attrs.uid,
+              pluginId:    vnode.attrs.pluginId,
               initialData: vnode.attrs.model.data()
             });
           };
@@ -57,10 +58,17 @@
     }
 
     function view(vnode) {
-      const model = vnode.attrs.model,
-        attrs = { src: model.view(), scrolling: "no" },
-        errorAttrs = model.errors() ? { "data-error-text": model.errors() } : {};
+      const model    = vnode.attrs.model;
+      const attrs    = {src: model.view(), scrolling: "no"};
+      const errorXHR = model.errors();
 
+      if (errorXHR && errorXHR.getResponseHeader("content-type").indexOf("text/html") !== -1) {
+        return (<div class="frame-container">
+          <iframe src={`data:text/html;charset=utf-8,${errorXHR.responseText}`}/>
+        </div>);
+      }
+
+      const errorAttrs = errorXHR ? {"data-error-text": errorXHR.responseText} : {};
       return <div class="frame-container" {...errorAttrs}>
         <iframe sandbox="allow-scripts" {...attrs}/>
       </div>;

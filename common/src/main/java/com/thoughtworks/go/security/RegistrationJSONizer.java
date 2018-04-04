@@ -29,10 +29,7 @@ import java.io.StringWriter;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
+import java.security.cert.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
@@ -52,7 +49,7 @@ public class RegistrationJSONizer {
             return Registration.createNullPrivateKeyEntry();
         }
 
-        List<Certificate> chain = new ArrayList<>();
+        List<X509Certificate> chain = new ArrayList<>();
         try {
             PemReader reader = new PemReader(new StringReader((String) map.get("agentPrivateKey")));
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -65,9 +62,9 @@ public class RegistrationJSONizer {
                 if (obj == null) {
                     break;
                 }
-                chain.add(CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(obj.getContent())));
+                chain.add((X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(obj.getContent())));
             }
-            return new Registration(privateKey, chain.toArray(new Certificate[chain.size()]));
+            return new Registration(privateKey, chain.toArray(new X509Certificate[0]));
         } catch (IOException | NoSuchAlgorithmException | CertificateException | InvalidKeySpecException e) {
             throw bomb(e);
         }

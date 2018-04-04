@@ -20,20 +20,19 @@ import java.io.Serializable;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
 public class Registration implements Serializable {
 
     private final PrivateKey privateKey;
-    private final Certificate[] chain;
+    private final X509Certificate[] chain;
 
     public static Registration createNullPrivateKeyEntry() {
         return new Registration(null);
     }
 
-    public Registration(PrivateKey privateKey, Certificate... chain) {
+    public Registration(PrivateKey privateKey, X509Certificate... chain) {
         this.privateKey = privateKey;
         this.chain = chain;
     }
@@ -46,12 +45,12 @@ public class Registration implements Serializable {
         return getFirstCertificate().getPublicKey();
     }
 
-    public Certificate[] getChain() {
+    public X509Certificate[] getChain() {
         return chain;
     }
 
     public X509Certificate getFirstCertificate() {
-        return (X509Certificate) chain[0];
+        return chain[0];
     }
 
     public Date getCertificateNotBeforeDate() {

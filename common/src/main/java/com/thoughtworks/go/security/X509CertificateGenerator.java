@@ -211,9 +211,9 @@ public class X509CertificateGenerator {
             KeyStore.PrivateKeyEntry intermediateEntry = (KeyStore.PrivateKeyEntry) store.getEntry("ca-intermediate",
                     new KeyStore.PasswordProtection(PASSWORD_AS_CHAR_ARRAY));
 
-            Certificate[] chain = new Certificate[3];
-            chain[2] = store.getCertificate("ca-cert");
-            chain[1] = intermediateEntry.getCertificate();
+            X509Certificate[] chain = new X509Certificate[3];
+            chain[2] = (X509Certificate) store.getCertificate("ca-cert");
+            chain[1] = (X509Certificate) intermediateEntry.getCertificate();
             chain[0] = createAgentCertificate(agentKeyPair.getPublic(),
                     intermediateEntry.getPrivateKey(),
                     chain[1].getPublicKey(), agentHostname, epoch);

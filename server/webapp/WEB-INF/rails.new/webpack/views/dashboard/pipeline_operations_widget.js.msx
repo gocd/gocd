@@ -16,6 +16,7 @@
 
 const m      = require('mithril');
 const Stream = require('mithril/stream');
+const f      = require('helpers/form_helper');
 
 const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
@@ -161,6 +162,8 @@ const PipelineOperationsWidget = {
     if (flash) {
       flashMessage = (<div class={`pipeline_message ${flash.type}`}><p>{flash.message}</p></div>);
     }
+    const triggerButtonsTooltipText = pipeline.getDisabledTooltipText();
+    const pauseTooltipText = pipeline.getPauseDisabledTooltipText();
 
     let pipelinePauseMessage;
     if (pipeline.isPaused) {
@@ -172,16 +175,18 @@ const PipelineOperationsWidget = {
         {flashMessage}
         <ul className="pipeline_operations">
           <li>
-            <button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
-                    class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}/>
+            <f.button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
+                      class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
+                      tooltipText={triggerButtonsTooltipText}/>
           </li>
           <li>
-            <button
+            <f.button
               onclick={!pipeline.triggerDisabled() && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
-              class={`pipeline_btn play_with_options ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}/>
+              class={`pipeline_btn play_with_options ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
+              tooltipText={triggerButtonsTooltipText}/>
           </li>
           <li>
-            <button onclick={onPauseUnpauseClick} class={pauseUnpauseClass}/>
+            <f.button onclick={onPauseUnpauseClick} class={pauseUnpauseClass} tooltipText={pauseTooltipText}/>
           </li>
         </ul>
         <a href={pipeline.historyPath} class="pipeline_history">History</a>

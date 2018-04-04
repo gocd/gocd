@@ -86,6 +86,53 @@ const Pipeline = function (info) {
   this.getInstanceCounters = () => {
     return _.map(this.instances, (instance) => instance.counter);
   };
+
+  this.getDisabledTooltipText = () => {
+    if (!self.canOperate) {
+      return TooltipText.NO_OPERATE_PERMISSION;
+    }
+    if (self.isFirstStageInProgress()) {
+      return TooltipText.FIRST_STAGE_IN_PROGRESS;
+    }
+    if (self.isPaused) {
+      return TooltipText.PIPELINE_PAUSED;
+    }
+    if (self.isLocked) {
+      return TooltipText.PIPELINE_LOCKED;
+    }
+  };
+
+  this.getPauseDisabledTooltipText = () => {
+    if (!self.canPause) {
+      if (self.isPaused) {
+        return TooltipText.NO_UNPAUSE_PERMISSION;
+      }
+      return TooltipText.NO_PAUSE_PERMISSION;
+    }
+  };
+
+  this.getLockDisabledTooltipText = () => {
+    return TooltipText.NO_UNLOCK_PERMISSION;
+  };
+
+  this.getSettingsDisabledTooltipText = () => {
+    if (self.isDefinedInConfigRepo()) {
+      return TooltipText.CONFIG_REPO_PIPELINE;
+    }
+    return TooltipText.NO_EDIT_PERMISSION;
+  };
+
+  const TooltipText = {
+    NO_OPERATE_PERMISSION:   "You do not have permission to trigger the pipeline",
+    PIPELINE_PAUSED:         "Cannot trigger pipeline - Pipeline is currently paused.",
+    PIPELINE_LOCKED:         "Cannot trigger pipeline - Pipeline is currently locked.",
+    FIRST_STAGE_IN_PROGRESS: "Cannot trigger pipeline - First stage is still in progress.",
+    CONFIG_REPO_PIPELINE:    "Cannot edit pipeline defined in config repository.",
+    NO_EDIT_PERMISSION:      "You do not have permission to edit the pipeline.",
+    NO_UNLOCK_PERMISSION:    "You do not have permission to unlock the pipeline.",
+    NO_PAUSE_PERMISSION:     "You do not have permission to pause the pipeline.",
+    NO_UNPAUSE_PERMISSION:   "You do not have permission to unpause the pipeline."
+  };
 };
 
 module.exports = Pipeline;

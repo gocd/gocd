@@ -16,6 +16,7 @@
 
 const m = require('mithril');
 const $ = require('jquery');
+const f = require('helpers/form_helper');
 
 const PipelineOperationsWidget = require('views/dashboard/pipeline_operations_widget');
 const PipelineAnalyticsWidget  = require('views/dashboard/pipeline_analytics_widget');
@@ -46,7 +47,8 @@ const PipelineHeaderWidget = {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} href={settingsPath}/>);
     } else {
-      settingsButton = (<a class={`edit_config disabled`}/>);
+      settingsButton = (<f.link class="edit_config disabled"
+                                tooltipText={pipeline.getSettingsDisabledTooltipText()}/>);
     }
 
     if (shouldShowAnalyticsIcon) {
@@ -59,7 +61,8 @@ const PipelineHeaderWidget = {
     if (pipeline.isLocked) {
       pipelineLockButton = pipeline.canUnlock
         ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} className="pipeline_locked"/>)
-        : (<button className="pipeline_locked disabled"/>);
+        : (<f.button className="pipeline_locked disabled"
+                     tooltipText={pipeline.getLockDisabledTooltipText()}/>);
     }
 
     return (

@@ -39,7 +39,7 @@
                 PATTERN_TYPE_APACHE_ANT
                 /api/config-repository.git/**=modeAwareFilter,httpSessionContextIntegrationFilter,apiSessionFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor
 
-                /remoting/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,flashLoader,urlRewriter
+                /remoting/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,urlRewriter
                 /agent-websocket/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor
 
                 /cctray.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter

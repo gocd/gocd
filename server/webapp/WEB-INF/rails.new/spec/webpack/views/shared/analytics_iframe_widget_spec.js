@@ -21,18 +21,21 @@ describe("Analytics iFrame Widget", () => {
   const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
 
   function newModel(loadedData, loadedView) {
-    const data = Stream(),
-          view = Stream(),
-          url  = Stream(),
-        errors = Stream();
+    const data   = Stream(),
+          view   = Stream(),
+          url    = Stream(),
+          errors = Stream();
 
-    return {url, data, view, errors, load: () => {
-      data(loadedData);
-      view(loadedView);
-    }};
+    return {
+      url, data, view, errors, load: () => {
+        data(loadedData);
+        view(loadedView);
+      }
+    };
   }
 
-  const noop = () => {};
+  const noop = () => {
+  };
 
   let $root, root;
 
@@ -46,9 +49,11 @@ describe("Analytics iFrame Widget", () => {
   });
 
   it('should load model oncreate', () => {
-    let called = false;
+    let called  = false;
     const model = newModel(null, null);
-    model.load = () => { called = true; };
+    model.load  = () => {
+      called = true;
+    };
 
     mount(model, noop);
     expect(called).toBe(true);
@@ -64,10 +69,23 @@ describe("Analytics iFrame Widget", () => {
 
   it('should show errors if any', () => {
     const model = newModel(null, null);
-    model.errors("here is an error");
+    model.errors({
+      getResponseHeader: () => "text/plainText",
+      responseText:      "here is an error"
+    });
     mount(model, noop);
     expect($root.find(".frame-container")[0].getAttribute("data-error-text")).toBe("here is an error");
+  });
 
+  it('should render html error if any', () => {
+    const model         = newModel(null, null);
+    const htmlErrorString = "<html><body>Boom!</body></html>";
+    model.errors({
+      getResponseHeader: () => "text/html",
+      responseText:      htmlErrorString
+    });
+    mount(model, noop);
+    expect($root.find("iframe")[0].getAttribute("src")).toBe(`data:text/html;charset=utf-8,${htmlErrorString}`);
   });
 
   it('should initialize iframe oncreate', () => {
@@ -81,8 +99,8 @@ describe("Analytics iFrame Widget", () => {
     iframe.onload();
 
     const expectedMessage = JSON.stringify({
-      uid: "some-uid",
-      pluginId: "some-plugin",
+      uid:         "some-uid",
+      pluginId:    "some-plugin",
       initialData: "model data"
     });
     expect(actualMessage).toBe(expectedMessage);

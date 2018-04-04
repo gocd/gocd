@@ -32,6 +32,12 @@
         div.appendChild(frame);
         frame.setAttribute("src", r.view_path);
       }).fail(function(xhr) {
+        if (xhr.getResponseHeader("content-type").indexOf("text/html") !== -1) {
+          var frame = document.createElement("iframe");
+          frame.src = "data:text/html;charset=utf-8," + xhr.responseText;
+          div.appendChild(frame);
+          return;
+        }
         var errorEl = document.createElement("div");
         $(errorEl).addClass("error");
         errorEl.textContent = xhr.responseText;

@@ -14,51 +14,57 @@
  * limitations under the License.
  */
 
-const m                  = require('mithril');
-const Spinner            = require('views/shared/spinner');
-const ErrorCalloutWidget = require('views/shared/error_callout');
-const HeaderPanel        = require('views/shared/header_panel');
-const ArtifactStores     = require('models/artifact_stores/artifact_stores');
+const $                   = require('jquery');
+const m                   = require('mithril');
+const f                   = require('helpers/form_helper');
+const Spinner             = require('views/shared/spinner');
+const ErrorCalloutWidget  = require('views/shared/error_callout');
+const HeaderPanel         = require('views/shared/header_panel');
+const ArtifactStores      = require('models/artifact_stores/artifact_stores');
+const ArtifactStoresState = require('views/artifact_stores/artifact_stores_state');
+const PluginInfos         = require('models/shared/plugin_infos');
 
 const ArtifactStoresWidget = (function () {
 
-  let artifactStores = undefined;
-  let error          = false;
+  let state;
 
   function oninit() {
-    artifactStores = undefined;
-    error          = false;
+    state = new ArtifactStoresState();
 
-    const onSuccess = (response) => {
-      artifactStores = response;
-      error          = false;
+    const onSuccess = (artifactStoresResponse, pluginInfosResponse) => {
+      state.updateWithData(artifactStoresResponse, pluginInfosResponse);
       m.redraw();
     };
 
     const onFailure = () => {
-      error = true;
+      state.updateWithApiError();
       m.redraw();
     };
 
-    ArtifactStores.all().then(onSuccess, onFailure);
+    $.when(ArtifactStores.all(), PluginInfos.all(null, {type: 'artifact'})).then(onSuccess, onFailure);
   }
 
   function view() {
-    if (error) {
+    if (state.error) {
       return (
         <ErrorCalloutWidget message="There was a problem fetching the artifact stores"/>
       );
-    }
-    if (artifactStores) {
+    } else if (state.loading) {
+      return (
+        <Spinner/>
+      );
+    } else {
+      const addButton = (
+        <f.button onclick="" class="add-artifact-store" disabled={state.noPlugins()}>
+          Add
+        </f.button>
+      );
       return (
         <div>
-          <HeaderPanel title="Artifact Stores"/>
+          <HeaderPanel title="Artifact Stores" button={addButton}/>
         </div>
       );
     }
-    return (
-      <Spinner/>
-    );
   }
 
   return {oninit, view};

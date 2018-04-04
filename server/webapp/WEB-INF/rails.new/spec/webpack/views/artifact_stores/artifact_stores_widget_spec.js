@@ -35,7 +35,8 @@ describe('Artifact Stores Widget', () => {
     m.redraw();
   });
 
-  const url = '/go/api/admin/artifact_stores';
+  const url            = '/go/api/admin/artifact_stores';
+  const pluginInfosUrl = '/go/api/admin/plugin_info?type=artifact';
 
   describe('Loading Data', () => {
 
@@ -61,9 +62,111 @@ describe('Artifact Stores Widget', () => {
     });
 
     it('should show data after response is received', () => {
-      //TODO
-    });
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({}),
+        status:       200
+      });
 
+      m.mount(root, ArtifactStoresWidget);
+
+      expect($(".header-panel")).toBeInDOM();
+    });
   });
 
+  describe('On data received', () => {
+    it('should disable Add button when no plugins are present', () => {
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({
+          "_embedded": {
+            "plugin_info": []
+          }
+        }),
+        status:       200
+      });
+
+      m.mount(root, ArtifactStoresWidget);
+
+      expect($(".add-artifact-store")).toHaveAttr("disabled");
+    });
+
+    it('should enable Add button when plugins are present', () => {
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({
+          "_embedded": {
+            "plugin_info": [{
+              "id":     "cd.go.artifact.example",
+              "status": {
+                "state": "active"
+              }
+            }]
+          }
+        }),
+        status:       200
+      });
+
+      m.mount(root, ArtifactStoresWidget);
+
+      expect($(".add-artifact-store")).not.toHaveAttr("disabled");
+    });
+  });
+
+  function stubGetArtifactStoresResponse() {
+    jasmine.Ajax.stubRequest(url, undefined, 'GET').andReturn({
+      responseText: JSON.stringify(sampleResponse),
+      status:       200
+    });
+  }
+
+  const sampleResponse = {
+    "_links":    {
+      "self": {
+        "href": "http://localhost:8253/go/api/admin/artifact_stores"
+      },
+      "doc":  {
+        "href": "https://api.gocd.org/current/#artifact_stores"
+      },
+      "find": {
+        "href": "http://localhost:8253/go/api/admin/artifact_stores/:id"
+      }
+    },
+    "_embedded": {
+      "artifact_stores": [
+        {
+          "_links":     {
+            "self": {
+              "href": "http://localhost:8253/go/api/admin/artifact_stores/A1"
+            },
+            "doc":  {
+              "href": "https://api.gocd.org/current/#artifact_stores"
+            },
+            "find": {
+              "href": "http://localhost:8253/go/api/admin/artifact_stores/:id"
+            }
+          },
+          "id":         "A1",
+          "plugin_id":  "cd.go.artifact.docker.registry",
+          "properties": [
+            {
+              "key":   "RegistryURL",
+              "value": "http://example.com/updated"
+            },
+            {
+              "key":   "Username",
+              "value": "username-new"
+            },
+            {
+              "key":             "Password",
+              "encrypted_value": "kB+k1qd0ddB9RrtMqBnqHQ=="
+            }
+          ]
+        }
+      ]
+    }
+  };
 });

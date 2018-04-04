@@ -39,4 +39,11 @@
       <xsl:apply-templates select="@*|node()"/>
     </xsl:element>
   </xsl:template>
+
+  <xsl:template match="//artifacts/pluggableArtifact">
+    <xsl:element name="artifact">
+      <xsl:attribute name="type">external</xsl:attribute>
+      <xsl:apply-templates select="@*|node()"/>
+    </xsl:element>
+  </xsl:template>
 </xsl:stylesheet>

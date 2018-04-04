@@ -1970,9 +1970,9 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"104\">\n"
+                + "<cruise schemaVersion=\"105\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
                 + "    <pipelines>"
                 + "      <pipeline name=\"foo\">"
@@ -1997,7 +1997,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </pipelines>"
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 104);
+        String migratedContent = migrateXmlString(configXml, 105);
 
         assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
         assertThat(migratedContent, containsString("<artifact type=\"build\" src=\"dir/**\" dest=\"dir\"/>"));
@@ -2005,9 +2005,9 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf105Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"104\">\n"
+                + "<cruise schemaVersion=\"105\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
                 + "    <pipelines>"
                 + "      <pipeline name=\"foo\">"
@@ -2032,11 +2032,76 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </pipelines>"
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 104);
+        String migratedContent = migrateXmlString(configXml, 105);
 
         assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"foo.txt\" dest=\"cruise-output\"/>"));
         assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"dir/**\" dest=\"dir\"/>"));
         assertThat(migratedContent, containsString("<artifact type=\"test\" src=\"build\"/>"));
+    }
+
+    @Test
+    public void shouldConvertPluggableArtifactTagToArtifactWithTypeOnPluggableArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"105\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <artifactStores>\n"
+                + "      <artifactStore id=\"foo\" pluginId=\"cd.go.artifact.docker.registry\">\n"
+                + "        <property>\n"
+                + "          <key>RegistryURL</key>\n"
+                + "          <value>http://foo</value>\n"
+                + "        </property>\n"
+                + "      </artifactStore>\n"
+                + "    </artifactStores>"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"some_stage\">"
+                + "             <jobs>"
+                + "             <job name=\"some_job\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <pluggableArtifact id='artifactId1' storeId='foo' />"
+                + "                     <pluggableArtifact id='artifactId2' storeId='foo'>"
+                + "                         <property>"
+                + "                             <key>BuildFile</key>"
+                + "                             <value>foo.json</value>"
+                + "                         </property>"
+                + "                     </pluggableArtifact>"
+                + "                     <pluggableArtifact id='artifactId3' storeId='foo'>"
+                + "                         <property>"
+                + "                             <key>SecureProperty</key>"
+                + "                             <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                + "                         </property>"
+                + "                     </pluggableArtifact>"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 105);
+        String artifactId2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\">"
+                +"                         <property>"
+                +"                             <key>BuildFile</key>"
+                +"                             <value>foo.json</value>"
+                +"                         </property>"
+                +"                     </artifact>";
+
+        String artifactId3 = "<artifact type=\"external\" id=\"artifactId3\" storeId=\"foo\">"
+                +"                         <property>"
+                +"                             <key>SecureProperty</key>"
+                +"                             <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                +"                         </property>"
+                +"                     </artifact>";
+        assertThat(migratedContent, containsString("<artifact type=\"external\" id=\"artifactId1\" storeId=\"foo\"/>"));
+        assertThat(migratedContent, containsString(artifactId2));
+        assertThat(migratedContent, containsString(artifactId3));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

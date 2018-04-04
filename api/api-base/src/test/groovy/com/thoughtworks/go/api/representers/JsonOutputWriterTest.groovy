@@ -16,13 +16,20 @@
 
 package com.thoughtworks.go.api.representers
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
+import com.thoughtworks.go.api.base.OutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.apache.poi.util.LocaleUtil
+import org.assertj.core.api.AssertionsForClassTypes
 import org.junit.jupiter.api.Test
 
+import java.util.function.Consumer
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat
+import static org.assertj.core.api.AssertionsForClassTypes.fail
 
 class JsonOutputWriterTest {
   @Test
@@ -215,6 +222,62 @@ class JsonOutputWriterTest {
       [key: "value2"],
       [key: "value3"]
     ])
+  }
+
+  @Test
+  void 'should not output valid JSON if an exception is thrown during processing'() {
+    Object someObjectWhichWillThrowOnToString = new Object() {
+      @Override
+      String toString() {
+        throw new RuntimeException("THROWS!")
+      }
+    }
+
+    assertInvalidJSONOutput { outputWriter ->
+      new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelObject { writer ->
+        writer.add("key", someObjectWhichWillThrowOnToString.toString())
+      }
+    }
+
+    assertInvalidJSONOutput { outputWriter ->
+      new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelObject { writer ->
+        writer.addChild("child1") { childWriter -> childWriter.add("key", someObjectWhichWillThrowOnToString.toString()) }
+      }
+    }
+
+    assertInvalidJSONOutput { outputWriter ->
+      new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelArray { writer ->
+        writer.addChild { childWriter -> childWriter.add("key", "value1") }
+        writer.addChild { childWriter -> childWriter.add("key", someObjectWhichWillThrowOnToString.toString()) }
+        writer.addChild { childWriter -> childWriter.add("key", "value3") }
+      }
+    }
+
+    assertInvalidJSONOutput { outputWriter ->
+      new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelArray { writer ->
+        writer.value("value1")
+        writer.value(someObjectWhichWillThrowOnToString.toString())
+        writer.value("value3")
+      }
+    }
+  }
+
+  def assertInvalidJSONOutput(Closure closure) {
+    def result = new StringWriter()
+
+    try {
+      closure.call(result)
+      fail("This should have failed!")
+    } catch (RuntimeException ignored) {
+
+      try {
+        OBJECT_MAPPER.readValue(result.toString(), Object.class)
+        fail("This should have been an invalid JSON: " + result.toString())
+      } catch (JsonParseException|JsonMappingException e) {
+        assertThat(e.getMessage()).contains("Failed due to an exception.")
+      }
+
+    }
   }
 
   def OBJECT_MAPPER = new ObjectMapper()

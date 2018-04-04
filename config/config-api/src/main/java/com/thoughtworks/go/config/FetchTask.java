@@ -27,7 +27,7 @@ import java.util.Map;
 
 // TODO - #2541 - Implementing serializable here because we need to send
 
-@ConfigTag(value = "fetchartifact")
+@AttributeAwareConfigTag(value = "fetchartifact", attribute = "type", attributeValue = "builtin")
 public class FetchTask extends AbstractFetchTask {
     @ConfigAttribute(value = "srcfile", optional = true, allowNull = true)
     @ValidationErrorKey(value = "src")

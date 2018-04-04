@@ -57,7 +57,7 @@ public class GoConstants {
 
     public static final String PRODUCT_NAME = "go";
 
-    public static final int CONFIG_SCHEMA_VERSION = 106;
+    public static final int CONFIG_SCHEMA_VERSION = 107;
 
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";

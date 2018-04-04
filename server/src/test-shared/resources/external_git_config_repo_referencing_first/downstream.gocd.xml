@@ -12,7 +12,7 @@
           <job name="test">
             <tasks>
               <rake />
-              <fetchartifact pipeline="pipe1" stage="test" job="test" srcdir="bin">
+              <fetchartifact type="builtin" pipeline="pipe1" stage="test" job="test" srcdir="bin">
                 <runif status="passed" />
               </fetchartifact>
             </tasks>

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public abstract class AbstractFetchTask extends AbstractTask implements Serializable {
+public abstract class AbstractFetchTask extends AbstractTask implements FetchArtifactConfig {
     public static final String PIPELINE_NAME = "pipelineName";
     public static final String PIPELINE = "pipeline";
     public static final String STAGE = "stage";

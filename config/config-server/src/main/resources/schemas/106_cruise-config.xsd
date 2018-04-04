@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="107"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="106"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -639,7 +639,6 @@
     <xsd:complexContent mixed="false">
       <xsd:extension base="taskType">
         <xsd:choice minOccurs="0" maxOccurs="unbounded">
-          <xsd:element name="configuration" minOccurs="0" maxOccurs="unbounded" type="configurationType"/>
           <xsd:element name="runif" type="runIfType"/>
           <xsd:element name="oncancel" type="onCancelType"/>
         </xsd:choice>
@@ -649,15 +648,24 @@
         <xsd:attribute name="srcdir" type="filePathType"/>
         <xsd:attribute name="srcfile" type="filePathType"/>
         <xsd:attribute name="dest" type="filePathType"/>
-        <xsd:attribute name="artifactId" type="xsd:string"/>
-        <xsd:attribute name="type" use="required">
-          <xsd:simpleType>
-            <xsd:restriction base="xsd:string">
-              <xsd:enumeration value="builtin"/>
-              <xsd:enumeration value="external"/>
-            </xsd:restriction>
-          </xsd:simpleType>
-        </xsd:attribute>
+        <xsd:attributeGroup ref="taskAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="fetchPluggableArtifactType">
+    <xsd:complexContent mixed="false">
+      <xsd:extension base="taskType">
+        <xsd:sequence>
+          <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="configuration" minOccurs="0" maxOccurs="unbounded" type="configurationType"/>
+            <xsd:element name="runif" type="runIfType"/>
+            <xsd:element name="oncancel" type="onCancelType"/>
+          </xsd:choice>
+        </xsd:sequence>
+        <xsd:attribute name="pipeline" type="xsd:string" use="optional"/>
+        <xsd:attribute name="stage" type="xsd:string" use="required"/>
+        <xsd:attribute name="job" type="xsd:string" use="required"/>
+        <xsd:attribute name="artifactId" type="xsd:string" use="required"/>
         <xsd:attributeGroup ref="taskAttributes"/>
       </xsd:extension>
     </xsd:complexContent>
@@ -695,6 +703,12 @@
   </xsd:element>
   <xsd:element name="fetchartifact" substitutionGroup="baseTask" type="fetchType">
     <xsd:unique name='uniqueRunIfTypeForFetch'>
+      <xsd:selector xpath="runif"/>
+      <xsd:field xpath="@status"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:element name="fetchPluggableArtifact" substitutionGroup="baseTask" type="fetchPluggableArtifactType">
+    <xsd:unique name='uniqueRunIfTypeForFetchPluggableArtifact'>
       <xsd:selector xpath="runif"/>
       <xsd:field xpath="@status"/>
     </xsd:unique>
@@ -1070,4 +1084,3 @@
     <xsd:attribute name="secure" type="xsd:boolean"/>
   </xsd:complexType>
 </xsd:schema>
-

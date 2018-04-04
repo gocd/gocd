@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.go.config.AttributeAwareConfigTag;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -42,8 +43,14 @@ public class ConfigUtil {
     public static List<String> allTasks(ConfigElementImplementationRegistry registry) {
         List<String> allTasks = new ArrayList<>();
         for (Class<? extends Task> task : registry.implementersOf(Task.class)) {
+            AttributeAwareConfigTag attributeAwareConfigTag = task.getAnnotation(AttributeAwareConfigTag.class);
+            if (attributeAwareConfigTag != null && !allTasks.contains(attributeAwareConfigTag.value())) {
+                allTasks.add(attributeAwareConfigTag.value());
+            }
             ConfigTag tag = task.getAnnotation(ConfigTag.class);
-            allTasks.add(tag.value());
+            if (tag != null && !allTasks.contains(tag.value())) {
+                allTasks.add(tag.value());
+            }
         }
         return allTasks;
     }

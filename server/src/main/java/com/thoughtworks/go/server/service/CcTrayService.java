@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
-import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class CcTrayService {
     }
 
     public String getCcTrayXml(String siteUrlPrefix) {
-        String userName = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
+        String userName = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
         boolean isSecurityEnabled = goConfigService.isSecurityEnabled();
 
         List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();

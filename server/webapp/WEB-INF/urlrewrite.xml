@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -321,12 +321,11 @@
     </rule>
 
     <rule>
-        <name>Agent remoting repository</name>
+        <name>Agent files and properties</name>
         <note>
-            This is to handle RESTful agent communication.
-            Acegi uses the /remoting url to use x509 authentication.
+            For agent to download/upload artifacts and publish properties
         </note>
-        <from>^/remoting/([^/]+)/(.*)</from>
+        <from>^/remoting/(files|properties)/(.*)</from>
         <to last="false">/$1/$2</to>
     </rule>
 

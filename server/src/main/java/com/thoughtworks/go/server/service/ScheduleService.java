@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -35,7 +36,6 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -265,7 +265,7 @@ public class ScheduleService {
                 errorHandler.cantSchedule(result.getServerHealthState().getDescription(), pipelineName, stageName);
             }
 
-            String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
+            String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, username)) {
                 errorHandler.noOperatePermission(pipelineName, stageName);
             }

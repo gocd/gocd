@@ -20,26 +20,23 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
-import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
-
-import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
+import java.util.Set;
 
 public class GoVelocityView extends VelocityToolboxView {
     public static final String PRINCIPAL = "principal";
@@ -115,12 +112,12 @@ public class GoVelocityView extends VelocityToolboxView {
 
         velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
 
-        SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
-                SPRING_SECURITY_CONTEXT_KEY);
-        if (securityContext == null || securityContext.getAuthentication() == null) {
+        if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }
-        final Authentication authentication = securityContext.getAuthentication();
+
+        final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
+
         setPrincipal(velocityContext, authentication);
         setAdmininstratorRole(velocityContext, authentication);
     }
@@ -135,12 +132,12 @@ public class GoVelocityView extends VelocityToolboxView {
         return false;
     }
 
-    private void setPrincipal(Context velocityContext, Authentication authentication) throws NamingException {
-        velocityContext.put(PRINCIPAL, UserHelper.getUserName(authentication).getDisplayName());
+    private void setPrincipal(Context velocityContext, AuthenticationToken<?> authentication) throws NamingException {
+        velocityContext.put(PRINCIPAL, authentication.getUser().getDisplayName());
     }
 
-    private void setAdmininstratorRole(Context velocityContext, Authentication authentication) {
-        final GrantedAuthority[] authorities = authentication.getAuthorities();
+    private void setAdmininstratorRole(Context velocityContext, AuthenticationToken<?> authentication) {
+        final Set<GrantedAuthority> authorities = authentication.getUser().getAuthorities();
         if (authorities == null) {
             return;
         }
@@ -157,7 +154,7 @@ public class GoVelocityView extends VelocityToolboxView {
             context.remove(VIEW_ADMINISTRATOR_RIGHTS);
     }
 
-    private void removeGroupAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeGroupAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isGroupAdministrator(authority)) {
@@ -169,7 +166,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeTemplateAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeTemplateAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isTemplateAdministrator(authority)) {
@@ -181,7 +178,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
         boolean isTemplateViewUser = false;
         for (GrantedAuthority authority : authorities) {
             if (isTemplateViewUser(authority)) {
@@ -194,7 +191,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isAdministrator(authority)) {
@@ -207,19 +204,19 @@ public class GoVelocityView extends VelocityToolboxView {
     }
 
     private boolean isAdministrator(GrantedAuthority authority) {
-        return authority.getAuthority().equals(GoAuthority.ROLE_SUPERVISOR.toString());
+        return authority.equals(GoAuthority.ROLE_SUPERVISOR.asAuthority());
     }
 
     private boolean isGroupAdministrator(GrantedAuthority authority) {
-        return authority.getAuthority().equals(GoAuthority.ROLE_GROUP_SUPERVISOR.toString());
+        return authority.equals(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
     }
 
     private boolean isTemplateAdministrator(GrantedAuthority authority) {
-        return authority.getAuthority().equals(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString());
+        return authority.equals(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
     }
 
     private boolean isTemplateViewUser(GrantedAuthority authority) {
-        return authority.getAuthority().equals(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString());
+        return authority.equals(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
     }
 
     public String getContentAsString() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.controller.PipelineHistoryController;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -46,14 +48,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.fixture.IntegrationTestsFixture.login;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-rest-servlet.xml"
 })
@@ -119,7 +119,7 @@ public class PipelineHistoryControllerIntegrationTest {
         configHelper.addSecurityWithAdminConfig();
         fixture.configStageAsManualApprovalWithApprovedUsers(fixture.devStage, "userA");
 
-        login("userA", "");
+        SessionUtilsHelper.loginAs("userA");
         Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canForce"), is("true"));
     }

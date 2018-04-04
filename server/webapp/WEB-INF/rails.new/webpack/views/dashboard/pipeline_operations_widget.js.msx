@@ -162,6 +162,11 @@ const PipelineOperationsWidget = {
       flashMessage = (<div class={`pipeline_message ${flash.type}`}><p>{flash.message}</p></div>);
     }
 
+    let pipelinePauseMessage;
+    if (pipeline.isPaused) {
+      pipelinePauseMessage = (<div className="pipeline_pause-message">{pausedMessage}</div>);
+    }
+
     return (
       <div>
         {flashMessage}
@@ -180,7 +185,7 @@ const PipelineOperationsWidget = {
           </li>
         </ul>
         <a href={pipeline.historyPath} class="pipeline_history">History</a>
-        <div className="pipeline_pause-message">{pausedMessage}</div>
+        {pipelinePauseMessage}
       </div>
     );
   }

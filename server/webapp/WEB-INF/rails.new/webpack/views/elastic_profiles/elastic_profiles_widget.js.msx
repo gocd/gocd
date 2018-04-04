@@ -18,6 +18,7 @@ const m                       = require('mithril');
 const f                       = require('helpers/form_helper');
 const ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
 const ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
+const HeaderPanel             = require('views/shared/header_panel');
 const Stream                  = require('mithril/stream');
 const _                       = require('lodash');
 const Modal                   = require('views/shared/new_modal');
@@ -250,20 +251,7 @@ const ElasticProfilesWidget = {
 
     return (
       <div>
-        <div class="header-panel">
-          <header class="page-header">
-            <f.row>
-              <f.column size={6}>
-                <h1>Elastic Agent Profiles</h1>
-              </f.column>
-
-              <f.column size={6}>
-                {addElasticProfileButton}
-              </f.column>
-            </f.row>
-          </header>
-        </div>
-
+        <HeaderPanel title="Elastic Agent Profiles" button={addElasticProfileButton}/>
 
         <div class="elastic-profiles">
           {noElasticAgentPluginMessage}

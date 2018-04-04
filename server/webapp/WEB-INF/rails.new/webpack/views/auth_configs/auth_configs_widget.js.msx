@@ -19,6 +19,7 @@ const Stream              = require('mithril/stream');
 const _                   = require('lodash');
 const f                   = require('helpers/form_helper');
 const Modal               = require('views/shared/new_modal');
+const HeaderPanel         = require('views/shared/header_panel');
 const ComponentMixins     = require('helpers/mithril_component_mixins');
 const AuthConfigs         = require('models/auth_configs/auth_configs');
 const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
@@ -290,26 +291,16 @@ const AuthConfigsWidget = {
       </f.row>);
     }
 
-    const disabled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+    const disabled  = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+    const addButton = (
+      <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-auth-config"
+                disabled={disabled}>
+        Add
+      </f.button>);
 
     return (
       <div>
-        <div class="header-panel">
-          <header class="page-header">
-            <f.row>
-              <f.column size={6}>
-                <h1>Authorization Configurations</h1>
-              </f.column>
-
-              <f.column size={6}>
-                <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-auth-config" disabled={disabled}>
-                  Add
-                </f.button>
-              </f.column>
-            </f.row>
-          </header>
-        </div>
-
+        <HeaderPanel title="Authorization Configurations" button={addButton}/>
 
         <div class="auth-configs">
           {noAuthorizationPluginMessage}

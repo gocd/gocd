@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.api.task.JobConsoleLogger;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 
+@Deprecated
 public class JobConsoleLoggerInternal extends JobConsoleLogger {
     private JobConsoleLoggerInternal() {
         super();

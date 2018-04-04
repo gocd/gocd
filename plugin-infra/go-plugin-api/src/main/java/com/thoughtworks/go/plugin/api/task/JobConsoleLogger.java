@@ -19,6 +19,10 @@ package com.thoughtworks.go.plugin.api.task;
 import java.io.InputStream;
 import java.util.Map;
 
+/**
+ * @deprecated use plugin-api instead. See the documentation for more information.
+ */
+@Deprecated
 public class JobConsoleLogger {
     protected static TaskExecutionContext context;
 

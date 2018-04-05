@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-const m                = require('mithril');
-const Stream           = require('mithril/stream');
-const _                = require('lodash');
-const f                = require('helpers/form_helper');
-const Modal            = require('views/shared/new_modal');
-const HeaderPanel      = require('views/shared/header_panel');
-const ComponentMixins  = require('helpers/mithril_component_mixins');
-const Roles            = require('models/roles/roles');
-const GoCDRoleWidget   = require('views/roles/gocd_role_widget');
-const PluginRoleWidget = require('views/roles/plugin_role_widget');
-const RoleWidget       = require('views/roles/role_widget');
+const m                 = require('mithril');
+const Stream            = require('mithril/stream');
+const _                 = require('lodash');
+const f                 = require('helpers/form_helper');
+const Modal             = require('views/shared/new_modal');
+const HeaderPanel       = require('views/shared/header_panel');
+const InfoCalloutWidget = require('views/shared/info_callout');
+const ComponentMixins   = require('helpers/mithril_component_mixins');
+const Roles             = require('models/roles/roles');
+const GoCDRoleWidget    = require('views/roles/gocd_role_widget');
+const PluginRoleWidget  = require('views/roles/plugin_role_widget');
+const RoleWidget        = require('views/roles/role_widget');
 require('jquery-textcomplete');
 
 function showErrors(modal, ctrl, newRole) {
@@ -235,11 +236,9 @@ const RolesWidget = function (options) {
 
       let noAuthorizationPluginMessage;
       if (noPluginThatSupportsAuthorization) {
-        noAuthorizationPluginMessage = (<f.row>
-          <f.callout type="info">
-            None of the installed plugin supports role based authorization.
-          </f.callout>
-        </f.row>);
+        noAuthorizationPluginMessage = (
+          <InfoCalloutWidget message="None of the installed plugin supports role based authorization."/>
+        );
       }
 
       const addRoleButton = (

@@ -19,6 +19,7 @@ const m                   = require('mithril');
 const f                   = require('helpers/form_helper');
 const Spinner             = require('views/shared/spinner');
 const ErrorCalloutWidget  = require('views/shared/error_callout');
+const InfoCalloutWidget   = require('views/shared/info_callout');
 const HeaderPanel         = require('views/shared/header_panel');
 const ArtifactStores      = require('models/artifact_stores/artifact_stores');
 const ArtifactStoresState = require('views/artifact_stores/artifact_stores_state');
@@ -59,9 +60,13 @@ const ArtifactStoresWidget = (function () {
           Add
         </f.button>
       );
+      const noPluginsMessage = state.noPlugins() ? <InfoCalloutWidget message="No artifact store plugins installed."/> : undefined;
       return (
         <div>
           <HeaderPanel title="Artifact Stores" button={addButton}/>
+          <div class="artifact-stores">
+            {noPluginsMessage}
+          </div>
         </div>
       );
     }

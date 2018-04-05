@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
-@import 'shared/common';
-@import 'shared/modal';
-@import 'shared/header';
-@import 'shared/alert';
 
-.add-artifact-store {
-  float:         right;
-  margin-bottom: 0;
+const m = require('mithril');
+const f = require('helpers/form_helper');
+
+class InfoCalloutWidget {
+  oninit() {
+  }
+
+  view(vnode) {
+    return (
+      <f.row>
+        <f.callout type="info">
+          {vnode.attrs.message}
+        </f.callout>
+      </f.row>
+    );
+  }
 }
 
-.artifact-stores {
-  margin-top: 60px;
-}
+module.exports = InfoCalloutWidget;

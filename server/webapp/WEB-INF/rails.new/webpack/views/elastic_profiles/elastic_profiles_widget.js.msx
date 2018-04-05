@@ -25,6 +25,7 @@ const _                       = require('lodash');
 const Modal                   = require('views/shared/new_modal');
 const ComponentMixins         = require('helpers/mithril_component_mixins');
 const ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
+const PluginGroupHeader       = require('views/shared/plugin_config/plugin_group_header');
 
 require('jquery-textcomplete');
 
@@ -255,30 +256,18 @@ const ElasticProfilesWidget = {
 
             {_.map(vnode.state.profiles().groupByProfileProperty('pluginId'), (profiles, pluginId) => {
               const pluginInfo = vnode.attrs.pluginInfos().findById(pluginId);
-              let statusReportButton, pluginNameLabel, pluginIcon;
+              let statusReportButton;
 
               if (pluginInfo) {
-                pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
-                pluginNameLabel = (<label className="medium-4 column plugin-name">{pluginInfo.about().name()}</label>);
-
                 if (pluginInfo.extensions()['elastic-agent'].capabilities() && pluginInfo.extensions()['elastic-agent'].capabilities().supportsStatusReport()) {
                   statusReportButton = (
                     <f.link class="button plugin-status end" href={`status_reports/${pluginId}`}>Status Report</f.link>);
                 }
-              } else {
-                pluginNameLabel = (
-                  <label className="medium-4 column plugin-not-installed">Plugin is not installed</label>);
-                pluginIcon      = (<span class="plugin-icon warning"></span>);
               }
 
               return (<div class="elastic-profile-plugin-group">
 
-                <div class="elastic-profile-plugin-group-header row">
-                  {pluginIcon}
-                  {pluginNameLabel}
-                  <label className="medium-4 column plugin-id end">Plugin ID: {pluginId}</label>
-                  {statusReportButton}
-                </div>
+                <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId} statusReportButton={statusReportButton}/>
 
                 <div class="elastic-profile-plugin-group-content">
                   {_.map(profiles, (profile) => {

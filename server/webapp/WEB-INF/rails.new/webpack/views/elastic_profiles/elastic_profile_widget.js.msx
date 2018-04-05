@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-const m               = require('mithril');
-const f               = require('helpers/form_helper');
-const Stream          = require('mithril/stream');
-const ComponentMixins = require('helpers/mithril_component_mixins');
+const m                     = require('mithril');
+const f                     = require('helpers/form_helper');
+const ComponentMixins       = require('helpers/mithril_component_mixins');
+const PluginCollapsibleList = require('views/shared/plugin_config/plugin_collapsible_list');
 
 const ElasticProfileWidget = {
   oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
-
-    const vmStateKey = `show-${vnode.attrs.profile.id()}`;
-
-    this.vmState(vmStateKey, Stream(false));
-
-    this.toggleHide = function () {
-      this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
-    };
-
-    this.showState = function () {
-      return this.vmState(vmStateKey)() ? 'show' : 'hide';
-    };
   },
 
   view(vnode) {
@@ -59,28 +47,8 @@ const ElasticProfileWidget = {
       );
     }
     return (
-      <div class={`elastic-profile ${(vnode.state.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
-        <div class="elastic-profile-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-          <div class="plugin-description">
-            <div class="profile-id"><span class="key">Profile ID: </span><span class="value">{profile.id()}</span></div>
-          </div>
-
-        </div>
-        <div class={`plugin-config-read-only ${vnode.state.showState()}`}>
-          <dl class="key-value-pair">
-
-            {profile.properties().mapConfigurations((configuration) => {
-              return [
-                (<dt>{configuration.key()}</dt>),
-                (<dd>
-                  <pre>{configuration.value()}</pre>
-                </dd>)
-              ];
-            })}
-          </dl>
-        </div>
-        {actionIcons}
-      </div>
+      <PluginCollapsibleList headerKey="Profile ID" headerValue={profile.id()} properties={profile.properties()}
+                             actionIcons={actionIcons}/>
     );
   }
 };

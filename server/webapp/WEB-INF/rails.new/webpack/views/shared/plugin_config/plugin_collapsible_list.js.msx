@@ -38,6 +38,7 @@ class PluginCollapsibleList {
     const headerKey   = vnode.attrs.headerKey;
     const headerValue = vnode.attrs.headerValue;
     const properties  = vnode.attrs.properties;
+    const actionIcons = vnode.attrs.actionIcons;
     return (
       <div class={`plugin-collapsible-list ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
         <div class="collapsible-list-header" onclick={this.toggleHide.bind(this)}>
@@ -61,7 +62,7 @@ class PluginCollapsibleList {
             })}
           </dl>
         </div>
-        {/*{actionIcons}*/}
+        {actionIcons}
       </div>
     );
   }

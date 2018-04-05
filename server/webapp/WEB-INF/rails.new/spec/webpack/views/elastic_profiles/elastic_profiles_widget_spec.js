@@ -191,8 +191,8 @@ describe("ElasticProfilesWidget", () => {
 
     it("should list existing profiles in absence of elastic plugin", () => {
       expect($root.find('.elastic-profiles .callout').text()).toEqual("No elastic agent plugin installed.");
-      expect($root.find('.profile-id .value').eq(0)).toContainText(dockerElasticProfileJSON.id);
-      expect($root.find('.profile-id .value').eq(1)).toContainText(ecsElasticProfileJSON.id);
+      expect($root.find('.plugin-id .value').eq(0)).toContainText(dockerElasticProfileJSON.id);
+      expect($root.find('.plugin-id .value').eq(1)).toContainText(ecsElasticProfileJSON.id);
     });
 
   });
@@ -204,25 +204,25 @@ describe("ElasticProfilesWidget", () => {
       expect(allProfiles.length).toEqual(2);
 
       expect(allProfiles.eq(0).find('.plugin-icon img').attr("src")).toEqual(dockerPluginInfoJSON._links.image.href);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-header .plugin-name')).toContainText(dockerPluginInfoJSON.about.name);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-header .plugin-id')).toContainText(dockerElasticProfileJSON.plugin_id);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-header').find('.plugin-status')).not.toBeInDOM();
+      expect(allProfiles.eq(0).find('.plugin-group-header .plugin-name')).toContainText(dockerPluginInfoJSON.about.name);
+      expect(allProfiles.eq(0).find('.plugin-group-header .plugin-id')).toContainText(dockerElasticProfileJSON.plugin_id);
+      expect(allProfiles.eq(0).find('.plugin-group-header').find('.plugin-status')).not.toBeInDOM();
 
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .elastic-profile .profile-id')).toContainText(dockerElasticProfileJSON.id);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .edit-profile')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .clone-profile')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .delete-profile-confirm')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(dockerElasticProfileJSON.id);
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-profile')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-profile')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-profile-confirm')).toBeInDOM();
 
       expect(allProfiles.eq(1).find('.plugin-icon img').attr("src")).toEqual(ecsPluginInfoJSON._links.image.href);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-header .plugin-name')).toContainText(ecsPluginInfoJSON.about.name);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-header .plugin-id')).toContainText(ecsElasticProfileJSON.plugin_id);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-header').find('.plugin-status').attr('href')).toEqual(`status_reports/${ecsElasticProfileJSON.plugin_id}`);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-header').find('.plugin-status')).toContainText('Status Report');
+      expect(allProfiles.eq(1).find('.plugin-group-header .plugin-name')).toContainText(ecsPluginInfoJSON.about.name);
+      expect(allProfiles.eq(1).find('.plugin-group-header .plugin-id')).toContainText(ecsElasticProfileJSON.plugin_id);
+      expect(allProfiles.eq(1).find('.plugin-group-header').find('.plugin-status').attr('href')).toEqual(`status_reports/${ecsElasticProfileJSON.plugin_id}`);
+      expect(allProfiles.eq(1).find('.plugin-group-header').find('.plugin-status')).toContainText('Status Report');
 
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .elastic-profile .profile-id')).toContainText(ecsElasticProfileJSON.id);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .edit-profile')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .clone-profile')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .elastic-profile .plugin-actions .delete-profile-confirm')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(ecsElasticProfileJSON.id);
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-profile')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-profile')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-profile-confirm')).toBeInDOM();
     });
 
     it("should render error if index call fails", () => {
@@ -379,7 +379,7 @@ describe("ElasticProfilesWidget", () => {
       });
 
       expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-      simulateEvent.simulate($root.find('.elastic-profile-header').get(0), 'click');
+      simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
       m.redraw();
       expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 

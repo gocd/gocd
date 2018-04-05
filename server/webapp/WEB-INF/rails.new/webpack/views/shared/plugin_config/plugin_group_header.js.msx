@@ -23,8 +23,8 @@ class PluginGroupHeader {
   view(vnode) {
     const pluginInfo = vnode.attrs.pluginInfo;
     const pluginId   = vnode.attrs.pluginId;
-    let pluginNameLabel, pluginIcon;
     const statusReportButton = vnode.attrs.statusReportButton;
+    let pluginNameLabel, pluginIcon;
 
     if (pluginInfo) {
       pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);

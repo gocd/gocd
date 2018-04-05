@@ -28,7 +28,7 @@ dependencies {
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
   testCompile group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '3.0.0'
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

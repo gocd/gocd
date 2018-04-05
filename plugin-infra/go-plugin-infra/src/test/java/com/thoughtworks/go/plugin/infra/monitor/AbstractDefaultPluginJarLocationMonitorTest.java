@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,10 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     public static final File TEMP_SOURCE = new File("temp-file-in-plugin-monitor-test");
@@ -42,7 +42,7 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
         FileUtils.copyURLToFile(resource, TEMP_SOURCE);
 
         File destination = new File(pluginDir, destinationFilenameOfPlugin);
-        Files.move(TEMP_SOURCE.toPath(), destination.toPath(), ATOMIC_MOVE);
+        Files.move(TEMP_SOURCE.toPath(), destination.toPath(), REPLACE_EXISTING);
     }
 
     protected void updateFileContents(File someFile) {

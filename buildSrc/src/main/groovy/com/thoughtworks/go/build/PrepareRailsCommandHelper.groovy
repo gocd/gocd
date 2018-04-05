@@ -39,7 +39,7 @@ class PrepareRailsCommandHelper {
       project.sourceSets.fastUnitTest.output +
       project.sourceSets.fastUnitTest.runtimeClasspath +
       project.files(project.configurations.spark.files) +
-      project.rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
+      project.rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
   }
 
   public void prepare() {

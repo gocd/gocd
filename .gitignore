@@ -139,9 +139,9 @@ server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/doc/
 server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/extensions/
 server/webapp/WEB-INF/rails.new/webpack/gen/
 target/
-test-addon/target/
-test-agent/target/
-test-utils/target/
+test/test-addon/target/
+test/test-agent/target/
+test/test-utils/target/
 tfs-impl/tfs-impl-14/target/
 tw-go-plugins/dist/
 util/target/

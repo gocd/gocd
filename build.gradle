@@ -337,7 +337,7 @@ subprojects {
         thisTask.source -= mappedSourceSet.resources
       }
 
-      if (project.name == 'test-utils') {
+      if (project.path == ':test:test-utils') {
         thisTask.source -= mappedSourceSet.resources
       }
     }
@@ -362,7 +362,7 @@ subprojects {
     systemProperty 'java.io.tmpdir', tmpDir
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
-      classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
+      classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
     }
 
     defaultCharacterEncoding = "UTF-8"

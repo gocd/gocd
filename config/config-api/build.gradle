@@ -27,7 +27,7 @@ dependencies {
   compile group: 'org.jdom', name: 'jdom', version: '2.0.2'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
   testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

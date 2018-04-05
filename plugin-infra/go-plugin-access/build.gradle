@@ -26,7 +26,7 @@ dependencies {
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

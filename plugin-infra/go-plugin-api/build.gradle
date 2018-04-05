@@ -24,7 +24,7 @@ dependencies {
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

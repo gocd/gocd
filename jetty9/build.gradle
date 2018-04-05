@@ -29,7 +29,7 @@ dependencies {
   testCompile project(':common')
   testCompile project(':config:config-server')
   testCompile project(':config:config-api')
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
 

@@ -41,7 +41,7 @@ dependencies {
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert)
-  testCompile project(':test-utils')
+  testCompile project(':test:test-utils')
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 

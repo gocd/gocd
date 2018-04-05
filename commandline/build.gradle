@@ -19,7 +19,7 @@ description = 'GoCD commandline Module'
 dependencies {
     compile project(':base')
     compile project(':config:config-api')
-    testCompile project(':test-utils')
+    testCompile project(':test:test-utils')
     testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
     testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
     testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

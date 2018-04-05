@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-const $                   = require('jquery');
-const m                   = require('mithril');
-const f                   = require('helpers/form_helper');
-const Spinner             = require('views/shared/spinner');
-const ErrorCalloutWidget  = require('views/shared/error_callout');
-const InfoCalloutWidget   = require('views/shared/info_callout');
-const HeaderPanel         = require('views/shared/header_panel');
-const ArtifactStores      = require('models/artifact_stores/artifact_stores');
-const ArtifactStoresState = require('views/artifact_stores/artifact_stores_state');
-const PluginInfos         = require('models/shared/plugin_infos');
+const $                         = require('jquery');
+const _                         = require('lodash');
+const m                         = require('mithril');
+const f                         = require('helpers/form_helper');
+const Spinner                   = require('views/shared/spinner');
+const ErrorCalloutWidget        = require('views/shared/error_callout');
+const InfoCalloutWidget         = require('views/shared/info_callout');
+const HeaderPanel               = require('views/shared/header_panel');
+const ArtifactStores            = require('models/artifact_stores/artifact_stores');
+const ArtifactStoresState       = require('views/artifact_stores/artifact_stores_state');
+const ArtifactStorePluginWidget = require('views/artifact_stores/artifact_store_plugin_widget');
+const PluginInfos               = require('models/shared/plugin_infos');
 
 const ArtifactStoresWidget = (function () {
 
@@ -55,18 +57,27 @@ const ArtifactStoresWidget = (function () {
         <Spinner/>
       );
     } else {
-      const addButton = (
+      const addButton        = (
         <f.button onclick="" class="add-artifact-store" disabled={state.noPlugins()}>
           Add
         </f.button>
       );
-      const noPluginsMessage = state.noPlugins() ? <InfoCalloutWidget message="No artifact store plugins installed."/> : undefined;
+      const noPluginsMessage = state.noPlugins() ?
+        <InfoCalloutWidget message="No artifact store plugins installed."/> : undefined;
       return (
         <div>
           <HeaderPanel title="Artifact Stores" button={addButton}/>
           <div class="artifact-stores">
             {noPluginsMessage}
           </div>
+          {
+            _.map(state.artifactStores.groupByArtifactStoreProperty('pluginId'), (stores, pluginId) => {
+              const pluginInfo = state.findPluginInfo(pluginId);
+              return (
+                <ArtifactStorePluginWidget pluginId={pluginId} pluginInfo={pluginInfo} artifactStores={stores}/>
+              );
+            })
+          }
         </div>
       );
     }

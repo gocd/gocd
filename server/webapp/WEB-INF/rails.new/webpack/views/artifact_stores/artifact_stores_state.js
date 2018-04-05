@@ -59,6 +59,10 @@ class ArtifactStoresState {
     return this._pluginInfos.countPluginInfo() === 0;
   }
 
+  findPluginInfo(pluginId) {
+    return this._pluginInfos.findById(pluginId);
+  }
+
 }
 
 module.exports = ArtifactStoresState;

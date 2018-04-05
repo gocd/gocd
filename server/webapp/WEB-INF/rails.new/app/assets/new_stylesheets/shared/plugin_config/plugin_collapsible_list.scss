@@ -1,0 +1,75 @@
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import 'shared/mixins';
+@import 'shared/common';
+@import 'variables';
+
+$icon-text-padding: 20px;
+
+.plugin-collapsible-list {
+  background:    $go-white;
+  position:      relative;
+  border-top:    1px solid #ddd;
+  border-radius: $global-border-radius;
+  cursor:        pointer;
+
+  &.expanded {
+    background: #fcfaff;
+  }
+
+  &.collapsed {
+    background: #fff;
+  }
+
+  .collapsible-list-header {
+    padding: 10px;
+  }
+
+  .plugin-description {
+    display:        inline-block;
+    vertical-align: middle;
+    padding-left:   $plugin-icon-size;
+    width:          calc(100% - #{$icon-text-padding});
+
+    .plugin-id, .profile-id {
+      display:   inline-block;
+      min-width: 300px;
+    }
+    .key {
+      font-weight: 600;
+      font-size:   rem-calc(13px);
+    }
+  }
+
+  .plugin-config-read-only {
+    box-sizing: border-box;
+    padding:    10px 10px 10px 60px;
+    .key-value-pair {
+      dt {
+        width: 20%;
+      }
+      dd {
+        width: 80%;
+      }
+      pre {
+        width:       100%;
+        display:     block;
+        white-space: inherit;
+      }
+    }
+  }
+}

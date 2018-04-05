@@ -1,0 +1,70 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+
+class PluginCollapsibleList {
+
+  oninit(vnode) {
+    ComponentMixins.HasViewModel.call(this);
+    this.vmStateKey = `show-${vnode.attrs.headerValue}`;
+    this.vmState(this.vmStateKey, Stream(false));
+  }
+
+  toggleHide() {
+    this.vmState(this.vmStateKey)(!this.vmState(this.vmStateKey)());
+  }
+
+  showState() {
+    return this.vmState(this.vmStateKey)() ? 'show' : 'hide';
+  }
+
+  view(vnode) {
+    const headerKey   = vnode.attrs.headerKey;
+    const headerValue = vnode.attrs.headerValue;
+    const properties  = vnode.attrs.properties;
+    return (
+      <div class={`plugin-collapsible-list ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+        <div class="collapsible-list-header" onclick={this.toggleHide.bind(this)}>
+          <div class="plugin-description">
+            <div class="plugin-id">
+              <span class="key">{headerKey}: </span>
+              <span class="value">{headerValue}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class={`plugin-config-read-only ${this.showState()}`}>
+          <dl class="key-value-pair">
+            {properties.mapConfigurations((configuration) => {
+              return [
+                (<dt>{configuration.key()}</dt>),
+                (<dd>
+                  <pre>{configuration.value()}</pre>
+                </dd>)
+              ];
+            })}
+          </dl>
+        </div>
+        {/*{actionIcons}*/}
+      </div>
+    );
+  }
+}
+
+module.exports = PluginCollapsibleList;

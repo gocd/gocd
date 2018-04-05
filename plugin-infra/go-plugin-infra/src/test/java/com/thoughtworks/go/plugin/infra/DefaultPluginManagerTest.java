@@ -314,14 +314,36 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void isPluginLoaded_shouldCheckPluginIsLoadedOrNor() {
-        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(mock(GoPluginDescriptor.class));
-        when(registry.getPlugin("cd.go.elastic-agent.foo")).thenReturn(null);
+    public void isPluginLoaded_shouldReturnTrueWhenPluginIsLoaded() {
+        final GoPluginDescriptor dockerPluginDescriptor = mock(GoPluginDescriptor.class);
+
+        when(dockerPluginDescriptor.isInvalid()).thenReturn(false);
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
 
         assertTrue(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
-        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.foo"));
+    }
+
+    @Test
+    public void isPluginLoaded_shouldReturnFalseWhenPluginIsLoadedButIsInInvalidState() {
+        final GoPluginDescriptor dockerPluginDescriptor = mock(GoPluginDescriptor.class);
+
+        when(dockerPluginDescriptor.isInvalid()).thenReturn(true);
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
+    }
+
+    @Test
+    public void isPluginLoaded_shouldReturnFalseWhenPluginIsNotLoaded() {
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(null);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
     }
 
     @After

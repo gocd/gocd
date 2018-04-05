@@ -87,7 +87,8 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public boolean isPluginLoaded(String pluginId) {
-        return getPluginDescriptorFor(pluginId) != null;
+        final GoPluginDescriptor descriptor = getPluginDescriptorFor(pluginId);
+        return !(descriptor == null || descriptor.isInvalid());
     }
 
     @Override

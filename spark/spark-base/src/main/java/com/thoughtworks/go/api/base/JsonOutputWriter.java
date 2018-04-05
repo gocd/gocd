@@ -200,17 +200,35 @@ public class JsonOutputWriter {
         }
 
         private void forTopLevelObject(Consumer<OutputWriter> consumer) {
-            withExceptionHandling(writer -> {
-                writer.writeStartObject();
-                consumer.accept(this);
-                writer.writeEndObject();
-            });
+            try {
+                withExceptionHandling(writer -> {
+                    writer.writeStartObject();
+                    consumer.accept(this);
+                    writer.writeEndObject();
+                });
+            } catch (Exception e) {
+                makeOutputAnInvalidJSON();
+                throw e;
+            }
         }
 
         private void forTopLevelArray(Consumer<OutputListWriter> consumer) {
-            withExceptionHandling(writer -> {
-                new JsonOutputListWriter(this).startArrayWithoutName(consumer);
-            });
+            try {
+                withExceptionHandling(writer -> {
+                    new JsonOutputListWriter(this).startArrayWithoutName(consumer);
+                });
+            } catch (Exception e) {
+                makeOutputAnInvalidJSON();
+                throw e;
+            }
+        }
+
+        private void makeOutputAnInvalidJSON() {
+            try {
+                this.jacksonWriter.writeStartObject();
+                this.jacksonWriter.writeString("Failed due to an exception. Please check the logs.");
+            } catch (IOException ignored) {
+            }
         }
 
         @Override

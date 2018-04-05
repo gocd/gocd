@@ -257,7 +257,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         }))
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("ENTITY_CONFIG_VALIDATION_FAILED")
       }
@@ -276,10 +276,10 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         verify(artifactStoreService, never()).create(Mockito.any() as Username, Mockito.any() as ArtifactStore, Mockito.any() as LocalizedOperationResult)
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("artifactStore", "test"))
-          .hasJsonAtrribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStoreWithError) }))
+          .hasJsonAttribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStoreWithError) }))
       }
 
     }
@@ -376,7 +376,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         }))
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(renameOfEntityIsNotSupportedMessage('artifactStore'))
       }
@@ -448,7 +448,7 @@ class ArtifactStoreConfigControllerDelegateTest implements ControllerTrait<Artif
         deleteWithApiHeader(controller.controllerPath('/test'))
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage('SAVE_FAILED_WITH_REASON')
       }

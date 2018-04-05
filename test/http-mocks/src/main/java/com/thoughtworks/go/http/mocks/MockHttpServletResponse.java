@@ -17,7 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedCaseInsensitiveMap;
@@ -408,7 +408,9 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			throw new IllegalStateException("Cannot send redirect - response is already committed");
 		}
 		Assert.notNull(url, "Redirect URL must not be null");
+		setStatus(302);
 		this.redirectedUrl = url;
+		setHeader("location", url);
 		setCommitted(true);
 	}
 

@@ -20,8 +20,14 @@ import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.i18n.Localizer
 import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.http.mocks.HttpRequestBuilder
+import com.thoughtworks.go.http.mocks.MockHttpServletRequest
+import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.util.UserHelper
-import com.thoughtworks.go.spark.mocks.*
+import com.thoughtworks.go.spark.mocks.StubTemplateEngine
+import com.thoughtworks.go.spark.mocks.TestApplication
+import com.thoughtworks.go.spark.mocks.TestRequestContext
+import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock

@@ -17,7 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +29,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
- * Mock implementation of the {@link javax.servlet.RequestDispatcher} interface.
+ * Mock implementation of the {@link RequestDispatcher} interface.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

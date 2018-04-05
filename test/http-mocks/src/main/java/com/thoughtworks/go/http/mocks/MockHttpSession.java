@@ -16,8 +16,7 @@
 /*
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
-
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.springframework.util.Assert;
 
@@ -29,7 +28,7 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Mock implementation of the {@link javax.servlet.http.HttpSession} interface.
+ * Mock implementation of the {@link HttpSession} interface.
  *
  * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
  *

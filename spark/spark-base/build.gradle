@@ -36,4 +36,5 @@ dependencies {
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile group: 'org.springframework', name: 'spring-test', version: project.versions.spring
+  testCompile project(':test:http-mocks')
 }

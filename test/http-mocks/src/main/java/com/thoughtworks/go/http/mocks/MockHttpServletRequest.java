@@ -17,8 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedCaseInsensitiveMap;
@@ -30,7 +29,7 @@ import java.security.Principal;
 import java.util.*;
 
 /**
- * Mock implementation of the {@link javax.servlet.http.HttpServletRequest} interface.
+ * Mock implementation of the {@link HttpServletRequest} interface.
  *
  * <p>Compatible with Servlet 2.5 and partially with Servlet 3.0 (notable exceptions:
  * the <code>getPart(s)</code> and <code>startAsync</code> families of methods).
@@ -395,7 +394,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Sets all provided parameters <emphasis>replacing</emphasis> any existing
      * values for the provided parameter names. To add without replacing
-     * existing values, use {@link #addParameters(java.util.Map)}.
+     * existing values, use {@link #addParameters(Map)}.
      */
     @SuppressWarnings("rawtypes")
     public void setParameters(Map params) {
@@ -452,7 +451,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Adds all provided parameters <emphasis>without</emphasis> replacing any
      * existing values. To replace existing values, use
-     * {@link #setParameters(java.util.Map)}.
+     * {@link #setParameters(Map)}.
      */
     @SuppressWarnings("rawtypes")
     public void addParameters(Map params) {

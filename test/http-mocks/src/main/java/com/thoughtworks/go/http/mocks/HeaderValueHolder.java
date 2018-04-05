@@ -17,8 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;

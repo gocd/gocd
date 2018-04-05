@@ -20,7 +20,7 @@ dependencies {
   compile project(':base')
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-webmvc', version: project.versions.spring
-  compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+  compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
   compile group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

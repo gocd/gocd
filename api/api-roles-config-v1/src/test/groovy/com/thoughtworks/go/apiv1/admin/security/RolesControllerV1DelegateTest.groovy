@@ -285,7 +285,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         postWithApiHeader(controller.controllerPath(), toObjectString({ RoleRepresenter.toJSON(it, role) }))
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("ENTITY_CONFIG_VALIDATION_FAILED")
       }
@@ -303,10 +303,10 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         verify(roleConfigService, never()).create(any(), any(), any())
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("role", "blackbird"))
-          .hasJsonAtrribute('data', toObject({ RoleRepresenter.toJSON(it, expectedRole) }))
+          .hasJsonAttribute('data', toObject({ RoleRepresenter.toJSON(it, expectedRole) }))
       }
     }
   }
@@ -367,7 +367,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         putWithApiHeader(controller.controllerPath('/foo'), headers, body)
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(HaltApiMessages.renameOfEntityIsNotSupportedMessage("roles"))
       }
@@ -482,7 +482,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage('SAVE_FAILED_WITH_REASON')
       }

@@ -91,7 +91,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         postWithApiHeader(controller.controllerBasePath(), [foo: 'bar'])
 
         assertThatResponse()
-          .isUnprocessibleEntity()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(missingJsonProperty("value"))
       }

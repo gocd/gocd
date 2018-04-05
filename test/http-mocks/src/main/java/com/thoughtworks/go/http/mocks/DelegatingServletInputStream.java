@@ -17,7 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.springframework.util.Assert;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Delegating implementation of {@link javax.servlet.ServletInputStream}.
+ * Delegating implementation of {@link ServletInputStream}.
  *
  * <p>Used by {@link MockHttpServletRequest}; typically not directly
  * used for testing application controllers.

@@ -142,6 +142,7 @@ target/
 test/test-addon/target/
 test/test-agent/target/
 test/test-utils/target/
+test/http-mocks/target/
 tfs-impl/tfs-impl-14/target/
 tw-go-plugins/dist/
 util/target/

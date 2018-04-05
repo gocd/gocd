@@ -17,7 +17,7 @@
  * Modifications Copyright 2018 ThoughtWorks, Inc.
  */
 
-package com.thoughtworks.go.spark.mocks;
+package com.thoughtworks.go.http.mocks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +42,7 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * Mock implementation of the {@link javax.servlet.ServletContext} interface.
+ * Mock implementation of the {@link ServletContext} interface.
  *
  * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
  *
@@ -64,7 +64,7 @@ import java.util.*;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 1.0.2
- * @see #MockServletContext(org.springframework.core.io.ResourceLoader)
+ * @see #MockServletContext(ResourceLoader)
  * @see org.springframework.web.context.support.AnnotationConfigWebApplicationContext
  * @see org.springframework.web.context.support.XmlWebApplicationContext
  * @see org.springframework.web.context.support.GenericWebApplicationContext
@@ -131,7 +131,7 @@ public class MockServletContext implements ServletContext {
 	/**
 	 * Create a new {@code MockServletContext}, using no base path and a
 	 * {@link DefaultResourceLoader} (i.e. the classpath root as WAR root).
-	 * @see org.springframework.core.io.DefaultResourceLoader
+	 * @see DefaultResourceLoader
 	 */
 	public MockServletContext() {
 		this("", null);
@@ -140,7 +140,7 @@ public class MockServletContext implements ServletContext {
 	/**
 	 * Create a new {@code MockServletContext}, using a {@link DefaultResourceLoader}.
 	 * @param resourceBasePath the root directory of the WAR (should not end with a slash)
-	 * @see org.springframework.core.io.DefaultResourceLoader
+	 * @see DefaultResourceLoader
 	 */
 	public MockServletContext(String resourceBasePath) {
 		this(resourceBasePath, null);
@@ -611,7 +611,7 @@ public class MockServletContext implements ServletContext {
 
 	/**
 	 * This method always returns {@code null}.
-	 * @see javax.servlet.ServletContext#getServletRegistration(java.lang.String)
+	 * @see ServletContext#getServletRegistration(String)
 	 */
 	@Override
 	public ServletRegistration getServletRegistration(String servletName) {
@@ -620,7 +620,7 @@ public class MockServletContext implements ServletContext {
 
 	/**
 	 * This method always returns an {@linkplain Collections#emptyMap empty map}.
-	 * @see javax.servlet.ServletContext#getServletRegistrations()
+	 * @see ServletContext#getServletRegistrations()
 	 */
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -649,7 +649,7 @@ public class MockServletContext implements ServletContext {
 
 	/**
 	 * This method always returns {@code null}.
-	 * @see javax.servlet.ServletContext#getFilterRegistration(java.lang.String)
+	 * @see ServletContext#getFilterRegistration(String)
 	 */
 	@Override
 	public FilterRegistration getFilterRegistration(String filterName) {
@@ -658,7 +658,7 @@ public class MockServletContext implements ServletContext {
 
 	/**
 	 * This method always returns an {@linkplain Collections#emptyMap empty map}.
-	 * @see javax.servlet.ServletContext#getFilterRegistrations()
+	 * @see ServletContext#getFilterRegistrations()
 	 */
 	@Override
 	public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

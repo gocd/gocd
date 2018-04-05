@@ -19,9 +19,9 @@ package com.thoughtworks.go.api
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.api.util.MessageJson
-import com.thoughtworks.go.spark.HttpRequestBuilder
-import com.thoughtworks.go.spark.mocks.MockHttpServletRequest
-import com.thoughtworks.go.spark.mocks.MockHttpServletResponse
+import com.thoughtworks.go.http.mocks.HttpRequestBuilder
+import com.thoughtworks.go.http.mocks.MockHttpServletRequest
+import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

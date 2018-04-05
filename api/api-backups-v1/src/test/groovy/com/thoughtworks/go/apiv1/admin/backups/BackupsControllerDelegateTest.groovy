@@ -51,7 +51,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerBasePath(), [confirm: true], null)
+        postWithApiHeader(controller.controllerBasePath(), [confirm: 'true'], null)
       }
     }
 
@@ -69,7 +69,7 @@ class BackupsControllerDelegateTest implements ControllerTrait<BackupsController
           return backup
         }).when(backupService).startBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
 
-        postWithApiHeader(controller.controllerBasePath(), [confirm: true], null)
+        postWithApiHeader(controller.controllerBasePath(), [confirm: 'true'], null)
 
         verify(backupService).startBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
 

@@ -47,12 +47,19 @@ public class Boot {
 
         log("Starting process: ");
         log("  Working directory    : " + System.getProperty("user.dir"));
-        log("  JVM arguments        : " + jvmArgs());
         log("  Application arguments: " + Arrays.asList(args));
         log("           GoCD Version: " + Boot.class.getPackage().getImplementationVersion());
-        log("         JVM properties: " + System.getProperties());
-        log("  Environment Variables: " + System.getenv());
+        if (shouldLogJVMArgsAndEnvVars()) {
+            log("  JVM arguments        : " + jvmArgs());
+            log("         JVM properties: " + System.getProperties());
+            log("  Environment Variables: " + System.getenv());
+        }
         new Boot(args).run();
+    }
+
+    private static boolean shouldLogJVMArgsAndEnvVars() {
+        String shouldLog = System.getProperty("gocd.log.system.properties.on.startup", "Y");
+        return "Y".equalsIgnoreCase(shouldLog) || "true".equalsIgnoreCase(shouldLog);
     }
 
     private static void redirectStdOutAndErr() {

@@ -9,8 +9,8 @@
       PluginEndpoint.ensure();
       $(div).addClass("analytics-plugin").dialog({
         title: options.title || "Analytics",
-        width: 850,
-        height: 525,
+        width: 760,
+        height: 495,
         modal: true,
         close: function(e, ui) {
           $(div).remove();

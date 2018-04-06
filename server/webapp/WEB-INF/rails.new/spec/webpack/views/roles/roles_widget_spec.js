@@ -267,7 +267,7 @@ describe("RolesWidget", () => {
     it("should render error if index call fails", () => {
       jasmine.Ajax.stubRequest(roleIndexUrl).andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       m.mount(root, RolesWidget({
@@ -366,7 +366,7 @@ describe("RolesWidget", () => {
     it("should display error message", () => {
       jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.add-role').get(0), 'click');
@@ -470,7 +470,7 @@ describe("RolesWidget", () => {
 
       jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'PUT').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.edit-role').get(0), 'click');
@@ -527,7 +527,7 @@ describe("RolesWidget", () => {
     it("should show error message when deletion of role fails", () => {
       jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
-        status:       401
+        status:       400
       });
 
       simulateEvent.simulate($root.find('.delete-role-confirm').get(0), 'click');

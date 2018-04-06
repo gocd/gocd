@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,13 @@ const setHeaders = (xhr, version) => {
 
 const mrequest = {
   timeout:   CONSTANTS.SPA_REQUEST_TIMEOUT,
+  globalAjaxErrorHandler: () => {
+    $(document).ajaxError((_event, jqXHR) => {
+      if (jqXHR.status === 401) {
+        window.location.pathname = CONSTANTS.AUTH_LOGIN_PATH;
+      }
+    });
+  },
   versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;
   },

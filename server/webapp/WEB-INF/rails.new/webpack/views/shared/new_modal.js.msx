@@ -85,8 +85,8 @@ const Modal = function (options) {
       const buttons = _.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
         return (
           <f.button disabled={button.disabled ? button.disabled() : false}
-          onclick={button.onclick}
-          class={button.class}>{button.text}</f.button>
+                    onclick={button.onclick}
+                    class={button.class}>{button.text}</f.button>
         );
       });
       const buttonHtml = (<f.row class="modal-buttons" collapse> {buttons} </f.row>);

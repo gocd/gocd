@@ -82,6 +82,14 @@ const Modal = function (options) {
     },
 
     view(vnode) {
+      const buttons = _.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
+        return (
+          <f.button disabled={button.disabled ? button.disabled() : false}
+                    onclick={button.onclick}
+                    class={button.class}>{button.text}</f.button>
+        );
+      });
+      const buttonHtml = (<f.row class="modal-buttons" collapse> {buttons} </f.row>);
       return (
         <div class="reveal-overlay" style={{display: 'block'}} onkeydown={vnode.state.handleEnterKey}>
           <div class={`reveal ${options.size ? options.size : ''}`}
@@ -101,15 +109,8 @@ const Modal = function (options) {
               {options.body()}
             </div>
 
-            <f.row class="modal-buttons" collapse>
-              {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
-                return (
-                  <f.button disabled={button.disabled ? button.disabled() : false}
-                            onclick={button.onclick}
-                            class={button.class}>{button.text}</f.button>
-                );
-              })}
-            </f.row>
+            {buttons.length === 0 ? "" : buttonHtml}
+
           </div>
         </div>
       );

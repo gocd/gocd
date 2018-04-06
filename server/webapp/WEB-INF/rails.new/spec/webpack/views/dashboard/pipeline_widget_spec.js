@@ -146,7 +146,7 @@ describe("Dashboard Pipeline Widget", () => {
       expect($('.reveal:visible')).toBeInDOM();
       expect($(".frame-container")).toBeInDOM();
       const modalTitle = $('.modal-title:visible');
-      expect(modalTitle).toHaveText(`Analytics for Pipeline: ${pipeline.name}`);
+      expect(modalTitle).toHaveText("Analytics");
     });
 
     it("should not display the analytics icon if the user is not an admin", () => {

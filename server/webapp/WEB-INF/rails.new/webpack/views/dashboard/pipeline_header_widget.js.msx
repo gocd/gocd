@@ -64,11 +64,13 @@ const PipelineHeaderWidget = {
 
     return (
       <div class="pipeline_header">
-        <h3 class="pipeline_name" title={pipeline.name}> {pipeline.name} </h3>
-        <div className="pipeline_actions">
-          {analyticsIcons}
-          {settingsButton}
-          {pipelineLockButton}
+        <div class="pipeline_sub_header">
+          <h3 className="pipeline_name" title={pipeline.name}> {pipeline.name} </h3>
+          <div className="pipeline_actions">
+            {analyticsIcons}
+            {settingsButton}
+            {pipelineLockButton}
+          </div>
         </div>
         <PipelineOperationsWidget pipeline={vnode.attrs.pipeline}
                                   doCancelPolling={vnode.attrs.doCancelPolling}

@@ -19,7 +19,10 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http.MetaData;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
@@ -67,14 +70,17 @@ public class DeploymentContextWriterTest {
     public void shouldSetSecureSiteURLWhenSiteUrlIsConfigured() throws URISyntaxException {
         final ServerConfigService serverConfigService = mock(ServerConfigService.class);
         when(serverConfigService.hasAnyUrlConfigured()).thenReturn(true);
-        when(serverConfigService.siteUrlFor("http://url/go/admin?tab=oAuth", true)).thenReturn("https://url/go/admin?tab=oAuth");
+        when(serverConfigService.siteUrlFor("http://url:8153/go/admin?tab=oAuth", true)).thenReturn("https://url/go/admin?tab=oAuth");
 
         Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class));
-        request.setUri(new HttpURI("/go/admin?tab=oAuth"));
-        request.setServerName("url");
+        HttpURI uri = new HttpURI("http", "url", 8153, "/go/admin?tab=oAuth");
+        MetaData.Request metadata = new MetaData.Request("GET", uri, HttpVersion.HTTP_2, new HttpFields());
+        request.setMetaData(metadata);
+        request.setHttpURI(uri);
 
         DeploymentContextWriter writer = new DeploymentContextWriter() {
-            @Override protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
+            @Override
+            protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
                 return serverConfigService;
             }
         };
@@ -89,13 +95,14 @@ public class DeploymentContextWriterTest {
         when(serverConfigService.hasAnyUrlConfigured()).thenReturn(false);
 
         Request req = new Request(mock(HttpChannel.class), mock(HttpInput.class));
-        req.setUri(new HttpURI("/go/admin?tab=oAuth"));
-        req.setServerName("url");
-        req.setServerPort(8153);
-        //req.setProtocol("http");
+        HttpURI uri = new HttpURI("http", "url", 8153, "/go/admin?tab=oAuth");
+        MetaData.Request metadata = new MetaData.Request("GET", uri, HttpVersion.HTTP_2, new HttpFields());
+        req.setMetaData(metadata);
+        req.setHttpURI(uri);
 
         DeploymentContextWriter writer = new DeploymentContextWriter() {
-            @Override protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
+            @Override
+            protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
                 return serverConfigService;
             }
         };
@@ -111,13 +118,13 @@ public class DeploymentContextWriterTest {
         when(serverConfigService.siteUrlFor("http://url:8153/go/admin?tab=oAuth", true)).thenReturn("http://url:8153/go/admin?tab=oAuth");
 
         Request req = new Request(mock(HttpChannel.class), mock(HttpInput.class));
-        req.setUri(new HttpURI("/go/admin?tab=oAuth"));
-        req.setServerName("url");
-        req.setServerPort(8153);
-        //req.setProtocol("http");
+        HttpURI uri = new HttpURI("http", "url", 8153, "/go/admin?tab=oAuth");
+        MetaData.Request metadata = new MetaData.Request("GET", uri, HttpVersion.HTTP_2, new HttpFields());
+        req.setMetaData(metadata);
 
         DeploymentContextWriter writer = new DeploymentContextWriter() {
-            @Override protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
+            @Override
+            protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
                 return serverConfigService;
             }
         };

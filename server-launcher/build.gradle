@@ -276,6 +276,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-util-${versions.jetty}.jar",
       "jetty-webapp-${versions.jetty}.jar",
       "jetty-xml-${versions.jetty}.jar",
+      "jetty-client-${versions.jetty}.jar",
       "joda-time-2.3.jar",
       "jul-to-slf4j-${project.versions.slf4j}.jar",
       "log4j-over-slf4j-${project.versions.slf4j}.jar",

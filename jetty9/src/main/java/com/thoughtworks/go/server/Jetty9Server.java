@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlets.gzip.GzipHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -54,7 +55,7 @@ import static java.text.MessageFormat.format;
 public class Jetty9Server extends AppServer {
     protected static String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
     private static final String JETTY_XML = "jetty.xml";
-    private static final String JETTY_VERSION = "jetty-v9.2.3";
+    private static final String JETTY_VERSION = "jetty-v9.4.8.v20171121";
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
@@ -139,12 +140,12 @@ public class Jetty9Server extends AppServer {
 
     @Override
     public void setSessionConfig() {
-        SessionManager sessionManager = webAppContext.getSessionHandler().getSessionManager();
-        SessionCookieConfig sessionCookieConfig = sessionManager.getSessionCookieConfig();
+        SessionHandler sessionHandler = webAppContext.getSessionHandler();
+        SessionCookieConfig sessionCookieConfig = sessionHandler.getSessionCookieConfig();
         sessionCookieConfig.setHttpOnly(true);
         sessionCookieConfig.setSecure(systemEnvironment.isSessionCookieSecure());
         sessionCookieConfig.setMaxAge(systemEnvironment.sessionCookieMaxAgeInSeconds());
-        sessionManager.setMaxInactiveInterval(systemEnvironment.sessionTimeoutInSeconds());
+        sessionHandler.setMaxInactiveInterval(systemEnvironment.sessionTimeoutInSeconds());
     }
 
     @Override

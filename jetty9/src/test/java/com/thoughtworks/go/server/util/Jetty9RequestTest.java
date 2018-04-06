@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,25 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Request;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class Jetty9RequestTest {
     private Jetty9Request jetty9Request;
-    private Request request;
+    @Mock private Request request;
 
     @Before
     public void setUp() throws Exception {
-        request = mock(Request.class);
+        initMocks(this);
         jetty9Request = new Jetty9Request(request);
-        when(request.getUri()).thenReturn(new HttpURI("foo/bar/baz"));
+        when(request.getHttpURI()).thenReturn(new HttpURI("foo/bar/baz"));
         when(request.getRootURL()).thenReturn(new StringBuilder("http://junk/"));
     }
 
@@ -56,7 +59,9 @@ public class Jetty9RequestTest {
 
     @Test
     public void shouldSetRequestUri() {
-        jetty9Request.setRequestURI("foo");
-        verify(request).setRequestURI("foo");
+        HttpURI requestUri = new HttpURI("foo/bar/baz");
+        when(request.getHttpURI()).thenReturn(requestUri);
+        jetty9Request.setRequestURI("foo/junk?a=b&c=d");
+        assertThat(requestUri.getPath(), is("foo/junk?a=b&c=d"));
     }
 }

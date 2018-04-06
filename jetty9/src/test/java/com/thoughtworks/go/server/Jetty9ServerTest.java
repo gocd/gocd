@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlets.gzip.GzipHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -33,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -56,20 +58,25 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class Jetty9ServerTest {
 
     private Jetty9Server jetty9Server;
+    @Mock
     private Server server;
+    @Mock
     private SystemEnvironment systemEnvironment;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File configDir;
+    @Mock
+    private SSLSocketFactory sslSocketFactory;
 
     @Before
     public void setUp() throws Exception {
-        server = mock(Server.class);
-
+        initMocks(this);
+        when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
         Answer<Void> setHandlerMock = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -80,7 +87,6 @@ public class Jetty9ServerTest {
         };
         Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
 
-        systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(temporaryFolder.newFolder());
         when(systemEnvironment.truststore()).thenReturn(temporaryFolder.newFolder());
@@ -99,7 +105,6 @@ public class Jetty9ServerTest {
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
 
 
-        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, "pwd", sslSocketFactory, server);
         ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
@@ -151,7 +156,8 @@ public class Jetty9ServerTest {
         ConnectionFactory second = iterator.next();
         assertThat(first instanceof SslConnectionFactory, is(true));
         SslConnectionFactory sslConnectionFactory = (SslConnectionFactory) first;
-        assertThat(sslConnectionFactory.getProtocol(), is("SSL-HTTP/1.1"));
+        assertThat(sslConnectionFactory.getProtocol(), is("SSL"));
+        assertThat(sslConnectionFactory.getNextProtocol(), is("HTTP/1.1"));
         assertThat(second instanceof HttpConnectionFactory, is(true));
     }
 
@@ -292,7 +298,7 @@ public class Jetty9ServerTest {
         jetty9Server.setSessionConfig();
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
-        assertThat(webAppContext.getSessionHandler().getSessionManager().getMaxInactiveInterval(), is(1234));
+        assertThat(webAppContext.getSessionHandler().getMaxInactiveInterval(), is(1234));
     }
 
     @Test
@@ -302,7 +308,7 @@ public class Jetty9ServerTest {
         jetty9Server.setSessionConfig();
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
-        SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
+        SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionCookieConfig();
         assertThat(sessionCookieConfig.isHttpOnly(), is(true));
         assertThat(sessionCookieConfig.isSecure(), is(true));
         assertThat(sessionCookieConfig.getMaxAge(), is(5678));
@@ -343,7 +349,7 @@ public class Jetty9ServerTest {
         File jettyXml = temporaryFolder.newFile("jetty.xml");
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
-        String originalContent = "jetty-v9.2.3\nsome other local changes";
+        String originalContent = "jetty-v9.4.8.v20171121\nsome other local changes";
         FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
         assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(originalContent));

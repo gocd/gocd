@@ -19,10 +19,18 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
     <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
-    <!--jetty-v9.2.3-->
+    <!--jetty-v9.4.8.v20171121-->
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
+
+    <!--<Get name="ThreadPool">-->
+        <!--<Set name="minThreads" type="int"><Property name="jetty.threadPool.minThreads" deprecated="threads.min" default="10"/></Set>-->
+        <!--<Set name="maxThreads" type="int"><Property name="jetty.threadPool.maxThreads" deprecated="threads.max" default="200"/></Set>-->
+        <!--<Set name="idleTimeout" type="int"><Property name="jetty.threadPool.idleTimeout" deprecated="threads.timeout" default="60000"/></Set>-->
+        <!--<Set name="detailedDump">false</Set>-->
+    <!--</Get>-->
+
     <Get name="ThreadPool">
         <Set name="minThreads">20</Set>
         <Set name="maxThreads">300</Set>

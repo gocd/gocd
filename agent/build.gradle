@@ -32,7 +32,10 @@ dependencies {
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty
+  compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
+    exclude module: 'jetty-xml'
+  }
+
   compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
 
   testCompile project(path: ':common', configuration: 'testOutput')
@@ -128,6 +131,8 @@ task verifyJar(type: VerifyJarTask) {
       "jdom-2.0.2.jar",
       "jetty-io-${versions.jetty}.jar",
       "jetty-util-${versions.jetty}.jar",
+      "jetty-client-${versions.jetty}.jar",
+      "jetty-http-${versions.jetty}.jar",
       "joda-time-2.3.jar",
       "jolt-core-0.1.0.jar",
       "json-utils-0.1.0.jar",

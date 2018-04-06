@@ -21,8 +21,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
@@ -167,9 +166,11 @@ public class BackupFilterTest {
 
     private Request request(HttpMethod method, String contentType, String uri) {
         Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class));
+        HttpURI httpURI = new HttpURI("http", "url", 8153, uri);
+        MetaData.Request metadata = new MetaData.Request(method.asString(), httpURI, HttpVersion.HTTP_2, new HttpFields());
+        request.setMetaData(metadata);
         request.setContentType(contentType);
-        request.setMethod(method, method.asString());
-        request.setUri(new HttpURI(uri));
+        request.setHttpURI(httpURI);
         return request;
     }
 }

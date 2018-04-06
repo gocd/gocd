@@ -59,6 +59,12 @@ public class AssetsContextHandler extends ContextHandler {
             resourceHandler.setEtags(false);
         }
 
+        @Override
+        protected void doStart() throws Exception {
+            resourceHandler.doStart();
+            super.doStart();
+        }
+
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             if (shouldNotHandle()) return;
             this.resourceHandler.handle(target, baseRequest, request, response);

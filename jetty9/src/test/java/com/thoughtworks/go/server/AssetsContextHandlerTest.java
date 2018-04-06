@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,18 +39,21 @@ import java.io.IOException;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AssetsContextHandlerTest {
 
 
     private AssetsContextHandler handler;
+    @Mock
     private SystemEnvironment systemEnvironment;
+    @Mock
+    private WebAppContext webAppContext;
 
     @Before
     public void setUp() throws Exception {
-        systemEnvironment = mock(SystemEnvironment.class);
+        initMocks(this);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-        WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("/rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
         handler = new AssetsContextHandler(systemEnvironment);
@@ -64,17 +68,17 @@ public class AssetsContextHandlerTest {
         AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) ((HandlerWrapper) handler.getHandler()).getHandler();
         ResourceHandler resourceHandler = (ResourceHandler) ReflectionUtil.getField(assetsHandler, "resourceHandler");
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
-        assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
+        assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toPath().toAbsolutePath().toUri().toString()));
     }
 
     @Test
-    public void shouldPassOverHandlingToResourceHandler() throws IOException, ServletException {
+    public void shouldPassOverHandlingToResourceHandler() throws Exception {
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         String target = "/go/assets/junk";
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         Request baseRequest = mock(Request.class);
-        ResourceHandler resourceHandler = mock(ResourceHandler.class);
+        AssetsContextHandler.AssetsHandler resourceHandler = mock(AssetsContextHandler.AssetsHandler.class);
         handler.setHandler(resourceHandler);
 
         handler.getHandler().handle(target, baseRequest, request, response);

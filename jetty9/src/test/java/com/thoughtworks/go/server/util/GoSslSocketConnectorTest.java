@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,9 +37,9 @@ import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoSslSocketConnectorTest {
     @Rule
@@ -45,25 +47,28 @@ public class GoSslSocketConnectorTest {
     private File truststore;
     private File keystore;
     private GoSslSocketConnector sslSocketConnector;
+    @Mock
+    private GoSSLConfig goSSLConfig;
+    @Mock
+    private Jetty9Server jettyServer;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         keystore = folder.newFile("keystore");
         truststore = folder.newFile("truststore");
-        GoSSLConfig cipherSuite = mock(GoSSLConfig.class);
         String[] cipherSuitesToBeIncluded = {"FOO"};
-        when(cipherSuite.getCipherSuitesToBeIncluded()).thenReturn(cipherSuitesToBeIncluded);
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(goSSLConfig.getCipherSuitesToBeIncluded()).thenReturn(cipherSuitesToBeIncluded);
         when(systemEnvironment.getSslServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(keystore);
         when(systemEnvironment.truststore()).thenReturn(truststore);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
-
-        Jetty9Server jettyServer = mock(Jetty9Server.class);
         when(jettyServer.getServer()).thenReturn(new Server());
-        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, cipherSuite);
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
     }
 
     @Test
@@ -76,12 +81,12 @@ public class GoSslSocketConnectorTest {
     }
 
     @Test
-    public void shouldSetupSslContextWithKeystoreAndTruststore() {
+    public void shouldSetupSslContextWithKeystoreAndTruststore() throws IOException {
         ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
         Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
         SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
-        assertThat(sslContextFactory.getKeyStorePath(), is(keystore.getAbsolutePath()));
-        assertThat(sslContextFactory.getTrustStore(), is(truststore.getAbsolutePath()));
+        assertThat(sslContextFactory.getKeyStorePath(), is(keystore.getCanonicalFile().toPath().toAbsolutePath().toUri().toString()));
+        assertThat(sslContextFactory.getTrustStorePath(), is(truststore.getCanonicalFile().toPath().toAbsolutePath().toUri().toString()));
         assertThat(sslContextFactory.getWantClientAuth(), is(true));
     }
 
@@ -114,6 +119,68 @@ public class GoSslSocketConnectorTest {
         HttpConfiguration configuration = httpConnectionFactory.getHttpConfiguration();
 
         assertThat(configuration.getSendServerVersion(), is(false));
+    }
+
+    @Test
+    public void shouldLeaveTheDefaultCipherSuiteInclusionAndExclusionListUnTouchedIfNotOverridden() {
+        when(goSSLConfig.getCipherSuitesToBeIncluded()).thenReturn(null);
+        when(goSSLConfig.getCipherSuitesToBeExcluded()).thenReturn(null);
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
+
+        ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
+        Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
+        SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
+
+        assertThat(sslContextFactory.getExcludeCipherSuites().length, is(1));
+        assertThat(sslContextFactory.getExcludeCipherSuites()[0], is("^.*_(MD5|SHA|SHA1)$"));
+        assertThat(sslContextFactory.getIncludeCipherSuites().length, is(0));
+    }
+
+    @Test
+    public void shouldOverrideTheDefaultCipherSuiteExclusionListUnTouchedIfConfigured() {
+        when(goSSLConfig.getCipherSuitesToBeExcluded()).thenReturn(new String[]{"*MD5*"});
+        when(goSSLConfig.getCipherSuitesToBeIncluded()).thenReturn(new String[]{"*ECDHE*"});
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
+
+        ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
+        Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
+        SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
+
+        assertThat(sslContextFactory.getExcludeCipherSuites().length, is(1));
+        assertThat(sslContextFactory.getExcludeCipherSuites()[0], is("*MD5*"));
+        assertThat(sslContextFactory.getIncludeCipherSuites().length, is(1));
+        assertThat(sslContextFactory.getIncludeCipherSuites()[0], is("*ECDHE*"));
+    }
+
+    @Test
+    public void shouldLeaveTheDefaultProtocolInclusionAndExclusionListUnTouchedIfNotOverridden() {
+        when(goSSLConfig.getProtocolsToBeIncluded()).thenReturn(null);
+        when(goSSLConfig.getProtocolsToBeExcluded()).thenReturn(null);
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
+
+        ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
+        Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
+        SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
+
+        assertThat(sslContextFactory.getExcludeProtocols().length, is(4));
+        assertThat(Arrays.asList(sslContextFactory.getExcludeProtocols()).containsAll(Arrays.asList("SSL", "SSLv2", "SSLv2Hello", "SSLv3")), is(true));
+        assertThat(sslContextFactory.getIncludeProtocols().length, is(0));
+    }
+
+    @Test
+    public void shouldOverrideTheDefaultProtocolExclusionListUnTouchedIfConfigured() {
+        when(goSSLConfig.getProtocolsToBeExcluded()).thenReturn(new String[]{"SSL", "TLS1.0", "TLS1.1"});
+        when(goSSLConfig.getProtocolsToBeIncluded()).thenReturn(new String[]{"TLS1.2"});
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
+
+        ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
+        Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
+        SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
+
+        assertThat(sslContextFactory.getExcludeProtocols().length, is(3));
+        assertThat(Arrays.asList(sslContextFactory.getExcludeProtocols()).containsAll(Arrays.asList("SSL", "TLS1.0", "TLS1.1")), is(true));
+        assertThat(sslContextFactory.getIncludeProtocols().length, is(1));
+        assertThat(sslContextFactory.getIncludeProtocols()[0], is("TLS1.2"));
     }
 
     private HttpConnectionFactory getHttpConnectionFactory(Collection<ConnectionFactory> connectionFactories) {

@@ -50,6 +50,12 @@
 
     defineLinkHandler: function defineLinkHandler() {
       PluginEndpoint.define({
+        "go.cd.analytics.v1.link-external": function goCdAnalyticsV1LinkExternal(message, trans) {
+          var params = _.clone(message.body),
+                 url = params.url;
+          window.open(url, "_blank").focus();
+        },
+
         "go.cd.analytics.v1.link-to": function goCdAnalyticsV1LinkTo(message, trans) {
           var params = _.clone(message.body);
           var linkTo = params.link_to;

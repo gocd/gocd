@@ -663,11 +663,23 @@ body {
 .pipeline_name {
   font-size:     14px;
   font-weight:   600;
-  width:         215px;
-  margin:        0 0 5px 0;
+  margin:        0 5px 5px 0;
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
+}
+
+.pipeline_sub_header {
+  width:           240px;
+  display:         flex;
+  justify-content: space-between;
+
+  .pipeline_actions {
+    display:     flex;
+    position:    relative;
+    top:         -3px;
+    flex-shrink: 0;
+  }
 }
 
 .pipeline_history {
@@ -675,12 +687,6 @@ body {
   font-size:       13px;
   float:           right;
   margin-top:      10px;
-}
-
-.pipeline_actions {
-  position: absolute;
-  right:    10px;
-  top:      -2px;
 }
 
 .pipeline_locked {

@@ -32,6 +32,7 @@ describe AnalyticsController do
     end
 
     it 'should only allow pipeline viewers to see analytics of type pipeline' do
+      allow_current_user_to_access_pipeline('pipeline_name')
       expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
 
       allow_current_user_to_not_access_pipeline('pipeline_name')
@@ -44,6 +45,11 @@ describe AnalyticsController do
 
       disable_security
       expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+    end
+
+    it 'should disallow non admin users to view the analytics tab' do
+      login_as_user
+      expect(controller).not_to allow_action(:get, :index)
     end
   end
 

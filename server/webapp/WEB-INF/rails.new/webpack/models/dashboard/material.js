@@ -55,7 +55,7 @@ class Material {
 
   validate = () => {
     if (this.selection() !== this.searchText()) {
-      const msg = `Invalid revision ${this.searchText()} found for material ${this.name}`;
+      const msg = `Invalid revision ${this.searchText()} specified for material ${this.name}`;
       this.error(msg);
       return false;
     }

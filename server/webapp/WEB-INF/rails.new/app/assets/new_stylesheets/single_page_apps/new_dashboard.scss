@@ -689,6 +689,16 @@ body {
   margin-top:      10px;
 }
 
+.material_info-error {
+  margin-left: 12px;
+}
+
+.pipeline_actions {
+  position: absolute;
+  right:    10px;
+  top:      -2px;
+}
+
 .pipeline_locked {
   @include icon-before($type: lock);
   overflow:  hidden;
@@ -1051,6 +1061,13 @@ body {
 
   .name-value_pair label {
     width: 180px;
+  }
+
+  .error-icon {
+    @include icon-before($failed-icon, $margin: 0, $color: #bd0404);
+    position: relative;
+    top:      -6px;
+    right:    -6px;
   }
 }
 

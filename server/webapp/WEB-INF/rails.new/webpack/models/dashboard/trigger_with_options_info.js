@@ -29,7 +29,11 @@ const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVa
   this.secureVariables    = secureVariables;
 
   this.validate = () => {
-    return _.every(self.materials, (material) => material.validate());
+    let isValid = true;
+    _.each(self.materials, (material) => {
+      isValid = material.validate() && isValid;
+    });
+    return isValid;
   };
 
   this.getTriggerOptionsJSON = () => {

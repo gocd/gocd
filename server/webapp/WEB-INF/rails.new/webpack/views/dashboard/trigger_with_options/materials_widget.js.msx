@@ -40,12 +40,16 @@ const MaterialsForTriggerWidget = {
 
     const materialHeadings = _.map(vnode.attrs.materials, (material) => {
       const name = material.name;
-
+      let errorIcon;
+      if (material.error()) {
+        errorIcon = (<span class="error-icon"/>);
+      }
       return (
         <li class={self.activeClassForMaterial(name)}
             onclick={vm.selectMaterial.bind(vm, name)}>
           <span class="material-name">{material.name}</span>
           <span class="latest-revision">{material.revision.revision || "latest"}</span>
+          {errorIcon}
         </li>
       );
     });
@@ -56,9 +60,9 @@ const MaterialsForTriggerWidget = {
 
     let errorSection;
     if (materialThatShouldBeVisible.error()) {
-      errorSection = (<f.alert>
+      errorSection = (<div class="material_info-error"><f.alert>
         {materialThatShouldBeVisible.error()}
-      </f.alert>);
+      </f.alert></div>);
     }
     return (
       <div class="v-tab">

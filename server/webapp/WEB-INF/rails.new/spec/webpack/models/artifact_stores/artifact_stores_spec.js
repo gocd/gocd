@@ -78,7 +78,7 @@ describe('Artifact Stores', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(url).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -132,7 +132,7 @@ describe('Artifact Stores', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${url}/${store.id()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -197,7 +197,7 @@ describe('Artifact Stores', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(url, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }
@@ -290,7 +290,7 @@ describe('Artifact Stores', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${url}/${artifactStoreJSON['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
-          status:          401,
+          status:          400,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
           }

@@ -66,8 +66,9 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const args = vnode.attrs;
-    const vm = args.vm;
+    const args             = vnode.attrs;
+    const vm               = args.vm;
+    const noPermissionText = "You do not have permission to edit the pipeline group.";
 
     if (args.showSpinner()) {
       return (<span class="page-spinner"/>);
@@ -119,7 +120,8 @@ const DashboardWidget = {
               settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>);
             } else {
               name         = pipelineGroup.name;
-              settingsIcon = (<a href="#" class="edit_config pipeline-group_edit-config disabled"/>);
+              settingsIcon = (<f.link class="edit_config pipeline-group_edit-config disabled"
+                                                 tooltipText={noPermissionText}/>);
             }
 
             return (

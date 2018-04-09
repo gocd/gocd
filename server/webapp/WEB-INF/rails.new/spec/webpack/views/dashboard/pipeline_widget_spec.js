@@ -109,12 +109,13 @@ describe("Dashboard Pipeline Widget", () => {
       expect($root.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
-    it('should disable pipeline settings for non admin users', () => {
+    it('should disable pipeline settings showing tooltip information for non admin users', () => {
       unmount();
       mount(false, false, {}, {}, true, true);
 
       expect(pipeline.canAdminister).toBe(false);
       expect($root.find('.edit_config')).toHaveClass('disabled');
+      expect($root.find('.edit_config')).toHaveAttr('data-tooltip');
     });
 
     it('should disable pipeline settings for config repo pipelines', () => {
@@ -439,6 +440,14 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pausePopupTextBox).toHaveValue("");
       });
 
+      it("should have tooltip for pause button when it is disabled", () => {
+        unmount();
+        mount(false, true, pauseInfo, {}, false);
+        const pauseButton = $root.find('.pause');
+        expect(pauseButton).toHaveAttr('title');
+        expect(pauseButton).toHaveAttr('data-tooltip');
+      });
+
     });
 
     describe("Unlock", () => {
@@ -632,6 +641,14 @@ describe("Dashboard Pipeline Widget", () => {
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("error");
       });
+
+      it("should have tooltips for trigger buttons when it is disabled", () => {
+        unmount();
+        mount(false, true, {}, {}, true, false);
+        const playButton = $root.find('.pipeline_operations .play');
+        expect(playButton).toHaveAttr('title');
+        expect(playButton).toHaveAttr('data-tooltip');
+      });
     });
 
     describe("Trigger With Options", () => {
@@ -801,6 +818,14 @@ describe("Dashboard Pipeline Widget", () => {
 
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("error");
+      });
+
+      it("should have tooltips when it is disabled", () => {
+        unmount();
+        mount(false, true, {}, {}, true, false);
+        const playButton = $root.find('.pipeline_operations .play_with_options');
+        expect(playButton).toHaveAttr('title');
+        expect(playButton).toHaveAttr('data-tooltip');
       });
     });
   });

@@ -343,11 +343,12 @@ describe("Dashboard Widget", () => {
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
-  it("should show disabled pipeline group settings icon for non admin users", () => {
+  it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
 
     expect($root.find('.pipeline-group_title a')).toHaveClass('disabled');
+    expect($root.find('.pipeline-group_title a')).toHaveAttr('data-tooltip');
   });
 
   it("should show plain text pipeline group name without link for non admin users", () => {

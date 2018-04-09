@@ -23,8 +23,9 @@
 @import 'global';
 @import 'fonts';
 @import 'footer';
-
 @import "shared/server_health_messages";
+
+$tooltip-background-color: #333;
 
 .tooltip-question-mark {
   @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
@@ -75,5 +76,44 @@
   }
   &.large {
     width: 800px;
+  }
+}
+
+.has-tip {
+  border-bottom: transparent;
+  display:       inline;
+}
+
+.tooltip {
+  padding:     6px 10px;
+  line-height: 15px;
+  font-size:   12px;
+  background:  $tooltip-background-color;
+
+  &:before {
+    border-color: transparent transparent $tooltip-background-color;
+  }
+
+  &.top::before {
+    @include css-triangle($tooltip-pip-width, $tooltip-background-color, down);
+    top:    100%;
+    bottom: auto;
+  }
+
+  &.left::before {
+    @include css-triangle($tooltip-pip-width, $tooltip-background-color, right);
+    top:       50%;
+    bottom:    auto;
+    left:      100%;
+    transform: translateY(-50%);
+  }
+
+  &.right::before {
+    @include css-triangle($tooltip-pip-width, $tooltip-background-color, left);
+    top:       50%;
+    right:     100%;
+    bottom:    auto;
+    left:      auto;
+    transform: translateY(-50%);
   }
 }

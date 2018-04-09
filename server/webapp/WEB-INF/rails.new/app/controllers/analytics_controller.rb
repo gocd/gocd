@@ -19,7 +19,7 @@ class AnalyticsController < ApplicationController
 
   layout 'single_page_app', only: [:index]
 
-  before_action :check_admin_user_and_401
+  before_action :check_admin_user_and_401, only: [:index]
   before_action :check_permissions, only: [:show]
 
   def index

@@ -148,12 +148,6 @@ describe("Dashboard Pipeline Widget", () => {
       const modalTitle = $('.modal-title:visible');
       expect(modalTitle).toHaveText("Analytics");
     });
-
-    it("should not display the analytics icon if the user is not an admin", () => {
-      unmount();
-      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
-      expect($root.find('.pipeline-analytics')).not.toBeInDOM();
-    });
   });
 
   describe("Pipeline Operations", () => {
@@ -835,7 +829,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, shouldShowAnalyticsIcon = false) {
+  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -912,7 +906,6 @@ describe("Dashboard Pipeline Widget", () => {
           pipeline,
           isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
-          shouldShowAnalyticsIcon,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

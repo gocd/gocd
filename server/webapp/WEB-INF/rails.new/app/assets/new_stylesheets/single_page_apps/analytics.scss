@@ -25,8 +25,9 @@
 
 // scss-lint:disable SelectorDepth
 
-$golden-ratio: 1.61803398875;
-$analytics-min-width: 849.5px;
+$aspect-ratio: 1.3067;
+$analytics-min-width: 685px;
+$analytics-max-height: 869px;
 
 .analytics-container {
   display:         flex;
@@ -44,7 +45,7 @@ $analytics-min-width: 849.5px;
     display:        flex;
     flex-grow:      0.5;
     width:          100%;
-    padding:        0 100px;
+    padding:        0 30px;
     flex-direction: column;
 
     .dashboard-tabs-container {
@@ -112,11 +113,12 @@ $analytics-min-width: 849.5px;
 
       .frame-container {
         margin:     2px;
-        width:      calc(50vw - 104px);
-        height:     calc(50vw / #{$golden-ratio} - 104px / #{$golden-ratio});
+        width:      calc(50vw - 34px);
+        height:     calc(50vw / #{$aspect-ratio} - 34px / #{$aspect-ratio});
 
         min-width:  $analytics-min-width;
-        min-height: calc(#{$analytics-min-width} / #{$golden-ratio});
+        min-height: calc(#{$analytics-min-width} / #{$aspect-ratio});
+        max-height: $analytics-max-height;
 
         iframe {
           height: 100%;

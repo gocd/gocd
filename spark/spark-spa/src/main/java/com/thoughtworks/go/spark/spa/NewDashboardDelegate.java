@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -34,11 +35,14 @@ public class NewDashboardDelegate implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private final SecurityService securityService;
+    private SystemEnvironment systemEnvironment;
 
-    public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
+    public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService,
+                                SystemEnvironment systemEnvironment) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.securityService = securityService;
+        this.systemEnvironment = systemEnvironment;
     }
 
 
@@ -60,7 +64,14 @@ public class NewDashboardDelegate implements SparkController {
             put("viewTitle", "Dashboard");
             put("isQuickEditPageEnabled", Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP) && Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT));
             put("isNewDashboardPageEnabled", Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT));
+            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
         return new ModelAndView(object, "new_dashboard/index.vm");
+    }
+
+    private boolean showAnalyticsIcon() {
+        return systemEnvironment.enablePipelineAnalyticsOnlyForAdmins()
+                ? securityService.isUserAdmin(currentUsername())
+                : true;
     }
 }

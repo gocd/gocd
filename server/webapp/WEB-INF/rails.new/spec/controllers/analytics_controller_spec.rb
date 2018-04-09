@@ -27,12 +27,15 @@ describe AnalyticsController do
 
   describe 'authorization' do
     before(:each) do
+      @system_environment = double('system_environment')
       login_as_admin
       allow_current_user_to_access_pipeline('pipeline_name')
+      allow(controller).to receive(:system_environment).and_return(@system_environment)
     end
 
     it 'should only allow pipeline viewers to see analytics of type pipeline' do
       allow_current_user_to_access_pipeline('pipeline_name')
+      allow(@system_environment).to receive(:enablePipelineAnalyticsOnlyForAdmins).and_return(false)
       expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
 
       allow_current_user_to_not_access_pipeline('pipeline_name')
@@ -41,6 +44,7 @@ describe AnalyticsController do
 
     it 'should allow all users to view analytics of type pipeline if security is disabled' do
       allow_current_user_to_not_access_pipeline('pipeline_name')
+      allow(@system_environment).to receive(:enablePipelineAnalyticsOnlyForAdmins).and_return(false)
       expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
 
       disable_security
@@ -50,6 +54,14 @@ describe AnalyticsController do
     it 'should disallow non admin users to view the analytics tab' do
       login_as_user
       expect(controller).not_to allow_action(:get, :index)
+    end
+
+    it 'should disallow non-admins from viewing pipeline analytics if system environment is configured to disallow' do
+      login_as_user
+
+      allow(@system_environment).to receive(:enablePipelineAnalyticsOnlyForAdmins).and_return(true)
+      allow_current_user_to_not_access_pipeline('pipeline_name')
+      expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
     end
   end
 

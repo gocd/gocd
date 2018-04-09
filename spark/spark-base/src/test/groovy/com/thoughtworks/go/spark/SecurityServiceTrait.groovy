@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.AfterEach
 import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.when
 trait SecurityServiceTrait {
   SecurityService securityService = mock(SecurityService.class)
   GoConfigService goConfigService = mock(GoConfigService.class)
+  SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
   void loginAsAdmin() {
     Username username = loginAsRandomUser()

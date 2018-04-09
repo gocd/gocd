@@ -64,7 +64,7 @@
         }
       }, pipelineOptions);
 
-      return (<span>Analytics For Pipeline: {select} </span>);
+      return (<div>Analytics For Pipeline: {select} </div>);
     }
 
     function view(vnode) { // eslint-disable-line no-unused-vars

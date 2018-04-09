@@ -98,26 +98,12 @@ module ApiV3
 
     end
 
-    def message
-      "There is something wrong with your request. This would usually happen if - \n* There is a API version mismatch. Version 3 of the API does not how to handle your specific request. Are you sure you're using an API version?\n* You submitted an incorrect data-type for one or more elements.\nPlease check the go server logs for more information."
-    end
-
     def to_hash(*options)
-      begin
-        super.deep_symbolize_keys
-      rescue Exception => e
-        Rails.logger.error(e)
-        raise ApiV3::BadRequest, message
-      end
+      super.deep_symbolize_keys unless @represented.nil?
     end
 
     def from_hash(data, options={})
-      begin
-        super(with_default_values(data), options)
-      rescue Exception => e
-        Rails.logger.error(e)
-        raise ApiV3::BadRequest, message
-      end
+      super(with_default_values(data), options)
     end
 
     private

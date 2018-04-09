@@ -207,7 +207,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 
-    public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
     public static GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
@@ -822,10 +821,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getAgentKeyStorePassword() {
         return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
-    }
-
-    public boolean optimizeFullConfigSave() {
-        return OPTIMIZE_FULL_CONFIG_SAVE.getValue();
     }
 
     public int sessionTimeoutInSeconds() {

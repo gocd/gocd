@@ -24,28 +24,38 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-@ConfigCollection(value = ConfigurationProperty.class)
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "external")
-public class PluggableArtifactConfig extends Configuration implements ArtifactConfig {
+public class PluggableArtifactConfig implements ArtifactConfig {
     private final ConfigErrors errors = new ConfigErrors();
 
     @ConfigAttribute(value = "id", allowNull = true)
     protected String id;
     @ConfigAttribute(value = "storeId", allowNull = true)
     private String storeId;
+    @ConfigSubtag
+    private Configuration configuration = new Configuration();
 
     public PluggableArtifactConfig() {
     }
 
     public PluggableArtifactConfig(String id, String storeId, ConfigurationProperty... configurationProperties) {
-        super(configurationProperties);
+        this.configuration.addAll(Arrays.asList(configurationProperties));
         this.id = id;
         this.storeId = storeId;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public String getId() {
@@ -87,7 +97,7 @@ public class PluggableArtifactConfig extends Configuration implements ArtifactCo
             return;
         }
 
-        super.validateUniqueness(getArtifactTypeValue());
+        configuration.validateUniqueness(getArtifactTypeValue());
         if (!new NameTypeValidator().isNameValid(storeId)) {
             errors.add("storeId", NameTypeValidator.errorMessage("pluggable artifact storeId", storeId));
         }
@@ -126,7 +136,7 @@ public class PluggableArtifactConfig extends Configuration implements ArtifactCo
                     existingArtifactConfig.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
                 }
                 if (this.getStoreId().equalsIgnoreCase(pluggableArtifactConfig.getStoreId())) {
-                    if (this.size() == pluggableArtifactConfig.size() && this.containsAll(pluggableArtifactConfig)) {
+                    if (configuration.size() == pluggableArtifactConfig.getConfiguration().size() && this.configuration.containsAll(pluggableArtifactConfig.getConfiguration())) {
                         this.addError("id", "Duplicate pluggable artifacts  configuration defined.");
                         existingArtifactConfig.addError("id", "Duplicate pluggable artifacts  configuration defined.");
                     }
@@ -141,7 +151,7 @@ public class PluggableArtifactConfig extends Configuration implements ArtifactCo
         final HashMap<String, Object> artifactStoreAsHashMap = new HashMap<>();
         artifactStoreAsHashMap.put("id", getId());
         artifactStoreAsHashMap.put("storeId", getStoreId());
-        artifactStoreAsHashMap.put("configuration", getConfigurationAsMap(true));
+        artifactStoreAsHashMap.put("configuration", this.getConfiguration().getConfigurationAsMap(true));
         return new Gson().toJson(artifactStoreAsHashMap);
     }
 
@@ -150,9 +160,8 @@ public class PluggableArtifactConfig extends Configuration implements ArtifactCo
         return errors;
     }
 
-    @Override
     public boolean hasErrors() {
-        return super.hasErrors() || !errors.isEmpty();
+        return !errors.isEmpty();
     }
 
     @Override

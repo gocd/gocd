@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.domain.config.Configuration;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class PluggableArtifactConfigTest {
         assertThat(artifactConfig.getStoreId(), is("Store-ID"));
         assertThat(artifactConfig.getArtifactType(), is(ArtifactType.plugin));
         assertThat(artifactConfig.getArtifactTypeValue(), is("Pluggable Artifact"));
-        assertThat(artifactConfig.get(0), is(create("Foo", false, "Bar")));
+        assertThat(artifactConfig.getConfiguration().get(0), is(create("Foo", false, "Bar")));
     }
 
     @Test
@@ -71,9 +72,10 @@ public class PluggableArtifactConfigTest {
         when(artifactStores.find("Store-ID")).thenReturn(new ArtifactStore("Store-ID", "pluginId"));
 
         artifactConfig.validate(validationContext);
+        Configuration configuration = artifactConfig.getConfiguration();
 
-        assertThat(artifactConfig.get(0).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
-        assertThat(artifactConfig.get(1).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
+        assertThat(configuration.get(0).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
+        assertThat(configuration.get(1).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
     }
 
     @Test

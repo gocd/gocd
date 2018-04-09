@@ -2236,6 +2236,60 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString(artifactId3));
     }
 
+    @Test
+    public void shouldAddTheConfigurationSubTagOnExternalArtifacts_asPartOf108Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"106\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <artifactStores>\n"
+                + "      <artifactStore id=\"foobar\" pluginId=\"cd.go.artifact.docker.registry\">\n"
+                + "        <property>\n"
+                + "          <key>RegistryURL</key>\n"
+                + "          <value>http://foo</value>\n"
+                + "        </property>\n"
+                + "      </artifactStore>\n"
+                + "    </artifactStores>"
+                + "    <pipelines>"
+                + "      <pipeline name=\"p1\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"s1\">"
+                + "             <jobs>"
+                + "             <job name=\"j1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact type='external' id='artifactId1' storeId='foobar' />"
+                + "                     <artifact type='external' id='artifactId2' storeId='foobar'>"
+                + "                         <property>"
+                + "                             <key>BuildFile</key>"
+                + "                             <value>foo.json</value>"
+                + "                         </property>"
+                + "                     </artifact>"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 107);
+        String migratedArtifact1 = "<artifact type=\"external\" id=\"artifactId1\" storeId=\"foo\"/>";
+        String migratedArtifact2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\"><configuration>"
+                + "                         <property>"
+                + "                             <key>BuildFile</key>"
+                + "                             <value>foo.json</value>"
+                + "                         </property>"
+                + "                     </configuration></artifact>";
+
+        assertThat(migratedContent, containsString(migratedArtifact1));
+        assertThat(migratedContent, containsString(migratedArtifact2));
+
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

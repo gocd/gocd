@@ -52,4 +52,8 @@ module EnvironmentsHelper
      :success => "Modalbox.hide(); location.href=Util.header_value(request.getAllHeaders(), 'Location');",
      :failure => "jQuery('#env_form_error_box').html(Util.flash_message(request.responseText));"}
   end
+
+  def display_pipeline_instances_on_environments_page
+    system_environment.displayPipelineInstancesOnEnvironmentsPage()
+  end
 end

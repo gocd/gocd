@@ -16,19 +16,28 @@
 
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.config.Authorization
+import com.thoughtworks.go.config.BasicPipelineConfigs
+import com.thoughtworks.go.config.PipelineConfigs
+import com.thoughtworks.go.server.service.PipelineConfigService
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>, SecurityServiceTrait {
   @Override
   NewDashboardDelegate createControllerInstance() {
-    return new NewDashboardDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment)
+    return new NewDashboardDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment, pipelineConfigService)
   }
 
   @Nested
@@ -46,11 +55,64 @@ class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>,
         get(controller.controllerPath())
       }
     }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void shouldRedirectToPipelineCreationIfNoPipelinesExist() {
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new ArrayList<PipelineConfigs>())
+        when(securityService.canCreatePipelines(currentUsername())).thenReturn(true)
+
+        get(controller.controllerPath())
+
+        assertThatResponse()
+          .hasStatus(302)
+          .hasRedirectUrl("/go/admin/pipeline/new?group=defaultGroup")
+      }
+
+      @Test
+      void shouldNotRedirectToPipelineCreationIfUserDoesNotHavePermissions() {
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new ArrayList<PipelineConfigs>())
+        when(securityService.canCreatePipelines(currentUsername())).thenReturn(false)
+
+        get(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasNoRedirectUrlSet()
+      }
+
+      @Test
+      void shouldNotRedirectToPipelineCreationIfPipelineGroupsArePresent() {
+        def pipelineConfigs = new ArrayList<PipelineConfigs>()
+        pipelineConfigs.add(new BasicPipelineConfigs("group1", new Authorization()))
+
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
+
+        get(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasNoRedirectUrlSet()
+      }
+    }
   }
 
   @BeforeEach
   void setUp() {
     initMocks(this)
+    def featureToggleService = mock(FeatureToggleService.class)
+    Toggles.initializeWith(featureToggleService)
+    when(featureToggleService.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)).thenReturn(true)
+    when(featureToggleService.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)).thenReturn(true)
+    when(featureToggleService.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)).thenReturn(true)
+
   }
 
 }

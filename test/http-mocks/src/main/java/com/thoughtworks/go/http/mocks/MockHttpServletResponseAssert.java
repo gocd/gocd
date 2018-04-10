@@ -144,6 +144,20 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(200);
     }
 
+    public SELF hasRedirectUrl(String url) {
+        if(actual.getRedirectedUrl() != null && !actual.getRedirectedUrl().equals(url)) {
+            failWithMessage("Expected url `%s` but was `%s`", url, actual.getRedirectedUrl());
+        }
+        return myself;
+    }
+
+    public SELF hasNoRedirectUrlSet() {
+        if (actual.getRedirectedUrl() != null) {
+            failWithMessage("Expected redirect url to not be set, but was `%s`", actual.getRedirectedUrl());
+        }
+        return myself;
+    }
+
     public SELF hasNoContent() {
         return hasStatus(204);
     }

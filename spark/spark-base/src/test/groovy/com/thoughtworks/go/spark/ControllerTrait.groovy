@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse
+import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.util.UserHelper
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.mocks.TestApplication
@@ -50,6 +51,7 @@ trait ControllerTrait<T extends SparkController> {
   StubTemplateEngine templateEngine = new StubTemplateEngine()
   HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder();
   Localizer localizer = mock(Localizer.class)
+  PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
 
   void get(String path) {
     sendRequest('get', path, [:], null)

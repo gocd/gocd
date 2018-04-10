@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
@@ -36,13 +38,15 @@ public class NewDashboardDelegate implements SparkController {
     private final TemplateEngine engine;
     private final SecurityService securityService;
     private SystemEnvironment systemEnvironment;
+    private PipelineConfigService pipelineConfigService;
 
     public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService,
-                                SystemEnvironment systemEnvironment) {
+                                SystemEnvironment systemEnvironment, PipelineConfigService pipelineConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.securityService = securityService;
         this.systemEnvironment = systemEnvironment;
+        this.pipelineConfigService = pipelineConfigService;
     }
 
 
@@ -66,6 +70,11 @@ public class NewDashboardDelegate implements SparkController {
             put("isNewDashboardPageEnabled", Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
+        Username username = currentUsername();
+        if (pipelineConfigService.viewableGroupsFor(username).isEmpty() && securityService.canCreatePipelines(username)) {
+            response.redirect("/go/admin/pipeline/new?group=defaultGroup");
+            return null;
+        }
         return new ModelAndView(object, "new_dashboard/index.vm");
     }
 

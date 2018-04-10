@@ -29,6 +29,8 @@ public interface LocalizedOperationResult {
 
     void notFound(Localizable message, HealthStateType healthStateType);
 
+    void failedDependency(Localizable message);
+
     boolean isSuccessful();
 
     void connectionError(Localizable message);

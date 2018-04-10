@@ -32,6 +32,10 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
     public void notFound(Localizable message, HealthStateType healthStateType) {
     }
 
+    public void failedDependency(Localizable message) {
+
+    }
+
     public boolean isSuccessful() {
         return true;
     }

@@ -31,13 +31,13 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     private HealthStateType healthStateType;
     private int httpCode = 200;
 
-    public static LocalizedOperationResult badRequest(String messageKey){
+    public static LocalizedOperationResult badRequest(String messageKey) {
         LocalizedOperationResult result = successfulResult();
         result.badRequest(LocalizedMessage.string(messageKey));
         return result;
     }
 
-    public static LocalizedOperationResult successfulResult(){
+    public static LocalizedOperationResult successfulResult() {
         return new HttpLocalizedOperationResult();
     }
 
@@ -108,6 +108,11 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     public void notAcceptable(Localizable message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
+    }
+
+    public void failedDependency(Localizable message) {
+        this.message = message;
+        httpCode = HttpStatus.SC_FAILED_DEPENDENCY;
     }
 
     public boolean isSuccessful() {

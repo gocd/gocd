@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,56 +17,62 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.ClearSingleton;
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
+import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
-import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.*;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginServiceTest {
+    private PluginService pluginService;
     @Mock
-    private PackageRepositoryExtension packageRepositoryExtension;
+    private Username currentUser;
     @Mock
-    private SCMExtension scmExtension;
-    @Mock
-    private TaskExtension taskExtension;
-    @Mock
-    private NotificationExtension notificationExtension;
-    @Mock
-    private ConfigRepoExtension configRepoExtension;
+    private HttpLocalizedOperationResult result;
     @Mock
     private PluginSqlMapDao pluginDao;
     @Mock
@@ -76,360 +82,465 @@ public class PluginServiceTest {
     @Mock
     private DefaultPluginInfoFinder defaultPluginInfoFinder;
 
-    private PluginService pluginService;
-    private List<GoPluginExtension> extensions;
+    @Mock
+    private AuthorizationExtension authorizationExtension;
+    @Mock
+    private ElasticAgentExtension elasticAgentExtension;
+    @Mock
+    private PluginSettings pluginSettings;
+    @Mock
+    private PluginManager pluginManager;
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
+    private ArgumentCaptor<Localizable> localizableArgumentCaptor;
+    private List<GoPluginExtension> extensions;
+    private final String authorizationPluginId = "cd.go.authorization.ldap";
+    private final String elasticAgentPluginId = "cd.go.elastic-agent.docker";
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         initMocks(this);
+        localizableArgumentCaptor = ArgumentCaptor.forClass(Localizable.class);
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("p1-k1", "v1");
-        configuration.put("p1-k2", "");
-        configuration.put("p1-k3", null);
-        Plugin plugin = new Plugin("plugin-id-1", toJSON(configuration));
-        plugin.setId(1L);
-        when(pluginDao.findPlugin("plugin-id-1")).thenReturn(plugin);
+        when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
+        when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
+        extensions = Arrays.asList(authorizationExtension, elasticAgentExtension);
 
-        when(pluginDao.findPlugin("plugin-id-2")).thenReturn(new NullPlugin());
+        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, defaultPluginInfoFinder, pluginManager);
+    }
 
-        PluginSettingsConfiguration configuration1 = new PluginSettingsConfiguration();
-        configuration1.add(new PluginSettingsProperty("p1-k1"));
-        configuration1.add(new PluginSettingsProperty("p1-k2"));
-        configuration1.add(new PluginSettingsProperty("p1-k3"));
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-1", PluginConstants.CONFIG_REPO_EXTENSION, configuration1, "template-1");
-
-        PluginSettingsConfiguration configuration2 = new PluginSettingsConfiguration();
-        configuration2.add(new PluginSettingsProperty("p2-k1"));
-        configuration2.add(new PluginSettingsProperty("p2-k2"));
-        configuration2.add(new PluginSettingsProperty("p2-k3"));
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", PluginConstants.CONFIG_REPO_EXTENSION, configuration2, "template-2");
-
-        when(packageRepositoryExtension.extensionName()).thenReturn(PluginConstants.PACKAGE_MATERIAL_EXTENSION);
-        when(scmExtension.extensionName()).thenReturn(PluginConstants.SCM_EXTENSION);
-        when(taskExtension.extensionName()).thenReturn(PluginConstants.PLUGGABLE_TASK_EXTENSION);
-        when(notificationExtension.extensionName()).thenReturn(PluginConstants.NOTIFICATION_EXTENSION);
-        when(configRepoExtension.extensionName()).thenReturn(PluginConstants.CONFIG_REPO_EXTENSION);
-        extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension);
-        pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, defaultPluginInfoFinder);
+    @After
+    public void tearDown() throws Exception {
+        PluginSettingsMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldReturnPluginSettingsFromDbIfItExists() {
-        PluginSettings pluginSettings = pluginService.loadStoredPluginSettings("plugin-id-1");
+    public void shouldAskPluginMangerForPluginIsLoadedOrNot() {
+        pluginService.isPluginLoaded(elasticAgentPluginId);
 
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getValueFor("p1-k1"), is("v1"));
-        assertThat(pluginSettings.getValueFor("p1-k2"), is(""));
-        assertThat(pluginSettings.getValueFor("p1-k3"), is(nullValue()));
+        verify(pluginManager).isPluginLoaded(elasticAgentPluginId);
     }
 
     @Test
     public void shouldReturnNullIfPluginSettingsDoesNotExistInDb() {
-        PluginSettings pluginSettings = pluginService.loadStoredPluginSettings("plugin-id-2");
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+
+        PluginSettings pluginSettings = pluginService.getPluginSettings(elasticAgentPluginId);
 
         assertNull(pluginSettings);
     }
 
     @Test
-    public void shouldNotSavePluginSettingsIfUserIsNotAnAdmin() {
-        PluginSettings pluginSettings = new PluginSettings("some-plugin");
-        Username currentUser = new Username("non-admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
+    public void getPluginSettings_shouldReturnPluginSettingsFromDbIfItExists() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(getPlugin(elasticAgentPluginId));
 
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
+        PluginSettings pluginSettings = pluginService.getPluginSettings(elasticAgentPluginId);
 
-        assertThat(result.httpCode(), is(401));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
-    }
-
-    @Test
-    public void shouldNotSavePluginSettingsIfPluginDoesNotExist() {
-        PluginSettings pluginSettings = new PluginSettings("non-existent-plugin");
-        Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        for (GoPluginExtension extension : extensions) {
-            when(extension.canHandlePlugin("non-existent-plugin")).thenReturn(false);
-        }
-
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
-
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.toString(), containsString("Plugin 'non-existent-plugin' does not exist or does not implement settings validation"));
-    }
-
-    @Test
-    public void shouldNotSavePluginSettingsIfPluginReturnsValidationErrors() {
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("some-plugin", PluginConstants.CONFIG_REPO_EXTENSION, null, null);
-
-        PluginSettings pluginSettings = new PluginSettings("some-plugin");
-        Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-
-        when(configRepoExtension.canHandlePlugin("some-plugin")).thenReturn(true);
-        ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("foo", "foo is a required field"));
-        when(configRepoExtension.validatePluginSettings(eq("some-plugin"), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
-
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
-
-        assertThat(result.httpCode(), is(422));
-        assertThat(pluginSettings.errors().size(), is(1));
-        assertThat(pluginSettings.getErrorFor("foo"), is(Arrays.asList("foo is a required field")));
-    }
-
-    @Test
-    public void shouldSavePluginSettingsToDbIfPluginSettingsAreValidated() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p2-k1", "v1");
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
-        pluginSettings.populateSettingsMap(parameterMap);
-
-        Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-
-        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
-
-        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
-        verify(pluginDao).saveOrUpdate(plugin);
-    }
-
-    @Test
-    public void shouldNotifyPluginThatPluginSettingsHaveChangedAfterSaving() {
-        String pluginId = "plugin-id-2";
-        Map<String, String> parameterMap = m("p2-k1", "v1");
-
-        PluginSettings pluginSettings = new PluginSettings(pluginId).populateSettingsMap(parameterMap);
-
-        Username currentUser = new Username("admin");
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-
-        when(configRepoExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        pluginService.savePluginSettings(currentUser, new HttpLocalizedOperationResult(), pluginSettings);
-
-        Plugin plugin = new Plugin(pluginId, toJSON(parameterMap));
-        verify(pluginDao).saveOrUpdate(plugin);
-        verify(configRepoExtension).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        assertThat(pluginSettings.getSettingsAsKeyValuePair().keySet().size(), is(3));
+        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-1", "v1"));
+        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-2", ""));
+        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-3", null));
     }
 
     @Test
     public void shouldNotifyTheExtensionWhichHandlesSettingsInAPluginWithMultipleExtensions_WhenPluginSettingsHaveChanged() {
-        String pluginId = "plugin-id-2";
-        Map<String, String> parameterMap = m("p2-k1", "v1");
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+        when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        PluginSettings pluginSettings = new PluginSettings(pluginId).populateSettingsMap(parameterMap);
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(pluginSettings.hasErrors()).thenReturn(false);
 
-        Username currentUser = new Username("admin");
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+        pluginService.createPluginSettings(pluginSettings, currentUser, new HttpLocalizedOperationResult());
 
-        when(configRepoExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        verify(elasticAgentExtension).notifyPluginSettingsChange(elasticAgentPluginId, pluginSettings.getSettingsAsKeyValuePair());
 
-        pluginService.savePluginSettings(currentUser, new HttpLocalizedOperationResult(), pluginSettings);
-
-        verify(configRepoExtension).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-
-        verify(scmExtension, never()).canHandlePlugin(pluginId);
-        verify(scmExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-        verify(taskExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-        verify(notificationExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
-        verify(packageRepositoryExtension, never()).notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+        verify(authorizationExtension, never()).notifyPluginSettingsChange(elasticAgentPluginId, pluginSettings.getSettingsAsKeyValuePair());
     }
 
     @Test
-    public void shouldIgnoreErrorsWhileNotifyingPluginSettingChange() throws Exception {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p2-k1", "v1");
+    public void shouldIgnoreErrorsWhileNotifyingPluginSettingChange() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+        when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
-        pluginSettings.populateSettingsMap(parameterMap);
+        when(result.isSuccessful()).thenReturn(true);
+        when(pluginSettings.hasErrors()).thenReturn(false);
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+        doThrow(new RuntimeException()).when(elasticAgentExtension).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
 
-        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-        doThrow(new RuntimeException()).when(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+        pluginService.createPluginSettings(pluginSettings, currentUser, result);
 
-        pluginService.savePluginSettings(currentUser, result, pluginSettings);
-
-        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
-        verify(pluginDao).saveOrUpdate(plugin);
-        verify(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+        verify(pluginDao, times(1)).saveOrUpdate(any());
+        verify(elasticAgentExtension).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
         assertTrue(result.isSuccessful());
     }
 
     @Test
-    public void shouldCheckForStaleRequestBeforeUpdatingPluginSettings() {
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
-        Username currentUser = new Username("admin");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = "md5";
+    public void validatePluginSettingsFor_shouldTalkToPluginToValidatePluginSettings() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
 
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("foo");
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        pluginService.updatePluginSettings(currentUser, result, pluginSettings, md5);
+        PluginSettings pluginSettings = new PluginSettings(elasticAgentPluginId);
+        pluginService.validatePluginSettings(pluginSettings);
 
-        assertThat(result.httpCode(), is(412));
-        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
+        verify(elasticAgentExtension).validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class));
     }
 
     @Test
-    public void shouldCallValidationOnPlugin() throws Exception {
-        for (GoPluginExtension extension : extensions) {
-            String pluginId = UUID.randomUUID().toString();
-            PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, extension.extensionName(), null, null);
+    public void validatePluginSettingsFor_shouldCheckIfSecureValuesSetByUserAreValid() {
+        String secureKey = "secure-key";
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
 
-            when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-            when(extension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        PluginSettings pluginSettings = new PluginSettings(elasticAgentPluginId);
+        final PluginInfo pluginInfo = mock(PluginInfo.class);
+        when(pluginInfo.isSecure(secureKey)).thenReturn(true);
+        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher"))));
 
-            PluginSettings pluginSettings = new PluginSettings(pluginId);
-            pluginService.validatePluginSettingsFor(pluginSettings);
-
-            verify(extension).validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class));
-        }
-    }
-
-    @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_ConfigRepo() {
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.CONFIG_REPO_EXTENSION, null, null);
-
-        when(configRepoExtension.isConfigRepoPlugin("plugin-id-4")).thenReturn(true);
-        when(configRepoExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
-        when(configRepoExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
-
-        verify(configRepoExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
-    }
-
-    @Test
-    public void shouldUpdatePluginSettingsWithErrorsIfExists() {
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.NOTIFICATION_EXTENSION, null, null);
-
-        when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
-        ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("p4-k1", "m1"));
-        validationResult.addError(new ValidationError("p4-k3", "m3"));
-        when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
-
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p4-k1", "v1");
-        parameterMap.put("p4-k2", "v2");
-        parameterMap.put("p4-k3", "v3");
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginSettings.populateSettingsMap(parameterMap);
-        pluginService.validatePluginSettingsFor(pluginSettings);
+        pluginService.validatePluginSettings(pluginSettings);
 
         assertThat(pluginSettings.hasErrors(), is(true));
-        assertThat(pluginSettings.getErrorFor("p4-k1"), is(Arrays.asList("m1")));
-        assertThat(pluginSettings.getErrorFor("p4-k3"), is(Arrays.asList("m3")));
+        List<String> allErrorsOnProperty = pluginSettings.getPluginSettingsProperties().get(0).errors().getAll();
+        assertThat(allErrorsOnProperty.size(), is(1));
+        assertTrue(allErrorsOnProperty.contains("Encrypted value for property with key 'secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+        verify(elasticAgentExtension, never()).validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class));
     }
 
     @Test
-    public void shouldNotUpdatePluginSettingsWithErrorsIfNotExists() {
-        PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-4", PluginConstants.NOTIFICATION_EXTENSION, null, null);
+    public void validatePluginSettingsFor_shouldPopulateValidationErrorsInPluginSettingsObject() {
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
+        final ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("key-1", "m1"));
+        validationResult.addError(new ValidationError("key-3", "m3"));
 
-        when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
-        when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
+        when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
+        when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+                .thenReturn(validationResult);
 
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p4-k1", "v1");
-        parameterMap.put("p4-k2", "v2");
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginSettings.populateSettingsMap(parameterMap);
-        pluginService.validatePluginSettingsFor(pluginSettings);
+        PluginSettings pluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
+
+        pluginService.validatePluginSettings(pluginSettings);
+
+        assertThat(pluginSettings.hasErrors(), is(true));
+        assertThat(pluginSettings.getErrorFor("key-1"), is(Arrays.asList("m1")));
+        assertThat(pluginSettings.getErrorFor("key-3"), is(Arrays.asList("m3")));
+    }
+
+    @Test
+    public void validatePluginSettingsFor_shouldNotAddAnyErrorInPluginSettingsObjectWhenThereIsNoValidationError() {
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
+
+        addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
+        when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
+        when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+                .thenReturn(new ValidationResult());
+
+        PluginSettings pluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
+
+        pluginService.validatePluginSettings(pluginSettings);
 
         assertThat(pluginSettings.hasErrors(), is(false));
     }
 
     @Test
     public void shouldStorePluginSettingsToDBIfItDoesNotExist() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p2-k1", "v1");
-        parameterMap.put("p2-k2", "");
-        parameterMap.put("p2-k3", null);
+        final ArgumentCaptor<Plugin> pluginArgumentCaptor = ArgumentCaptor.forClass(Plugin.class);
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
+        final PluginSettings pluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
 
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
-        pluginSettings.populateSettingsMap(parameterMap);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
 
-        pluginService.savePluginSettingsFor(pluginSettings);
+        pluginService.saveOrUpdatePluginSettingsInDB(pluginSettings);
 
-        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
-        verify(pluginDao).saveOrUpdate(plugin);
+        verify(pluginDao).saveOrUpdate(pluginArgumentCaptor.capture());
+
+        final Plugin plugin = pluginArgumentCaptor.getValue();
+
+        assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
+        assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
+        assertThat(plugin.getConfigurationValue("key-2"), is(""));
+        assertThat(plugin.getConfigurationValue("key-3"), nullValue());
     }
 
     @Test
     public void shouldUpdatePluginSettingsToDBIfItExists() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("p1-k1", "v1");
-        parameterMap.put("p1-k2", "v2");
-        parameterMap.put("p1-k3", null);
+        JsonObject configuration = new JsonObject();
+        configuration.addProperty("key-1", "old-value");
 
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
-        pluginSettings.populateSettingsMap(parameterMap);
+        final Plugin pluginInDB = new Plugin(elasticAgentPluginId, configuration.toString());
+        final ArgumentCaptor<Plugin> pluginArgumentCaptor = ArgumentCaptor.forClass(Plugin.class);
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
 
-        pluginService.savePluginSettingsFor(pluginSettings);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(pluginInDB);
 
-        Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
-        plugin.setId(1L);
-        verify(pluginDao).saveOrUpdate(plugin);
+        final PluginSettings newPluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
+        pluginService.saveOrUpdatePluginSettingsInDB(newPluginSettings);
+
+        verify(pluginDao).saveOrUpdate(pluginArgumentCaptor.capture());
+
+        final Plugin plugin = pluginArgumentCaptor.getValue();
+        assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
+        assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
+        assertThat(plugin.getConfigurationValue("key-2"), is(""));
+        assertThat(plugin.getConfigurationValue("key-3"), nullValue());
     }
 
     @Test
     public void shouldGetPluginInfoFromTheExtensionWhichImplementsPluginSettingsIfThePluginImplementsMultipleExtensions() {
-        String pluginId = "plugin-id-1";
-        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo();
-        PluggableInstanceSettings pluginSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("key", new Metadata(false, false))));
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, "1", null, "location", new File(""), false);
-        NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(pluginDescriptor, null);
-        combinedPluginInfo.add(notificationPluginInfo);
-        SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), pluginSettings);
-        combinedPluginInfo.add(scmPluginInfo);
+        final String pluginId = "plugin-id";
+        final CombinedPluginInfo combinedPluginInfo = mock(CombinedPluginInfo.class);
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(null);
+        final AuthorizationPluginInfo authorizationPluginInfo = mock(AuthorizationPluginInfo.class);
 
-        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, PluginConstants.SCM_EXTENSION, new PluginSettingsConfiguration(), "template-1");
+        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, PluginConstants.ELASTIC_AGENT_EXTENSION, new PluginSettingsConfiguration(), "template-1");
         when(defaultPluginInfoFinder.pluginInfoFor(pluginId)).thenReturn(combinedPluginInfo);
-        when(notificationExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(scmExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(combinedPluginInfo.extensionFor(ELASTIC_AGENT_EXTENSION)).thenReturn(elasticAgentPluginInfo);
+        when(combinedPluginInfo.extensionFor(AUTHORIZATION_EXTENSION)).thenReturn(authorizationPluginInfo);
+        when(defaultPluginInfoFinder.pluginInfoFor(pluginId)).thenReturn(combinedPluginInfo);
+        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(authorizationExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         PluginInfo pluginInfo = pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
 
-        assertTrue(pluginInfo instanceof SCMPluginInfo);
-        assertThat(pluginInfo, is(scmPluginInfo));
+        assertTrue(pluginInfo instanceof ElasticAgentPluginInfo);
+        assertThat(pluginInfo, is(elasticAgentPluginInfo));
     }
-
 
     @Test
     public void shouldReturnNullForGetPluginInfoIfDoesNotImplementPluginSettings_MultipleExtensionImpl() {
-        String pluginId = "plugin-id-1";
+        String pluginId = "plugin-id";
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo();
-        PluggableInstanceSettings pluginSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("key", new Metadata(false, false))));
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, "1", null, "location", new File(""), false);
         NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(pluginDescriptor, null);
         combinedPluginInfo.add(notificationPluginInfo);
-        SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), pluginSettings);
+        SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), null);
         combinedPluginInfo.add(scmPluginInfo);
 
-        when(notificationExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(scmExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(authorizationExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         assertNull(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId));
+    }
+
+    @Test
+    public void createPluginSettings_shouldReturnUnprocessableEntityStatusCodeWhenUserIsNotAnAdmin() {
+        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
+        when(pluginSettings.getPluginId()).thenReturn(authorizationPluginId);
+
+        pluginService.createPluginSettings(pluginSettings, currentUser, result);
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
+        verify(result, times(1)).unauthorized(localizableArgumentCaptor.capture(), eq(HealthStateType.unauthorised()));
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("UNAUTHORIZED_TO_EDIT", "");
+    }
+
+    @Test
+    public void createPluginSettings_shouldReturnUnprocessableEntityStatusCodeWhenPluginSettingsIsAlreadyCreatedForThePlugin() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(getPlugin(elasticAgentPluginId));
+
+        pluginService.createPluginSettings(pluginSettings, currentUser, result);
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("SAVE_FAILED_WITH_REASON", String.format("Plugin settings for the plugin `cd.go.elastic-agent.docker` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", CurrentGoCDVersion.getInstance().goVersion()));
+    }
+
+    @Test
+    public void createPluginSettings_shouldValidatePluginSettingUsingExtensionAndReturnUnprocessableEntityWhenThereIsAValidationError() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+
+        final ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("key-1", "error-message"));
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
+        when(pluginSettings.hasErrors()).thenReturn(true);
+
+        pluginService.createPluginSettings(pluginSettings, currentUser, result);
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit.");
+    }
+
+    @Test
+    public void createPluginSettings_shouldSavePluginSettingsAndNotifyExtensionsWhenThereIsNoValidationFailure() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+        when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
+
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(pluginSettings.hasErrors()).thenReturn(false);
+
+        pluginService.createPluginSettings(pluginSettings, currentUser, result);
+
+        verify(pluginDao, times(1)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(1)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verifyNoMoreInteractions(result);
+    }
+
+    @Test
+    public void updatePluginSettings_shouldReturnUnprocessableEntityStatusCodeWhenUserIsNotAnAdmin() {
+        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
+        when(pluginSettings.getPluginId()).thenReturn(authorizationPluginId);
+
+        pluginService.updatePluginSettings(pluginSettings, currentUser, result, null);
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
+        verify(result, times(1)).unauthorized(localizableArgumentCaptor.capture(), eq(HealthStateType.unauthorised()));
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("UNAUTHORIZED_TO_EDIT", "");
+    }
+
+    @Test
+    public void updatePluginSettings_shouldReturnUnprocessableEntityStatusCodeWhenPluginSettingsDoesNotExistForThePlugin() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
+
+        pluginService.updatePluginSettings(pluginSettings, currentUser, result, null);
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).notFound(localizableArgumentCaptor.capture(), eq(HealthStateType.notFound()));
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("RESOURCE_NOT_FOUND", "Plugin Settings, cd.go.elastic-agent.docker");
+    }
+
+    @Test
+    public void updatePluginSettings_shouldCheckForStaleRequest() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(getPlugin(elasticAgentPluginId));
+        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("bar");
+
+        pluginService.updatePluginSettings(pluginSettings, currentUser, result, "foo");
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).stale(localizableArgumentCaptor.capture());
+        verifyNoMoreInteractions(result);
+
+        assertLocalizable("STALE_RESOURCE_CONFIG", "Plugin Settings, cd.go.elastic-agent.docker");
+    }
+
+    @Test
+    public void updatePluginSettings_shouldValidatePluginSettingUsingExtensionAndReturnUnprocessableEntityWhenThereIsAValidationFailure() {
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(getPlugin(elasticAgentPluginId));
+
+        final ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("key-1", "error-message"));
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
+        when(pluginSettings.hasErrors()).thenReturn(true);
+        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("foo");
+        when(result.isSuccessful()).thenReturn(false);
+
+        pluginService.updatePluginSettings(pluginSettings, currentUser, result, "foo");
+
+        verify(pluginDao, times(0)).saveOrUpdate(any());
+        verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).unprocessableEntity(localizableArgumentCaptor.capture());
+
+        assertLocalizable("SAVE_FAILED_WITH_REASON", "There are errors in the plugin settings. Please fix them and resubmit.");
+    }
+
+    @Test
+    public void updatePluginSettings_shouldUpdateThePluginSettingsWhenThereIsNoValidationFailure() {
+        final Plugin plugin = getPlugin(elasticAgentPluginId);
+        setUpElasticPluginForTheTest(true);
+        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(plugin);
+        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("foo");
+        when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
+
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+                .thenReturn(new ValidationResult());
+
+        when(pluginSettings.hasErrors()).thenReturn(false);
+        when(result.isSuccessful()).thenReturn(true);
+
+        pluginService.updatePluginSettings(pluginSettings, currentUser, result, "foo");
+
+        verify(pluginDao, times(1)).saveOrUpdate(plugin);
+        verify(elasticAgentExtension, times(1)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
+        verify(result, times(1)).isSuccessful();
+        verify(entityHashingService, times(1)).removeFromCache(pluginSettings, pluginSettings.getPluginId());
+        verifyNoMoreInteractions(result);
+    }
+
+    private void setUpElasticPluginForTheTest(boolean isCurrentUserAdmin) {
+        final CombinedPluginInfo combinedPluginInfo = mock(CombinedPluginInfo.class);
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
+
+        when(defaultPluginInfoFinder.pluginInfoFor(elasticAgentPluginId)).thenReturn(combinedPluginInfo);
+        when(combinedPluginInfo.extensionFor(ELASTIC_AGENT_EXTENSION)).thenReturn(elasticAgentPluginInfo);
+
+        addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
+        when(securityService.isUserAdmin(currentUser)).thenReturn(isCurrentUserAdmin);
+        when(pluginSettings.getPluginId()).thenReturn(elasticAgentPluginId);
+        when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
+    }
+
+    private ElasticAgentPluginInfo mockElasticAgentPluginInfo(PluggableInstanceSettings pluggableInstanceSettings) {
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
+        when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(pluggableInstanceSettings);
+        return elasticAgentPluginInfo;
+    }
+
+    private void assertLocalizable(final String key, final String message) {
+        assertThat(localizableArgumentCaptor.getValue().toString(), is(String.format("LocalizedKeyValueMessage{key='%s', args=[%s]}", key, message)));
+    }
+
+    private void addPluginSettingsMetadataToStore(String pluginId, String extensionName, PluginSettingsConfiguration configuration) {
+        PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, extensionName, configuration, "template-1");
+    }
+
+    private PluginSettingsConfiguration getPluginSettingsConfiguration() {
+        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
+        configuration.add(new PluginSettingsProperty("key-1"));
+        configuration.add(new PluginSettingsProperty("key-2"));
+        configuration.add(new PluginSettingsProperty("key-3"));
+        return configuration;
+    }
+
+    private PluggableInstanceSettings getPluggableInstanceSettings() {
+        final List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+                new PluginConfiguration("key-1", new Metadata(false, false)),
+                new PluginConfiguration("key-2", new Metadata(false, false)),
+                new PluginConfiguration("key-3", new Metadata(false, false))
+        );
+        return new PluggableInstanceSettings(pluginConfigurations);
+    }
+
+    private Plugin getPlugin(String pluginId) {
+        final Plugin plugin = new Plugin(pluginId, getPluginConfigurationJson().toString());
+        plugin.setId(1L);
+        return plugin;
+    }
+
+    private JsonObject getPluginConfigurationJson() {
+        final JsonObject configuration = new JsonObject();
+        configuration.addProperty("key-1", "v1");
+        configuration.addProperty("key-2", "");
+        configuration.addProperty("key-3", (String) null);
+        return configuration;
     }
 
     private String toJSON(Map<String, String> configuration) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,127 +16,61 @@
 
 package com.thoughtworks.go.server.domain;
 
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.security.GoCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluginSettingsTest {
     public static final String PLUGIN_ID = "plugin-id";
 
     @Test
-    public void shouldPopulateSettingsMapFromPluginFromDB() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("k1", "v1");
-        configuration.put("k2", "");
-        configuration.put("k3", null);
-        Plugin plugin = new Plugin(PLUGIN_ID, toJSON(configuration));
-
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateSettingsMap(plugin);
-
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getValueFor("k1"), is("v1"));
-        assertThat(pluginSettings.getValueFor("k2"), is(""));
-        assertThat(pluginSettings.getValueFor("k3"), is(nullValue()));
-    }
-
-    @Test
-    public void shouldPopulateSettingsMapFromPluginFromConfiguration() {
-        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
-        configuration.add(new PluginSettingsProperty("k1", "v1"));
-        configuration.add(new PluginSettingsProperty("k2", ""));
-        configuration.add(new PluginSettingsProperty("k3", null));
-
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateSettingsMap(configuration);
-
-        assertThat(pluginSettings.getValueFor("k1"), is(""));
-        assertThat(pluginSettings.getValueFor("k2"), is(""));
-        assertThat(pluginSettings.getValueFor("k3"), is(""));
-    }
-
-    @Test
-    public void shouldPopulateSettingsMapFromKeyValueMap() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("k1", "v1");
-        parameterMap.put("k2", "");
-        parameterMap.put("k3", null);
-
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateSettingsMap(parameterMap);
-
-        assertThat(pluginSettings.getValueFor("k1"), is("v1"));
-        assertThat(pluginSettings.getValueFor("k2"), is(""));
-        assertThat(pluginSettings.getValueFor("k3"), is(nullValue()));
-    }
-
-    @Test
     public void shouldGetSettingsMapAsKeyValueMap() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("k1", "v1");
-        parameterMap.put("k2", "");
-        parameterMap.put("k3", null);
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
+        when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(mock(PluggableInstanceSettings.class));
 
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateSettingsMap(parameterMap);
+        final PluginSettings pluginSettings = PluginSettings.from(getPlugin(PLUGIN_ID), elasticAgentPluginInfo);
 
         Map<String, String> settingsAsKeyValuePair = pluginSettings.getSettingsAsKeyValuePair();
         assertThat(settingsAsKeyValuePair.size(), is(3));
-        assertThat(settingsAsKeyValuePair.get("k1"), is("v1"));
-        assertThat(settingsAsKeyValuePair.get("k2"), is(""));
-        assertThat(settingsAsKeyValuePair.get("k3"), is(nullValue()));
+        assertThat(settingsAsKeyValuePair.get("key-1"), is("value1"));
+        assertThat(settingsAsKeyValuePair.get("key-2"), is(""));
+        assertThat(settingsAsKeyValuePair.get("key-3"), is(nullValue()));
     }
 
     @Test
     public void shouldPopulateSettingsMapWithErrorsCorrectly() {
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("k1", "v1");
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
+        when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(mock(PluggableInstanceSettings.class));
 
-        pluginSettings.populateSettingsMap(parameterMap);
+        final PluginSettings pluginSettings = PluginSettings.from(getPlugin(PLUGIN_ID), elasticAgentPluginInfo);
 
-        pluginSettings.populateErrorMessageFor("k1", "e1");
+        pluginSettings.populateErrorMessageFor("key-1", "e1");
 
-        assertThat(pluginSettings.getErrorFor("k1"), is(Arrays.asList("e1")));
-    }
-
-    @Test
-    public void shouldProvidePluginSettingsAsAWeirdMapForView() {
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("k1", "v1");
-
-        pluginSettings.populateSettingsMap(parameterMap);
-
-        pluginSettings.populateErrorMessageFor("k1", "e1");
-
-        HashMap<String, Map<String, String>> expectedMap = new HashMap<>();
-        HashMap<String, String> valuesAndErrorsMap = new HashMap<>();
-        valuesAndErrorsMap.put("value", "v1");
-        valuesAndErrorsMap.put("errors", "[e1]");
-        expectedMap.put("k1", valuesAndErrorsMap);
-
-        Map<String, Map<String, String>> settingsMap = pluginSettings.getSettingsMap();
-
-        assertThat(settingsMap, is(expectedMap));
+        assertThat(pluginSettings.getErrorFor("key-1"), is(Arrays.asList("e1")));
     }
 
     @Test
@@ -149,20 +83,18 @@ public class PluginSettingsTest {
     }
 
     @Test
-    public void shouldCreatePluginFromConfigurationCorrectly() {
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("k1", "v1");
-        parameterMap.put("k2", "");
-        parameterMap.put("k3", null);
-        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateSettingsMap(parameterMap);
+    public void shouldCreatePluginConfigurationFromPluginSettingsCorrectly() {
+        final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
+        when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(mock(PluggableInstanceSettings.class));
+
+        final PluginSettings pluginSettings = PluginSettings.from(getPlugin(PLUGIN_ID), elasticAgentPluginInfo);
 
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
 
         assertThat(configuration.size(), is(3));
-        assertThat(configuration.get("k1").getValue(), is("v1"));
-        assertThat(configuration.get("k2").getValue(), is(""));
-        assertThat(configuration.get("k3").getValue(), is(nullValue()));
+        assertThat(configuration.get("key-1").getValue(), is("value1"));
+        assertThat(configuration.get("key-2").getValue(), is(""));
+        assertThat(configuration.get("key-3").getValue(), is(nullValue()));
     }
 
     @Test
@@ -201,13 +133,50 @@ public class PluginSettingsTest {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.addConfigurations(pluginInfo, configurationProperties);
 
-        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getSecurePluginSettingsProperties(pluginInfo);
+        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPluginSettingsProperties();
         assertThat(pluginSettingsProperties.size(), is(2));
         assertThat(pluginSettingsProperties.get(0), is(configProperty1));
         assertThat(pluginSettingsProperties.get(1), is(configProperty2));
     }
 
-    private String toJSON(Map<String, String> map) {
-        return new GsonBuilder().serializeNulls().create().toJson(map);
+    @Test
+    public void shouldValidateThatEncryptedVariablesAreEncryptedWithTheCorrectCipher(){
+        final PluginInfo pluginInfo = mock(PluginInfo.class);
+        String secureKey = "supposedly-secure-key";
+        when(pluginInfo.isSecure(secureKey)).thenReturn(true);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher") )));
+        pluginSettings.validateTree();
+
+        assertThat(pluginSettings.hasErrors(), is(true));
+        assertThat(pluginSettings.getPluginSettingsProperties().get(0).errors().firstError(), is("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+    }
+
+    @Test
+    public void shouldPassValidationIfEncryptedVariablesAreEncryptedWithTheCorrectCipher() throws InvalidCipherTextException {
+        final PluginInfo pluginInfo = mock(PluginInfo.class);
+        String secureKey = "supposedly-secure-key";
+        when(pluginInfo.isSecure(secureKey)).thenReturn(true);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue(new GoCipher().encrypt("secure")) )));
+        pluginSettings.validateTree();
+
+        assertThat(pluginSettings.hasErrors(), is(false));
+    }
+
+    private Plugin getPlugin(String pluginId) {
+        final Plugin plugin = new Plugin(pluginId, getPluginConfigurationJson().toString());
+        plugin.setId(1L);
+        return plugin;
+    }
+
+    private JsonObject getPluginConfigurationJson() {
+        final JsonObject configuration = new JsonObject();
+        configuration.addProperty("key-1", "value1");
+        configuration.addProperty("key-2", "");
+        configuration.addProperty("key-3", (String) null);
+        return configuration;
     }
 }

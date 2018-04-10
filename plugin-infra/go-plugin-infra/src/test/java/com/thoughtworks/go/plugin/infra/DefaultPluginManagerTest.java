@@ -313,6 +313,39 @@ public class DefaultPluginManagerTest {
         inOrder.verify(monitor).addPluginJarChangeListener(jarChangeListener);
     }
 
+    @Test
+    public void isPluginLoaded_shouldReturnTrueWhenPluginIsLoaded() {
+        final GoPluginDescriptor dockerPluginDescriptor = mock(GoPluginDescriptor.class);
+
+        when(dockerPluginDescriptor.isInvalid()).thenReturn(false);
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertTrue(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
+    }
+
+    @Test
+    public void isPluginLoaded_shouldReturnFalseWhenPluginIsLoadedButIsInInvalidState() {
+        final GoPluginDescriptor dockerPluginDescriptor = mock(GoPluginDescriptor.class);
+
+        when(dockerPluginDescriptor.isInvalid()).thenReturn(true);
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
+    }
+
+    @Test
+    public void isPluginLoaded_shouldReturnFalseWhenPluginIsNotLoaded() {
+        when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(null);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
+
+        assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
+    }
+
     @After
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(BUNDLE_DIR);

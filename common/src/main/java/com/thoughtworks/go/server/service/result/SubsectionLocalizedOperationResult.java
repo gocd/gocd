@@ -36,6 +36,11 @@ public class SubsectionLocalizedOperationResult implements LocalizedOperationRes
         throw new UnsupportedOperationException("not supported");
     }
 
+    @Override
+    public void failedDependency(Localizable message) {
+        throw new UnsupportedOperationException("not supported");
+    }
+
     public boolean isSuccessful() {
         return message == null;
     }

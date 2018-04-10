@@ -16,8 +16,10 @@
 
 describe('Artifact Stores Widget', () => {
 
-  const $ = require("jquery");
-  const m = require("mithril");
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const simulateEvent = require('simulate-event');
+  const Modal         = require('views/shared/new_modal');
 
   require('jasmine-jquery');
   require('jasmine-ajax');
@@ -75,7 +77,7 @@ describe('Artifact Stores Widget', () => {
     });
   });
 
-  describe('On data received', () => {
+  describe('List', () => {
     it('should disable Add button when no plugins are present', () => {
       jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
@@ -96,24 +98,102 @@ describe('Artifact Stores Widget', () => {
     it('should enable Add button when plugins are present', () => {
       jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
-      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
-        responseText: JSON.stringify({
-          "_embedded": {
-            "plugin_info": [{
-              "id":     "cd.go.artifact.example",
-              "status": {
-                "state": "active"
-              }
-            }]
-          }
-        }),
-        status:       200
-      });
+      stubGetPluginInfosResponse();
 
       m.mount(root, ArtifactStoresWidget);
 
       expect($(".add-artifact-store")).not.toHaveAttr("disabled");
     });
+
+    it('should list the artifact stores', () => {
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      stubGetPluginInfosResponse();
+
+      m.mount(root, ArtifactStoresWidget);
+
+      expect($(".collapsible-list-header").length).toEqual(1);
+    });
+  });
+
+  describe('Add', () => {
+
+    beforeEach(() => {
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      stubGetPluginInfosResponse();
+      m.mount(root, ArtifactStoresWidget);
+      m.redraw();
+    });
+
+    afterEach(Modal.destroyAll);
+
+    it('should show modal when add button is clicked', () => {
+      expect($root.find('.reveal:visible')).not.toBeInDOM();
+      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+      m.redraw();
+      expect($('.reveal:visible')).toBeInDOM();
+      expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
+    });
+
+    it('should show modal and render view of first plugin id', () => {
+      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+      m.redraw();
+
+      const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
+
+      expect($(pluginId).val()).toEqual(dockerRegistryPluginInfoJSON.id);
+    });
+
+    it("should allow saving an artifact store if save is successful", () => {
+      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+      m.redraw();
+      const modalBody = $('.reveal:visible .modal-body');
+
+      const artifactStoreId = modalBody.find('[data-prop-name="id"]').get(0);
+      $(artifactStoreId).val("unit-test");
+      simulateEvent.simulate(artifactStoreId, 'input');
+
+      const pluginId = modalBody.find('[data-prop-name="pluginId"]').get(0);
+      $(pluginId).val(dockerRegistryPluginInfoJSON.id);
+      simulateEvent.simulate(pluginId, 'input');
+
+      m.redraw();
+
+      jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
+        responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
+        status:       200
+      });
+
+      simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
+
+      m.redraw();
+
+      const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
+      expect(request.url).toBe('/go/api/admin/artifact_stores');
+      expect(request.method).toBe('POST');
+
+      //TODO
+      //expect($('.success')).toContainText('The profile unit-test was created successfully');
+    });
+
+    it("should change plugin view template in modal on change of plugin from dropdown", () => {
+      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+      m.redraw();
+
+      expect($('.reveal .modal-body input[data-prop-name]')).not.toBeDisabled();
+      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(dockerRegistryPluginInfoJSON.about.name);
+      expect($('.reveal .modal-body div.docker_registry_config').text()).toEqual("Docker Registry Url:");
+
+      $('.reveal [data-prop-name=pluginId]').val("cd.go.example.artifactory");
+      simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
+      m.redraw();
+
+      expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
+      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(artifactoryPluginInfoJSON.about.name);
+      expect($('.reveal .modal-body div.artifactory_store_config').text()).toEqual("Example");
+    });
+
   });
 
   function stubGetArtifactStoresResponse() {
@@ -122,6 +202,202 @@ describe('Artifact Stores Widget', () => {
       status:       200
     });
   }
+
+  function stubGetPluginInfosResponse() {
+    jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+      responseText: JSON.stringify({
+        "_embedded": {
+          "plugin_info": [dockerRegistryPluginInfoJSON, artifactoryPluginInfoJSON]
+        }
+      }),
+      status:       200
+    });
+  }
+
+  const dockerRegistryArtifactStoreJSON = {
+    "id":         "unit-test",
+    "plugin_id":  "cd.go.artifact.docker.registry",
+    "properties": [
+      {"key": "RegistryURL", "value": "test"},
+      {"key": "Username", "value": "foo"},
+      {"key": "Password", "value": "bar"}]
+  };
+
+  const dockerRegistryPluginInfoJSON = {
+    "_links":               {
+      "self":  {
+        "href": "http://localhost:8153/go/api/admin/plugin_info/cd.go.artifact.docker.registry"
+      },
+      "doc":   {
+        "href": "https://api.gocd.org/#plugin-info"
+      },
+      "find":  {
+        "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
+      },
+      "image": {
+        "href": "http://localhost:8153/go/api/plugin_images/cd.go.artifact.docker.registry/e1ce6a7746cdab85ec2229424463c48cc15b761459dd85202acbc12693787aff"
+      }
+    },
+    "id":                   "cd.go.artifact.docker.registry",
+    "status":               {
+      "state": "active"
+    },
+    "plugin_file_location": "/Users/akshayd/projects/go/gocd/server/plugins/external/docker-registry-artifact-plugin-0.0.1-15.jar",
+    "bundled_plugin":       false,
+    "about":                {
+      "name":                     "Artifact plugin for docker",
+      "version":                  "0.0.1-15",
+      "target_go_version":        "18.1.0",
+      "description":              "Plugin allows to push/pull docker image from public or private docker registry",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd/docker-artifact-plugin"
+      }
+    },
+    "extensions":           [
+      {
+        "type":                     "artifact",
+        "capabilities":             {},
+        "store_config_settings":    {
+          "configurations": [
+            {
+              "key":      "RegistryURL",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Username",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Password",
+              "metadata": {
+                "secure":   true,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class='docker_registry_config'>Docker Registry Url:</div>"
+          }
+        },
+        "artifact_config_settings": {
+          "configurations": [
+            {
+              "key":      "BuildFile",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div></div>"
+          }
+        },
+        "fetch_artifact_settings":  {
+          "configurations": [],
+          "view":           {
+            "template": "<div></div>"
+          }
+        }
+      }
+    ]
+  };
+
+  const artifactoryPluginInfoJSON = {
+    "_links":               {
+      "self":  {
+        "href": "http://localhost:8153/go/api/admin/plugin_info/cd.go.example.artifactory"
+      },
+      "doc":   {
+        "href": "https://api.gocd.org/#plugin-info"
+      },
+      "find":  {
+        "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
+      },
+      "image": {
+        "href": "http://localhost:8153/go/api/plugin_images/cd.go.example.artifactory/e1ce6a7746cdab85ec2229424463c48cc15b761459dd85202acbc12693787aff"
+      }
+    },
+    "id":                   "cd.go.example.artifactory",
+    "status":               {
+      "state": "active"
+    },
+    "plugin_file_location": "/Users/akshayd/projects/go/gocd/server/plugins/external/artifactory-plugin-0.0.1-15.jar",
+    "bundled_plugin":       false,
+    "about":                {
+      "name":                     "Artifact plugin for Artifactory",
+      "version":                  "0.0.1-1",
+      "target_go_version":        "18.1.0",
+      "description":              "Plugin allows to push/pull docker image from public or private docker registry",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd/docker-artifact-plugin"
+      }
+    },
+    "extensions":           [
+      {
+        "type":                     "artifact",
+        "capabilities":             {},
+        "store_config_settings":    {
+          "configurations": [
+            {
+              "key":      "RepositoryURL",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Username",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Password",
+              "metadata": {
+                "secure":   true,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class='artifactory_store_config'>Example</div>"
+          }
+        },
+        "artifact_config_settings": {
+          "configurations": [
+            {
+              "key":      "BuildFile",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "<div class='artifactory_config>'>Example1</div>"
+          }
+        },
+        "fetch_artifact_settings":  {
+          "configurations": [],
+          "view":           {
+            "template": "<div></div>"
+          }
+        }
+      }
+    ]
+  };
 
   const sampleResponse = {
     "_links":    {

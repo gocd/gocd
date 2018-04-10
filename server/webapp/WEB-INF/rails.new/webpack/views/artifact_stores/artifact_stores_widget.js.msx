@@ -16,8 +16,9 @@
 
 const $                         = require('jquery');
 const _                         = require('lodash');
-const m                         = require('mithril');
 const f                         = require('helpers/form_helper');
+const m                         = require('mithril');
+const Stream                    = require('mithril/stream');
 const Spinner                   = require('views/shared/spinner');
 const ErrorCalloutWidget        = require('views/shared/error_callout');
 const InfoCalloutWidget         = require('views/shared/info_callout');
@@ -25,44 +26,48 @@ const HeaderPanel               = require('views/shared/header_panel');
 const ArtifactStores            = require('models/artifact_stores/artifact_stores');
 const ArtifactStoresState       = require('views/artifact_stores/artifact_stores_state');
 const ArtifactStorePluginWidget = require('views/artifact_stores/artifact_store_plugin_widget');
+const ArtifactStoreModalBody    = require('views/artifact_stores/artifact_store_modal_body');
 const PluginInfos               = require('models/shared/plugin_infos');
+const Modal                     = require('views/shared/new_modal');
 
-const ArtifactStoresWidget = (function () {
+class ArtifactStoresWidget {
 
-  let state;
+  constructor() {
+    this.state = new ArtifactStoresState();
+  }
 
-  function oninit() {
-    state = new ArtifactStoresState();
+  oninit() {
+    this.state = new ArtifactStoresState();
 
     const onSuccess = (artifactStoresResponse, pluginInfosResponse) => {
-      state.updateWithData(artifactStoresResponse, pluginInfosResponse);
+      this.state.updateWithData(artifactStoresResponse, pluginInfosResponse);
       m.redraw();
     };
 
     const onFailure = () => {
-      state.updateWithApiError();
+      this.state.updateWithApiError();
       m.redraw();
     };
 
     $.when(ArtifactStores.all(), PluginInfos.all(null, {type: 'artifact'})).then(onSuccess, onFailure);
   }
 
-  function view() {
-    if (state.error) {
+  view() {
+    if (this.state.error) {
       return (
         <ErrorCalloutWidget message="There was a problem fetching the artifact stores"/>
       );
-    } else if (state.loading) {
+    } else if (this.state.loading) {
       return (
         <Spinner/>
       );
     } else {
       const addButton        = (
-        <f.button onclick="" class="add-artifact-store" disabled={state.noPlugins()}>
+        <f.button onclick={addClicked.bind(this)} class="add-artifact-store" disabled={this.state.noPlugins()}>
           Add
         </f.button>
       );
-      const noPluginsMessage = state.noPlugins() ?
+      const noPluginsMessage = this.state.noPlugins() ?
         <InfoCalloutWidget message="No artifact store plugins installed."/> : undefined;
       return (
         <div>
@@ -71,8 +76,8 @@ const ArtifactStoresWidget = (function () {
             {noPluginsMessage}
           </div>
           {
-            _.map(state.artifactStores.groupByArtifactStoreProperty('pluginId'), (stores, pluginId) => {
-              const pluginInfo = state.findPluginInfo(pluginId);
+            _.map(this.state.artifactStores.groupByArtifactStoreProperty('pluginId'), (stores, pluginId) => {
+              const pluginInfo = this.state.findPluginInfo(pluginId);
               return (
                 <ArtifactStorePluginWidget pluginId={pluginId} pluginInfo={pluginInfo} artifactStores={stores}/>
               );
@@ -82,9 +87,62 @@ const ArtifactStoresWidget = (function () {
       );
     }
   }
+}
 
-  return {oninit, view};
+function reloadArtifactStores(widget) {
+  ArtifactStores.all().then((artifactStores) => {
+    widget.state.artifactStores = artifactStores;
+  }, (message) => {
+    widget.state.message = message;
+  }).always(m.redraw);
+}
 
-})();
+function addClicked() {
+  const newArtifactStore = Stream(new ArtifactStores.ArtifactStore({}));
+
+  const modal = new Modal({
+    size:    'large',
+    title:   'Add a new artifact store',
+    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={newArtifactStore}
+                                            errorMessage={this.state.message}/>),
+    onclose: () => modal.destroy(),
+    buttons: [
+      {
+        text:    "Save",
+        class:   'save primary',
+        onclick: () => {
+          newArtifactStore().create()
+            .then(addSucceeded(modal, newArtifactStore, this), addFailed(modal, newArtifactStore, this))
+            .always(m.redraw);
+        }
+      }
+    ]
+  });
+
+  modal.render();
+}
+
+function addSucceeded(modal, newArtifactStore, widget) {
+  return function () {
+    modal.destroy();
+    reloadArtifactStores(widget);
+    widget.state.message = {
+      type:    'success',
+      message: `The artifact store ${newArtifactStore().id()} was created successfully.`
+    };
+  };
+}
+
+function addFailed(modal, newArtifactStore, widget) {
+  return function (errorMessageOrStoreWithErrors) {
+    if (_.isString(errorMessageOrStoreWithErrors)) {
+      modal.destroy();
+      widget.state.setAlertMessage(errorMessageOrStoreWithErrors);
+    } else {
+      widget.state.resetMessage();
+      newArtifactStore(errorMessageOrStoreWithErrors);
+    }
+  };
+}
 
 module.exports = ArtifactStoresWidget;

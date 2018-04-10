@@ -20,27 +20,28 @@ class ArtifactStoresState {
   constructor() {
     this._artifactStores = undefined;
     this._pluginInfos    = undefined;
-    this._error = false;
-    this._loading = true;
+    this._error          = false;
+    this._loading        = true;
+    this.message         = {type: undefined, message: undefined};
   }
 
   init() {
     this._artifactStores = undefined;
     this._pluginInfos    = undefined;
-    this._error = false;
-    this._loading = true;
+    this._error          = false;
+    this._loading        = true;
   }
 
   updateWithData(artifactStoresResponse, pluginInfosResponse) {
     this._artifactStores = artifactStoresResponse;
     this._pluginInfos    = pluginInfosResponse;
-    this._error = false;
-    this._loading = false;
+    this._error          = false;
+    this._loading        = false;
   }
 
   updateWithApiError() {
     this._loading = false;
-    this._error = true;
+    this._error   = true;
   }
 
   get loading() {
@@ -55,6 +56,14 @@ class ArtifactStoresState {
     return this._artifactStores;
   }
 
+  set artifactStores(artifactStores) {
+    this._artifactStores = artifactStores;
+  }
+
+  get pluginInfos() {
+    return this._pluginInfos;
+  }
+
   noPlugins() {
     return this._pluginInfos.countPluginInfo() === 0;
   }
@@ -63,6 +72,13 @@ class ArtifactStoresState {
     return this._pluginInfos.findById(pluginId);
   }
 
+  setAlertMessage(message) {
+    this.message = {type: 'alert', message};
+  }
+
+  resetMessage() {
+    this.message = {type: undefined, message: undefined};
+  }
 }
 
 module.exports = ArtifactStoresState;

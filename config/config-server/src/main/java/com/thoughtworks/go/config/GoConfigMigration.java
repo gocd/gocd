@@ -52,7 +52,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 @Component
 public class GoConfigMigration {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ConfigRepository.class.getName());
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
     private final String schemaVersion = "schemaVersion";
     private final UpgradeFailedHandler upgradeFailed;
     private final ConfigRepository configRepository;

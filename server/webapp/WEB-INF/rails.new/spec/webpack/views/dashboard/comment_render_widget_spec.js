@@ -217,6 +217,28 @@ describe("Comment Render Widget", () => {
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://jira.example.com/ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)'>ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>");
     });
 
+    it('should render escaped entities correctly if they match the project management regex', () => {
+      const trackingTool = {
+        "link":  "http://jira.example.com/${ID}",
+        "regex": "#(\\d+)"
+      };
+      const text         = "Don't render the apostrophe as a link";
+      mountView(text, trackingTool);
+      const commentRenderWidget = $root.find('.comment');
+      expect(commentRenderWidget).toHaveHtml("<p>Don't render the apostrophe as a link</p>");
+    });
+
+    it('should escape text when no match is found', () => {
+      const trackingTool = {
+        "link":  "http://jira.example.com/${ID}",
+        "regex": "#(\\d+)"
+      };
+      const text         = "<b>This should not be bold</b>";
+      mountView(text, trackingTool);
+      const commentRenderWidget = $root.find('.comment');
+      expect(commentRenderWidget).toHaveHtml("<p>&lt;b&gt;This should not be bold&lt;/b&gt;</p>");
+    });
+
     describe('should render string with specified regex and link', () => {
       let trackingTool = null;
       beforeEach(() => {

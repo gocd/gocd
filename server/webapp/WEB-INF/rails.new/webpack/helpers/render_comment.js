@@ -17,18 +17,26 @@
 const _ = require('lodash');
 
 function renderComment(text, trackingTool) {
-  const escapedText = _.escape(text);
   if (!trackingTool || !trackingTool.regex) {
-    return escapedText;
-  }
-  let updatedComment = escapedText;
-  try {
-    updatedComment = escapedText.replace(new RegExp(trackingTool.regex, "g"), toLink);
-  } catch (e) {
-    return escapedText;
+    return _.escape(text);
   }
 
-  return updatedComment;
+  try {
+    const regex = new RegExp(trackingTool.regex);
+    const commentStringParts = [];
+    let matchResult          = text.match(regex);
+    while (matchResult !== null) {
+      commentStringParts.push(_.escape(text.substr(0, matchResult.index)));
+      const linkifiedWord = toLink(matchResult[0]);
+      commentStringParts.push(linkifiedWord);
+      text        = text.substr(matchResult.index + matchResult[0].length);
+      matchResult = text.match(regex);
+    }
+    commentStringParts.push(_.escape(text));
+    return commentStringParts.join("");
+  } catch (e) {
+    return _.escape(text);
+  }
 
   function firstMatchingGroup(matchResult) {
     if (matchResult === null || matchResult.length === 0) {
@@ -52,10 +60,10 @@ function renderComment(text, trackingTool) {
       const href = trackingTool.link.replace("${ID}", trackingId);
       return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
     } else if (hasGroups(trackingTool.regex)) {
-      return matchedWord;
+      return _.escape(matchedWord);
     } else {
-      const href = trackingTool.link.replace("${ID}", matchedWord);
-      return `<a target="story_tracker" href="${href}">${matchedWord}</a>`;
+      const href = trackingTool.link.replace("${ID}", _.escape(matchedWord));
+      return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
     }
   }
 }

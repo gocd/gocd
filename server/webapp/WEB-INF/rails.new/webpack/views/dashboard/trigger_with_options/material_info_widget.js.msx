@@ -16,14 +16,13 @@
 
 const $ = require('jquery');
 const m = require('mithril');
-const _ = require('lodash');
 
 const TimeFormatter               = require('helpers/time_formatter');
 const MaterialSearchResultsWidget = require('views/dashboard/trigger_with_options/material_search_results_widget');
 
 const MaterialInfoWidget = {
   oninit(vnode) {
-    vnode.attrs.searchVM.performSearch();
+    vnode.attrs.material.performSearch();
   },
 
   onupdate(vnode) {
@@ -52,16 +51,14 @@ const MaterialInfoWidget = {
     let lastRun = <em>never ran</em>;
     let user    = <em>never ran</em>;
 
-    if (!_.isEmpty(material.revision)) {
+    if (material.revision.revision) {
       comment = material.revision.comment ? material.revision.comment : <em>not specified</em>;
       date    = material.revision.date ? TimeFormatter.format(material.revision.date) : <em>not specified</em>;
-      lastRun = material.revision.lastRunRevision ? material.revision.lastRunRevision : <em>not specified</em>;
+      lastRun = material.revision.revision ? material.revision.revision : <em>not specified</em>;
       user    = material.revision.user ? material.revision.user : <em>not specified</em>;
     }
 
     const destination = material.destination ? <code>{material.destination}</code> : <em>not specified</em>;
-
-    const searchVM = vnode.attrs.searchVM;
 
     return (
       <div class={`v-tab_content material-for-trigger`}>
@@ -104,13 +101,13 @@ const MaterialInfoWidget = {
                 <input type="text"
                        class="material-revision-search"
                        placeholder="Search by revision/SHA or comment or committer name"
-                       value={searchVM.searchText()}
+                       value={material.searchText()}
                        oninput={(e) => {
-                         searchVM.updateSearchText(e.target.value);
+                         material.updateSearchText(e.target.value);
                        }}/>
               </span>
-              {searchVM.searchInProgress() ? <span class="search-in-progress"/> : null}
-              <MaterialSearchResultsWidget searchVM={searchVM}/>
+              {material.searchInProgress() ? <span class="search-in-progress"/> : null}
+              <MaterialSearchResultsWidget material={material}/>
             </span>
 
           </li>

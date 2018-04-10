@@ -23,7 +23,6 @@ const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_in
 const Modal                               = require('views/shared/new_modal');
 const PipelinePauseModalBody              = require('views/dashboard/pipeline_pause_modal_body');
 const TriggerWithOptionsVM                = require('views/dashboard/models/trigger_with_options_vm');
-const SearchVM                            = require('views/dashboard/models/material_search_vm');
 const PipelineTriggerWithOptionsModalBody = require('views/dashboard/trigger_with_options/modal_body');
 
 const PipelineOperationsWidget = {
@@ -32,8 +31,8 @@ const PipelineOperationsWidget = {
     const operationMessages = vnode.attrs.operationMessages;
     self.pauseMessage       = Stream();
 
-    self.trigger = (pipeline, json = {}) => {
-      pipeline.trigger(json).then((res) => {
+    self.trigger = (pipeline, options = {}) => {
+      pipeline.trigger(options).then((res) => {
         pipeline.triggerDisabled(true);
         operationMessages.success(pipeline.name, res.message);
       }, (res) => {
@@ -99,11 +98,9 @@ const PipelineOperationsWidget = {
     self.triggerWithOptionsInfo = Stream();
 
     self.showTriggerWithOptionsPopup = (pipeline) => {
-      let searchVM;
       TriggerWithOptionsInfo.all(pipeline.name).then((info) => {
         self.triggerWithOptionsInfo(info);
         self.triggerWithOptionsVM().initialize(info);
-        searchVM = SearchVM(pipeline.name, self.triggerWithOptionsInfo().materials);
       }).then(m.redraw);
 
       function onModalClose() {
@@ -116,7 +113,6 @@ const PipelineOperationsWidget = {
         size:    'large',
         title:   `${pipeline.name} - Trigger`,
         body:    () => (<PipelineTriggerWithOptionsModalBody vm={self.triggerWithOptionsVM}
-                                                             searchVM={searchVM}
                                                              triggerWithOptionsInfo={self.triggerWithOptionsInfo}/>),
         onclose: onModalClose,
         buttons: () => {
@@ -125,8 +121,14 @@ const PipelineOperationsWidget = {
               text:    "Trigger Pipeline",
               class:   'save primary',
               onclick: () => {
-                self.trigger(pipeline, self.triggerWithOptionsInfo().getTriggerOptionsJSON());
-                onModalClose();
+                const isValid = self.triggerWithOptionsInfo().validate();
+
+                if (isValid) {
+                  self.trigger(pipeline, self.triggerWithOptionsInfo().getTriggerOptionsJSON());
+                  onModalClose();
+                } else {
+                  m.redraw();
+                }
               }
             },
             {

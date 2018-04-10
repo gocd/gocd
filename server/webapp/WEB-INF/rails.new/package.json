@@ -29,8 +29,11 @@
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.5.1",
+    "babel-preset-stage-2": "^6.24.1",
     "fs-extra": "^5.0.0",
     "happypack": "^4.0.1",
     "html-webpack-plugin": "^2.28.0",

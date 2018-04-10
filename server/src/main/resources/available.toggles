@@ -19,7 +19,7 @@
       {
          "key": "new_dashboard_page_default",
          "description": "Enables the new dashboard page to be the default page. Default: disabled.",
-         "value": false
+         "value": true
       },
       {
          "key": "browser_console_log_ws_key",

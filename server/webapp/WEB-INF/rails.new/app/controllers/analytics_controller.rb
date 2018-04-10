@@ -51,7 +51,9 @@ class AnalyticsController < ApplicationController
   end
 
   def check_permissions
-    check_user_can_see_pipeline if params[:type] == 'pipeline'
+    if params[:type] == 'pipeline'
+      isPipelineAnalyticsEnabledOnlyForAdmins? ? check_admin_user_and_401 : check_user_can_see_pipeline
+    end
   end
 
   def render_plugin_error e
@@ -64,5 +66,9 @@ class AnalyticsController < ApplicationController
     stack_trace = com.google.common.base.Throwables.getStackTraceAsString(e)
 
     Rails.logger.error "#{cause}:\n\n#{stack_trace}"
+  end
+
+  def isPipelineAnalyticsEnabledOnlyForAdmins?
+    system_environment.enablePipelineAnalyticsOnlyForAdmins
   end
 end

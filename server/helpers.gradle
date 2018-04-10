@@ -20,9 +20,11 @@ task bumpSchemaVersion {
 
     File goConstantsFile = project(':base').file("src/main/java/com/thoughtworks/go/util/GoConstants.java")
     def originalXSDFile = project(':config:config-server').file('src/main/resources/cruise-config.xsd')
+    def originalDefaultXMLFile = project(':installers').file('go-server/release/cruise-config.xml')
 
     def goConstantsContents = goConstantsFile.getText('utf-8')
     def xsdContents = originalXSDFile.getText('utf-8')
+    def xmlContents = originalDefaultXMLFile.getText('utf-8')
 
     def currentVersion = new Integer(goConstantsFile.readLines().grep(~/.*CONFIG_SCHEMA_VERSION\s*=\s*.*/).first().trim().split("=").last().trim().replace(";", ""))
     def nextVersion = currentVersion + 1
@@ -39,6 +41,10 @@ task bumpSchemaVersion {
 
     originalXSDFile.withWriter { out ->
       out.println(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
+    }
+
+    originalDefaultXMLFile.withWriter { out ->
+      out.println(xmlContents.replaceAll("${currentVersion}", "${nextVersion}"))
     }
 
     def xslFile = project(':config:config-server').file("src/main/resources/upgrades/${nextVersion}.xsl")

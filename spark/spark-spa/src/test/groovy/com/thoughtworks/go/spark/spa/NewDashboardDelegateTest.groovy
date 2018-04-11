@@ -110,8 +110,6 @@ class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>,
     Toggles.initializeWith(featureToggleService)
     when(featureToggleService.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)).thenReturn(true)
     when(featureToggleService.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)).thenReturn(true)
-    when(featureToggleService.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)).thenReturn(true)
-
   }
 
 }

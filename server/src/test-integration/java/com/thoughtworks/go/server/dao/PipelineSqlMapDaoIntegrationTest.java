@@ -69,9 +69,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
@@ -1643,6 +1641,67 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pim2.getStageHistory().get(0).getIdentifier().getStageCounter(), is("2"));
     }
 
+    @Test
+    public void shouldLoadHistoryForDashboard() throws Exception {
+/*
+*   P1 [S1 (J1), S2(J1), S3(J1, J2)]
+*   P2 [S1 (J1)]
+*
+* */
+        String pipeline1 = "p1";
+        String pipeline2 = "p2";
+        PipelineConfig pipelineConfig1 = PipelineConfigMother.pipelineConfig(pipeline1);
+        pipelineConfig1.getStages().clear();
+        pipelineConfig1.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials("s1"));
+        pipelineConfig1.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials("s2"));
+        StageConfig s2Config = StageConfigMother.twoBuildPlansWithResourcesAndMaterials("s3");
+        pipelineConfig1.add(s2Config);
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith(pipelineConfig1);
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith(PipelineConfigMother.createPipelineConfig(pipeline2, "p2s1", "j1"));
+
+        // Pipeline 1 Counter 1: All stages green
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p1_1);
+
+        // Pipeline 1 Counter 2: S1, S2 green, S3 running. J1 failed, J2 scheduled
+        Pipeline p1_2 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.passStage(p1_2.getFirstStage());
+        Stage p1_2_s2_1 = dbHelper.scheduleStage(p1_2, pipelineConfig1.getStage("s2"));
+        dbHelper.passStage(p1_2_s2_1);
+        Stage p1_2_s3_1 = dbHelper.scheduleStage(p1_2, pipelineConfig1.getStage("s3"));
+        dbHelper.failJob(p1_2_s3_1, p1_2_s3_1.findJob("WinBuild"));
+
+        // Pipeline 1 Counter 3: S1 green, S2 running
+        Pipeline p1_3 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.passStage(p1_3.getFirstStage());
+        Stage p1_3_s2_1 = dbHelper.scheduleStage(p1_3, pipelineConfig1.getStage("s2"));
+
+        // Pipeline 1 Counter 4: S1 scheduled
+        Pipeline p1_4 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+
+        // Pipeline 2 Counter 1: All stages green
+        Pipeline p2_1 = dbHelper.schedulePipeline(p2.config, new TestingClock(new Date()));
+        dbHelper.pass(p2_1);
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistoryForDashboard(Arrays.asList(pipeline1, pipeline2)); // Load for all pipelines
+        assertThat(pipelineInstanceModels.size(), is(4));
+        PipelineInstanceModels allRunningInstancesOfPipeline1 = pipelineInstanceModels.findAll(pipeline1);
+        assertThat(allRunningInstancesOfPipeline1.size(), is(3));
+        assertThat(allRunningInstancesOfPipeline1.get(0).getCounter(), is(4));
+        assertThat(allRunningInstancesOfPipeline1.get(1).getCounter(), is(3));
+        assertThat(allRunningInstancesOfPipeline1.get(2).getCounter(), is(2));
+
+        PipelineInstanceModels allRunningInstancesOfPipeline2 = pipelineInstanceModels.findAll(pipeline2);
+        assertThat(allRunningInstancesOfPipeline2.size(), is(1));
+        assertThat(allRunningInstancesOfPipeline2.get(0).getCounter(), is(1));
+
+        PipelineInstanceModels pipelineInstanceModelsForPipeline1 = pipelineDao.loadHistoryForDashboard(Arrays.asList(pipeline1)); // Load for single pipeline
+        assertThat(pipelineInstanceModelsForPipeline1.size(), is(3));
+        assertThat(pipelineInstanceModelsForPipeline1.get(0).getCounter(), is(4));
+        assertThat(pipelineInstanceModelsForPipeline1.get(1).getCounter(), is(3));
+        assertThat(pipelineInstanceModelsForPipeline1.get(2).getCounter(), is(2));
+    }
 
     public static MaterialRevisions revisions(boolean changed) {
         MaterialRevisions revisions = new MaterialRevisions();

@@ -298,6 +298,13 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
+    public PipelineConfig addPipeline(String groupName, PipelineConfig pipelineConfig) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        cruiseConfig.addPipeline(groupName, pipelineConfig);
+        writeConfigFile(cruiseConfig);
+        return pipelineConfig;
+    }
+
     public void addSecurityAuthConfig(SecurityAuthConfig securityAuthConfig) {
         CruiseConfig config = loadForEdit();
         config.server().security().securityAuthConfigs().add(securityAuthConfig);

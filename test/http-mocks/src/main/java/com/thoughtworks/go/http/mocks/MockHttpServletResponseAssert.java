@@ -144,9 +144,15 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(200);
     }
 
-    public SELF hasRedirectUrl(String url) {
+    public SELF redirectsTo(String url) {
+        if (actual.getStatus() != 302) {
+            failWithMessage("Expected status code <%s> but was <%s>", 302, actual.getStatus());
+        }
         if(actual.getRedirectedUrl() != null && !actual.getRedirectedUrl().equals(url)) {
             failWithMessage("Expected url `%s` but was `%s`", url, actual.getRedirectedUrl());
+        }
+        if(!(actual.containsHeader("location") && actual.getHeader("location").equals(url))) {
+            failWithMessage("Expected location header to be set to `%s` but was `%s`", url, actual.getHeader("location"));
         }
         return myself;
     }

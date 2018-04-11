@@ -72,8 +72,7 @@ class NewDashboardDelegateTest implements ControllerTrait<NewDashboardDelegate>,
         get(controller.controllerPath())
 
         assertThatResponse()
-          .hasStatus(302)
-          .hasRedirectUrl("/go/admin/pipeline/new?group=defaultGroup")
+          .redirectsTo("/go/admin/pipeline/new?group=defaultGroup")
       }
 
       @Test

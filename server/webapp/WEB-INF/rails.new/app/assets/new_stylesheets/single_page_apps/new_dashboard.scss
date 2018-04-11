@@ -317,23 +317,6 @@ $btn-default: #d6d5d5;
   float:       left;
 }
 
-.toggle-old-view {
-  display:       inline-block;
-  margin:        0 0 0 10px;
-  position:      relative;
-  padding:       3px 7px;
-  border-radius: $global-border-radius;
-  background:    $btn-bg;
-  font-weight:   600;
-  color:         $btn-txt;
-  font-size:     rem-calc(11px);
-  top:           -2px;
-  &:hover, &:active, &:focus {
-    background: $btn-bg-hover;
-    color:      $btn-txt;
-  }
-}
-
 .filter {
   @include icon-before($type: search);
   position:        relative;

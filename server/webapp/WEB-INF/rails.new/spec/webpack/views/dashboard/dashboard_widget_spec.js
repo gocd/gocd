@@ -57,11 +57,6 @@ describe("Dashboard Widget", () => {
     expect($root.find('.filter input')).toBeInDOM();
   });
 
-  it("should render Old dashboard button", () => {
-    expect($root.find("a.toggle-old-view")).toContainText("Old Dashboard");
-    expect($root.find("a.toggle-old-view").attr('href')).toEqual("/go/old_dashboard");
-  });
-
   it("should show spinner before dashboard is loaded", () => {
     unmount();
     const pageSpinner = Stream(true);

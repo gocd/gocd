@@ -39,6 +39,8 @@ describe "/environments/_environment.html.erb" do
     @pipelines[2].addPipelineInstance( pipeline3)
     @environment = double('environment uat', :name => "UAT", :getPipelineModels => @pipelines)
     view.extend StagesHelper
+    view.extend EnvironmentsHelper
+    allow(view).to receive(:display_pipeline_instances_on_environments_page).and_return(true)
   end
 
   def render_show
@@ -49,13 +51,14 @@ describe "/environments/_environment.html.erb" do
 
       it "should display the environment name as link if show_add_environment is true" do
         render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: true}}
-        expect(response).to have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']", :text => /UAT/)
+        expect(response).to have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']")
+        expect(response).to have_selector("div.environment h2.entity_title", :text => /UAT/)
       end
 
       it "should display the environment name as plain text if show_add_environment is false" do
         render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: false}}
         expect(response).to have_selector("div.environment h2.entity_title", :text => /UAT/)
-        expect(response).to_not have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']", :text => /UAT/)
+        expect(response).to_not have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']")
       end
 
       it "should render environment with environment_pipeline partial" do

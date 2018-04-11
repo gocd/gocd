@@ -44,6 +44,8 @@ describe 'environments/_environments.html.erb' do
       assign(:environments, [@uat, @prod])
 
       view.extend StagesHelper
+      view.extend EnvironmentsHelper
+      allow(view).to receive(:display_pipeline_instances_on_environments_page).and_return(true)
     end
 
     it "should have wrapping div for ajax refresh" do

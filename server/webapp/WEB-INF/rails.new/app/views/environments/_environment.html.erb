@@ -3,11 +3,10 @@
     <div class="pipelines">
         <%= content_wrapper_tag %>
         <h2 class="entity_title">
-            <% if scope[:show_edit_environments] %>
-                <%= link_to scope[:environment].name(), environment_show_path(:name => scope[:environment].name())%>
-            <% else %>
-                <%= scope[:environment].name() %>
-            <% end %>
+          <%= scope[:environment].name() %>
+          <% if scope[:show_edit_environments] %>
+            <%= link_to "", environment_show_path(:name => scope[:environment].name()), :class => 'icon16 setting' %>
+          <% end %>
         </h2>
       <%- if display_pipeline_instances_on_environments_page %>
         <% scope[:pipeline_models] = scope[:environment].getPipelineModels() %>

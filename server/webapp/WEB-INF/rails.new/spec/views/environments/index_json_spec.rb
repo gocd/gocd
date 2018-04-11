@@ -19,6 +19,10 @@ require 'rails_helper'
 describe 'environments/index.json.erb' do
   include EnvironmentsHelper
 
+  before do
+    allow(view).to receive(:display_pipeline_instances_on_environments_page).and_return(true)
+  end
+
   describe "render" do
 
     def assert_result

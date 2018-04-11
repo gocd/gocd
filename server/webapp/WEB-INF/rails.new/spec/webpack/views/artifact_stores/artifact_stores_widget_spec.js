@@ -169,12 +169,15 @@ describe('Artifact Stores Widget', () => {
 
       m.redraw();
 
+      const refreshRequest = jasmine.Ajax.requests.mostRecent();
+      expect(refreshRequest.url).toBe('/go/api/admin/artifact_stores');
+      expect(refreshRequest.method).toBe('GET');
+
       const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
       expect(request.url).toBe('/go/api/admin/artifact_stores');
       expect(request.method).toBe('POST');
 
-      //TODO
-      //expect($('.success')).toContainText('The profile unit-test was created successfully');
+      expect($('.success')).toContainText('The artifact store unit-test was created successfully');
     });
 
     it("should change plugin view template in modal on change of plugin from dropdown", () => {

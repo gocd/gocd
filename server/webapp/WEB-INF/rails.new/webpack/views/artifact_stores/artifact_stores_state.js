@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+const Stream = require('mithril/stream');
 
 class ArtifactStoresState {
 
@@ -22,7 +23,7 @@ class ArtifactStoresState {
     this._pluginInfos    = undefined;
     this._error          = false;
     this._loading        = true;
-    this.message         = {type: undefined, message: undefined};
+    this.message         = Stream({type: undefined, message: undefined});
   }
 
   init() {
@@ -73,11 +74,15 @@ class ArtifactStoresState {
   }
 
   setAlertMessage(message) {
-    this.message = {type: 'alert', message};
+    this.message({type: 'alert', message});
+  }
+
+  setSuccessMessage(message) {
+    this.message({type: 'success', message});
   }
 
   resetMessage() {
-    this.message = {type: undefined, message: undefined};
+    this.message({type: undefined, message: undefined});
   }
 }
 

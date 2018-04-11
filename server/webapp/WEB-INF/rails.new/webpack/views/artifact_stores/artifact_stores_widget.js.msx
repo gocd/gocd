@@ -74,6 +74,7 @@ class ArtifactStoresWidget {
           <HeaderPanel title="Artifact Stores" button={addButton}/>
           <div class="artifact-stores">
             {noPluginsMessage}
+            <f.dismissableCallout message={this.state.message}/>
           </div>
           {
             _.map(this.state.artifactStores.groupByArtifactStoreProperty('pluginId'), (stores, pluginId) => {
@@ -93,7 +94,7 @@ function reloadArtifactStores(widget) {
   ArtifactStores.all().then((artifactStores) => {
     widget.state.artifactStores = artifactStores;
   }, (message) => {
-    widget.state.message = message;
+    widget.state.setAlertMessage(message);
   }).always(m.redraw);
 }
 
@@ -126,10 +127,7 @@ function addSucceeded(modal, newArtifactStore, widget) {
   return function () {
     modal.destroy();
     reloadArtifactStores(widget);
-    widget.state.message = {
-      type:    'success',
-      message: `The artifact store ${newArtifactStore().id()} was created successfully.`
-    };
+    widget.state.setSuccessMessage(`The artifact store ${newArtifactStore().id()} was created successfully.`);
   };
 }
 

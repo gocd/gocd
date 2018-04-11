@@ -218,21 +218,6 @@ const RolesWidget = function (options) {
     view (vnode) {
 
       const noPluginThatSupportsAuthorization = vnode.state.pluginInfos().countPluginInfo() === 0;
-      let errorMessage;
-      if (vnode.state.message().message) {
-        errorMessage = (
-          <f.row>
-            <f.callout type={vnode.state.message().type}>
-              {vnode.state.message().message}
-
-              <button class="close-button" aria-label="Dismiss alert" type="button"
-                      onclick={vnode.state.clearMessage.bind(vnode.state)}>
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </f.callout>
-          </f.row>
-        );
-      }
 
       let noAuthorizationPluginMessage;
       if (noPluginThatSupportsAuthorization) {
@@ -253,7 +238,7 @@ const RolesWidget = function (options) {
 
           <div class="roles">
             {noAuthorizationPluginMessage}
-            {errorMessage}
+            <f.dismissableCallout message={vnode.state.message} />
             <f.row>
 
               {vnode.state.roles().mapRoles((role) => {

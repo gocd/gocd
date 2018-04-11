@@ -267,22 +267,6 @@ const AuthConfigsWidget = {
 
   view (vnode) {
 
-    let errorMessage;
-    if (vnode.state.message().message) {
-      errorMessage = (
-        <f.row>
-          <f.callout type={vnode.state.message().type}>
-            {vnode.state.message().message}
-
-            <button class="close-button" aria-label="Dismiss alert" type="button"
-                    onclick={vnode.state.clearMessage.bind(vnode.state)}>
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </f.callout>
-        </f.row>
-      );
-    }
-
     let noAuthorizationPluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0) {
       noAuthorizationPluginMessage = <InfoCalloutWidget message="No authorization plugin installed."/>;
@@ -301,7 +285,7 @@ const AuthConfigsWidget = {
 
         <div class="auth-configs">
           {noAuthorizationPluginMessage}
-          {errorMessage}
+          <f.dismissableCallout message={vnode.state.message} />
           <f.row>
 
             {vnode.state.authConfigs().mapAuthConfigs((authConfig) => {

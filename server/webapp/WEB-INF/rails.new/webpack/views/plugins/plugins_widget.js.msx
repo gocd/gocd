@@ -124,22 +124,6 @@ const PluginsWidget = {
 
   view (vnode) {
 
-    let errorMessage;
-    if (vnode.state.message().message) {
-      errorMessage = (
-        <f.row>
-          <f.callout type={vnode.state.message().type}>
-            {vnode.state.message().message}
-
-            <button class="close-button" aria-label="Dismiss alert" type="button"
-                    onclick={vnode.state.clearMessage.bind(vnode.state)}>
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </f.callout>
-        </f.row>
-      );
-    }
-
     const noPluginsInstalled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
 
     let noPluginsMessage;
@@ -155,8 +139,7 @@ const PluginsWidget = {
 
         <div class="plugins-settings">
           {noPluginsMessage}
-          {errorMessage}
-
+          <f.dismissableCallout message={vnode.state.message} />
 
           <f.row>
 

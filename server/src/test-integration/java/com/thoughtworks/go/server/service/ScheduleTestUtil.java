@@ -366,6 +366,10 @@ public class ScheduleTestUtil {
         return saveConfigWith(DEFAULT_GROUP, pipelineName, stageName, materialDecls);
     }
 
+    public AddedPipeline saveConfigWith(PipelineConfig pipelineConfig) {
+        return new AddedPipeline(configHelper.addPipeline(DEFAULT_GROUP, pipelineConfig), null);
+    }
+
     public AddedPipeline saveConfigWith(String pipelineName, String stageName, MaterialDeclaration materialDeclaration, String[] builds) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(materialDeclaration.material.config());

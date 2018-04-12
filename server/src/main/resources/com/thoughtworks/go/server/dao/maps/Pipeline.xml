@@ -270,7 +270,7 @@
           (
               SELECT stages.pipelineId
               FROM stages
-              WHERE stages.state = 'Building' AND latestRun = true
+              WHERE stages.state IN('Building', 'Failing') AND latestRun = true
           )
         UNION
           (
@@ -290,7 +290,7 @@
           (
               SELECT stages.pipelineId
               FROM stages
-              WHERE stages.state = 'Building' AND latestRun = true
+              WHERE stages.state IN('Building', 'Failing') AND latestRun = true
           )
         UNION
           (

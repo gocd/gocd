@@ -479,6 +479,14 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         jobInstanceDao.updateStateAndResult(second);
     }
 
+    public void failJob(Stage stage, JobInstance instance) {
+        instance.completing(Failed);
+        instance.completed(new Date());
+        jobInstanceDao.updateStateAndResult(instance);
+        stage.calculateResult();
+        updateResultInTransaction(stage, stage.getResult());
+    }
+
     public void cancelStage(Stage stage) {
         for (JobInstance job : stage.getJobInstances()) {
             job.cancel();

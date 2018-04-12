@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,18 +44,15 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class EnvironmentConfigServiceTest {
-    public GoConfigService mockGoConfigService;
-    public EnvironmentConfigService environmentConfigService;
-    private BuildAssignment mockBuildAssignment;
+    private GoConfigService mockGoConfigService;
+    private EnvironmentConfigService environmentConfigService;
     private SecurityService securityService;
-    private EntityHashingService entityHashingService;
 
     @Before
     public void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
-        mockBuildAssignment = mock(BuildAssignment.class);
         securityService = mock(SecurityService.class);
-        entityHashingService = mock(EntityHashingService.class);
+        EntityHashingService entityHashingService = mock(EntityHashingService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService);
     }
 
@@ -510,7 +507,7 @@ public class EnvironmentConfigServiceTest {
         return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 
-    public static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
+    private static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         for (String selectedPipeline : selectedPipelines) {
             config.addPipeline(new CaseInsensitiveString(selectedPipeline));

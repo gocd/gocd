@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class DeleteEnvironmentCommandTest {
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         environmentName = new CaseInsensitiveString("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
@@ -65,12 +65,12 @@ public class DeleteEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
+    public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() throws Exception {
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(401));
-        assertThat(result.message(), containsString("Failed to delete environment 'Dev'. User 'user' does not have permission to update environments."));
+        assertThat(result.message(), containsString("Failed to access environment 'Dev'. User 'user' does not have permission to access environment."));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +16,34 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.List;
 
-public class PatchEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
-    private final GoConfigService goConfigService;
-    private final EnvironmentConfig environmentConfig;
+public class PatchEnvironmentCommand extends EnvironmentCommand {
     private final List<String> pipelinesToAdd;
     private final List<String> pipelinesToRemove;
     private final List<String> agentsToAdd;
     private final List<String> agentsToRemove;
     private final List<EnvironmentVariableConfig> envVarsToAdd;
     private final List<String> envVarsToRemove;
-    private final Username username;
-    private final HttpLocalizedOperationResult result;
 
     public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result) {
-        super(actionFailed, environmentConfig, result);
-
-        this.goConfigService = goConfigService;
-        this.environmentConfig = environmentConfig;
+        super(actionFailed, environmentConfig, result, goConfigService, username);
         this.pipelinesToAdd = pipelinesToAdd;
         this.pipelinesToRemove = pipelinesToRemove;
         this.agentsToAdd = agentsToAdd;
         this.agentsToRemove = agentsToRemove;
         this.envVarsToAdd = envVarsToAdd;
         this.envVarsToRemove = envVarsToRemove;
-        this.username = username;
-        this.result = result;
     }
 
     @Override
@@ -187,19 +179,5 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         isValid = isValid && validateRemovalOfInvalidAgents();
         isValid = isValid && validateRemovalOfInvalidEnvironmentVariable();
         return isValid;
-    }
-
-    @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(environmentConfig);
-    }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isAdministrator(username.getUsername())) {
-            result.unauthorized("Failed to update environment '" + environmentConfig.name() + "'. User '" + username.getDisplayName() + "' does not have permission to update environments", HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 }

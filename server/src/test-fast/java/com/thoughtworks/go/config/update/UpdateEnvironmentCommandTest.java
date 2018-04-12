@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class UpdateEnvironmentCommandTest {
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         oldEnvironmentName = new CaseInsensitiveString("Dev");
         newEnvironmentName = new CaseInsensitiveString("Test");
         oldEnvironmentConfig = new BasicEnvironmentConfig(oldEnvironmentName);
@@ -123,7 +123,7 @@ public class UpdateEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unauthorized(actionFailed + " User 'user' does not have permission to update environments.", HealthStateType.unauthorised());
+        expectResult.unauthorized("Failed to access environment 'Test'. User 'user' does not have permission to access environment.", HealthStateType.unauthorised());
 
         assertThat(result, is(expectResult));
     }

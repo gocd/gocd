@@ -59,7 +59,7 @@ trait PipelineGroupOperateUserSecurity {
   @Test
   void 'should allow pipeline group admin users, with security enabled'() {
     enableSecurity()
-    loginAsGroupAdmin()
+    loginAsGroupAdmin(pipelineName)
 
     makeHttpCall()
     assertRequestAuthorized()
@@ -68,7 +68,7 @@ trait PipelineGroupOperateUserSecurity {
   @Test
   void "should disallow pipeline view users, with security enabled"() {
     enableSecurity()
-    loginAsPipelineViewUser()
+    loginAsPipelineViewUser(pipelineName)
 
     makeHttpCall()
 
@@ -78,10 +78,12 @@ trait PipelineGroupOperateUserSecurity {
   @Test
   void 'should allow pipeline group operate users, with security enabled'() {
     enableSecurity()
-    loginAsGroupOperateUser()
+    loginAsGroupOperateUser(pipelineName)
 
     makeHttpCall()
     assertRequestAuthorized()
   }
+
+  abstract String getPipelineName()
 
 }

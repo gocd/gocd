@@ -131,9 +131,17 @@ public abstract class AbstractAuthenticationHelper {
     private String findPipelineGroupName(Request request) {
         String groupName = request.params("group");
         if (StringUtils.isBlank(groupName)) {
-            groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(request.params("pipeline_name")));
+            groupName = goConfigService.findGroupNameByPipeline(getPipelineNameFromRequest(request));
         }
         return groupName;
+    }
+
+    private CaseInsensitiveString getPipelineNameFromRequest(Request request) {
+        String pipelineName = request.params("pipeline_name");
+        if (StringUtils.isBlank(pipelineName)) {
+            pipelineName = request.queryParams("pipeline_name");
+        }
+        return new CaseInsensitiveString(pipelineName);
     }
 
     private Username currentUsername() {

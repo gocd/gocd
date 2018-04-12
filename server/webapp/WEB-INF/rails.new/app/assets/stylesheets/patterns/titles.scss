@@ -42,15 +42,17 @@ h2.entity_title {
     font-size: 20px;
 }
 
-.environment h2.entity_title,.pipeline_group h2.entity_title {
+.pipeline_group h2.entity_title {
     background-position: -12px -10px;
     line-height: 30px;
     padding-left: 35px;
 }
 
-.environment h2.entity_title,.pipeline_group h2.entity_title {
-    background-image: image_url('g9/icons/icon_environments_24.png');
+.environment h2.entity_title {
+    background-position: -12px -10px;
+    line-height: 30px;
 }
+
 .pipeline_group h2.entity_title {
   background-image: image_url('g9/icons/icon_pipelinegroup_24.png');
 }

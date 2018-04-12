@@ -2222,8 +2222,20 @@ a:link.help, a:visited.help {
   border: 0;
 }
 
-#environments #body_content .content_wrapper_inner, #pipelines #body_content .content_wrapper_inner {
+#pipelines #body_content .content_wrapper_inner {
   padding: 20px 0;
+}
+
+#environments #body_content .content_wrapper_inner{
+  padding: 10px 0;
+}
+
+.environments{
+  margin-top: 20px;
+  .icon16.setting {
+    float: none;
+    margin-left: 10px;
+  }
 }
 
 .flash {

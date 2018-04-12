@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.presentation.pipelinehistory.Environment;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @understands instances of config objects wired under environments
@@ -34,11 +35,13 @@ import org.springframework.stereotype.Service;
 public class EnvironmentService {
     private final EnvironmentConfigService environmentConfigService;
     private final PipelineHistoryService pipelineHistoryService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public EnvironmentService(EnvironmentConfigService environmentConfigService, PipelineHistoryService pipelineHistoryService) {
+    public EnvironmentService(EnvironmentConfigService environmentConfigService, PipelineHistoryService pipelineHistoryService, SystemEnvironment systemEnvironment) {
         this.environmentConfigService = environmentConfigService;
         this.pipelineHistoryService = pipelineHistoryService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public List<Environment> getEnvironments(Username username) throws NoSuchEnvironmentException {
@@ -52,7 +55,7 @@ public class EnvironmentService {
 
     void addEnvironmentFor(CaseInsensitiveString environmentName, Username username, ArrayList<Environment> environments) throws NoSuchEnvironmentException {
         List<CaseInsensitiveString> pipelines = environmentConfigService.pipelinesFor(environmentName);
-        if (pipelines.isEmpty()) {
+        if (pipelines.isEmpty() || !systemEnvironment.displayPipelineInstancesOnEnvironmentsPage()) {
             environments.add(new Environment(CaseInsensitiveString.str(environmentName), new ArrayList<>()));
             return;
         }

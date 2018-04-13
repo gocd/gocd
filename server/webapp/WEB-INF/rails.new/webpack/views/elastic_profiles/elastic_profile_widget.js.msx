@@ -18,6 +18,7 @@ const m                     = require('mithril');
 const f                     = require('helpers/form_helper');
 const ComponentMixins       = require('helpers/mithril_component_mixins');
 const PluginCollapsibleList = require('views/shared/plugin_config/plugin_collapsible_list');
+const ActionButtons         = require('views/shared/plugin_config/action_buttons');
 
 const ElasticProfileWidget = {
   oninit(vnode) {
@@ -27,28 +28,21 @@ const ElasticProfileWidget = {
 
   view(vnode) {
     const profile = vnode.attrs.profile;
-    let actionIcons;
+    let actionButtons;
 
     if (vnode.attrs.pluginInfo) {
-      actionIcons = (
-        <div class="plugin-actions">
-          <f.link class="edit-profile" onclick={vnode.attrs.onEdit}/>
-          <f.link class="clone-profile" onclick={vnode.attrs.onClone}/>
-          <f.link class="delete-profile-confirm" onclick={vnode.attrs.onDelete}/>
-        </div>
+      actionButtons = (
+        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
       );
     } else {
-      actionIcons = (
-        <div class="plugin-actions">
-          <f.link class="edit-profile disabled" title="Plugin not found"/>
-          <f.link class="clone-profile disabled" title="Plugin not found"/>
-          <f.link class="delete-profile-confirm" onclick={vnode.attrs.onDelete}/>
-        </div>
+      actionButtons = (
+        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}
+                       title="Plugin not found" disabled={true}/>
       );
     }
     return (
       <PluginCollapsibleList headerKey="Profile ID" headerValue={profile.id()} properties={profile.properties()}
-                             actionIcons={actionIcons}/>
+                             actionButtons={actionButtons}/>
     );
   }
 };

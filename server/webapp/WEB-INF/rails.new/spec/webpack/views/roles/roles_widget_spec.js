@@ -215,12 +215,12 @@ describe("RolesWidget", () => {
 
     it("should list existing plugin roles in absence of authorization plugin with disabled edit and clone button", () => {
       const rows    = $root.find('.role-description');
-      const actions = $root.find('.role-actions');
+      const actions = $root.find('.plugin-actions');
 
       expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
       expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
-      expect(actions.eq(0).find('.edit-role').hasClass('disabled')).toEqual(true);
-      expect(actions.eq(0).find('.clone-role').hasClass('disabled')).toEqual(true);
+      expect(actions.eq(0).find('.edit-button').hasClass('disabled')).toEqual(true);
+      expect(actions.eq(0).find('.clone-button').hasClass('disabled')).toEqual(true);
     });
   });
 
@@ -434,7 +434,7 @@ describe("RolesWidget", () => {
       });
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
-      simulateEvent.simulate($root.find('.edit-role').get(1), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(1), 'click');
       m.redraw();
 
       expect($('.reveal:visible')).toBeInDOM();
@@ -454,7 +454,7 @@ describe("RolesWidget", () => {
       });
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
-      simulateEvent.simulate($root.find('.edit-role').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
 
       expect($('.reveal:visible')).toBeInDOM();
       expect($('.reveal:visible input[data-prop-name=name]')).toBeDisabled();
@@ -473,7 +473,7 @@ describe("RolesWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.edit-role').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
 
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .save').get(0), 'click');
@@ -493,7 +493,7 @@ describe("RolesWidget", () => {
       m.redraw();
       expect($root.find('.plugin-role-read-only')).toHaveClass('show');
 
-      simulateEvent.simulate($root.find('.edit-role').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
       m.redraw();
@@ -505,7 +505,7 @@ describe("RolesWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show confirm modal before deleting a role", () => {
-      simulateEvent.simulate($root.find('.delete-role-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
     });
@@ -516,7 +516,7 @@ describe("RolesWidget", () => {
         status:       200
       });
 
-      simulateEvent.simulate($root.find('.delete-role-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-role').get(0), 'click');
       m.redraw();
@@ -530,7 +530,7 @@ describe("RolesWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.delete-role-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-role').get(0), 'click');
       m.redraw();
@@ -550,7 +550,7 @@ describe("RolesWidget", () => {
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.clone-role').get(0), 'click');
+      simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
 
       m.redraw();
       expect($('.reveal:visible')).toBeInDOM();

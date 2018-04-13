@@ -43,51 +43,6 @@ $elastic-profile-icon-hover-color: #000;
   overflow:         auto;
 }
 
-.edit-profile {
-  @include icon-before($type: pencil-square-o, $color: $elastic-profile-icon-color);
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $elastic-profile-icon-hover-color;
-      }
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
-.delete-profile-confirm {
-  @include icon-before($type: trash, $color: $elastic-profile-icon-color);
-  position: relative;
-  top:      -2px;
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $elastic-profile-icon-hover-color;
-      }
-    }
-  }
-}
-
-.clone-profile {
-  @include icon-before($type: clone, $color: $elastic-profile-icon-color);
-  &:hover {
-    &:before {
-      color: $elastic-profile-icon-hover-color;
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
 .reveal .delete-profile {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
@@ -98,12 +53,6 @@ $elastic-profile-icon-hover-color: #000;
   display:        inline-block;
   vertical-align: middle;
   float:          left;
-}
-
-.plugin-actions {
-  position: absolute;
-  right:    10px;
-  top:      13px;
 }
 
 .unknown-plugin-icon {

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const f               = require('helpers/form_helper');
-const ComponentMixins = require('helpers/mithril_component_mixins');
-const RoleUserReadOnlyWidget  = require('views/roles/gocd_role_user_readonly_widget');
+const m                      = require('mithril');
+const Stream                 = require('mithril/stream');
+const f                      = require('helpers/form_helper');
+const ComponentMixins        = require('helpers/mithril_component_mixins');
+const RoleUserReadOnlyWidget = require('views/roles/gocd_role_user_readonly_widget');
+const ActionButtons          = require('views/shared/plugin_config/action_buttons');
 
 const RoleWidget = {
   oninit (vnode) {
@@ -54,12 +55,7 @@ const RoleWidget = {
         </div>
 
         <RoleUserReadOnlyWidget role={vnode.attrs.role} showState={showState}/>
-
-        <div class="role-actions">
-          <f.link onclick={vnode.attrs.onEdit} class={'edit-role'}/>
-          <f.link onclick={vnode.attrs.onClone} class={'clone-role'}/>
-          <f.link class='delete-role-confirm' onclick={vnode.attrs.onDelete}/>
-        </div>
+        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
       </div>
     );
   }

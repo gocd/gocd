@@ -209,9 +209,9 @@ describe("ElasticProfilesWidget", () => {
       expect(allProfiles.eq(0).find('.plugin-group-header').find('.plugin-status')).not.toBeInDOM();
 
       expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(dockerElasticProfileJSON.id);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-profile')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-profile')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-profile-confirm')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-button')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-button')).toBeInDOM();
+      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-button')).toBeInDOM();
 
       expect(allProfiles.eq(1).find('.plugin-icon img').attr("src")).toEqual(ecsPluginInfoJSON._links.image.href);
       expect(allProfiles.eq(1).find('.plugin-group-header .plugin-name')).toContainText(ecsPluginInfoJSON.about.name);
@@ -220,9 +220,9 @@ describe("ElasticProfilesWidget", () => {
       expect(allProfiles.eq(1).find('.plugin-group-header').find('.plugin-status')).toContainText('Status Report');
 
       expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(ecsElasticProfileJSON.id);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-profile')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-profile')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-profile-confirm')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-button')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-button')).toBeInDOM();
+      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-button')).toBeInDOM();
     });
 
     it("should render error if index call fails", () => {
@@ -353,7 +353,7 @@ describe("ElasticProfilesWidget", () => {
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.edit-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible')).toBeInDOM();
       expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
@@ -365,7 +365,7 @@ describe("ElasticProfilesWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.edit-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
 
       expect($('.alert')).toContainText('Boom!');
@@ -383,7 +383,7 @@ describe("ElasticProfilesWidget", () => {
       m.redraw();
       expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 
-      simulateEvent.simulate($root.find('.edit-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
       m.redraw();
@@ -395,7 +395,7 @@ describe("ElasticProfilesWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show confirm modal when deleting a profile", () => {
-      simulateEvent.simulate($root.find('.delete-profile-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
     });
@@ -406,7 +406,7 @@ describe("ElasticProfilesWidget", () => {
         status:       200
       });
 
-      simulateEvent.simulate($root.find('.delete-profile-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-profile').get(0), 'click');
       m.redraw();
@@ -420,7 +420,7 @@ describe("ElasticProfilesWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.delete-profile-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-profile').get(0), 'click');
       m.redraw();
@@ -442,7 +442,7 @@ describe("ElasticProfilesWidget", () => {
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
 
       m.redraw();
       expect($('.reveal:visible')).toBeInDOM();
@@ -455,7 +455,7 @@ describe("ElasticProfilesWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
       m.redraw();
 
       expect($('.alert')).toContainText('Boom!');
@@ -471,7 +471,7 @@ describe("ElasticProfilesWidget", () => {
         }
       });
 
-      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+      simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
       m.redraw();
 
       const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);

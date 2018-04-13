@@ -38,13 +38,13 @@ public class RestfulService {
      * buildId should only be given when caller is absolutely sure about the job instance
      * (makes sense in agent-uploading artifacts/properties scenario because agent won't run a job if its copied over(it only executes real jobs)) -JJ
      */
-    public JobIdentifier findJob(String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, Long buildId) {
+    public JobIdentifier findJob(String pipelineName, String counter, String stageName, String stageCounter, String buildName, Long buildId) {
         JobConfigIdentifier jobConfig = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
 
-        Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(jobConfig.getPipelineName(), counterOrLabel);
+        PipelineIdentifier pipelineIdentifier = new PipelineIdentifier(jobConfig.getPipelineName(), Long.parseLong(counter));
 
         stageCounter = StringUtils.isEmpty(stageCounter) ? JobIdentifier.LATEST : stageCounter;
-        StageIdentifier stageIdentifier = translateStageCounter(pipeline.getIdentifier(), jobConfig.getStageName(), stageCounter);
+        StageIdentifier stageIdentifier = translateStageCounter(pipelineIdentifier, jobConfig.getStageName(), stageCounter);
 
         JobIdentifier jobId;
         if (buildId == null) {
@@ -70,13 +70,5 @@ public class RestfulService {
         } else {
             return new StageIdentifier(pipelineIdentifier, stageName, stageCounter);
         }
-    }
-
-    public JobIdentifier findJobForBuildId(String pipelineName, Long counter, String stageName, String stageCounter, String buildName, Long buildId) {
-        JobConfigIdentifier jobConfigIdentifier = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
-
-        PipelineIdentifier pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), counter);
-        StageIdentifier stageIdentifier = new StageIdentifier(pipelineIdentifier, jobConfigIdentifier.getStageName(), stageCounter);
-        return new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName(), buildId);
     }
 }

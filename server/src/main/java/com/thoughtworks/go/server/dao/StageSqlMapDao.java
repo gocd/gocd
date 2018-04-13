@@ -181,7 +181,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public int findLatestStageCounter(PipelineIdentifier pipeline, String stageName) {
         Map<String, Object> toGet = arguments("pipelineName", pipeline.getName()).and("pipelineCounter",
-                pipeline.getCounter()).and("pipelineLabel", pipeline.getLabel()).and(
+                pipeline.getCounter()).and(
                 "stageName", stageName).asMap();
         Integer maxCounter = (Integer) getSqlMapClientTemplate().queryForObject(
                 "findMaxStageCounter", toGet);

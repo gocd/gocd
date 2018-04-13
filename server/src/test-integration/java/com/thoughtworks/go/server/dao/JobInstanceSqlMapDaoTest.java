@@ -279,11 +279,11 @@ public class JobInstanceSqlMapDaoTest {
         stageDao.saveWithJobs(savedPipeline, newStage);
         dbHelper.passStage(newStage);
 
-        JobIdentifier oldJobIdentifierThroughOldJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), OTHER_JOB_NAME);
+        JobIdentifier oldJobIdentifierThroughOldJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), null, STAGE_NAME, String.valueOf(counter)), OTHER_JOB_NAME);
 
-        JobIdentifier oldJobIdentifierThroughCopiedNewJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(newStage.getCounter())), OTHER_JOB_NAME);
+        JobIdentifier oldJobIdentifierThroughCopiedNewJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), null, STAGE_NAME, String.valueOf(newStage.getCounter())), OTHER_JOB_NAME);
 
-        JobIdentifier newJobIdentifierThroughRerunJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(newStage.getCounter())), JOB_NAME);
+        JobIdentifier newJobIdentifierThroughRerunJob = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), null, STAGE_NAME, String.valueOf(newStage.getCounter())), JOB_NAME);
 
         assertThat(oldJobIdentifierThroughOldJob, is(firstOldStage.getJobInstances().getByName(OTHER_JOB_NAME).getIdentifier()));
         assertThat(oldJobIdentifierThroughCopiedNewJob, is(firstOldStage.getJobInstances().getByName(OTHER_JOB_NAME).getIdentifier()));

@@ -87,7 +87,8 @@ public class DashboardControllerDelegate extends ApiController {
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(selectedPipelinesCookie, userId);
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
-        String etag = DigestUtils.md5Hex(pipelineGroups.stream().map(GoDashboardPipelineGroup::etag).collect(Collectors.joining("/")));
+        String pipelineGroupsEtag = pipelineGroups.stream().map(GoDashboardPipelineGroup::etag).collect(Collectors.joining("/"));
+        String etag = DigestUtils.md5Hex(currentUserLoginName().toString() + "/" + pipelineGroupsEtag);
 
         if (fresh(request, etag)) {
             return notModified(response);

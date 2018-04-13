@@ -71,4 +71,12 @@ public class RestfulService {
             return new StageIdentifier(pipelineIdentifier, stageName, stageCounter);
         }
     }
+
+    public JobIdentifier findJobForBuildId(String pipelineName, Long counter, String stageName, String stageCounter, String buildName, Long buildId) {
+        JobConfigIdentifier jobConfigIdentifier = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
+
+        PipelineIdentifier pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), counter);
+        StageIdentifier stageIdentifier = new StageIdentifier(pipelineIdentifier, jobConfigIdentifier.getStageName(), stageCounter);
+        return new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName(), buildId);
+    }
 }

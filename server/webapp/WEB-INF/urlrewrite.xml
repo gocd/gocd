@@ -454,7 +454,7 @@
     <rule>
         <name>RESTful rerun - Rerun a stage</name>
         <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
-        <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
+        <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3</to>
     </rule>
 
     <rule>
@@ -488,7 +488,7 @@
 
     <rule>
         <name>RESTful Properties Search for one job</name>
-        <condition type="parameter" name="pipelineLabel"/>
+        <condition type="parameter" name="pipelineCounter"/>
         <from>^/properties/search(\?.*)?$</from>
         <to type="forward">/repository/restful/properties/job/search</to>
     </rule>
@@ -503,19 +503,19 @@
         <name>Post RESTful Property for a job</name>
         <condition type="parameter" name="value"/>
         <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+        <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
     </rule>
 
     <rule>
         <name>RESTful Property for a job</name>
         <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
     </rule>
 
     <rule>
         <name>RESTful Properties for a job</name>
         <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
     </rule>
 
     <rule>
@@ -539,7 +539,7 @@
     <rule>
         <name>Specific Build Detail</name>
         <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-        <to type="forward">/tab/build/recent?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+        <to type="forward">/tab/build/recent?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
     </rule>
 
 

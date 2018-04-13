@@ -251,11 +251,11 @@ public class ScheduleService {
         return schedulingChecker.canAutoTriggerConsumer(pipelineConfig);
     }
 
-    public Stage rerunStage(String pipelineName, String counterOrLabel, String stageName) {
-        return lockAndRerunStage(pipelineName, counterOrLabel, stageName, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
+    public Stage rerunStage(String pipelineName, String counter, String stageName) throws Exception {
+        return lockAndRerunStage(pipelineName, counter, stageName, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
     }
 
-    private Stage lockAndRerunStage(String pipelineName, String counterOrLabel, String stageName, StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
+    private Stage lockAndRerunStage(String pipelineName, String counter, String stageName, StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
         synchronized (mutexForPipeline(pipelineName)) {
             OperationResult result = new ServerHealthStateOperationResult();
             if (!schedulingChecker.canSchedule(result)) {
@@ -266,9 +266,9 @@ public class ScheduleService {
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, username)) {
                 errorHandler.noOperatePermission(pipelineName, stageName);
             }
-            Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+            Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counter);
             if (pipeline == null) {
-                errorHandler.nullPipeline(pipelineName, counterOrLabel, stageName);
+                errorHandler.nullPipeline(pipelineName, counter, stageName);
             }
             if (!pipeline.hasStageBeenRun(stageName)) {
                 if (goConfigService.hasPreviousStage(pipelineName, stageName)) {

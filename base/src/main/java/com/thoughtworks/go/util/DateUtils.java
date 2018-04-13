@@ -30,6 +30,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class DateUtils {
 
     private static final DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
+    private static final DateTimeFormatter formatterUtc = formatter.withZoneUTC();
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     public static String formatISO8601(Date from) {
@@ -40,7 +41,7 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date);
+        return formatterUtc.print(date.getTime());
     }
 
     public static String formatRFC822(Date date) {

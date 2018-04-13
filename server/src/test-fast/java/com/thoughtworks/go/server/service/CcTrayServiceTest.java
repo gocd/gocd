@@ -113,12 +113,12 @@ public class CcTrayServiceTest {
 
         assertThat(xml, is("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Projects>\n" +
-                "  <Project name=\"proj1\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"" + "prefix1" + "/web-url\" />\n" +
+                "  <Project name=\"proj1\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"" + "prefix1" + "/web-url\" />\n" +
                 "</Projects>"));
     }
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) throws Exception {
-        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", DateUtils.parseYYYYMMDD("2010-05-23"), "web-url");
+        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
         status.updateViewers(viewers(allowedUsers));
         return status;
     }
@@ -126,7 +126,7 @@ public class CcTrayServiceTest {
     private void assertCcTrayXmlFor(String actualXml, final String siteUrlPrefix, final String... projects) {
         StringBuilder expectedXml = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n");
         for (String project : projects) {
-            expectedXml.append("  <Project name=\"").append(project).append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"" + siteUrlPrefix + "/web-url\" />\n");
+            expectedXml.append("  <Project name=\"").append(project).append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"" + siteUrlPrefix + "/web-url\" />\n");
         }
         expectedXml.append("</Projects>");
 

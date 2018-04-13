@@ -57,11 +57,12 @@ public class TriggerWithOptionsViewRepresenter {
 
     private static Consumer<OutputWriter> materialRevision(MaterialRevision revision) {
         return revisionWriter -> {
-            revisionWriter.addIfNotNull("date", revision.getDateOfLatestModification())
-                .addIfNotNull("user", revision.getLatestUser())
-                .addIfNotNull("comment", revision.getLatestComment())
-                .addIfNotNull("last_run_revision", revision.getLatestRevisionString());
-
+            if (revision != null) {
+                revisionWriter.addIfNotNull("date", revision.getDateOfLatestModification())
+                        .addIfNotNull("user", revision.getLatestUser())
+                        .addIfNotNull("comment", revision.getLatestComment())
+                        .addIfNotNull("last_run_revision", revision.getLatestRevisionString());
+            }
         };
     }
 }

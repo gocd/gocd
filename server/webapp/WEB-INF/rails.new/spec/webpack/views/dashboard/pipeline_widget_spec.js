@@ -740,6 +740,19 @@ describe("Dashboard Pipeline Widget", () => {
         expect($('.reveal:visible')).toBeInDOM();
       });
 
+      it('should render error message in modal when api response parsing fails', () => {
+        stubTriggerOptionsWithInvalidData(pipelineName);
+        const triggerWithOptionsButton = $root.find('.play_with_options');
+
+        expect($('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate(triggerWithOptionsButton.get(0), 'click');
+        m.redraw();
+
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.callout.alert')).toBeInDOM();
+      });
+
       it("should show appropriate header for trigger with options popup modal", () => {
         const pauseButton = $root.find('.play_with_options');
 
@@ -966,6 +979,17 @@ describe("Dashboard Pipeline Widget", () => {
           }
         }]
       }),
+      responseHeaders: {
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status:          200
+    });
+  }
+
+  function stubTriggerOptionsWithInvalidData(pipelineName) {
+    const invalidJsonResponse = "{ : { : There was an unknown error. Please check the server logs for more information.}}";
+    jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineName}/trigger_options`, undefined, 'GET').andReturn({
+      responseText:    invalidJsonResponse,
       responseHeaders: {
         'Content-Type': 'application/vnd.go.cd.v1+json'
       },

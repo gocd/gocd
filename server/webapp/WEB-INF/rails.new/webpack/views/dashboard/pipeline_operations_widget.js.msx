@@ -89,6 +89,13 @@ const PipelineOperationsWidget = {
       modal.render();
     };
 
+    const getErrorMessageFromStatus = (textStatus, pipelineName) => {
+      if (textStatus === 'parsererror') {
+        return `Error occurred while fetching trigger with options information for pipeline "${pipelineName}". Check server logs for more information.`;
+      }
+      return "There was an unknown error.";
+    };
+
     self.destroyPausePopup = (modal) => {
       self.pauseMessage("");
       modal.destroy();
@@ -96,12 +103,19 @@ const PipelineOperationsWidget = {
 
     self.triggerWithOptionsVM   = Stream(new TriggerWithOptionsVM());
     self.triggerWithOptionsInfo = Stream();
+    self.errorMessage           = Stream('');
 
     self.showTriggerWithOptionsPopup = (pipeline) => {
-      TriggerWithOptionsInfo.all(pipeline.name).then((info) => {
-        self.triggerWithOptionsInfo(info);
-        self.triggerWithOptionsVM().initialize(info);
-      }).then(m.redraw);
+      TriggerWithOptionsInfo.all(pipeline.name)
+        .then((info) => {
+          self.triggerWithOptionsInfo(info);
+          self.triggerWithOptionsVM().initialize(info);
+          self.errorMessage('');
+        })
+        .fail((_ex, textStatus) => {
+          self.errorMessage(getErrorMessageFromStatus(textStatus, pipeline.name));
+        })
+        .always(m.redraw);
 
       function onModalClose() {
         self.triggerWithOptionsInfo(undefined);
@@ -113,7 +127,8 @@ const PipelineOperationsWidget = {
         size:    'large',
         title:   `${pipeline.name} - Trigger`,
         body:    () => (<PipelineTriggerWithOptionsModalBody vm={self.triggerWithOptionsVM}
-                                                             triggerWithOptionsInfo={self.triggerWithOptionsInfo}/>),
+                                                             triggerWithOptionsInfo={self.triggerWithOptionsInfo}
+                                                             message={self.errorMessage}/>),
         onclose: onModalClose,
         buttons: () => {
           return [

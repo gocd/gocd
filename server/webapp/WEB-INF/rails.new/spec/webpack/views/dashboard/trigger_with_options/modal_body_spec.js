@@ -25,16 +25,53 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const TriggerWithOptionsInfo = require("models/dashboard/trigger_with_options_info");
 
   let $root, root;
+
+  const json = {
+    "variables": [
+      {
+        "name":   "version",
+        "secure": false,
+        "value":  "asdf"
+      },
+      {
+        "name":   "foobar",
+        "secure": true
+      }
+    ],
+    "materials": [
+      {
+        "type":        "Git",
+        "name":        "https://github.com/ganeshspatil/gocd",
+        "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
+        "revision":    {
+          "date":              "2018-02-08T04:32:11Z",
+          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
+          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
+        }
+      }
+    ]
+  };
+
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
+    jasmine.Ajax.install();
+    stubMaterialSearch(json.materials[0].fingerprint);
+
+    triggerWithOptionsInfo = Stream(TriggerWithOptionsInfo.fromJSON(json));
+    vm                     = new TriggerWithOptionsVM();
+    vm.initialize(triggerWithOptionsInfo());
+    mount(triggerWithOptionsInfo, vm);
   });
   afterEach(window.destroyDomElementForTest);
 
   let triggerWithOptionsInfo, vm;
   const pipelineName = 'up42';
-  beforeEach(mount);
 
-  afterEach(unmount);
+  afterEach(() => {
+    unmount();
+    jasmine.Ajax.uninstall();
+  });
 
   it("should render pipeline trigger with options information", () => {
     expect($root.find('.pipeline-trigger-with-options')).toBeInDOM();
@@ -93,7 +130,6 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     expect(secureEnvContent).toHaveClass('hidden');
   });
 
-
   it('should not render the environment variables tab and content if no environment variables are present', () => {
     triggerWithOptionsInfo(TriggerWithOptionsInfo.fromJSON({variables: [], materials: json.materials}));
     vm.initialize(triggerWithOptionsInfo());
@@ -104,14 +140,14 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     expect(headings.get(0)).toContainText('Materials');
   });
 
-  function mount() {
-    jasmine.Ajax.install();
-    stubMaterialSearch(json.materials[0].fingerprint);
+  it("should show error if API call failed", () => {
+    const errorMessage = Stream("Error occurred while parsing the data.");
+    unmount();
+    mount(Stream(), new TriggerWithOptionsVM(), errorMessage);
+    expect($root.find('.callout.alert')).toBeInDOM();
+  });
 
-    triggerWithOptionsInfo = Stream(TriggerWithOptionsInfo.fromJSON(json));
-    vm                     = new TriggerWithOptionsVM();
-    vm.initialize(triggerWithOptionsInfo());
-
+  function mount(triggerWithOptionsInfo, vm, errorMessage) {
     const searchVM = {
       [json.materials[0].name]: {
         performSearch:         jasmine.createSpy('performSearch'),
@@ -119,7 +155,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
         searchInProgress:      jasmine.createSpy('searchInProgress'),
         materialSearchResults: jasmine.createSpy('materialSearchResult'),
         selectRevision:        jasmine.createSpy('selectRevision'),
-        isRevisionSelected:      jasmine.createSpy('isRevisionSelected')
+        isRevisionSelected:    jasmine.createSpy('isRevisionSelected')
       }
     };
 
@@ -128,6 +164,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
         return m(TriggerWithOptionsModalBody, {
           triggerWithOptionsInfo,
           vm: Stream(vm),
+          message: errorMessage,
           searchVM
         });
       }
@@ -136,38 +173,10 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   }
 
   function unmount() {
-    jasmine.Ajax.uninstall();
     Modal.destroyAll();
     m.mount(root, null);
     m.redraw();
   }
-
-  const json = {
-    "variables": [
-      {
-        "name":   "version",
-        "secure": false,
-        "value":  "asdf"
-      },
-      {
-        "name":   "foobar",
-        "secure": true
-      }
-    ],
-    "materials": [
-      {
-        "type":        "Git",
-        "name":        "https://github.com/ganeshspatil/gocd",
-        "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
-        "revision":    {
-          "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
-          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
-          "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
-        }
-      }
-    ]
-  };
 
   function stubMaterialSearch(fingerprint) {
     const url = SparkRoutes.pipelineMaterialSearchPath(pipelineName, fingerprint, "");

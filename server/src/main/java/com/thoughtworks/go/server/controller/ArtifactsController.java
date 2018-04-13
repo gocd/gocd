@@ -234,7 +234,11 @@ public class ArtifactsController {
 
         JobIdentifier jobIdentifier;
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
+            if(buildId == null) {
+                jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
+            } else {
+                jobIdentifier = restfulService.findJobForBuildId(pipelineName, Long.parseLong(counterOrLabel), stageName, stageCounter, buildName, buildId);
+            }
         } catch (Exception e) {
             return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         }

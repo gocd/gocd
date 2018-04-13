@@ -546,7 +546,7 @@
   <rule>
     <name>Specific Build Detail</name>
     <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-    <to type="forward">/tab/build/recent?pipelineCounter=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+    <to type="forward">/tab/build/recent?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
   </rule>
 
   <rule>

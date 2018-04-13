@@ -59,8 +59,8 @@ public class RestfulService {
         return jobId;
     }
 
-    public JobIdentifier findJob(String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName) {
-        return findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, null);
+    public JobIdentifier findJob(String pipelineName, String counter, String stageName, String stageCounter, String buildName) {
+        return findJob(pipelineName, counter, stageName, stageCounter, buildName, null);
     }
 
     public StageIdentifier translateStageCounter(PipelineIdentifier pipelineIdentifier, String stageName, String stageCounter) {

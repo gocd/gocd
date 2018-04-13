@@ -64,7 +64,7 @@ public class PropertiesController {
 
     @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
     public void setProperty(@RequestParam("pipelineName") String pipelineName,
-                            @RequestParam("pipelineLabel") String pipelineLabel,
+                            @RequestParam("pipelineCounter") String pipelineCounter,
                             @RequestParam("stageName") String stageName,
                             @RequestParam("stageCounter") String stageCounter,
                             @RequestParam("jobName") String buildName,
@@ -79,9 +79,9 @@ public class PropertiesController {
 
         JobIdentifier jobIdentifier;
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, pipelineLabel, stageName, stageCounter, buildName);
+            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         } catch (Exception e) {
-            BasicRestfulAction.jobNotFound(new JobIdentifier(pipelineName, -1, pipelineLabel, stageName, stageCounter,
+            BasicRestfulAction.jobNotFound(new JobIdentifier(pipelineName, -1, pipelineCounter, stageName, stageCounter,
                     buildName)).respond(response);
             return;
         }
@@ -129,7 +129,7 @@ public class PropertiesController {
     @RequestMapping("/repository/restful/properties/job/search")
     public ModelAndView jobSearch(
             @RequestParam("pipelineName") String pipelineName,
-            @RequestParam("pipelineLabel") String pipelineLabel,
+            @RequestParam("pipelineCounter") String pipelineCounter,
             @RequestParam("stageName") String stageName,
             @RequestParam("stageCounter") String stageCounter,
             @RequestParam("jobName") String buildName,
@@ -138,11 +138,11 @@ public class PropertiesController {
             HttpServletResponse response) throws Exception {
         JobIdentifier jobIdentifier;
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, pipelineLabel, stageName,
+            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName,
                     stageCounter, buildName);
             return propertyService.listPropertiesForJob(jobIdentifier, type, propertyKey).respond(response);
         } catch (Exception e) {
-            return BasicRestfulAction.jobNotFound(new JobIdentifier(pipelineName, -1, pipelineLabel,
+            return BasicRestfulAction.jobNotFound(new JobIdentifier(pipelineName, -1, pipelineCounter,
                     stageName, stageCounter,
                     buildName)).respond(response);
         }

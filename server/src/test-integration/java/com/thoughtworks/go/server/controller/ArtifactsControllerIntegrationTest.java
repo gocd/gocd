@@ -675,7 +675,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
         request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
-        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId,
+        return artifactsController.postArtifact(pipelineName, Integer.toString(pipeline.getCounter()), "stage", "LATEST", "build", buildId,
                 requestFilename,
                 null, multipartRequest);
     }

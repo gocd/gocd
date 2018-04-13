@@ -110,7 +110,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
 
 
-        def etag = '"' + DigestUtils.md5Hex(pipelineGroups.collect { it.etag() }.join("/")) + '"'
+        def etag = computeEtag(pipelineGroups)
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
 
         assertThatResponse()
@@ -169,5 +169,41 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
           .hasJsonMessage("The quicker dashboard feature has not been enabled!")
       }
     }
+
+    @Nested class Etag {
+      @Test
+      void 'should account for current user when computing etag'() {
+        loginAsUser()
+
+        def pipelineSelections = PipelineSelections.ALL
+        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
+        pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
+        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
+        def pipelineGroups = [pipelineGroup]
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+
+        String etag = computeEtag(pipelineGroups)
+        getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+          .hasNoBody()
+
+        loginAsPipelineViewUser()
+
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+        getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
+        assertThatResponse()
+          .isOk()
+
+      }
+    }
+  }
+
+  private String computeEtag(List<GoDashboardPipelineGroup> pipelineGroups) {
+    def pipelineGroupsEtag = pipelineGroups.collect { it.etag() }.join("/")
+    '"' + DigestUtils.md5Hex(currentUserLoginName().toString() + "/" + pipelineGroupsEtag) + '"'
   }
 }

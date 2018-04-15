@@ -73,6 +73,9 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public PipelineTemplateConfig getPreprocessedEntityConfig() {
         return preprocessedTemplateConfig;
     }

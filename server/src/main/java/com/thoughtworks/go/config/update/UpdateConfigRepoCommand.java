@@ -54,6 +54,9 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand implements Entity
         return isRequestFresh(cruiseConfig) && super.canContinue(cruiseConfig);
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().getConfigRepo(repoIdToUpdate);
 

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -27,7 +28,9 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class UpdatePipelineConfigCommandTest {
@@ -81,5 +84,15 @@ public class UpdatePipelineConfigCommandTest {
 
         command.update(cruiseConfig);
         verify(cruiseConfig).update("group1", pipelineConfig.name().toString(),pipelineConfig);
+    }
+
+    @Test
+    public void shouldSetTheOriginOnTheUpdatedPipelineConfig() {
+        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, username, "md5", localizedOperationResult);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).thenReturn(pipelineConfig);
+        updatePipelineConfigCommand.postValidationUpdates(cruiseConfig);
+
+        assertThat(pipelineConfig.getOrigin(), is(new FileConfigOrigin()));
     }
 }

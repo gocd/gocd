@@ -74,6 +74,9 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
         return isAuthorized();
     }
 
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());

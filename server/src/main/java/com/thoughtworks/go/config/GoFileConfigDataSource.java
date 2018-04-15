@@ -305,6 +305,8 @@ public class GoFileConfigDataSource {
         if (updatingCommand.isValid(preprocessedConfig)) {
             try {
                 LOGGER.info("[Configuration Changed] Saving updated configuration.");
+                updatingCommand.postValidationUpdates(modifiedConfig);
+                updatingCommand.postValidationUpdates(preprocessedConfig);
                 String configAsXml = configAsXml(modifiedConfig, true);
                 String md5 = CachedDigestUtils.md5Hex(configAsXml);
                 MagicalGoConfigXmlLoader.setMd5(modifiedConfig, md5);

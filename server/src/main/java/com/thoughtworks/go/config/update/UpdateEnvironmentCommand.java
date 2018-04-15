@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -64,7 +65,13 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized(cruiseConfig) && isRequestFresh(cruiseConfig);
+        return isAuthorized() && isRequestFresh(cruiseConfig);
+    }
+
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {
+        EnvironmentConfig addedEnvironmentConfig = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentConfigName));
+        addedEnvironmentConfig.setOrigins(new FileConfigOrigin());
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
@@ -80,7 +87,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
         return freshRequest;
     }
 
-    private boolean isAuthorized(CruiseConfig cruiseConfig) {
+    private boolean isAuthorized() {
         if (!goConfigService.isAdministrator(username.getUsername())) {
             Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", oldEnvironmentConfigName, username.getDisplayName());
             result.unauthorized(noPermission, HealthStateType.unauthorised());

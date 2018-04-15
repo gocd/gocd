@@ -78,6 +78,9 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
         Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
 

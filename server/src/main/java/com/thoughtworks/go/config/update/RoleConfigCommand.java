@@ -58,6 +58,9 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedRole = preprocessedConfig.server().security().getRoles().findByNameAndType(role.getName(), role.getClass());
 

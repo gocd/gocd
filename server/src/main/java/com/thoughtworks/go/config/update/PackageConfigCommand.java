@@ -71,6 +71,9 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
     }
 
     @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {}
+
+    @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(packageDefinition);
     }

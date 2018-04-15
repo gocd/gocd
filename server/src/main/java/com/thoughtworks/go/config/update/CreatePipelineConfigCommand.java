@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -76,6 +77,16 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", groupName), HealthStateType.unauthorised());
             return false;
         }
+
+        if (!goConfigService.isUserAdmin(currentUser)) {
+            return false;
+        }
         return true;
+    }
+
+    @Override
+    public void postValidationUpdates(CruiseConfig cruiseConfig) {
+        PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(this.pipelineConfig.getName());
+        pipelineConfig.setOrigin(new FileConfigOrigin());
     }
 }

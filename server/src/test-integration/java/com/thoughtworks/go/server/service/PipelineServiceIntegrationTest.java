@@ -1,31 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.Date;
-
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
@@ -33,11 +29,14 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -47,12 +46,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.sql.SQLException;
+import java.util.Date;
+
+import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -68,6 +73,8 @@ public class PipelineServiceIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private PipelineDao pipelineDao;
+    @Autowired private GoConfigService goConfigService;
     @Autowired private InstanceFactory instanceFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -191,6 +198,78 @@ public class PipelineServiceIntegrationTest {
 
         pipelineService.save(pipelineInstance);
         assertThat(pipelineInstance.getCounter(), is(31));
+    }
+
+    @Test public void returnPipelineForBuildDetailViewShouldContainOnlyMods() throws Exception {
+        Pipeline pipeline = createPipelineWithStagesAndMods();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+
+        Pipeline slimPipeline = pipelineService.wrapBuildDetails(job);
+        assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications(), is(1));
+        assertThat(slimPipeline.getName(), is(pipeline.getName()));
+        assertThat(slimPipeline.getFirstStage().getJobInstances().size(), is(1));
+    }
+
+    @Test
+    public void shouldApplyLabelFromPreviousPipeline() throws Exception {
+        String oldLabel = createNewPipeline().getLabel();
+        String newLabel = createNewPipeline().getLabel();
+        assertThat(newLabel, is(greaterThan(oldLabel)));
+    }
+
+    private Pipeline createNewPipeline() {
+        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
+            configHelper.addPipeline("Test", "dev");
+        }
+        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        return pipelineService.save(pipeline);
+    }
+
+    @Test
+    public void shouldIncreaseCounterFromPreviousPipeline() {
+        Pipeline pipeline1 = createNewPipeline();
+        Pipeline pipeline2 = createNewPipeline();
+        assertThat(pipeline2.getCounter(), is(pipeline1.getCounter() + 1));
+    }
+
+    @Test
+    public void shouldFindPipelineByLabel() {
+        Pipeline pipeline = createPipelineWhoseLabelIsNumberAndNotSameWithCounter();
+        Pipeline actual = pipelineService.findPipelineByNameAndCounter("Test", 10);
+        assertThat(actual.getId(), is(pipeline.getId()));
+        assertThat(actual.getLabel(), is(pipeline.getLabel()));
+        assertThat(actual.getCounter(), is(pipeline.getCounter()));
+    }
+
+    @Test
+    public void shouldFindPipelineByCounter() {
+        Pipeline pipeline = createNewPipeline();
+        Pipeline actual = pipelineService.findPipelineByNameAndCounter("Test", pipeline.getCounter());
+        assertThat(actual.getId(), is(pipeline.getId()));
+        assertThat(actual.getLabel(), is(pipeline.getLabel()));
+        assertThat(actual.getCounter(), is(pipeline.getCounter()));
+    }
+
+    @Test
+    public void shouldReturnFullPipelineByCounter() {
+        Pipeline pipeline = createPipelineWithStagesAndMods();
+        Pipeline actual = pipelineService.fullPipelineByCounter(pipeline.getName(), pipeline.getCounter());
+        assertThat(actual.getStages().size(), is(not(0)));
+        assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size(), is(not(0)));
+    }
+    private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
+        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        pipeline.updateCounter(9);
+        pipelineDao.save(pipeline);
+        return pipeline;
+    }
+
+    private Pipeline createPipelineWithStagesAndMods() {
+        PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
+        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.first().name()));
+        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        dbHelper.savePipelineWithStagesAndMaterials(pipeline);
+        return pipeline;
     }
 
 }

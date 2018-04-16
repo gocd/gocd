@@ -119,11 +119,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         pipeline.setStages(new Stages(stageForBuild));
         return pipeline;
     }
-
-    public Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
-        return pipelineDao.findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
-    }
-
+    
     public Pipeline findPipelineByNameAndCounter(String pipelineName, int pipelineCounter) {
         return pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
     }

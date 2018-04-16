@@ -35,6 +35,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class TriggerWithOptionsViewRepresenterTest {
+
   @Test
   void 'renders json'() {
     MaterialRevisions revisions = ModificationsMother.modifyOneFile(MaterialsMother.defaultSvnMaterialsWithUrl("http://example.com/svn/project"), "revision")
@@ -53,15 +54,8 @@ class TriggerWithOptionsViewRepresenterTest {
     })
 
     assertThatJson(actualJson).isEqualTo([
-      _links     : [
-        "doc"     : ["href": "https://api.go.cd/current/#pipeline-trigger-options"],
-        "self"    : ["href": "http://test.host/go/api/pipelines/my-pipeline/trigger_options"],
-        "schedule": ["href": "http://test.host/go/api/pipelines/my-pipeline/schedule"]
-      ],
-      "variables": [
-        ["name": "MULTIPLE_LINES", "secure": true],
-        ["name": "COMPLEX", "secure": false, "value": "This has very <complex> data"]
-      ],
+      _links     : linksJSON,
+      "variables": variablesJSON,
       "materials": [
         [
           "type"       : "Subversion",
@@ -78,4 +72,47 @@ class TriggerWithOptionsViewRepresenterTest {
       ]
     ])
   }
+
+  @Test
+  void 'renders json when revisions are null during MDU'() {
+    MaterialRevisions revisions = null
+
+    StageInstanceModels stages = new StageInstanceModels()
+    stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()))
+    stages.addFutureStage("unit2", false)
+
+    PipelineInstanceModel model = PipelineInstanceModel.createPipeline("my-pipeline", -1, "label", BuildCause.createWithModifications(revisions, "bob"), stages)
+    model.setMaterialConfigs(MaterialConfigsMother.defaultSvnMaterialConfigsWithUrl("http://example.com/svn/project"))
+
+    EnvironmentVariablesConfig variables = EnvironmentVariablesConfigMother.environmentVariables()
+
+    def actualJson = toObjectString({
+      TriggerWithOptionsViewRepresenter.toJSON(it, new TriggerOptions(variables, model))
+    })
+
+    assertThatJson(actualJson).isEqualTo([
+      _links     : linksJSON,
+      "variables": variablesJSON,
+      "materials": [
+        [
+          "type"       : "Subversion",
+          "name"       : "http___example.com_svn_project",
+          "fingerprint": "f5f52bd94f0eaed410d7ca7843e0d8c693b2d6daf91fe037d55b566e862dcdae",
+          "folder"     : "svnDir",
+          "revision"   : [:]
+        ]
+      ]
+    ])
+  }
+
+  private def linksJSON = [
+    "doc"     : ["href": "https://api.go.cd/current/#pipeline-trigger-options"],
+    "self"    : ["href": "http://test.host/go/api/pipelines/my-pipeline/trigger_options"],
+    "schedule": ["href": "http://test.host/go/api/pipelines/my-pipeline/schedule"]
+  ]
+
+  private def variablesJSON = [
+    ["name": "MULTIPLE_LINES", "secure": true],
+    ["name": "COMPLEX", "secure": false, "value": "This has very <complex> data"]
+  ]
 }

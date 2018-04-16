@@ -16,6 +16,7 @@
 
 const m = require('mithril');
 const _ = require('lodash');
+const f = require("helpers/form_helper");
 
 const MaterialsForTriggerWidget  = require('views/dashboard/trigger_with_options/materials_widget');
 const EnvironmentVariablesWidget = require('views/dashboard/trigger_with_options/environment_variables_widget');
@@ -37,11 +38,15 @@ const ModalBody = {
   view(vnode) {
     let secureVarsTabContent, environmentVarsTabContent, secureVarsTab, environmentVarsTab;
 
-    const self = vnode.state;
-    const vm   = vnode.attrs.vm();
-    const info = vnode.attrs.triggerWithOptionsInfo;
+    const self    = vnode.state;
+    const vm      = vnode.attrs.vm();
+    const info    = vnode.attrs.triggerWithOptionsInfo;
+    const message = vnode.attrs.message;
 
     if (!info()) {
+      if (message()) {
+        return (<f.alert>{message()}</f.alert>);
+      }
       return (
         <div class="pipeline-trigger-with-options">
           <div class="page-spinner"/>

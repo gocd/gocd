@@ -330,7 +330,7 @@ public class JobRerunScheduleServiceTest {
 
         when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(lastStage.getName()), any(String.class))).thenReturn(true);
 
-        when(pipelineService.fullPipelineByCounterOrLabel("mingle", String.valueOf(identifier.getPipelineCounter()))).thenReturn(pipeline);
+        when(pipelineService.fullPipelineByCounter("mingle", identifier.getPipelineCounter())).thenReturn(pipeline);
     }
 
 }

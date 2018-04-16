@@ -221,7 +221,7 @@ public class JobInstanceSqlMapDaoTest {
         StageIdentifier stageIdentifier = new StageIdentifier(savedPipeline.getName(), savedPipeline.getCounter(), savedPipeline.getLabel(), savedStage.getName(), Integer.toString(savedStage.getCounter() + 1));
         assertThat(jobInstanceDao.findOriginalJobIdentifier(stageIdentifier, JOB_NAME), is(nullValue()));
         dbHelper.passStage(savedStage);
-        Stage stage = scheduleService.rerunStage(savedPipeline.getName(), savedPipeline.getLabel(), savedStage.getName());
+        Stage stage = scheduleService.rerunStage(savedPipeline.getName(), savedPipeline.getCounter(), savedStage.getName());
 
         JobIdentifier actual = jobInstanceDao.findOriginalJobIdentifier(stageIdentifier, JOB_NAME);
 

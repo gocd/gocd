@@ -106,12 +106,21 @@ public class PropertiesControllerTest {
     }
 
     @Test
-    public void shouldReportErrorIfSpecifiedWrongCounterOrLabel() throws Exception {
+    public void shouldReportErrorIfSpecifiedWrongCounter() throws Exception {
         Pipeline pipeline1 = createNewPipeline();
         controller.jobsSearch(fixture.pipelineName, fixture.devStage,
                 PipelineWithTwoStages.JOB_FOR_DEV_STAGE, "invalid-label", null, response);
         assertThat(response.getContentAsString(),
-                is("The value [invalid-label] of query parameter 'limitPipeline' is neither a pipeline counter nor label"));
+                is("Expected a numeric value for query parameter 'limitPipeline', but received [invalid-label]"));
+    }
+
+    @Test
+    public void shouldReportErrorIfSpecifiedANonExistentPipelineCounter() throws Exception {
+        Pipeline pipeline1 = createNewPipeline();
+        controller.jobsSearch(fixture.pipelineName, fixture.devStage,
+                PipelineWithTwoStages.JOB_FOR_DEV_STAGE, "9999", null, response);
+        assertThat(response.getContentAsString(),
+                is(String.format("The value [9999] of query parameter 'limitPipeline' is not a valid pipeline counter for pipeline '%s'", pipeline1.getName())));
     }
 
     //Each row is represented as a map, with column name as key, and column value as value

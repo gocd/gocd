@@ -25,9 +25,10 @@
 
 // scss-lint:disable SelectorDepth
 
-$aspect-ratio: 1.3067;
-$analytics-min-width: 685px;
-$analytics-max-height: 869px;
+$aspect-ratio: 1.61803398875; // golden ratio
+$analytics-min-height: 525px;
+$analytics-horz-margin: 34px;
+$analytics-min-support-screen-width: 1366px;
 
 .analytics-container {
   display:         flex;
@@ -111,12 +112,11 @@ $analytics-max-height: 869px;
 
       .frame-container {
         margin:     2px;
-        width:      calc(50vw - 34px);
-        height:     calc(50vw / #{$aspect-ratio} - 34px / #{$aspect-ratio});
+        width:      calc(50vw - #{$analytics-horz-margin});
+        height:     calc(50vw / #{$aspect-ratio} - #{$analytics-horz-margin} / #{$aspect-ratio});
 
-        min-width:  $analytics-min-width;
-        min-height: calc(#{$analytics-min-width} / #{$aspect-ratio});
-        max-height: $analytics-max-height;
+        min-width:  calc(#{$analytics-min-support-screen-width} / 2 - #{$analytics-horz-margin});
+        min-height: $analytics-min-height;
 
         iframe {
           height: 100%;

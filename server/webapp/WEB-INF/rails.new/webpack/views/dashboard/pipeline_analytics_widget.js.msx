@@ -35,7 +35,7 @@ function createModal(pluginId, metricId, pipeline) {
     key:           "analytics.pipeline-chart"
   }));
   const modal = new Modal({
-    size:    "small",
+    size:    "analytics-modal",
     title:   `Analytics`,
     body:    () => (m(AnalyticsiFrameWidget, {model, pluginId, init: PluginEndpoint.init})),
     onclose: () => modal.destroy(),

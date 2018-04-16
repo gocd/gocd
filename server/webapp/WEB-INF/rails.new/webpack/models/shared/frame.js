@@ -19,6 +19,29 @@
 
   const Stream = require("mithril/stream");
   const      $ = require("jquery");
+  const    esr = require("escape-string-regexp");
+  const    enc = encodeURIComponent;
+
+  function paramPresent(key, val) {
+    const s = window.location.search,
+         re = new RegExp("undefined" !== typeof val ?
+            `[&?]${esr(enc(key))}=${esr(enc(val))}\\b` :
+            `[&?]${esr(enc(key))}\\b`);
+    return "" !== s && s.match(re);
+  }
+
+  function withParam(url, key, val) {
+    const p = "undefined" !== typeof val ? `${enc(key)}=${enc(val)}` : enc(key);
+    return url + (url.match(/[&?]/) ? "&" : "?") + p;
+  }
+
+  function passThruParams(url, params=[]) {
+    for (let i = 0, len = params.length; i < len; ++i) {
+      const key = params[i].key, val = params[i].val;
+      url = paramPresent(key, val) ? withParam(url, key, val) : url;
+    }
+    return url;
+  }
 
   function Frame(callback) {
     const url = Stream();
@@ -36,7 +59,7 @@
         dataType: "json"
       }).done((r) => {
         data(r.data);
-        view(r.view_path);
+        view(passThruParams(r.view_path, [{key: "ui", val: "test"}]));
       }).fail((xhr) => {
         errors(xhr);
       }).always(() => {

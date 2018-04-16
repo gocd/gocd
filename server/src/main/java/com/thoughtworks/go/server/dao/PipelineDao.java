@@ -68,8 +68,6 @@ public interface PipelineDao {
 
     PipelineInstanceModels loadActivePipelines();
 
-    Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel);
-
     PipelineDependencyGraphOld pipelineGraphByNameAndCounter(String pipelineName, int pipelineCounter);
 
     Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder);

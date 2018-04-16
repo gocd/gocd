@@ -16,21 +16,68 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.opensymphony.oscache.base.Cache;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
+import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
+import com.thoughtworks.go.server.persistence.ResourceRepository;
+import com.thoughtworks.go.server.service.StubGoCache;
+import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
+import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import java.util.Map;
+
+import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 class JobInstanceSqlMapDaoTest {
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    @Mock
+    private Cache cache;
+    @Mock
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private GoCache goCache;
+    @Mock
+    private TransactionTemplate transactionTemplate;
+    @Mock
+    private EnvironmentVariableDao environmentVariableDao;
+    @Mock
+    private JobAgentMetadataDao jobAgentMetadataDao;
+    @Mock
+    private ResourceRepository resourceRepository;
+    @Mock
+    private ArtifactPlanRepository artifactPlanRepository;
+    @Mock
+    private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
+    @Mock
+    private SystemEnvironment systemEnvironment;
+    @Mock
+    private SqlMapClientTemplate template;
+
 
     @BeforeEach
     void setUp() {
-        jobInstanceSqlMapDao = new JobInstanceSqlMapDao(null, null, null, null,
-                null, null, null, null, null,
-                null, null, null);
+        initMocks(this);
+        goCache = new StubGoCache(new TestTransactionSynchronizationManager());
+        jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
+                cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
+                artifactPlanRepository, artifactPropertiesGeneratorRepository, jobAgentMetadataDao);
+        jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }
 
     @Nested
@@ -61,6 +108,43 @@ class JobInstanceSqlMapDaoTest {
 
             assertThat(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"))
                     .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
+        }
+
+        @Test
+        public void shouldCacheJobIdentifierForGivenAttributes() {
+            String pipelineName = "pipeline-name";
+            String jobName = "job_name";
+            String jobNameInDifferentCase = jobName.toUpperCase();
+            String stageName = "stage-name";
+            int pipelineCounter = 1;
+            String stageCounter = "1";
+            Map attrs = m(
+                    "pipelineName", pipelineName,
+                    "pipelineCounter", 1,
+                    "stageName", stageName,
+                    "stageCounter", 1,
+                    "jobName", jobNameInDifferentCase);
+
+            JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter, jobName);
+
+            when(template.queryForObject("findJobId", attrs)).thenReturn(jobIdentifier);
+
+            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                    jobNameInDifferentCase),
+                    is(jobIdentifier));
+
+            verify(template).queryForObject("findJobId", attrs);
+
+            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                    jobNameInDifferentCase), not(sameInstance(jobIdentifier)));
+
+            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                    jobName), is(jobIdentifier));
+
+            verifyNoMoreInteractions(template);
         }
     }
 
@@ -135,5 +219,4 @@ class JobInstanceSqlMapDaoTest {
                     .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJobIds");
         }
     }
-
 }

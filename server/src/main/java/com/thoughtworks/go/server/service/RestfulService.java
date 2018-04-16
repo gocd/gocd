@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.JobNotFoundException;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -29,38 +28,51 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RestfulService {
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private StageDao stageDao;
-    @Autowired private JobResolverService jobResolverService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private JobResolverService jobResolverService;
 
     /**
      * buildId should only be given when caller is absolutely sure about the job instance
      * (makes sense in agent-uploading artifacts/properties scenario because agent won't run a job if its copied over(it only executes real jobs)) -JJ
+     * <p>
+     * This does not return pipelineLabel
      */
-    public JobIdentifier findJob(String pipelineName, String counter, String stageName, String stageCounter, String buildName, Long buildId) {
-        JobConfigIdentifier jobConfig = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
+    public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName, Long buildId) {
+        JobConfigIdentifier jobConfigIdentifier = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
+        PipelineIdentifier pipelineIdentifier;
 
-        PipelineIdentifier pipelineIdentifier = new PipelineIdentifier(jobConfig.getPipelineName(), Long.parseLong(counter));
+        if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
+            pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(jobConfigIdentifier.getPipelineName());
+        } else if (StringUtils.isNumeric(pipelineCounter)) {
+            pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), Integer.parseInt(pipelineCounter), null);
+        } else {
+            throw new RuntimeException("Expected numeric pipeline counter but received '%s'" + pipelineCounter);
+        }
 
         stageCounter = StringUtils.isEmpty(stageCounter) ? JobIdentifier.LATEST : stageCounter;
-        StageIdentifier stageIdentifier = translateStageCounter(pipelineIdentifier, jobConfig.getStageName(), stageCounter);
+        StageIdentifier stageIdentifier = translateStageCounter(pipelineIdentifier, jobConfigIdentifier.getStageName(), stageCounter);
 
         JobIdentifier jobId;
         if (buildId == null) {
-            jobId = jobResolverService.actualJobIdentifier(new JobIdentifier(stageIdentifier, jobConfig.getJobName()));
+            jobId = jobResolverService.actualJobIdentifier(new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName()));
         } else {
-            jobId = new JobIdentifier(stageIdentifier, jobConfig.getJobName(), buildId);
+            jobId = new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName(), buildId);
         }
-        if(jobId == null){
+        if (jobId == null) {
             //fix for #5739
             throw new JobNotFoundException(pipelineName, stageName, buildName);
         }
         return jobId;
     }
 
-    public JobIdentifier findJob(String pipelineName, String counter, String stageName, String stageCounter, String buildName) {
-        return findJob(pipelineName, counter, stageName, stageCounter, buildName, null);
+    public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName) {
+        return findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName, null);
     }
 
     public StageIdentifier translateStageCounter(PipelineIdentifier pipelineIdentifier, String stageName, String stageCounter) {
@@ -68,7 +80,7 @@ public class RestfulService {
             int latestCounter = stageDao.findLatestStageCounter(pipelineIdentifier, stageName);
             return new StageIdentifier(pipelineIdentifier, stageName, String.valueOf(latestCounter));
         } else {
-            return new StageIdentifier(pipelineIdentifier, stageName, stageCounter);
+            return new StageIdentifier(pipelineIdentifier.getName(), pipelineIdentifier.getCounter(), stageName, stageCounter);
         }
     }
 }

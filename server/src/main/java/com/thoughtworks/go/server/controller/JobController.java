@@ -106,14 +106,14 @@ public class JobController {
 
     @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
     public ModelAndView jobDetail(@RequestParam("pipelineName") String pipelineName,
-                                  @RequestParam("pipelineCounter") String counter,
+                                  @RequestParam("pipelineCounter") String pipelineCounter,
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) throws Exception {
 
-        Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(pipelineName, counter);
+        Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(pipelineName, pipelineCounter);
         if (pipeline == null) {
-            throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, counter, stageName,
+            throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
         }
 

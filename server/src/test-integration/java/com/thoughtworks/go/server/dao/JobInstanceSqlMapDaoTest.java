@@ -167,7 +167,7 @@ public class JobInstanceSqlMapDaoTest {
         expected = jobInstanceDao.save(stageId, expected);
 
         JobInstance actual = jobInstanceDao.mostRecentJobWithTransitions(
-                new JobIdentifier(PIPELINE_NAME, savedPipeline.getLabel(), STAGE_NAME,
+                new JobIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), savedPipeline.getLabel(), STAGE_NAME,
                         String.valueOf(counter), JOB_NAME));
 
         assertThat(actual.getId(), is(expected.getId()));
@@ -182,7 +182,7 @@ public class JobInstanceSqlMapDaoTest {
         expected = jobInstanceDao.save(stageId, expected);
 
         JobInstance actual = jobInstanceDao.mostRecentJobWithTransitions(
-                new JobIdentifier(PIPELINE_NAME, savedPipeline.getLabel(), STAGE_NAME,
+                new JobIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), savedPipeline.getLabel(), STAGE_NAME,
                         String.valueOf(counter), JOB_NAME));
         assertThat("JobInstance should match", actual.getId(), is(expected.getId()));
     }
@@ -231,44 +231,17 @@ public class JobInstanceSqlMapDaoTest {
 
     @Test
     public void shouldFindJobIdByPipelineLabel() throws Exception {
-        long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), JOB_NAME).getBuildId();
+        long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), null, STAGE_NAME, String.valueOf(counter)), JOB_NAME).getBuildId();
 
         assertThat(actual, is(savedStage.getJobInstances().getByName(JOB_NAME).getId()));
     }
 
     @Test
     public void findByJobIdShouldBeJobNameCaseAgnostic() throws Exception {
-        long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), JOB_NAME_IN_DIFFERENT_CASE).getBuildId();
+        long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(),
+                null, STAGE_NAME, String.valueOf(counter)), JOB_NAME_IN_DIFFERENT_CASE).getBuildId();
 
         assertThat(actual, is(savedStage.getJobInstances().getByName(JOB_NAME).getId()));
-    }
-
-    @Test
-    public void shouldCacheJobIdentifierForGivenAttributes() throws Exception {
-        SqlMapClientTemplate template = mock(SqlMapClientTemplate.class);
-        jobInstanceDao.setSqlMapClientTemplate(template);
-
-        Map attrs = m(
-                "pipelineName", PIPELINE_NAME,
-                "pipelineCounter", null,
-                "pipelineLabel", savedPipeline.getLabel(),
-                "stageName", STAGE_NAME,
-                "stageCounter", counter,
-                "jobName", JOB_NAME_IN_DIFFERENT_CASE);
-
-        JobIdentifier jobIdentifier = new JobIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter), JOB_NAME);
-
-        when(template.queryForObject("findJobId", attrs)).thenReturn(jobIdentifier);
-
-        assertThat(jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), JOB_NAME_IN_DIFFERENT_CASE), is(jobIdentifier));
-
-        verify(template).queryForObject("findJobId", attrs);
-
-        assertThat(jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), JOB_NAME_IN_DIFFERENT_CASE), not(sameInstance(jobIdentifier)));
-
-        assertThat(jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, null, savedPipeline.getLabel(), STAGE_NAME, String.valueOf(counter)), JOB_NAME), is(jobIdentifier));
-
-        verifyNoMoreInteractions(template);
     }
 
     @Test

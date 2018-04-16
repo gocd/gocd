@@ -318,6 +318,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         });
     }
 
+    public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
+        return (PipelineIdentifier) getSqlMapClientTemplate().queryForObject("mostRecentPipelineIdentifier", pipelineName);
+    }
+
     public Pipeline pipelineByIdWithMods(long pipelineId) {
         Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("pipelineById", pipelineId);
         if (pipeline == null) {

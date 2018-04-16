@@ -63,7 +63,7 @@ public class StageController {
 
     @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
     public ModelAndView rerunStage(@RequestParam(value = "pipelineName") String pipelineName,
-                                   @RequestParam(value = "pipelineCounter") String counter,
+                                   @RequestParam(value = "pipelineCounter") String pipelineCounter,
                                    @RequestParam(value = "stageName") String stageName,
                                    HttpServletResponse response, HttpServletRequest request) {
 
@@ -72,16 +72,16 @@ public class StageController {
         }
 
         try {
-            scheduleService.rerunStage(pipelineName, counter, stageName);
+            scheduleService.rerunStage(pipelineName, pipelineCounter, stageName);
             return ResponseCodeView.create(HttpServletResponse.SC_OK, "");
 
         } catch (GoUnauthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, "");
         } catch (StageNotFoundException e) {
-            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, counter, stageName, e);
+            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, counter, stageName, e);
+            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }

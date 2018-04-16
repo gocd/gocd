@@ -662,6 +662,7 @@ body {
     position:    relative;
     top:         -3px;
     flex-shrink: 0;
+    right:       0;
   }
 }
 
@@ -674,12 +675,6 @@ body {
 
 .material_info-error {
   margin-left: 12px;
-}
-
-.pipeline_actions {
-  position: absolute;
-  right:    10px;
-  top:      -2px;
 }
 
 .pipeline_locked {

@@ -185,9 +185,9 @@ public class PipelineSchedulerIntegrationTest {
     public void shouldThrowExceptionIfOtherStageIsRunningInTheSamePipeline() throws Exception {
         Pipeline pipeline = makeCompletedPipeline();
         StageConfig ftStage = goConfigService.stageConfigNamed(PIPELINE_MINGLE, FT_STAGE);
-        scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter().toString(), FT_STAGE);
+        scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
         try {
-            scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter().toString(), FT_STAGE);
+            scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
             Assert.fail("Should throw exception if fails to re-run stage");
         } catch (Exception ignored) {
             assertThat(ignored.getMessage(), matches("Cannot schedule: Pipeline.+is still in progress"));
@@ -294,8 +294,7 @@ public class PipelineSchedulerIntegrationTest {
     @Test
     public void shouldReturnFullPipelineByCounter() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
-        Pipeline actual = pipelineService.fullPipelineByCounterOrLabel(pipeline.getName(),
-                pipeline.getCounter().toString());
+        Pipeline actual = pipelineService.fullPipelineByCounter(pipeline.getName(), pipeline.getCounter());
         assertThat(actual.getStages().size(), is(not(0)));
         assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size(), is(not(0)));
     }

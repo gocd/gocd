@@ -85,7 +85,7 @@ public class StageControllerIntegrationTest {
     @Test
     public void shouldRunStageIfItHasNotBeenRun() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
-        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getLabel(), fixture.ftStage, response, request);
+        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getCounter().toString(), fixture.ftStage, response, request);
         assertThat(((ResponseCodeView) mav.getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         Pipeline newPipeline = pipelineService.fullPipelineById(pipeline.getId());
         assertThat("Should run " + fixture.ftStage, newPipeline.getStages().hasStage(fixture.ftStage), is(true));
@@ -94,7 +94,7 @@ public class StageControllerIntegrationTest {
     @Test
     public void shouldReturn404WhenReRunningNonExistantStage() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
-        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getLabel(), "doesNotExist", response, request);
+        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getCounter().toString(), "doesNotExist", response, request);
         ResponseCodeView codeView = (ResponseCodeView) mav.getView();
         assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_NOT_FOUND));
         assertThat(codeView.getContent(), is("Stage 'doesNotExist' not found in pipeline '"  + fixture.pipelineName + "'"));
@@ -104,7 +104,7 @@ public class StageControllerIntegrationTest {
     public void shouldNotRunStageIfPreviousStageHasNotBeenRun() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         String thirdStage = fixture.stageName(3);
-        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getLabel(), thirdStage, response, request);
+        ModelAndView mav = controller.rerunStage(fixture.pipelineName, pipeline.getCounter().toString(), thirdStage, response, request);
         Pipeline newPipeline = pipelineService.fullPipelineById(pipeline.getId());
         assertThat("Should not run " + thirdStage, newPipeline.getStages().hasStage(thirdStage), is(false));
         assertThat(((ResponseCodeView) mav.getView()).getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));
@@ -115,7 +115,15 @@ public class StageControllerIntegrationTest {
         ModelAndView modelAndView = controller.rerunStage("pipeline", "invalid-label", "stage", response, request);
         ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
         assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(codeView.getContent(), is("Stage [pipeline/invalid-label/stage] not found"));
+        assertThat(codeView.getContent(), is("Error while rerunning [pipeline/invalid-label/stage]. Received non-numeric pipeline counter 'invalid-label'."));
+    }
+
+    @Test
+    public void shouldGiveFriendlyErrorMessageForRerunWhenPipelineCounterIsNotFound() {
+        ModelAndView modelAndView = controller.rerunStage("pipeline", "9999", "stage", response, request);
+        ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
+        assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_NOT_FOUND));
+        assertThat(codeView.getContent(), is("Pipeline instance [pipeline/9999] not found"));
     }
 
     @Test
@@ -128,5 +136,14 @@ public class StageControllerIntegrationTest {
 
         assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(codeView.getContent(), is("Missing required header 'Confirm'"));
+    }
+
+    @Test
+    public void shouldHandleLatestPipelineCounter(){
+        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        ModelAndView modelAndView = controller.rerunStage(fixture.pipelineName, "latest", fixture.ftStage, response, request);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
+        Pipeline newPipeline = pipelineService.fullPipelineById(pipeline.getId());
+        assertThat("Should run " + fixture.ftStage, newPipeline.getStages().hasStage(fixture.ftStage), is(true));
     }
 }

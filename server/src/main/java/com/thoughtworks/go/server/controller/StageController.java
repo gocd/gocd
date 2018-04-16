@@ -17,14 +17,19 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.StageNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.HeaderConstraint;
+import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,14 +56,16 @@ public class StageController {
 
     private ScheduleService scheduleService;
     private HeaderConstraint headerConstraint;
+    private PipelineService pipelineService;
 
     protected StageController() {
     }
 
     @Autowired
-    public StageController(ScheduleService scheduleService, SystemEnvironment systemEnvironment) {
+    public StageController(ScheduleService scheduleService, SystemEnvironment systemEnvironment, PipelineService pipelineService) {
         this.scheduleService = scheduleService;
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
+        this.pipelineService = pipelineService;
     }
 
     @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
@@ -70,19 +77,36 @@ public class StageController {
         if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
+        int pipelineCounterValue = findPipelineCounter(pipelineName, pipelineCounter);
 
+        if (pipelineCounterValue == -1) {
+            String errorMessage = String.format("Error while rerunning [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
+            LOGGER.error(errorMessage);
+            return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
+        }
         try {
-            scheduleService.rerunStage(pipelineName, pipelineCounter, stageName);
+            scheduleService.rerunStage(pipelineName, pipelineCounterValue, stageName);
             return ResponseCodeView.create(HttpServletResponse.SC_OK, "");
 
         } catch (GoUnauthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, "");
-        } catch (StageNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private int findPipelineCounter(String pipelineName, String pipelineCounter) {
+        if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
+            PipelineIdentifier pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(pipelineName);
+            return pipelineIdentifier.getCounter();
+        } else if (!StringUtils.isNumeric(pipelineCounter)) {
+            return -1;
+        } else {
+            return Integer.parseInt(pipelineCounter);
         }
     }
 

@@ -1631,7 +1631,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
         dbHelper.pass(p1_1);
         PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1); //prime cache
-        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter().toString(), p1_1.getStages().get(0).getName());
+        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter(), p1_1.getStages().get(0).getName());
 
         PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
 

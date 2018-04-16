@@ -425,20 +425,6 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
     }
 
-    public Long findStageIdByLocator(String locator) {
-        String[] parts = locator.split("/");
-        String pipelineName = parts[0];
-        String counterOrLabel = parts[1];
-        if (counterOrLabel.matches(".+\\[.+\\]")) {
-            counterOrLabel = counterOrLabel.substring(0, counterOrLabel.indexOf("["));
-        }
-        String stageName = parts[2];
-        String stageCounter = parts[3];
-
-        Pipeline pipeline = pipelineDao.findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
-        return stageDao.findStageIdByPipelineAndStageNameAndCounter(pipeline.getId(), stageName, stageCounter);
-    }
-
     /**
      * @return Listeners
      * @deprecated Used only in tests

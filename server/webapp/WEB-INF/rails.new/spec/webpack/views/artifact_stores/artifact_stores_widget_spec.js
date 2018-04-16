@@ -26,7 +26,7 @@ describe('Artifact Stores Widget', () => {
 
   const ArtifactStoresWidget = require("views/artifact_stores/artifact_stores_widget");
 
-  let $root, root; //eslint-disable-line no-unused-vars
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -197,6 +197,73 @@ describe('Artifact Stores Widget', () => {
       expect($('.reveal .modal-body div.artifactory_store_config').text()).toEqual("Example");
     });
 
+  });
+
+  describe('Edit', () => {
+
+    beforeEach(() => {
+      jasmine.Ajax.install();
+      stubGetArtifactStoresResponse();
+      stubGetPluginInfosResponse();
+      m.mount(root, ArtifactStoresWidget);
+      m.redraw();
+    });
+
+    afterEach(Modal.destroyAll);
+
+    it("should show modal to allow editing an artifact store", () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
+        responseHeaders: {
+          'ETag': '"foo"'
+        },
+        status:          200
+      });
+      expect($root.find('.reveal:visible')).not.toBeInDOM();
+
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+      m.redraw();
+      expect($('.reveal:visible')).toBeInDOM();
+      expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
+    });
+
+    it("should display error message if fetching an artifact store fails", () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({message: 'Boom!'}),
+        status:       400
+      });
+
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+      m.redraw();
+
+      expect($('.alert')).toContainText('Boom!');
+    });
+
+    it("should keep the artifact store expanded while edit modal is open", () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(dockerRegistryArtifactStoreJSON),
+        status:       200
+      });
+
+      expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
+      simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
+      m.redraw();
+      expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+      m.redraw();
+      simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
+      m.redraw();
+      expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+    });
+
+    it('should show spinner and disable save button while artifact store is being loaded', () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+      m.redraw();
+      expect($('.reveal:visible .page-spinner')).toBeInDOM();
+      expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
+    });
   });
 
   function stubGetArtifactStoresResponse() {
@@ -416,35 +483,7 @@ describe('Artifact Stores Widget', () => {
     },
     "_embedded": {
       "artifact_stores": [
-        {
-          "_links":     {
-            "self": {
-              "href": "http://localhost:8253/go/api/admin/artifact_stores/A1"
-            },
-            "doc":  {
-              "href": "https://api.gocd.org/current/#artifact_stores"
-            },
-            "find": {
-              "href": "http://localhost:8253/go/api/admin/artifact_stores/:id"
-            }
-          },
-          "id":         "A1",
-          "plugin_id":  "cd.go.artifact.docker.registry",
-          "properties": [
-            {
-              "key":   "RegistryURL",
-              "value": "http://example.com/updated"
-            },
-            {
-              "key":   "Username",
-              "value": "username-new"
-            },
-            {
-              "key":             "Password",
-              "encrypted_value": "kB+k1qd0ddB9RrtMqBnqHQ=="
-            }
-          ]
-        }
+        dockerRegistryArtifactStoreJSON
       ]
     }
   };

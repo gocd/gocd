@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-const $                         = require('jquery');
-const _                         = require('lodash');
-const f                         = require('helpers/form_helper');
-const m                         = require('mithril');
-const Stream                    = require('mithril/stream');
-const Spinner                   = require('views/shared/spinner');
-const ErrorCalloutWidget        = require('views/shared/error_callout');
-const InfoCalloutWidget         = require('views/shared/info_callout');
-const HeaderPanel               = require('views/shared/header_panel');
-const ArtifactStores            = require('models/artifact_stores/artifact_stores');
-const ArtifactStoresState       = require('views/artifact_stores/artifact_stores_state');
-const ArtifactStorePluginWidget = require('views/artifact_stores/artifact_store_plugin_widget');
-const ArtifactStoreModalBody    = require('views/artifact_stores/artifact_store_modal_body');
-const PluginInfos               = require('models/shared/plugin_infos');
-const Modal                     = require('views/shared/new_modal');
+const $                      = require('jquery');
+const _                      = require('lodash');
+const f                      = require('helpers/form_helper');
+const m                      = require('mithril');
+const Stream                 = require('mithril/stream');
+const Spinner                = require('views/shared/spinner');
+const ErrorCalloutWidget     = require('views/shared/error_callout');
+const InfoCalloutWidget      = require('views/shared/info_callout');
+const HeaderPanel            = require('views/shared/header_panel');
+const ArtifactStores         = require('models/artifact_stores/artifact_stores');
+const ArtifactStoresState    = require('views/artifact_stores/artifact_stores_state');
+const ArtifactStoreWidget    = require('views/artifact_stores/artifact_store_widget');
+const ArtifactStoreModalBody = require('views/artifact_stores/artifact_store_modal_body');
+const PluginInfos            = require('models/shared/plugin_infos');
+const Modal                  = require('views/shared/new_modal');
+const PluginGroupHeader      = require('views/shared/plugin_config/plugin_group_header');
 
 class ArtifactStoresWidget {
 
@@ -80,8 +81,21 @@ class ArtifactStoresWidget {
             _.map(this.state.artifactStores.groupByArtifactStoreProperty('pluginId'), (stores, pluginId) => {
               const pluginInfo = this.state.findPluginInfo(pluginId);
               return (
-                <ArtifactStorePluginWidget pluginId={pluginId} pluginInfo={pluginInfo} artifactStores={stores}/>
-              );
+                <div className="row expanded">
+                  <div class="plugin-group">
+                    <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId}/>
+                    {_.map(stores, (store) => {
+                      return (
+                        <ArtifactStoreWidget
+                          artifactStore={store}
+                          pluginInfo={pluginInfo}
+                          onEdit={editClicked.bind(this, store)}
+                          onDelete=''
+                          onClone=''/>
+                      );
+                    })}
+                  </div>
+                </div>);
             })
           }
         </div>
@@ -113,7 +127,9 @@ function addClicked() {
         class:   'save primary',
         onclick: () => {
           newArtifactStore().create()
-            .then(addSucceeded(modal, newArtifactStore, this), addFailed(modal, newArtifactStore, this))
+            .then(
+              actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was created successfully.`),
+              actionFailed(this, modal, newArtifactStore))
             .always(m.redraw);
         }
       }
@@ -123,24 +139,56 @@ function addClicked() {
   modal.render();
 }
 
-function addSucceeded(modal, newArtifactStore, widget) {
-  return function () {
-    modal.destroy();
-    reloadArtifactStores(widget);
-    widget.state.setSuccessMessage(`The artifact store ${newArtifactStore().id()} was created successfully.`);
-  };
-}
-
-function addFailed(modal, newArtifactStore, widget) {
+function actionFailed(widget, modal, artifactStore) {
   return function (errorMessageOrStoreWithErrors) {
     if (_.isString(errorMessageOrStoreWithErrors)) {
       modal.destroy();
       widget.state.setAlertMessage(errorMessageOrStoreWithErrors);
     } else {
       widget.state.resetMessage();
-      newArtifactStore(errorMessageOrStoreWithErrors);
+      artifactStore(errorMessageOrStoreWithErrors);
     }
   };
+}
+
+function actionSucceeded(modal, message) {
+  modal.destroy();
+  reloadArtifactStores(this);
+  this.state.setSuccessMessage(message);
+}
+
+function editClicked(store) {
+  const artifactStore = Stream();
+  const saveButtonDisabled = Stream(true);
+  const modal         = new Modal({
+    size:    'large',
+    title:   'Edit artifact store',
+    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={artifactStore}
+                                            errorMessage={this.state.message}/>),
+    onclose: () => modal.destroy(),
+    buttons: [
+      {
+        text:    "Save",
+        class:   'save primary',
+        disabled: saveButtonDisabled,
+        onclick: () => {
+          artifactStore().update()
+            .then(
+              actionSucceeded.bind(this, modal, `The artifact store ${artifactStore().id()} was updated successfully.`),
+              actionFailed(this, modal, artifactStore))
+            .always(m.redraw);
+        }
+      }
+    ]
+  });
+
+  modal.render();
+  ArtifactStores.ArtifactStore.get(store.id()).then((storeWithEtag) => {
+    artifactStore(storeWithEtag);
+    this.state.resetMessage();
+    saveButtonDisabled(false);
+  }, actionFailed(this, modal, artifactStore))
+    .always(m.redraw);
 }
 
 module.exports = ArtifactStoresWidget;

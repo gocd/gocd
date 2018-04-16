@@ -18,13 +18,30 @@ const m             = require('mithril');
 const f             = require('helpers/form_helper');
 const s             = require('string-plus');
 const AngularPlugin = require('views/shared/angular_plugin');
+const Spinner       = require('views/shared/spinner');
 
 class ArtifactStoreModalBody {
 
-  oninit() {
+  oninit(vnode) {
+    if (!vnode.attrs.artifactStore()) {
+      return;
+    }
+
+    const pluginId = vnode.attrs.artifactStore().pluginId();
+    if (pluginId) {
+      this._pluginInfo = vnode.attrs.pluginInfos.findById(pluginId);
+    }
   }
 
   view(vnode) {
+    if (!vnode.attrs.artifactStore()) {
+      return (
+        <div class="artifact-store-modal-body">
+          <Spinner/>
+        </div>
+      );
+    }
+
     if (!this._pluginInfo) {
       const firstPluginInfo = vnode.attrs.pluginInfos.firstPluginInfo();
       this._pluginInfo      = firstPluginInfo;
@@ -38,9 +55,9 @@ class ArtifactStoreModalBody {
                        configuration={vnode.attrs.artifactStore().properties}
                        key={this._pluginInfo ? this._pluginInfo.id() : 'no-plugin'}/>);
     }
-    return (<div>
+    return (<div class="artifact-store-modal-body">
       <f.row collapse="true">
-        <div className='row' key="static-stuff">
+        <div class='row' key="static-stuff">
           <f.column largeSize={4}>
             <f.input model={vnode.attrs.artifactStore()}
                      attrName="id"
@@ -59,7 +76,7 @@ class ArtifactStoreModalBody {
         </div>
       </f.row>
 
-      <div className="row collapse">
+      <div class="row collapse">
         {angularPlugin}
       </div>
     </div>);

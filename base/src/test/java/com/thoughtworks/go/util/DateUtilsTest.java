@@ -32,6 +32,11 @@ public class DateUtilsTest {
         assertThat(date, is(new DateTime("2008-12-09T18:56:14+08:00").toDate()));
     }
 
+    @Test public void shouldSerializeDateForCcTray() {
+        Date date = new DateTime("2008-12-09T18:56:14+08:00").toDate();
+        assertThat(DateUtils.formatIso8601ForCCTray(date), is("2008-12-09T10:56:14Z"));
+    }
+
     @Test
     public void shouldFormatDateToDisplayOnUI() {
         Calendar instance = Calendar.getInstance();

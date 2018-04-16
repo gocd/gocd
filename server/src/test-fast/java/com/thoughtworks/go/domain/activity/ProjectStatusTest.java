@@ -20,8 +20,11 @@ import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
@@ -68,21 +71,21 @@ public class ProjectStatusTest {
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() throws Exception {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url");
+                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
 
         assertThat(status.xmlRepresentation(),
                 is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
-                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />"));
+                        "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />"));
     }
 
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() throws Exception {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url", s("breaker1", "breaker2"));
+                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", s("breaker1", "breaker2"));
 
         assertThat(status.xmlRepresentation(),
                 is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
-                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +
+                        "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +
                         "<messages><message text=\"breaker1, breaker2\" kind=\"Breakers\" /></messages></Project>"));
     }
 

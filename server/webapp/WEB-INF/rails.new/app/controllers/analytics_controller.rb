@@ -20,6 +20,7 @@ class AnalyticsController < ApplicationController
   layout 'single_page_app', only: [:index]
 
   before_action :check_admin_user_and_401, only: [:index]
+  before_action :check_pipeline_exists, only: [:show]
   before_action :check_permissions, only: [:show]
 
   def index
@@ -51,8 +52,10 @@ class AnalyticsController < ApplicationController
   end
 
   def check_permissions
-    if params[:type] == 'pipeline'
-      isPipelineAnalyticsEnabledOnlyForAdmins? ? check_admin_user_and_401 : check_user_can_see_pipeline
+    if is_request_for_pipeline_analytics?
+      is_pipeline_analytics_enabled_only_for_admins? ? check_admin_user_and_401 : check_user_can_see_pipeline
+    else
+      check_admin_user_and_401
     end
   end
 
@@ -68,7 +71,18 @@ class AnalyticsController < ApplicationController
     Rails.logger.error "#{cause}:\n\n#{stack_trace}"
   end
 
-  def isPipelineAnalyticsEnabledOnlyForAdmins?
+  def check_pipeline_exists
+    return unless is_request_for_pipeline_analytics?
+
+    pipeline_config = pipeline_config_service.getPipelineConfig(params[:pipeline_name])
+    render_message "Cannot generate analytics. Pipeline with name:'#{params[:pipeline_name]}' not found.", 404 if pipeline_config.nil?
+  end
+
+  def is_pipeline_analytics_enabled_only_for_admins?
     system_environment.enablePipelineAnalyticsOnlyForAdmins
+  end
+
+  def is_request_for_pipeline_analytics?
+    params[:type] == 'pipeline'
   end
 end

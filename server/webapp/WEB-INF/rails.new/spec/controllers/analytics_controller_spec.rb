@@ -28,9 +28,14 @@ describe AnalyticsController do
   describe 'authorization' do
     before(:each) do
       @system_environment = double('system_environment')
+      pipeline_config_service = instance_double('pipeline_config_service')
+
       login_as_admin
       allow_current_user_to_access_pipeline('pipeline_name')
       allow(controller).to receive(:system_environment).and_return(@system_environment)
+
+      allow(controller).to receive(:pipeline_config_service).and_return(pipeline_config_service)
+      allow(pipeline_config_service).to receive(:getPipelineConfig).with('pipeline_name').and_return('pipeline_config')
     end
 
     it 'should only allow pipeline viewers to see analytics of type pipeline' do
@@ -54,6 +59,18 @@ describe AnalyticsController do
     it 'should disallow non admin users to view the analytics tab' do
       login_as_user
       expect(controller).not_to allow_action(:get, :index)
+    end
+
+    it 'should allow admins to view dashboard analytics' do
+      login_as_admin
+
+      expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', type: 'dashboard', id: 'metric_id')
+    end
+
+    it 'should disallow non admin users to view dashboard analytics' do
+      login_as_user
+
+      expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', type: 'dashboard', id: 'metric_id')
     end
 
     it 'should disallow non-admins from viewing pipeline analytics if system environment is configured to disallow' do
@@ -117,6 +134,17 @@ describe AnalyticsController do
       expect(response_json['data']).to eq('pipeline_analytics')
       expect(response_json['view_path']).to eq('/path/to/view')
       expect(response.content_type).to eq('application/json')
+    end
+
+    it 'should return 404 while fetching analytics for a non-existent pipeline' do
+      pipeline_config_service = instance_double('pipeline_config_service')
+
+      allow(controller).to receive(:pipeline_config_service).and_return(pipeline_config_service)
+      allow(pipeline_config_service).to receive(:getPipelineConfig).with('pipeline_name').and_return(nil)
+
+      get :show, plugin_id: 'com.tw.myplugin', type: 'pipeline', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'
+
+      expect(response.code).to eq('404')
     end
   end
 

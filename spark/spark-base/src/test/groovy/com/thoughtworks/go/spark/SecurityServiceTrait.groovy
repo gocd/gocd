@@ -78,30 +78,34 @@ trait SecurityServiceTrait {
     when(securityService.isSecurityEnabled()).thenReturn(true)
   }
 
-  void loginAsGroupAdmin() {
+  void loginAsGroupAdmin(String pipelineName) {
     Username username = loginAsRandomUser()
+    String groupName = generateGroupName()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
-    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(true)
+    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, eq(groupName))).thenReturn(true)
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any() as String)).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
+    when(groups.hasGroup(groupName)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(username.username, groupName)).thenReturn(true)
+    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
   }
 
-  void loginAsGroupOperateUser() {
+  void loginAsGroupOperateUser(String pipelineName) {
     Username username = loginAsRandomUser()
+    String groupName = generateGroupName()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
-    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, eq(groupName))).thenReturn(false)
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(any() as String)).thenReturn(true)
-    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any() as String)).thenReturn(true)
+    when(groups.hasGroup(groupName)).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(groupName))).thenReturn(true)
+    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
   }
 
   void disableSecurity() {
@@ -121,8 +125,9 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
   }
 
-  void loginAsPipelineViewUser() {
+  void loginAsPipelineViewUser(String pipelineName) {
     Username username = loginAsRandomUser()
+    String groupName = generateGroupName()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
@@ -133,7 +138,8 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
-    when(securityService.hasViewPermissionForPipeline(eq(username), any() as String)).thenReturn(true)
+    when(securityService.hasViewPermissionForPipeline(eq(username), eq(pipelineName))).thenReturn(true)
+    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
   }
 
   private Username loginAsRandomUser() {
@@ -145,6 +151,10 @@ trait SecurityServiceTrait {
     TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null)
     SecurityContextHolder.getContext().setAuthentication(authentication)
     username
+  }
+
+  private String generateGroupName() {
+    "group-" + SecureRandom.hex(20)
   }
 
   @AfterEach

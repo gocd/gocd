@@ -65,7 +65,7 @@ class BuildCauseControllerDelegateTest implements ControllerTrait<BuildCauseCont
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("foo"))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
       }
 
       @Override
@@ -75,7 +75,12 @@ class BuildCauseControllerDelegateTest implements ControllerTrait<BuildCauseCont
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/foo/2'))
+        getWithApiHeader(controller.controllerPath("/${getPipelineName()}/2"))
+      }
+
+      @Override
+      String getPipelineName() {
+        return "foo"
       }
     }
 

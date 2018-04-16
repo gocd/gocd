@@ -68,7 +68,12 @@ class MaterialSearchControllerDelegateTest implements ControllerTrait<MaterialSe
 
     @Override
     void makeHttpCall() {
-      getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))
+      getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: getPipelineName(), search_text: 'abc']))
+    }
+
+    @Override
+    String getPipelineName() {
+      return 'some-pipeline'
     }
   }
 

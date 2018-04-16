@@ -48,6 +48,7 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import org.aspectj.lang.reflect.UnlockSignature
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -94,6 +95,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @Override
       void makeHttpCall() {
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return Pause.this.pipelineName
       }
     }
 
@@ -173,6 +179,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       void makeHttpCall() {
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
       }
+
+      @Override
+      String getPipelineName() {
+        return Unpause.this.pipelineName
+      }
     }
 
     @Nested
@@ -234,6 +245,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       void makeHttpCall() {
         postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
       }
+
+      @Override
+      String getPipelineName() {
+        return Unlock.this.pipelineName
+      }
     }
 
     @Nested
@@ -293,6 +309,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       void makeHttpCall() {
         getWithApiHeader(Routes.Pipeline.triggerOptions('build-linux'))
       }
+
+      @Override
+      String getPipelineName() {
+        return 'build-linux'
+      }
     }
 
     @Nested
@@ -350,6 +371,11 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       void makeHttpCall() {
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
       }
+
+      @Override
+      String getPipelineName() {
+        return Schedule.this.pipelineName
+      }
     }
 
     @Nested
@@ -357,7 +383,7 @@ class PipelineOperationsControllerV1DelegateTest implements SecurityServiceTrait
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser()
+        loginAsGroupOperateUser(pipelineName)
       }
 
       @Test

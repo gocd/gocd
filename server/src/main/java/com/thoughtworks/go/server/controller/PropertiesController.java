@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.server.controller.actions.BasicRestfulAction;
 import com.thoughtworks.go.server.security.HeaderConstraint;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,14 +100,27 @@ public class PropertiesController {
                                    HttpServletResponse response) throws Exception {
 
         Long limitPipelineId = null;
+        int pipelineCounter = 0;
         if (limitPipeline != null) {
-            Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(pipelineName, limitPipeline);
+            if (JobIdentifier.LATEST.equalsIgnoreCase(limitPipeline)) {
+                PipelineIdentifier pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(pipelineName);
+                pipelineCounter = pipelineIdentifier.getCounter();
+            } else if (StringUtils.isNumeric(limitPipeline)) {
+                pipelineCounter = Integer.parseInt(limitPipeline);
+            } else {
+                return notFound(String.format(
+                        "Expected a numeric value for query parameter 'limitPipeline', but received [%s]",
+                        limitPipeline)).respond(
+                        response);
+
+            }
+            Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
             if (pipeline != null) {
                 limitPipelineId = pipeline.getId();
             } else {
                 return notFound(String.format(
-                        "The value [%s] of query parameter 'limitPipeline' is neither a pipeline counter nor label",
-                        limitPipeline)).respond(
+                        "The value [%s] of query parameter 'limitPipeline' is not a valid pipeline counter for pipeline '%s'",
+                        limitPipeline, pipelineName)).respond(
                         response);
             }
         }

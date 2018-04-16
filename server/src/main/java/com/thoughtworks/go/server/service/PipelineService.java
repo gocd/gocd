@@ -124,6 +124,10 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
     }
 
+    public Pipeline findPipelineByNameAndCounter(String pipelineName, int pipelineCounter) {
+        return pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+    }
+
     public Pipeline fullPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
         Pipeline pipeline = findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
         pipelineDao.loadAssociations(pipeline, pipelineName);

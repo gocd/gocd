@@ -111,7 +111,7 @@ public class JobController {
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) throws Exception {
 
-        Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(pipelineName, pipelineCounter);
+        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter));
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));

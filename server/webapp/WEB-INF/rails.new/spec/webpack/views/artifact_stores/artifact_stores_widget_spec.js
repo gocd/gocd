@@ -116,7 +116,7 @@ describe('Artifact Stores Widget', () => {
     });
   });
 
-  describe('Add', () => {
+  describe('Operations', () => {
 
     beforeEach(() => {
       jasmine.Ajax.install();
@@ -128,141 +128,205 @@ describe('Artifact Stores Widget', () => {
 
     afterEach(Modal.destroyAll);
 
-    it('should show modal when add button is clicked', () => {
-      expect($root.find('.reveal:visible')).not.toBeInDOM();
-      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
-      m.redraw();
-      expect($('.reveal:visible')).toBeInDOM();
-      expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
-    });
+    describe('Add', () => {
 
-    it('should show modal and render view of first plugin id', () => {
-      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
-      m.redraw();
-
-      const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
-
-      expect($(pluginId).val()).toEqual(dockerRegistryPluginInfoJSON.id);
-    });
-
-    it("should allow saving an artifact store if save is successful", () => {
-      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
-      m.redraw();
-      const modalBody = $('.reveal:visible .modal-body');
-
-      const artifactStoreId = modalBody.find('[data-prop-name="id"]').get(0);
-      $(artifactStoreId).val("unit-test");
-      simulateEvent.simulate(artifactStoreId, 'input');
-
-      const pluginId = modalBody.find('[data-prop-name="pluginId"]').get(0);
-      $(pluginId).val(dockerRegistryPluginInfoJSON.id);
-      simulateEvent.simulate(pluginId, 'input');
-
-      m.redraw();
-
-      jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
-        responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
-        status:       200
+      it('should show modal when add button is clicked', () => {
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
+        simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
       });
 
-      simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
+      it('should show modal and render view of first plugin id', () => {
+        simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+        m.redraw();
 
-      m.redraw();
+        const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
 
-      const refreshRequest = jasmine.Ajax.requests.mostRecent();
-      expect(refreshRequest.url).toBe('/go/api/admin/artifact_stores');
-      expect(refreshRequest.method).toBe('GET');
-
-      const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
-      expect(request.url).toBe('/go/api/admin/artifact_stores');
-      expect(request.method).toBe('POST');
-
-      expect($('.success')).toContainText('The artifact store unit-test was created successfully');
-    });
-
-    it("should change plugin view template in modal on change of plugin from dropdown", () => {
-      simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
-      m.redraw();
-
-      expect($('.reveal .modal-body input[data-prop-name]')).not.toBeDisabled();
-      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(dockerRegistryPluginInfoJSON.about.name);
-      expect($('.reveal .modal-body div.docker_registry_config').text()).toEqual("Docker Registry Url:");
-
-      $('.reveal [data-prop-name=pluginId]').val("cd.go.example.artifactory");
-      simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
-      m.redraw();
-
-      expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
-      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(artifactoryPluginInfoJSON.about.name);
-      expect($('.reveal .modal-body div.artifactory_store_config').text()).toEqual("Example");
-    });
-
-  });
-
-  describe('Edit', () => {
-
-    beforeEach(() => {
-      jasmine.Ajax.install();
-      stubGetArtifactStoresResponse();
-      stubGetPluginInfosResponse();
-      m.mount(root, ArtifactStoresWidget);
-      m.redraw();
-    });
-
-    afterEach(Modal.destroyAll);
-
-    it("should show modal to allow editing an artifact store", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
-        responseHeaders: {
-          'ETag': '"foo"'
-        },
-        status:          200
-      });
-      expect($root.find('.reveal:visible')).not.toBeInDOM();
-
-      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
-      m.redraw();
-      expect($('.reveal:visible')).toBeInDOM();
-      expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
-    });
-
-    it("should display error message if fetching an artifact store fails", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify({message: 'Boom!'}),
-        status:       400
+        expect($(pluginId).val()).toEqual(dockerRegistryPluginInfoJSON.id);
       });
 
-      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
-      m.redraw();
+      it("should allow saving an artifact store if save is successful", () => {
+        simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+        m.redraw();
+        const modalBody = $('.reveal:visible .modal-body');
 
-      expect($('.alert')).toContainText('Boom!');
-    });
+        const artifactStoreId = modalBody.find('[data-prop-name="id"]').get(0);
+        $(artifactStoreId).val("unit-test");
+        simulateEvent.simulate(artifactStoreId, 'input');
 
-    it("should keep the artifact store expanded while edit modal is open", () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(dockerRegistryArtifactStoreJSON),
-        status:       200
+        const pluginId = modalBody.find('[data-prop-name="pluginId"]').get(0);
+        $(pluginId).val(dockerRegistryPluginInfoJSON.id);
+        simulateEvent.simulate(pluginId, 'input');
+
+        m.redraw();
+
+        jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
+          responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
+          status:       200
+        });
+
+        simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
+
+        m.redraw();
+
+        const refreshRequest = jasmine.Ajax.requests.mostRecent();
+        expect(refreshRequest.url).toBe('/go/api/admin/artifact_stores');
+        expect(refreshRequest.method).toBe('GET');
+
+        const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
+        expect(request.url).toBe('/go/api/admin/artifact_stores');
+        expect(request.method).toBe('POST');
+
+        expect($('.success')).toContainText('The artifact store unit-test was created successfully');
       });
 
-      expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-      simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
-      m.redraw();
-      expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+      it("should change plugin view template in modal on change of plugin from dropdown", () => {
+        simulateEvent.simulate($root.find('.add-artifact-store').get(0), 'click');
+        m.redraw();
 
-      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
-      m.redraw();
-      simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
-      m.redraw();
-      expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+        expect($('.reveal .modal-body input[data-prop-name]')).not.toBeDisabled();
+        expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(dockerRegistryPluginInfoJSON.about.name);
+        expect($('.reveal .modal-body div.docker_registry_config').text()).toEqual("Docker Registry Url:");
+
+        $('.reveal [data-prop-name=pluginId]').val("cd.go.example.artifactory");
+        simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
+        m.redraw();
+
+        expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
+        expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(artifactoryPluginInfoJSON.about.name);
+        expect($('.reveal .modal-body div.artifactory_store_config').text()).toEqual("Example");
+      });
+
     });
 
-    it('should show spinner and disable save button while artifact store is being loaded', () => {
-      jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET');
-      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
-      m.redraw();
-      expect($('.reveal:visible .page-spinner')).toBeInDOM();
-      expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
+    describe('Edit', () => {
+
+      it("should show modal to allow editing an artifact store", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
+          responseHeaders: {
+            'ETag': '"foo"'
+          },
+          status:          200
+        });
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
+      });
+
+      it("should display error message if fetching an artifact store fails", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText: JSON.stringify({message: 'Boom!'}),
+          status:       400
+        });
+
+        simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+        m.redraw();
+
+        expect($('.alert')).toContainText('Boom!');
+      });
+
+      it("should keep the artifact store expanded while edit modal is open", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText: JSON.stringify(dockerRegistryArtifactStoreJSON),
+          status:       200
+        });
+
+        expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
+        simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
+        m.redraw();
+        expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+
+        simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+        m.redraw();
+        simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
+        m.redraw();
+        expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+      });
+
+      it('should show spinner and disable save button while artifact store is being loaded', () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET');
+        simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible .page-spinner')).toBeInDOM();
+        expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
+      });
+    });
+
+    describe('Clone', () => {
+
+      it("should show modal with artifact store", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
+          status:          200,
+          responseHeaders: {
+            'ETag': '"foo"'
+          }
+        });
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
+
+        m.redraw();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
+      });
+
+      it("should display error message if fetching an artifact store fails", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText: JSON.stringify({message: 'Boom!'}),
+          status:       400
+        });
+
+        simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
+        m.redraw();
+
+        expect($('.alert')).toContainText('Boom!');
+      });
+
+      it("should allow cloning an artifact store", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
+          status:          200,
+          responseHeaders: {
+            'ETag':         '"foo"',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
+        m.redraw();
+
+        const storeId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
+        $(storeId).val("foo-clone");
+        simulateEvent.simulate(storeId, 'input');
+
+        jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
+          responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
+          status:       200
+        });
+
+        simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
+
+        const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
+        expect(request.url).toBe('/go/api/admin/artifact_stores');
+        expect(request.method).toBe('POST');
+
+        expect($('.success')).toContainText('The artifact store foo-clone was cloned successfully');
+      });
+
+      it('should show spinner and disable save button while artifact store is being loaded', () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET');
+        simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible .page-spinner')).toBeInDOM();
+        expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
+      });
     });
   });
 

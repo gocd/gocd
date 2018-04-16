@@ -91,7 +91,7 @@ class ArtifactStoresWidget {
                           pluginInfo={pluginInfo}
                           onEdit={editClicked.bind(this, store)}
                           onDelete=''
-                          onClone=''/>
+                          onClone={cloneClicked.bind(this, store)}/>
                       );
                     })}
                   </div>
@@ -158,9 +158,9 @@ function actionSucceeded(modal, message) {
 }
 
 function editClicked(store) {
-  const artifactStore = Stream();
+  const artifactStore      = Stream();
   const saveButtonDisabled = Stream(true);
-  const modal         = new Modal({
+  const modal              = new Modal({
     size:    'large',
     title:   'Edit artifact store',
     body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={artifactStore}
@@ -168,10 +168,10 @@ function editClicked(store) {
     onclose: () => modal.destroy(),
     buttons: [
       {
-        text:    "Save",
-        class:   'save primary',
+        text:     "Save",
+        class:    'save primary',
         disabled: saveButtonDisabled,
-        onclick: () => {
+        onclick:  () => {
           artifactStore().update()
             .then(
               actionSucceeded.bind(this, modal, `The artifact store ${artifactStore().id()} was updated successfully.`),
@@ -188,6 +188,44 @@ function editClicked(store) {
     this.state.resetMessage();
     saveButtonDisabled(false);
   }, actionFailed(this, modal, artifactStore))
+    .always(m.redraw);
+}
+
+function cloneClicked(artifactStore) {
+  const newArtifactStore = Stream();
+  const saveButtonDisabled = Stream(true);
+
+  const modal = new Modal({
+    size:    'large',
+    title:   `Clone artifact store ${artifactStore.id()}`,
+    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={newArtifactStore}
+                                            errorMessage={this.state.message}/>),
+    onclose: () => modal.destroy(),
+    buttons:       [
+      {
+        text:    "Save",
+        class:   'save primary',
+        disabled: saveButtonDisabled,
+        onclick: () => {
+          newArtifactStore().create().then(
+            actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was cloned successfully.`),
+            actionFailed(this, modal, newArtifactStore)
+          ).always(m.redraw);
+        }
+      }]
+  });
+
+  modal.render();
+
+  const onFulfilled = function (storeFromAjax) {
+    newArtifactStore(storeFromAjax);
+    newArtifactStore().id('');
+    newArtifactStore().etag(null);
+    newArtifactStore().errors().add('id', "Provide id to your clone.");
+    saveButtonDisabled(false);
+  };
+
+  ArtifactStores.ArtifactStore.get(artifactStore.id()).then(onFulfilled, actionFailed(this, modal, newArtifactStore))
     .always(m.redraw);
 }
 

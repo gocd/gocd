@@ -343,7 +343,7 @@ describe("ElasticProfilesWidget", () => {
 
   describe("edit an existing profile", () => {
     afterEach(Modal.destroyAll);
-    it("should popup a new modal to allow edditing a profile", () => {
+    it("should popup a new modal to allow editing a profile", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${dockerElasticProfileJSON.id}`, undefined, 'GET').andReturn({
         responseText:    JSON.stringify(dockerElasticProfileJSON),
         responseHeaders: {
@@ -432,7 +432,7 @@ describe("ElasticProfilesWidget", () => {
   describe("Clone an existing profile", () => {
     afterEach(Modal.destroyAll);
 
-    it("should show modal with profile daa", () => {
+    it("should show modal with profile on clone", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${dockerElasticProfileJSON.id}`, undefined, 'GET').andReturn({
         responseText:    JSON.stringify(dockerElasticProfileJSON),
         status:          200,

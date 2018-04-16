@@ -59,20 +59,10 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         this(pipelineIdentifier.getName(), pipelineIdentifier.getCounter(), pipelineIdentifier.getLabel(), name, counter);
     }
 
-    /**
-     * @deprecated breaks if the locator has an alphs-numeric label
-     */
     public StageIdentifier(String stageLocator) {
         String[] locatorElements = stageLocator.split("/");
         String counter = locatorElements[1];
-        String label = null;
-        java.util.regex.Matcher matcher = Pattern.compile("(\\d+)\\[(.*?)\\]").matcher(counter);
-        if (matcher.matches()) {
-            counter = matcher.group(1);
-            label = matcher.group(2);
-            this.pipelineLabel = label;
-        }
-        setLocatorAttributes(locatorElements[0], Integer.parseInt(counter), label, locatorElements[2], locatorElements[3]);
+        setLocatorAttributes(locatorElements[0], Integer.parseInt(counter), null, locatorElements[2], locatorElements[3]);
     }
 
     private void setLocatorAttributes(String pipelineName, Integer pipelineCounter, String label, String stageName, String stageCounter) {

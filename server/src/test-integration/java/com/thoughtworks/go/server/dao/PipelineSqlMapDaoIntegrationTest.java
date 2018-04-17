@@ -526,16 +526,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadMostRecentLabel() throws Exception {
-        String stageName = "dev";
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
-        Pipeline mingle = schedulePipelineWithStages(mingleConfig);
-
-        String label = pipelineDao.mostRecentLabel(mingle.getName());
-        assertThat(label, is(mingle.getLabel()));
-    }
-
-    @Test
     public void shouldLoadMostRecentPipelineWithSingleStage() throws Exception {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);

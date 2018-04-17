@@ -300,10 +300,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
     }
 
-    public String mostRecentLabel(String pipelineName) {
-        return (String) getSqlMapClientTemplate().queryForObject("mostRecentLabel", pipelineName);
-    }
-
     public Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId) {
         String cacheKey = this.cacheKeyGenerator.generate("getPipelineByBuildId", buildId);
         return pipelineByBuildIdCache.get(cacheKey, new Supplier<Pipeline>() {
@@ -791,14 +787,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             }
         }
         return latestModification != null ? latestModification.getRevision() : null;
-    }
-
-    private String translatePipelineLabel(String pipelineName, String pipelineLabel) {
-        String label = pipelineLabel;
-        if (pipelineLabel.equalsIgnoreCase(JobIdentifier.LATEST)) {
-            label = mostRecentLabel(pipelineName);
-        }
-        return label;
     }
 
     public void pause(String pipelineName, String pauseCause, String pauseBy) {

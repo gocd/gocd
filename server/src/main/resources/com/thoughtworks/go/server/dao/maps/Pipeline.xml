@@ -167,11 +167,6 @@
         LIMIT 1
     </select>
 
-
-    <select id="mostRecentLabel" parameterType="java.lang.String" resultType="string">
-        SELECT label  FROM pipelines WHERE name = #{name} ORDER BY id DESC LIMIT 1
-    </select>
-
     <select id="hasPipelineInfoRow" parameterType="java.lang.String" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM pipelineLabelCounts

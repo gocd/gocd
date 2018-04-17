@@ -50,7 +50,7 @@ public interface PipelineDao {
     // Please call pipelineService.save(aPipeline) instead
     Pipeline saveWithStages(Pipeline pipeline);
 
-    String mostRecentLabel(String pipelineName);
+    PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName);
 
     Integer getCounterForPipeline(String name);
 

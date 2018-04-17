@@ -20,7 +20,6 @@ const Stream                 = require('mithril/stream');
 const _                      = require('lodash');
 const Modal                  = require('views/shared/new_modal');
 const HeaderPanel            = require('views/shared/header_panel');
-const InfoCalloutWidget      = require('views/shared/info_callout');
 const ComponentMixins        = require('helpers/mithril_component_mixins');
 const PluginWidget           = require('views/plugins/plugin_widget');
 const PluginSettingModalBody = require('views/plugins/plugin_setting_modal_body');
@@ -129,7 +128,7 @@ const PluginsWidget = {
     let noPluginsMessage;
     if (noPluginsInstalled) {
       noPluginsMessage = (
-        <InfoCalloutWidget message="No plugins are installed."/>
+        <f.infoRow message="No plugins are installed."/>
       );
     }
 

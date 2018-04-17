@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-const $                  = require('jquery');
-const m                  = require('mithril');
-const Stream             = require('mithril/stream');
-const PluginsWidget      = require('views/plugins/plugins_widget');
-const PluginInfos        = require('models/shared/plugin_infos');
-const VersionUpdater     = require('models/shared/version_updater');
-const ErrorCalloutWidget = require('views/shared/error_callout');
+const $              = require('jquery');
+const m              = require('mithril');
+const Stream         = require('mithril/stream');
+const PluginsWidget  = require('views/plugins/plugins_widget');
+const PluginInfos    = require('models/shared/plugin_infos');
+const VersionUpdater = require('models/shared/version_updater');
+const PageLoadError  = require('views/shared/page_load_error');
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
@@ -46,7 +46,7 @@ $(() => {
   const onFailure = () => {
     const component = {
       view() {
-        return m(ErrorCalloutWidget, {message: "There was a problem fetching plugins"});
+        return m(PageLoadError, {message: "There was a problem fetching plugins"});
       }
     };
     m.mount($("#plugins").get(0), component);

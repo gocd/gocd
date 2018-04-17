@@ -20,7 +20,6 @@ const _                 = require('lodash');
 const f                 = require('helpers/form_helper');
 const Modal             = require('views/shared/new_modal');
 const HeaderPanel       = require('views/shared/header_panel');
-const InfoCalloutWidget = require('views/shared/info_callout');
 const ComponentMixins   = require('helpers/mithril_component_mixins');
 const Roles             = require('models/roles/roles');
 const GoCDRoleWidget    = require('views/roles/gocd_role_widget');
@@ -222,7 +221,7 @@ const RolesWidget = function (options) {
       let noAuthorizationPluginMessage;
       if (noPluginThatSupportsAuthorization) {
         noAuthorizationPluginMessage = (
-          <InfoCalloutWidget message="None of the installed plugin supports role based authorization."/>
+          <f.infoRow message="None of the installed plugin supports role based authorization."/>
         );
       }
 

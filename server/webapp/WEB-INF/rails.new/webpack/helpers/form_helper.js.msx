@@ -655,6 +655,18 @@ const f = {
     view (vnode) {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
+  },
+
+  infoRow: {
+    view(vnode) {
+      return (
+        <f.row>
+          <f.callout type="info">
+            {vnode.attrs.message}
+          </f.callout>
+        </f.row>
+      );
+    }
   }
 };
 

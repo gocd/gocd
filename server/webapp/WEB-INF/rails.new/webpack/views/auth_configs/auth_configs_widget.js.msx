@@ -20,7 +20,6 @@ const _                   = require('lodash');
 const f                   = require('helpers/form_helper');
 const Modal               = require('views/shared/new_modal');
 const HeaderPanel         = require('views/shared/header_panel');
-const InfoCalloutWidget   = require('views/shared/info_callout');
 const ComponentMixins     = require('helpers/mithril_component_mixins');
 const AuthConfigs         = require('models/auth_configs/auth_configs');
 const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
@@ -269,7 +268,7 @@ const AuthConfigsWidget = {
 
     let noAuthorizationPluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0) {
-      noAuthorizationPluginMessage = <InfoCalloutWidget message="No authorization plugin installed."/>;
+      noAuthorizationPluginMessage = <f.infoRow message="No authorization plugin installed."/>;
     }
 
     const disabled  = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);

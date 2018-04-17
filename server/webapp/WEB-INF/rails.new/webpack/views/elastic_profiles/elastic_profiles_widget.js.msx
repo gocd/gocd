@@ -19,7 +19,6 @@ const f                       = require('helpers/form_helper');
 const ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
 const ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
 const HeaderPanel             = require('views/shared/header_panel');
-const InfoCalloutWidget       = require('views/shared/info_callout');
 const Stream                  = require('mithril/stream');
 const _                       = require('lodash');
 const Modal                   = require('views/shared/new_modal');
@@ -219,7 +218,7 @@ const ElasticProfilesWidget = {
 
     let noElasticAgentPluginMessage;
     if (noElasticAgentPluginInstalled) {
-      noElasticAgentPluginMessage = <InfoCalloutWidget message="No elastic agent plugin installed."/>;
+      noElasticAgentPluginMessage = <f.infoRow message="No elastic agent plugin installed."/>;
     }
 
     const addElasticProfileButton = (

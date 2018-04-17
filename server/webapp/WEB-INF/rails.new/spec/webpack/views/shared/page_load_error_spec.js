@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-describe("Error Callout Widget", () => {
+describe("Page Load Error Widget", () => {
 
   const m                  = require('mithril');
-  const ErrorCalloutWidget = require('views/shared/error_callout');
+  const PageLoadError = require('views/shared/page_load_error');
 
   const unmount = () => {
     m.mount(root, null);
@@ -39,7 +39,7 @@ describe("Error Callout Widget", () => {
     m.mount(root,
       {
         view() {
-          return m(ErrorCalloutWidget, {message: "some-message"});
+          return m(PageLoadError, {message: "some-message"});
         }
       }
     );

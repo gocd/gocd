@@ -16,7 +16,7 @@
 
 const m = require('mithril');
 
-const ErrorCalloutWidget = {
+const PageLoadError = {
 
   oninit() {
   },
@@ -32,4 +32,4 @@ const ErrorCalloutWidget = {
   }
 };
 
-module.exports = ErrorCalloutWidget;
+module.exports = PageLoadError;

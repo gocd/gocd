@@ -20,8 +20,7 @@ const f                   = require('helpers/form_helper');
 const m                   = require('mithril');
 const Stream              = require('mithril/stream');
 const Spinner             = require('views/shared/spinner');
-const ErrorCalloutWidget  = require('views/shared/error_callout');
-const InfoCalloutWidget   = require('views/shared/info_callout');
+const PageLoadError       = require('views/shared/page_load_error');
 const HeaderPanel         = require('views/shared/header_panel');
 const ArtifactStores      = require('models/artifact_stores/artifact_stores');
 const ArtifactStoresState = require('views/artifact_stores/artifact_stores_state');
@@ -56,7 +55,7 @@ class ArtifactStoresWidget {
   view() {
     if (this.state.error) {
       return (
-        <ErrorCalloutWidget message="There was a problem fetching the artifact stores"/>
+        <PageLoadError message="There was a problem fetching the artifact stores"/>
       );
     } else if (this.state.loading) {
       return (
@@ -69,7 +68,7 @@ class ArtifactStoresWidget {
         </f.button>
       );
       const noPluginsMessage = this.state.noPlugins() ?
-        <InfoCalloutWidget message="No artifact store plugins installed."/> : undefined;
+        <f.infoRow message="No artifact store plugins installed."/> : undefined;
       return (
         <div>
           <HeaderPanel title="Artifact Stores" button={addButton}/>

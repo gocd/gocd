@@ -67,8 +67,11 @@ describe('Artifact Stores Widget', () => {
       jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
-        responseText: JSON.stringify({}),
-        status:       200
+        responseText:    JSON.stringify({}),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
       });
 
       m.mount(root, ArtifactStoresWidget);
@@ -82,12 +85,15 @@ describe('Artifact Stores Widget', () => {
       jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
-        responseText: JSON.stringify({
+        responseText:    JSON.stringify({
           "_embedded": {
             "plugin_info": []
           }
         }),
-        status:       200
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
       });
 
       m.mount(root, ArtifactStoresWidget);
@@ -112,7 +118,7 @@ describe('Artifact Stores Widget', () => {
 
       m.mount(root, ArtifactStoresWidget);
 
-      expect($(".collapsible-list-header").length).toEqual(1);
+      expect($(".collapsible-list-header").length).toEqual(2);
     });
   });
 
@@ -163,8 +169,11 @@ describe('Artifact Stores Widget', () => {
         m.redraw();
 
         jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
-          responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
-          status:       200
+          responseText:    JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
@@ -207,9 +216,10 @@ describe('Artifact Stores Widget', () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
           responseHeaders: {
-            'ETag': '"foo"'
+            'ETag':         '"foo"',
+            'Content-Type': 'application/json'
           },
-          status:          200
+          status:          200,
         });
         expect($root.find('.reveal:visible')).not.toBeInDOM();
 
@@ -221,8 +231,11 @@ describe('Artifact Stores Widget', () => {
 
       it("should display error message if fetching an artifact store fails", () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-          responseText: JSON.stringify({message: 'Boom!'}),
-          status:       400
+          responseText:    JSON.stringify({message: 'Boom!'}),
+          status:          400,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
@@ -233,8 +246,11 @@ describe('Artifact Stores Widget', () => {
 
       it("should keep the artifact store expanded while edit modal is open", () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-          responseText: JSON.stringify(dockerRegistryArtifactStoreJSON),
-          status:       200
+          responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
@@ -256,6 +272,24 @@ describe('Artifact Stores Widget', () => {
         expect($('.reveal:visible .page-spinner')).toBeInDOM();
         expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
       });
+
+      it('should select the correct plugin id from the dropdown', () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${artifactoryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(artifactoryArtifactStoreJSON),
+          responseHeaders: {
+            'ETag':         '"foo"',
+            'Content-Type': 'application/json'
+          },
+          status:          200
+        });
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
+        simulateEvent.simulate($root.find('.edit-button').get(1), 'click');
+        m.redraw();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
+        const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
+        expect($(pluginId).val()).toEqual(artifactoryPluginInfoJSON.id);
+      });
     });
 
     describe('Clone', () => {
@@ -265,7 +299,8 @@ describe('Artifact Stores Widget', () => {
           responseText:    JSON.stringify(dockerRegistryArtifactStoreJSON),
           status:          200,
           responseHeaders: {
-            'ETag': '"foo"'
+            'ETag':         '"foo"',
+            'Content-Type': 'application/json'
           }
         });
         expect($root.find('.reveal:visible')).not.toBeInDOM();
@@ -279,8 +314,11 @@ describe('Artifact Stores Widget', () => {
 
       it("should display error message if fetching an artifact store fails", () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'GET').andReturn({
-          responseText: JSON.stringify({message: 'Boom!'}),
-          status:       400
+          responseText:    JSON.stringify({message: 'Boom!'}),
+          status:          400,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
@@ -307,8 +345,11 @@ describe('Artifact Stores Widget', () => {
         simulateEvent.simulate(storeId, 'input');
 
         jasmine.Ajax.stubRequest('/go/api/admin/artifact_stores', undefined, 'POST').andReturn({
-          responseText: JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
-          status:       200
+          responseText:    JSON.stringify({data: dockerRegistryArtifactStoreJSON}),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
@@ -331,16 +372,19 @@ describe('Artifact Stores Widget', () => {
 
     describe('Delete', () => {
 
-      it("should show confirm modal when deleting a profile", () => {
+      it("should show confirm modal when deleting an artifact store", () => {
         simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
         m.redraw();
         expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
       });
 
-      it("should show success message when profile is deleted", () => {
+      it("should show success message when an artifact store is deleted", () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'DELETE').andReturn({
-          responseText: JSON.stringify({message: 'Success!'}),
-          status:       200
+          responseText:    JSON.stringify({message: 'Success!'}),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
@@ -351,10 +395,13 @@ describe('Artifact Stores Widget', () => {
         expect($('.success')).toContainText(`The artifact store '${dockerRegistryArtifactStoreJSON.id}' was deleted successfully`);
       });
 
-      it("should show error message when deleting profile fails", () => {
+      it("should show error message when deleting an artifact store fails", () => {
         jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'DELETE').andReturn({
-          responseText: JSON.stringify({message: 'Boom!'}),
-          status:       400
+          responseText:    JSON.stringify({message: 'Boom!'}),
+          status:          400,
+          responseHeaders: {
+            'Content-Type': 'application/json'
+          }
         });
 
         simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
@@ -370,7 +417,10 @@ describe('Artifact Stores Widget', () => {
   function stubGetArtifactStoresResponse() {
     jasmine.Ajax.stubRequest(url, undefined, 'GET').andReturn({
       responseText: JSON.stringify(sampleResponse),
-      status:       200
+      status:       200,
+      responseHeaders: {
+        'Content-Type': 'application/json'
+      }
     });
   }
 
@@ -381,13 +431,25 @@ describe('Artifact Stores Widget', () => {
           "plugin_info": [dockerRegistryPluginInfoJSON, artifactoryPluginInfoJSON]
         }
       }),
-      status:       200
+      status:       200,
+      responseHeaders: {
+        'Content-Type': 'application/json'
+      }
     });
   }
 
   const dockerRegistryArtifactStoreJSON = {
     "id":         "unit-test",
     "plugin_id":  "cd.go.artifact.docker.registry",
+    "properties": [
+      {"key": "RegistryURL", "value": "test"},
+      {"key": "Username", "value": "foo"},
+      {"key": "Password", "value": "bar"}]
+  };
+
+  const artifactoryArtifactStoreJSON = {
+    "id":         "unit-test-1",
+    "plugin_id":  "cd.go.example.artifactory",
     "properties": [
       {"key": "RegistryURL", "value": "test"},
       {"key": "Username", "value": "foo"},
@@ -584,7 +646,8 @@ describe('Artifact Stores Widget', () => {
     },
     "_embedded": {
       "artifact_stores": [
-        dockerRegistryArtifactStoreJSON
+        dockerRegistryArtifactStoreJSON,
+        artifactoryArtifactStoreJSON
       ]
     }
   };

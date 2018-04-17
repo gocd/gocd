@@ -22,17 +22,6 @@ const Spinner       = require('views/shared/spinner');
 
 class ArtifactStoreModalBody {
 
-  oninit(vnode) {
-    if (!vnode.attrs.artifactStore()) {
-      return;
-    }
-
-    const pluginId = vnode.attrs.artifactStore().pluginId();
-    if (pluginId) {
-      this._pluginInfo = vnode.attrs.pluginInfos.findById(pluginId);
-    }
-  }
-
   view(vnode) {
     if (!vnode.attrs.artifactStore()) {
       return (
@@ -41,6 +30,7 @@ class ArtifactStoreModalBody {
         </div>
       );
     }
+    selectPluginId.call(this, vnode);
 
     if (!this._pluginInfo) {
       const firstPluginInfo = vnode.attrs.pluginInfos.firstPluginInfo();
@@ -93,12 +83,7 @@ function pluginInfoItems(pluginInfos) {
 }
 
 function selectPluginId(vnode) {
-  const pluginInfo = vnode.attrs.pluginInfos.findById(vnode.attrs.artifactStore().pluginId());
-
-  if (!pluginInfo) {
-    return;
-  }
-  this._pluginInfo = pluginInfo;
+  this._pluginInfo = vnode.attrs.pluginInfos.findById(vnode.attrs.artifactStore().pluginId());
 }
 
 module.exports = ArtifactStoreModalBody;

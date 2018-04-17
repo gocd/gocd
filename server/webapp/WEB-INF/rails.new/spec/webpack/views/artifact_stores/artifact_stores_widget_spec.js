@@ -468,7 +468,7 @@ describe('Artifact Stores Widget', () => {
         "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
       },
       "image": {
-        "href": "http://localhost:8153/go/api/plugin_images/cd.go.artifact.docker.registry/e1ce6a7746cdab85ec2229424463c48cc15b761459dd85202acbc12693787aff"
+        "href": ""
       }
     },
     "id":                   "cd.go.artifact.docker.registry",
@@ -556,7 +556,7 @@ describe('Artifact Stores Widget', () => {
         "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
       },
       "image": {
-        "href": "http://localhost:8153/go/api/plugin_images/cd.go.example.artifactory/e1ce6a7746cdab85ec2229424463c48cc15b761459dd85202acbc12693787aff"
+        "href": ""
       }
     },
     "id":                   "cd.go.example.artifactory",

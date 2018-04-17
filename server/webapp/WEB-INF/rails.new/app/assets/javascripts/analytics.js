@@ -6,7 +6,7 @@
       var div = document.createElement("div");
 
       PluginEndpointRequestHandler.defineLinkHandler();
-      PluginEndpoint.ensure();
+      PluginEndpoint.ensure("v1");
       $(div).addClass("analytics-plugin").dialog({
         title: options.title || "Analytics",
         width: 850,

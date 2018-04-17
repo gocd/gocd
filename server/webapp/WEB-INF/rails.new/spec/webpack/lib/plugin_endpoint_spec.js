@@ -45,7 +45,7 @@
       }
     });
 
-    PluginEndpoint.ensure();
+    PluginEndpoint.ensure("v1");
   });
 
   afterEach(() => {
@@ -58,11 +58,11 @@
     let response;
 
     PluginEndpoint.define({
-      "should.receive": (message, trans) => {
+      "go.cd.analytics.v1.should.receive": (message, trans) => {
         messageContent = message.body;
         trans.respond({ data: "correct" });
       },
-      "should.not.receive": (_message, trans) => {
+      "go.cd.analytics.v1.should.not.receive": (_message, trans) => {
         trans.respond({ data: "incorrect" });
       }
     });

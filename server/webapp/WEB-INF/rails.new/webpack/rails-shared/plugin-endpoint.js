@@ -28,6 +28,8 @@
 
   var REQUEST_ID_SEQ = 0;
   var PENDING_REQUESTS = new RequestTable();
+  var KNOWN_VERSIONS = ["v1"];
+  var VERSION = "v1";
 
   function RequestTable() {
     var requests = {};
@@ -149,10 +151,18 @@
 
   function nextReqId() { return REQUEST_ID_SEQ++; }
 
+  function msgKey(key) {
+    if ("string" !== typeof key || "" === key.replace(/^\s+|\s+$/g, "")) {
+      throw new Error("key cannot be blank");
+    }
+    return ["go.cd.analytics", VERSION, key].join(".");
+  }
+
   function Transport(win, responseId) {
     var alreadyResponded = false;
 
     this.request = function sendRequest(key, data) {
+      var fullKey = msgKey(key);
       var reqId = nextReqId();
       var req = new PluginRequest(reqId);
 
@@ -161,7 +171,7 @@
       /* make the send() happen asynchronously so that plugin
        * authors can attach chaining-style callbacks. */
       setTimeout(function() {
-        send(win, data, {reqId: reqId, type: "request", key: key});
+        send(win, data, {reqId: reqId, type: "request", key: fullKey});
       }, 0);
 
       return req;
@@ -223,8 +233,23 @@
     };
   }
 
-  var PluginEndpoint = {
-    ensure: function ensure() {
+
+  function validateVersion(version) {
+    if ("undefined" === typeof version) {
+      throw new Error("You must specify a version to `ensure()`");
+    }
+
+    if (KNOWN_VERSIONS.indexOf(version) === -1) {
+      throw new Error("`version` must be one of: " + KNOWN_VERSIONS.join(", "));
+    }
+
+    return version;
+  }
+
+  var AnalyticsEndpoint = {
+    ensure: function ensure(version) {
+      VERSION = validateVersion(version);
+
       if (!attached) {
         window.addEventListener("message", dispatch, false);
         attached = true;
@@ -245,7 +270,7 @@
     },
     init: init,
     onInit: function onInit(initializerFn) {
-      PluginEndpoint.on("init", function handleInit(message, transport) {
+      this.on(msgKey("init"), function handleInit(message, transport) {
         var body = message.body;
         uid = body.uid;
         pluginId = body.pluginId;
@@ -255,8 +280,9 @@
   };
 
   if ("undefined" !== typeof module) {
-    module.exports = PluginEndpoint;
+    module.exports = AnalyticsEndpoint;
   } else {
-    window.PluginEndpoint = PluginEndpoint;
+    window.PluginEndpoint = AnalyticsEndpoint;
+    window.AnalyticsEndpoint = AnalyticsEndpoint;
   }
 })();

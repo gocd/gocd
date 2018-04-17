@@ -26,7 +26,7 @@ const Frame                        = require('models/shared/frame');
 
 function createModal(pluginId, metricId, pipeline) {
   PluginEndpointRequestHandler.defineLinkHandler();
-  PluginEndpoint.ensure();
+  PluginEndpoint.ensure("v1");
 
   const model = new Frame(m.redraw);
   model.pluginId(pluginId);

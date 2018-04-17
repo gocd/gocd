@@ -32,7 +32,7 @@
   const GlobalMetrics            = require('views/analytics/global_metrics');
   const PipelineMetrics          = require('views/analytics/pipeline_metrics');
 
-  PluginEndpoint.ensure();
+  PluginEndpoint.ensure("v1");
 
   document.addEventListener("DOMContentLoaded", () => {
     const main = document.querySelector("[data-supported-dashboard-metrics]");

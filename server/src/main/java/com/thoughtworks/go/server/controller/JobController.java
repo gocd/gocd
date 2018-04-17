@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +111,16 @@ public class JobController {
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) throws Exception {
+        if (!StringUtils.isNumeric(pipelineCounter)) {
+            throw bomb(String.format("Expected numeric pipelineCounter, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
+                    stageCounter, jobName));
 
+        }
+        if (!StringUtils.isNumeric(stageCounter)) {
+            throw bomb(String.format("Expected numeric stageCounter, but received '%s' for [%s/%s/%s/%s/%s]", stageCounter, pipelineName, pipelineCounter, stageName,
+                    stageCounter, jobName));
+
+        }
         Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter));
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,

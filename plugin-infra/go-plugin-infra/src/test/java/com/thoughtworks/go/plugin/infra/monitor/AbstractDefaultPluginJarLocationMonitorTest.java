@@ -30,6 +30,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     public static final File TEMP_SOURCE = new File("temp-file-in-plugin-monitor-test");
+    protected File trashDirectory;
 
     protected void waitAMoment() throws InterruptedException {
         Thread.yield();
@@ -66,5 +67,9 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
 
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(TEMP_SOURCE);
+    }
+
+    protected void simulatePluginDeletion(File plugin) throws IOException {
+        FileUtils.moveFileToDirectory(plugin, trashDirectory, false);
     }
 }

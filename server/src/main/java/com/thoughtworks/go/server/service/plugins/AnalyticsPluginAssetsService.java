@@ -49,6 +49,9 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
     private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsPluginAssetsService.class);
     private static final String PLUGIN_ENDPOINT_JS = "plugin-endpoint.js";
 
+    // TODO: actually rename source file later
+    private static final String DESTINATION_JS = "analytics-endpoint.js";
+
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
     private ZipUtil zipUtil;
@@ -121,7 +124,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
 
             zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
 
-            Files.write(Paths.get(pluginAssetsRoot, PLUGIN_ENDPOINT_JS), pluginEndpointJsContent);
+            Files.write(Paths.get(pluginAssetsRoot, DESTINATION_JS), pluginEndpointJsContent);
 
             pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
         } catch (Exception e) {

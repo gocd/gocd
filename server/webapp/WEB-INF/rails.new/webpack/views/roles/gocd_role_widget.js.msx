@@ -16,7 +16,6 @@
 
 const m                      = require('mithril');
 const Stream                 = require('mithril/stream');
-const f                      = require('helpers/form_helper');
 const ComponentMixins        = require('helpers/mithril_component_mixins');
 const RoleUserReadOnlyWidget = require('views/roles/gocd_role_user_readonly_widget');
 const ActionButtons          = require('views/shared/plugin_config/action_buttons');

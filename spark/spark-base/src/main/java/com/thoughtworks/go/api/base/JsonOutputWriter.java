@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.RequestContext;
 
 import java.io.BufferedWriter;
@@ -98,6 +99,13 @@ public class JsonOutputWriter {
         public JsonOutputWriterUsingJackson add(String key, String value) {
             return withExceptionHandling((jacksonWriter) -> {
                 jacksonWriter.writeStringField(key, value);
+            });
+        }
+
+        @Override
+        public JsonOutputWriterUsingJackson add(String key, CaseInsensitiveString value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                jacksonWriter.writeStringField(key, value.toString());
             });
         }
 

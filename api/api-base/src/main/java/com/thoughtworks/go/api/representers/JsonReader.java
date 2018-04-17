@@ -19,6 +19,7 @@ package com.thoughtworks.go.api.representers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +47,17 @@ public class JsonReader {
         if (jsonObject.has(property)) {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsString());
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonString(property);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<CaseInsensitiveString> optCaseInsensitiveString(String property) {
+        if (jsonObject.has(property)) {
+            try {
+                return Optional.of(new CaseInsensitiveString(jsonObject.get(property).getAsString()));
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonString(property);
             }
@@ -91,8 +103,16 @@ public class JsonReader {
             .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
+    public boolean hasJsonObject (String property) {
+        return jsonObject.has(property);
+    }
+
     public void readStringIfPresent(String key, Consumer<String> setterMethod) {
         optString(key).ifPresent(setterMethod);
+    }
+
+    public void readCaseInsensitiveStringIfPresent(String key, Consumer<CaseInsensitiveString> setterMethod) {
+        optCaseInsensitiveString(key).ifPresent(setterMethod);
     }
 
     public void readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {

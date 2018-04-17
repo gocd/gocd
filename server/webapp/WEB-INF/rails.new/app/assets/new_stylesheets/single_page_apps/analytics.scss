@@ -19,6 +19,7 @@
 @import '../shared/header';
 @import '../shared/alert';
 @import '../shared/modal';
+@import '../shared/analytics-common';
 
 @import "font-awesome-sprockets";
 @import "font-awesome";
@@ -88,7 +89,7 @@ $analytics-min-support-screen-width: 1366px;
         justify-content: left;
       }
 
-      div {
+      .chart-pipeline-selector {
         width:          100%;
         height:         40px;
         font-size:      14px;
@@ -117,12 +118,6 @@ $analytics-min-support-screen-width: 1366px;
 
         min-width:  calc(#{$analytics-min-support-screen-width} / 2 - #{$analytics-horz-margin});
         min-height: $analytics-min-height;
-
-        iframe {
-          height: 100%;
-          width:  100%;
-          border: 0;
-        }
 
         &[data-error-text] {
           border: 1px solid #f00;

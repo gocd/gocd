@@ -23,9 +23,12 @@
     let currentUrl = null;
 
     function oncreate(vnode) {
-      const iframe = vnode.dom.firstChild;
+      const iframe = vnode.dom.querySelector("iframe"),
+         container = vnode.dom;
 
       iframe.onload = () => {
+        vnode.dom.classList.remove("loading-analytics");
+
         vnode.attrs.init(iframe.contentWindow, {
           uid:         vnode.attrs.uid,
           pluginId:    vnode.attrs.pluginId,
@@ -35,14 +38,19 @@
 
       currentUrl = vnode.attrs.model.url();
 
+      container.classList.add("loading-analytics");
       vnode.attrs.model.load();
     }
 
     function onupdate(vnode) {
-      const iframe = vnode.dom.firstChild;
+      const iframe = vnode.dom.querySelector("iframe"),
+         container = vnode.dom;
+
       if (vnode.attrs && vnode.attrs.model) {
         if (currentUrl !== vnode.attrs.model.url()) {
           iframe.onload = () => {
+            vnode.dom.classList.remove("loading-analytics");
+
             vnode.attrs.init(iframe.contentWindow, {
               uid:         vnode.attrs.uid,
               pluginId:    vnode.attrs.pluginId,
@@ -52,6 +60,7 @@
 
           currentUrl = vnode.attrs.model.url();
 
+          container.classList.add("loading-analytics");
           vnode.attrs.model.load();
         }
       }
@@ -70,6 +79,13 @@
 
       const errorAttrs = errorXHR ? {"data-error-text": errorXHR.responseText} : {};
       return <div class="frame-container" {...errorAttrs}>
+        <div class="loading-overlay">
+          <span class="page-spinner"></span>
+          <span class="loading-message">
+            <span class="loading-sub">Loading Analytics</span>
+            <span class="analytics-title">{vnode.attrs.title}</span>
+          </span>
+        </div>
         <iframe sandbox="allow-scripts" {...attrs}/>
       </div>;
     }

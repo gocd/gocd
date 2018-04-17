@@ -31,7 +31,7 @@ class AnalyticsController < ApplicationController
       memo[key] = supported_analytics_hash(analytics_extension_info.getCapabilities().supportedDashboardAnalytics()) if analytics_extension_info.getCapabilities().supportsDashboardAnalytics()
       memo
     end
-     @pipeline_list = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername())).map do |pipelines_config|
+    @pipeline_list = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername())).map do |pipelines_config|
       pipelines_config.getPipelines().map(&:getName)
     end.flatten
   end

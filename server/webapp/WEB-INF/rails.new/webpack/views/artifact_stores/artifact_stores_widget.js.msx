@@ -26,9 +26,8 @@ const HeaderPanel            = require('views/shared/header_panel');
 const ArtifactStores         = require('models/artifact_stores/artifact_stores');
 const ArtifactStoresState    = require('views/artifact_stores/artifact_stores_state');
 const ArtifactStoreWidget    = require('views/artifact_stores/artifact_store_widget');
-const ArtifactStoreModalBody = require('views/artifact_stores/artifact_store_modal_body');
+const ArtifactStoreModal     = require('views/artifact_stores/artifact_store_modal');
 const PluginInfos            = require('models/shared/plugin_infos');
-const Modal                  = require('views/shared/new_modal');
 const PluginGroupHeader      = require('views/shared/plugin_config/plugin_group_header');
 
 class ArtifactStoresWidget {
@@ -114,28 +113,19 @@ function reloadArtifactStores(widget) {
 
 function addClicked() {
   const newArtifactStore = Stream(new ArtifactStores.ArtifactStore({}));
-
-  const modal = new Modal({
-    size:    'large',
-    title:   'Add a new artifact store',
-    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={newArtifactStore}
-                                            errorMessage={this.state.message}/>),
-    onclose: () => modal.destroy(),
-    buttons: [
-      {
-        text:    "Save",
-        class:   'save primary',
-        onclick: () => {
-          newArtifactStore().create()
-            .then(
-              actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was created successfully.`),
-              actionFailed(this, modal, newArtifactStore))
-            .always(m.redraw);
-        }
-      }
-    ]
+  const modal            = new ArtifactStoreModal({
+    title:         'Add a new artifact store',
+    pluginInfos:   this.state.pluginInfos,
+    artifactStore: newArtifactStore,
+    errorMessage:  this.state.message,
+    onclick:       () => {
+      newArtifactStore().create()
+        .then(
+          actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was created successfully.`),
+          actionFailed(this, modal, newArtifactStore))
+        .always(m.redraw);
+    }
   });
-
   modal.render();
 }
 
@@ -160,29 +150,23 @@ function actionSucceeded(modal, message) {
 function editClicked(store) {
   const artifactStore      = Stream();
   const saveButtonDisabled = Stream(true);
-  const modal              = new Modal({
-    size:    'large',
-    title:   'Edit artifact store',
-    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={artifactStore}
-                                            errorMessage={this.state.message}/>),
-    onclose: () => modal.destroy(),
-    buttons: [
-      {
-        text:     "Save",
-        class:    'save primary',
-        disabled: saveButtonDisabled,
-        onclick:  () => {
-          artifactStore().update()
-            .then(
-              actionSucceeded.bind(this, modal, `The artifact store ${artifactStore().id()} was updated successfully.`),
-              actionFailed(this, modal, artifactStore))
-            .always(m.redraw);
-        }
-      }
-    ]
+  const modal              = new ArtifactStoreModal({
+    title:          'Edit artifact store',
+    pluginInfos:    this.state.pluginInfos,
+    artifactStore,
+    errorMessage:   this.state.message,
+    onclick:        () => {
+      artifactStore().update()
+        .then(
+          actionSucceeded.bind(this, modal, `The artifact store ${artifactStore().id()} was updated successfully.`),
+          actionFailed(this, modal, artifactStore))
+        .always(m.redraw);
+    },
+    buttonDisabled: saveButtonDisabled,
   });
 
   modal.render();
+
   ArtifactStores.ArtifactStore.get(store.id()).then((storeWithEtag) => {
     artifactStore(storeWithEtag);
     this.state.resetMessage();
@@ -192,27 +176,21 @@ function editClicked(store) {
 }
 
 function cloneClicked(artifactStore) {
-  const newArtifactStore = Stream();
+  const newArtifactStore   = Stream();
   const saveButtonDisabled = Stream(true);
-
-  const modal = new Modal({
-    size:    'large',
-    title:   `Clone artifact store ${artifactStore.id()}`,
-    body:    () => (<ArtifactStoreModalBody pluginInfos={this.state.pluginInfos} artifactStore={newArtifactStore}
-                                            errorMessage={this.state.message}/>),
-    onclose: () => modal.destroy(),
-    buttons:       [
-      {
-        text:    "Save",
-        class:   'save primary',
-        disabled: saveButtonDisabled,
-        onclick: () => {
-          newArtifactStore().create().then(
-            actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was cloned successfully.`),
-            actionFailed(this, modal, newArtifactStore)
-          ).always(m.redraw);
-        }
-      }]
+  const onclick            = () => {
+    newArtifactStore().create().then(
+      actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was cloned successfully.`),
+      actionFailed(this, modal, newArtifactStore)
+    ).always(m.redraw);
+  };
+  const modal              = new ArtifactStoreModal({
+    title:          `Clone artifact store ${artifactStore.id()}`,
+    pluginInfos:    this.state.pluginInfos,
+    artifactStore:  newArtifactStore,
+    errorMessage:   this.state.message,
+    onclick,
+    buttonDisabled: saveButtonDisabled
   });
 
   modal.render();

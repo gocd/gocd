@@ -179,7 +179,7 @@ describe('Artifact Stores Widget', () => {
         expect(request.url).toBe('/go/api/admin/artifact_stores');
         expect(request.method).toBe('POST');
 
-        expect($('.success')).toContainText('The artifact store unit-test was created successfully');
+        expect($('.success')).toContainText("The artifact store 'unit-test' was created successfully");
       });
 
       it("should change plugin view template in modal on change of plugin from dropdown", () => {
@@ -317,7 +317,7 @@ describe('Artifact Stores Widget', () => {
         expect(request.url).toBe('/go/api/admin/artifact_stores');
         expect(request.method).toBe('POST');
 
-        expect($('.success')).toContainText('The artifact store foo-clone was cloned successfully');
+        expect($('.success')).toContainText("The artifact store 'foo-clone' was cloned successfully");
       });
 
       it('should show spinner and disable save button while artifact store is being loaded', () => {
@@ -326,6 +326,43 @@ describe('Artifact Stores Widget', () => {
         m.redraw();
         expect($('.reveal:visible .page-spinner')).toBeInDOM();
         expect($('.reveal:visible .modal-buttons').find('.save').get(0)).toHaveAttr('disabled');
+      });
+    });
+
+    describe('Delete', () => {
+
+      it("should show confirm modal when deleting a profile", () => {
+        simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
+      });
+
+      it("should show success message when profile is deleted", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'DELETE').andReturn({
+          responseText: JSON.stringify({message: 'Success!'}),
+          status:       200
+        });
+
+        simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
+        m.redraw();
+        simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-button').get(0), 'click');
+        m.redraw();
+
+        expect($('.success')).toContainText(`The artifact store '${dockerRegistryArtifactStoreJSON.id}' was deleted successfully`);
+      });
+
+      it("should show error message when deleting profile fails", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerRegistryArtifactStoreJSON.id}`, undefined, 'DELETE').andReturn({
+          responseText: JSON.stringify({message: 'Boom!'}),
+          status:       400
+        });
+
+        simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
+        m.redraw();
+        simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-button').get(0), 'click');
+        m.redraw();
+
+        expect($('.alert')).toContainText('Boom!');
       });
     });
   });

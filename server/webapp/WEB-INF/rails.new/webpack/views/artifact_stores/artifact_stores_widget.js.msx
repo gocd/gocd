@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-const $                      = require('jquery');
-const _                      = require('lodash');
-const f                      = require('helpers/form_helper');
-const m                      = require('mithril');
-const Stream                 = require('mithril/stream');
-const Spinner                = require('views/shared/spinner');
-const ErrorCalloutWidget     = require('views/shared/error_callout');
-const InfoCalloutWidget      = require('views/shared/info_callout');
-const HeaderPanel            = require('views/shared/header_panel');
-const ArtifactStores         = require('models/artifact_stores/artifact_stores');
-const ArtifactStoresState    = require('views/artifact_stores/artifact_stores_state');
-const ArtifactStoreWidget    = require('views/artifact_stores/artifact_store_widget');
-const ArtifactStoreModal     = require('views/artifact_stores/artifact_store_modal');
-const PluginInfos            = require('models/shared/plugin_infos');
-const PluginGroupHeader      = require('views/shared/plugin_config/plugin_group_header');
+const $                   = require('jquery');
+const _                   = require('lodash');
+const f                   = require('helpers/form_helper');
+const m                   = require('mithril');
+const Stream              = require('mithril/stream');
+const Spinner             = require('views/shared/spinner');
+const ErrorCalloutWidget  = require('views/shared/error_callout');
+const InfoCalloutWidget   = require('views/shared/info_callout');
+const HeaderPanel         = require('views/shared/header_panel');
+const ArtifactStores      = require('models/artifact_stores/artifact_stores');
+const ArtifactStoresState = require('views/artifact_stores/artifact_stores_state');
+const ArtifactStoreWidget = require('views/artifact_stores/artifact_store_widget');
+const ArtifactStoreModal  = require('views/artifact_stores/artifact_store_modal');
+const PluginInfos         = require('models/shared/plugin_infos');
+const PluginGroupHeader   = require('views/shared/plugin_config/plugin_group_header');
+const Modal               = require('views/shared/new_modal');
 
 class ArtifactStoresWidget {
 
@@ -89,7 +90,7 @@ class ArtifactStoresWidget {
                           artifactStore={store}
                           pluginInfo={pluginInfo}
                           onEdit={editClicked.bind(this, store)}
-                          onDelete=''
+                          onDelete={deleteClicked.bind(this, store)}
                           onClone={cloneClicked.bind(this, store)}/>
                       );
                     })}
@@ -121,7 +122,7 @@ function addClicked() {
     onclick:       () => {
       newArtifactStore().create()
         .then(
-          actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was created successfully.`),
+          actionSucceeded.bind(this, modal, `The artifact store '${newArtifactStore().id()}' was created successfully.`),
           actionFailed(this, modal, newArtifactStore))
         .always(m.redraw);
     }
@@ -158,7 +159,7 @@ function editClicked(store) {
     onclick:        () => {
       artifactStore().update()
         .then(
-          actionSucceeded.bind(this, modal, `The artifact store ${artifactStore().id()} was updated successfully.`),
+          actionSucceeded.bind(this, modal, `The artifact store '${artifactStore().id()}' was updated successfully.`),
           actionFailed(this, modal, artifactStore))
         .always(m.redraw);
     },
@@ -180,12 +181,12 @@ function cloneClicked(artifactStore) {
   const saveButtonDisabled = Stream(true);
   const onclick            = () => {
     newArtifactStore().create().then(
-      actionSucceeded.bind(this, modal, `The artifact store ${newArtifactStore().id()} was cloned successfully.`),
+      actionSucceeded.bind(this, modal, `The artifact store '${newArtifactStore().id()}' was cloned successfully.`),
       actionFailed(this, modal, newArtifactStore)
     ).always(m.redraw);
   };
   const modal              = new ArtifactStoreModal({
-    title:          `Clone artifact store ${artifactStore.id()}`,
+    title:          `Clone artifact store '${artifactStore.id()}'`,
     pluginInfos:    this.state.pluginInfos,
     artifactStore:  newArtifactStore,
     errorMessage:   this.state.message,
@@ -205,6 +206,30 @@ function cloneClicked(artifactStore) {
 
   ArtifactStores.ArtifactStore.get(artifactStore.id()).then(onFulfilled, actionFailed(this, modal, newArtifactStore))
     .always(m.redraw);
+}
+
+function deleteClicked(artifactStore) {
+  const deleteInProgress = Stream(false);
+  const modal            = new Modal({
+    title:   'Are you sure?',
+    body:    () => (
+      <div>Are you sure you want to delete the artifact store '<strong>{artifactStore.id()}</strong>'?</div>),
+    onclose: () => modal.destroy(),
+    buttons: () => [
+      {
+        text:    'Delete',
+        class:   deleteInProgress() ? 'delete-button in-progress' : 'delete-button',
+        onclick: () => {
+          deleteInProgress(true);
+          artifactStore.delete().then(
+            actionSucceeded.bind(this, modal, `The artifact store '${artifactStore.id()}' was deleted successfully.`),
+            actionFailed(this, modal, artifactStore)
+          ).always(m.redraw);
+        }
+      }
+    ]
+  });
+  modal.render();
 }
 
 module.exports = ArtifactStoresWidget;

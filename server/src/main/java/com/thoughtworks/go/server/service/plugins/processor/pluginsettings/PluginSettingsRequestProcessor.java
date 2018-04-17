@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
+import com.thoughtworks.go.domain.NullPlugin;
+import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
@@ -23,14 +25,15 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.PluginSettings;
-import com.thoughtworks.go.server.service.PluginService;
+import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -39,12 +42,14 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginSettingsRequestProcessor.class);
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
 
+    private final PluginSqlMapDao pluginSqlMapDao;
     private final List<GoPluginExtension> extensions;
-    private final PluginService pluginService;
 
     @Autowired
-    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginService pluginService, List<GoPluginExtension> extensions) {
-        this.pluginService = pluginService;
+    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry,
+                                          PluginSqlMapDao pluginSqlMapDao,
+                                          List<GoPluginExtension> extensions) {
+        this.pluginSqlMapDao = pluginSqlMapDao;
         this.extensions = extensions;
         registry.registerProcessorFor(GET_PLUGIN_SETTINGS, this);
     }
@@ -54,10 +59,8 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         try {
             GoPluginExtension extension = extensionFor(pluginDescriptor.id(), goPluginApiRequest.pluginIdentifier().getExtension());
 
-            PluginSettings pluginSettings = pluginSettingsFor(pluginDescriptor.id());
-
             DefaultGoApiResponse response = new DefaultGoApiResponse(200);
-            response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettings.getSettingsAsKeyValuePair()));
+            response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettingsFor(pluginDescriptor.id())));
 
             return response;
         } catch (Exception e) {
@@ -70,12 +73,18 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         }
     }
 
-    private PluginSettings pluginSettingsFor(String pluginId) {
-        PluginSettings pluginSettings = pluginService.getPluginSettings(pluginId);
-        if (pluginSettings == null) {
-            pluginSettings = new PluginSettings(pluginId);
+    private Map<String, String> pluginSettingsFor(String pluginId) {
+        Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
+        final Map<String, String> pluginSettingsAsMap = new HashMap<>();
+        if (plugin instanceof NullPlugin) {
+            return pluginSettingsAsMap;
         }
-        return pluginSettings;
+
+        for (String key : plugin.getAllConfigurationKeys()) {
+            pluginSettingsAsMap.put(key, plugin.getConfigurationValue(key));
+        }
+
+        return pluginSettingsAsMap;
     }
 
     private GoPluginExtension extensionFor(String pluginId, String extensionType) {

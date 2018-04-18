@@ -37,7 +37,7 @@ const MaterialInfoWidget = {
         commits.css({
           top:          Math.round(inputCoordinates.top + inputCoordinates.height),
           left:         inputCoordinates.left,
-          'max-height': `${winHeight - searchInput.offset().top + searchInput.height()}px`
+          'max-height': `${winHeight - (inputCoordinates.top + searchInput.outerHeight() + 20)}px`
         });
       }
     }

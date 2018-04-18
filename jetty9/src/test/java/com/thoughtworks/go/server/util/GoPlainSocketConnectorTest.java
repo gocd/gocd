@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ public class GoPlainSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         Jetty9Server server = new Jetty9Server(systemEnvironment, null, mock(SSLSocketFactory.class));
 

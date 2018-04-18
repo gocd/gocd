@@ -68,6 +68,7 @@ public class GoSslSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
         when(jettyServer.getServer()).thenReturn(new Server());
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(false);
         sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
     }
 
@@ -137,7 +138,27 @@ public class GoSslSocketConnectorTest {
     }
 
     @Test
-    public void shouldOverrideTheDefaultCipherSuiteExclusionListUnTouchedIfConfigured() {
+    public void shouldClearOutDefaultProtocolsAndCipherSetByJettyIfFlagIsSet() {
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(true);
+
+        when(goSSLConfig.getProtocolsToBeExcluded()).thenReturn(null);
+        when(goSSLConfig.getProtocolsToBeIncluded()).thenReturn(null);
+        when(goSSLConfig.getCipherSuitesToBeIncluded()).thenReturn(null);
+        when(goSSLConfig.getCipherSuitesToBeExcluded()).thenReturn(null);
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
+
+        ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
+        Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
+        SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
+
+        assertThat(sslContextFactory.getExcludeProtocols().length, is(0));
+        assertThat(sslContextFactory.getIncludeProtocols().length, is(0));
+        assertThat(sslContextFactory.getExcludeCipherSuites().length, is(0));
+        assertThat(sslContextFactory.getIncludeCipherSuites().length, is(0));
+    }
+
+    @Test
+    public void shouldOverrideTheDefaultCipherSuiteExclusionListIfConfigured() {
         when(goSSLConfig.getCipherSuitesToBeExcluded()).thenReturn(new String[]{"*MD5*"});
         when(goSSLConfig.getCipherSuitesToBeIncluded()).thenReturn(new String[]{"*ECDHE*"});
         sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
@@ -168,7 +189,7 @@ public class GoSslSocketConnectorTest {
     }
 
     @Test
-    public void shouldOverrideTheDefaultProtocolExclusionListUnTouchedIfConfigured() {
+    public void shouldOverrideTheDefaultProtocolExclusionListIfConfigured() {
         when(goSSLConfig.getProtocolsToBeExcluded()).thenReturn(new String[]{"SSL", "TLS1.0", "TLS1.1"});
         when(goSSLConfig.getProtocolsToBeIncluded()).thenReturn(new String[]{"TLS1.2"});
         sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
@@ -182,6 +203,7 @@ public class GoSslSocketConnectorTest {
         assertThat(sslContextFactory.getIncludeProtocols().length, is(1));
         assertThat(sslContextFactory.getIncludeProtocols()[0], is("TLS1.2"));
     }
+
 
     private HttpConnectionFactory getHttpConnectionFactory(Collection<ConnectionFactory> connectionFactories) {
         return (HttpConnectionFactory) getConnectionFactoryOfType(connectionFactories, HttpConnectionFactory.class);

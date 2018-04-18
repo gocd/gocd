@@ -69,7 +69,7 @@ public class Jetty9Server extends AppServer {
         super(systemEnvironment, password, sslSocketFactory);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
-        goSSLConfig = new GoSSLConfig(sslSocketFactory, systemEnvironment);
+        goSSLConfig = new GoSSLConfig(systemEnvironment);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 
 package com.thoughtworks.go.server.config;
 
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -32,23 +29,47 @@ public class GoSSLConfigTest {
     private SystemEnvironment systemEnvironment;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.getPropertyImpl("sslconfig")).thenReturn("Y");
     }
 
     @Test
-    public void shouldUseWeakConfigWhenSslConfigFlagTurnedOff() {
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(false);
-        GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), systemEnvironment);
-        SSLConfig config = (SSLConfig) ReflectionUtil.getField(goSSLConfig, "config");
-        assertThat(config instanceof WeakSSLConfig, is(true));
+    public void shouldGetIncludedCiphers() {
+        String[] ciphers = {"CIPHER1", "CIPHER2"};
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS)).thenReturn(ciphers);
+        GoSSLConfig config = new GoSSLConfig(systemEnvironment);
+        assertThat(config.getCipherSuitesToBeIncluded(), is(ciphers));
     }
 
     @Test
-    public void shouldUseConfigurableSSLSettingsWhenAllowSslConfigFlagIsTurnedOn() {
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
-        GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), systemEnvironment);
-        SSLConfig config = (SSLConfig) ReflectionUtil.getField(goSSLConfig, "config");
-        assertThat(config instanceof ConfigurableSSLSettings, is(true));
+    public void shouldGetExcludedCiphers() {
+        String[] ciphers = {"CIPHER1", "CIPHER2"};
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS)).thenReturn(ciphers);
+        GoSSLConfig config = new GoSSLConfig(systemEnvironment);
+        assertThat(config.getCipherSuitesToBeExcluded(), is(ciphers));
+    }
+
+    @Test
+    public void shouldGetIncludedProtocols() {
+        String[] protocols = {"PROTO1", "PROTO2"};
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS)).thenReturn(protocols);
+        GoSSLConfig config = new GoSSLConfig(systemEnvironment);
+        assertThat(config.getProtocolsToBeIncluded(), is(protocols));
+    }
+
+    @Test
+    public void shouldGetExcludedProtocols() {
+        String[] protocols = {"PROTO1", "PROTO2"};
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS)).thenReturn(protocols);
+        GoSSLConfig config = new GoSSLConfig(systemEnvironment);
+        assertThat(config.getProtocolsToBeExcluded(), is(protocols));
+    }
+
+    @Test
+    public void shouldGetRenegotiationAllowedFlag() {
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
+        GoSSLConfig config = new GoSSLConfig(systemEnvironment);
+        assertThat(config.isRenegotiationAllowed(), is(true));
     }
 }

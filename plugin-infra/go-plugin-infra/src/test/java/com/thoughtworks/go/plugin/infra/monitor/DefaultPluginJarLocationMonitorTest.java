@@ -33,7 +33,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.io.IOException;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.SystemEnvironment.*;
@@ -67,7 +66,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         bundledPluginDir = temporaryFolder.newFolder("bundled-plugins");
 
         pluginExternalDir = temporaryFolder.newFolder("external-plugins");
-        trashDirectory = temporaryFolder.newFolder("trash");
 
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginDir.getAbsolutePath());
@@ -132,7 +130,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         monitor.start();
 
         waitAMoment();
-        simulatePluginDeletion(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
+        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
         waitAMoment();
 
         verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
@@ -147,13 +145,12 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         waitAMoment();
         verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
 
-        simulatePluginDeletion(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
+        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
         waitAMoment();
 
         verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
         verifyNoMoreInteractions(changeListener);
     }
-
 
     @Test
     public void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
@@ -211,8 +208,8 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
         verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true));
 
-        simulatePluginDeletion(new File(bundledPluginDir, "descriptor-aware-test-plugin-1.jar"));
-        simulatePluginDeletion(new File(bundledPluginDir, "descriptor-aware-test-plugin-2.jar"));
+        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin-1.jar"));
+        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin-2.jar"));
         waitAMoment();
 
         verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
@@ -274,7 +271,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         waitAMoment();
         verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, pluginJar, true));
 
-        simulatePluginDeletion(new File(bundledPluginDir, pluginJar));
+        FileUtils.deleteQuietly(new File(bundledPluginDir, pluginJar));
         waitAMoment();
         verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, pluginJar, true));
     }

@@ -87,9 +87,7 @@ public class UnitTestReportGeneratorTest {
 
     @Test
     public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws IOException, ArtifactPublishingException {
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles(), "testoutput");
-        restoreConsoleOutput();
         expectZeroedProperties();
     }
 
@@ -97,9 +95,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldNotGenerateAnyReportIfTestResultIsEmpty() throws IOException, ArtifactPublishingException {
         copyAndClose(source("empty.xml"), target("empty.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles(), "testoutput");
-        restoreConsoleOutput();
 
         verify(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
         verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
@@ -107,7 +103,6 @@ public class UnitTestReportGeneratorTest {
         verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
         verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
         verify(publisher).upload(any(File.class), any(String.class));
-
     }
 
     private void expectZeroedProperties() throws ArtifactPublishingException {
@@ -122,9 +117,8 @@ public class UnitTestReportGeneratorTest {
     public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws IOException, ArtifactPublishingException {
         copyAndClose(source("InvalidTestResult.xml"), target("Invalid.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles(), "testoutput");
-        restoreConsoleOutput();
+
         verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
         verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
         verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
@@ -138,9 +132,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws IOException, ArtifactPublishingException {
         copyAndClose(source("xml_samples/Coverage.xml"), target("Coverage.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles(), "testoutput");
-        restoreConsoleOutput();
 
         verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
         verify(publisher).upload(any(File.class), any(String.class));
@@ -201,9 +193,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("xml_samples/Coverage.xml"), target("reports/module/Coverage.xml"));
         copyAndClose(source("xml_samples/TestResult.xml"), target("reports/TestResult.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles(), "testoutput");
-        restoreConsoleOutput();
 
         verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
         verify(publisher).upload(any(File.class), any(String.class));

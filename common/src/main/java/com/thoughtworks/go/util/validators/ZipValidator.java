@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.util.validators;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import com.thoughtworks.go.util.validators.Validator;
-import org.apache.commons.io.IOUtils;
 
 /**
  * @understands
@@ -77,14 +76,6 @@ public abstract class ZipValidator implements Validator {
 
     private boolean isDirectory(String zipName) {
         return zipName.endsWith("/");
-    }
-
-    String getFileContentInsideZip(ZipInputStream zipInputStream, String fileName) throws IOException {
-        ZipEntry zipEntry = zipInputStream.getNextEntry();
-        while (!new File(zipEntry.getName()).getName().equals(fileName)) {
-            zipEntry = zipInputStream.getNextEntry();
-        }
-        return IOUtils.toString(zipInputStream);
     }
 
 }

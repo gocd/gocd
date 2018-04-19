@@ -81,6 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -194,8 +195,8 @@ public class StageServiceIntegrationTest {
             }
         });
 
-        Assertions.waitUntil(Timeout.TEN_SECONDS, new Assertions.Predicate() {
-            public boolean call() throws Exception {
+        Assertions.waitUntil(Timeout.TEN_SECONDS, new BooleanSupplier() {
+            public boolean getAsBoolean() {
                 return receivedResult != null && receivedState != null && receivedStageResult!=null;
             }
         });

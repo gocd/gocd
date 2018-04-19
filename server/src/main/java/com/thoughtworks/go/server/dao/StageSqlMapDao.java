@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
-import com.thoughtworks.go.util.FuncVarArg;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -56,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
@@ -394,8 +394,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
 
     public StageHistoryPage findStageHistoryPageByNumber(final String pipelineName, final String stageName, final int pageNumber, final int pageSize) {
-        return findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
-            public Pagination call(Object... ignore) {
+        return findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
+            public Pagination get() {
                 int total = getCount(pipelineName, stageName);
                 return Pagination.pageByNumber(pageNumber, total, pageSize);
             }
@@ -421,8 +421,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public StageHistoryPage findStageHistoryPage(final Stage stage, final int pageSize) {
         final StageIdentifier id = stage.getIdentifier();
-        return findStageHistoryPage(id.getPipelineName(), id.getStageName(), new FuncVarArg<Pagination, Object>() {
-            public Pagination call(Object... ignore) {
+        return findStageHistoryPage(id.getPipelineName(), id.getStageName(), new Supplier<Pagination>() {
+            public Pagination get() {
                 int total = getCount(id.getPipelineName(), id.getStageName());
                 int offset = findOffsetForStage(stage);
                 return Pagination.pageFor(offset, total, pageSize);
@@ -430,12 +430,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
-    public StageHistoryPage findStageHistoryPage(String pipelineName, String stageName, FuncVarArg<Pagination, Object> function) {
+    public StageHistoryPage findStageHistoryPage(String pipelineName, String stageName, Supplier<com.thoughtworks.go.server.util.Pagination> function) {
         //IMPORTANT: wire cache clearing on job-state-change for me, the day StageHistoryEntry gets jobs - Sachin & JJ
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);
         try {
-            Pagination pagination = function.call();
+            Pagination pagination = function.get();
             String subKey = String.format("%s-%s", pagination.getCurrentPage(), pagination.getPageSize());
             String key = cacheKeyForStageHistories(pipelineName, stageName);
             StageHistoryPage stageHistoryPage = (StageHistoryPage) goCache.get(key, subKey);

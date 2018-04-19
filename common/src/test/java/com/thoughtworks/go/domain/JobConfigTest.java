@@ -31,7 +31,6 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -107,7 +106,7 @@ public class JobConfigTest {
     @Test
     public void shouldReturnAntTaskAsDefaultIfNoTasksSpecified() {
         JobConfig jobConfig = new JobConfig();
-        assertThat(jobConfig.tasks(), sizeIs(1));
+        assertThat(jobConfig.tasks(), org.hamcrest.Matchers.iterableWithSize(1));
         Task task = jobConfig.tasks().first();
         assertThat(task, instanceOf(NullTask.class));
     }

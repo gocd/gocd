@@ -54,6 +54,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.PipelineMother.custom;
@@ -1575,9 +1576,9 @@ public class StageSqlMapDaoIntegrationTest {
         for (int i = 0; i < 11; i++) {
             scheduleUtil.runAndPass(p1, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
             @Override
-            public Pagination call(Object... args) {
+            public Pagination get() {
                 return Pagination.pageByNumber(2, 2, 10);
             }
         });
@@ -1600,9 +1601,9 @@ public class StageSqlMapDaoIntegrationTest {
         for (int i = 0; i < 10; i++) {
             scheduleUtil.runAndPass(p1, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
             @Override
-            public Pagination call(Object... args) {
+            public Pagination get() {
                 return Pagination.pageByNumber(1, 1, 10);
             }
         });
@@ -1626,9 +1627,9 @@ public class StageSqlMapDaoIntegrationTest {
             scheduleUtil.runAndPass(p1, "h1");
             scheduleUtil.runAndPass(p2, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
             @Override
-            public Pagination call(Object... args) {
+            public Pagination get() {
                 return Pagination.pageByNumber(2, 2, 10);
             }
         });

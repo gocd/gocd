@@ -359,8 +359,6 @@ Go::Application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-      get 'plugins/status' => 'plugins#status'
-
       # state
       get 'state/status' => 'server_state#status'
       post 'state/active' => 'server_state#to_active', constraints: HeaderConstraint.new

@@ -42,8 +42,5 @@ public class AgentConfigsUpdateValidator implements ConfigUpdateValidator {
         return isValid;
     }
 
-    public List<AgentConfig> getUpdatedAgents() {
-        return validatedAgents;
-    }
 }
 

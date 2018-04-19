@@ -54,22 +54,4 @@ public class DynamicReadWriteLock {
         }
     }
 
-    public void withWriteLock(String mutex, Procedure procedure) {
-        acquireWriteLock(mutex);
-        try {
-            procedure.call();
-        } finally {
-            releaseWriteLock(mutex);
-        }
-
-    }
-
-    public void withReadLock(String mutex, Procedure procedure) {
-        acquireReadLock(mutex);
-        try {
-            procedure.call();
-        } finally {
-            releaseReadLock(mutex);
-        }
-    }
 }

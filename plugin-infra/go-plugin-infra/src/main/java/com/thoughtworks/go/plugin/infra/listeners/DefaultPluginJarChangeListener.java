@@ -108,12 +108,6 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void validateIfExternalPluginRemovingBundledPlugin(PluginFileDetails pluginFileDetails, GoPluginDescriptor existingDescriptor) {
-        if (existingDescriptor != null && existingDescriptor.isBundledPlugin() && !pluginFileDetails.isBundledPlugin()) {
-            throw new RuntimeException(String.format("Found bundled plugin with ID: [%s], external plugin could not be loaded", existingDescriptor.id()));
-        }
-    }
-
     private void validateIfExternalPluginRemovingBundledPlugin(GoPluginDescriptor newDescriptor, GoPluginDescriptor existingDescriptor) {
         if (existingDescriptor != null && existingDescriptor.isBundledPlugin() && !newDescriptor.isBundledPlugin()) {
             throw new RuntimeException(String.format("Found bundled plugin with ID: [%s], external plugin could not be loaded", existingDescriptor.id()));

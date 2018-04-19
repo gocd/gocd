@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 class TopLevelFormNameProvider
-  include com.thoughtworks.go.plugins.presentation.FormNameProvider
 
   attr_reader :form_name_prefix
 

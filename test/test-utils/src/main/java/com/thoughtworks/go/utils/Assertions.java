@@ -17,7 +17,8 @@
 package com.thoughtworks.go.utils;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.core.Is;
+
+import java.util.function.BooleanSupplier;
 
 import static com.thoughtworks.go.utils.Timeout.TWENTY_SECONDS;
 import static com.thoughtworks.go.utils.Timeout.TWO_MINUTES;
@@ -75,16 +76,16 @@ public class Assertions {
         }
     }
 
-    public static void waitUntil(Timeout timeout, Predicate predicate) {
+    public static void waitUntil(Timeout timeout, BooleanSupplier predicate) {
         waitUntil(timeout, predicate, 1000);
     }
 
-    public static void waitUntil(Timeout timeout, Predicate predicate, int sleepInMillis) {
+    public static void waitUntil(Timeout timeout, BooleanSupplier predicate, int sleepInMillis) {
         long end = System.currentTimeMillis() + timeout.inMillis();
         Exception e = null;
         while (true) {
             try {
-                if (predicate.call()) {
+                if (predicate.getAsBoolean()) {
                     return;
                 }
             } catch (Exception caught) {
@@ -103,23 +104,4 @@ public class Assertions {
         throw new RuntimeException(msg, e);
     }
 
-
-    public interface Predicate {
-        boolean call() throws Exception;
-    }
-
-    public static abstract class Assertion<T> implements Predicate {
-        public boolean call() {
-            try {
-                assertThat(actual(), Is.is(expected()));
-            } catch (AssertionError e) {
-                throw new RuntimeException(e);
-            }
-            return true;
-        }
-
-        public abstract T actual();
-
-        public abstract T expected();
-    }
 }

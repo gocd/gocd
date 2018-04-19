@@ -35,10 +35,6 @@ public class NoWork implements Work {
         agentruntimeInfo.idle();
     }
 
-    public String projectName() {
-        return null;
-    }
-
     public boolean equals(Object other) {
         return other.getClass().equals(this.getClass());
     }

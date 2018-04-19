@@ -16,19 +16,19 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.StreamPumper;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import com.thoughtworks.go.util.command.IO;
-import com.thoughtworks.go.util.command.StreamConsumer;
-import com.thoughtworks.go.util.command.StreamPumper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProcessWrapper {
 
@@ -95,7 +95,7 @@ public class ProcessWrapper {
     }
 
     public void close() {
-        IO.close(process);
+        close(process);
         ProcessManager.getInstance().processKilled(process);
     }
 
@@ -158,4 +158,17 @@ public class ProcessWrapper {
     public int hashCode() {
         return process != null ? process.hashCode() : 0;
     }
+
+    private void close(Process p) {
+        try {
+            IOUtils.closeQuietly(p.getInputStream());
+            IOUtils.closeQuietly(p.getOutputStream());
+            IOUtils.closeQuietly(p.getErrorStream());
+        } finally {
+            if (p != null) {
+                p.destroy();
+            }
+        }
+    }
+
 }

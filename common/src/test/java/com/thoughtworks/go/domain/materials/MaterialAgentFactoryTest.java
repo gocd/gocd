@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -39,6 +38,7 @@ import org.mockito.Mock;
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -81,10 +81,7 @@ public class MaterialAgentFactoryTest {
         MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageRepositoryExtension, scmExtension);
         MaterialAgent agent = factory.createAgent(revision);
 
-        assertThat(agent instanceof PackageMaterialAgent, is(true));
-        assertThat(ReflectionUtil.getField(agent, "packageRepositoryExtension"), is(packageRepositoryExtension));
-        assertThat(ReflectionUtil.getField(agent, "revision"), is(revision));
-        assertThat(ReflectionUtil.getField(agent, "workingDirectory"), is(workingDirectory));
+        assertThat(agent, is(NO_OP));
     }
 
     @Test

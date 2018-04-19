@@ -91,7 +91,6 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
-import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -321,7 +320,7 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(CONFIG_WITH_ANT_BUILDER).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
-        assertThat(plan.tasks(), sizeIs(1));
+        assertThat(plan.tasks(), iterableWithSize(1));
         AntTask builder = (AntTask) plan.tasks().first();
         assertThat(builder.getTarget(), is("all"));
         final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",

@@ -278,20 +278,6 @@ public class FileUtil {
         return dir;
     }
 
-    public static void tryDeleting(final File file) {
-        for (int i = 0; i < 10; i++) {
-            if (!file.exists()) {
-                return;
-            }
-            FileUtils.deleteQuietly(file);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     public static String getCanonicalPath(File workDir) {
         try {
             return workDir.getCanonicalPath();

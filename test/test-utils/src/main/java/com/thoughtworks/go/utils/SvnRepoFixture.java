@@ -22,7 +22,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,16 +33,6 @@ public class SvnRepoFixture extends TestRepoFixture {
 
     public SvnRepoFixture(String svnRepoPath, TemporaryFolder temporaryFolder) {
         super(svnRepoPath, temporaryFolder);
-    }
-
-    public void onSetUp() {
-    }
-
-    public void onTearDown() {
-    }
-
-    public String getRepoUrl() throws IOException {
-        return getEnd2EndRepoUrl();
     }
 
     public static String getRepoUrl(File repositoryRoot, String project) {
@@ -59,55 +48,11 @@ public class SvnRepoFixture extends TestRepoFixture {
         return getRepoUrl(currentRepository(), "project1");
     }
 
-    public String getConnect4DotNetRepoUrl() throws IOException {
-        return getRepoUrl(currentRepository(), "connect4.net");
-    }
-
-    public void addFileAndCheckIn() throws IOException {
-        addFileAndCheckIn(getEnd2EndRepoUrl(), "test", "readme" + UUID.randomUUID() + ".txt");
-    }
-
-    public void checkinNewFilesWithMessage(String message, String... files) throws Exception {
-        File workspace = workspaceOf(getEnd2EndRepoUrl());
-        for (String path : files) {
-            svnadd(path, workspace);
-        }
-        checkin(message, workspace);
-    }
-
-    public String addFileAndCheckIn(String svnRepoUrl, String comment, String fileName) throws IOException {
-        File workspace = workspaceOf(svnRepoUrl);
-        svnadd(fileName, workspace);
-        checkin(comment, workspace);
-        return fileName;
-    }
-
-    private void svnadd(String fileName, File workspace) throws IOException {
-        File newFile = new File(workspace, fileName);
-        newFile.createNewFile();
-
-        exec(workspace, "svn", "add", newFile.getName());
-    }
-
-    private void checkin(String comment, File workspace) {
-        exec(workspace, "svn", "ci", "-m",  comment, "--username", "twist-test");
-        exec(workspace, "svn", "up");
-    }
-
     public File checkout(String svnRepoURL) throws IOException {
         File workspace = temporaryFolder.newFolder();
         workspaces.put(svnRepoURL, workspace);
         exec(workspace, "svn", "co", svnRepoURL, ".");
         return workspace;
-    }
-
-    public String log() throws IOException {
-        return exec("svn", "log", "--non-interactive", "--xml", "-v", getEnd2EndRepoUrl());
-    }
-
-    public void createExternals() throws IOException {
-        String end2EndRepoUrl = getEnd2EndRepoUrl();
-        createExternals(end2EndRepoUrl);
     }
 
     public void createExternals(String svnRepoUrl) throws IOException {

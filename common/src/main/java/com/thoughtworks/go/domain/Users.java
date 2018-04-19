@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Users extends BaseCollection<User> {
+    @SuppressWarnings("unused")
     public Users() {
     }
 

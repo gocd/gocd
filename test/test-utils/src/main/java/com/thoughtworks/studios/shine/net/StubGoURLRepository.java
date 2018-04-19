@@ -24,29 +24,10 @@ import java.io.IOException;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class StubGoURLRepository implements URLRepository {
-  private String baseDir;
   private final String artifactRoot;
 
-  public StubGoURLRepository(String webserverRoot, String artifactRoot) {
+  public StubGoURLRepository(String artifactRoot) {
     this.artifactRoot = artifactRoot;
-    this.baseDir = webserverRoot;
-  }
-
-  public void registerStubContent(String url, String content) {
-    String baseFile = url.replaceFirst("http://localhost:3000/go", "");
-
-    File file = new File(baseDir, baseFile);
-    file.getParentFile().mkdirs();
-
-    try {
-      FileUtils.writeStringToFile(file, content, UTF_8);
-    } catch (IOException e) {
-      throw new RuntimeException("Could not write to file", e);
-    }
-  }
-
-  public void registerException(String url, IOException toThrow) {
-    throw new UnsupportedOperationException("Don't call me.");
   }
 
   public void registerArtifact(String path, String content) {
@@ -61,7 +42,4 @@ public class StubGoURLRepository implements URLRepository {
 
   }
 
-  public String getBaseDir() {
-    return this.baseDir;
-  }
 }

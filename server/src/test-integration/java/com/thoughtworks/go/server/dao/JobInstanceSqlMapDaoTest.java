@@ -64,7 +64,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
@@ -707,11 +706,11 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance expected = scheduled(JOB_NAME, new Date(1000));
         jobInstanceDao.save(stageId, expected);
         JobInstance actual = jobInstanceDao.buildByIdWithTransitions(expected.getId());
-        assertThat(actual.getTransitions(), sizeIs(1));
+        assertThat(actual.getTransitions(), Matchers.iterableWithSize(1));
         expected.changeState(JobState.Assigned);
         jobInstanceDao.updateStateAndResult(expected);
         actual = jobInstanceDao.buildByIdWithTransitions(expected.getId());
-        assertThat(actual.getTransitions(), sizeIs(2));
+        assertThat(actual.getTransitions(), Matchers.iterableWithSize(2));
         for (JobStateTransition transition : actual.getTransitions()) {
             assertThat(transition.getStageId(), is(stageId));
         }
@@ -764,7 +763,7 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance loaded = jobInstanceDao.buildByIdWithTransitions(jobInstance.getId());
 
         JobStateTransitions actualTransitions = loaded.getTransitions();
-        assertThat(actualTransitions, sizeIs(2));
+        assertThat(actualTransitions, Matchers.iterableWithSize(2));
         assertThat(actualTransitions.first().getCurrentState(), is(JobState.Scheduled));
     }
 

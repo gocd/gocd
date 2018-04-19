@@ -16,14 +16,16 @@
 
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.helpers.FileSystemUtils;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
@@ -38,11 +40,21 @@ import static org.mockito.Mockito.*;
 
 public class GoServerTest {
     private SystemEnvironment systemEnvironment;
+    private File addonsDir;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
+        temporaryFolder.create();
         systemEnvironment = new SystemEnvironment();
         systemEnvironment.set(SystemEnvironment.APP_SERVER, AppServerStub.class.getCanonicalName());
+        addonsDir = temporaryFolder.newFolder("test-addons");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        temporaryFolder.delete();
     }
 
     @Test
@@ -142,29 +154,28 @@ public class GoServerTest {
 
     @Test
     public void shouldLoadAllJarsInTheAddonsDirectoryIntoClassPath() throws Exception {
-        File addonsDirectory = createInAddonDir("some-addon-dir");
-        FileSystemUtils.createFile("addon-1.JAR", addonsDirectory);
-        FileSystemUtils.createFile("addon-2.jar", addonsDirectory);
-        FileSystemUtils.createFile("addon-3.jAR", addonsDirectory);
-        FileSystemUtils.createFile("some-file-which-does-not-end-with-dot-jar.txt", addonsDirectory);
+        File addonsDirectory = temporaryFolder.newFolder("test-addons", "some-addon-dir");
+        temporaryFolder.newFile("test-addons/some-addon-dir/addon-1.JAR");
+        temporaryFolder.newFile("test-addons/some-addon-dir/addon-2.jar");
+        temporaryFolder.newFile("test-addons/some-addon-dir/addon-3.jAR");
+        temporaryFolder.newFile("test-addons/some-addon-dir/some-file-which-does-not-end-with-dot-jar.txt");
 
-        File oneAddonDirectory = createInAddonDir("one-addon-dir");
-        FileSystemUtils.createFile("addon-1.jar", oneAddonDirectory);
+        File oneAddonDirectory = temporaryFolder.newFolder("test-addons", "one-addon-dir");
+        temporaryFolder.newFile("test-addons/one-addon-dir/addon-1.jar");
 
-        File noAddonDirectory = createInAddonDir("no-addon-dir");
+        File noAddonDirectory = temporaryFolder.newFolder("test-addons", "no-addon-dir");
         SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[0]);
-
 
         GoServer goServerWithMultipleAddons = new GoServer(setAddonsPathTo(addonsDirectory), sslSocketFactory);
         goServerWithMultipleAddons.startServer();
         AppServerStub appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithMultipleAddons, "server");
-        assertExtraClasspath(appServer, "test-addons/some-addon-dir/addon-1.JAR", "test-addons/some-addon-dir/addon-2.jar", "test-addons/some-addon-dir/addon-3.jAR");
+        assertExtraClasspath(appServer, addonsDir + "/some-addon-dir/addon-1.JAR", addonsDir + "/some-addon-dir/addon-2.jar", addonsDir + "/some-addon-dir/addon-3.jAR");
 
         GoServer goServerWithOneAddon = new GoServer(setAddonsPathTo(oneAddonDirectory), sslSocketFactory);
         goServerWithOneAddon.startServer();
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithOneAddon, "server");
-        assertExtraClasspath(appServer, "test-addons/one-addon-dir/addon-1.jar");
+        assertExtraClasspath(appServer, addonsDir + "/one-addon-dir/addon-1.jar");
 
         GoServer goServerWithNoAddon = new GoServer(setAddonsPathTo(noAddonDirectory), sslSocketFactory);
         goServerWithNoAddon.startServer();
@@ -194,12 +205,11 @@ public class GoServerTest {
         }
     }
 
-    private File createInAddonDir(String dirInsideAddonDir) {
-        File addonDir = new File("test-addons");
-        File dirWhichWillContainAddons = new File(addonDir, dirInsideAddonDir);
-        dirWhichWillContainAddons.mkdirs();
-        return dirWhichWillContainAddons;
-    }
+//    private File createInAddonDir(String dirInsideAddonDir) {
+//        File dirWhichWillContainAddons = new File(addonsDir, dirInsideAddonDir);
+//        dirWhichWillContainAddons.mkdirs();
+//        return dirWhichWillContainAddons;
+//    }
 
     private SystemEnvironment setAddonsPathTo(File path) {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);

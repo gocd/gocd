@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.helpers.FileSystemUtils;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Matchers;
 
@@ -39,6 +39,9 @@ import static org.mockito.Mockito.*;
 
 public class PluginsInitializerTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private SystemEnvironment systemEnvironment;
     private File goPluginsDir;
     private PluginsInitializer pluginsInitializer;
@@ -47,7 +50,7 @@ public class PluginsInitializerTest {
     @Before
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
-        goPluginsDir = FileSystemUtils.createDirectory("go-plugins");
+        goPluginsDir = temporaryFolder.newFolder("go-plugins");
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.getAbsolutePath());
         pluginManager = mock(PluginManager.class);
         pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil()) {
@@ -61,11 +64,6 @@ public class PluginsInitializerTest {
                 return new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"));
             }
         };
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.forceDelete(goPluginsDir);
     }
 
     @Test
@@ -99,7 +97,7 @@ public class PluginsInitializerTest {
     @Test
     public void shouldNotReplacePluginsIfTheSameVersionWasAlreadyExploded() throws IOException {
         String version = "13.3.0(17222-4c7fabcb9c9e9c)";
-        File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
+        File versionFile = temporaryFolder.newFile("go-plugins/version.txt");
         FileUtils.writeStringToFile(versionFile, version, UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
@@ -109,8 +107,7 @@ public class PluginsInitializerTest {
 
     @Test
     public void shouldReplacePluginsIfTheDifferentVersionOfPluginsAvailable() throws IOException {
-        File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
-        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
+        FileUtils.writeStringToFile(temporaryFolder.newFile("go-plugins/version.txt"), "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));
@@ -118,9 +115,8 @@ public class PluginsInitializerTest {
 
     @Test
     public void shouldDeleteAllExistingPluginsWhileExplodingPluginsZip() throws IOException {
-        File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
-        File oldPlugin = FileSystemUtils.createFile("old-plugin.jar", goPluginsDir);
-        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
+        File oldPlugin = temporaryFolder.newFile("go-plugins/old-plugin.jar");
+        FileUtils.writeStringToFile(temporaryFolder.newFile("go-plugins/version.txt"), "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));

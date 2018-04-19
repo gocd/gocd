@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
@@ -36,7 +30,6 @@ import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationMana
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.FuncVarArg;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -45,17 +38,18 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Supplier;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @understands: StageSqlMapDaoTest
@@ -114,11 +108,11 @@ public class StageSqlMapDaoTest {
     public void shouldLoadStageHistoryEntryForAStageRunAfterTheLatestRunThatIsRetrievedForStageHistory() throws Exception {
         String pipelineName = "some_pipeline_name";
         String stageName = "some_stage_name";
-        FuncVarArg function = mock(FuncVarArg.class);
+        Supplier function = mock(Supplier.class);
         Pagination pagination = mock(Pagination.class);
         when(pagination.getCurrentPage()).thenReturn(3);
         when(pagination.getPageSize()).thenReturn(10);
-        when(function.call()).thenReturn(pagination);
+        when(function.get()).thenReturn(pagination);
         StageSqlMapDao spy = spy(stageSqlMapDao);
         List<StageHistoryEntry> expectedStageHistoryEntriesList = mock(ArrayList.class);
         StageHistoryEntry topOfThisPage = mock(StageHistoryEntry.class);

@@ -66,15 +66,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
         }
     }
 
-    public AgentConfig getFirstAgentByHostname(String hostname) {
-        for (AgentInstance agent : currentInstances()) {
-            if (hostname.equals(agent.agentConfig().getHostname())) {
-                return agent.agentConfig();
-            }
-        }
-        return null;
-    }
-
     public AgentInstance findAgentAndRefreshStatus(String uuid) {
         AgentInstance agentInstance = loadAgentInstance(uuid);
         agentInstance.refresh();

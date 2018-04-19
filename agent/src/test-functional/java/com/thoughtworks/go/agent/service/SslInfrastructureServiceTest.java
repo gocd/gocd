@@ -50,9 +50,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.thoughtworks.go.util.TestUtils.exists;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -110,7 +110,7 @@ public class SslInfrastructureServiceTest {
         shouldCreateSslInfrastructure();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
-        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        assertTrue(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.exists());
         verify(httpClient, times(1)).execute(any(HttpRequestBase.class));
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
@@ -152,7 +152,7 @@ public class SslInfrastructureServiceTest {
         sslInfrastructureService.createSslInfrastructure();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
-        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        assertTrue(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.exists());
 
         final HttpEntityEnclosingRequestBase httpRequestBase = httpRequestBaseArgumentCaptor.getValue();
         final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(httpRequestBase.getEntity());
@@ -177,7 +177,7 @@ public class SslInfrastructureServiceTest {
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
 
-        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        assertTrue(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.exists());
         verify(agentRegistry, times(1)).deleteToken();
         verify(httpClient, times(2)).execute(any(HttpUriRequest.class));
     }

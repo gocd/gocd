@@ -34,10 +34,6 @@ public class JunitXML {
     this.testCaseCount = testCaseCount;
   }
 
-  public JunitXML(String suiteName) {
-    this(suiteName, 1);
-  }
-
   public void registerStubContent(URLRepository repository, String uuid) {
     repository.registerArtifact(uuid + "TEST-" + suiteName + ".xml", toString());
   }
@@ -89,17 +85,8 @@ public class JunitXML {
     return this;
   }
 
-  public JunitXML invalidXML() {
-    this.invalidXML = true;
-    return this;
-  }
-
   public static JunitXML junitXML(String suiteName, int testCount) {
     return new JunitXML(suiteName, testCount);
-  }
-
-  public static JunitXML invalidJunitXML() {
-    return new JunitXML("BrokenTestSuite").invalidXML();
   }
 
 

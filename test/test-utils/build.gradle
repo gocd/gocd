@@ -40,6 +40,7 @@ dependencies {
 
   compile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   compile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+  compile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')

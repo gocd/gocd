@@ -23,7 +23,7 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import com.thoughtworks.studios.shine.io.StringOutputStream;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class KillAllChildProcessTaskBuilderTest {
     public void builderReturnedByThisTaskBuilderShouldBeSerializable() throws Exception {
         KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder = new KillAllChildProcessTaskBuilder();
         Builder builder = killAllChildProcessTaskBuilder.createBuilder(null, null, null, null);
-        new ObjectOutputStream(new StringOutputStream()).writeObject(builder);
+        new ObjectOutputStream(new NullOutputStream()).writeObject(builder);
     }
 
     public long getSystemTime() {

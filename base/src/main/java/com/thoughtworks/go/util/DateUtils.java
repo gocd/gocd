@@ -79,20 +79,6 @@ public class DateUtils {
         }
     }
 
-    public static String getDurationAsString(final long buildLength) {
-        long timeSeconds = buildLength / 1000;
-        long minutes = (timeSeconds / 60);
-        long seconds = timeSeconds - (minutes * 60);
-        return minutes + " minute(s) " + seconds + " second(s)";
-    }
-
-    public static String getFormattedTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return new SimpleDateFormat("yyyyMMddHHmmss").format(date);
-    }
-
     public static String formatToSimpleDate(Date date) {
         SimpleDateFormat simpleDate = new SimpleDateFormat("dd MMM yyyy");
         return simpleDate.format(date);

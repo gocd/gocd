@@ -16,42 +16,17 @@
 
 package com.thoughtworks.go.matchers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
+import java.io.File;
+import java.util.List;
+
 import static java.lang.String.format;
 
 public class ConsoleOutMatcher {
-    public static TypeSafeMatcher<String> printedDeprecatedEnvVariable(final String key, final Object value) {
-        final TypeSafeMatcher<String> matcher = printedEnvVariable(key, value);
-        return new TypeSafeMatcher<String>() {
-            private String consoleOut;
-
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                return matcher.matches(consoleOut) && hasDeprecatedMessage(consoleOut);
-            }
-
-            private boolean hasDeprecatedMessage(String consoleOut) {
-                return StringUtils.contains(consoleOut, deprecatedMessage());
-            }
-
-            private String deprecatedMessage() {
-                return format("value '%s' (Deprecated. Use '%s' instead.)",
-                        value, key.replace("CRUISE_", "GO_"));
-            }
-
-            public void describeTo(Description description) {                
-                description.appendText(deprecatedMessage());
-            }
-        };
-    }
 
     public static TypeSafeMatcher<String> printedEnvVariable(final String key, final Object value) {
         return new TypeSafeMatcher<String>() {
@@ -162,7 +137,6 @@ public class ConsoleOutMatcher {
     public static TypeSafeMatcher<String> printedBuildFailed() {
         return new TypeSafeMatcher<String>() {
             private String consoleOut;
-            public String stdout;
 
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
@@ -214,49 +188,6 @@ public class ConsoleOutMatcher {
                 this.consoleOut = consoleOut;
                 this.message = "Failed to upload " + file.getAbsolutePath();
                 return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedNotFoundFailure(final File file) {
-        return new TypeSafeMatcher<String>() {
-            public String consoleOut;
-            public String message;
-
-            public boolean matchesSafely(String consoleOut) {
-                try {
-                    this.consoleOut = consoleOut;
-                    this.message = "Failed to find " + file.getCanonicalPath();
-                    return StringUtils.contains(consoleOut, message);
-                } catch (IOException e) {
-                    return false;
-                }
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedNotUploadedFailure(final String... names) {
-        return new TypeSafeMatcher<String>() {
-            public String consoleOut;
-            public String message;
-
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                StringBuilder builder = new StringBuilder();
-                for (String name : names) {
-                    builder.append('[').append(name).append(']');
-                }
-                this.message = "Failed to upload " + builder;
-
-                return StringUtils.contains(consoleOut, message);
             }
 
             public void describeTo(Description description) {

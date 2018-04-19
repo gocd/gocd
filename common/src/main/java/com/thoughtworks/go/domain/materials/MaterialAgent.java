@@ -18,4 +18,11 @@ package com.thoughtworks.go.domain.materials;
 
 public interface MaterialAgent {
     void prepare();
+
+    MaterialAgent NO_OP = new MaterialAgent() {
+        @Override
+        public void prepare() {
+
+        }
+    };
 }

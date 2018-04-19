@@ -65,11 +65,6 @@ public class URLService implements ServerUrlGenerator{
         return getUploadUrlOfAgent(jobIdentifier, filePath, 1);
     }
 
-    public String getComponentVersionsOnServerUrl() {
-        return String.format("%s/%s", baseRemotingURL, "admin/component-versions-on-server");
-    }
-
-
     // TODO - keep buildId for now because currently we do not support 'jobcounter'
     // and therefore cannot locate job correctly when it is rescheduled
     public String getUploadUrlOfAgent(JobIdentifier jobIdentifier, String filePath, int attempt) {

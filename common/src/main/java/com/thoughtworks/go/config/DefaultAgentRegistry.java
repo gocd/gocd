@@ -18,8 +18,6 @@ package com.thoughtworks.go.config;
 
 import java.util.UUID;
 
-import static com.thoughtworks.go.util.ExceptionUtils.methodNotImplemented;
-
 public class DefaultAgentRegistry implements AgentRegistry {
 
     private final GuidService guidService;
@@ -35,10 +33,6 @@ public class DefaultAgentRegistry implements AgentRegistry {
             guidService.store(UUID.randomUUID().toString());
         }
         return guidService.load();
-    }
-
-    public String serverBaseUrl() {
-        throw methodNotImplemented();
     }
 
     @Override

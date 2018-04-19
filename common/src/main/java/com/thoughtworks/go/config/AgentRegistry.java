@@ -19,8 +19,6 @@ package com.thoughtworks.go.config;
 public interface AgentRegistry {
     String uuid();
 
-    String serverBaseUrl();
-
     String token();
 
     boolean guidPresent();

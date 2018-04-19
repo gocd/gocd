@@ -112,22 +112,6 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
         }).get(0);
     }
 
-    public static List<TriStateSelection> forAgentsEnvironmens(Set<EnvironmentConfig> environments, Agents agents) {
-        return convert(environments, agents, new Assigner<EnvironmentConfig, AgentConfig>() {
-            public boolean shouldAssociate(AgentConfig agent, EnvironmentConfig environment) {
-                return environment.hasAgent(agent.getUuid());
-            }
-
-            public String identifier(EnvironmentConfig environment) {
-                return CaseInsensitiveString.str(environment.name());
-            }
-
-            public boolean shouldEnable(AgentConfig agent, EnvironmentConfig environment) {
-                return true;
-            }
-        });
-    }
-
     static <T,V> List<TriStateSelection> convert(Set<T> assignables, List<V> assignees, Assigner<T,V> associator) {
         ArrayList<TriStateSelection> selections = new ArrayList<>();
         for (T t : assignables) {

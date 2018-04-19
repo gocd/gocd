@@ -175,7 +175,6 @@ public class FakeGoServer extends ExternalResource {
         }
 
         public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-            String requestURI = ((HttpServletRequest) servletRequest).getRequestURI();
             filterChain.doFilter(servletRequest, servletResponse);
         }
 

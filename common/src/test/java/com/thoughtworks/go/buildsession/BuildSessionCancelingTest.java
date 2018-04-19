@@ -24,13 +24,13 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 import static com.google.common.collect.Iterables.getLast;
 import static com.thoughtworks.go.domain.BuildCommand.*;
@@ -193,9 +193,9 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
     private void waitUntilSubProcessExists(final String processName, final boolean expectExist) {
         try {
-            waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
+            waitUntil(Timeout.FIVE_SECONDS, new BooleanSupplier() {
                 @Override
-                public boolean call() throws Exception {
+                public boolean getAsBoolean() {
                     return subProcessNames().contains(processName) == expectExist;
                 }
             }, 250);

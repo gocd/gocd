@@ -17,8 +17,6 @@
 package com.thoughtworks.go.agent.bootstrapper.osx;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MacAboutBox extends JFrame implements ActionListener {
-    private static final Logger LOG = LoggerFactory.getLogger(MacAboutBox.class);
     private static final int FRAME_WIDTH = 280;
     private static final int FRAME_HEIGHT = 230;
     private static final int FRAME_TOP = 200;

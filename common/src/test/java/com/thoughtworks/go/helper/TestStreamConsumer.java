@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.BooleanSupplier;
 
 public class TestStreamConsumer implements TaggedStreamConsumer {
     private ConcurrentLinkedDeque<String> lines = new ConcurrentLinkedDeque<>();
@@ -58,9 +59,9 @@ public class TestStreamConsumer implements TaggedStreamConsumer {
     }
 
     public void waitForContain(final String content, Timeout timeout) throws InterruptedException {
-        Assertions.waitUntil(timeout, new Assertions.Predicate() {
+        Assertions.waitUntil(timeout, new BooleanSupplier() {
             @Override
-            public boolean call() throws Exception {
+            public boolean getAsBoolean() {
                 return output().contains(content);
             }
         }, 250);

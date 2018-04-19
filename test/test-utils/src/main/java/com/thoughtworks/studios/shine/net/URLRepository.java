@@ -16,12 +16,7 @@
 
 package com.thoughtworks.studios.shine.net;
 
-import java.io.IOException;
-
 public interface URLRepository {
-  void registerStubContent(String url, String content);
-
-  void registerException(String jobUrl, IOException toThrow);
 
   void registerArtifact(String path, String content);
 

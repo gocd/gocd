@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.dependency;
 
-import java.io.File;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -29,7 +26,11 @@ import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import java.io.File;
+import java.util.Date;
+
+import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DependencyMaterialAgentTest {
@@ -51,6 +52,6 @@ public class DependencyMaterialAgentTest {
         MaterialAgentFactory factory = new MaterialAgentFactory(ProcessOutputStreamConsumer.inMemoryConsumer(), new File("blah"), new AgentIdentifier("", "", ""), null, null);
         MaterialAgent createdAgent = factory.createAgent(materialRevision("pipeline-name", 1, "pipeline-label", "stage-name", 1));
 
-        assertThat(createdAgent, instanceOf(DependencyMaterialAgent.class));
+        assertThat(createdAgent, is(NO_OP));
     }
 }

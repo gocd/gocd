@@ -41,9 +41,6 @@ public class GoConstants {
     public static final String ERROR_FOR_PAGE = "errorMessage";
     public static final String ERROR_FOR_JSON = "error";
 
-    /*this is the error message to be displayed everypage.*/
-    public static final String ERROR_FOR_GLOBAL_MESSAGE = "global_error_message";
-    public static final String SUCCESS_MESSAGE = "success_message";
     public static final String RESPONSE_CHARSET = "text/plain; charset=utf-8";
     public static final String RESPONSE_CHARSET_JSON = "application/json; charset=utf-8";
     public static final String CRUISE_PIPELINE_LABEL = "cruise_pipeline_label";
@@ -69,16 +66,10 @@ public class GoConstants {
     public static final long GIGA_BYTE = MEGABYTES_IN_GIGABYTE * MEGA_BYTE;
     public static final String USE_COMPRESSED_JAVASCRIPT = "rails.use.compressed.js";
     public static final String I18N_CACHE_LIFE = "cruise.i18n.cache.life";
-    public static final String OLD_URL_CONTEXT = "/cruise";
     public static final String GO_URL_CONTEXT = "/go";
     public static final String REGULAR_MULTIPART_FILENAME = "file";
     public static final String CHECKSUM_MULTIPART_FILENAME = "file_checksum";
     public static final String ZIP_MULTIPART_FILENAME = "zipfile";
-    public static final String ENABLE_PLUGINS_RESPONSE_TRUE = "enabled";
-    public static final String ENABLE_PLUGINS_RESPONSE_FALSE = "disabled";
-    public static final String ENABLE_PLUGINS_PROPERTY = "go.enable.plugins";
-    public static final String Y_YES = "Y";
-    public static final String N_NO = "N";
     public static final String AGENT_JAR_MD5 = "agent.binary.md5";
     public static final String AGENT_PLUGINS_MD5 = "agent.plugins.md5";
     public static final String TFS_IMPL_MD5 = "agent.tfs.md5";

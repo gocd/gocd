@@ -26,10 +26,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class TestFileUtil {
     private static TempFiles tempFiles = new TempFiles();
 
-    public static File createUniqueTempFolder(String prefix) {
-        return tempFiles.createUniqueFolder(prefix);
-    }
-
     public static File createTempFolder(String folderName) {
         return tempFiles.mkdir(folderName);
     }
@@ -67,12 +63,4 @@ public class TestFileUtil {
         return fileToCreate;
     }
 
-    public static File prepareFolderInsideTempFolder(String prefix) {
-        File folder = createUniqueTempFolder(prefix);
-        return new File(folder, "new-folder");
-    }
-
-    public static void cleanTempFiles(){
-        tempFiles.cleanUp();
-    }
 }

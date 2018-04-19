@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialAgent;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -50,9 +48,9 @@ public class MaterialAgentFactory {
     public MaterialAgent createAgent(MaterialRevision revision) {
         Material material = revision.getMaterial();
         if (material instanceof DependencyMaterial) {
-            return new DependencyMaterialAgent(revision);
+            return MaterialAgent.NO_OP;
         } else if (material instanceof PackageMaterial) {
-            return new PackageMaterialAgent(packageRepositoryExtension, revision, workingDirectory);
+            return MaterialAgent.NO_OP;
         } else if (material instanceof PluggableSCMMaterial) {
             return new PluggableSCMMaterialAgent(scmExtension, revision, workingDirectory);
         } else if (material instanceof ScmMaterial) {

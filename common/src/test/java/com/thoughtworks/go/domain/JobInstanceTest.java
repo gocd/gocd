@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.text.MessageFormat.format;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
@@ -158,7 +157,7 @@ public class JobInstanceTest {
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
 
         assertThat(instance.getTransitions(), hasItem(scheduledState));
-        assertThat(instance.getTransitions(), sizeIs(1));
+        assertThat(instance.getTransitions(), iterableWithSize(1));
         assertThat(instance.getTransitions().first(), not(isTransitionWithState(JobState.Preparing)));
     }
 

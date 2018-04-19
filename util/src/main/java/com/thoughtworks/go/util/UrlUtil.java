@@ -22,9 +22,7 @@ import org.apache.http.client.utils.URIBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -59,28 +57,6 @@ public class UrlUtil {
         return uriBuilder.toString();
     }
 
-    private static String encode(String query) {
-        if (query == null) {
-            return null;
-        }
-        try {
-            return URLEncoder.encode(query, UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String decode(String query) {
-        if (query == null) {
-            return null;
-        }
-        try {
-            return URLDecoder.decode(query, UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String getQueryParamFromUrl(String url, String paramName) {
         try {
             List<NameValuePair> queryParams = new URIBuilder(url).getQueryParams();
@@ -104,40 +80,4 @@ public class UrlUtil {
         return builder.toString();
     }
 
-    private static class QueryTuple {
-        private static final String QUERY_SEPERATOR = "&";
-        private static final String QUERY_KEY_VAL_SEPERATOR = "=";
-        final String key;
-        final String val;
-
-        QueryTuple(String key, String val) {
-            this.key = key;
-            this.val = val;
-        }
-
-        static List<QueryTuple> parse(String query) {
-            List<QueryTuple> parsed = new ArrayList<>();
-            if (StringUtils.isEmpty(query)) {
-                return parsed;
-            }
-
-            String[] split = query.split(QUERY_SEPERATOR);
-            for (String queryFrag : split) {
-                String[] queryFragmentSplit = queryFrag.split(QUERY_KEY_VAL_SEPERATOR);
-                parsed.add(new QueryTuple(queryFragmentSplit[0], decode(queryFragmentSplit[1])));
-            }
-            return parsed;
-        }
-
-        static String toString(List<QueryTuple> queryTuples) {
-            StringBuilder builder = new StringBuilder();
-            for (QueryTuple queryTuple : queryTuples) {
-                if (builder.length() > 0) {
-                    builder.append(QUERY_SEPERATOR);
-                }
-                builder.append(queryTuple.key).append(QUERY_KEY_VAL_SEPERATOR).append(encode(queryTuple.val));
-            }
-            return builder.toString();
-        }
-    }
 }

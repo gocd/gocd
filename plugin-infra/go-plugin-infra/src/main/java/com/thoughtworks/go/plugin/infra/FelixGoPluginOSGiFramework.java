@@ -259,14 +259,4 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         };
     }
 
-    private Closure notifyPluginUnLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
-        return new Closure() {
-            @Override
-            public void execute(Object o) {
-                PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
-                pluginChangeListener.pluginUnLoaded(pluginDescriptor);
-            }
-        };
-    }
-
 }

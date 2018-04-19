@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-public abstract class TestRepoFixture implements BaseRepoFixture, DisposableBean{
+public abstract class TestRepoFixture implements DisposableBean{
     protected File templateRepo;
     protected final TemporaryFolder temporaryFolder;
     protected File testRepo;

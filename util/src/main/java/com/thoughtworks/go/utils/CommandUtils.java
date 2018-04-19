@@ -34,12 +34,6 @@ public class CommandUtils {
     private static final Pattern UNESCAPED_SPACE_OR_QUOTES = Pattern.compile("(?<!\\\\)(?:\\\\{2})*[ '\"]");
     private static final Pattern DOUBLE_QUOTE = Pattern.compile("(\")");
 
-    public static class ParseException extends RuntimeException {
-        public ParseException(String message) {
-            super(message);
-        }
-    }
-
     public static String exec(String... commands) {
         return exec(null, commands);
     }

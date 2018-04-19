@@ -1075,10 +1075,10 @@ public class GoConfigFileHelper {
         FileUtils.deleteDirectory(new SystemEnvironment().getConfigRepoDir());
     }
 
-    public static void withServerIdImmutability(Procedure fn) {
+    public static void withServerIdImmutability(Runnable fn) {
         try {
             SystemEnvironment.enforceServerImmutability.set(true);
-            fn.call();
+            fn.run();
         } finally {
             SystemEnvironment.enforceServerImmutability.set(false);
         }

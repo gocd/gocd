@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 describe("Global Dashboard Metrics", () => {
-  const m      = require('mithril');
+  const m = require('mithril');
   require('jasmine-jquery');
 
   const GlobalMetrics = require('views/analytics/global_metrics');
 
-  function globalMetricTab(metrics) {
-    const data = metrics;
-
-    return {data};
-  }
-
   let $root, root;
   const supportedMetrics = {
-    "plugin-id-x": [{ type: "x", id: "one"}, {type: "y", id: "two"}],
+    "plugin-id-x": [{type: "x", id: "one"}, {type: "y", id: "two"}],
     "plugin-id-y": [{type: "z", id: "three"}]
   };
 
@@ -43,19 +37,18 @@ describe("Global Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin metric', () => {
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/x/one", undefined, 'GET').andReturn({ status: 200 });
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/y/two", undefined, 'GET').andReturn({ status: 200 });
-    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/z/three", undefined, 'GET').andReturn({ status: 200 });
-    const model = globalMetricTab(supportedMetrics);
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/x/one", undefined, 'GET').andReturn({status: 200});
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-x/y/two", undefined, 'GET').andReturn({status: 200});
+    jasmine.Ajax.stubRequest("/analytics/plugin-id-y/z/three", undefined, 'GET').andReturn({status: 200});
 
-    mount(model);
+    mount(supportedMetrics);
     expect($root.find("iframe").length).toBe(3);
   });
 
-  const mount = (model) => {
+  const mount = (metrics) => {
     m.mount(root, {
       view() {
-        return m(GlobalMetrics, {model});
+        return <GlobalMetrics metrics={metrics}/>;
       }
     });
     m.redraw();

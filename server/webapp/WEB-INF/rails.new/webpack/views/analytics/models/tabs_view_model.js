@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-(function() {
-  "use strict";
+const Stream = require('mithril/stream');
 
-  const m = require("mithril");
+const VM = function () {
+  const GLOBAL_KEY   = 'global';
+  const PIPELINE_KEY = 'pipeline';
 
-  const AnalyticsDashboardHeader = {
-    view(vnode) { // eslint-disable-line no-unused-vars
-      return (
-        <div class="header-panel">
-          <header class="page-header">
-            <div class="row expanded">
-              <div class="columns medium-5 large-5">
-                <h1>Analytics</h1>
-              </div>
-            </div>
-          </header>
-        </div>
-      );
-    }
-  };
+  const selection = Stream(GLOBAL_KEY);
 
-  module.exports = AnalyticsDashboardHeader;
+  this.isGlobalTabSelected   = () => selection() === GLOBAL_KEY;
+  this.isPipelineTabSelected = () => selection() === PIPELINE_KEY;
 
-})();
+  this.setGlobalTabSelection   = () => selection(GLOBAL_KEY);
+  this.setPipelineTabSelection = () => selection(PIPELINE_KEY);
+};
+
+module.exports = VM;

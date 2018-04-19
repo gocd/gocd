@@ -33,9 +33,9 @@
     let data = null;
 
     function oninit(vnode) {
-      data = vnode.attrs.model.data;
+      data = vnode.attrs;
       if (!currentPipeline) {
-        currentPipeline = vnode.attrs.model.data.pipelines[0];
+        currentPipeline = vnode.attrs.pipelines[0];
       }
     }
 

@@ -25,12 +25,6 @@ class AnalyticsController < ApplicationController
 
   def index
     @view_title = 'Analytics'
-    @supported_dashboard_metrics = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).inject({}) do |memo, combined_plugin_info|
-      analytics_extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
-      key = analytics_extension_info.getDescriptor().id()
-      memo[key] = supported_analytics_hash(analytics_extension_info.getCapabilities().supportedDashboardAnalytics()) if analytics_extension_info.getCapabilities().supportsDashboardAnalytics()
-      memo
-    end
     @pipeline_list = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername())).map do |pipelines_config|
       pipelines_config.getPipelines().map(&:getName)
     end.flatten
@@ -43,13 +37,6 @@ class AnalyticsController < ApplicationController
   end
 
   private
-
-  def supported_analytics_hash supported_analytics
-    supported_analytics.map do |s|
-      {type: s.getType(), id: s.getId(), title: s.getTitle()}
-    end
-
-  end
 
   def check_permissions
     if is_request_for_pipeline_analytics?

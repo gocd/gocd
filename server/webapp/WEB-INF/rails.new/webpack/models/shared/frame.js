@@ -22,8 +22,8 @@
   const    esr = require("escape-string-regexp");
   const    enc = encodeURIComponent;
 
-  function paramPresent(key, val) {
-    const s = window.location.search,
+  function paramPresent(win, key, val) {
+    const s = win.location.search,
          re = new RegExp("undefined" !== typeof val ?
             `[&?]${esr(enc(key))}=${esr(enc(val))}\\b` :
             `[&?]${esr(enc(key))}\\b`);
@@ -35,15 +35,15 @@
     return url + (url.match(/[&?]/) ? "&" : "?") + p;
   }
 
-  function passThruParams(url, params=[]) {
+  function passThruParams(win, url, params=[]) {
     for (let i = 0, len = params.length; i < len; ++i) {
       const key = params[i].key, val = params[i].val;
-      url = paramPresent(key, val) ? withParam(url, key, val) : url;
+      url = paramPresent(win, key, val) ? withParam(url, key, val) : url;
     }
     return url;
   }
 
-  function Frame(callback) {
+  function Frame(callback, self=window) {
     const url = Stream();
     const view = Stream();
     const data = Stream();
@@ -59,7 +59,7 @@
         dataType: "json"
       }).done((r) => {
         data(r.data);
-        view(passThruParams(r.view_path, [{key: "ui", val: "test"}]));
+        view(r.view_path);
       }).fail((xhr) => {
         errors(xhr);
       }).always(() => {
@@ -82,7 +82,16 @@
       });
     }
 
-    (Object.assign || $.extend)(this, {url, view, data, load, fetch, pluginId, errors});
+    /** @private differs than view.map(fn) as it computes during read, not write */
+    function viewWithToggles(value) {
+      if (arguments.length === 0) {
+        return "undefined" !== typeof view() ? passThruParams(self, view(), [{key: "ui", val: "test"}]) : view();
+      }
+
+      return view(value);
+    }
+
+    (Object.assign || $.extend)(this, {url, view: viewWithToggles, data, load, fetch, pluginId, errors});
   }
 
   module.exports = Frame;

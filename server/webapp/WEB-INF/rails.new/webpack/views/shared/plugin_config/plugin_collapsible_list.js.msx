@@ -56,7 +56,7 @@ class PluginCollapsibleList {
               return [
                 (<dt>{configuration.key()}</dt>),
                 (<dd>
-                  <pre>{configuration.value()}</pre>
+                  <pre>{configuration.displayValue()}</pre>
                 </dd>)
               ];
             })}

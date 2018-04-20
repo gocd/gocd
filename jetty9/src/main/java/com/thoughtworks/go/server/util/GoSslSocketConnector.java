@@ -61,7 +61,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         httpsConfig.setSendServerVersion(false);
         httpsConfig.addCustomizer(new ForwardedRequestCustomizer());
 
-        SslContextFactory sslContextFactory = new SslContextFactory();
+        SslContextFactory sslContextFactory = new CustomSslContextFactory();
         if(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)){
             sslContextFactory.setExcludeProtocols();
             sslContextFactory.setExcludeCipherSuites();

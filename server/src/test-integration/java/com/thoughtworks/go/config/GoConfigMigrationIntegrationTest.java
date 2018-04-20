@@ -2144,9 +2144,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 106);
 
-        assertThat(migratedContent, containsString("<fetchartifact type=\"builtin\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcfile=\"foo/foo.txt\""));
-        assertThat(migratedContent, containsString("<fetchartifact type=\"builtin\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\""));
-        assertThat(migratedContent, containsString("<fetchartifact type=\"builtin\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\" dest=\"dest_on_agent\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcfile=\"foo/foo.txt\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\" dest=\"dest_on_agent\""));
     }
 
     @Test
@@ -2213,7 +2213,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 106);
 
-        String artifactId2 = "<fetchartifact type=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
+        String artifactId2 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
                 +"                         <configuration>"
                 +"                             <property>"
                 +"                                 <key>dest</key>"
@@ -2222,7 +2222,7 @@ public class GoConfigMigrationIntegrationTest {
                 +"                         </configuration>"
                 +"                     </fetchartifact>";
 
-        String artifactId3 = "<fetchartifact type=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
+        String artifactId3 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
                 +"                         <configuration>"
                 +"                             <property>"
                 +"                                 <key>SomeSecureProperty</key>"
@@ -2231,7 +2231,7 @@ public class GoConfigMigrationIntegrationTest {
                 +"                         </configuration>"
                 +"                     </fetchartifact>";
 
-        assertThat(migratedContent, containsString("<fetchartifact type=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\""));
         assertThat(migratedContent, containsString(artifactId2));
         assertThat(migratedContent, containsString(artifactId3));
     }

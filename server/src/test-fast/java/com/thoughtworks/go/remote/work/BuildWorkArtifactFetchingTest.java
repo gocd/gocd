@@ -52,7 +52,7 @@ public class BuildWorkArtifactFetchingTest {
     private static final String WITH_FETCH_FILE =
             "<job name=\"" + JOB_NAME + "\">\n"
                     + "  <tasks>\n"
-                    + "    <fetchartifact type='builtin' stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
+                    + "    <fetchartifact origin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
                     + "    <ant target=\"--help\" >\n"
                     + "      <runif status=\"failed\" />\n"
                     + "    </ant>\n"
@@ -62,7 +62,7 @@ public class BuildWorkArtifactFetchingTest {
     private static final String WITH_FETCH_FOLDER =
             "<job name=\"" + JOB_NAME + "\">\n"
                     + "  <tasks>\n"
-                    + "    <fetchartifact type='builtin' stage='pre-mingle' job='" + JOB_NAME + "' srcdir='lib' dest='" + DEST + "'/>\n"
+                    + "    <fetchartifact origin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcdir='lib' dest='" + DEST + "'/>\n"
                     + "    <ant target=\"--help\" >\n"
                     + "      <runif status=\"failed\" />\n"
                     + "    </ant>\n"

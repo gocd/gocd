@@ -28,14 +28,14 @@
 
   <xsl:template match="//fetchartifact">
     <xsl:copy>
-      <xsl:attribute name="type">builtin</xsl:attribute>
+      <xsl:attribute name="origin">gocd</xsl:attribute>
       <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
   </xsl:template>
 
   <xsl:template match="//fetchPluggableArtifact">
     <xsl:element name="fetchartifact">
-      <xsl:attribute name="type">external</xsl:attribute>
+      <xsl:attribute name="origin">external</xsl:attribute>
       <xsl:apply-templates select="@*|node()"/>
     </xsl:element>
   </xsl:template>

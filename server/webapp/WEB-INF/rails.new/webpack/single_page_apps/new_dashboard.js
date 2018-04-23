@@ -127,8 +127,12 @@ $(() => {
 
   const onPluginInfosResponse = (pluginInfos) => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
-      pluginsSupportingAnalytics[pluginInfo.id()] = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics()[0].id;
+      const supportedPipelineAnalytics = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics();
+      if(supportedPipelineAnalytics.length > 0) {
+        pluginsSupportingAnalytics[pluginInfo.id()] = supportedPipelineAnalytics[0].id;
+      }
     });
+
     renderView();
   };
 

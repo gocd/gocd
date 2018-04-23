@@ -19,16 +19,16 @@
 
   const m = require("mithril");
 
+
   const AnalyticsiFrameWidget = function () {
     let currentUrl = null;
 
-    function oncreate(vnode) {
+    function loadFrameContent(vnode) {
       const iframe = vnode.dom.querySelector("iframe"),
          container = vnode.dom;
 
-      iframe.onload = () => {
+      iframe.onload = function initContent() {
         vnode.dom.classList.remove("loading-analytics");
-
         vnode.attrs.init(iframe.contentWindow, {
           uid:         vnode.attrs.uid,
           pluginId:    vnode.attrs.pluginId,
@@ -42,27 +42,13 @@
       vnode.attrs.model.load();
     }
 
+    function oncreate(vnode) {
+      loadFrameContent.apply(this, [vnode]);
+    }
+
     function onupdate(vnode) {
-      const iframe = vnode.dom.querySelector("iframe"),
-         container = vnode.dom;
-
-      if (vnode.attrs && vnode.attrs.model) {
-        if (currentUrl !== vnode.attrs.model.url()) {
-          iframe.onload = () => {
-            vnode.dom.classList.remove("loading-analytics");
-
-            vnode.attrs.init(iframe.contentWindow, {
-              uid:         vnode.attrs.uid,
-              pluginId:    vnode.attrs.pluginId,
-              initialData: vnode.attrs.model.data()
-            });
-          };
-
-          currentUrl = vnode.attrs.model.url();
-
-          container.classList.add("loading-analytics");
-          vnode.attrs.model.load();
-        }
+      if (vnode.attrs && vnode.attrs.model && currentUrl !== vnode.attrs.model.url()) {
+        loadFrameContent.apply(this, [vnode]);
       }
     }
 

@@ -209,12 +209,6 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
-  <servlet>
-    <servlet-name>echo-attr-servlet</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.web.EchoAttributeServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
   <filter>
     <filter-name>ConfigGitRepositoryFilter</filter-name>
     <filter-class>com.thoughtworks.go.server.web.ConfigGitRepoFilter</filter-class>
@@ -224,11 +218,6 @@
     <filter-name>SparkPreFilter</filter-name>
     <filter-class>com.thoughtworks.go.spark.SparkPreFilter</filter-class>
   </filter>
-
-  <servlet-mapping>
-    <servlet-name>echo-attr-servlet</servlet-name>
-    <url-pattern>/echo-attribute/*</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>rails</servlet-name>
@@ -278,11 +267,6 @@
 
   <servlet-mapping>
     <servlet-name>spring-rest</servlet-name>
-    <url-pattern>/rss.xml</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-rest</servlet-name>
     <url-pattern>/files/*</url-pattern>
   </servlet-mapping>
 
@@ -310,13 +294,6 @@
     <servlet-name>spring-repository</servlet-name>
     <url-pattern>/repository/*</url-pattern>
   </servlet-mapping>
-
-  <!-- START new UI -->
-  <servlet-mapping>
-    <servlet-name>spring-pages</servlet-name>
-    <url-pattern>/atom/*</url-pattern>
-  </servlet-mapping>
-  <!-- END new UI -->
 
   <servlet-mapping>
     <servlet-name>spring-add-on</servlet-name>

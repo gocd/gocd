@@ -34,6 +34,7 @@ import org.apache.velocity.VelocityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -69,7 +70,7 @@ public class InitialContextProvider {
         context.put("toggles", Toggles.class);
         context.put("goUpdate", versionInfoService.getGoUpdate());
         context.put("goUpdateCheckEnabled", versionInfoService.isGOUpdateCheckEnabled());
-        context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getRawOffset());
+        context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getOffset(new Date().getTime()));
         context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());

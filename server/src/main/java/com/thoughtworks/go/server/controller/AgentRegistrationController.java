@@ -215,26 +215,38 @@ public class AgentRegistrationController {
 
         try {
             if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
-                return new ResponseEntity<>("Not a valid token.", FORBIDDEN);
+                String message = "Not a valid token.";
+                LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
+                        "ElasticAgentID=[{}] PluginID=[{}]", FORBIDDEN, message, uuid, hostname, elasticAgentId, elasticPluginId);
+                return new ResponseEntity<>(message, FORBIDDEN);
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
-                LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
             } else {
                 if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                    return new ResponseEntity<>(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId), UNPROCESSABLE_ENTITY);
+                    String message = String.format("Elastic agent registration requires an auto-register agent key to be" +
+                            " setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId);
+                    LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
+                            "ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, message, uuid, hostname, elasticAgentId, elasticPluginId);
+                    return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
                 }
             }
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
 
             if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
-                return new ResponseEntity<>("Elastic agents must submit both elasticAgentId and elasticPluginId.", UNPROCESSABLE_ENTITY);
+                String message = "Elastic agents must submit both elasticAgentId and elasticPluginId.";
+                LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
+                        "ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, message, uuid, hostname, elasticAgentId, elasticPluginId);
+                return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
             }
 
             if (elasticAgentIdAlreadyRegistered(elasticAgentId, elasticPluginId)) {
-                return new ResponseEntity<>("Duplicate Elastic agent Id used to register elastic agent.", UNPROCESSABLE_ENTITY);
+                String message = "Duplicate Elastic agent Id used to register elastic agent.";
+                LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
+                        "ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, message, uuid, hostname, elasticAgentId, elasticPluginId);
+                return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
             }
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
@@ -277,7 +289,9 @@ public class AgentRegistrationController {
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? OK : ACCEPTED);
         } catch (Exception e) {
-            LOG.error("Error occurred during agent registration process: ", e);
+            LOG.error("Error occurred during agent registration process. Error: HttpCode=[{}] Message=[{}] UUID=[{}] " +
+                    "Hostname=[{}] ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, getErrorMessage(e), uuid,
+                    hostname, elasticAgentId, elasticPluginId, e);
             return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), UNPROCESSABLE_ENTITY);
         }
     }
@@ -296,11 +310,16 @@ public class AgentRegistrationController {
     @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
     public ResponseEntity getToken(@RequestParam("uuid") String uuid) {
         if (StringUtils.isBlank(uuid)) {
-            return new ResponseEntity<>("UUID cannot be blank.", CONFLICT);
+            String message = "UUID cannot be blank.";
+            LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] UUID=[{}]", CONFLICT, message, uuid);
+            return new ResponseEntity<>(message, CONFLICT);
         }
         final AgentInstance agentInstance = agentService.findAgent(uuid);
         if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || goConfigService.hasAgent(uuid)) {
-            return new ResponseEntity<>("A token has already been issued for this agent.", CONFLICT);
+            String message = "A token has already been issued for this agent.";
+            LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] Pending=[{}] UUID=[{}]",
+                    CONFLICT, message, agentInstance.isPending(), uuid);
+            return new ResponseEntity<>(message, CONFLICT);
         }
         return new ResponseEntity<>(Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
     }

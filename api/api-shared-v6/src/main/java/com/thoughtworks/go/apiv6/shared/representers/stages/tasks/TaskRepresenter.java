@@ -17,14 +17,31 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.Task;
 
+import java.util.HashMap;
+
 public class TaskRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, Task task) {
+        if (!task.errors().isEmpty()) {
+            jsonWriter.addChild("errors", errorWriter -> {
+                HashMap<String, String> errorMapping = new HashMap<>();
+                errorMapping.put("buildFile", "build_file");
+                errorMapping.put("onCancelConfig", "on_cancel");
+                errorMapping.put("runIf", "run_if");
+                errorMapping.put("argListString", "arguments");
+                errorMapping.put("src", "source");
+                errorMapping.put("dest", "destination");
+                errorMapping.put("pipelineName", "pipeline");
+
+                new ErrorGetter(errorMapping).toJSON(errorWriter, task);
+            });
+        }
         jsonWriter.add("type", task instanceof PluggableTask? "pluggable_task" : task.getTaskType());
         if (task instanceof PluggableTask) {
             jsonWriter.addChild("attributes", attributeWriter -> PluggableTaskRepresenter.toJSON(attributeWriter, (PluggableTask) task));

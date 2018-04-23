@@ -29,17 +29,6 @@ import java.util.stream.Collectors;
 
 public class ExecTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, ExecTask execTask) {
-        if (!execTask.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                errorMapping.put("buildFile", "build_file");
-                errorMapping.put("onCancelConfig", "on_cancel");
-                errorMapping.put("runIf", "run_if");
-                errorMapping.put("argListString", "arguments");
-
-                new ErrorGetter(errorMapping).toJSON(errorWriter, execTask);
-            });
-        }
         BaseTaskRepresenter.toJSON(jsonWriter, execTask);
         jsonWriter.add("command", execTask.command());
         if (execTask.getArgList().isEmpty()) {

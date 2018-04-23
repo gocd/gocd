@@ -26,18 +26,6 @@ import java.util.Optional;
 
 public class FetchTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, FetchTask fetchTask) {
-        if (!fetchTask.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                errorMapping.put("src", "source");
-                errorMapping.put("dest", "destination");
-                errorMapping.put("pipelineName", "pipeline");
-                errorMapping.put("onCancelConfig", "on_cancel");
-                errorMapping.put("runIf", "run_if");
-
-                new ErrorGetter(errorMapping).toJSON(errorWriter, fetchTask);
-            });
-        }
         BaseTaskRepresenter.toJSON(jsonWriter, fetchTask);
         jsonWriter.add("pipeline", fetchTask.getPipelineName());
         jsonWriter.add("stage", fetchTask.getStage());

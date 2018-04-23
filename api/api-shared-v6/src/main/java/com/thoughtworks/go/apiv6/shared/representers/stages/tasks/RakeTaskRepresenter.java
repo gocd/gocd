@@ -25,16 +25,6 @@ import java.util.HashMap;
 
 public class RakeTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, RakeTask rakeTask) {
-        if (!rakeTask.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                errorMapping.put("buildFile", "build_file");
-                errorMapping.put("onCancelConfig", "on_cancel");
-                errorMapping.put("runIf", "run_if");
-
-                new ErrorGetter(errorMapping).toJSON(errorWriter, rakeTask);
-            });
-        }
         BaseTaskRepresenter.toJSON(jsonWriter, rakeTask);
         jsonWriter.addIfNotNull("working_directory", rakeTask.workingDirectory());
         jsonWriter.addIfNotNull("build_file", rakeTask.getBuildFile());

@@ -119,6 +119,15 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public JsonOutputWriterUsingJackson addIfNotNull(String key, CaseInsensitiveString value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    add(key, value);
+                }
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson add(String key, int value) {
             return withExceptionHandling((jacksonWriter) -> {
                 jacksonWriter.writeNumberField(key, value);
@@ -157,6 +166,7 @@ public class JsonOutputWriter {
 
         @Override
         public OutputWriter addChild(String key, Consumer<OutputWriter> consumer) {
+
             return new JsonOutputChildWriter(key, this).body(consumer);
         }
 
@@ -184,6 +194,15 @@ public class JsonOutputWriter {
             return withExceptionHandling((jacksonWriter) -> {
                     jacksonWriter.writeFieldName(key);
                     jacksonWriter.writeTree(jsonNode);
+                }
+            );
+        }
+
+        @Override
+        public OutputWriter renderNull(String key) {
+            return withExceptionHandling((jacksonWriter) -> {
+                    jacksonWriter.writeFieldName(key);
+                    jacksonWriter.writeTree(null);
                 }
             );
         }

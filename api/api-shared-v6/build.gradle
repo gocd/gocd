@@ -19,6 +19,7 @@ apply plugin: 'groovy'
 
 dependencies {
   compile project(':api:api-base')
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
 

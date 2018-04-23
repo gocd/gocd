@@ -25,17 +25,6 @@ import java.util.HashMap;
 
 public class NantTaskRepresenter extends BaseTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, NantTask nantTask) {
-        if (!nantTask.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                errorMapping.put("buildFile", "build_file");
-                errorMapping.put("onCancelConfig", "on_cancel");
-                errorMapping.put("runIf", "run_if");
-                errorMapping.put("nantPath", "nant_path");
-
-                new ErrorGetter(errorMapping).toJSON(errorWriter, nantTask);
-            });
-        }
         BaseTaskRepresenter.toJSON(jsonWriter, nantTask);
         jsonWriter.addIfNotNull("working_directory", nantTask.workingDirectory());
         jsonWriter.addIfNotNull("build_file", nantTask.getBuildFile());

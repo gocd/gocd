@@ -25,16 +25,6 @@ import java.util.HashMap;
 
 public class AntTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, AntTask antTask) {
-        if (!antTask.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                errorMapping.put("buildFile", "build_file");
-                errorMapping.put("onCancelConfig", "on_cancel");
-                errorMapping.put("runIf", "run_if");
-
-                new ErrorGetter(errorMapping).toJSON(errorWriter, antTask);
-            });
-        }
         BaseTaskRepresenter.toJSON(jsonWriter, antTask);
         jsonWriter.add("working_directory", antTask.workingDirectory());
         jsonWriter.add("build_file", antTask.getBuildFile());

@@ -22,11 +22,7 @@ describe ServerController do
     @server_health_service = double('server health service')
     allow(controller).to receive(:server_health_service).and_return(@server_health_service)
   end
-
-  it "should resolve json url for messages" do
-    expect({:get => "/server/messages.json"}).to route_to(:controller => "server", :action => "messages", :format => "json")
-  end
-
+  
   it "should obtain the error and warning counts" do
     first = ServerHealthState.error("first error", "first description", HealthStateType.invalidConfig())
     second = ServerHealthState.error("second error", "second description", HealthStateType.invalidConfig())

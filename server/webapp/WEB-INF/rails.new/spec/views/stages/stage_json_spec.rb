@@ -19,6 +19,7 @@ require 'rails_helper'
 describe 'stages/stage.json.erb' do
   include StageModelMother
   include PipelineModelMother
+  include GoUtil
 
   before do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
@@ -28,6 +29,7 @@ describe 'stages/stage.json.erb' do
   end
 
   it "should localize strings" do
+    in_params({pipeline_counter: 1, pipeline_name: 'foo', stage_counter: 1, stage_name: 'bar'})
     params[:action] = 'overview'
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()
     assign :stage, stage_with_5_jobs

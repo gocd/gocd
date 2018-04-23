@@ -75,7 +75,7 @@ class ExtractJRubyTask extends DefaultTask {
         setExecutable project.file("bin/jruby")
       }
 
-      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
+      args = ['-S', 'gem', 'install', '--quiet', '--no-document', '--local', '--ignore-dependencies', '--norc']
       args += gems.files
     }
   }

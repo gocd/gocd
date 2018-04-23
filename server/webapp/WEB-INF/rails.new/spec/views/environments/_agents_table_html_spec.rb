@@ -81,11 +81,12 @@ describe "Environments agents table" do
 
     assign(:agents, AgentsViewModel.new([agent_with_dangerous_values].to_java(AgentViewModel)))
 
+    sanitize = proc {|val| val.gsub('<', '&lt;').gsub('>', '&gt;')}
+
+    allow(view).to receive(:agent_detail_path).with(uuid: dangerous_uuid_value).and_return(sanitize.call(dangerous_uuid_value))
 
     render :partial => "environments/agents_table.html",:locals => {:scope => {}}
 
-
-    sanitize = proc {|val| val.gsub('<', '&lt;').gsub('>', '&gt;')}
     expect(response.body).to_not include(dangerous_hostname_value)
     expect(response.body).to include(sanitize.call dangerous_hostname_value)
 

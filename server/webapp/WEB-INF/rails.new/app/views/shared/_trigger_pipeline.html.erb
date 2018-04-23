@@ -1,7 +1,7 @@
 <% scope[:pipeline] = scope[:pipeline_model].getLatestPipelineInstance() -%>
-<%= pipeline_operations_blocking_form_remote_tag(:url => api_pipeline_action_path(:pipeline_name => scope[:pipeline].getName(), :action => "schedule"),
+<%= pipeline_operations_blocking_form_remote_tag(:url => api_pipeline_schedule_path(:pipeline_name => scope[:pipeline].getName()),
                     :html => {
-                        :onsubmit => "PipelineOperations.onTrigger(this, '#{scope[:pipeline].getName()}', '#{api_pipeline_action_path(:pipeline_name => scope[:pipeline].getName(), :action => "schedule")}'); return false;".html_safe
+                        :onsubmit => "PipelineOperations.onTrigger(this, '#{scope[:pipeline].getName()}', '#{api_pipeline_schedule_path(:pipeline_name => scope[:pipeline].getName())}'); return false;".html_safe
                     })
 -%>
     <div class='operate trigger_wrapper'>

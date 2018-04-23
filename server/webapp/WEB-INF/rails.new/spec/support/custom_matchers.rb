@@ -39,15 +39,15 @@ end
 class ReachedControllerError < StandardError
 end
 
-RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, headers={}|
+RSpec::Matchers.define :allow_action do |verb, expected_action, **args|
   match do |controller|
     @reached_controller = false
     allow(controller).to receive(expected_action).and_raise(ReachedControllerError)
     begin
       if controller.class.name =~ /ApiV/
-        send("#{verb}_with_api_header", expected_action, params, headers)
+        send("#{verb}_with_api_header", **args)
       else
-        send(verb, expected_action, params, headers)
+        send(verb, expected_action, **args)
       end
     rescue => ReachedControllerError
       # ignore
@@ -74,7 +74,7 @@ RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, heade
   end
 end
 
-RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, headers={}|
+RSpec::Matchers.define :disallow_action do |verb, expected_action, **args|
   chain :with do |expected_status, expected_message|
     @status_matcher  = RSpec::Matchers::BuiltIn::Eq.new(expected_status)
     @message_matcher = RSpec::Matchers::BuiltIn::Eq.new(expected_message)
@@ -85,9 +85,9 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, he
     allow(controller).to receive(expected_action).and_raise(ReachedControllerError)
     begin
       if controller.class.name =~ /ApiV/
-        send("#{verb}_with_api_header", expected_action, params, headers)
+        send("#{verb}_with_api_header", expected_action, **args)
       else
-        send(verb, expected_action, params, headers)
+        send(verb, expected_action, **args)
       end
     rescue => ReachedControllerError
       # ignore

@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -57,24 +57,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
       end
     end
 
-    describe 'route' do
-      describe 'with_header' do
-
-        it 'should route to repository_check_connection action of the repository check connection controller' do
-          expect(:post => 'api/admin/internal/repository_check_connection').to route_to(action: 'repository_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to repository_check_connection action of repository check connection controller without header' do
-          expect(:post => 'api/admin/internal/repository_check_connection').to_not route_to(action: 'repository_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-          expect(:post => 'api/admin/internal/repository_check_connection').to route_to(action: 'unresolved', controller: 'application', url: 'api/admin/internal/repository_check_connection')
-        end
-      end
-    end
-
     describe 'admin' do
       before :each do
         login_as_admin
@@ -95,7 +77,7 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
           result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
         end
 
-        post_with_api_header :repository_check_connection, pacakge_repository_check_connection: repository
+        post_with_api_header :repository_check_connection, params: { pacakge_repository_check_connection: repository }
 
         expect(response).to have_api_message_response(200, "Connection OK. {0}")
       end
@@ -131,24 +113,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
       end
     end
 
-    describe 'route' do
-      describe 'with_header' do
-
-        it 'should route to package_check_connection action of the repository check connection controller' do
-          expect(:post => 'api/admin/internal/package_check_connection').to route_to(action: 'package_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to package_check_connection action of repository check connection controller without header' do
-          expect(:post => 'api/admin/internal/package_check_connection').to_not route_to(action: 'package_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-          expect(:post => 'api/admin/internal/package_check_connection').to route_to(action: 'unresolved', controller: 'application', url: 'api/admin/internal/package_check_connection')
-        end
-      end
-    end
-
     describe 'admin' do
       before :each do
         @package_definition = {
@@ -173,7 +137,7 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
           result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
         end
 
-        post_with_api_header :package_check_connection, package_repository_check_connection: @package_definition
+        post_with_api_header :package_check_connection, params: { package_repository_check_connection: @package_definition }
 
         expect(response).to have_api_message_response(200, "Connection OK. {0}")
       end
@@ -182,7 +146,7 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
 
         expect(@package_repository_service).to receive(:getPackageRepository).with(anything).and_return(nil)
 
-        post_with_api_header :package_check_connection, package_repository_check_connection: @package_definition
+        post_with_api_header :package_check_connection, params: { package_repository_check_connection: @package_definition }
         expect(response).to have_api_message_response(404, "Either the resource you requested was not found, or you are not authorized to perform this action.")
       end
     end

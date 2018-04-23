@@ -47,18 +47,18 @@ module Api
 
       def allow_only_push_event
         unless request.headers['X-Gitlab-Event'] == 'Push Hook'
-          render text: "Ignoring event of type `#{request.headers['X-Gitlab-Event']}'", content_type: 'text/plain', status: :accepted, layout: nil
+          render plain: "Ignoring event of type `#{request.headers['X-Gitlab-Event']}'", content_type: 'text/plain', status: :accepted
         end
       end
 
       def verify_payload
         if payload.blank?
-          render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
         end
       rescue => e
         Rails.logger.warn('Could not understand gitlab webhook payload:')
         Rails.logger.warn(e)
-        render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+        render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
       end
 
       def payload
@@ -69,11 +69,11 @@ module Api
 
       def verify_content_origin
         if request.headers['X-Gitlab-Token'].blank?
-          return render text: "No token specified in the `X-Gitlab-Token' header!", content_type: 'text/plain', status: :bad_request, layout: nil
+          return render plain: "No token specified in the `X-Gitlab-Token' header!", content_type: 'text/plain', status: :bad_request
         end
 
         unless Rack::Utils.secure_compare(webhook_secret, request.headers['X-Gitlab-Token'])
-          render text: "Token specified in the `X-Gitlab-Token' header did not match!", content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: "Token specified in the `X-Gitlab-Token' header did not match!", content_type: 'text/plain', status: :bad_request
         end
       end
     end

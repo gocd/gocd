@@ -4,7 +4,7 @@
 module Oauth2Provider
   class TokensController < ApplicationController
     
-    skip_before_filter :verify_authenticity_token
+    skip_before_action :verify_authenticity_token
 
     include Oauth2Provider::SslHelper
     include Oauth2Provider::TransactionHelper

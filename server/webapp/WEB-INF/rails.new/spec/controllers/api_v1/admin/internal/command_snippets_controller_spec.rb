@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::Internal::CommandSnippetsController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -64,27 +64,10 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
 
         expect(@command_repository_service).to receive(:lookupCommand).with('rake').and_return([snippet])
 
-        get_with_api_header :index, prefix: 'rake'
+        get_with_api_header :index, params: { prefix: 'rake' }
 
         expect(response).to be_ok
         expect(actual_response).to eq(JSON.parse(snippet_hash.to_json).deep_symbolize_keys)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of the internal command_snippets controller' do
-          expect(:get => 'api/admin/internal/command_snippets').to route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of internal command_snippets controller without header' do
-          expect(:get => 'api/admin/internal/command_snippets').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
-          expect(:get => 'api/admin/internal/command_snippets').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/command_snippets')
-        end
       end
     end
   end

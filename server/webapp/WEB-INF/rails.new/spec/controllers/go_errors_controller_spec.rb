@@ -18,10 +18,6 @@ require 'rails_helper'
 
 describe GoErrorsController do
   describe "inactive" do
-    it "should resolve" do
-      expect(get: "/errors/inactive").to route_to(controller: "go_errors", action: "inactive")
-    end
-
     it 'should show the error page, with a message' do
       get :inactive
 

@@ -33,7 +33,7 @@ describe PipelinesHelper do
     end
 
     it "should have url with action when action is set" do
-      expect(stage_bar_url(@stages[0], 'overview')).to eq "/pipelines/pipeline/1/stage-0/1"
+      expect(stage_bar_url(@stages[0], 'overview')).to eq "/pipelines/pipeline/1/stage-0/1/overview"
     end
 
     it "should not link to stage not scheduled" do

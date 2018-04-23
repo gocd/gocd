@@ -23,9 +23,9 @@ module ApiV5
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 
-    skip_before_filter :verify_authenticity_token
-    before_filter :verify_content_type_on_post
-    before_filter :set_default_response_format
+    skip_before_action :verify_authenticity_token
+    before_action :verify_content_type_on_post
+    before_action :set_default_response_format
 
     def set_default_response_format
       request.format = DEFAULT_FORMAT unless params[:format]
@@ -84,7 +84,7 @@ module ApiV5
     end
 
     def render_message(message, status = :ok, data = {})
-      render DEFAULT_FORMAT => { message: message.strip }.merge(data), status: status
+      render DEFAULT_FORMAT => { message: message.strip }.merge(data), status: status, layout: false
     end
 
     def render_unprocessable_entity_error(exception)

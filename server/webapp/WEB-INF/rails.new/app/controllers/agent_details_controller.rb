@@ -19,10 +19,10 @@ class AgentDetailsController < ApplicationController
 
   PAGE_SIZE = 50
 
-  before_filter :populate_agent_for_details
+  before_action :populate_agent_for_details
 
   layout "application", :except => [:show, :job_run_history]
-    prepend_before_filter :set_tab_name
+    prepend_before_action :set_tab_name
 
   def show
     render :layout => "agent_detail"

@@ -17,14 +17,15 @@ css_dir: "app/assets/stylesheets"
 # list of file expressions to include as source files
 # relative path from src_dir
 src_files:
- - "application.js"
- - "patterns/application.js"
- - "lib/d3-3.1.5.min.js"
+  - "application.js"
+  - "lib/d3-3.1.5.min.js"
 
 # list of file expressions to include as css files
 # relative path from css_dir
 css_files:
   - "application.{scss,css}"
+  - "patterns/application.{scss,css}"
+  - "new-theme.{scss,css}"
 
 # path to parent directory of spec_files
 # relative path from Rails.root
@@ -40,17 +41,14 @@ spec_dir: spec/javascripts
 # list of file expressions to include as helpers into spec runner
 # relative path from spec_dir
 helpers:
-  - "helpers/**/*.{js.coffee,js,coffee}"
+  - 'helpers/**/*.js'
 
 # list of file expressions to include as specs into spec runner
 # relative path from spec_dir
 spec_files:
-  - "**/*[Ss]pec.{js.coffee,js,coffee}"
+  - '**/*[sS]pec.js'
 
 # path to directory of temporary files
 # (spec runner and asset cache)
 # defaults to tmp/jasmine
 tmp_dir: "tmp/jasmine"
-
-# This is only loaded by jasmine, not jasmine-rails
-spec_helper: spec/javascripts/support/jasmine_helper.rb

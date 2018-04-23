@@ -1,8 +1,0 @@
---no-private
---exclude ^lib/tzinfo/definitions/
---exclude ^lib/tzinfo/indexes/
-lib/**/*.rb
--
-CHANGES
-LICENSE
-README

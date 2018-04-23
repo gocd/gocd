@@ -23,12 +23,12 @@ describe NonApiController do
 
   describe "ParamEncoder" do
     it "should add before filter for relevant actions" do
-      get :encoded_param_user_action, :decodable_param => "Zm9vL2Jhcg%3D%3D%0A"
+      get :encoded_param_user_action, params: { :decodable_param => "Zm9vL2Jhcg%3D%3D%0A" }
       expect(assigns(:decodable_param)).to eq("foo/bar")
     end
 
     it "should not add before filter for excluded actions" do
-      get :non_encoded_param_user_action, :decodable_param => "Zm9vL2Jhcg%3D%3D%0A"
+      get :non_encoded_param_user_action, params: { :decodable_param => "Zm9vL2Jhcg%3D%3D%0A" }
       expect(assigns(:decodable_param)).to eq("Zm9vL2Jhcg%3D%3D%0A")
     end
   end
@@ -82,20 +82,24 @@ describe Api::TestController do
 
   describe "disable_auto_refresh" do
     it "should propagate autoRefresh=false" do
-      get :auto_refresh, "autoRefresh" => "false"
+      def controller.default_url_options
+        super.reverse_merge(UrlBuilder.default_url_options)
+      end
+
+      get :auto_refresh, params: { "autoRefresh" => "false" }
       expect(response.body).to eq("http://test.host/?autoRefresh=false")
     end
   end
 
   describe "render_operation_result" do
     it "should render 404 responses in error template" do
-      get :not_found_action, :no_layout=>true
+      get :not_found_action, params: { :no_layout=>true }
       expect(response.status).to eq(404)
       expect(response.body).to eq("it was not found { description }\n")
     end
 
     it "should render 401 responses in error template" do
-      get :unauthorized_action, :no_layout=>true
+      get :unauthorized_action, params: { :no_layout=>true }
       expect(response.status).to eq(401)
       expect(response.body).to eq("you are not allowed { description }\n")
     end
@@ -103,35 +107,31 @@ describe Api::TestController do
 
   describe "render_operation_result_if_failure" do
     it "should render 404 responses in error template" do
-      get :another_not_found_action, :no_layout => true
+      get :another_not_found_action, params: { :no_layout => true }
       expect(response.status).to eq(404)
       expect(response.body).to eq("it was again not found { description }\n")
     end
   end
 
   it "should render erroneous responses" do
-    get :localized_not_found_action, :no_layout=>true
+    get :localized_not_found_action, params: { :no_layout=>true }
     expect(response.status).to eq(404)
     expect(response.body).to eq("You do not have view permissions for pipeline 'mingle'." + "\n")
   end
 
   it "should render erroneous responses without appending an extra new-line in the end, if one already exists" do
-    get :localized_not_found_action_with_message_ending_in_newline, :no_layout=>true
+    get :localized_not_found_action_with_message_ending_in_newline, params: { :no_layout=>true }
     expect(response.status).to eq(404)
     expect(response.body).to eq("Message with newline.\n")
   end
 
   it "should render responses when given operation-result without any message" do
-    get :localized_operation_result_without_message, :no_layout=>true
+    get :localized_operation_result_without_message, params: { :no_layout=>true }
     expect(response.status).to eq(200)
-    expect(response.body).to eq(" ")
+    expect(response.body).to be_blank
   end
 
   describe "unresolved" do
-    it "should resolve as action for any unmatched url" do
-      expect(:get => "/cruise/foo/bar/baz/quux/hell/yeah?random=junk").to route_to({:controller => 'application', :action => "unresolved", :url => "cruise/foo/bar/baz/quux/hell/yeah", :random => "junk"})
-    end
-
     it "should render a pretty payload with message" do
       allow(@controller).to receive(:url_for).and_return("foo/bar")
       get :unresolved

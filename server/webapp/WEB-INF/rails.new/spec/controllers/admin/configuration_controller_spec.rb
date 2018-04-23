@@ -72,23 +72,6 @@ describe Admin::ConfigurationController do
     end
   end
 
-  describe "routes" do
-    it "view" do
-      expect(config_view_path).to eq("/admin/config_xml")
-      expect({:get => "/admin/config_xml"}).to route_to(:controller => "admin/configuration", :action => "show")
-    end
-
-    it "edit" do
-      expect(config_edit_path).to eq("/admin/config_xml/edit")
-      expect({:get => "/admin/config_xml/edit"}).to route_to(:controller => "admin/configuration", :action => "edit")
-    end
-
-    it "update" do
-      expect(config_update_path).to eq("/admin/config_xml")
-      expect({:put => "/admin/config_xml"}).to route_to(:controller => "admin/configuration", :action => "update")
-    end
-  end
-
   describe "show" do
     it "should render view with config" do
       config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
@@ -128,7 +111,7 @@ describe Admin::ConfigurationController do
       param_map = {"content" => "config_content", "md5" => "md5"}
       expect(@admin_service).to receive(:updateConfig).with(param_map, an_instance_of(HttpLocalizedOperationResult)).and_return(GoConfigValidity::valid())
 
-      put :update, :go_config => param_map
+      put :update, params: { :go_config => param_map }
 
       expect(flash[:success]).to eq('Saved successfully.')
       assert_redirect config_view_path
@@ -146,7 +129,7 @@ describe Admin::ConfigurationController do
       cruise_config_revision = double('cruise config revision')
       expect(@config_repository).to receive(:getRevision).with(submitted_copy['md5']).and_return(cruise_config_revision)
 
-      put :update, {:go_config => submitted_copy}
+      put :update, params: { :go_config => submitted_copy }
 
       expect(response).to render_template "edit"
       expect(flash.now[:error]).to eq('Save failed, see errors below')
@@ -169,7 +152,7 @@ describe Admin::ConfigurationController do
       cruise_config_revision = double('cruise config revision')
       expect(@config_repository).to receive(:getRevision).with(current_config['md5']).and_return(cruise_config_revision)
 
-      put :update, {:go_config => submitted_copy}
+      put :update, params: { :go_config => submitted_copy }
 
       expect(response).to render_template "split_pane"
       expect(flash.now[:error]).to eq("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.")
@@ -191,7 +174,7 @@ describe Admin::ConfigurationController do
       expect(config_validity).to receive(:wasMerged).and_return(true)
       expect(@admin_service).to receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
 
-      put :update, {:go_config => submitted_copy}
+      put :update, params: { :go_config => submitted_copy }
 
       expect(flash[:success]).to eq('Saved successfully. The configuration was modified by someone else, but your changes were merged successfully.')
       assert_redirect config_view_path

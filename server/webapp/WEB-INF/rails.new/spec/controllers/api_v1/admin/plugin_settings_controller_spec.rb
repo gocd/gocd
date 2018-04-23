@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::PluginSettingsController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -46,28 +46,28 @@ describe ApiV1::Admin::PluginSettingsController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:get, :show, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :show, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow group admin users, with security enabled' do
         enable_security
         login_as_group_admin
 
-        expect(controller).to disallow_action(:get, :show, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow template users, with security enabled' do
         enable_security
         login_as_template_admin
 
-        expect(controller).to disallow_action(:get, :show, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -92,7 +92,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').and_return(@plugin_info)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
-        get_with_api_header :show, plugin_id: 'plugin.id.1'
+        get_with_api_header :show, params: { plugin_id: 'plugin.id.1' }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({plugin_settings: @plugin_settings, plugin_info: @plugin_info}, ApiV1::Config::PluginSettingsRepresenter))
@@ -101,7 +101,7 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should render 404 for non existent plugin settings' do
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
 
-        get_with_api_header :show, plugin_id: 'plugin.id.2'
+        get_with_api_header :show, params: { plugin_id: 'plugin.id.2' }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -112,23 +112,6 @@ describe ApiV1::Admin::PluginSettingsController do
         get_with_api_header :show, plugin_id: 'plugin.id.1'
 
         expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:get => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:get => 'api/admin/plugin_settings/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/plugin_settings')
-          expect(:get => 'api/admin/plugin_settings/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings/foo')
-        end
       end
     end
   end
@@ -197,7 +180,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
         expect(@plugin_service).to receive(:createPluginSettings).with(an_instance_of(PluginSettings), anything, anything)
 
-        post_with_api_header :create, plugin_setting: hash
+        post_with_api_header :create, params: { plugin_setting: hash }
 
         expect(response).to be_ok
         real_response = actual_response
@@ -217,7 +200,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.2').and_return(true)
         expect(@plugin_service).to receive(:createPluginSettings).with(an_instance_of(PluginSettings), anything, result)
 
-        post_with_api_header :create, plugin_setting: hash
+        post_with_api_header :create, params: { plugin_setting: hash }
 
         expect(response).to have_api_message_response(422, "Save failed")
       end
@@ -226,26 +209,9 @@ describe ApiV1::Admin::PluginSettingsController do
         hash = {plugin_id: 'plugin.id.1'}
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(false)
 
-        post_with_api_header :create, plugin_setting: hash
+        post_with_api_header :create, params: { plugin_setting: hash }
 
         expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:post => 'api/admin/plugin_settings').to route_to(action: 'create', controller: 'api_v1/admin/plugin_settings')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:post => 'api/admin/plugin_settings').to_not route_to(action: 'create', controller: 'api_v1/admin/plugin_settings')
-          expect(:post => 'api/admin/plugin_settings').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings')
-        end
       end
     end
   end
@@ -266,28 +232,28 @@ describe ApiV1::Admin::PluginSettingsController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:put, :update, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:put, :update, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow group admin users, with security enabled' do
         enable_security
         login_as_group_admin
 
-        expect(controller).to disallow_action(:put, :update, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow template users, with security enabled' do
         enable_security
         login_as_template_admin
 
-        expect(controller).to disallow_action(:put, :update, plugin_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { plugin_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -326,7 +292,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@plugin_service).to receive(:updatePluginSettings).with(an_instance_of(PluginSettings), anything, result, "md5")
 
-        put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
+        put_with_api_header :update, params: { plugin_id: 'plugin.id.1', plugin_setting: hash }
 
         expect(response).to have_api_message_response(422, "Save failed")
       end
@@ -337,7 +303,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
-        put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
+        put_with_api_header :update, params: { plugin_id: 'plugin.id.1', plugin_setting: hash }
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Plugin Settings 'plugin.id.1'. Please update your copy of the config with the changes.")
       end
@@ -349,7 +315,7 @@ describe ApiV1::Admin::PluginSettingsController do
           com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
             [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
-        hash = {plugin_id: 'plugin.id.1', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1',configuration: [{:key => 'url', :value => 'git@github.com:foo/bar.git'}, {:key => 'password', :value => "some-value"}]}
 
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
@@ -357,7 +323,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@plugin_service).to receive(:updatePluginSettings).with(an_instance_of(PluginSettings), anything, anything, "md5")
 
-        put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
+        put_with_api_header :update, params: { plugin_id: 'plugin.id.1', plugin_setting: hash }
 
         expect(response).to be_ok
         real_response = actual_response
@@ -372,28 +338,10 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(false)
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
-        put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
+        put_with_api_header :update, params: { plugin_id: 'plugin.id.1', plugin_setting: hash }
 
         expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id \'plugin.id.1\' is not loaded.')
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:put => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:put => 'api/admin/plugin_settings/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/plugin_settings')
-          expect(:put => 'api/admin/plugin_settings/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings/foo')
-        end
-      end
-    end
   end
-
 end

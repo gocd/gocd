@@ -16,16 +16,17 @@
 
 class StagesController < ApplicationController
   include ApplicationHelper
+  include StagesHelper
 
   STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :tests, :rerun_jobs, :stats, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
-  before_filter :load_stage_details, :only => STAGE_DETAIL_ACTIONS
-  before_filter :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline]
-  before_filter :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
-  before_filter :set_format, :only => :tests
-  before_filter :load_pipeline_instance, :only => :redirect_to_first_stage
+  before_action :load_stage_details, :only => STAGE_DETAIL_ACTIONS
+  before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline]
+  before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
+  before_action :set_format, :only => :tests
+  before_action :load_pipeline_instance, :only => :redirect_to_first_stage
 
   STAGE_HISTORY_PAGE_SIZE = 10
 
@@ -58,7 +59,7 @@ class StagesController < ApplicationController
     render_stage
   end
 
-  def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656
+  def stage_config
     @ran_with_config_revision = go_config_service.getConfigAtVersion(@stage.getStage().getConfigVersion())
     render_stage
   end
@@ -114,11 +115,10 @@ class StagesController < ApplicationController
     end
     if result.canContinue()
       identifier = stage.getIdentifier()
-      redirect_to(stage_detail_tab_url(:pipeline_name => identifier.getPipelineName(),
-                                       :pipeline_counter => identifier.getPipelineCounter(),
-                                       :stage_name => identifier.getStageName(),
-                                       :stage_counter => identifier.getStageCounter(),
-                                       :action => params[:tab] || :overview))
+      redirect_to(stage_detail_tab_path_for({:pipeline_name => identifier.getPipelineName(),
+                                             :pipeline_counter => identifier.getPipelineCounter(),
+                                             :stage_name => identifier.getStageName(),
+                                             :stage_counter => identifier.getStageCounter()}, params[:tab]))
     else
       redirect_with_flash(result.message(), :action => params[:tab], :class => "error")
     end
@@ -241,7 +241,7 @@ class StagesController < ApplicationController
         duration_array.push(duration)
 
         key = "#{pipeline_counter}_#{duration}"
-        stage_link = stage_detail_tab_path(:action => "jobs", :stage_name => stage_summary.getName(), :stage_counter => stage_summary.getStageCounter(), :pipeline_name => stage_summary.getPipelineName(), :pipeline_counter => stage_summary.getPipelineCounter())
+        stage_link = stage_detail_tab_jobs_path(:stage_name => stage_summary.getName(), :stage_counter => stage_summary.getStageCounter(), :pipeline_name => stage_summary.getPipelineName(), :pipeline_counter => stage_summary.getPipelineCounter())
         chart_data_array.push({"link" => stage_link, "x" => pipeline_counter, "key" => key})
 
         tooltip_data[key] = [stage_summary.getDuration(), stage_summary.getStage().scheduledDate().to_long_display_date_time, pipeline_label]

@@ -17,9 +17,9 @@
 class Admin::PipelineGroupsController < AdminController
   CLONER = Cloner.new()
 
-  before_filter :load_config_for_edit
-  before_filter :load_groups_for_edit, :only => [:edit, :show]
-  before_filter :autocomplete_for_permissions_and_tab, :only => [:edit, :update, :show]
+  before_action :load_config_for_edit
+  before_action :load_groups_for_edit, :only => [:edit, :show]
+  before_action :autocomplete_for_permissions_and_tab, :only => [:edit, :update, :show]
 
   layout "admin", :except => [:new, :create]
 

@@ -14,27 +14,30 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-Oauth2Provider::ClientsController.class_eval do
-  layout 'admin'
-  prepend_before_filter :set_tab_name, :set_view_title
+Go::Application.config.after_initialize do
 
-  private
+  Oauth2Provider::ClientsController.class_eval do
+    layout 'admin'
+    prepend_before_action :set_tab_name, :set_view_title
 
-  def set_tab_name
-    @tab_name = "oauth-clients"
+    private
+
+    def set_tab_name
+      @tab_name = "oauth-clients"
+    end
+
+    def set_view_title
+      @view_title = "Administration"
+    end
   end
 
-  def set_view_title
-    @view_title = "Administration"
-  end
-end
+  Oauth2Provider::UserTokensController.class_eval do
+    layout 'my-cruise'
 
-Oauth2Provider::UserTokensController.class_eval do
-  layout 'my-cruise'
+    prepend_before_action :set_tab_name
 
-  prepend_before_filter :set_tab_name
-
-  def set_tab_name
-    @current_tab_name = "preferences"
+    def set_tab_name
+      @current_tab_name = "preferences"
+    end
   end
 end

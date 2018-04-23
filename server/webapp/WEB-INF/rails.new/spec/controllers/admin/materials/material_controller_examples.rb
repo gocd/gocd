@@ -19,33 +19,6 @@ shared_examples_for :material_controller do
   include ConfigSaveStubbing
   include MockRegistryModule
 
-  describe "routes should resolve and generate" do
-    it "new" do
-      expect({:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/new"}).to route_to(:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "pipeline.name")
-      expect(send("admin_#{@short_material_type}_new_path", :pipeline_name => "foo.bar")).to eq("/admin/pipelines/foo.bar/materials/#{@short_material_type}/new")
-    end
-
-    it "create" do
-      expect({:post => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}"}).to route_to(:controller => "admin/materials/#{@short_material_type}", :action => "create", :pipeline_name => "pipeline.name")
-      expect(send("admin_#{@short_material_type}_create_path", :pipeline_name => "foo.bar")).to eq("/admin/pipelines/foo.bar/materials/#{@short_material_type}")
-    end
-
-    it "update" do
-      expect({:put => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print"}).to route_to(:controller => "admin/materials/#{@short_material_type}", :action => "update", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
-      expect(send("admin_#{@short_material_type}_update_path", :pipeline_name => "foo.bar", :finger_print => "abc")).to eq("/admin/pipelines/foo.bar/materials/#{@short_material_type}/abc")
-    end
-
-    it "edit" do
-      expect({:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print/edit"}).to route_to(:controller => "admin/materials/#{@short_material_type}", :action => "edit", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
-      expect(send("admin_#{@short_material_type}_edit_path", :pipeline_name => "foo.bar", :finger_print => "finger_print")).to eq("/admin/pipelines/foo.bar/materials/#{@short_material_type}/finger_print/edit")
-    end
-
-    it "delete" do
-      expect({:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}).to route_to(:controller => "admin/materials", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
-      expect(send("admin_material_delete_path", :pipeline_name => "foo.bar", :finger_print => "finger_print")).to eq("/admin/pipelines/foo.bar/materials/finger_print")
-    end
-  end
-
   describe "action" do
     before do
       setup_data
@@ -61,7 +34,7 @@ shared_examples_for :material_controller do
       it "should load new material" do
         setup_for_new_material
 
-        get :new, :pipeline_name => "pipeline-name"
+        get :new, params: { :pipeline_name => "pipeline-name" }
 
         assert_material_is_initialized
         expect(assigns[:cruise_config]).to eq(@cruise_config)
@@ -80,7 +53,7 @@ shared_examples_for :material_controller do
 
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        post :create, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload
+        post :create, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload }
 
         expect(@pipeline.materialConfigs().size).to eq(2)
         expect(@cruise_config.getAllErrors().size).to eq(0)
@@ -95,7 +68,7 @@ shared_examples_for :material_controller do
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
-        post :create, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload
+        post :create, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload }
 
         expect(@cruise_config.getAllErrors().size).to eq(1)
 
@@ -114,7 +87,7 @@ shared_examples_for :material_controller do
       it "should edit an existing material" do
         setup_other_form_objects
 
-        get :edit, :pipeline_name => "pipeline-name", :finger_print => @material.getPipelineUniqueFingerprint()
+        get :edit, params: { :pipeline_name => "pipeline-name", :finger_print => @material.getPipelineUniqueFingerprint() }
 
         expect(assigns[:material]).to eq(@material)
         expect(assigns[:cruise_config]).to eq(@cruise_config)
@@ -136,7 +109,7 @@ shared_examples_for :material_controller do
 
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
+        put :update, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint() }
 
         expect(@pipeline.materialConfigs().size).to eq(1)
         expect(@cruise_config.getAllErrors().size).to eq(0)
@@ -151,7 +124,7 @@ shared_examples_for :material_controller do
 
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
+        put :update, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint() }
 
         expect(@pipeline.materialConfigs().size).to eq(1)
         expect(@cruise_config.getAllErrors().size).to eq(0)
@@ -167,7 +140,7 @@ shared_examples_for :material_controller do
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
-        put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
+        put :update, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint() }
 
         expect(assigns[:errors].size).to eq(1)
         expect(response.status).to eq(400)

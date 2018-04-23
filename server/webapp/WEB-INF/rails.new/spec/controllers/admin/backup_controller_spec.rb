@@ -24,19 +24,6 @@ describe Admin::BackupController do
     allow(controller).to receive(:backup_service).and_return(@backup_service = double('backup_server'))
   end
 
-  describe "routes" do
-
-    it "should resolve the route to the backup admin ui page" do
-      expect({:get => "/admin/backup"}).to route_to(:controller => "admin/backup", :action => "index")
-      expect(backup_server_path).to eq("/admin/backup")
-    end
-
-    it "should resolve the route for the server backup" do
-      expect({:post => "/admin/backup"}).to route_to(:controller => "admin/backup", :action => "perform_backup")
-      expect(perform_backup_path).to eq("/admin/backup")
-    end
-  end
-
   describe "index" do
 
     before :each do

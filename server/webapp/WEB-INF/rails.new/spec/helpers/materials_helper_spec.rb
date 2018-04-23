@@ -79,7 +79,7 @@ describe MaterialsHelper do
 
     expect(mock_stage_service).to receive(:findStageIdByLocator).with("p/1/s/1").and_return(10)
 
-    expect(stage_url_from_identifier("p/1/s/1")).to eq("http://test.host/api/stages/10.xml")
+    expect(stage_url_from_identifier("p/1/s/1", UrlBuilder.default_url_options)).to eq("http://test.host/api/stages/10.xml")
   end
 
   it "should replace tracking tool text with a link" do

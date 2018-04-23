@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+ENV["RAILS_ENV"] ||= ENV["RACK_ENV"] || "development"
+ENV["NODE_ENV"] ||= ENV["RAILS_ENV"]
+
+require "webpacker"
+require "webpacker/webpack_runner"
+Webpacker::WebpackRunner.run(ARGV)

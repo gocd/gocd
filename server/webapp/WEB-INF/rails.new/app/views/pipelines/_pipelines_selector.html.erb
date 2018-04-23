@@ -6,8 +6,8 @@
 
 <div id="pipelines_selector" class='enhanced_dropdown hidden'>
 
-    <% on_submit_action = "PipelineOperations.onPipelineSelector(this, '#{pipeline_path(:action => 'select_pipelines')}'); return false;".html_safe %>
-    <%= pipeline_operations_blocking_form_remote_tag(:url => pipeline_path(:action => 'select_pipelines'), :html => { :onsubmit => on_submit_action})-%>
+    <% on_submit_action = "PipelineOperations.onPipelineSelector(this, '#{pipeline_select_pipelines_path()}'); return false;".html_safe %>
+    <%= pipeline_operations_blocking_form_remote_tag(:url => pipeline_select_pipelines_path(), :html => { :onsubmit => on_submit_action})-%>
 
     <div class="select_all_none_panel">
         <div id="select_text">Select:</div>

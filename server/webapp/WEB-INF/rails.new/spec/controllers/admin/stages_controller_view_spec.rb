@@ -48,14 +48,14 @@ describe Admin::StagesController, "view" do
       end
 
       it "should display 'fetch materials' & 'clean working directory' checkbox" do
-        get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s
+        get :edit, params: { :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s }
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("div[class='form_item_block checkbox_row fetch_materials']")
         expect(response.body).to have_selector("div[class='form_item_block checkbox_row clean_working_dir']")
       end
 
       it "should display 'on success' & 'manual' radio buttons" do
-        get :edit, :stage_parent=> "pipelines",  :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s
+        get :edit, params: { :stage_parent=> "pipelines",  :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s }
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
         expect(response.body).to have_selector("label[for='auto']", :text=>"On Success")
@@ -74,7 +74,7 @@ describe Admin::StagesController, "view" do
       end
 
       it "should render stages for pipeline" do
-        get :index, :stage_parent=> "pipelines",  :pipeline_name => "pipeline"
+        get :index, params: { :stage_parent=> "pipelines",  :pipeline_name => "pipeline" }
         expect(assigns(:pipeline)).to eq(@pipeline)
         expect(assigns(:cruise_config)).to eq(@cruise_config)
 
@@ -102,7 +102,7 @@ describe Admin::StagesController, "view" do
       end
 
       it "should display 'on success' & 'manual' radio buttons" do
-        get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => "pipeline", :stage_name => "stage-name"
+        get :edit, params: { :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => "pipeline", :stage_name => "stage-name" }
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
         expect(response.body).to have_selector("label[for='auto']", :text=>"On Success")
@@ -125,7 +125,7 @@ describe Admin::StagesController, "view" do
       end
 
       it "should load form for new stage" do
-        get :new, :stage_parent=> "pipelines", :pipeline_name => "pipeline-name"
+        get :new, params: { :stage_parent=> "pipelines", :pipeline_name => "pipeline-name" }
         expect(assigns(:cruise_config)).to eq(@cruise_config)
         assert_has_new_form
       end
@@ -151,7 +151,7 @@ describe Admin::StagesController, "view" do
         end
 
         it "should save stage fields" do
-          post :create, :stage_parent=> "pipelines", :pipeline_name => "pipeline-name", :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"
+          post :create, params: { :stage_parent=> "pipelines", :pipeline_name => "pipeline-name", :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5" }
           expect(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo"))).not_to be_nil
 
           expect(response.status).to eq(200)

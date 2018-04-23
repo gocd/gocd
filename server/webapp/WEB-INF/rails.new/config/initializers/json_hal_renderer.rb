@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,8 @@
   Mime::Type.register mime_type, symbol
 
   ActionController::Renderers.add symbol do |json, options|
-    json = JSON.pretty_generate(json, options) << "\n" unless json.kind_of?(String)
+    json = JSON.pretty_generate(json.as_json, options) << "\n" unless json.kind_of?(String)
     json = "#{options[:callback]}(#{json})" unless options[:callback].blank?
-    self.content_type ||= mime_type
-    json
+    render body: json, content_type: mime_type, layout: false
   end
 end

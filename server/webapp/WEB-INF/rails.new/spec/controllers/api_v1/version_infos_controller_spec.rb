@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::VersionInfosController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -59,7 +59,7 @@ describe ApiV1::VersionInfosController do
         expect(@go_latest_version).to receive(:valid?).and_return(true)
         expect(@version_info_service).to receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
 
-        patch_with_api_header :update_server, :message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature
+        patch_with_api_header :update_server, params: { :message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature }
 
         actual_json = JSON.parse(response.body)
         actual_json.delete('_links')
@@ -74,7 +74,7 @@ describe ApiV1::VersionInfosController do
       it 'should be bad request if message is tampered' do
         expect(@go_latest_version).to receive(:valid?).and_return(false)
 
-        patch_with_api_header :update_server, message: 'message', :signature => 'signature'
+        patch_with_api_header :update_server, params: { message: 'message', :signature => 'signature' }
 
         expect(response.code).to eq('400')
       end
@@ -87,7 +87,7 @@ describe ApiV1::VersionInfosController do
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(error_result)
         expect(@version_info_service).to receive(:updateServerLatestVersion).with('15.ABC-123', error_result).and_return(nil)
 
-        patch_with_api_header :update_server, message: bad_message, :signature => 'signature'
+        patch_with_api_header :update_server, params: { message: bad_message, :signature => 'signature' }
 
         expect(response.code).to eq('400')
       end
@@ -136,7 +136,7 @@ describe ApiV1::VersionInfosController do
 
     describe "update_server" do
       it 'should return a 404' do
-        patch_with_api_header :update_server, message: 'message', :signature => 'signature'
+        patch_with_api_header :update_server, params: { message: 'message', :signature => 'signature' }
 
         expect(response.code).to eq('404')
       end
@@ -147,33 +147,6 @@ describe ApiV1::VersionInfosController do
         get_with_api_header :stale
 
         expect(response.code).to eq('404')
-      end
-    end
-  end
-
-  describe "route" do
-    describe "with_header" do
-
-      it 'should route to stale action of version_infos controller' do
-        expect(:get => 'api/version_infos/stale').to route_to(action: 'stale', controller: 'api_v1/version_infos')
-      end
-
-      it 'should route to update_server action of the version_infos controller' do
-        expect(:patch => 'api/version_infos/go_server').to route_to(action: 'update_server', controller: 'api_v1/version_infos')
-      end
-    end
-    describe "without_header" do
-      before :each do
-        teardown_header
-      end
-      it 'should not route to stale action of version_infos controller without header' do
-        expect(:get => 'api/version_infos/stale').to_not route_to(action: 'stale', controller: 'api_v1/version_infos')
-        expect(:get => 'api/version_infos/stale').to route_to(controller: 'application', action: 'unresolved', url: 'api/version_infos/stale')
-      end
-
-      it 'should not route to update_server action of version_infos controller without header' do
-        expect(:patch => 'api/version_infos/go_server').to_not route_to(action: 'update_server', controller: 'api_v1/version_infos')
-        expect(:patch => 'api/version_infos/go_server').to route_to(controller: 'application', action: 'unresolved', url: 'api/version_infos/go_server')
       end
     end
   end

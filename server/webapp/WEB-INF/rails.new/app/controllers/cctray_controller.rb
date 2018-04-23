@@ -16,7 +16,7 @@
 
 class CctrayController < ApplicationController
   def index
-    render text: cc_tray_service.getCcTrayXml(site_url_prefix)
+    render plain: cc_tray_service.getCcTrayXml(site_url_prefix), content_type: :xml
   end
 
   private

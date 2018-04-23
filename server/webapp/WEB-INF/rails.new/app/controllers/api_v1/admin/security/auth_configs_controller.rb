@@ -18,7 +18,7 @@ module ApiV1
   module Admin
     module Security
       class AuthConfigsController < BaseController
-        before_filter :check_admin_user_and_401
+        before_action :check_admin_user_and_401
         before_action :check_for_stale_request, :check_for_attempted_rename, only: [:update]
 
         include ProfilesControllerActions

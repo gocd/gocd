@@ -2,7 +2,7 @@
 <% if scope[:latestPIM].isCurrentlyLocked() %>
     <% if scope[:latestPIM].canUnlock() -%>
         <span class="locked_instance click_to_unlock" id='unlock' title="Click to unlock this pipeline">
-            <%== blocking_link_to_remote_new :name => "&nbsp;", :url => api_pipeline_action_path(:pipeline_name =>  scope[:pipeline_model].getName(), :action => 'releaseLock'),
+            <%== blocking_link_to_remote_new :name => "&nbsp;", :url => api_pipeline_releaseLock_path(:pipeline_name =>  scope[:pipeline_model].getName()),
                                         :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :before => "spinny('unlock');", :headers => {Confirm: 'true'} -%>
         </span>
     <% else -%>

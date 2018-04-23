@@ -1,0 +1,1 @@
+This directory contains jasmine version 2.4.1

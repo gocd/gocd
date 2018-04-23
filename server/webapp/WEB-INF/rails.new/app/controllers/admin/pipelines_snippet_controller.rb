@@ -15,8 +15,8 @@
 ##########################GO-LICENSE-END##################################
 
 class Admin::PipelinesSnippetController < AdminController
-  before_filter :set_tab_name
-  before_filter :load_config_for_edit, :only => [:edit]
+  before_action :set_tab_name
+  before_action :load_config_for_edit, :only => [:edit]
 
   CLONER = Cloner.new
 

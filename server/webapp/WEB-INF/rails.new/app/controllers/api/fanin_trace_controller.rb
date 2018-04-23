@@ -20,7 +20,7 @@ class Api::FaninTraceController < Api::ApiController
     pipeline_name = params[:name]
     reporting_fanin_graph = ReportingFanInGraph.new(cruise_config, pipeline_name, pipeline_sql_map_dao)
     @str = reporting_fanin_graph.computeRevisions(pipeline_service.getPipelineTimeline())
-    render text: @str
+    render plain: @str
   end
 
   def fanin_debug
@@ -35,7 +35,7 @@ class Api::FaninTraceController < Api::ApiController
     pipeline_name = params[:name]
     output = ""
     revisions = pipeline_service.getRevisionsBasedOnDependenciesForReporting(cruise_config, CaseInsensitiveString.new(pipeline_name))
-    render text: "No Fan-In" and return unless revisions
+    render plain: "No Fan-In" and return unless revisions
     revisions.each do |rev|
       newline = "\n   "
       output = output + "Material: " + rev.getMaterial().to_s + "\n"
@@ -50,6 +50,6 @@ class Api::FaninTraceController < Api::ApiController
       output = output + "---\n\n"
     end
     output = output
-    render text: output
+    render plain: output
   end
 end

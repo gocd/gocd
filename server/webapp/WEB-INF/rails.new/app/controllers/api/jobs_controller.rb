@@ -20,7 +20,7 @@ class Api::JobsController < Api::ApiController
   include ApplicationHelper
 
   def render_not_found()
-    render :text => "Not Found!", :status => 404
+    render :plain => "Not Found!", :status => 404
   end
 
   def index

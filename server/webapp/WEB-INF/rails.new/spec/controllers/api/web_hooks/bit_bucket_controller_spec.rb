@@ -94,7 +94,7 @@ describe Api::WebHooks::BitBucketController do
           .with('master', all_matching_repos)
           .and_return(true)
 
-        post :notify, params
+        post :notify, params: params
         expect(response.body).to eq('OK!')
         expect(response.status).to eq(202)
       end
@@ -137,7 +137,7 @@ describe Api::WebHooks::BitBucketController do
                                })
 
         allow(controller).to receive(:allow_only_push_event)
-        post :notify, params
+        post :notify, params: params
         expect(response.status).to eq(400)
         expect(response.body).to eq("Only `git' repositories are currently supported!")
       end
@@ -155,7 +155,7 @@ describe Api::WebHooks::BitBucketController do
                                  'Content-Type' => 'application/json'
                                })
 
-        post :notify, params
+        post :notify, params: params
         expect(response.status).to eq(400)
         expect(response.body).to eq("Token specified via basic authentication did not match!")
       end

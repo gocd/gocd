@@ -85,7 +85,7 @@ describe ApplicationHelper do
 
   it "should generate hidden field for config_md5" do
     allow(self).to receive(:cruise_config_md5).and_return("foo_bar_baz")
-    expect(config_md5_field).to eq('<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="foo_bar_baz" />')
+    expect(config_md5_field).to eq("<input type=\"hidden\" name=\"cruise_config_md5\" id=\"cruise_config_md5\" value=\"foo_bar_baz\" />")
   end
 
   describe "tab_for" do
@@ -223,40 +223,44 @@ describe ApplicationHelper do
 
   describe 'form remote add on' do
     it "should return the before and completed options for a form remote action" do
-      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();interesting one; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();alert(0);}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();interesting one; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();alert(0);}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
 
       actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete => "alert(0);")
+
 
       expect(actual).to eq(expected)
     end
 
     it "should return the before and completed options when not defined" do
-      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
 
       actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here")
+
 
       expect(actual).to eq(expected)
     end
 
     it "should resolve URL for AJAX Request URL" do
-      expected = %q|<form accept-charset="UTF-8" action="/pipelines/show" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/pipelines/show', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/pipelines/show', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="/pipelines/show" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
 
       actual = blocking_form_remote_tag(:url => {:controller => 'pipelines', :action => 'show'}, :success => "whatever", 202 => "do something here")
+
 
       expect(actual).to eq(expected)
     end
 
     it "should append 401 handler to form" do
-      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
 
       actual = blocking_form_remote_tag(:url => "url")
+
 
       expect(actual).to eq(expected)
     end
 
     it "should create a blocking link to a remote location" do
       actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => api_pipeline_action_path(:pipeline_name => "SOME_NAME", :action => 'releaseLock'),
+                                           :url => api_pipeline_releaseLock_path(:pipeline_name => "SOME_NAME"),
                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                            :html => {},
                                            :headers => {Confirm: 'true'},
@@ -268,13 +272,13 @@ describe ApplicationHelper do
 
     it "should create a blocking link to a remote location with extra HTML provided" do
       actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => api_pipeline_action_path(:pipeline_name => "SOME_NAME", :action => 'releaseLock'),
+                                           :url => api_pipeline_releaseLock_path(:pipeline_name => "SOME_NAME"),
                                            :headers => {Confirm: 'true'},
                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                            :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
                                            :before => "spinny('unlock');"
 
-      exp = %q|<a href="#"  class="ABC" id="SOME-ID" title="TITLE" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'Confirm':'true'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'Confirm':'true'}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end
@@ -282,19 +286,19 @@ describe ApplicationHelper do
   describe 'submit button' do
     before :each do
       should_receive(:system_environment).and_return(env = double('sys_env'))
-      expect(env).to receive(:isServerActive).and_return(true)
+      expect(env).to receive(:isServerActive).at_most(:twice).and_return(true)
     end
 
     it "should have class 'image' and type 'submit' for image button" do
       expect(submit_button("name", :type => 'image', :id=> 'id', :class=> "class", :onclick => "onclick", :disabled => "true")).to eq(
-              "<button class=\"class image submit disabled\" disabled=\"disabled\" id=\"id\" onclick=\"onclick\" title=\"name\" type=\"submit\" value=\"name\">" +
+              %q{<button type="submit" id="id" class="class image submit disabled" onclick="onclick" disabled="disabled" value="name" title="name">} +
                       "<span title=\"name\"> </span>" +
                       "</button>"
       )
     end
 
     it "should have class 'select' and image for 'select type' button" do
-      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq("<button class=\"class select submit button\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
+      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq(%q{<button type="button" id="id" name="name" class="class select submit button" onclick="onclick" value="name">} +
               "<span>" +
               "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
@@ -302,7 +306,7 @@ describe ApplicationHelper do
     end
 
     it "should not have image or class 'select' for a type 'button'" do
-      expect(submit_button("name", :type => 'button', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq("<button class=\"class submit button\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
+      expect(submit_button("name", :type => 'button', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq(%q{<button type="button" id="id" name="name" class="class submit button" onclick="onclick" value="name">} +
               "<span>" +
               "NAME" +
               "</span>" +
@@ -310,31 +314,19 @@ describe ApplicationHelper do
     end
 
     it "should respect disabled flag for type 'select'" do
-      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true)).to eq("<button class=\"class select submit button disabled\" disabled=\"disabled\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
-              "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
-              "</span>" +
-              "</button>")
+      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true)).to eq(%q|<button type="button" id="id" name="name" class="class select submit button disabled" onclick="onclick" disabled="disabled" value="name"><span>NAME<img src="/images/g9/button_select_icon.png" /></span></button>|)
     end
 
     it "should respect disabled flag for type 'button'" do
-      expect(submit_button("name", :type => 'button', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true)).to eq("<button class=\"class submit button disabled\" disabled=\"disabled\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
-              "<span>" +
-              "NAME" +
-              "</span>" +
-              "</button>")
+      expect(submit_button("name", :type => 'button', :id => 'id', :name => "name", :class => "class", :onclick => "onclick", :disabled => true)).to eq(%q|<button type="button" id="id" name="name" class="class submit button disabled" onclick="onclick" disabled="disabled" value="name"><span>NAME</span></button>|)
     end
 
     it "should accept either symbol or string as option keys" do
-      expect(submit_button("name", 'type' => 'button', 'id'=> 'id', 'name' => "name", 'class' => "class", 'onclick' => "onclick", 'disabled' => true)).to eq("<button class=\"class submit button disabled\" disabled=\"disabled\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
-              "<span>" +
-              "NAME" +
-              "</span>" +
-              "</button>")
+      expect(submit_button("name", 'type' => 'button', 'id' => 'id', 'name' => "name", 'class' => "class", 'onclick' => "onclick", 'disabled' => true)).to eq(%q|<button type="button" id="id" name="name" class="class submit button disabled" onclick="onclick" disabled="disabled" value="name"><span>NAME</span></button>|)
     end
 
     it "should not generate blank attribute value for enabled button" do
-      expect(submit_button("name")).to eq("<button class=\"submit\" type=\"submit\" value=\"name\">" +
+      expect(submit_button("name")).to eq("<button type=\"submit\" value=\"name\" class=\"submit\">" +
               "<span>" +
               "NAME" +
               "</span>" +
@@ -342,11 +334,7 @@ describe ApplicationHelper do
     end
 
     it "should not generate blank attribute value for disabled button" do
-      expect(submit_button("name", :disabled => true)).to eq("<button class=\"submit disabled\" disabled=\"disabled\" type=\"submit\" value=\"name\">" +
-              "<span>" +
-              "NAME" +
-              "</span>" +
-              "</button>")
+      expect(submit_button("name", :disabled => true)).to eq(%q|<button type="submit" disabled="disabled" value="name" class="submit disabled"><span>NAME</span></button>|)
     end
 
     it "should add onclick handler with the passed in onclick_lambda" do
@@ -361,11 +349,7 @@ describe ApplicationHelper do
     end
 
     it "should make submit button disabled if server is in passive state" do
-      expect(submit_button("name")).to eq("<button class=\"submit disabled\" disabled=\"disabled\" type=\"submit\" value=\"name\">" +
-          "<span>" +
-          "NAME" +
-          "</span>" +
-          "</button>")
+      expect(submit_button("name")).to eq(%q|<button type="submit" disabled="disabled" value="name" class="submit disabled"><span>NAME</span></button>|)
     end
   end
 
@@ -527,12 +511,14 @@ describe ApplicationHelper do
     it 'should return anchor tag with on success function' do
       expected = %q|<a href="#"  class="link_as_button" onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){Modalbox.show(alert('hi')}}); return false;">link name</a>|
       actual = link_to_remote_new('link name',{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
+
       expect(actual).to eq(expected)
     end
 
     it 'should return anchor tag without optional params' do
       expected = %q|<a href="#"  onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){}}); return false;">link name</a>|
       actual = link_to_remote_new('link name',{:method=>:get, :url => "url"})
+
       expect(actual).to eq(expected)
     end
 
@@ -568,24 +554,26 @@ describe ApplicationHelper do
   describe "form_remote_tag_new" do
 
    it 'should generate form tag with on complete for ajax update' do
-     expected = %q|<form accept-charset="UTF-8" action="/admin/users/search" method="post" onsubmit="jQuery('#search_id').addClass('ac_loading'); new Ajax.Updater({success:'search_results_container'}, '/admin/users/search', {asynchronous:true, evalScripts:true, onComplete:function(request){jQuery('#search_id').removeClass('ac_loading');}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+     expected = %q|<form onsubmit="jQuery('#search_id').addClass('ac_loading'); new Ajax.Updater({success:'search_results_container'}, '/admin/users/search', {asynchronous:true, evalScripts:true, onComplete:function(request){jQuery('#search_id').removeClass('ac_loading');}, parameters:Form.serialize(this)}); return false;" action="/admin/users/search" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
      actual = form_remote_tag_new(
          :url => users_search_path,
          :update => {:success => "search_results_container"},
          :before => "jQuery('#search_id').addClass('ac_loading');",
          :complete => "jQuery('#search_id').removeClass('ac_loading');"
      )
+
      expect(actual).to eq(expected)
    end
 
    it 'should generate form tag with on success and failure for ajax update' do
-     expected = %q|<form accept-charset="UTF-8" action="/admin/users/create" method="post" onsubmit="new Ajax.Updater({success:'tab-content-of-user-listing'}, '/admin/users/create', {asynchronous:true, evalScripts:true, onFailure:function(request){Util.refresh_child_text('add_error_message', request.responseText, 'error');}, onSuccess:function(request){Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+     expected = %q|<form onsubmit="new Ajax.Updater({success:'tab-content-of-user-listing'}, '/admin/users/create', {asynchronous:true, evalScripts:true, onFailure:function(request){Util.refresh_child_text('add_error_message', request.responseText, 'error');}, onSuccess:function(request){Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');}, parameters:Form.serialize(this)}); return false;" action="/admin/users/create" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
      actual = form_remote_tag_new(
          :url => users_create_path,
          :update => {:success => "tab-content-of-user-listing"},
          :failure => "Util.refresh_child_text('add_error_message', request.responseText, 'error');",
          :success => "Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');"
      )
+
      expect(actual).to eq(expected)
    end
   end
@@ -608,6 +596,6 @@ describe ApplicationHelper do
 
   it 'should encode cruise-config-md5 before allowing it to be displayed.' do
     allow(self).to receive(:cruise_config_md5).and_return("<foo>")
-    expect(config_md5_field).to eq('<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="&lt;foo&gt;" />')
+    expect(config_md5_field).to eq("<input type=\"hidden\" name=\"cruise_config_md5\" id=\"cruise_config_md5\" value=\"&lt;foo&gt;\" />")
   end
 end

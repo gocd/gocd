@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Jasmine Specs</title>
+
+    <%= stylesheet_link_tag *jasmine_css_files %>
+    <%= javascript_include_tag *jasmine_js_files, :defer => "defer" %>
+  </head>
+  <body data-no-turbolink>
+    <div id="jasmine_content"></div>
+    <%= yield %>
+  </body>
+</html>

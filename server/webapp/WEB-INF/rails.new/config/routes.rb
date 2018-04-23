@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 Go::Application.routes.draw do
-  mount JasmineRails::Engine => '/jasmine-specs', as: :jasmine_old if defined?(JasmineRails)
+  mount JasmineRails::Engine => '/jasmine-specs' if defined?(JasmineRails)
 
   unless defined?(CONSTANTS)
     CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
@@ -154,7 +154,9 @@ Go::Application.routes.draw do
   post "admin/materials/pluggable_scm/check_connection/:plugin_id" => "admin/materials/pluggable_scm#check_connection", constraints: {plugin_id: ALLOW_DOTS}, as: :admin_pluggable_scm_check_connection
   get "admin/materials/pluggable_scm/:scm_id/pipelines_used_in" => "admin/materials/pluggable_scm#pipelines_used_in", as: :scm_pipelines_used_in
 
-  get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
+  %w(resource os ip name status environment).each do |controller_action_method|
+    get "agents/filter_autocomplete/#{controller_action_method}" => "agent_autocomplete##{controller_action_method}", as: "agent_filter_autocomplete_#{controller_action_method}"
+  end
 
   resources :analytics, only: [:index], controller: "analytics"
   get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics
@@ -166,8 +168,12 @@ Go::Application.routes.draw do
       get ':pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
     end
 
-    get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-    post ':action' => 'pipelines#:action', constraints: {:action => /select_pipelines|show/}, as: :pipeline
+    match 'show', to: 'pipelines#show', via: %w(get post), as: :pipeline
+    match 'select_pipelines', to: 'pipelines#select_pipelines', via: %w(get post), as: :pipeline_select_pipelines
+
+    %w(index build_cause).each do |controller_action_method|
+      get "#{controller_action_method}" => "pipelines##{controller_action_method}"
+    end
   end
 
   get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard
@@ -283,15 +289,13 @@ Go::Application.routes.draw do
   scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       namespace :admin do
-        resources :environments, param: :name, only: [:show, :destroy, :create, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
-          patch on: :member, action: :patch
-          put on: :member, action: :put
-        end
+        resources :environments, param: :name, only: [:show, :destroy, :create, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT}
+        patch 'environments/:name', to: 'environments#patch', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
+        put 'environments/:name', to: 'environments#put', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
       end
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/}
       delete 'users', controller: 'users', action: 'bulk_delete'
-      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
-        patch :update, on: :member
-      end
+      patch 'users/:login_name', to: 'users#update', constraints: {login_name: /(.*?)/}
 
       get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
 
@@ -395,7 +399,10 @@ Go::Application.routes.draw do
 
       # pipeline api's
       constraints pipeline_name: PIPELINE_NAME_FORMAT do
-        post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', :no_layout => true, constraints: HeaderConstraint.new, as: :api_pipeline_action
+        %w(releaseLock schedule).each do |controller_action_method|
+          post "pipelines/:pipeline_name/#{controller_action_method}" => "pipelines##{controller_action_method}", :no_layout => true, constraints: HeaderConstraint.new, as: "api_pipeline_#{controller_action_method}"
+        end
+
         post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: HeaderConstraint.new, as: :pause_pipeline
         post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
       end
@@ -460,7 +467,13 @@ Go::Application.routes.draw do
   constraints HeaderConstraint.new do
     post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json
   end
-  get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/(:action)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
+
+  get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => "stages#overview", as: "stage_detail_tab_default", constraints: STAGE_LOCATOR_CONSTRAINTS
+
+  %w(overview pipeline materials jobs tests stats stage_config).each do |controller_action_method|
+    get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/#{controller_action_method}" => "stages##{controller_action_method}", as: "stage_detail_tab_#{controller_action_method}", constraints: STAGE_LOCATOR_CONSTRAINTS
+  end
+
   get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
 

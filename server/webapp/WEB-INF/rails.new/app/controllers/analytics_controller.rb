@@ -61,7 +61,7 @@ class AnalyticsController < ApplicationController
 
   def render_plugin_error e
     log_java_error(e)
-    render :text => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
+    render :plain => "Error generating analytics from plugin - #{params[:plugin_id]}", status: 500
   end
 
   def log_java_error(e)

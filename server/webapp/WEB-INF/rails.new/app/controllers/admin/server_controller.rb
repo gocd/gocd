@@ -20,7 +20,7 @@ require 'server_configuration_form'
 class Admin::ServerController < AdminController
   include ApplicationHelper
 
-  before_filter :set_tab_name, :only => [:index, :update]
+  before_action :set_tab_name, :only => [:index, :update]
 
   def index
     set_defaults

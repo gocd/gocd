@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'rails_helper'
 
@@ -50,7 +50,7 @@ describe PipelinesController do
     it "should render build cause" do
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline_name", 10, @user, @status).and_return(@pim)
 
-      get :build_cause, :pipeline_name => "pipeline_name", :pipeline_counter => "10"
+      get :build_cause, params: { :pipeline_name => "pipeline_name", :pipeline_counter => "10" }
 
       expect(assigns[:pipeline_instance]).to eq(@pim)
       assert_template "build_cause"
@@ -65,19 +65,7 @@ describe PipelinesController do
       expect(controller).to receive(:render).with("build_cause", layout: false).never
       expect(controller).to receive(:render_operation_result_if_failure).with(@status)
 
-      get :build_cause, :pipeline_name => "pipeline_name", :pipeline_counter => "10", :layout => false
-    end
-
-    it "should route to build_cause action" do
-      expect({:get => "/pipelines/name_of_pipeline/15/build_cause"}).to route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "name_of_pipeline", :pipeline_counter => "15", :no_layout => true)
-    end
-
-    it "should route to build_cause action with dots in pipline name" do
-      expect({:get => "/pipelines/blah.pipe-line/1/build_cause"}).to route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "blah.pipe-line", :pipeline_counter => "1", :no_layout => true)
-    end
-
-    it "should have a named route" do
-      expect(controller.send(:build_cause_url, :pipeline_name => "foo", :pipeline_counter => 20)).to eq("http://test.host/pipelines/foo/20/build_cause")
+      get :build_cause, params: { :pipeline_name => "pipeline_name", :pipeline_counter => "10", :layout => false }
     end
   end
 
@@ -99,11 +87,6 @@ describe PipelinesController do
       expect(assigns[:pipeline_groups]).to eq(:pipeline_group_models)
       expect(assigns[:pipeline_selections]).to eq(selections)
       expect(assigns[:pipeline_configs]).to eq(viewable_groups)
-    end
-
-    it "should resolve" do
-      expect({:get => "/pipelines"}).to route_to(:controller => "pipelines", :action => "index", :format => "html")
-      expect({:get => "/pipelines.json"}).to route_to(:controller => "pipelines", :action => "index", :format => "json")
     end
 
     it "should redirect to 'add pipeline wizard' when there are no pipelines in config only if the user is an admin" do
@@ -165,10 +148,6 @@ describe PipelinesController do
   end
 
   describe "action show" do
-    it "should resolve using both GET and POST" do
-      expect({:get => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
-      expect({:post => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
-    end
 
     it "should load pipeline and variables for a given pipeline" do
       expect(@pipeline_history_service).to receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
@@ -177,7 +156,7 @@ describe PipelinesController do
       expected.add("bar","bar_value")
       expect(@go_config_service).to receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
 
-      get 'show', :pipeline_name => 'blah-pipeline-name'
+      get :show, params: { :pipeline_name => 'blah-pipeline-name' }
 
       expect(assigns[:pipeline]).to eq(@pim)
       expect(assigns[:variables]).to eq(expected)
@@ -189,7 +168,7 @@ describe PipelinesController do
 
       expect(controller).not_to receive(:verify_authenticity_token)
 
-      post 'show', pipeline_name: 'blah-pipeline-name'
+      post :show, params: { pipeline_name: 'blah-pipeline-name' }
     end
   end
 
@@ -201,13 +180,9 @@ describe PipelinesController do
       expected.add("bar","bar_value")
       expect(@go_config_service).to receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
 
-      post 'show_for_trigger', pipeline_name: 'blah-pipeline-name'
+      post :show_for_trigger, params: { pipeline_name: 'blah-pipeline-name' }
 
       expect(assigns[:pipeline]).to eq(@pim)
-    end
-
-    it "should resolve POST to /pipelines/show_for_trigger as a call" do
-      expect({:post => "/pipelines/show_for_trigger"}).to route_to(:controller => 'pipelines', :action => 'show_for_trigger', :no_layout => true)
     end
 
     it "should skip verify authenticity token" do
@@ -216,12 +191,8 @@ describe PipelinesController do
 
       expect(controller).not_to receive(:verify_authenticity_token)
 
-      post 'show_for_trigger', pipeline_name: 'blah-pipeline-name'
+      post :show_for_trigger, params: { pipeline_name: 'blah-pipeline-name' }
     end
-  end
-
-  it "should resolve get to /pipelines/material_search as a call" do
-    expect({:get => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
   end
 
   it "should show error message if the user is not authorized to view the pipeline" do
@@ -229,7 +200,7 @@ describe PipelinesController do
       result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
     end
 
-    get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+    get :material_search, params: { :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true }
     expect(response.status).to eq(401)
   end
 
@@ -238,7 +209,7 @@ describe PipelinesController do
       result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
     end
 
-    post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+    post :material_search, params: { :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true }
     expect(response.status).to eq(401)
     assert_template layout: false
   end
@@ -249,7 +220,7 @@ describe PipelinesController do
     pkg_config = MaterialConfigsMother.packageMaterialConfig()
     expect(@go_config_service).to receive(:materialForPipelineWithFingerprint).with('pipeline', 'sha').and_return(pkg_config)
 
-    get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
+    get :material_search, params: { :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search' }
 
     expect(response).to be_success
     assert_template layout: false
@@ -266,7 +237,7 @@ describe PipelinesController do
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
 
-      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+      post :select_pipelines, params: { "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true" }
 
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
@@ -275,7 +246,7 @@ describe PipelinesController do
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, [], true).and_return(1234)
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
 
-      post "select_pipelines", "selector" => {}, show_new_pipelines: "true"
+      post :select_pipelines, params: { "selector" => {}, show_new_pipelines: "true" }
 
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
@@ -284,7 +255,7 @@ describe PipelinesController do
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, [], true).and_return(1234)
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
 
-      post "select_pipelines", show_new_pipelines: "true"
+      post :select_pipelines, params: { show_new_pipelines: "true" }
 
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
@@ -293,14 +264,14 @@ describe PipelinesController do
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
 
-      post "select_pipelines", "selector" => { pipeline: ["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+      post :select_pipelines, params: { "selector" => { pipeline: ["pipeline1", "pipeline2"]}, show_new_pipelines: "true" }
     end
 
     it "should persist the value of 'show_new_pipelines' when it is false" do
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], false).and_return(1234)
 
-      post "select_pipelines", "selector" => { pipeline: ["pipeline1", "pipeline2"]}
+      post :select_pipelines, params: { "selector" => { pipeline: ["pipeline1", "pipeline2"]} }
     end
   end
 
@@ -313,7 +284,7 @@ describe PipelinesController do
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
 
-      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+      post :select_pipelines, params: { "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true" }
 
       expect(cookiejar[:selected_pipelines]).to eq("456")
     end
@@ -322,7 +293,7 @@ describe PipelinesController do
       expect(@pipeline_selections_service).to receive(:persistSelectedPipelines).with(nil, @user_id, [], true).and_return(1234)
       allow(controller).to receive(:cookies).and_return(cookiejar = {})
 
-      post "select_pipelines", "selector" => {}, show_new_pipelines: "true"
+      post :select_pipelines, params: { "selector" => {}, show_new_pipelines: "true" }
 
       expect(cookiejar[:selected_pipelines]).to eq(nil)
     end
@@ -346,13 +317,13 @@ describe PipelinesController do
       it 'updates the comment using the pipeline history service' do
         expect(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user, @localized_result)
 
-        post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
+        post :update_comment, params: { pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json }
       end
 
       it 'renders success json' do
         allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user, @localized_result)
 
-        post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
+        post :update_comment, params: { pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json }
 
         expect(JSON.load(response.body)).to eq({'status' => 'success'})
       end
@@ -364,7 +335,7 @@ describe PipelinesController do
           result.unauthorized(LocalizedMessage.cannotOperatePipeline("pipeline_name"), nil)
         end
 
-        post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
+        post :update_comment, params: { pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json }
         assert_response(401)
       end
 

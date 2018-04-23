@@ -18,7 +18,7 @@ ENV['ADMIN_OAUTH_URL_PREFIX'] = "admin"
 ENV['LOAD_OAUTH_SILENTLY'] = "yes"
 
 # Load the Rails application.
-require File.expand_path('../application', __FILE__)
+require_relative 'application'
 
 # Initialize the Rails application.
-Go::Application.initialize!
+Rails.application.initialize!

@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ApiV4::AgentsController do
   include AgentInstanceFactory
-  include ApiHeaderSetupTeardown
+
   include ApiV4::ApiVersionHelper
 
   before do
@@ -72,24 +72,6 @@ describe ApiV4::AgentsController do
         expect(actual_response).to eq(expected_response_with_args(zero_agents, ApiV4::AgentsRepresenter, @security_service, @current_user))
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to index action of the agents controller' do
-          expect(:get => 'api/agents').to route_to(action: 'index', controller: 'api_v4/agents')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of the agents controller without header' do
-          expect(:get => 'api/agents').to_not route_to(action: 'index', controller: 'api_v4/agents')
-          expect(:get => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -101,18 +83,18 @@ describe ApiV4::AgentsController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show, uuid: @agent.getUuid())
+        expect(controller).to allow_action(:get, :show, params: { uuid: @agent.getUuid() })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, uuid: @agent.getUuid()).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { uuid: @agent.getUuid() }).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
       it 'should allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to allow_action(:get, :show, uuid: @agent.getUuid())
+        expect(controller).to allow_action(:get, :show, params: { uuid: @agent.getUuid() })
       end
     end
 
@@ -125,7 +107,7 @@ describe ApiV4::AgentsController do
         agent = AgentInstanceMother.idle()
         expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
-        get_with_api_header :show, uuid: agent.getUuid()
+        get_with_api_header :show, params: { uuid: agent.getUuid() }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -134,34 +116,8 @@ describe ApiV4::AgentsController do
         null_agent = NullAgentInstance.new('some-uuid')
         expect(@agent_service).to receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
 
-        get_with_api_header :show, uuid: null_agent.getUuid()
+        get_with_api_header :show, params: { uuid: null_agent.getUuid() }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to show action of the agents controller for uuid with hyphen' do
-          expect(:get => 'api/agents/uuid-123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid-123')
-        end
-
-        it 'should route to show action of the agents controller for uuid with underscore' do
-          expect(:get => 'api/agents/uuid_123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid_123')
-        end
-
-        it 'should route to show action of the agents controller for uuid with dots' do
-          expect(:get => 'api/agents/uuid.123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid.123')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of the agents controller without header' do
-          expect(:get => 'api/agents/uuid').to_not route_to(action: 'show', controller: 'api_v4/agents')
-          expect(:get => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
-        end
       end
     end
   end
@@ -175,18 +131,18 @@ describe ApiV4::AgentsController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy, uuid: @agent.getUuid())
+        expect(controller).to allow_action(:delete, :destroy, params: { uuid: @agent.getUuid() })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { uuid: @agent.getUuid() }).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
       it 'should not allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { uuid: @agent.getUuid() }).with(401, 'You are not authorized to perform this action.')
       end
     end
 
@@ -203,7 +159,7 @@ describe ApiV4::AgentsController do
           result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
-        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        delete_with_api_header :destroy, params: { :uuid => agent.getUuid() }
         expect(response).to have_api_message_response(406, 'Not Acceptable')
       end
 
@@ -215,34 +171,9 @@ describe ApiV4::AgentsController do
           result.ok('Deleted 1 agent(s).')
         end
 
-        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        delete_with_api_header :destroy, params: { :uuid => agent.getUuid() }
         expect(response).to be_ok
         expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destoy action of the agents controller for uuid with hyphen' do
-          expect(:delete => 'api/agents/uuid-123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid-123')
-        end
-
-        it 'should route to destroy action of the agents controller for uuid with underscore' do
-          expect(:delete => 'api/agents/uuid_123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid_123')
-        end
-
-        it 'should route to destroy action of the agents controller for uuid with dots' do
-          expect(:delete => 'api/agents/uuid.123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid.123')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of the agents controller without header' do
-          expect(:delete => 'api/agents/uuid').to_not route_to(action: 'destroy', controller: 'api_v4/agents')
-          expect(:delete => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
-        end
       end
     end
   end
@@ -256,18 +187,18 @@ describe ApiV4::AgentsController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname')
+        expect(controller).to allow_action(:patch, :update, params: { uuid: @agent.getUuid(), hostname: 'some-hostname' })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :update, params: { uuid: @agent.getUuid(), hostname: 'some-hostname' }).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
       it 'should not allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :update, params: { uuid: @agent.getUuid(), hostname: 'some-hostname' }).with(401, 'You are not authorized to perform this action.')
       end
     end
 
@@ -283,7 +214,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname' }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -295,7 +226,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox" }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -307,7 +238,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: nil
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', resources: nil }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), resources: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -319,7 +250,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: "pre-prod,performance"
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', environments: "pre-prod,performance" }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -331,7 +262,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: nil
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', environments: nil }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), resources: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -343,7 +274,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", agent_config_state: 'enabled'
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", agent_config_state: 'enabled' }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -355,7 +286,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", agent_config_state: "diSAbled"
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", agent_config_state: "diSAbled" }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -367,7 +298,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox'] }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -379,7 +310,7 @@ describe ApiV4::AgentsController do
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: ['pre-prod', 'staging']
+        patch_with_api_header :update, params: { uuid: agent.getUuid(), hostname: 'some-hostname', environments: ['pre-prod', 'staging'] }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
@@ -388,7 +319,7 @@ describe ApiV4::AgentsController do
         null_agent = NullAgentInstance.new('some-uuid')
         expect(@agent_service).to receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
 
-        patch_with_api_header :update, uuid: null_agent.getUuid()
+        patch_with_api_header :update, params: { uuid: null_agent.getUuid() }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
@@ -396,34 +327,8 @@ describe ApiV4::AgentsController do
         agent = AgentInstanceMother.idle()
         expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', agent_config_state: 'foo'
+        patch_with_api_header :update, params: {uuid: agent.getUuid(), hostname: 'some-hostname', agent_config_state: 'foo'}
         expect(response).to have_api_message_response(400, 'Your request could not be processed. The value of `agent_config_state` can be one of `Enabled`, `Disabled` or null.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to update action of the agents controller for uuid with hyphen' do
-          expect(:patch => 'api/agents/uuid-123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid-123')
-        end
-
-        it 'should route to update action of the agents controller for uuid with underscore' do
-          expect(:patch => 'api/agents/uuid_123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid_123')
-        end
-
-        it 'should route to update action of the agents controller for uuid with dots' do
-          expect(:patch => 'api/agents/uuid.123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid.123')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of the agents controller without header' do
-          expect(:patch => 'api/agents/uuid').to_not route_to(action: 'update', controller: 'api_v4/agents')
-          expect(:patch => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
-        end
       end
     end
   end
@@ -451,7 +356,7 @@ describe ApiV4::AgentsController do
       it 'should not allow normal users to bulk_destroy the agents' do
         login_as_user
 
-        delete_with_api_header :bulk_destroy, :uuids => ['foo']
+        delete_with_api_header :bulk_destroy, params: { :uuids => ['foo'] }
         expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
       end
     end
@@ -469,7 +374,7 @@ describe ApiV4::AgentsController do
           result.ok('Deleted 2 agent(s).')
         end
 
-        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        delete_with_api_header :bulk_destroy, params: { :uuids => [agent1.getUuid(), agent2.getUuid()] }
         expect(response).to be_ok
         expect(response).to have_api_message_response(200, 'Deleted 2 agent(s).')
       end
@@ -482,30 +387,12 @@ describe ApiV4::AgentsController do
           result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
-        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        delete_with_api_header :bulk_destroy, params: { :uuids => [agent1.getUuid(), agent2.getUuid()] }
         expect(response).to have_api_message_response(406, 'Not Acceptable')
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to bulk_destroy action of the agents controller' do
-          expect(:delete => 'api/agents').to route_to(action: 'bulk_destroy', controller: 'api_v4/agents')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to bulk_destroy action of the agents controller without header' do
-          expect(:delete => 'api/agents').to_not route_to(action: 'bulk_destroy', controller: 'api_v4/agents')
-          expect(:delete => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
-        end
-      end
-    end
-
   end
-
+  
   describe "bulk_update" do
     describe "security" do
       it 'should allow anyone, with security disabled' do
@@ -534,7 +421,7 @@ describe ApiV4::AgentsController do
       it 'should not allow normal users to bulk_destroy the agents' do
         login_as_user
 
-        patch_with_api_header :bulk_update, :uuids => ['foo']
+        patch_with_api_header :bulk_update, params: { :uuids => ['foo'] }
         expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
       end
     end
@@ -550,26 +437,9 @@ describe ApiV4::AgentsController do
           result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", uuids.join(', ')));
         end
 
-        patch_with_api_header :bulk_update, :uuids => uuids
+        patch_with_api_header :bulk_update, params: { :uuids => uuids }
         expect(response).to be_ok
         expect(response).to have_api_message_response(200, 'Updated agent(s) with uuid(s): [agent-1, agent-2].')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to bulk_update action of the agents controller' do
-          expect(:patch => 'api/agents').to route_to(action: 'bulk_update', controller: 'api_v4/agents')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to bulk_update action of the agents controller without header' do
-          expect(:patch => 'api/agents').to_not route_to(action: 'bulk_update', controller: 'api_v4/agents')
-          expect(:patch => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
-        end
       end
     end
   end

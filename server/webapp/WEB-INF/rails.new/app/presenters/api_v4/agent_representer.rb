@@ -92,8 +92,6 @@ module ApiV4
       build_info if agent.getBuildingInfo().isBuilding()
     end
 
-    protected
-
     def error_object
       agent.errors
     end

@@ -39,7 +39,7 @@ module Admin
 
     def check_feature_toggle
       unless Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
-        render :text => 'This feature is not enabled!'
+        render :plain => 'This feature is not enabled!'
       end
     end
 

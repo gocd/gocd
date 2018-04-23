@@ -18,7 +18,7 @@ module Admin::Materials
   class PluggableScmController < AdminController
     include PipelineConfigLoader
 
-    before_filter :load_config_for_edit, :only => [:pipelines_used_in]
+    before_action :load_config_for_edit, :only => [:pipelines_used_in]
     load_pipeline_except_for :check_connection, :pipelines_used_in
 
     def show_existing

@@ -36,9 +36,10 @@ dependencies {
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
-  compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compile group: 'org.jruby.rack', name: 'jruby-rack', version: project.versions.rack
+  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')

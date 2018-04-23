@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.security.GoCipher;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * @understands parameter object that contains information like revisions and variables with which the pipeline is triggered
@@ -72,7 +73,8 @@ public class ScheduleOptions {
         if (specifiedRevisions != null ? !specifiedRevisions.equals(that.specifiedRevisions) : that.specifiedRevisions != null) {
             return false;
         }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
+        // `Set` because we explicitly want to ignore ordering while comparing, for tests
+        if (variables != null ? !new HashSet<>(variables).equals(new HashSet<>(that.variables)) : that.variables != null) {
             return false;
         }
 

@@ -5,7 +5,7 @@ module Oauth2Provider
   module SslHelper
 
     def self.included(controller_class)
-      controller_class.before_filter :mandatory_ssl
+      controller_class.before_action :mandatory_ssl
     end
 
     protected
@@ -17,7 +17,7 @@ module Oauth2Provider
       else
         error = 'This page can only be accessed using HTTPS.'
         flash.now[:error] = error
-        render(:text => '', :layout => true, :status => :forbidden)
+        render(:plain => '', :layout => true, :status => :forbidden)
       end
       false
     end

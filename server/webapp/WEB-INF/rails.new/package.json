@@ -3,17 +3,20 @@
   "version": "0.0.1",
   "license": "Apache-2.0",
   "scripts": {
-    "webpack-watch": "webpack --config config/webpack.config.js --watch",
-    "webpack-dev": "webpack --config config/webpack.config.js",
-    "webpack-prod": "webpack --config config/webpack.config.js --env.production=true",
-    "jasmine-ci": "karma start --single-run",
-    "karma": "karma start"
+    "webpack-watch": "cross-env NODE_ENV=development webpack --config config/webpack/webpack.js --watch",
+    "webpack-dev": "cross-env NODE_ENV=development webpack --config config/webpack/webpack.js",
+    "webpack-prod": "cross-env NODE_ENV=production webpack --config config/webpack/webpack.js",
+    "jasmine-ci": "cross-env NODE_ENV=test karma start --single-run",
+    "karma": "cross-env NODE_ENV=test karma start"
   },
   "dependencies": {
+    "@rails/webpacker": "^3.0.2",
     "angular": "1.0.8",
+    "bourbon": "^4.3.4",
     "babel-polyfill": "^6.26.0",
     "dragula": "^3.7.2",
     "filesize": "^3.5.10",
+    "font-awesome": "^4.7.0",
     "foundation-sites": "^6.2.3",
     "jquery": "^2.2.0",
     "jquery-textcomplete": "0.8.2",
@@ -34,7 +37,8 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.5.1",
     "babel-preset-stage-2": "^6.24.1",
-    "fs-extra": "^5.0.0",
+    "cross-env": "^5.1.1",
+    "fs-extra": "^4.0.2",
     "happypack": "^4.0.1",
     "html-webpack-plugin": "^2.28.0",
     "jasmine": "^2.6.0",
@@ -56,6 +60,7 @@
     "synchronize": "^2.0.0",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.9.4",
+    "webpack-merge": "^4.1.1"
   }
 }

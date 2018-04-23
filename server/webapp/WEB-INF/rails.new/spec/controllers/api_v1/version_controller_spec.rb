@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::VersionController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   describe "show" do
@@ -37,23 +37,6 @@ describe ApiV1::VersionController do
       get_with_api_header :show
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(OpenStruct.new(actual_json), ApiV1::VersionRepresenter))
-    end
-  end
-
-  describe "routing" do
-    describe 'with header' do
-      it 'should route to show action of version controller' do
-        expect(:get => 'api/version').to route_to(action: 'show', controller: 'api_v1/version')
-      end
-    end
-    describe 'without header' do
-      before :each do
-        teardown_header
-      end
-      it 'should not route to show action of version controller' do
-        expect(:get => 'api/version').to_not route_to(action: 'show', controller: 'api_v1/version')
-        expect(:get => 'api/version').to route_to(controller: 'application', action: 'unresolved', url: 'api/version')
-      end
     end
   end
 end

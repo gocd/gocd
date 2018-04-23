@@ -36,7 +36,6 @@ describe "_form.html.erb" do
 
   it "should render all p4 material attributes" do
     in_params(:pipeline_name => "pipeline_name")
-
     render :partial => "admin/materials/p4/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
     expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", visible: :hidden)
@@ -44,7 +43,7 @@ describe "_form.html.erb" do
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='P4 Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{P4MaterialConfig::SERVER_AND_PORT}]'][value='p4:5000']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{P4MaterialConfig::USERNAME}]'][value='loser']")
-    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{P4MaterialConfig::PASSWORD}]'][value='secret']")
+    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{P4MaterialConfig::PASSWORD}]']")
     expect(response.body).to have_selector(".popup_form textarea[name='material[#{P4MaterialConfig::VIEW}]']", "through_window")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{P4MaterialConfig::USE_TICKETS}]'][value='true'][checked='checked']")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
@@ -107,7 +106,7 @@ describe "_form.html.erb" do
       expect(popup_form).to have_selector("div.form_error", :text => "Port is wrong")
       expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME}]'][value='loser']")
       expect(popup_form).to have_selector("div.form_error", :text => "Username is wrong")
-      expect(popup_form).to have_selector("div.field_with_errors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::PASSWORD}]'][value='secret']")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::PASSWORD}]']")
       expect(popup_form).to have_selector("div.form_error", :text => "Password is wrong")
       expect(popup_form).to have_selector("div.field_with_errors input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS}]'][value='true'][checked='checked']")
       expect(popup_form).to have_selector("div.form_error", :text => "Tickets are wrong")
@@ -141,7 +140,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for url, username and view fields" do
-    render partial: "admin/materials/p4/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
+    render partial: "admin/materials/p4/form.html", locals: {scope: {material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo"}}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")

@@ -56,7 +56,8 @@ dependencies {
     transitive = false
   }
   packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  packagingInLibDir group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   packagingInLibDir group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
@@ -256,7 +257,8 @@ task verifyFatJar(type: VerifyJarTask) {
       "defaultCommandSnippets.zip"
     ],
     "lib"         : [
-      "bcprov-jdk15on-1.47.jar",
+      "bcpkix-jdk15on-${versions.bouncycastle}.jar",
+      "bcprov-jdk15on-${versions.bouncycastle}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang-${project.versions.commonsLang}.jar",
       "go-plugin-activator.jar",

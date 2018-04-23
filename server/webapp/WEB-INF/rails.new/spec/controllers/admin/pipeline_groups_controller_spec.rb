@@ -27,74 +27,6 @@ describe Admin::PipelineGroupsController do
   end
   include ConfigSaveStubbing
 
-  describe "routes" do
-    it "should resolve route to the pipeline groups listing page" do
-      expect({:get => "/admin/pipelines"}).to route_to(:controller => "admin/pipeline_groups", :action => "index")
-    end
-
-    it "should generate listing route" do
-      expect(pipeline_groups_url).to eq("http://test.host/admin/pipelines")
-    end
-
-    it "should resolve route to move" do
-      expect({:put => "/admin/pipelines/move/pipeline.name"}).to route_to(:controller => "admin/pipeline_groups", :action => "move", :pipeline_name => "pipeline.name")
-    end
-
-    it "should generate move route" do
-      expect(move_pipeline_to_group_url(:pipeline_name => "pipeline.name")).to eq("http://test.host/admin/pipelines/move/pipeline.name")
-    end
-
-    it "should resolve route to delete of pipeline" do
-      expect({:delete => "/admin/pipelines/pipeline.name"}).to route_to(:controller => "admin/pipeline_groups", :action => "destroy", :pipeline_name => "pipeline.name")
-    end
-
-    it "should generate group edit route" do
-      expect(pipeline_group_edit_path(:group_name => "foo.group")).to eq("/admin/pipeline_group/foo.group/edit")
-    end
-
-    it "should resolve route to edit pipeline group" do
-      expect({:get => "/admin/pipeline_group/foo.group/edit"}).to route_to(:controller => "admin/pipeline_groups", :action => "edit", :group_name => "foo.group")
-    end
-
-    it "should resolve route to show pipeline group" do
-      expect({:get => "/admin/pipeline_group/foo.group"}).to route_to(:controller => "admin/pipeline_groups", :action => "show", :group_name => "foo.group")
-    end
-
-    it "should resolve route to new pipeline group" do
-      expect({:get => "/admin/pipeline_group/new"}).to route_to(:controller => "admin/pipeline_groups", :action => "new")
-    end
-
-    it "should resolve /possible_groups" do
-      expect({:get => "/admin/pipelines/possible_groups/my_pipeline/my_md5"}).to route_to(:controller => "admin/pipeline_groups", :action => "possible_groups", :pipeline_name => "my_pipeline", :config_md5 =>"my_md5")
-      expect(possible_groups_path(:pipeline_name => "my_pipeline", :config_md5=>"my_md5")).to eq("/admin/pipelines/possible_groups/my_pipeline/my_md5")
-    end
-
-    it "should generate group update route" do
-      expect(pipeline_group_update_path(:group_name => "foo.group")).to eq("/admin/pipeline_group/foo.group")
-    end
-
-    it "should resolve route to update pipeline group" do
-      expect({:put => "/admin/pipeline_group/foo.group"}).to route_to(:controller => "admin/pipeline_groups", :action => "update", :group_name => "foo.group")
-    end
-
-    it "should generate delete pipeline route" do
-      expect(delete_pipeline_url(:pipeline_name => "pipeline.name")).to eq("http://test.host/admin/pipelines/pipeline.name")
-    end
-
-    it "should generate new pipeline group route" do
-      expect(pipeline_group_new_url).to eq("http://test.host/admin/pipeline_group/new")
-    end
-
-    it "should generate new pipeline group route" do
-      expect(pipeline_group_create_url).to eq("http://test.host/admin/pipeline_group")
-    end
-
-    it "should generate route for destroy of group" do
-      expect(pipeline_group_delete_path(:group_name => "group.foo")).to eq("/admin/pipeline_group/group.foo")
-      expect({:delete => "/admin/pipeline_group/foo.group"}).to route_to(:controller => "admin/pipeline_groups", :action => "destroy_group", :group_name => "foo.group")
-    end
-  end
-
   describe "actions" do
     before(:each) do
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
@@ -132,7 +64,7 @@ describe Admin::PipelineGroupsController do
         stub_save_for_success(@config)
         group = BasicPipelineConfigs.new("name", Authorization.new(), [].to_java(PipelineConfig))
 
-        post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
+        post :create, params: { :config_md5 => "1234abcd", :group => { :group => "name"} }
 
         expect(@config.getGroups().get(@groups.length)).to eq(group)
       end
@@ -142,7 +74,7 @@ describe Admin::PipelineGroupsController do
           result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', ["foo"].to_java(java.lang.String)))
         end
 
-        post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
+        post :create, params: { :config_md5 => "1234abcd", :group => { :group => "name"} }
 
         expect(response.status).to eq(400)
         assert_template layout: false
@@ -213,7 +145,7 @@ describe Admin::PipelineGroupsController do
       it "should delete pipeline" do
         stub_save_for_success(@config)
 
-        delete :destroy, :pipeline_name => @pipeline.name().to_s, :group_name => "group1", :config_md5 => "1234abcd"
+        delete :destroy, params: { :pipeline_name => @pipeline.name().to_s, :group_name => "group1", :config_md5 => "1234abcd" }
 
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
@@ -231,7 +163,7 @@ describe Admin::PipelineGroupsController do
           result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', []))
         end
 
-        delete :destroy, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"
+        delete :destroy, params: { :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd" }
 
         expect(response.status).to eq(400)
         expect(assigns[:groups]).to eq(@groups.to_a)
@@ -257,7 +189,7 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should load a pipeline group for editing" do
-        get :edit, :group_name => "group1"
+        get :edit, params: { :group_name => "group1" }
 
         expect(assigns[:group]).to eq(@group)
         expect(assigns[:cruise_config]).to eq(@config)
@@ -265,7 +197,7 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should assign users and roles for autocomplete" do
-        get :edit, :group_name => "group1"
+        get :edit, params: { :group_name => "group1" }
 
         expect(assigns[:autocomplete_users]).to eq(["foo", "bar", "baz"].to_json)
         expect(assigns[:autocomplete_roles]).to eq(["foo_role", "bar_role", "baz_role"].to_json)
@@ -281,7 +213,7 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should load a pipeline group for editing" do
-        get :show, :group_name => "group1"
+        get :show, params: { :group_name => "group1" }
 
         expect(assigns[:group]).to eq(@group)
         expect(assigns[:cruise_config]).to eq(@config)
@@ -289,7 +221,7 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should assign users and roles for autocomplete" do
-        get :show, :group_name => "group1"
+        get :show, params: { :group_name => "group1" }
 
         expect(assigns[:autocomplete_users]).to eq(["foo", "bar", "baz"].to_json)
         expect(assigns[:autocomplete_roles]).to eq(["foo_role", "bar_role", "baz_role"].to_json)
@@ -307,7 +239,7 @@ describe Admin::PipelineGroupsController do
         stub_save_for_success(@config)
         expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-message-uuid")
 
-        put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
+        put :update, params: { :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"} }
 
         expect(response.status).to eq(302)
         expect(response).to redirect_to("http://test.host/admin/pipeline_group/new_group_name/edit?fm=random-message-uuid")
@@ -318,7 +250,7 @@ describe Admin::PipelineGroupsController do
           result.notFound(LocalizedMessage.string("DELETE_TEMPLATE"), HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
-        put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
+        put :update, params: { :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"} }
 
         expect(assigns[:cruise_config]).to eq(@config)
         expect(assigns[:group]).to eq(@group)
@@ -348,7 +280,7 @@ describe Admin::PipelineGroupsController do
       it "should move a pipeline" do
         stub_save_for_success(@config)
 
-        put :move, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"
+        put :move, params: { :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd" }
 
         expect(assigns[:groups]).to eq(@groups.to_a)
         expect(assigns[:pipeline_to_can_delete]).to eq({
@@ -381,7 +313,7 @@ describe Admin::PipelineGroupsController do
       it "should delete an empty pipeline group" do
         stub_save_for_success(@destroy_group_config)
 
-        delete :destroy_group, :group_name => "empty_group", :config_md5 => "1234abcd"
+        delete :destroy_group, params: { :group_name => "empty_group", :config_md5 => "1234abcd" }
 
         expect(assigns[:groups].size()).to eq(0)
       end
@@ -393,7 +325,7 @@ describe Admin::PipelineGroupsController do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@go_config_service).to receive(:doesMd5Match).with("my_md5").and_return(true)
 
-        get :possible_groups, :pipeline_name => "pipeline_1", :config_md5 => "my_md5"
+        get :possible_groups, params: { :pipeline_name => "pipeline_1", :config_md5 => "my_md5" }
 
         expect(assigns[:possible_groups]).to eq(["group2", "group3"])
         expect(assigns[:pipeline_name]).to eq("pipeline_1")

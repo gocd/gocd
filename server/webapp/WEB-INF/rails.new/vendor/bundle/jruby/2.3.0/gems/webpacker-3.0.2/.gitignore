@@ -1,0 +1,6 @@
+/.bundle
+/pkg
+/test/test_app/log
+node_modules
+.byebug_history
+/test/test_app/tmp

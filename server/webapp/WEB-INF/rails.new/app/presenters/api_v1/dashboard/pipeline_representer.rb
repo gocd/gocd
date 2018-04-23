@@ -32,11 +32,11 @@ module ApiV1
       end
 
       link :trigger do |opts|
-        opts[:url_builder].api_pipeline_action_url(pipeline.getName(), action: :'schedule')
+        opts[:url_builder].api_pipeline_schedule_url(pipeline.getName())
       end
 
       link :trigger_with_options do |opts|
-        opts[:url_builder].api_pipeline_action_url(pipeline.getName(), action: :'schedule')
+        opts[:url_builder].api_pipeline_schedule_url(pipeline.getName())
       end
 
       link :pause do |opts|

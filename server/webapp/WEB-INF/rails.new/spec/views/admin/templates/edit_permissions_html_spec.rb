@@ -58,7 +58,7 @@ describe "admin/templates/edit_permissions.html.erb" do
 
   def match_hidden_row form, name, type, admin, view
     form.find("textarea#USER_users_and_roles_template") do |textarea|
-      match_inputs  Capybara.string(textarea.text), name, type, admin, view
+      match_inputs  Capybara.string("<table><tr>#{textarea.text}</tr></table>"), name, type, admin, view
     end
   end
 

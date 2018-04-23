@@ -31,7 +31,7 @@ describe Api::StagesController do
     stage = StageMother.create_passed_stage("pipeline_name", 30, "stage_name", 2, "dev", java.util.Date.new())
     stage.setPipelineId(120)
     expect(@stage_service).to receive(:stageById).with(99).and_return(stage)
-    get 'index', :id => "99", :format => "xml", :no_layout => true
+    get 'index', params: {:id => "99", :no_layout => true}, format: :xml
 
     doc = Nokogiri::XML(response.body)
     stage_element = doc.xpath("stage[@name='stage_name'][@counter='2']")

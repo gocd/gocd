@@ -38,7 +38,7 @@ describe "admin/templates/index.html.erb" do
 
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     @go_config_service = double('go_config_service')
-    view.stub(:go_config_service).and_return(@go_config_service)
+    allow(view).to receive(:go_config_service).and_return(@go_config_service)
     allow(@go_config_service).to receive(:isPipelineEditable).and_return(true)
     set(cruise_config, "md5", "abcd1234")
   end

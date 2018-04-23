@@ -121,7 +121,7 @@ shared_examples_for :stage_parent_tree do
       end
 
       it "should render the tree view with a job selected" do
-        in_params(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent, :current_tab=>"tasks")
+        in_params(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent, :current_tab=>"tasks")
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
@@ -145,7 +145,7 @@ shared_examples_for :stage_parent_tree do
       end
 
       it "should retain the tab selection when moving from job to job" do
-        in_params(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent, :current_tab=>"artifacts")
+        in_params(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent, :current_tab=>"artifacts")
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
@@ -180,7 +180,7 @@ shared_examples_for :stage_parent_tree do
     end
 
     it "render the tree view for a job" do
-      in_params(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent)
+      in_params(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :stage_parent => @stage_parent)
 
       render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 

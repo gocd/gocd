@@ -18,8 +18,8 @@
 @import 'go-variables';
 @import 'variables';
 @import 'settings';
-@import 'foundation';
-@import "bourbon";
+@import 'foundation-sites/scss/foundation';
+@import "bourbon/app/assets/stylesheets/bourbon";
 @import 'font-awesome-glyphs';
 
 @mixin truncate-to-lines($line-count) {

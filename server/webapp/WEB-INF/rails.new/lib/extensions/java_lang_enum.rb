@@ -15,7 +15,7 @@
 ##########################################################################
 
 java.lang.Enum.class_eval do
-  def as_json(options)
+  def as_json(options = nil)
     to_s
   end
 

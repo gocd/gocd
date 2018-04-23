@@ -89,7 +89,7 @@ class Api::PipelinesController < Api::ApiController
       render_localized_operation_result(result)
       return
     end
-    render content_type: 'application/atom+xml'
+    render content_type: 'application/atom+xml', layout: false
   end
 
   def releaseLock

@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::ConfigReposController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -45,14 +45,14 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should render the package repo' do
         allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
-        get_with_api_header :show, id: @config_repo_id
+        get_with_api_header :show, params: { id: @config_repo_id }
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response(@config_repo, ApiV1::Config::ConfigRepoRepresenter))
       end
 
       it 'should render 404 when a config repo with specified id does not exist' do
         allow(@config_repo_service).to receive(:getConfigRepo).with('invalid-package-id').and_return(nil)
-        get_with_api_header :show, id: 'invalid-package-id'
+        get_with_api_header :show, params: { id: 'invalid-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -64,44 +64,23 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show, id: @config_repo_id)
+        expect(controller).to allow_action(:get, :show, params: { id: @config_repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :show, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
         expect(controller).to allow_action(:get, :show)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of config repo controller for specified repo id' do
-          expect(:get => 'api/admin/config_repos/foo').to route_to(action: 'show', controller: 'api_v1/admin/config_repos', id: 'foo')
-        end
-        it 'should route to show action of config repo controller for config id with dots' do
-          expect(:get => 'api/admin/config_repos/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/config_repos', id: 'foo.bar')
-        end
-      end
-
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of config repo controller without header' do
-          expect(:get => 'api/admin/config_repos/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/config_repos')
-          expect(:get => 'api/admin/config_repos/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/config_repos/foo')
-        end
       end
     end
   end
@@ -145,25 +124,6 @@ describe ApiV1::Admin::ConfigReposController do
         expect(controller).to allow_action(:get, :index)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of config repos controller' do
-          expect(:get => 'api/admin/config_repos').to route_to(action: 'index', controller: 'api_v1/admin/config_repos')
-        end
-      end
-
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-
-        it 'should not route to index action of config repos controller without header' do
-          expect(:get => 'api/admin/config_repos').to_not route_to(action: 'index', controller: 'api_v1/admin/config_repos')
-          expect(:get => 'api/admin/config_repos').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/config_repos')
-        end
-      end
-    end
   end
 
   describe "destroy" do
@@ -179,13 +139,13 @@ describe ApiV1::Admin::ConfigReposController do
           result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'config repo', @config_repo_id))
         end
 
-        delete_with_api_header :destroy, id: @config_repo_id
+        delete_with_api_header :destroy, params: { id: @config_repo_id }
         expect(response).to have_api_message_response(200, "The config repo '#{@config_repo_id}' was deleted successfully.")
       end
 
       it 'should render 404 when config repo does not exist' do
         allow(@config_repo_service).to receive(:getConfigRepo).with('invalid-package-id').and_return(nil)
-        delete_with_api_header :destroy, id: 'invalid-package-id'
+        delete_with_api_header :destroy, params: { id: 'invalid-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -197,46 +157,25 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy, id: @config_repo_id)
+        expect(controller).to allow_action(:delete, :destroy, params: { id: @config_repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:delete, :destroy, id: @config_repo_id)
+        expect(controller).to allow_action(:delete, :destroy, params: { id: @config_repo_id })
       end
 
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destroy action of config repo controller for specified repo id' do
-          expect(:delete => 'api/admin/config_repos/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/config_repos', id: 'foo')
-        end
-
-        it 'should route to delete action of config repo controller for id with dots' do
-          expect(:delete => 'api/admin/config_repos/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/config_repos', id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of config repos controller without header' do
-          expect(:delete => 'api/admin/config_repos/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/config_repos')
-          expect(:delete => 'api/admin/config_repos/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/config_repos/foo')
-        end
-      end
     end
   end
 
@@ -250,18 +189,18 @@ describe ApiV1::Admin::ConfigReposController do
       it 'should render 200 created when config repo is created' do
         allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo)
         expect(@config_repo_service).to receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
-        post_with_api_header :create, :config_repo => get_config_repo_json(@config_repo_id)
+        post_with_api_header :create, params: { :config_repo => get_config_repo_json(@config_repo_id) }
 
         expect(response.status).to be(200)
         expect(actual_response).to eq(expected_response(@config_repo, ApiV1::Config::ConfigRepoRepresenter))
       end
-      
+
       it 'should render the error occurred while creating a package' do
         expect(@config_repo_service).to receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
-        post_with_api_header :create, :config_repo => get_config_repo_json(@config_repo_id)
+        post_with_api_header :create, params: { :config_repo => get_config_repo_json(@config_repo_id) }
         expect(response).to have_api_message_response(422, "Save failed. Validation failed")
       end
     end
@@ -288,23 +227,6 @@ describe ApiV1::Admin::ConfigReposController do
         expect(controller).to allow_action(:post, :create)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of config repo controller' do
-          expect(:post => 'api/admin/config_repos').to route_to(action: 'create', controller: 'api_v1/admin/config_repos')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of config repo controller without header' do
-          expect(:post => 'api/admin/config_repos').to_not route_to(action: 'create', controller: 'api_v1/admin/config_repos')
-          expect(:post => 'api/admin/config_repos').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/config_repos')
-        end
-      end
-    end
   end
 
   describe "update" do
@@ -322,7 +244,7 @@ describe ApiV1::Admin::ConfigReposController do
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
 
-        put_with_api_header :update, id: @config_repo_id, :config_repo => hash
+        put_with_api_header :update, params: { id: @config_repo_id, :config_repo => hash }
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response(@config_repo, ApiV1::Config::ConfigRepoRepresenter))
       end
@@ -332,7 +254,7 @@ describe ApiV1::Admin::ConfigReposController do
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
         hash = get_config_repo_json(@config_repo_id)
 
-        put_with_api_header :update, id: @config_repo_id, :config_repo => hash
+        put_with_api_header :update, params: { id: @config_repo_id, :config_repo => hash }
 
         expect(response.status).to eq(412)
         expect(actual_response).to eq({:message => "Someone has modified the configuration for config repo '#{@config_repo_id}'. Please update your copy of the config with the changes."})
@@ -342,7 +264,7 @@ describe ApiV1::Admin::ConfigReposController do
         allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo_id)
         hash = get_config_repo_json(@config_repo_id)
 
-        put_with_api_header :update, id: @config_repo_id, :config_repo => hash
+        put_with_api_header :update, params: { id: @config_repo_id, :config_repo => hash }
 
         expect(response.status).to eq(412)
         expect(actual_response).to eq({:message => "Someone has modified the configuration for config repo '#{@config_repo_id}'. Please update your copy of the config with the changes."})
@@ -350,10 +272,10 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should render 404 when a package does not exist' do
         allow(@config_repo_service).to receive(:getConfigRepo).with('non-existent-package-id').and_return(nil)
-        put_with_api_header :update, id: 'non-existent-package-id'
+        put_with_api_header :update, params: { id: 'non-existent-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
-      
+
     end
 
     describe "security" do
@@ -364,45 +286,25 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:put, :update, id: @config_repo_id)
+        expect(controller).to allow_action(:put, :update, params: { id: @config_repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:put, :update, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:put, :update, id: @config_repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { id: @config_repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:put, :update, id: @config_repo_id)
+        expect(controller).to allow_action(:put, :update, params: { id: @config_repo_id })
       end
 
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of config repo controller for specified package id' do
-          expect(:put => 'api/admin/config_repos/foo123').to route_to(action: 'update', controller: 'api_v1/admin/config_repos', id: 'foo123')
-        end
-        it 'should route to update action of config repo controller for package_id with dots' do
-          expect(:put => 'api/admin/config_repos/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/config_repos', id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of packages controller without header' do
-          expect(:put => 'api/admin/config_repos/foo').to_not route_to(put: 'update', controller: 'api_v1/admin/config_repos')
-          expect(:put => 'api/admin/config_repos/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/config_repos/foo')
-        end
-      end
     end
   end
 

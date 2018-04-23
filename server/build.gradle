@@ -15,9 +15,9 @@
  */
 
 
+
 import com.thoughtworks.go.build.VerifyJarTask
 import org.eclipse.jgit.api.Git
-import org.jruby.CompatVersion
 import org.jruby.Ruby
 import org.jruby.RubyInstanceConfig
 
@@ -34,7 +34,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: versions.jruby
     classpath group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit
   }
 }
@@ -161,6 +161,7 @@ dependencies {
 
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
+  compile group: 'org.jruby', name: 'jruby-complete', version: versions.jruby
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
@@ -199,7 +200,8 @@ dependencies {
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
-  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
   testCompile group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit
@@ -241,16 +243,22 @@ def findGemsToNotPack = {
   Ruby ruby
   try {
     def config = new RubyInstanceConfig()
-    config.compatVersion = CompatVersion.RUBY2_0
     config.output = System.out
     config.error = System.err
     config.compileMode = RubyInstanceConfig.CompileMode.OFF
+    config.loadPaths.add(project.file("${project.railsRoot}/vendor/bundle/jruby/2.3.0/gems/bundler-${project.versions.gems.bundler}/lib").toString())
 
     ruby = Ruby.newInstance(config)
     gems = ruby.evalScriptlet(
       """
+          raise "This patch was a workaround for https://github.com/jruby/jruby/issues/3953 and it's fixed in a newer JRuby. Current version of JRuby is #{JRUBY_VERSION}" unless JRUBY_VERSION == '9.1.14.0'
+          class File
+            def self.symlink?(file)
+              java::nio::file::Files.isSymbolicLink(java.io.File.new(file.to_s).toPath())
+            end
+          end
+
           Dir.chdir('${project.railsRoot}') do
-            \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
             require 'bundler'
             require 'json'
             definition = ::Bundler.definition
@@ -592,9 +600,9 @@ task war(type: Jar) {
     exclude("**/rails.new/app/views/**/*.*")
     exclude("**/rails.new/webpack/")
     findGemsToNotPack().each { gem ->
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.3.0/gems/${gem}")
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.3.0/specifications/${gem}.gemspec")
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.3.0/build_info/${gem}.info")
     }
   }
 
@@ -677,7 +685,7 @@ task verifyWar(type: VerifyJarTask) {
         "jdom-2.0.2.jar",
         "joda-time-2.3.jar",
         "jolt-core-0.1.0.jar",
-        "jruby-complete-1.7.26.jar",
+        "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${versions.rack}.jar",
         "jsch-0.1.54.jar",
         "json-utils-0.1.0.jar",

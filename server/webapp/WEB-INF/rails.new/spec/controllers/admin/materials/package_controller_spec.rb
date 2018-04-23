@@ -80,7 +80,7 @@ describe Admin::Materials::PackageController do
 
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        post :create, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}
+        post :create, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}} }
 
         expect(@pipeline.materialConfigs().size).to eq(2)
         expect(@cruise_config.getAllErrors().size).to eq(0)
@@ -101,7 +101,7 @@ describe Admin::Materials::PackageController do
 
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}, :finger_print => @material.getPipelineUniqueFingerprint()
+        put :update, params: { :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}, :finger_print => @material.getPipelineUniqueFingerprint() }
 
         expect(@pipeline.materialConfigs().size).to eq(1)
         expect(@cruise_config.getAllErrors().size).to eq(0)

@@ -23,7 +23,7 @@ dependencies {
   compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: '0.1.0'
   compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: '0.1.0'
 
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle)
 
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
   testCompile project(':test:test-utils')

@@ -33,12 +33,12 @@ describe 'stages/stage.html.erb' do
     @stage_history_page = stage_history_page(10)
     assign :stage_history_page, stage_history_page(10)
     empty_material_revision_arr = [].to_java(MaterialRevision)
-    @revisions = MaterialRevisions.new( empty_material_revision_arr)
+    @revisions = MaterialRevisions.new(empty_material_revision_arr)
     @revisions.addAll(ModificationsMother.multipleModifications())
     @revisions.addAll(ModificationsMother.multipleModifications(MaterialsMother.hgMaterial()))
     allow(view).to receive(:render_comment).and_return("link to traker")
-    assign :pipeline, @pipeline =  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false, @revisions).getLatestPipelineInstance()
-    assign :current_tab,  "overview"
+    assign :pipeline, @pipeline = pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false, @revisions).getLatestPipelineInstance()
+    assign :current_tab, "overview"
     assign :fbh_pipeline_instances, []
   end
 
@@ -75,7 +75,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        allow(view).to receive(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
@@ -170,21 +169,15 @@ describe 'stages/stage.html.erb' do
         end
 
         it "should show links to other stage runs" do
-          in_params :action => 'foo'
-          allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
-            "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
-          end
-          expect(view).to receive(:stage_detail_tab_path).with(:stage_counter => 1, :action => "foo").and_return("url_to_1")
-          expect(view).to receive(:stage_detail_tab_path).with(:stage_counter => 3, :action => "foo").and_return("url_to_3")
           render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
 
           Capybara.string(response.body).find(".other_runs").tap do |other_runs|
-            other_runs.find("li a[href='url_to_1']").tap do |f|
+            other_runs.find("li a[href='/pipelines/pipeline_name/10/dev/1/overview']").tap do |f|
               expect(f).to have_selector "span", :text => "Run: 1 of 3"
               expect(f).to have_selector ".color_code.Passed"
               expect(f).to have_selector ".message", :text => "Passed"
             end
-            other_runs.find("li a[href='url_to_3']").tap do |f|
+            other_runs.find("li a[href='/pipelines/pipeline_name/10/dev/3/overview']").tap do |f|
               expect(f).to have_selector "span", :text => "Run: 3 of 3"
               expect(f).to have_selector ".color_code.Failed"
               expect(f).to have_selector ".message", :text => "Failed"
@@ -199,7 +192,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        allow(view).to receive(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
         assign(:stage, stage_with_all_jobs_passed())
       end
@@ -223,7 +215,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        allow(view).to receive(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -240,32 +231,21 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render urls" do
-        allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
-          "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
-        end
-
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"overview"}).and_return("overview_link")
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"pipeline"}).and_return("pipeline_link")
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"jobs"}).and_return("jobs_link")
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"materials"}).and_return("materials_link")
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"tests"}).and_return("fbh_link")
-        allow(view).to receive(:stage_detail_tab_path).with({:action=>"stage_config"}).and_return("config_link")
-        expect(view).to receive(:stage_detail_tab_path).with(:format => 'json', :action=>'jobs').and_return("link_to_json")
         in_params :action => 'jobs'
         assign :jobs, []
         render
 
         Capybara.string(response.body).find(".sub_tabs_container").tap do |f|
-          expect(f).to have_selector "a[href='pipeline_link']", :text => "Pipeline Dependencies"
-          expect(f).to have_selector "a[href='materials_link']", :text => "Materials"
-          expect(f).to have_selector ".current a[href='jobs_link']", :text => "Jobs"
-          expect(f).to have_selector "a[href='fbh_link']", :text => "Tests"
-          expect(f).to have_selector "a[href='overview_link']", :text => "Overview"
-          expect(f).to have_selector "a[href='config_link']", :text => "Config"
+          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/pipeline']", :text => "Pipeline Dependencies"
+          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/materials']", :text => "Materials"
+          expect(f).to have_selector ".current a[href='/pipelines/pipeline_name/10/stage_name/3/jobs']", :text => "Jobs"
+          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/tests']", :text => "Tests"
+          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/overview']", :text => "Overview"
+          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/stage_config']", :text => "Config"
         end
 
         Capybara.string(response.body).find("script[type='text/javascript']", :visible => false).tap do |script_tag|
-          expect(script_tag.text).to include "link_to_json"
+          expect(script_tag.text).to include "/pipelines/pipeline_name/10/stage_name/3/jobs.json"
         end
       end
     end
@@ -277,7 +257,6 @@ describe 'stages/stage.html.erb' do
 
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        allow(view).to receive(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -417,7 +396,7 @@ describe 'stages/stage.html.erb' do
       describe "failingTestsWithMultiplePipelines" do
         before(:each) do
           job_identifier = JobIdentifier.new(nil, 1, nil, nil, nil, "job-1")
-          @failing_tests = StageTestRuns.new(2,1,1)
+          @failing_tests = StageTestRuns.new(2, 1, 1)
           @failing_tests.add(10, "1.0", "suite1", "test1-2", TestStatus::Failure, job_identifier)
           @failing_tests.add(10, "1.0", "suite1", "test1-1", TestStatus::Error, job_identifier)
           @failing_tests.add(11, "1.1", "suite1", "test1-1", TestStatus::Error, job_identifier)
@@ -445,7 +424,7 @@ describe 'stages/stage.html.erb' do
             @passed_stage = StageMother.custom("dev")
             @passed_stage.passed()
             @passed_stage.setIdentifier(@failing_stage.getIdentifier())
-            check_fragment_caching(@failing_stage, @passed_stage, proc {|stage| [ViewCacheKey.new.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), {:subkey => ViewCacheKey.new.forFailedBuildHistoryStage( stage, "html" )}]}) do |stage|
+            check_fragment_caching(@failing_stage, @passed_stage, proc {|stage| [ViewCacheKey.new.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), {:subkey => ViewCacheKey.new.forFailedBuildHistoryStage(stage, "html")}]}) do |stage|
               assign :stage, stage_model_for(stage)
               render
             end
@@ -460,7 +439,7 @@ describe 'stages/stage.html.erb' do
             allow(view).to receive(:view_cache_key).and_return(key = double('view_cache_key'))
             expect(key).to receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
             expect(key).to receive(:forFailedBuildHistoryStage).with(failing_stage, "html").and_return("stage_fbh_html_key")
-            expect(view).to receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest=>true)
+            expect(view).to receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest => true)
             render
           end
         end
@@ -530,7 +509,6 @@ describe 'stages/stage.html.erb' do
           @failing_tests = StageTestRuns.new(2, 0, 0)
           assign :failing_tests, @failing_tests
         end
-
 
 
         it "should show the number of test runs if the stage passed" do
@@ -644,7 +622,7 @@ describe 'stages/stage.html.erb' do
     describe "stats tab" do
       before(:each) do
         params[:action] = "stats"
-        assign :chart_stage_duration, [{"link"=> "/pipelines/pipeline-name/1/stage/1", "x" => 1, "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1", "x" => 2, "y"=> 20.0}].to_json
+        assign :chart_stage_duration, [{"link" => "/pipelines/pipeline-name/1/stage/1", "x" => 1, "y" => 10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1", "x" => 2, "y" => 20.0}].to_json
         assign :chart_tooltip_data, {"1_60" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_120" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
         assign :pagination, Pagination.pageStartingAt(12, 200, 10)
         assign :start_end_dates, ["start date", "end date"]
@@ -666,8 +644,8 @@ describe 'stages/stage.html.erb' do
         render
 
         Capybara.string(response.body).find("#stage_stats .stats").tap do |f|
-          expect(f).to have_selector("a[href='#{stage_detail_tab_path(:action => "stats", :page_number => "1")}']", :text => "Newer")
-          expect(f).to have_selector("a[href='#{stage_detail_tab_path(:action => "stats", :page_number => "3")}']", :text => "Older")
+          expect(f).to have_selector("a[href='#{stage_detail_tab_stats_path(:action => "stats", :page_number => "1")}']", :text => "Newer")
+          expect(f).to have_selector("a[href='#{stage_detail_tab_stats_path(:action => "stats", :page_number => "3")}']", :text => "Older")
         end
       end
     end
@@ -675,7 +653,7 @@ describe 'stages/stage.html.erb' do
     describe "config tab" do
       before(:each) do
         params[:action] = "stage_config"
-        assign :ran_with_config_revision,  GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", TimeProvider.new);
+        assign :ran_with_config_revision, GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", TimeProvider.new);
         allow(view).to receive(:is_user_an_admin?).and_return(true)
       end
 

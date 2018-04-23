@@ -43,7 +43,7 @@ describe Admin::JobsController, "view" do
 
     describe "edit settings" do
       it "should display 'Job Name' " do
-        get :edit, :stage_parent=> "pipelines", :current_tab => "settings", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, params: { :stage_parent=> "pipelines", :current_tab => "settings", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s }
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("input[name='job[name]']")
       end
@@ -53,7 +53,7 @@ describe Admin::JobsController, "view" do
       include FormUI
 
       it "should display artifacts title, instruction and list of artifacts" do
-        get :edit,:stage_parent=> "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, params: {:stage_parent=> "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s}
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("h3", :text=>"Artifacts")
 
@@ -74,7 +74,7 @@ describe Admin::JobsController, "view" do
         error.add(BuildArtifactConfig::DEST, "Dest is wrong")
         set(@artifact1, "errors", error)
 
-        get :edit, :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
+        get :edit, params: { :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s }
 
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("h3", :text=>"Artifacts")

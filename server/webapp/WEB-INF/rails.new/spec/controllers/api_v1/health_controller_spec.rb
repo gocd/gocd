@@ -33,16 +33,6 @@ describe ApiV1::HealthController do
       end
     end
 
-    describe 'route' do
-      it 'should route to show action of the health controller' do
-        expect(:get => 'api/v1/health').to route_to(action: 'show', controller: 'api_v1/health')
-      end
-
-      it 'should route to errors without custom header' do
-        expect(:get => 'api/v12/health').to route_to(controller: 'application', action: 'unresolved', url: 'api/v12/health')
-      end
-    end
-
     describe 'response' do
       it 'should render an ok response' do
         get :show

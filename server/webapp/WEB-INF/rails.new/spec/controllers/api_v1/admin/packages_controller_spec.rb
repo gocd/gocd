@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::PackagesController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -81,23 +81,6 @@ describe ApiV1::Admin::PackagesController do
         expect(controller).to allow_action(:get, :index)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of packages controller' do
-          expect(:get => 'api/admin/packages').to route_to(action: 'index', controller: 'api_v1/admin/packages')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of packages controller without header' do
-          expect(:get => 'api/admin/packages').to_not route_to(action: 'index', controller: 'api_v1/admin/packages')
-          expect(:get => 'api/admin/packages').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -109,14 +92,14 @@ describe ApiV1::Admin::PackagesController do
     describe "for_admins" do
       it 'should render the package' do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
-        get_with_api_header :show, package_id: @package_id
+        get_with_api_header :show, params: { package_id: @package_id }
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response({package: @package}, ApiV1::Config::PackageRepresenter))
       end
 
       it 'should render 404 when a package with specified id does not exist' do
         allow(@package_definition_service).to receive(:find).with('invalid-package-id').and_return(nil)
-        get_with_api_header :show, package_id: 'invalid-package-id'
+        get_with_api_header :show, params: { package_id: 'invalid-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -128,18 +111,18 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show, package_id: @package_id)
+        expect(controller).to allow_action(:get, :show, params: { package_id: @package_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :show, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -150,26 +133,6 @@ describe ApiV1::Admin::PackagesController do
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
         expect(controller).to allow_action(:get, :show)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of packages controller for specified package id' do
-          expect(:get => 'api/admin/packages/foo').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo')
-        end
-        it 'should route to show action of packages controller for package_id with dots' do
-          expect(:get => 'api/admin/packages/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of packages controller without header' do
-          expect(:get => 'api/admin/packages/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/packages')
-          expect(:get => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')
-        end
       end
     end
   end
@@ -187,13 +150,13 @@ describe ApiV1::Admin::PackagesController do
           result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'package definition', @package.getId))
         end
 
-        delete_with_api_header :destroy, package_id: @package_id
+        delete_with_api_header :destroy, params: { package_id: @package_id }
         expect(response).to have_api_message_response(200, "The package definition '#{@package_id}' was deleted successfully.")
       end
 
       it 'should render 404 when package does not exist' do
         allow(@package_definition_service).to receive(:find).with('invalid-package-id').and_return(nil)
-        delete_with_api_header :destroy, package_id: 'invalid-package-id'
+        delete_with_api_header :destroy, params: { package_id: 'invalid-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -205,18 +168,18 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy, package_id: @package_id)
+        expect(controller).to allow_action(:delete, :destroy, params: { package_id: @package_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -227,27 +190,6 @@ describe ApiV1::Admin::PackagesController do
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
         expect(controller).to allow_action(:delete, :destroy)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destroy action of packages controller for specified package id' do
-          expect(:delete => 'api/admin/packages/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo')
-        end
-
-        it 'should route to delete action of packages controller for package_id with dots' do
-          expect(:delete => 'api/admin/packages/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of packages controller without header' do
-          expect(:delete => 'api/admin/packages/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/packages')
-          expect(:delete => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')
-        end
       end
     end
   end
@@ -266,7 +208,7 @@ describe ApiV1::Admin::PackagesController do
       it 'should render 200 created when package is created' do
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
         expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
-        post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
+        post_with_api_header :create, params: { :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]} }
 
         expect(response.status).to be(200)
         expect(actual_response).to eq(expected_response({package: @package}, ApiV1::Config::PackageRepresenter))
@@ -275,7 +217,7 @@ describe ApiV1::Admin::PackagesController do
       it 'should generate id if id is not provided by user' do
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
         expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
-        post_with_api_header :create, :package => {name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
+        post_with_api_header :create, params: { :package => {name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]} }
 
         expect(actual_response).to have_key(:id)
       end
@@ -287,13 +229,13 @@ describe ApiV1::Admin::PackagesController do
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
-        post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
+        post_with_api_header :create, params: { :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]} }
         expect(response).to have_api_message_response(422, "Save failed. Validation failed")
       end
 
       it 'should render error when the repository to which the package belongs is not found' do
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
-        post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
+        post_with_api_header :create, params: { :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]} }
         expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
       end
     end
@@ -328,23 +270,6 @@ describe ApiV1::Admin::PackagesController do
         expect(controller).to allow_action(:post, :create)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of packages controller' do
-          expect(:post => 'api/admin/packages').to route_to(action: 'create', controller: 'api_v1/admin/packages')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of packages controller without header' do
-          expect(:post => 'api/admin/packages').to_not route_to(action: 'create', controller: 'api_v1/admin/packages')
-          expect(:post => 'api/admin/packages').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages')
-        end
-      end
-    end
   end
 
   describe "update" do
@@ -372,7 +297,7 @@ describe ApiV1::Admin::PackagesController do
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
 
-        put_with_api_header :update, package_id: @package_id, :package => hash
+        put_with_api_header :update, params: { package_id: @package_id, :package => hash }
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response({package: @package}, ApiV1::Config::PackageRepresenter))
       end
@@ -383,7 +308,7 @@ describe ApiV1::Admin::PackagesController do
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
         hash = {name: @package_name, configuration:[ {key: "PACKAGE_ID", value:"prettyjson"}]}
 
-        put_with_api_header :update, package_id: @package_id, :package => hash
+        put_with_api_header :update, params: { package_id: @package_id, :package => hash }
 
         expect(response.status).to eq(412)
         expect(actual_response).to eq({:message => "Someone has modified the configuration for package '#{@package_id}'. Please update your copy of the config with the changes."})
@@ -394,7 +319,7 @@ describe ApiV1::Admin::PackagesController do
         allow(controller).to receive(:check_for_repository).and_return(nil)
         hash = {name: @package_name, configuration:[ {key: "PACKAGE_ID", value:"prettyjson"}]}
 
-        put_with_api_header :update, package_id: @package_id, :package => hash
+        put_with_api_header :update, params: { package_id: @package_id, :package => hash }
 
         expect(response.status).to eq(412)
         expect(actual_response).to eq({:message => "Someone has modified the configuration for package '#{@package_id}'. Please update your copy of the config with the changes."})
@@ -402,7 +327,7 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should render 404 when a package does not exist' do
         allow(@package_definition_service).to receive(:find).with('non-existent-package-id').and_return(nil)
-        put_with_api_header :update, package_id: 'non-existent-package-id'
+        put_with_api_header :update, params: { package_id: 'non-existent-package-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
@@ -410,7 +335,7 @@ describe ApiV1::Admin::PackagesController do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
-        put_with_api_header :update, package_id: @package_id, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
+        put_with_api_header :update, params: { package_id: @package_id, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]} }
         expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
       end
     end
@@ -423,48 +348,28 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:put, :update, package_id: @package_id)
+        expect(controller).to allow_action(:put, :update, params: { package_id: @package_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:put, :update, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:put, :update, package_id: @package_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { package_id: @package_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:put, :update, package_id: @package_id)
+        expect(controller).to allow_action(:put, :update, params: { package_id: @package_id })
       end
 
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to allow_action(:put, :update, package_id: @package_id)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of package controller for specified package id' do
-          expect(:put => 'api/admin/packages/foo123').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo123')
-        end
-        it 'should route to update action of packages controller for package_id with dots' do
-          expect(:put => 'api/admin/packages/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of packages controller without header' do
-          expect(:put => 'api/admin/packages/foo').to_not route_to(put: 'update', controller: 'api_v1/admin/packages')
-          expect(:put => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')
-        end
+        expect(controller).to allow_action(:put, :update, params: { package_id: @package_id })
       end
     end
   end

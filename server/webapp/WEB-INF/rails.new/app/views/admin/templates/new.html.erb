@@ -29,7 +29,7 @@
                            check_box_label_options = {}
                            if pipelineEmptyOrPegged
                              check_box_options[:disabled] = "disabled"
-                             check_box_label_options[:class] = "disabled" 
+                             check_box_label_options[:class] = "disabled"
                            end
                            check_box_options[:checked] = "checked" if extract_from
                            use_existing_pipeline_value = extract_from ? "1" : "0"
@@ -51,7 +51,7 @@
                             <div><%= l.string("THIS_PIPELINE_WILL_NOW_START_USING_NEWLY_CREATED_TEMPLATE") -%></div>
                         </div>
                     <% else %>
-                        <div id="pipelines_to_extract_from" class='<%= @pipeline.useExistingPipeline ? "" :"hidden" %>'>
+                        <div id="pipelines_to_extract_from" class='<%= @pipeline.useExistingPipeline ? "" : "hidden" %>'>
                             <div class="form_item_block">
                                 <%= f.select(com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::SELECTED_PIPELINE_NAME, @pipeline.pipelineNames, {:selected => @pipeline.selectedPipelineName()}) %>
                             </div>

@@ -17,12 +17,12 @@
 class Admin::TemplatesController < AdminController
   helper Admin::TemplatesHelper
 
-  before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions]
-  before_filter :check_admin_user_or_group_admin_user_and_401, only: [:new, :create]
-  before_filter :check_admin_or_template_admin_and_401, only: [:edit, :destroy, :update]
-  before_filter :load_templates_from_service, :only => :index
-  before_filter :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
-  before_filter :autocomplete_for_permissions, :only => [:edit_permissions]
+  before_action :check_admin_user_and_401, only: [:edit_permissions, :update_permissions]
+  before_action :check_admin_user_or_group_admin_user_and_401, only: [:new, :create]
+  before_action :check_admin_or_template_admin_and_401, only: [:edit, :destroy, :update]
+  before_action :load_templates_from_service, :only => :index
+  before_action :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
+  before_action :autocomplete_for_permissions, :only => [:edit_permissions]
 
   layout "admin", :except => [:new, :create]
 

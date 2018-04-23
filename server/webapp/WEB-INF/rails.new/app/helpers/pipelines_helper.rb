@@ -17,11 +17,12 @@
 module PipelinesHelper
   include RailsLocalizer
   include JavaImports
+  include StagesHelper
   include ERB::Util
 
   def stage_bar_url stage, action
     stage_id = stage.getIdentifier()
-    stage.isScheduled() ? stage_detail_tab_path(:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter(), :action => action) : "#"
+    stage.isScheduled() ? stage_detail_tab_path_for({:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter()}, action) : "#"
   end
 
   def run_stage_label stage
@@ -32,7 +33,7 @@ module PipelinesHelper
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
       "Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>"
     else
-    ""
+      ""
     end
   end
 
@@ -87,7 +88,7 @@ module PipelinesHelper
 
   def url_for_pipeline_instance(pipeline, options = {})
     stage = pipeline.latestStage()
-    stage_detail_tab_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :stage_name => stage.getName(), :stage_counter => stage.getCounter(), :action => "pipeline"}))
+    stage_detail_tab_path_for(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :stage_name => stage.getName(), :stage_counter => stage.getCounter()}), "pipeline")
   end
 
   def url_for_pipeline_value_stream_map(pipeline, options = {})
@@ -95,7 +96,7 @@ module PipelinesHelper
   end
 
   def url_for_dmr(dmr)
-    stage_detail_tab_path({:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter(), :action => "pipeline"})
+    stage_detail_tab_path_for({:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter()}, "pipeline")
   end
 
   def with_pipeline_analytics_support(&block)

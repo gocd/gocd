@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
 
   attr_accessor :error_template_for_request
 
-  before_filter :set_current_user, :local_access_only, :populate_config_validity, :set_site_urls_in_thread
+  before_action :set_current_user, :local_access_only, :populate_config_validity, :set_site_urls_in_thread
 
   helper_method :current_user_id_for_oauth
 
@@ -34,13 +34,18 @@ class ApplicationController < ActionController::Base
   helper Oauth2Provider::ApplicationHelper
 
   if Rails.env.development?
-    before_filter do |controller|
+    before_action do |controller|
       response.headers["X-Controller-Action"] = "#{params[:controller]}##{params[:action]}"
     end
   end
 
   if Rails.env.production?
     include ActionRescue
+  end
+
+  # in most places in java, we expect `params` to be a Map, which it currently is not.
+  def params
+    @_params ||= super.tap {|p| p.permit!}.to_unsafe_h
   end
 
   # user
@@ -125,8 +130,12 @@ class ApplicationController < ActionController::Base
 
   def render_if_error message, status
     return if (status < 400)
-    render_error_response message, status, (params[:no_layout] == true)
+    render_error_response message, status, no_layout?
     return true
+  end
+
+  def no_layout?
+    params[:no_layout] == true || params[:no_layout] == 'true'
   end
 
   def render_error_response message, status, is_text
@@ -150,13 +159,12 @@ class ApplicationController < ActionController::Base
     unless message == nil || message.last == "\n"
       message = message + "\n"
     end
-    render text: message, status: status
+    render plain: message, status: status
   end
 
-  def default_url_options(options = nil)
+  def default_url_options
     # bug with the rails test framework where it does not setup the params before invoking this causing a NPE
-    return {} unless params
-    params["autoRefresh"] ? {"autoRefresh" => params["autoRefresh"]} : {}
+    super.merge(params["autoRefresh"] ? {autoRefresh: params["autoRefresh"]} : {})
   end
 
   def default_as_empty_list
@@ -193,17 +201,4 @@ class ApplicationController < ActionController::Base
     request.env['java.servlet_request']
   end
 
-  def url_for(options = {})
-    if options.respond_to?(:has_key?)
-      options.reverse_merge!(:only_path => true)
-      force_ssl = (options.delete(:protocol) == "https")
-    end
-    cache_key_part = force_ssl ? "-force_ssl=true" : ""
-    cache_key = "rails_url_for-#{HashMapKey::hypen_safe_key_for(params)}-#{HashMapKey::hypen_safe_key_for(options)}#{cache_key_part}-#{request.host_with_port}-#{request.protocol}"
-    unless url = go_cache.get(BaseUrlChangeListener::URLS_CACHE_KEY, cache_key)
-      url = server_config_service.siteUrlFor(super(options), force_ssl || false)
-      go_cache.put(BaseUrlChangeListener::URLS_CACHE_KEY, cache_key, url)
-    end
-    url
-  end
 end

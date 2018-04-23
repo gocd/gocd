@@ -1,0 +1,25 @@
+---
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+  fixme:
+    enabled: true
+  rubocop:
+    enabled: false
+ratings:
+  paths:
+  - "**.rb"
+  - "bin/*"
+  - "exe/*"
+exclude_paths:
+- bundler.gemspec
+- "*.md"
+- lib/bundler/ssl_certs/*.pem
+- lib/bundler/vendor/**/*
+- lib/bundler/templates/**/*.tt
+- man/*
+- spec/**/*
+- Rakefile

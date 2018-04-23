@@ -16,7 +16,6 @@
 
 require 'rails_helper'
 
-
 describe AgentDetailsController do
 
   before do
@@ -24,19 +23,6 @@ describe AgentDetailsController do
     allow(controller).to receive(:agent_service).and_return(@agent_service = instance_double('com.thoughtworks.go.server.service.AgentService'))
     allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = instance_double('com.thoughtworks.go.server.service.JobInstanceService'))
   end
-
-  describe "routes" do
-    it "should resolve the route to an agent" do
-      expect(:get => "/agents/uuid").to route_to({:controller => "agent_details", :action => 'show',:uuid => "uuid"})
-      expect(controller.send(:agent_detail_path,:uuid=>"uuid")).to eq("/agents/uuid")
-    end
-
-    it "should resolve the route to an job run history for an agent" do
-      expect(:get => "/agents/uuid/job_run_history").to route_to({:controller => "agent_details", :action => 'job_run_history',:uuid => "uuid"})
-      expect(controller.send(:job_run_history_on_agent_path, :uuid=>"uuid")).to eq("/agents/uuid/job_run_history")
-    end
-  end
-
 
   describe "agent_details" do
     include AgentMother
@@ -49,7 +35,7 @@ describe AgentDetailsController do
     it "should show agent details" do
       expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
 
-      get "show", :uuid =>@uuid
+      get :show, params: { :uuid => @uuid }
 
       assert_template layout: :agent_detail
       assert_template "show"
@@ -62,7 +48,7 @@ describe AgentDetailsController do
       it "should show 404 when an agent is not found" do
         expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(AgentViewModel.new(com.thoughtworks.go.domain.NullAgentInstance.new(@uuid)))
 
-        get "show", :uuid => @uuid
+        get :show, params: { :uuid => @uuid }
         expect(response.status).to eq(404)
         expect(response.body).to have_content(/Agent with uuid '#{@uuid}' not found\./)
       end
@@ -72,7 +58,7 @@ describe AgentDetailsController do
       expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
       expect(@job_instance_service).to receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.completed, SortOrder::DESC, 1, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
-      get "job_run_history", :uuid => @uuid
+      get :job_run_history, params: { :uuid => @uuid }
 
       assert_template "job_run_history"
       assert_template layout: :agent_detail
@@ -84,7 +70,7 @@ describe AgentDetailsController do
       expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
       expect(@job_instance_service).to receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.stage, SortOrder::ASC, 3, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
-      get "job_run_history", :uuid => @uuid, :page => 3, :column => 'stage', :order => 'ASC'
+      get :job_run_history, params: { :uuid => @uuid, :page => 3, :column => 'stage', :order => 'ASC' }
 
       assert_template "job_run_history"
       assert_template layout: :agent_detail

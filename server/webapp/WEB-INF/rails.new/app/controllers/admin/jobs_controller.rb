@@ -20,7 +20,7 @@ module Admin
 
     load_stage_except_for :create, :update, :destroy
 
-    before_filter :load_jobs, :only => [:index, :edit]
+    before_action :load_jobs, :only => [:index, :edit]
 
     layout "application", :except => [:new, :create, :update]
 

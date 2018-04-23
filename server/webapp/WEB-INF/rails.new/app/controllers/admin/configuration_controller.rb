@@ -15,8 +15,8 @@
 ##########################GO-LICENSE-END##################################
 
 class Admin::ConfigurationController < AdminController
-  before_filter :fetch_config , :only => [:edit]
-  before_filter :tab_name, :page_title
+  before_action :fetch_config , :only => [:edit]
+  before_action :tab_name, :page_title
 
   def show
     config_map = admin_service.populateModel(HashMap.new)

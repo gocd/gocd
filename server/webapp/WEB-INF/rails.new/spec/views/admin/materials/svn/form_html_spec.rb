@@ -41,7 +41,7 @@ describe "_form.html.erb" do
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Svn Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'][value='svn://foo']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
-    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
+    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
     expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::ENCRYPTED_PASSWORD}]'][value='#{@material_config.getEncryptedPassword()}']", {visible: :hidden})
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::CHECK_EXTERNALS}]'][checked='checked']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='dest']")
@@ -107,7 +107,7 @@ describe "_form.html.erb" do
       expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
       expect(popup_form).to have_selector("div.form_error", :text => "Username is wrong")
 
-      expect(popup_form).to have_selector("div.field_with_errors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
       expect(popup_form).to have_selector("div.form_error", :text => "Password is wrong")
 
       expect(popup_form).to have_selector("div.field_with_errors input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::CHECK_EXTERNALS}]'][checked='checked']")

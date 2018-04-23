@@ -110,7 +110,7 @@ describe Admin::Materials::DependencyController do
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-      get :new, :pipeline_name => "pipeline-name"
+      get :new, params: { :pipeline_name => "pipeline-name" }
 
       expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"Ab\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline1\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
@@ -127,7 +127,7 @@ describe Admin::Materials::DependencyController do
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-      get :new, :pipeline_name => "pipeline-name"
+      get :new, params: { :pipeline_name => "pipeline-name" }
 
       expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
@@ -139,7 +139,7 @@ describe Admin::Materials::DependencyController do
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-      get :new, :pipeline_name => "pipeline-name"
+      get :new, params: { :pipeline_name => "pipeline-name" }
 
       expect(response.response_code).to eq(200)
       expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
@@ -153,7 +153,7 @@ describe Admin::Materials::DependencyController do
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       valid_fingerprint = pipeline.materialConfigs().first.getPipelineUniqueFingerprint()
-      get :edit, :pipeline_name => "pipeline-name", :finger_print => valid_fingerprint
+      get :edit, params: { :pipeline_name => "pipeline-name", :finger_print => valid_fingerprint }
 
       expect(response.response_code).to eq(200)
       expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
@@ -165,7 +165,7 @@ describe Admin::Materials::DependencyController do
 
       expect(@go_config_service).to receive(:loadForEdit).and_return(pipeline_config_for_edit)
 
-      get :edit, :pipeline_name => "pipeline-name", :finger_print => "invalid-fingerprint"
+      get :edit, params: { :pipeline_name => "pipeline-name", :finger_print => "invalid-fingerprint" }
 
       expect(response.response_code).to eq(404)
     end

@@ -20,8 +20,11 @@ module ApplicationHelper
   include RailsLocalizer
   include JavaImports
   include PrototypeHelper
-
   GO_MESSAGE_KEYS = [:error, :notice, :success]
+
+  def webpack_asset_paths(names)
+    WebpackStats.new.asset_paths(names)
+  end
 
   def url_for_path(java_path, options = {})
     path = java_path.sub(/^\//, "")
@@ -57,10 +60,10 @@ module ApplicationHelper
 
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
-    stage_detail_tab_path pipeline_name: stage_identifier.getPipelineName(),
-                          pipeline_counter: stage_identifier.getPipelineCounter(),
-                          stage_name: stage_identifier.getStageName(),
-                          stage_counter: stage_identifier.getStageCounter()
+    stage_detail_tab_default_path pipeline_name: stage_identifier.getPipelineName(),
+                                  pipeline_counter: stage_identifier.getPipelineCounter(),
+                                  stage_name: stage_identifier.getStageName(),
+                                  stage_counter: stage_identifier.getStageCounter()
   end
 
   def stage_identifier_for_locator(stage_locator_string)
@@ -96,7 +99,7 @@ module ApplicationHelper
   end
 
   def session_has key
-    session[key] || (default_key?(key) && GO_MESSAGE_KEYS.inject(false) { |found, key| found || flash.key?(key) })
+    session[key] || (default_key?(key) && GO_MESSAGE_KEYS.inject(false) {|found, key| found || flash.key?(key)})
   end
 
   def default_key? key
@@ -339,11 +342,11 @@ module ApplicationHelper
   end
 
   def blocking_link_to_remote_new(options = {})
-    [:name, :url, :update, :html, :before].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
+    [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
     options[:method] = "post"
 
-    tag_options = tag_options(options[:html], true)
+    tag_options = raw tag.tag_options(options[:html], true)
     %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
   end
 
@@ -379,9 +382,9 @@ module ApplicationHelper
 
   def link_to_remote_new(name, options = {}, html_options = nil)
     raise "Expected link name. Didn't find it." unless name
-    [:method, :url].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
+    [:method, :url].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
 
-    %Q|<a href="#" #{tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
+    %Q|<a href="#" #{raw tag.tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
   end
 
   def end_form_tag
@@ -452,7 +455,7 @@ module ApplicationHelper
 
   def render_pluggable_template(task_view_model, options = {})
     # The view is self here since this method will be called only from views.
-    options.reject { |key, val| key.is_a?(String) }.map { |key, val| options[key.to_s] = val }
+    options.reject {|key, val| key.is_a?(String)}.map {|key, val| options[key.to_s] = val}
     options.reverse_merge!(task_view_model.getParameters())
     render file: task_view_model.getTemplatePath(), locals: options
   end

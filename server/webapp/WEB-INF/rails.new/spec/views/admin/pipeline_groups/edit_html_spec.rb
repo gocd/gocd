@@ -36,7 +36,7 @@ describe "admin/pipeline_groups/edit.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='/admin/pipeline_group/group1'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']", {visible: :hidden})
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='put']", {visible: :hidden})
 
       expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']", {visible: :hidden})
 

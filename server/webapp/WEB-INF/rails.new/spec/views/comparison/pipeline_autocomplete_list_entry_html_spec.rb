@@ -32,7 +32,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
     Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
-      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
       pipeline.find("div.pipeline_details table").tap do |table|
@@ -57,7 +57,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
 
     Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
-      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
       pipeline.find("div.pipeline_details table").tap do |table|
@@ -78,7 +78,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
 
     Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
-      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
       pipeline.find("div.pipeline_details table").tap do |table|
@@ -97,7 +97,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
     Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
-      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
       expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
     end
@@ -122,13 +122,13 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
 
     capybara_string = Capybara.string(response.body)
 
-    capybara_string.find("a[href='#{stage_detail_tab_path(:pipeline_name => 'some_pipeline',
+    capybara_string.find("a[href='#{stage_detail_tab_default_path(:pipeline_name => 'some_pipeline',
                                                       :pipeline_counter => 19151,
                                                       :stage_name => 'dev',
                                                       :stage_counter => 35)}']").tap do |link|
       expect(link).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
     end
-    capybara_string.find("a[href='#{stage_detail_tab_path(:pipeline_name => 'some_pipeline',
+    capybara_string.find("a[href='#{stage_detail_tab_default_path(:pipeline_name => 'some_pipeline',
                                                       :pipeline_counter => 19151,
                                                       :stage_name => 'prod',
                                                       :stage_counter => 35)}']").tap do |link|
@@ -152,7 +152,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
     Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
-      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-915-label")
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3")
       pipeline.find("div.pipeline_details table").tap do |table|
         expect(table).to have_selector("tr td.label", :text => "Revision:")
         expect(table).to have_selector("tr td", :text => "revision-9151")

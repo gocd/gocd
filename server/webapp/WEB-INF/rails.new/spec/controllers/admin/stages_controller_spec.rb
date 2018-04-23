@@ -27,81 +27,6 @@ describe Admin::StagesController do
     allow(controller).to receive(:set_current_user)
   end
   include ConfigSaveStubbing
-  describe "routes" do
-    it "should resolve index" do
-      expect({:get => "/admin/pipelines/dev/stages"}).to route_to(:controller => "admin/stages", :action => "index", :pipeline_name => "dev", :stage_parent => "pipelines")
-    end
-
-    it "should resolve new" do
-      expect({:get => "/admin/pipelines/dev/stages/new"}).to route_to(:controller => "admin/stages", :action => "new", :pipeline_name => "dev", :stage_parent => "pipelines")
-    end
-
-    it "should resolve create" do
-      expect({:post => "/admin/pipelines/dev/stages"}).to route_to(:controller => "admin/stages", :action => "create", :pipeline_name => "dev", :stage_parent => "pipelines")
-    end
-
-    it "should resolve edit/settings" do
-      expect({:get => "/admin/pipelines/dev/stages/test.foo/settings"}).to route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings")
-      expect({:get => "/admin/templates/dev/stages/test.foo/settings"}).to route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "templates", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings")
-    end
-
-    it "should generate delete" do
-      expect(admin_stage_delete_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/baz.foo")
-      expect({:delete => "/admin/pipelines/foo.bar/stages/baz.foo"}).to route_to(:controller => "admin/stages", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo")
-    end
-
-    it "should resolve edit/environment_variables" do
-      expect({:get => "/admin/pipelines/dev/stages/baz.foo/environment_variables"}).to route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "environment_variables")
-    end
-
-    it "should generate edit/settings" do
-      expect(admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings")).to eq("/admin/pipelines/foo.bar/stages/baz.foo/settings")
-    end
-
-    it "should generate edit/environment_variables" do
-      expect(admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "environment_variables")).to eq("/admin/pipelines/foo.bar/stages/baz.foo/environment_variables")
-    end
-
-    it "should resolve update/settings" do
-      expect({:put => "/admin/pipelines/dev/stages/baz.foo/settings"}).to route_to(:controller => "admin/stages", :action => "update", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "settings")
-    end
-
-    it "should generate update/settings" do
-      expect(admin_stage_update_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings")).to eq("/admin/pipelines/foo.bar/stages/baz.foo/settings")
-    end
-
-    it "should generate index" do
-      expect(admin_stage_listing_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages")
-      expect({:get => "/admin/pipelines/foo.bar/stages"}).to route_to(:controller => "admin/stages", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "foo.bar")
-    end
-
-    it "should generate new" do
-      expect(admin_stage_new_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/new")
-    end
-
-    it "should generate create" do
-      expect(admin_stage_create_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages")
-    end
-
-    it "should generate edit" do
-      expect(admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "my.stage", :current_tab => "settings")).to eq("/admin/pipelines/foo.bar/stages/my.stage/settings")
-    end
-
-    it "should generate increment_index" do
-      expect(admin_stage_increment_index_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/baz.foo/index/increment")
-    end
-
-    it "should generate decrement_index" do
-      expect(admin_stage_decrement_index_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/baz.foo/index/decrement")
-    end
-
-    it "should generate use template" do
-      expect({:put => "/admin/pipelines/foo.bar/stages"}).to route_to(:controller => "admin/stages", :action => "use_template", :stage_parent=>"pipelines", :pipeline_name => "foo.bar")
-      expect(admin_stage_use_template_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages")
-    end
-
-  end
-
   describe "action" do
     before(:each) do
       allow(controller).to receive(:populate_config_validity)
@@ -135,7 +60,7 @@ describe Admin::StagesController do
       end
 
       it "should set current tab param" do
-        get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+        get :index, params: { :pipeline_name => "pipeline-name", :stage_parent => "pipelines" }
 
         expect(controller.params[:current_tab]).to eq('stages')
         assert_template layout: "pipelines/details"
@@ -146,7 +71,7 @@ describe Admin::StagesController do
         downstream = PipelineConfigMother.pipelineConfig("downstream", MaterialConfigsMother.dependencyMaterialConfig("pipeline-name", "stage-name"), JobConfigs.new)
         @cruise_config.addPipeline("defaultGroup", downstream)
 
-        get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+        get :index, params: { :pipeline_name => "pipeline-name", :stage_parent => "pipelines" }
 
         expect(assigns[:stage_usage].contains(upstream_stage)).to eq(true)
       end
@@ -159,7 +84,7 @@ describe Admin::StagesController do
         list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new("foo")), true, true), TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new("template-name")), true, true)]
         expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
 
-        get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+        get :index, params: { :pipeline_name => "pipeline-name", :stage_parent => "pipelines" }
 
         expect(assigns[:template_list]).to eq(list_of_templates)
       end
@@ -167,7 +92,7 @@ describe Admin::StagesController do
       it "should not bomb when there are no templates" do
         @cruise_config.getTemplates().removeTemplateNamed(CaseInsensitiveString.new("template-name"))
 
-        get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+        get :index, params: { :pipeline_name => "pipeline-name", :stage_parent => "pipelines" }
 
         expect(assigns[:template_list]).to eq([])
       end
@@ -185,7 +110,7 @@ describe Admin::StagesController do
       it "should load a blank exec task in a blank job" do
         allow(@go_config_service).to receive(:registry)
 
-        get :new, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+        get :new, params: { :pipeline_name => "pipeline-name", :stage_parent => "pipelines" }
 
         new_job = JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         new_stage = StageConfig.new(CaseInsensitiveString.new(""), JobConfigs.new([new_job].to_java(JobConfig)))
@@ -223,7 +148,7 @@ describe Admin::StagesController do
 
         stage = {:name => "stage", :jobs => [{:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}]}
         pipeline_name = "pipeline-name"
-        post :create, :stage_parent => "pipelines", :pipeline_name => pipeline_name, :config_md5 => "1234abcd", :stage => stage
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => pipeline_name, :config_md5 => "1234abcd", :stage => stage }
 
         expect(@cruise_config.getAllErrors().size).to eq(0)
         assert_save_arguments
@@ -246,7 +171,7 @@ describe Admin::StagesController do
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
         stage = {:name => "stage", :jobs => [job]}
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => stage
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => stage }
 
         task_to_be_saved = assigns[:pipeline].last().getJobs().first().getTasks().first()
         expect(task_to_be_saved.instance_of?(PluggableTask)).to eq(true)
@@ -267,7 +192,7 @@ describe Admin::StagesController do
 
 
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]} }
 
         expect(assigns[:config_file_conflict]).to eq(true)
         assert_save_arguments
@@ -280,7 +205,7 @@ describe Admin::StagesController do
 
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
 
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]} }
 
         expect(@cruise_config.getAllErrors().size).to eq(0)
         expect(@pipeline.size()).to eq(2)
@@ -298,7 +223,7 @@ describe Admin::StagesController do
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
 
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]} }
 
         assert_save_arguments
         expect(assigns[:task_view_models]).to eq(tvms)
@@ -317,7 +242,7 @@ describe Admin::StagesController do
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
 
 
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]} }
 
         expect(assigns[:errors].size).to eq(1)
         assert_save_arguments
@@ -337,7 +262,7 @@ describe Admin::StagesController do
 
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(tvms = [].to_java(TaskViewModel))
 
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123"}]}
+        post :create, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123"}]} }
 
         expect(assigns[:errors].size).to eq(2)
         expect(assigns[:errors][0]).to eq("someError")
@@ -357,7 +282,7 @@ describe Admin::StagesController do
       end
 
       it "should render error page if stage does not exist" do
-        get :edit, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "does_not_exist", :current_tab => "permissions"
+        get :edit, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "does_not_exist", :current_tab => "permissions" }
         assert_template "shared/config_error.html"
         assert_template layout: "layouts/application"
       end
@@ -377,7 +302,7 @@ describe Admin::StagesController do
         expect(user_service).to receive(:rolesThatCanOperateOnStage).and_return(["role1", "role2", "role3"])
         expect(user_service).to receive(:usersThatCanOperateOnStage).and_return(["user1", "user2", "user3"])
 
-        get :edit, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :current_tab => "permissions"
+        get :edit, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :current_tab => "permissions" }
 
         expect(assigns[:stage]).to eq(@pipeline.get(0))
         expect(assigns[:pipeline_group]).to eq(@pipeline_group)
@@ -403,7 +328,7 @@ describe Admin::StagesController do
         expect(user_service).to receive(:allRoleNames).and_return(["role1", "role2", "role3", "role4"])
         expect(user_service).to receive(:allUsernames).and_return(["user1", "user2", "user3", "user4"])
 
-        get :edit, :stage_parent => "templates", :pipeline_name => "template-name", :stage_name => "template-stage-name", :current_tab => "permissions"
+        get :edit, params: { :stage_parent => "templates", :pipeline_name => "template-name", :stage_name => "template-stage-name", :current_tab => "permissions" }
 
         expect(assigns[:stage]).to eq(@pipeline_template.get(0))
         expect(assigns[:pipeline_group]).to eq(nil)
@@ -424,7 +349,7 @@ describe Admin::StagesController do
       it "should update stage instance with form fields and save it" do
         stub_save_for_success
 
-        put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}
+        put :update, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]} }
 
         expect(assigns[:stage].getApproval().getType()).to eq("manual")
         environment_variable = assigns[:stage].variables().get(0)
@@ -441,7 +366,7 @@ describe Admin::StagesController do
       it "should redirect to edit form for the new stage-name when name is changed" do
         stub_save_for_success
 
-        put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}
+        put :update, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"} }
 
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         expect(response.location).to match(/\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/)
@@ -456,7 +381,7 @@ describe Admin::StagesController do
         @pipeline.set(0,stage_config)
         stub_save_for_success
 
-        put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => {:name => "g", :approval => {:type => "manual"}}, :default_as_empty_list => ["stage>variables"]
+        put :update, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => {:name => "g", :approval => {:type => "manual"}}, :default_as_empty_list => ["stage>variables"] }
 
         expect(assigns[:stage].variables().isEmpty()).to eq(true)
         assert_save_arguments
@@ -465,7 +390,7 @@ describe Admin::StagesController do
       it "should update stage permissions" do
         stub_save_for_success
 
-        put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}], :operateRoles => [{ :name => "role1"}, {:name => "role2"}]}
+        put :update, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}], :operateRoles => [{ :name => "role1"}, {:name => "role2"}]} }
 
         expect(assigns[:stage].getOperateUsers().get(0)).to eq(AdminUser.new(CaseInsensitiveString.new("user1")))
         expect(assigns[:stage].getOperateUsers().get(1)).to eq(AdminUser.new(CaseInsensitiveString.new("user2")))
@@ -480,7 +405,7 @@ describe Admin::StagesController do
           result.conflict(LocalizedMessage.modifiedBy("loser", Time.now.to_s))
         end
 
-        put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}
+        put :update, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"} }
 
         expect(response.location).to be_nil
         assert_template "permissions"
@@ -501,7 +426,7 @@ describe Admin::StagesController do
         stub_save_for_success
 
         @pipeline.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials('stage-to-delete'))
-        delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-to-delete", :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        delete :destroy, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-to-delete", :config_md5 => "1234abcd", :stage_parent => "pipelines" }
         expect(@pipeline.size()).to eq(1)
         expect(@pipeline.get(0).name()).to eq(CaseInsensitiveString.new("stage-name"))
 
@@ -546,7 +471,7 @@ describe Admin::StagesController do
         stub_save_for_success
         @cruise_config.addTemplate(PipelineTemplateConfig.new(CaseInsensitiveString.new("foo-template"), [StageConfigMother.stageWithTasks("stage_one")].to_java(StageConfig)))
 
-        put :use_template, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :pipeline => {com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME => "foo-template", com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE => com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE}
+        put :use_template, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :pipeline => {com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME => "foo-template", com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE => com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE} }
 
         expect(@pipeline.getTemplateName()).to eq(CaseInsensitiveString.new("foo-template"))
 

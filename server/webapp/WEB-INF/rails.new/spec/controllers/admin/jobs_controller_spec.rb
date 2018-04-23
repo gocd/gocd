@@ -38,40 +38,6 @@ describe Admin::JobsController do
     allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
   end
 
-  describe "routes" do
-    it "should resolve new" do
-      expect({:get => "/admin/pipelines/dev/stages/test.1/jobs/new"}).to route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
-      expect({:get => "/admin/templates/dev/stages/test.1/jobs/new"}).to route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "templates")
-      expect(admin_job_new_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/test.1/jobs/new")
-      expect(admin_job_new_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "templates")).to eq("/admin/templates/foo.bar/stages/test.1/jobs/new")
-    end
-
-    it "should resolve create" do
-      expect({:post => "/admin/pipelines/dev/stages/test.1/jobs"}).to route_to(:controller => "admin/jobs", :action => "create", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
-      expect(admin_job_create_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/test.1/jobs")
-    end
-
-    it "should resolve destroy" do
-      expect({:delete => "/admin/pipelines/dev/stages/test.1/job/job.1"}).to route_to(:controller => "admin/jobs", :action => "destroy", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines")
-    end
-
-    it "should generate index" do
-      expect({:get => "/admin/pipelines/dev/stages/test.1/jobs"}).to route_to(:controller => "admin/jobs", :action => "index", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
-      expect(admin_job_listing_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/test.1/jobs")
-    end
-
-    it "should generate destroy" do
-      # Cannot have route_for for DELETE as route_for does not honor the :method => :delete attribute
-      expect(admin_job_delete_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :job_name => "job.1", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/test.1/job/job.1")
-    end
-
-    it "should generate route for tabs" do
-      expect({:get => "/admin/pipelines/dev/stages/test.1/job/job.1/tabs"}).to route_to(:controller => "admin/jobs", :action => "edit", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines", :current_tab => "tabs")
-      expect(admin_job_edit_path(:pipeline_name => "foo.bar", :stage_name => "foo.bar", :job_name => "foo.bar", :current_tab => "tabs", :stage_parent => "templates")).to eq("/admin/templates/foo.bar/stages/foo.bar/job/foo.bar/tabs")
-      expect(admin_job_edit_path(:pipeline_name => "foo.bar", :stage_name => "foo.bar", :job_name => "foo.bar", :current_tab => "tabs", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/foo.bar/job/foo.bar/tabs")
-    end
-  end
-
   describe "action" do
     before(:each) do
       @cruise_config = BasicCruiseConfig.new()
@@ -99,7 +65,7 @@ describe Admin::JobsController do
 
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-        get :index, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines"
+        get :index, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines" }
 
         expect(assigns[:pipeline]).to eq(@pipeline)
         expect(assigns[:stage]).to eq(@pipeline.get(0))
@@ -123,7 +89,7 @@ describe Admin::JobsController do
         add_resource("job-2", "solaris")
         allow(@go_config_service).to receive(:registry)
 
-        get :new, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines"
+        get :new, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines" }
 
         expect(assigns[:pipeline]).to eq(@pipeline)
         expect(assigns[:stage]).to eq(@pipeline.get(0))
@@ -147,7 +113,7 @@ describe Admin::JobsController do
         stub_save_for_success
         expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
 
-        delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        delete :destroy, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         jobs = @pipeline.get(0).getJobs()
         expect(jobs.size()).to eq(2)
@@ -162,7 +128,7 @@ describe Admin::JobsController do
           result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
-        delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        delete :destroy, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         jobs = @pipeline.get(0).getJobs()
         expect(jobs.size()).to eq(2)
@@ -185,7 +151,7 @@ describe Admin::JobsController do
         add_resource("job-2", "fluff")
         add_resource("job-2", "Foo")
 
-        get :edit, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines"
+        get :edit, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         expect(assigns[:jobs]).not_to eq(nil)
         expect(assigns[:job]).to eq(@pipeline.get(0).getJobs().get(0))
@@ -194,7 +160,7 @@ describe Admin::JobsController do
       end
 
         it "should render error page if job does not exist" do
-          get :edit, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "does_not_exist", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines"
+          get :edit, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "does_not_exist", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines" }
           assert_template "shared/config_error.html"
           assert_template layout: "layouts/application"
         end
@@ -208,8 +174,8 @@ describe Admin::JobsController do
       it "should update job name and redirect to the new job" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"}, :stage_parent => "pipelines" }
 
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/renamed_job\/settings?.*?fm=(.+)/)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
@@ -221,8 +187,8 @@ describe Admin::JobsController do
         end
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-            :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+            :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines" }
 
         expect(response.location).to be_nil
         assert_template "settings"
@@ -237,8 +203,8 @@ describe Admin::JobsController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines" }
 
         expect(response.location).to be_nil
         expect(assigns[:autocomplete_resources]).to eq(["anything"].to_json)
@@ -251,8 +217,8 @@ describe Admin::JobsController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines" }
 
         expect(controller.instance_variable_get("@cruise_config").getMd5()).to eq("1234abcd")
         expect(@go_config_service).not_to receive(:loadForEdit)
@@ -261,7 +227,7 @@ describe Admin::JobsController do
       it "should update environment variables" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines" }
 
         variable = assigns[:job].variables().get(0)
         expect(variable.name).to eq("key")
@@ -274,7 +240,7 @@ describe Admin::JobsController do
      it "should update custom tabs" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines" }
 
         expect(assigns[:job].getTabs().get(0).name).to eq("tab1")
         expect(assigns[:job].getTabs().get(0).path).to eq("path1")
@@ -285,7 +251,7 @@ describe Admin::JobsController do
       it "should clear environment variables" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines" }
 
         expect(assigns[:job].variables().isEmpty).to eq(true)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
@@ -294,7 +260,7 @@ describe Admin::JobsController do
       it "should update resources" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines" }
 
         expect(assigns[:job].resourceConfigs().exportToCsv()).to eq("a, b, c, d, ")
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
@@ -303,7 +269,7 @@ describe Admin::JobsController do
       it "should populate an empty artifactConfigs when params is nil" do
         stub_save_for_success
 
-        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactConfigs"], :stage_parent => "pipelines"
+        put :update, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactConfigs"], :stage_parent => "pipelines" }
 
         expect(assigns[:job].artifactConfigs().size()).to eq(0)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
@@ -330,7 +296,7 @@ describe Admin::JobsController do
 
         pipeline_name = "pipeline-name"
         job = {:name => "new_job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}
-        post :create, :pipeline_name => pipeline_name, :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        post :create, params: { :pipeline_name => pipeline_name, :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         expect(@cruise_config.getAllErrors().size).to eq(0)
         assert_save_arguments
@@ -353,7 +319,7 @@ describe Admin::JobsController do
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
-        post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        post :create, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         task_to_be_saved = assigns[:job].getTasks().first()
         expect(task_to_be_saved.instance_of?(PluggableTask)).to eq(true)
@@ -367,7 +333,7 @@ describe Admin::JobsController do
       it "should create a new job" do
         stub_save_for_success
 
-        post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => { :name => "new_job" },  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        post :create, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => { :name => "new_job" },  :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         expect(assigns[:node].last).to eq(JobConfig.new("new_job"))
         expect(assigns[:job]).to eq(JobConfig.new("new_job"))
@@ -383,7 +349,7 @@ describe Admin::JobsController do
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
 
-        post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        post :create, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         assert_template "new"
         assert_template layout: false
@@ -402,7 +368,7 @@ describe Admin::JobsController do
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
 
-        post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+        post :create, params: { :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines" }
 
         expect(assigns[:autocomplete_resources]).to eq(["anything"].to_json)
         assert_template "new"

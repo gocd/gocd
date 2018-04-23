@@ -26,16 +26,6 @@ describe Admin::MaterialsController do
     allow(controller).to receive(:populate_config_validity)
   end
 
-  describe "routes" do
-    it "should resolve index" do
-      expect({:get => "/admin/pipelines/pipeline.name/materials"}).to route_to(:controller => "admin/materials", :action => "index", :stage_parent => "pipelines", :pipeline_name => "pipeline.name")
-    end
-
-    it "should generate index" do
-      expect(admin_material_index_path(:pipeline_name => "foo.bar")).to eq("/admin/pipelines/foo.bar/materials")
-    end
-  end
-
   describe "index" do
     before :each do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
@@ -52,7 +42,7 @@ describe Admin::MaterialsController do
     end
 
     it "should set current tab param" do
-      get :index, {:stage_parent => "pipelines", :pipeline_name => @pipeline_name}
+      get :index, params: { :stage_parent => "pipelines", :pipeline_name => @pipeline_name }
 
       expect(controller.params[:current_tab]).to eq('materials')
       assert_template layout: "pipelines/details"
@@ -86,7 +76,7 @@ describe Admin::MaterialsController do
       @pipeline.addMaterialConfig(hg = HgMaterialConfig.new("url", nil))
       expect(@pipeline.materialConfigs().size).to eq(2)
 
-      delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
+      delete :destroy, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint() }
 
       expect(@pipeline.materialConfigs().size).to eq(1)
       expect(@pipeline.materialConfigs().first).to eq(hg)
@@ -102,7 +92,7 @@ describe Admin::MaterialsController do
 
       expect(@pipeline.materialConfigs().size).to eq(1)
 
-      delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
+      delete :destroy, params: { :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint() }
 
       expect(@cruise_config.getAllErrors().size).to eq(1)
       expect(response.status).to eq(400)

@@ -28,7 +28,7 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-@ConfigTag(value = "fetchPluggableArtifact")
+@AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
     public static final String FETCH_PLUGGABLE_ARTIFACT = "Fetch Pluggable Artifact";
     @ConfigAttribute(value = "artifactId", optional = false)

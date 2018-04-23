@@ -2104,6 +2104,138 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString(artifactId3));
     }
 
+    @Test
+    public void shouldAddTypeAttributeOnFetchArtifactTag_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"106\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"stage1\">"
+                + "             <jobs>"
+                + "             <job name=\"job1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact type='build' src='foo/**' dest='cruise-output' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "         <stage name=\"stage2\">"
+                + "             <jobs>"
+                + "             <job name=\"job2\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                     <fetchartifact pipeline='foo' stage='stage1' job='job1' srcfile='foo/foo.txt'/>"
+                + "                     <fetchartifact pipeline='foo' stage='stage1' job='job1' srcdir='foo'/>"
+                + "                     <fetchartifact stage='stage1' job='job1' srcdir='foo' dest='dest_on_agent'/>"
+                + "                 </tasks>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 106);
+
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcfile=\"foo/foo.txt\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\""));
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\" dest=\"dest_on_agent\""));
+    }
+
+    @Test
+    public void shouldConvertFetchPluggableArtifactToFetchArtifactTagWithType_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"106\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <artifactStores>\n"
+                + "      <artifactStore id=\"foobar\" pluginId=\"cd.go.artifact.docker.registry\">\n"
+                + "        <property>\n"
+                + "          <key>RegistryURL</key>\n"
+                + "          <value>http://foo</value>\n"
+                + "        </property>\n"
+                + "      </artifactStore>\n"
+                + "    </artifactStores>"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"stage1\">"
+                + "             <jobs>"
+                + "             <job name=\"job1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact type='external' id='artifactId1' storeId='foobar' />"
+                + "                     <artifact type='external' id='artifactId2' storeId='foobar' />"
+                + "                     <artifact type='external' id='artifactId3' storeId='foobar' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "         <stage name=\"stage2\">"
+                + "             <jobs>"
+                + "             <job name=\"job2\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                     <fetchPluggableArtifact pipeline='foo' stage='stage1' job='job1' artifactId='artifactId1'/>"
+                + "                     <fetchPluggableArtifact pipeline='foo' stage='stage1' job='job1' artifactId='artifactId2'>"
+                + "                         <configuration>"
+                + "                             <property>"
+                + "                                 <key>dest</key>"
+                + "                                 <value>destination</value>"
+                + "                             </property>"
+                + "                         </configuration>"
+                + "                     </fetchPluggableArtifact>"
+                + "                     <fetchPluggableArtifact pipeline='foo' stage='stage1' job='job1' artifactId='artifactId3'>"
+                + "                         <configuration>"
+                + "                             <property>"
+                + "                                 <key>SomeSecureProperty</key>"
+                + "                                 <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                + "                             </property>"
+                + "                         </configuration>"
+                + "                     </fetchPluggableArtifact>"
+                + "                 </tasks>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 106);
+
+        String artifactId2 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
+                +"                         <configuration>"
+                +"                             <property>"
+                +"                                 <key>dest</key>"
+                +"                                 <value>destination</value>"
+                +"                             </property>"
+                +"                         </configuration>"
+                +"                     </fetchartifact>";
+
+        String artifactId3 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
+                +"                         <configuration>"
+                +"                             <property>"
+                +"                                 <key>SomeSecureProperty</key>"
+                +"                                 <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                +"                             </property>"
+                +"                         </configuration>"
+                +"                     </fetchartifact>";
+
+        assertThat(migratedContent, containsString("<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\""));
+        assertThat(migratedContent, containsString(artifactId2));
+        assertThat(migratedContent, containsString(artifactId3));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

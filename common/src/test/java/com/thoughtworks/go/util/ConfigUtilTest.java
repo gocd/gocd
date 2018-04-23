@@ -18,16 +18,13 @@ package com.thoughtworks.go.util;
 
 import java.util.List;
 
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.domain.Task;
 import org.junit.Test;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.hasItem;
 
@@ -35,9 +32,10 @@ public class ConfigUtilTest {
     @Test
     public void shouldGetAllTasks() {
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
-        registry.registerImplementer(Task.class, AntTask.class, ExecTask.class, NantTask.class, RakeTask.class, FetchTask.class);
+        registry.registerImplementer(Task.class, AntTask.class, ExecTask.class, NantTask.class, RakeTask.class, FetchTask.class, FetchPluggableArtifactTask.class);
 
         List<String> tasks = ConfigUtil.allTasks(registry);
+        assertThat(tasks.size(), is(5));
         assertThat(tasks, hasItem("ant"));
         assertThat(tasks, hasItem("exec"));
         assertThat(tasks, hasItem("nant"));

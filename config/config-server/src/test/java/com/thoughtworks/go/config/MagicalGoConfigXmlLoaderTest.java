@@ -3953,10 +3953,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
                 "              <artifact id=\"installer\" storeId=\"s3\" type=\"external\">\n" +
+                "               <configuration>" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
                 "                </property>\n" +
+                "               </configuration>" +
                 "              </artifact>\n" +
                 "            </artifacts>\n" +
                 "          </job>\n" +
@@ -4007,10 +4009,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
                 "              <artifact type=\"external\" storeId=\"s3\">\n" +
+                "               <configuration>" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
                 "                </property>\n" +
+                "               </configuration>" +
                 "              </artifact>\n" +
                 "            </artifacts>\n" +
                 "          </job>\n" +
@@ -4060,10 +4064,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
                 "              <artifact type=\"external\" id=\"installer\">\n" +
+                "               <configuration>" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
                 "                </property>\n" +
+                "               </configuration>" +
                 "              </artifact>\n" +
                 "            </artifacts>\n" +
                 "          </job>\n" +
@@ -4098,10 +4104,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "            </tasks>\n" +
                 "            <artifacts>\n" +
                 "              <artifact type=\"external\" id=\"installer\" storeId=\"s3\">\n" +
+                "               <configuration>" +
                 "                <property>\n" +
                 "                  <key>filename</key>\n" +
                 "                  <value>foo.xml</value>\n" +
                 "                </property>\n" +
+                "               </configuration>" +
                 "              </artifact>\n" +
                 "            </artifacts>\n" +
                 "          </job>\n" +

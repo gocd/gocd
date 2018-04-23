@@ -2085,7 +2085,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </pipelines>"
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 105);
+        String migratedContent = migrateXmlString(configXml, 105, 106);
         String artifactId2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\">"
                 +"                         <property>"
                 +"                             <key>BuildFile</key>"
@@ -2239,7 +2239,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldAddTheConfigurationSubTagOnExternalArtifacts_asPartOf108Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"106\">\n"
+                + "<cruise schemaVersion=\"107\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
                 + "    <artifactStores>\n"
                 + "      <artifactStore id=\"foobar\" pluginId=\"cd.go.artifact.docker.registry\">\n"
@@ -2261,8 +2261,8 @@ public class GoConfigMigrationIntegrationTest {
                 + "                    <exec command=\"ls\"/>"
                 + "                 </tasks>"
                 + "                 <artifacts>"
-                + "                     <artifact type='external' id='artifactId1' storeId='foobar' />"
-                + "                     <artifact type='external' id='artifactId2' storeId='foobar'>"
+                + "                     <artifact type=\"external\" id=\"artifactId1\" storeId=\"foobar\" />"
+                + "                     <artifact type=\"external\" id=\"artifactId2\" storeId=\"foobar\">"
                 + "                         <property>"
                 + "                             <key>BuildFile</key>"
                 + "                             <value>foo.json</value>"
@@ -2277,8 +2277,8 @@ public class GoConfigMigrationIntegrationTest {
                 + "</cruise>";
 
         String migratedContent = migrateXmlString(configXml, 107);
-        String migratedArtifact1 = "<artifact type=\"external\" id=\"artifactId1\" storeId=\"foo\"/>";
-        String migratedArtifact2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\"><configuration>"
+        String migratedArtifact1 = "<artifact type=\"external\" id=\"artifactId1\" storeId=\"foobar\"/>";
+        String migratedArtifact2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foobar\"><configuration>"
                 + "                         <property>"
                 + "                             <key>BuildFile</key>"
                 + "                             <value>foo.json</value>"

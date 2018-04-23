@@ -161,7 +161,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     }
 
     public boolean hasErrors() {
-        return !errors.isEmpty();
+        return !errors.isEmpty() || configuration.hasErrors();
     }
 
     @Override
@@ -172,20 +172,20 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PluggableArtifactConfig)) return false;
-        if (!super.equals(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         PluggableArtifactConfig that = (PluggableArtifactConfig) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        return storeId != null ? storeId.equals(that.storeId) : that.storeId == null;
+        if (!id.equals(that.id)) return false;
+        if (!storeId.equals(that.storeId)) return false;
+        return configuration != null ? configuration.equals(that.configuration) : that.configuration == null;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + (storeId != null ? storeId.hashCode() : 0);
+        int result = id.hashCode();
+        result = 31 * result + storeId.hashCode();
+        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }
 

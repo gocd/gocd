@@ -264,7 +264,29 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
-    @Override
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+
+    AbstractFetchTask that = (AbstractFetchTask) o;
+
+    if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
+    if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
+    return job != null ? job.equals(that.job) : that.job == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+    result = 31 * result + (stage != null ? stage.hashCode() : 0);
+    result = 31 * result + (job != null ? job.hashCode() : 0);
+    return result;
+  }
+
+  @Override
     protected void setTaskConfigAttributes(Map attributeMap) {
         if (attributeMap == null || attributeMap.isEmpty()) {
             return;

@@ -17,7 +17,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:template match="/cruise/@schemaVersion">
-    <xsl:attribute name="schemaVersion">107</xsl:attribute>
+    <xsl:attribute name="schemaVersion">108</xsl:attribute>
   </xsl:template>
   <!-- Copy everything -->
   <xsl:template match="@*|node()">

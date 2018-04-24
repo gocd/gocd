@@ -23,23 +23,17 @@ import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.FakeWork;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-@RunWith(JMock.class)
 public class WorkFinderTest {
-    private Mockery context;
     private BuildAssignmentService workAssigner;
     private static final AgentIdentifier AGENT_1 = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
     private static final FakeWork SOME_WORK = new FakeWork();
@@ -51,52 +45,44 @@ public class WorkFinderTest {
 
     @Before
     public void before() {
-        context = new ClassMockery();
-        workAssigner = context.mock(BuildAssignmentService.class);
-        assignedWorkTopic = context.mock(WorkAssignedTopic.class, "assignedWork");
-        idleAgentTopic = context.mock(IdleAgentTopic.class, "idleAgent");
+        workAssigner = mock(BuildAssignmentService.class);
+        assignedWorkTopic = mock(WorkAssignedTopic.class, "assignedWork");
+        idleAgentTopic = mock(IdleAgentTopic.class, "idleAgent");
         workAssignmentPerformanceLogger = mock(WorkAssignmentPerformanceLogger.class);
 
-        context.checking(new Expectations() {{
-            one(idleAgentTopic).addListener(with(any(WorkFinder.class)));
-        }});
         finder = new WorkFinder(workAssigner, idleAgentTopic, assignedWorkTopic, workAssignmentPerformanceLogger);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        verify(idleAgentTopic).addListener(any(WorkFinder.class));
     }
 
     @Test
     public void shouldDoNothingIfNoWorkIsAvailable() {
-        context.checking(new Expectations() {{
-            one(workAssigner).assignWorkToAgent(AGENT_1);
-            will(returnValue(NO_WORK));
-            one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
-        }});
+        when(workAssigner.assignWorkToAgent(AGENT_1)).thenReturn(NO_WORK);
         finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
+        verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
     }
 
     @Test
     public void shouldAssignWorkIfItIsAvailable() {
-        context.checking(new Expectations() {{
-            one(workAssigner).assignWorkToAgent(AGENT_1);
-            will(returnValue(SOME_WORK));
-            one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
-        }});
+        when(workAssigner.assignWorkToAgent(AGENT_1)).thenReturn(SOME_WORK);
         finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
+        verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
     }
 
     @Test
     public void shouldPostNoWorkOnException() {
         final RuntimeException exception = new RuntimeException("foo");
-        context.checking(new Expectations() {{
-            one(workAssigner).assignWorkToAgent(AGENT_1);
-            will(throwException(exception));
-            one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
-        }});
+        when(workAssigner.assignWorkToAgent(AGENT_1)).thenThrow(exception);
 
         try {
             finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
         } catch (Exception e) {
             assertSame(exception, e);
         }
+        verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
     }
 
     @Test

@@ -22,36 +22,27 @@ import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.ClassMockery;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class EmailNotificationListenerTest {
-    public ClassMockery context;
     public GoConfigService goConfigService;
     public EmailNotificationListener.GoMailSenderFactory goMailSenderFactory;
     public EmailNotificationListener emailNotificationListener;
 
     @Before
     public void setUp() throws Exception {
-        context = new ClassMockery();
-        goConfigService = context.mock(GoConfigService.class);
-        goMailSenderFactory = context.mock(EmailNotificationListener.GoMailSenderFactory.class);
+        goConfigService = mock(GoConfigService.class);
+        goMailSenderFactory = mock(EmailNotificationListener.GoMailSenderFactory.class);
         emailNotificationListener = new EmailNotificationListener(goConfigService, goMailSenderFactory);
     }
 
     @Test
     public void shouldNotCreateMailSenderIfMailHostIsNotConfigured() {
-        context.checking(new Expectations() {
-            {
-                allowing(goConfigService).currentCruiseConfig();
-                will(returnValue(new BasicCruiseConfig()));
-            }
-        });
+        when(goConfigService.currentCruiseConfig()).thenReturn(new BasicCruiseConfig());
         emailNotificationListener.onMessage(null);
     }
 
@@ -59,14 +50,8 @@ public class EmailNotificationListenerTest {
     public void shouldCreateMailSenderIfMailHostIsConfigured() {
         final MailHost mailHost = new MailHost("hostName", 1234, "user", "pass", true, true, "from", "admin@local.com");
         final CruiseConfig config = GoConfigMother.cruiseConfigWithMailHost(mailHost);
-        context.checking(new Expectations() {
-            {
-                allowing(goConfigService).currentCruiseConfig();
-                will(returnValue(config));
-                one(goMailSenderFactory).createSender();
-                will(returnValue(GoSmtpMailSender.createSender(mailHost)));
-            }
-        });
+        when(goConfigService.currentCruiseConfig()).thenReturn(config);
+        when(goMailSenderFactory.createSender()).thenReturn(GoSmtpMailSender.createSender(mailHost));
         emailNotificationListener.onMessage(new SendEmailMessage("subject", "body", "to"));
     }
 

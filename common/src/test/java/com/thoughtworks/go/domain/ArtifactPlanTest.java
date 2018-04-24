@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,9 +35,10 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ArtifactPlanTest {
-    private final Mockery context = new ClassMockery();
     private File testFolder;
     private File srcFolder;
 
@@ -58,16 +56,11 @@ public class ArtifactPlanTest {
 
     @Test
     public void shouldPublishArtifacts() {
-        final DefaultGoPublisher publisher = context.mock(DefaultGoPublisher.class);
+        final DefaultGoPublisher publisher = mock(DefaultGoPublisher.class);
         final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(new File(testFolder, "src"), "dest");
-            }
-        });
 
         artifactPlan.publish(publisher, testFolder);
-        context.assertIsSatisfied();
+        verify(publisher).upload(new File(testFolder, "src"), "dest");
     }
 
     @Test

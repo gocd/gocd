@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,6 @@ dependencies {
 
   compile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   compile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
-  compile(group: 'org.jmock', name: 'jmock', version: '2.4.0') {
-    exclude group: 'org.hamcrest'
-  }
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')

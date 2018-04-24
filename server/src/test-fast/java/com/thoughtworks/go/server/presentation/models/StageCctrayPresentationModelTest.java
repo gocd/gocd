@@ -16,24 +16,24 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.DateUtils;
 import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.jdom2.Element;
-import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
-import org.hamcrest.TypeSafeMatcher;
+
+import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StageCctrayPresentationModelTest {
 
@@ -86,14 +86,8 @@ public class StageCctrayPresentationModelTest {
     }
 
     @Test public void stageFailingShouldBeTreatedAsCompleted() throws Exception {
-        ClassMockery context = new ClassMockery();
-        final Stage stage = context.mock(Stage.class);
-        context.checking(new Expectations() {
-            {
-                allowing(stage).stageState();
-                will(returnValue(StageState.Failing));
-            }
-        });
+        final Stage stage = mock(Stage.class);
+        when(stage.stageState()).thenReturn(StageState.Failing);
         StageCctrayPresentationModel presenter = new StageCctrayPresentationModel(null, stage);
         assertThat(presenter.stageActivity(), is("Sleeping"));
     }

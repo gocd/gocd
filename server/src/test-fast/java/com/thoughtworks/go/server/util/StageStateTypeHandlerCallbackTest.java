@@ -16,20 +16,17 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.sql.SQLException;
-
 import com.ibatis.sqlmap.client.extensions.ParameterSetter;
 import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.server.dao.handlers.StageStateTypeHandlerCallback;
-import static org.hamcrest.core.Is.is;
-
-import org.jmock.Expectations;
-import static org.jmock.Expectations.equal;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import java.sql.SQLException;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class StageStateTypeHandlerCallbackTest {
     private StageStateTypeHandlerCallback callback = new StageStateTypeHandlerCallback();
@@ -46,28 +43,14 @@ public class StageStateTypeHandlerCallbackTest {
 
     private void assertMaps(final String str, StageState value) throws SQLException {
         final ResultGetter resultGetter;
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-        resultGetter = context.mock(ResultGetter.class);
-        context.checking(new Expectations() {
-            {
-                one(resultGetter).getString();
-                will(returnValue(str));
-            }
-        });
+        resultGetter = mock(ResultGetter.class);
+        when(resultGetter.getString()).thenReturn(str);
         StageState result = (StageState) callback.getResult(resultGetter);
-        assertThat(result, is(equal(value)));
+        assertThat(result, is(value));
 
-        final ParameterSetter parameterSetter = context.mock(ParameterSetter.class);
-        context.checking(new Expectations() {
-            {
-                one(parameterSetter).setString(str);
-            }
-        });
+        final ParameterSetter parameterSetter = mock(ParameterSetter.class);
         callback.setParameter(parameterSetter, value);
+        verify(parameterSetter).setString(str);
     }
 
 }

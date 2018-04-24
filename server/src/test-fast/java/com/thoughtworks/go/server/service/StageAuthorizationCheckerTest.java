@@ -17,15 +17,15 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.util.ClassMockery;
-import static org.hamcrest.core.Is.is;
-import org.jmock.Expectations;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class StageAuthorizationCheckerTest {
-    private ClassMockery mockery;
     private String pipelineName;
     private StageAuthorizationChecker checker;
     private String stageName;
@@ -34,8 +34,7 @@ public class StageAuthorizationCheckerTest {
 
     @Before
     public void setUp() throws Exception {
-        mockery = new ClassMockery();
-        securityService = mockery.mock(SecurityService.class);
+        securityService = mock(SecurityService.class);
         pipelineName = "cruise";
         stageName = "dev";
         username = "gli";
@@ -44,12 +43,7 @@ public class StageAuthorizationCheckerTest {
 
     @Test
     public void shouldFailIfUserHasNoPermission() {
-        mockery.checking(new Expectations() {
-            {
-                one(securityService).hasOperatePermissionForStage(pipelineName, stageName, username);
-                will(returnValue(false));
-            }
-        });
+        when(securityService.hasOperatePermissionForStage(pipelineName, stageName, username)).thenReturn(false);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
@@ -61,13 +55,7 @@ public class StageAuthorizationCheckerTest {
 
     @Test
     public void shouldPassIfUserHasPermission() {
-
-        mockery.checking(new Expectations() {
-            {
-                one(securityService).hasOperatePermissionForStage(pipelineName, stageName, username);
-                will(returnValue(true));
-            }
-        });
+        when(securityService.hasOperatePermissionForStage(pipelineName, stageName, username)).thenReturn(true);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);

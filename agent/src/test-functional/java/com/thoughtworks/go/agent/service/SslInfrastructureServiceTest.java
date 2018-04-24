@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.URLService;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
@@ -36,14 +35,11 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
@@ -61,9 +57,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
-    private final Mockery context = new ClassMockery();
     private SslInfrastructureService sslInfrastructureService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();

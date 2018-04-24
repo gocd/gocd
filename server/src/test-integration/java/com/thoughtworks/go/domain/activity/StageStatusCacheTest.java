@@ -25,8 +25,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -94,17 +92,11 @@ public class StageStatusCacheTest {
 
     @Test
     public void shouldLoadMostRecentInstanceFromDBOnlyOnce() throws SQLException {
-        Mockery mockery = new Mockery();
-        final StageDao mock = mockery.mock(StageDao.class);
+        final StageDao mock = mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
         final Stage instance = StageMother.failingStage("dev");
 
-        mockery.checking(new Expectations() {
-            {
-                one(mock).mostRecentStage(identifier);
-                will(returnValue(instance));
-            }
-        });
+        when(mock.mostRecentStage(identifier)).thenReturn(instance);
 
         StageStatusCache cache = new StageStatusCache(mock);
         assertThat(cache.currentStage(identifier).getName(), is(instance.getName()));

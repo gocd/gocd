@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -32,15 +31,11 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.util.Collections;
@@ -56,15 +51,12 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith(JMock.class)
 public class SvnMaterialTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private Mockery context = new ClassMockery();
     private Subversion subversion;
 
     private SvnMaterial svnMaterial;
@@ -75,19 +67,13 @@ public class SvnMaterialTest {
     @Before
     public void setUp() throws IOException {
         temporaryFolder.create();
-        subversion = context.mock(Subversion.class);
-        context.checking(new Expectations() {
-            {
-                allowing(subversion).getUrl();
-                will(returnValue(new UrlArgument(URL)));
-                allowing(subversion).getPassword();
-                will(returnValue(""));
-                allowing(subversion).getUserName();
-                will(returnValue(""));
-                allowing(subversion).isCheckExternals();
-                will(returnValue(false));
-            }
-        });
+        subversion = mock(Subversion.class);
+
+        when(subversion.getUrl()).thenReturn(new UrlArgument(URL));
+        when(subversion.getPassword()).thenReturn("");
+        when(subversion.getUserName()).thenReturn("");
+        when(subversion.isCheckExternals()).thenReturn(false);
+
         svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
         svnMaterial.setUrl(URL);
     }
@@ -118,40 +104,33 @@ public class SvnMaterialTest {
     @Test
     public void shouldCheckoutWhenFolderDoesNotExist() {
         final File workingCopy = new File("xyz");
-        context.checking(new Expectations() {
-            {
-                one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
-            }
-        });
+
         updateMaterial(svnMaterial, revision, workingCopy);
+
+        verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithOutFolder() throws Exception {
         final File workingCopy = new File("xyz");
 
-        context.checking(new Expectations() {
-            {
-                one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
-            }
-        });
         updateMaterial(svnMaterial, revision, workingCopy);
         String stdout = outputStreamConsumer.getStdOut();
         assertThat(stdout, containsString(
                 String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
                         svnMaterial.getUrl())));
+
+        verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
     public void shouldCheckoutForInvalidSvnWorkingCopy() throws IOException {
         final File workingCopy = createSvnWorkingCopy(false);
-        context.checking(new Expectations() {
-            {
-                one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
-            }
-        });
+
         updateMaterial(svnMaterial, revision, workingCopy);
+
         assertThat(workingCopy.exists(), is(false));
+        verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     private void updateMaterial(SvnMaterial svnMaterial, SubversionRevision revision, File workingCopy) {
@@ -161,29 +140,24 @@ public class SvnMaterialTest {
     @Test
     public void shouldCheckoutIfSvnRepositoryChanged() throws IOException {
         final File workingCopy = createSvnWorkingCopy(true);
-        context.checking(new Expectations() {
-            {
-                one(subversion).workingRepositoryUrl(workingCopy);
-                will(returnValue("new url"));
-                one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
-            }
-        });
+
+        when(subversion.workingRepositoryUrl(workingCopy)).thenReturn("new url");
+
         updateMaterial(svnMaterial, revision, workingCopy);
         assertThat(workingCopy.exists(), is(false));
+        verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
     public void shouldUpdateForValidSvnWorkingCopy() throws IOException {
         final File workingCopy = createSvnWorkingCopy(true);
-        context.checking(new Expectations() {
-            {
-                one(subversion).workingRepositoryUrl(workingCopy);
-                will(returnValue(URL));
-                one(subversion).cleanupAndRevert(outputStreamConsumer, workingCopy);
-                one(subversion).updateTo(outputStreamConsumer, workingCopy, revision);
-            }
-        });
+
+        when(subversion.workingRepositoryUrl(workingCopy)).thenReturn(URL);
+
         updateMaterial(svnMaterial, revision, workingCopy);
+
+        verify(subversion).cleanupAndRevert(outputStreamConsumer, workingCopy);
+        verify(subversion).updateTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
@@ -367,7 +341,7 @@ public class SvnMaterialTest {
 
         assertThat(material.getPassword(), is(nullValue()));
         assertThat(material.getEncryptedPassword(), is("encrypted"));
-     }
+    }
 
     @Test
     public void shouldDecryptSvnPassword() throws Exception {
@@ -406,8 +380,7 @@ public class SvnMaterialTest {
         try {
             material.getPassword();
             fail("Should have thrown up");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not decrypt the password to get the real password"));
         }
     }
@@ -419,14 +392,13 @@ public class SvnMaterialTest {
         try {
             new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
             fail("Should have thrown up");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), is("Password encryption failed. Please verify your cipher key."));
         }
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial(){
+    public void shouldGetLongDescriptionForMaterial() {
         SvnMaterial material = new SvnMaterial("http://url/", "user", "password", true, "folder");
         assertThat(material.getLongDescription(), is("URL: http://url/, Username: user, CheckExternals: true"));
     }

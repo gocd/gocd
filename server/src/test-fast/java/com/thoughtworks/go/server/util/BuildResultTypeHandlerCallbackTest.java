@@ -16,57 +16,40 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.sql.SQLException;
-
 import com.ibatis.sqlmap.client.extensions.ParameterSetter;
 import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.server.dao.handlers.BuildResultTypeHandlerCallback;
-import static org.hamcrest.core.Is.is;
-
-import org.jmock.Expectations;
-import static org.jmock.Expectations.equal;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class BuildResultTypeHandlerCallbackTest {
-    private Mockery context = new Mockery() {
-        {
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }
-    };
 
     private ResultGetter resultGetter;
     private BuildResultTypeHandlerCallback callback = new BuildResultTypeHandlerCallback();
 
     @Before
     public void setUp() {
-        resultGetter = context.mock(ResultGetter.class);
+        resultGetter = mock(ResultGetter.class);
     }
 
     @Test
     public void shouldReturnScheduledWhenGivenStringScheduled() throws SQLException {
-        context.checking(new Expectations() {
-            {
-                one(resultGetter).getString();
-                will(returnValue(JobResult.Passed.toString()));
-            }
-        });
+        when(resultGetter.getString()).thenReturn(JobResult.Passed.toString());
         JobResult result = (JobResult) callback.getResult(resultGetter);
-        assertThat(result, is(equal(JobResult.Passed)));
+        assertThat(result, is(JobResult.Passed));
     }
 
     @Test
     public void shouldReturnScheduledStringWhenGivenScheduled() throws SQLException {
-        final ParameterSetter parameterSetter = context.mock(ParameterSetter.class);
-        context.checking(new Expectations() {
-            {
-                one(parameterSetter).setString(JobResult.Failed.toString());
-            }
-        });
+        final ParameterSetter parameterSetter = mock(ParameterSetter.class);
         callback.setParameter(parameterSetter, JobResult.Failed);
+        verify(parameterSetter).setString(JobResult.Failed.toString());
     }
 }

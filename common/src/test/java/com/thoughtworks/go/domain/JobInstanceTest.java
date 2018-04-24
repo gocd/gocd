@@ -17,27 +17,20 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Date;
 
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.text.MessageFormat.format;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
@@ -45,20 +38,12 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class JobInstanceTest {
-    private Mockery context = new Mockery() {
-        {
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }
-    };
-    private BuildRepositoryRemote remoteBuildRepository;
     public TimeProvider timeProvider;
 
     @Before
     public void setup() throws Exception {
         timeProvider = mock(TimeProvider.class);
-        remoteBuildRepository = context.mock(BuildRepositoryRemote.class);
     }
 
     @Test

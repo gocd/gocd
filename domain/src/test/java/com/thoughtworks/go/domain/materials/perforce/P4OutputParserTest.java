@@ -20,15 +20,11 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.IOUtils;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.StringWriter;
@@ -44,18 +40,18 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class P4OutputParserTest {
     private P4OutputParser parser;
     private static final SimpleDateFormat DESCRIPTION_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private ClassMockery context;
     private P4Client p4Client;
 
     @Before
     public void setUp() throws Exception {
-        context = new ClassMockery();
-        p4Client = context.mock(P4Client.class);
+        p4Client = mock(P4Client.class);
         parser = new P4OutputParser(p4Client);
     }
 
@@ -261,17 +257,12 @@ public class P4OutputParserTest {
                         + "Change 539901 on 2008/09/24 by anil@anil-box-1 'Added all columns of AA_TASK to'\n"
                         + "";
 
-        context.checking(new Expectations() {
-            {
-                allowing(p4Client).describe(with(any(Long.class)));
-                will(returnValue("Change 539921 by abc@SomeRefinery_abc_sa1-sgr-xyz-001 on 2008/09/24 12:10:00\n"
-                        + "\n"
-                        + "\tmore work in progress on ABC unit test\n"
-                        + "\n"
-                        + "Affected files ...\n"
-                        + ""));
-            }
-        });
+        when(p4Client.describe(any(Long.class))).thenReturn("Change 539921 by abc@SomeRefinery_abc_sa1-sgr-xyz-001 on 2008/09/24 12:10:00\n"
+                + "\n"
+                + "\tmore work in progress on ABC unit test\n"
+                + "\n"
+                + "Affected files ...\n"
+                + "");
 
         List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modifications.size(), is(20));
@@ -284,12 +275,7 @@ public class P4OutputParserTest {
                     + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
             final String description = "Change that I cannot parse :-(\n";
 
-            context.checking(new Expectations() {
-                {
-                    allowing(p4Client).describe(with(any(Long.class)));
-                    will(returnValue(description));
-                }
-            });
+            when(p4Client.describe(any(Long.class))).thenReturn(description);
 
             List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             assertThat(modifications.size(), is(0));

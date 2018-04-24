@@ -17,29 +17,17 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.util.ClassMockery;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
-import org.junit.After;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
-import static org.jmock.Expectations.equal;
 import static org.junit.Assert.assertThat;
 
 public class JobInstancesTest {
-    private ClassMockery context = new ClassMockery();
-    private File artifactsRoot;
-
-    @After public void tearDown() {
-        FileUtils.deleteQuietly(artifactsRoot);
-    }
-
     @Test
     public void shouldFilterByStatus() {
         final JobInstance instance1 = new JobInstance("test"
@@ -49,8 +37,8 @@ public class JobInstancesTest {
         instance2.setState(JobState.Assigned);
         JobInstances instances = new JobInstances(instance1, instance2);
         JobInstances actual = instances.filterByState(JobState.Assigned);
-        assertThat(actual.size(), is(equal(1)));
-        assertThat(actual.get(0).getState(), is(equal(JobState.Assigned)));
+        assertThat(actual.size(), is(1));
+        assertThat(actual.get(0).getState(), is(JobState.Assigned));
     }
 
     @Test

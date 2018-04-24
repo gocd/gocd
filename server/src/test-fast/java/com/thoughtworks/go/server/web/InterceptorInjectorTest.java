@@ -16,18 +16,21 @@
 
 package com.thoughtworks.go.server.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.jmock.Mock;
-import org.jmock.cglib.MockObjectTestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 
-public class InterceptorInjectorTest extends MockObjectTestCase {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class InterceptorInjectorTest {
 
     private static final class HandlerInterceptorSub implements HandlerInterceptor {
         public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
@@ -44,66 +47,68 @@ public class InterceptorInjectorTest extends MockObjectTestCase {
         }
     }
 
+    @Test
     public void testShouldMergeInterceptors() throws Throwable {
         HandlerInterceptor interceptorOfFramework = new HandlerInterceptorSub();
         HandlerInterceptor interceptorOfTab = new HandlerInterceptorSub();
         HandlerInterceptor[] interceptorsOfFramework = new HandlerInterceptor[] {interceptorOfFramework};
         HandlerInterceptor[] interceptorsOfTab = new HandlerInterceptor[] {interceptorOfTab};
 
-        Mock proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        proceedingJoinPoint.expects(once()).method("proceed").will(
-                returnValue(new HandlerExecutionChain(null, interceptorsOfTab)));
+        ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
+        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(null, interceptorsOfTab));
+
         InterceptorInjector injector = new InterceptorInjector();
         injector.setInterceptors(interceptorsOfFramework);
 
         HandlerExecutionChain handlers =
-                injector.mergeInterceptorsToTabs((ProceedingJoinPoint) proceedingJoinPoint.proxy());
+                injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        assertEquals(2, handlers.getInterceptors().length);
-        assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
-        assertSame(interceptorOfTab, handlers.getInterceptors()[1]);
+        Assert.assertEquals(2, handlers.getInterceptors().length);
+        Assert.assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
+        Assert.assertSame(interceptorOfTab, handlers.getInterceptors()[1]);
     }
 
+    @Test
     public void testShouldReturnNullWhenNoHandlerFound() throws Throwable {
-        Mock proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        proceedingJoinPoint.expects(once()).method("proceed").will(returnValue(null));
+        ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
+        when(proceedingJoinPoint.proceed()).thenReturn(null);
         InterceptorInjector injector = new InterceptorInjector();
 
         HandlerExecutionChain handlers =
-                injector.mergeInterceptorsToTabs((ProceedingJoinPoint) proceedingJoinPoint.proxy());
+                injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        assertNull(handlers);
+        Assert.assertNull(handlers);
     }
 
+    @Test
     public void testShouldNotChangeHandler() throws Throwable {
         SimpleUrlHandlerMapping handler = new SimpleUrlHandlerMapping();
 
-        Mock proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        proceedingJoinPoint.expects(once()).method("proceed").will(
-                returnValue(new HandlerExecutionChain(handler, null)));
+        ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
+        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(handler, null));
         InterceptorInjector injector = new InterceptorInjector();
 
         HandlerExecutionChain handlers =
-                injector.mergeInterceptorsToTabs((ProceedingJoinPoint) proceedingJoinPoint.proxy());
+                injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        assertSame(handler, handlers.getHandler());
+        Assert.assertSame(handler, handlers.getHandler());
     }
 
+    @Test
     public void testShouldJustReturnInterceptorsOfFrameworkIfNoTabInterceptors() throws Throwable {
         HandlerInterceptor interceptorOfFramework = new HandlerInterceptorSub();
         HandlerInterceptor[] interceptorsOfFramework = new HandlerInterceptor[] {interceptorOfFramework};
 
-        Mock proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        proceedingJoinPoint.expects(once()).method("proceed").will(
-                returnValue(new HandlerExecutionChain(null, null)));
+        ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
+        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(null, null));
         InterceptorInjector injector = new InterceptorInjector();
         injector.setInterceptors(interceptorsOfFramework);
 
         HandlerExecutionChain handlers =
-                injector.mergeInterceptorsToTabs((ProceedingJoinPoint) proceedingJoinPoint.proxy());
+                injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        assertEquals(1, handlers.getInterceptors().length);
-        assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
+        Assert.assertEquals(1, handlers.getInterceptors().length);
+        Assert.assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
     }
 
 }

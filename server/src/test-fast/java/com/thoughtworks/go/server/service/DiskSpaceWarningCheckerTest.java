@@ -24,10 +24,8 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
-import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,12 +75,8 @@ public class DiskSpaceWarningCheckerTest {
 
     @Test
     public void shouldReturnSuccessWhenTheArtifactsFolderIsNotPresent() {
-        ClassMockery mockery = new ClassMockery();
-        final GoConfigService service = mockery.mock(GoConfigService.class);
-        mockery.checking(new Expectations() {{
-            allowing(service).artifactsDir();
-            will(returnValue(new File("/pavan")));
-        }});
+        final GoConfigService service = mock(GoConfigService.class);
+        when(service.artifactsDir()).thenReturn(new File("/pavan"));
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         new ArtifactsDiskSpaceWarningChecker(new SystemEnvironment(), sender, service, new SystemDiskSpaceChecker(), serverHealthService).check(result);

@@ -16,21 +16,18 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.server.dao.DbMetadataDao;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.server.dao.DbMetadataDao;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SystemServiceTest {
     private SystemService systemService;
@@ -38,7 +35,7 @@ public class SystemServiceTest {
 
     @Before
     public void setUp() {
-        systemEnvironment = Mockito.mock(SystemEnvironment.class);
+        systemEnvironment = mock(SystemEnvironment.class);
         systemService = new SystemService(null, systemEnvironment);
     }
 
@@ -59,14 +56,8 @@ public class SystemServiceTest {
 
     @Test
     public void shouldPopulateServerDetailsModel() {
-        Mockery mockery = new Mockery();
-        final DbMetadataDao dao = mockery.mock(DbMetadataDao.class);
-        mockery.checking(new Expectations() {
-            {
-                one(dao).getSchemaVersion();
-                will(returnValue(20));
-            }
-        });
+        final DbMetadataDao dao = mock(DbMetadataDao.class);
+        when(dao.getSchemaVersion()).thenReturn(20);
 
         new SystemEnvironment().setProperty("java.version", "1.5");
         new SystemEnvironment().setProperty("os.name", "Linux");
@@ -79,7 +70,6 @@ public class SystemServiceTest {
         assertThat(model.get("jvm_version"), is("1.5"));
         assertThat(model.get("os_info"), is("Linux 2.6"));
         assertThat(model.get("schema_version"), is(20));
-        mockery.assertIsSatisfied();
     }
 
 }

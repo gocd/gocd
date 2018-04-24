@@ -19,42 +19,30 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.server.messaging.EmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import org.junit.Test;
-import org.jmock.Expectations;
-import com.thoughtworks.go.util.ClassMockery;
+
+import static org.mockito.Mockito.*;
 
 public class UniqueEmailSenderTest {
 
     @Test
     public void shouldSendEmailIfNotEnoughSpaceForFirstTime() {
-        ClassMockery mockery = new ClassMockery();
-        final EmailNotificationTopic topic = mockery.mock(EmailNotificationTopic.class);
+        final EmailNotificationTopic topic = mock(EmailNotificationTopic.class);
         final SendEmailMessage message = new SendEmailMessage("pavan", "hu kai", "someone");
-
-        mockery.checking(new Expectations() {
-            {
-                one(topic).post(message);
-            }
-        });
 
         EmailSender sender = new AsynchronousEmailSender(topic);
         sender.sendEmail(message);
+        verify(topic).post(message);
     }
 
     @Test
     public void shouldBeAbleToSend2Emails() {
-        ClassMockery mockery = new ClassMockery();
-        final EmailNotificationTopic topic = mockery.mock(EmailNotificationTopic.class);
+        final EmailNotificationTopic topic = mock(EmailNotificationTopic.class);
         final SendEmailMessage message = new SendEmailMessage("pavan", "hu kai", "someone");
-
-        mockery.checking(new Expectations() {
-            {
-                exactly(2).of(topic).post(message);
-            }
-        });
 
         EmailSender sender = new AsynchronousEmailSender(topic);
         sender.sendEmail(message);
         sender.sendEmail(message);
+        verify(topic, times(2)).post(message);
     }
 
 }

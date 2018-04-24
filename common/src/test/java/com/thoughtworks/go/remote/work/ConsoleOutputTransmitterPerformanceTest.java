@@ -17,21 +17,15 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertThat;
-import org.junit.runner.RunWith;
 
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.Assert.assertThat;
 
-@RunWith(JMock.class)
 public class ConsoleOutputTransmitterPerformanceTest {
     private static final int SECOND = 1000;
-
-    Mockery mockery = new Mockery();
 
     @Before
     public void setUp() {

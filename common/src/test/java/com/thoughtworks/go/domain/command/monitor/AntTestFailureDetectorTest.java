@@ -16,28 +16,23 @@
 
 package com.thoughtworks.go.domain.command.monitor;
 
-import static org.hamcrest.core.Is.is;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class AntTestFailureDetectorTest {
-    private Mockery context;
     private Reporter reporter;
     private AntTestFailureDetector detector;
 
     @Before
     public void setUp() {
-        context = new Mockery();
-        reporter = context.mock(Reporter.class);
+        reporter = mock(Reporter.class);
         detector = new AntTestFailureDetector(reporter);
     }
-    
+
     @Test public void shouldReportNothingByDefault() throws Exception {
         detector.consumeLine("Something normal happened");
 
@@ -50,7 +45,7 @@ public class AntTestFailureDetectorTest {
 
         assertThat(detector.getCount(), is(1));
     }
-    
+
     @Test public void shouldIgnoreMultipleOutputLines() throws Exception {
         detector.consumeLine("[junit] Testsuite: com.thoughtworks.go.agent.service.SslInfrastructureServiceTest");
         detector.consumeLine("[junit] Tests run: 5, Failures: 6, Errors: 7, Time elapsed: 10.561 sec");
@@ -89,13 +84,11 @@ public class AntTestFailureDetectorTest {
     }
 
     @Test public void shouldNotFailingtheBuildWhenTestsFail() throws Exception {
-        context.checking(new Expectations(){{
-            never(reporter).failing(null);
-        }});
         detector.consumeLine("[junit] Testsuite: com.thoughtworks.go.agent.service.SslInfrastructureServiceTest");
         detector.consumeLine("[junit] Tests run: 5, Failures: 6, Errors: 7, Time elapsed: 10.561 sec");
 
         assertThat(detector.getTotalTime(), is(10561L));
+        verify(reporter, never()).failing(null);
     }
 
     /*

@@ -19,20 +19,14 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.util.ClassMockery;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(JMock.class)
 public class SecurityFilterTest {
-    private Mockery context = new ClassMockery();
     private SecurityFilter securityFilter;
     private SecurityService securityService;
     private PipelineGroupVisitor pipelineGroupVisitor;

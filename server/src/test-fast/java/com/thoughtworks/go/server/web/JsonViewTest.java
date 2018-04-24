@@ -18,9 +18,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.web.i18n.ResolvableViewableStatus;
 import com.thoughtworks.go.util.json.JsonUrl;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -37,15 +34,12 @@ import static com.thoughtworks.go.server.web.JsonView.asMap;
 import static com.thoughtworks.go.server.web.i18n.CurrentStatus.WAITING;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JsonViewTest {
 
-    private Mockery mockContext = new Mockery() {
-        {
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }
-    };
-    private GoRequestContext requestContext = mockContext.mock(GoRequestContext.class);
+    private GoRequestContext requestContext = mock(GoRequestContext.class);
 
     @Test
     public void testShouldReturnOutputWithoutWhitespaceThatIsNotAllowedInHeaders() throws Exception {
@@ -121,15 +115,9 @@ public class JsonViewTest {
         map.put("key1", resolvableViewableStatus);
         JsonView view = new JsonView(requestContext);
 
-        mockContext.checking(new Expectations() {
-            {
-                one(requestContext).getMessage(with(equal(resolvableViewableStatus)));
-                will(returnValue(i18nMessage));
-            }
-        });
+        when(requestContext.getMessage(resolvableViewableStatus)).thenReturn(i18nMessage);
 
         String json = view.renderJson(map);
-        mockContext.assertIsSatisfied();
         JSONAssert.assertEquals("{\"key1\":\"waiting(zh_CN)\"}", json, true);
     }
 
@@ -137,12 +125,7 @@ public class JsonViewTest {
     public void testShouldRenderUrlsWithContext() {
         JsonUrl url = new JsonUrl("/foo/bar/baz");
 
-        mockContext.checking(new Expectations() {
-            {
-                one(requestContext).getFullRequestPath();
-                will(returnValue("http://something/context"));
-            }
-        });
+        when(requestContext.getFullRequestPath()).thenReturn("http://something/context");
 
         String json = render(url, requestContext);
         assertThat(json, is("\"http://something/context/foo/bar/baz\""));

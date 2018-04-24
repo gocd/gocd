@@ -25,8 +25,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -100,20 +98,13 @@ public class JobStatusCacheTest {
 
     @Test
     public void shouldLoadMostRecentInstanceFromDBOnlyOnce() throws SQLException {
-        Mockery mockery = new Mockery();
-        final StageDao mock = mockery.mock(StageDao.class);
+        final StageDao mock = mock(StageDao.class);
         final JobInstance instance = JobInstanceMother.passed("linux-firefox");
 
         final List<JobInstance> found = new ArrayList<>();
         found.add(instance);
 
-        mockery.checking(new Expectations() {
-            {
-                one(mock).mostRecentJobsForStage("pipeline", "stage");
-                will(returnValue(found));
-            }
-        });
-
+        when(mock.mostRecentJobsForStage("pipeline", "stage")).thenReturn(found);
         JobConfigIdentifier identifier = new JobConfigIdentifier(instance.getPipelineName(), instance.getStageName(), instance.getName());
         JobStatusCache cache = new JobStatusCache(mock);
         assertThat(cache.currentJob(identifier).getState(), is(instance.getState()));

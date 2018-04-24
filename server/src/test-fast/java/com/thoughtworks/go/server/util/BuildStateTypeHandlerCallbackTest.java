@@ -16,58 +16,41 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.sql.SQLException;
-
 import com.ibatis.sqlmap.client.extensions.ParameterSetter;
 import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.handlers.BuildStateTypeHandlerCallback;
-import static org.hamcrest.core.Is.is;
-
-import org.jmock.Expectations;
-import static org.jmock.Expectations.equal;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class BuildStateTypeHandlerCallbackTest {
-    private Mockery context = new Mockery() {
-        {
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }
-    };
 
     private ResultGetter resultGetter;
 
     @Before
     public void setUp() {
-        resultGetter = context.mock(ResultGetter.class);
+        resultGetter = mock(ResultGetter.class);
     }
 
     @Test
     public void shouldReturnScheduledWhenGivenStringScheduled() throws SQLException {
-        context.checking(new Expectations() {
-            {
-                one(resultGetter).getString();
-                will(returnValue(JobState.Scheduled.toString()));
-            }
-        });
+        when(resultGetter.getString()).thenReturn(JobState.Scheduled.toString());
         BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback();
         JobState result = (JobState) callback.getResult(resultGetter);
-        assertThat(result, is(equal(JobState.Scheduled)));
+        assertThat(result, is(JobState.Scheduled));
     }
 
     @Test
     public void shouldReturnScheduledStringWhenGivenScheduled() throws SQLException {
-        final ParameterSetter parameterSetter = context.mock(ParameterSetter.class);
-        context.checking(new Expectations() {
-            {
-                one(parameterSetter).setString(JobState.Scheduled.toString());
-            }
-        });
+        final ParameterSetter parameterSetter = mock(ParameterSetter.class);
         BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback();
         callback.setParameter(parameterSetter, JobState.Scheduled);
+        verify(parameterSetter).setString(JobState.Scheduled.toString());
     }
 }

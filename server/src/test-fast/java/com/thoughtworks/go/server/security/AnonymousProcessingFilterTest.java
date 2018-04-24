@@ -16,16 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.ClassMockery;
-import static org.hamcrest.core.Is.is;
-
-import org.jmock.Expectations;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -33,10 +24,17 @@ import org.springframework.security.Authentication;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.userdetails.memory.UserAttribute;
 
+import java.util.ArrayList;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class AnonymousProcessingFilterTest {
     private AnonymousProcessingFilter filter;
-    private ClassMockery context = new ClassMockery();
-    private GoConfigService goConfigService = context.mock(GoConfigService.class);
+    private GoConfigService goConfigService = mock(GoConfigService.class);
 
     @Before
     public void setUp() {
@@ -59,12 +57,7 @@ public class AnonymousProcessingFilterTest {
 
     @Test
     public void shouldGiveAnonymousUserRoleAnonymousAuthorityWhenSecurityIsONInCruiseConfig() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(goConfigService).isSecurityEnabled();
-                will(returnValue(true));
-            }
-        });
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
         MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         Authentication authentication = filter.createAuthentication(mockHttpServletRequest);
         assertThat(authentication.getAuthorities().length, is(1));
@@ -74,12 +67,7 @@ public class AnonymousProcessingFilterTest {
 
     @Test
     public void shouldGiveAnonymousUserRoleSupervisorAuthorityWhenSecurityIsOFFInCruiseConfig() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(goConfigService).isSecurityEnabled();
-                will(returnValue(false));
-            }
-        });
+        when(goConfigService.isSecurityEnabled()).thenReturn(false);
         MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         Authentication authentication = filter.createAuthentication(mockHttpServletRequest);
         assertThat(authentication.getAuthorities().length, is(1));

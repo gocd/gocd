@@ -17,17 +17,13 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.helpers.FileSystemUtils;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
 import org.hamcrest.CoreMatchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
@@ -40,9 +36,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(org.jmock.integration.junit4.JMock.class)
 public class GoServerTest {
-    Mockery context = new ClassMockery();
     private SystemEnvironment systemEnvironment;
 
     @Before
@@ -54,26 +48,18 @@ public class GoServerTest {
     @Test
     public void shouldValidateOnServerStartup() throws Exception {
 
-        final SystemEnvironment systemEnvironment = context.mock(SystemEnvironment.class);
+        final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         StubGoServer goServer = new StubGoServer(systemEnvironment, Validation.SUCCESS);
         goServer.subprocessLogger = mock(SubprocessLogger.class);
         final File tmpFile = TestFileUtil.createTempFile("keystore.tmp");
         tmpFile.deleteOnExit();
 
-        context.checking(new Expectations() {
-            {
-                allowing(systemEnvironment).getServerPort();
-                will(returnValue(9153));
-                allowing(systemEnvironment).getSslServerPort();
-                will(returnValue(9443));
-                allowing(systemEnvironment).keystore();
-                will(returnValue(tmpFile));
-                allowing(systemEnvironment).truststore();
-                will(returnValue(tmpFile));
-                allowing(systemEnvironment).agentkeystore();
-                will(returnValue(tmpFile));
-            }
-        });
+
+        when(systemEnvironment.getServerPort()).thenReturn(9153);
+        when(systemEnvironment.getSslServerPort()).thenReturn(9443);
+        when(systemEnvironment.keystore()).thenReturn(tmpFile);
+        when(systemEnvironment.truststore()).thenReturn(tmpFile);
+        when(systemEnvironment.agentkeystore()).thenReturn(tmpFile);
         goServer.go();
         assertThat(goServer.wasStarted(), is(true));
     }
@@ -97,7 +83,7 @@ public class GoServerTest {
 
     @Test
     public void shouldNotStartServerIfValidationFails() throws Exception {
-        final SystemEnvironment systemEnvironment = context.mock(SystemEnvironment.class);
+        final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         Validation validation = new Validation().addError(new Exception("Server Port occupied"));
         StubGoServer goServer = new StubGoServer(systemEnvironment, validation);
 

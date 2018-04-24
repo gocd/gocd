@@ -21,10 +21,8 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
-import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,9 +31,10 @@ import java.io.File;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JobDetailPresentationModelJMockTest {
-    private ClassMockery context = new ClassMockery();
     private JobInstance stubJobInstance;
     private JobDetailPresentationModel jobDetailPresenter;
     private File testFolder;
@@ -44,25 +43,17 @@ public class JobDetailPresentationModelJMockTest {
 
     @Before
     public void setUp() {
-        stubJobInstance = context.mock(JobInstance.class);
-        TrackingTool trackingTool = context.mock(TrackingTool.class);
-        artifactService = context.mock(ArtifactsService.class);
+        stubJobInstance = mock(JobInstance.class);
+        artifactService = mock(ArtifactsService.class);
         jobIdentifier = new JobIdentifier("pipeline", -1, "1", "stageName", "0", "build", 1L);
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getName();
-                will(returnValue("build"));
-                allowing(stubJobInstance).getId();
-                will(returnValue(1L));
-                allowing(stubJobInstance).getIdentifier();
-                will(returnValue(jobIdentifier));
-            }
-        });
+        when(stubJobInstance.getName()).thenReturn("build");
+        when(stubJobInstance.getId()).thenReturn(1L);
+        when(stubJobInstance.getIdentifier()).thenReturn(jobIdentifier);
         Stage stage = StageMother.custom("stageName", stubJobInstance);
         Pipeline pipeline = new Pipeline("pipeline", null, stage);
         pipeline.setId(1L);
 
-        trackingTool = new TrackingTool();
+        TrackingTool trackingTool = new TrackingTool();
         jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
                 null, null, pipeline, new Tabs(), trackingTool, artifactService, new Properties(), null);
 

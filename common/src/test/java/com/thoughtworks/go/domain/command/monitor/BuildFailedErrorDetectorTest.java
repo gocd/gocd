@@ -16,35 +16,29 @@
 
 package com.thoughtworks.go.domain.command.monitor;
 
-import org.jmock.Mockery;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 public class BuildFailedErrorDetectorTest {
-    private Mockery context;
     private Reporter reporter;
     private BuildFailedErrorDetector detector;
 
     @Before
     public void setUp() {
-        context = new Mockery();
-        reporter = context.mock(Reporter.class);
+        reporter = mock(Reporter.class);
         detector = new BuildFailedErrorDetector(reporter);
     }
-    
+
     @Test public void shouldReportNothingByDefault() throws Exception {
         detector.consumeLine("Something normal happened");
     }
 
     @Test public void shouldReportErrorWhenBuildFailed() throws Exception {
-        context.checking(new Expectations(){{
-            one(reporter).failing("Command reported [BUILD FAILED].");
-        }});
         detector.consumeLine(" BUILD FAILED ");
+        verify(reporter).failing("Command reported [BUILD FAILED].");
     }
 
     @Test public void shouldMatchEntireLineWhenDetectingError() throws Exception {

@@ -18,9 +18,10 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.jmock.Mock;
-import org.jmock.cglib.MockObjectTestCase;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,58 +37,64 @@ import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FileViewTest extends MockObjectTestCase {
+public class FileViewTest {
     private MockHttpServletResponse mockResponse;
 
     private MockHttpServletRequest mockRequest;
 
     private FileView view;
 
-    private Mock mockServletContext;
+    private ServletContext mockServletContext;
     private File file;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         temporaryFolder.create();
-        super.setUp();
         mockRequest = new MockHttpServletRequest();
         mockResponse = new MockHttpServletResponse();
         mockServletContext = mock(ServletContext.class);
         view = new FileView();
-        view.setServletContext((ServletContext) mockServletContext.proxy());
+        view.setServletContext(mockServletContext);
         file = temporaryFolder.newFile("file.txt");
         FileUtils.writeStringToFile(file, "hello", UTF_8);
     }
 
+    @After
     public void tearDown() throws Exception {
         temporaryFolder.delete();
     }
 
+    @Test
     public void testShouldNotTruncateTheContentLengthHeaderIfTheLengthIsGreaterThan2G() {
-        File fourGBfile = Mockito.mock(File.class);
+        File fourGBfile = mock(File.class);
         long fourGB = 4658798592L;
         when(fourGBfile.length()).thenReturn(fourGB);
 
-        HttpServletResponse responseMock = Mockito.mock(HttpServletResponse.class);
+        HttpServletResponse responseMock = mock(HttpServletResponse.class);
         view.setContentLength(false, fourGBfile, responseMock);
 
         Mockito.verify(responseMock).addHeader("Content-Length", "4658798592");
         Mockito.verifyNoMoreInteractions(responseMock);
     }
 
+    @Test
     public void testShouldOutputTxtFileContentAsTextPlain() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
-        mockServletContext.expects(once()).method("getMimeType")
-                .will(returnValue(RESPONSE_CHARSET));
+        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
         view.render(model, mockRequest, mockResponse);
         assertEquals(RESPONSE_CHARSET, mockResponse.getContentType());
         assertEquals(5, getContentLength(mockResponse));
     }
 
+    @Test
     public void testShouldZipFileIfZipIsRequired() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
@@ -102,12 +109,12 @@ public class FileViewTest extends MockObjectTestCase {
         assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName()), UTF_8), "hello");
     }
 
+    @Test
     public void testShouldNotZipIfZipIsNotRequired() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 
-        mockServletContext.expects(once()).method("getMimeType")
-                .will(returnValue(RESPONSE_CHARSET));
+        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
 
         view.render(model, mockRequest, mockResponse);
 
@@ -115,16 +122,18 @@ public class FileViewTest extends MockObjectTestCase {
         assertEquals(mockResponse.getContentAsString(), "hello");
     }
 
+    @Test
     public void testDefaultContentTypeShouldBeTextPlain() throws Exception {
         assertEquals("application/octet-stream", view.getContentType());
     }
 
+    @Test
     public void testCharacterEncodingSetToUtf8ForConsoleLogfile() throws Exception {
         file = temporaryFolder.newFile("console.log");
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 
-        mockServletContext.expects(once()).method("getMimeType").will(returnValue("text/plain;charset=utf-8"));
+        when(mockServletContext.getMimeType(any())).thenReturn("text/plain;charset=utf-8");
 
         view.render(model, mockRequest, mockResponse);
         assertEquals("text/plain;charset=utf-8", mockResponse.getContentType());
@@ -132,6 +141,6 @@ public class FileViewTest extends MockObjectTestCase {
     }
 
     private long getContentLength(MockHttpServletResponse mockResponse) {
-        return Long.parseLong(mockResponse.getHeader("Content-Length").toString());
+        return Long.parseLong(mockResponse.getHeader("Content-Length"));
     }
 }

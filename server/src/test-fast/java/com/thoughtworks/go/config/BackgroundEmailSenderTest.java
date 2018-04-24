@@ -17,20 +17,17 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.StringContains.containsString;
-
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
-import org.jmock.Expectations;
-import static org.jmock.Expectations.same;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class BackgroundEmailSenderTest {
 
     GoMailSender neverReturns = new GoMailSender() {
@@ -47,13 +44,11 @@ public class BackgroundEmailSenderTest {
         }
 
     };
-    private Mockery mockery;
     private GoMailSender sender;
 
     @Before
     public void setUp() {
-        mockery = new Mockery();
-        sender = mockery.mock(GoMailSender.class);
+        sender = mock(GoMailSender.class);
     }
 
     @Test
@@ -67,15 +62,10 @@ public class BackgroundEmailSenderTest {
     @Test
     public void shouldReturnWhateverTheOtherSenderReturnsIfSendingDoesNotTimeout() {
         final ValidationBean validationBean = ValidationBean.valid();
-        mockery.checking(new Expectations() {
-            {
-                one(sender).send("Subject", "body", "to@someone");
-                will(returnValue(validationBean));
-            }
-        });
+        when(sender.send("Subject", "body", "to@someone")).thenReturn(validationBean);
         BackgroundMailSender background = new BackgroundMailSender(sender, 1000);
         ValidationBean returned = background.send("Subject", "body", "to@someone");
-        assertThat(returned, same(validationBean));
+        assertThat(returned, is(sameInstance(validationBean)));
     }
 
 

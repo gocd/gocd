@@ -18,23 +18,19 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.util.ClassMockery;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class AuthorizationInterceptorTest {
 
-    private ClassMockery context = new ClassMockery();
     private AuthorizationInterceptor permissionInterceptor;
     private SecurityService securityService;
     private MockHttpServletRequest request;
@@ -42,7 +38,7 @@ public class AuthorizationInterceptorTest {
 
     @Before
     public void setup() throws Exception {
-        securityService = context.mock(SecurityService.class);
+        securityService = mock(SecurityService.class);
         permissionInterceptor = new AuthorizationInterceptor(securityService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -99,39 +95,15 @@ public class AuthorizationInterceptorTest {
     }
 
     private void assumeUserHasViewPermission() {
-        context.checking(new Expectations() {
-            {
-                one(securityService).hasViewPermissionForPipeline(ANONYMOUS, "cruise");
-                will(returnValue(true));
-            }
-        });
+        when(securityService.hasViewPermissionForPipeline(ANONYMOUS, "cruise")).thenReturn(true);
     }
 
     private void assumeUserHasOperatePermissionForPipeline() {
-        context.checking(new Expectations() {
-            {
-                one(securityService).hasOperatePermissionForPipeline(ANONYMOUS.getUsername(), "cruise");
-                will(returnValue(true));
-            }
-        });
+        when(securityService.hasOperatePermissionForPipeline(ANONYMOUS.getUsername(), "cruise")).thenReturn(true);
     }
 
     private void assumeUserHasOperatePermissionForStage() {
-        context.checking(new Expectations() {
-            {
-                one(securityService).hasOperatePermissionForStage("cruise", "dev", CaseInsensitiveString.str(ANONYMOUS.getUsername()));
-                will(returnValue(true));
-            }
-        });
-    }
-
-    private void assumeUserHasOperatePermissionForFirstStage() {
-        context.checking(new Expectations() {
-            {
-                one(securityService).hasOperatePermissionForFirstStage("cruise", CaseInsensitiveString.str(ANONYMOUS.getUsername()));
-                will(returnValue(true));
-            }
-        });
+        when(securityService.hasOperatePermissionForStage("cruise", "dev", CaseInsensitiveString.str(ANONYMOUS.getUsername()))).thenReturn(true);
     }
 
 }

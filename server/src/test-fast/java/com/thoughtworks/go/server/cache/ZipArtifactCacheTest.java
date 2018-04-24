@@ -16,38 +16,31 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class ZipArtifactCacheTest {
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", "label-111", "stage-name", 1, "job-name", 666L);
     private static final String JOB_FOLDERS = "pipelines/pipeline-name/label-111/stage-name/1/job-name/666";
-
-    ClassMockery context = new ClassMockery();
 
     private ZipArtifactCache zipArtifactCache;
     private File folder;
@@ -61,11 +54,8 @@ public class ZipArtifactCacheTest {
         TestFileUtil.createTestFolder(artifact, "dir");
         TestFileUtil.createTestFile(artifact, "dir/file1");
 
-        artifactsDirHolder = context.mock(ArtifactsDirHolder.class);
-        context.checking(new Expectations() {{
-            allowing(artifactsDirHolder).getArtifactsDir();
-            will(returnValue(folder));
-        }});
+        artifactsDirHolder = mock(ArtifactsDirHolder.class);
+        when(artifactsDirHolder.getArtifactsDir()).thenReturn(folder);
         zipArtifactCache = new ZipArtifactCache(this.artifactsDirHolder, new ZipUtil());
         artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
     }

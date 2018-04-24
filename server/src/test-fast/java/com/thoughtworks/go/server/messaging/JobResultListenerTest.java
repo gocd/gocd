@@ -19,17 +19,13 @@ package com.thoughtworks.go.server.messaging;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.util.ClassMockery;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 public class JobResultListenerTest {
-    private Mockery mockery = new ClassMockery();
     private AgentService agentService;
     private JobResultListener listener;
     private JobIdentifier jobIdentifier;
@@ -37,20 +33,16 @@ public class JobResultListenerTest {
 
     @Before
     public void setup() {
-        agentService = mockery.mock(AgentService.class);
+        agentService = mock(AgentService.class);
         listener = new JobResultListener(new JobResultTopic(null), agentService);
-        jobIdentifier = new JobIdentifier("cruise", "1", "dev", "1", "linux-firefox");        
+        jobIdentifier = new JobIdentifier("cruise", "1", "dev", "1", "linux-firefox");
     }
 
     @Test
     public void shouldUpdateAgentStatusWhenAJobIsCancelled() throws Exception {
-        mockery.checking(new Expectations() {
-            {
-                one(agentService).notifyJobCancelledEvent(AGENT_UUID);
-            }
-        });
 
-        listener.onMessage(new JobResultMessage(jobIdentifier, JobResult.Cancelled, AGENT_UUID));        
+        listener.onMessage(new JobResultMessage(jobIdentifier, JobResult.Cancelled, AGENT_UUID));
+        verify(agentService).notifyJobCancelledEvent(AGENT_UUID);
     }
 
 }

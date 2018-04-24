@@ -18,38 +18,29 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.util.ClassMockery;
-import static org.hamcrest.core.Is.is;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class PipelineActiveCheckerTest {
-    private ClassMockery mockery;
     private CurrentActivityService service;
     private PipelineActiveChecker checker;
     private PipelineIdentifier pipelineIdentifier;
 
     @Before
     public void setUp() throws Exception {
-        mockery = new ClassMockery();
-        service = mockery.mock(CurrentActivityService.class);
+        service = mock(CurrentActivityService.class);
         pipelineIdentifier = new PipelineIdentifier("cruise", 1, "label-1");
         checker = new PipelineActiveChecker(service, pipelineIdentifier);
     }
 
     @Test
     public void shouldFailIfPipelineIsActive() {
-        mockery.checking(new Expectations() {
-            {
-                one(service).isAnyStageActive(pipelineIdentifier);
-                will(returnValue(true));
-            }
-        });
+        when(service.isAnyStageActive(pipelineIdentifier)).thenReturn(true);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
@@ -60,12 +51,7 @@ public class PipelineActiveCheckerTest {
 
     @Test
     public void shouldPassIfPipelineIsNotActive() {
-        mockery.checking(new Expectations() {
-            {
-                one(service).isAnyStageActive(pipelineIdentifier);
-                will(returnValue(false));
-            }
-        });
+        when(service.isAnyStageActive(pipelineIdentifier)).thenReturn(false);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);

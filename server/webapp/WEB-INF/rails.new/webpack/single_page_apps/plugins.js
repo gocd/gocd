@@ -33,10 +33,7 @@ $(() => {
   const onSuccess = (pluginInfos) => {
     const component = {
       view() {
-        return m(PluginsWidget, {
-          pluginInfos:   Stream(pluginInfos),
-          isUserAnAdmin: Stream(isUserAnAdmin === 'true')
-        });
+        return (<PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);
       }
     };
 
@@ -46,7 +43,7 @@ $(() => {
   const onFailure = () => {
     const component = {
       view() {
-        return m(PageLoadError, {message: "There was a problem fetching plugins"});
+        return (<PageLoadError message="There was a problem fetching plugins"/>);
       }
     };
     m.mount($("#plugins").get(0), component);

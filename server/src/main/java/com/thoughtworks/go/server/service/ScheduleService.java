@@ -169,7 +169,7 @@ public class ScheduleService {
         }
     }
 
-    private Pipeline schedulePipeline(final String pipelineName, final BuildCause buildCause) {
+    Pipeline schedulePipeline(final String pipelineName, final BuildCause buildCause) {
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
 

@@ -39,6 +39,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +135,18 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public Integer getCounterForPipeline(String name) {
         Integer counter = (Integer) getSqlMapClientTemplate().queryForObject("getCounterForPipeline", name);
         return counter == null ? 0 : counter;
+    }
+
+    public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
+        List<String> pipelinenames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
+        if(pipelinenames.size() > 0 && StringUtils.isBlank(pipelinenames.get(0)))
+            return new ArrayList<>();
+        return pipelinenames;
+    }
+
+    public void deleteOldPipelineLabelCountForPipeline(String pipelineName) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipeline", args);
     }
 
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {

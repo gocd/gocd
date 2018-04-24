@@ -17,15 +17,22 @@
 package com.thoughtworks.go.server.service;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Date;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.DefaultSchedulingContext;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -36,6 +43,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -46,9 +54,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -65,6 +75,7 @@ public class PipelineServiceIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private InstanceFactory instanceFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
@@ -170,4 +181,26 @@ public class PipelineServiceIntegrationTest {
         assertThat(materials.get(0),is(hg1));
         assertThat(materials.get(1),is(hg2));
     }
+
+    @Test
+    public void shouldUpdateTheCorrectPipelineCounterAfterDuplicatesHaveBeenDeleted() throws SQLException {
+        String pipelineName = "Pipeline-Name";
+        File file1 = new File("file1");
+        Material hg = new HgMaterial("url", "Dest");
+        u.checkinFiles(hg, "h1", a(file1), ModifiedAction.added);
+        ScheduleTestUtil.AddedPipeline addedPipeline = u.saveConfigWith(pipelineName, "stageName", u.m(hg));
+        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
+        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+
+        pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineName);
+
+        MaterialRevisions materialRevisions = u.mrs(u.mr(u.m(hg).material, true, "h1"));
+        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user");
+        Pipeline pipelineInstance = instanceFactory.createPipelineInstance(addedPipeline.config, buildCause, new DefaultSchedulingContext(), null, new TestingClock());
+
+        pipelineService.save(pipelineInstance);
+        assertThat(pipelineInstance.getCounter(), is(31));
+    }
+
 }

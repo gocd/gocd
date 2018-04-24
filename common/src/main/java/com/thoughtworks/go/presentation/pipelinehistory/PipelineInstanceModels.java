@@ -48,7 +48,7 @@ public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel
     public PipelineInstanceModels findAll(String pipelineName) {
         PipelineInstanceModels found = PipelineInstanceModels.createPipelineInstanceModels();
         for (PipelineInstanceModel pipelineInstanceModel : this) {
-            if(pipelineInstanceModel.getName().equals(pipelineName)){
+            if(pipelineInstanceModel.getName().equalsIgnoreCase(pipelineName)){
                 found.add(pipelineInstanceModel);
             }
         }

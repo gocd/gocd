@@ -133,6 +133,8 @@ public class ApplicationInitializerTest {
     private SCMMaterialSource scmMaterialSource;
     @Mock
     private ResourceMonitoring resourceMonitoring;
+    @Mock
+    private PipelineLabelCorrector pipelineLabelCorrector;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 

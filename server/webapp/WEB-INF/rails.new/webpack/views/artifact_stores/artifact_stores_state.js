@@ -16,61 +16,60 @@
 
 const Stream = require('mithril/stream');
 
+let _artifactStores, _pluginInfos, _error, _loading;
+
 class ArtifactStoresState {
 
   constructor() {
-    this._artifactStores = undefined;
-    this._pluginInfos    = undefined;
-    this._error          = false;
-    this._loading        = true;
-    this.message         = Stream({type: undefined, message: undefined});
+    this.init();
+    this.message = Stream({type: undefined, message: undefined});
   }
 
   init() {
-    this._artifactStores = undefined;
-    this._pluginInfos    = undefined;
-    this._error          = false;
-    this._loading        = true;
+    _artifactStores = undefined;
+    _pluginInfos    = undefined;
+    _error          = false;
+    _loading        = true;
   }
 
   updateWithData(artifactStoresResponse, pluginInfosResponse) {
-    this._artifactStores = artifactStoresResponse;
-    this._pluginInfos    = pluginInfosResponse;
-    this._error          = false;
-    this._loading        = false;
+    _artifactStores = artifactStoresResponse;
+    _pluginInfos    = pluginInfosResponse;
+    _error          = false;
+    _loading        = false;
   }
 
   updateWithApiError() {
-    this._loading = false;
-    this._error   = true;
+    _loading = false;
+    _error   = true;
   }
 
   get loading() {
-    return this._loading;
+    return _loading;
   }
 
   get error() {
-    return this._error;
+    return _error;
   }
 
   get artifactStores() {
-    return this._artifactStores;
+    return _artifactStores;
   }
 
   set artifactStores(artifactStores) {
-    this._artifactStores = artifactStores;
+    _artifactStores = artifactStores;
   }
 
   get pluginInfos() {
-    return this._pluginInfos;
+    return _pluginInfos;
   }
 
   noPlugins() {
-    return this._pluginInfos.countPluginInfo() === 0;
+    return _pluginInfos.countPluginInfo() === 0;
   }
 
   findPluginInfo(pluginId) {
-    return this._pluginInfos.findById(pluginId);
+    return _pluginInfos.findById(pluginId);
   }
 
   setAlertMessage(message) {

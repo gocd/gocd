@@ -125,7 +125,7 @@ public class PackageRepositoryService {
             String pluginId = packageRepository.getPluginConfiguration().getId();
             if (repositoryMetadataStore.hasOption(pluginId, key, PackageConfiguration.REQUIRED)) {
                 if (configurationProperty.getValue().isEmpty()) {
-                    configurationProperty.addErrorAgainstConfigurationValue("This field is required.");
+                    configurationProperty.addErrorAgainstConfigurationValue("This field is required");
                 }
             }
         }

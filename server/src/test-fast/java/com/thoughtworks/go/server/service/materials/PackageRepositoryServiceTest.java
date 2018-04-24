@@ -220,8 +220,8 @@ public class PackageRepositoryServiceTest {
 
         service.performPluginValidationsFor(packageRepository);
 
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required.")));
-        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required.")));
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required")));
+        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required")));
     }
 
     @Test

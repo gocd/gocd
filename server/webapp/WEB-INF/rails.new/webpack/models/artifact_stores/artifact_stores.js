@@ -53,11 +53,7 @@ ArtifactStores.ArtifactStore = function (data) {
 
   this.validatePresenceOf('id');
   this.validatePresenceOf('pluginId');
-  this.validateFormatOf('id', {
-    format:  /^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$/,
-    message: 'Invalid id. This must be alphanumeric and can contain underscores and periods (however, it cannot start ' +
-             'with a period). The maximum allowed length is 255 characters.'
-  });
+  this.validateFormatOf('id', Validatable.DefaultOptions.forId());
 
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'],
     {

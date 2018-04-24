@@ -52,8 +52,8 @@ const PipelineHeaderWidget = {
     }
 
     if (shouldShowAnalyticsIcon) {
-      $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
-        analyticsIcons.push(<PipelineAnalyticsWidget pipeline={pipeline} pluginId={pluginId} metricId={metricId}/>);
+      $.each(pluginsSupportingAnalytics, (pluginId, metrics) => {
+        analyticsIcons.push(<PipelineAnalyticsWidget pipeline={pipeline} pluginId={pluginId} metrics={metrics}/>);
       });
     }
 

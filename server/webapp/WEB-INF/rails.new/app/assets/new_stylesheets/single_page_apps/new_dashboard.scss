@@ -1249,6 +1249,7 @@ $commits-width: 635px;
     max-height: unset;
     height:     525px;
     overflow:   hidden;
+    overflow-y: auto;
   }
 
   .frame-container {

@@ -129,7 +129,7 @@ describe("Dashboard Pipeline Widget", () => {
 
   describe("Pipeline Analytics", () => {
     beforeEach(() => {
-      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, true);
+      mount(false, false, {}, {}, true, true, false, {"plugin-x": [{id: "pipeline_duration", title: "Pipeline Duration"}]}, true);
     });
 
     afterEach(() => {

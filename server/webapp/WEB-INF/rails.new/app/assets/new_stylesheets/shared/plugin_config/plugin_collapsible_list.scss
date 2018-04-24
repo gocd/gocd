@@ -17,7 +17,6 @@
 @import 'shared/mixins';
 @import 'shared/common';
 @import 'variables';
-@import 'action_buttons';
 
 $icon-text-padding: 20px;
 
@@ -33,7 +32,7 @@ $icon-text-padding: 20px;
   }
 
   &.collapsed {
-    background: #fff;
+    background: $go-white;
   }
 
   .collapsible-list-header {

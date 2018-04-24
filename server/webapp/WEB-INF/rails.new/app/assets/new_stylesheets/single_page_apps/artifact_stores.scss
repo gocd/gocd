@@ -21,6 +21,7 @@
 @import 'shared/alert';
 @import 'shared/plugin_config/plugin_group_header';
 @import 'shared/plugin_config/plugin_collapsible_list';
+@import 'shared/action_buttons';
 
 .add-artifact-store {
   float:         right;
@@ -32,8 +33,6 @@
 }
 
 .plugin-group {
-  border-top-left-radius:  3px;
-  border-top-right-radius: 3px;
   margin-bottom:           15px;
 }
 

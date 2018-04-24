@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import 'variables';
 
 .plugin-group-header {
-  padding:                 10px;
-  background:              #d1c4e9;
-  border-top-left-radius:  3px;
-  border-top-right-radius: 3px;
-  border-bottom:           1px solid #ddd;
+  padding:       10px;
+  background:    $go-secondary;
+  border-radius: $global-border-radius $global-border-radius 0 0;
+  border-bottom: 1px solid $border-color;
 
   .plugin-description {
     display:        inline-block;
@@ -46,7 +44,6 @@
     vertical-align: middle;
     float:          left;
   }
-
 
   .warning {
     @include icon-before($type: exclamation-triangle, $size: $plugin-icon-size, $color: #fff702);

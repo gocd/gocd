@@ -21,6 +21,7 @@
 @import 'shared/alert';
 @import 'shared/plugin_config/plugin_group_header';
 @import 'shared/plugin_config/plugin_collapsible_list';
+@import 'shared/action_buttons';
 
 $elastic-profile-plugin-icon-size: 30px;
 $elastic-profile-icon-text-padding: 20px;
@@ -63,8 +64,6 @@ $elastic-profile-icon-hover-color: #000;
 }
 
 .elastic-profile-plugin-group {
-  border-top-left-radius:  3px;
-  border-top-right-radius: 3px;
   margin-bottom:           15px;
 }
 

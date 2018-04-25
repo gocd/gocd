@@ -74,7 +74,7 @@
     var initialState = <%== (params[:material] && params[:material][:create_or_associate_pkg_def]) ? params[:material][:create_or_associate_pkg_def].to_json : "".to_json %>;
     var showPackageDefPath = <%== package_definitions_show_path(:repo_id => "$repoId$", :package_id => "$packageId$").to_json %>;
     var newPackageDefPath = <%== package_definitions_new_path(:repo_id => "$repoId$").to_json %>;
-    var pluginMissingErrorMessage = <%== 'Associated plugin ''{0}'' not found. Please contact the Go admin to install the plugin.'.to_json %>;
+    var pluginMissingErrorMessage = <%== "Associated plugin ''{0}'' not found. Please contact the Go admin to install the plugin.".to_json %>;
     Util.on_load(function () {
         new PackageMaterialCheckConnection("<%= package_definition_check_connection_path %>").bind(".new_form_content.change_materials", "#check_package", "#package_check_message");
         new PackageMaterialDefinition(data, repo, pkg, showPackageDefPath, newPackageDefPath, pluginMissingErrorMessage).init(initialState);

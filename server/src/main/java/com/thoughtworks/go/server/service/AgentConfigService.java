@@ -99,10 +99,6 @@ public class AgentConfigService {
         updateAgentWithoutValidations(command, currentUser);
     }
 
-    protected static UpdateConfigCommand updateApprovalStatus(final String uuid, final Boolean isDenied) {
-        return new UpdateAgentApprovalStatus(uuid, isDenied);
-    }
-
     public void deleteAgents(Username currentUser, AgentInstance... agentInstances) {
         GoConfigDao.CompositeConfigCommand commandForDeletingAgents = commandForDeletingAgents(agentInstances);
         ArrayList<String> uuids = new ArrayList<>();

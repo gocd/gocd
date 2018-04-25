@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -139,7 +140,7 @@ public class ValueStreamMapPerformanceTest {
 
         long start = System.currentTimeMillis();
         DefaultLocalizedOperationResult result = new DefaultLocalizedOperationResult();
-        ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap("current", 1, Username.ANONYMOUS, result);
+        ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("current"), 1, Username.ANONYMOUS, result);
         long timeTaken = (System.currentTimeMillis() - start) / 1000;
         assertThat(String.format("VSM took %ds. Should have been generated in 30s.", timeTaken), timeTaken, Matchers.lessThan(30l));
 
@@ -150,7 +151,7 @@ public class ValueStreamMapPerformanceTest {
     private void doRun(int numberOfDownstreamPipelines, CruiseConfig cruiseConfig, String threadName) throws InterruptedException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         for (PipelineConfig pipelineConfig : cruiseConfig.allPipelines()) {
-            ValueStreamMapPresentationModel map = valueStreamMapService.getValueStreamMap(pipelineConfig.name().toString(), 1, Username.ANONYMOUS, result);
+            ValueStreamMapPresentationModel map = valueStreamMapService.getValueStreamMap(pipelineConfig.name(), 1, Username.ANONYMOUS, result);
             assertThat(getAllNodes(map).size(), is(numberOfDownstreamPipelines + 2));
         }
     }

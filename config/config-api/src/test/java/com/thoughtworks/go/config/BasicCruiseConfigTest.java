@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,12 +78,12 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineConfig p4 = createPipelineConfig("p4", "s4", "j1");
         p4.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
         pipelines.addAll(asList(p4, p2, p1, p3));
-        Map<String, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
+        Map<CaseInsensitiveString, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
         assertThat(expectedPipelines.size(), is(4));
-        assertThat(expectedPipelines.get("p1"), hasItems(p2, p3));
-        assertThat(expectedPipelines.get("p2"), hasItems(p4));
-        assertThat(expectedPipelines.get("p3").isEmpty(), is(true));
-        assertThat(expectedPipelines.get("p4").isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p1")), hasItems(p2, p3));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p2")), hasItems(p4));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p3")).isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p4")).isEmpty(), is(true));
     }
 
 

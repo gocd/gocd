@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,10 +69,10 @@ public class ValueStreamMapService {
         this.securityService = securityService;
     }
 
-    public ValueStreamMapPresentationModel getValueStreamMap(String pipelineName, int counter, Username username, LocalizedOperationResult result) {
+    public ValueStreamMapPresentationModel getValueStreamMap(CaseInsensitiveString pipelineName, int counter, Username username, LocalizedOperationResult result) {
         try {
-            if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-                result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            if (!securityService.hasViewPermissionForPipeline(username, pipelineName.toString())) {
+                result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
                 return null;
             }
             ValueStreamMap valueStreamMap = buildValueStreamMap(pipelineName, counter, username, result);
@@ -87,19 +87,19 @@ public class ValueStreamMapService {
         }
     }
 
-    private ValueStreamMap buildValueStreamMap(String pipelineName, int counter, Username username, LocalizedOperationResult result) {
+    private ValueStreamMap buildValueStreamMap(CaseInsensitiveString pipelineName, int counter, Username username, LocalizedOperationResult result) {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         BuildCause buildCauseForPipeline;
         try {
             pipelineName = pipelineNameWithSameCaseAsConfig(pipelineName, cruiseConfig);
-            buildCauseForPipeline = pipelineService.buildCauseFor(pipelineName, counter);
+            buildCauseForPipeline = pipelineService.buildCauseFor(pipelineName.toString(), counter);
         } catch (PipelineNotFoundException e) {
-            result.notFound("Pipeline '" + pipelineName + "' with counter '" + counter + "' not found.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound("Pipeline '" + pipelineName + "' with counter '" + counter + "' not found.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
             return null;
         }
-        String label = pipelineService.findPipelineByCounterOrLabel(pipelineName, String.valueOf(counter)).getLabel();
-        ValueStreamMap valueStreamMap = new ValueStreamMap(pipelineName, new PipelineRevision(pipelineName, counter, label));
-        Map<String, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
+        String label = pipelineService.findPipelineByCounterOrLabel(pipelineName.toString(), String.valueOf(counter)).getLabel();
+        ValueStreamMap valueStreamMap = new ValueStreamMap(pipelineName, new PipelineRevision(pipelineName.toString(), counter, label));
+        Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 
         traverseDownstream(pipelineName, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
         traverseUpstream(pipelineName, buildCauseForPipeline, valueStreamMap, new ArrayList<>());
@@ -117,6 +117,9 @@ public class ValueStreamMapService {
         return valueStreamMap;
     }
 
+    private CaseInsensitiveString pipelineNameWithSameCaseAsConfig(CaseInsensitiveString pipelineName, CruiseConfig cruiseConfig) {
+        return cruiseConfig.pipelineConfigByName(pipelineName).name();
+    }
 
     public ValueStreamMapPresentationModel getValueStreamMap(String materialFingerprint, String revision, Username username, LocalizedOperationResult result) {
         try {
@@ -178,17 +181,13 @@ public class ValueStreamMapService {
     private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
-        Map<String, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
+        Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 
         traverseDownstream(material.getFingerprint(), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
 
         addInstanceInformationToTheGraph(valueStreamMap);
         removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
         return valueStreamMap;
-    }
-
-    private String pipelineNameWithSameCaseAsConfig(String pipelineName, CruiseConfig cruiseConfig) {
-        return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).name().toString();
     }
 
     private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
@@ -207,21 +206,21 @@ public class ValueStreamMapService {
         }
     }
 
-    private void traverseUpstream(String pipelineName, BuildCause buildCause, ValueStreamMap graph, List<MaterialRevision> visitedNodes) {
+    private void traverseUpstream(CaseInsensitiveString pipelineName, BuildCause buildCause, ValueStreamMap graph, List<MaterialRevision> visitedNodes) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             Material material = materialRevision.getMaterial();
             if (material instanceof DependencyMaterial) {
-                String upstreamPipeline = ((DependencyMaterial) material).getPipelineName().toString();
+                CaseInsensitiveString upstreamPipeline = ((DependencyMaterial) material).getPipelineName();
                 DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevision.getRevision();
 
-                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
+                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline.toString()), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
                         pipelineName);
 
                 if (visitedNodes.contains(materialRevision)) {
                     continue;
                 }
                 visitedNodes.add(materialRevision);
-                DependencyMaterialRevision dmrOfUpstreamPipeline = buildCause.getMaterialRevisions().findDependencyMaterialRevision(upstreamPipeline);
+                DependencyMaterialRevision dmrOfUpstreamPipeline = buildCause.getMaterialRevisions().findDependencyMaterialRevision(upstreamPipeline.toString());
                 BuildCause buildCauseForUpstreamPipeline = pipelineService.buildCauseFor(dmrOfUpstreamPipeline.getPipelineName(), dmrOfUpstreamPipeline.getPipelineCounter());
                 traverseUpstream(upstreamPipeline, buildCauseForUpstreamPipeline, graph, visitedNodes);
             } else {
@@ -231,20 +230,20 @@ public class ValueStreamMapService {
         }
     }
 
-    private void traverseDownstream(String upstreamPipelineName, Map<String, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
+    private void traverseDownstream(CaseInsensitiveString upstreamPipelineName, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         List<PipelineConfig> downstreamPipelines = pipelineToDownstreamMap.get(upstreamPipelineName);
-        traverseDownstream(upstreamPipelineName, downstreamPipelines, pipelineToDownstreamMap, graph, visitedNodes);
+        traverseDownstream(upstreamPipelineName.toString(), downstreamPipelines, pipelineToDownstreamMap, graph, visitedNodes);
     }
 
-    private void traverseDownstream(String materialId, List<PipelineConfig> downstreamPipelines, Map<String, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
+    private void traverseDownstream(String materialId, List<PipelineConfig> downstreamPipelines, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         for (PipelineConfig downstreamPipeline : downstreamPipelines) {
-            String downstreamPipelineName = downstreamPipeline.name().toString();
-            graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipelineName, downstreamPipelineName), materialId);
+            graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipeline.name(),
+                    downstreamPipeline.name().toString()), new CaseInsensitiveString(materialId));
             if (visitedNodes.contains(downstreamPipeline)) {
                 continue;
             }
             visitedNodes.add(downstreamPipeline);
-            traverseDownstream(downstreamPipelineName, pipelineToDownstreamMap, graph, visitedNodes);
+            traverseDownstream(downstreamPipeline.name(), pipelineToDownstreamMap, graph, visitedNodes);
         }
     }
 

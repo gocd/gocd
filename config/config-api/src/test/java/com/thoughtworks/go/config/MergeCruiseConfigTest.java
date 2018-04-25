@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,13 +197,13 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         pipelines.addAll(Arrays.asList(p4, p2, p1, p3));
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines),
                 PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group"));
-        Map<String, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
+        Map<CaseInsensitiveString, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
         assertThat(expectedPipelines.size(), is(5));
-        assertThat(expectedPipelines.get("p1"), hasItems(p2, p3));
-        assertThat(expectedPipelines.get("p2"), hasItems(p4));
-        assertThat(expectedPipelines.get("p3").isEmpty(), is(true));
-        assertThat(expectedPipelines.get("p4").isEmpty(), is(true));
-        assertThat(expectedPipelines.get("remote-pipe-1").isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p1")), hasItems(p2, p3));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p2")), hasItems(p4));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p3")).isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p4")).isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("remote-pipe-1")).isEmpty(), is(true));
     }
 
     @Test
@@ -228,13 +228,13 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         PartialConfig part = new PartialConfig();
         part.getGroups().addPipeline("remoteGroup", remotePipe1);
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), part);
-        Map<String, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
+        Map<CaseInsensitiveString, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
         assertThat(expectedPipelines.size(), is(5));
-        assertThat(expectedPipelines.get("p1"), hasItems(p2, p3));
-        assertThat(expectedPipelines.get("p2"), hasItems(p4));
-        assertThat(expectedPipelines.get("p3"), hasItems(remotePipe1));
-        assertThat(expectedPipelines.get("remote-pipe-1").isEmpty(), is(true));
-        assertThat(expectedPipelines.get("p4").isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p1")), hasItems(p2, p3));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p2")), hasItems(p4));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p3")), hasItems(remotePipe1));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("remote-pipe-1")).isEmpty(), is(true));
+        assertThat(expectedPipelines.get(new CaseInsensitiveString("p4")).isEmpty(), is(true));
     }
 
 

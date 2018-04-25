@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
@@ -45,21 +46,24 @@ public class DummyNodeCreationTest {
              g                     ^
              +---- x ----- x ------+
          */
-        String currentPipeline = "d3";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d3");
+        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
+        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
+        CaseInsensitiveString g = new CaseInsensitiveString("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d1", new MaterialRevision(null));
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, currentPipeline, new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, currentPipeline, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, "d3");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-1), 1, "d2");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-2), 1, "d1");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-3), 0, "g");
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, currentPipeline);
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-1), 1, d2);
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-2), 1, d1);
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-3), 0, g);
     }
 
     @Test
@@ -71,21 +75,25 @@ public class DummyNodeCreationTest {
              |             |
              ------d2-----+
          */
-        String currentPipeline = "d5";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d5");
+        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
+        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
+        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
+        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("d4", "d4"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d4");
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d1");
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d4");
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, "d4");
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d2");
+        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d4);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d1);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d2);
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
-        VSMTestHelper.assertThatNodeHasChildren(graph, "d3", 1, "d1", "d2");
-        Node secondChildOfD3 = graph.findNode("d3").getChildren().get(1);
+        VSMTestHelper.assertThatNodeHasChildren(graph, d3, 1, d1, d2);
+        Node secondChildOfD3 = graph.findNode(d3).getChildren().get(1);
         assertThat(secondChildOfD3.getType(), is(DependencyNodeType.DUMMY));
     }
 
@@ -98,13 +106,16 @@ public class DummyNodeCreationTest {
         *        |              ^
         *        ------ X -----+
         */
-        String currentPipeline = "d3";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d3");
+        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
+        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
+        CaseInsensitiveString g = new CaseInsensitiveString("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d1", new MaterialRevision(null));
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d2", new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d2, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -115,12 +126,12 @@ public class DummyNodeCreationTest {
         assertThat(nodeLevelMap.get(-2).size(), is(2));
         assertThat(nodeLevelMap.get(-3).size(), is(1));
 
-        VSMTestHelper.assertThatNodeHasChildren(graph, "d1", 1, "d2");
-        VSMTestHelper.assertThatNodeHasChildren(graph, "g", 1, "d1");
+        VSMTestHelper.assertThatNodeHasChildren(graph, d1, 1, d2);
+        VSMTestHelper.assertThatNodeHasChildren(graph, g, 1, d1);
 
-        VSMTestHelper.assertThatNodeHasParents(graph, "d3", 1, "d2");
-        VSMTestHelper.assertThatNodeHasParents(graph, "d2", 1, "d1");
-        VSMTestHelper.assertThatNodeHasParents(graph, "d1", 0, "g");
+        VSMTestHelper.assertThatNodeHasParents(graph, new CaseInsensitiveString("d3"), 1, d2);
+        VSMTestHelper.assertThatNodeHasParents(graph, d2, 1, d1);
+        VSMTestHelper.assertThatNodeHasParents(graph, d1, 0, g);
     }
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesToCorrectLayer() {
@@ -131,13 +142,16 @@ public class DummyNodeCreationTest {
             |           ^
            d3 -- X -----+
          */
-        String currentPipeline = "d1";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d1");
+        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
+        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
+        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d4", "d4"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, "d4");
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d4");
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -159,25 +173,31 @@ public class DummyNodeCreationTest {
             |           ^
             +---- X -----+
          */
-        String currentPipeline = "d5";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d5");
+        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
+        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
+        CaseInsensitiveString g1 = new CaseInsensitiveString("g1");
+        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
+        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
+        CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), null, "d1", new MaterialRevision(null));
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), null, "d2", new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode("d4", "d4"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d4");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g2", "g2", "git"), null, "d3", new MaterialRevision(null));
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g2", "g2", "git"), null, "d4", new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, d1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, d2, new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2.toString(), g2.toString(), "git"), null, d3, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2.toString(), g2.toString(), "git"), null, d4, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, "d5");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-1), 0, "d2", "d4");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-2), 2, "d1", "d3");
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-3), 0, "g1", "g2");
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, new CaseInsensitiveString("d5"));
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-1), 0, d2, d4);
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-2), 2, d1, d3);
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-3), 0, g1, g2);
     }
 
     @Test
@@ -190,23 +210,29 @@ public class DummyNodeCreationTest {
             |                    |
             +---> X -----p3------+
          */
-        String currentPipeline = "p6";
+        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("p6");
+        CaseInsensitiveString p4 = new CaseInsensitiveString("p4");
+        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
+        CaseInsensitiveString git = new CaseInsensitiveString("git");
+        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
+        CaseInsensitiveString p5 = new CaseInsensitiveString("p5");
+        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode("p4", "p4"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), null, "p4");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p1", new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode("p2", "p2"), null, "p4");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p2", new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(p4, p4.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p1, new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p2, new MaterialRevision(null));
 
-        graph.addUpstreamNode(new PipelineDependencyNode("p5", "p5"), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode("p3", "p3"), null, "p5");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p3", new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode("p4", "p4"), null, "p5");
+        graph.addUpstreamNode(new PipelineDependencyNode(p5, p5.toString()), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(p3, p3.toString()), null, p5);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p3, new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(p4, p4.toString()), null, p5);
 
-        graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), null, "p4");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p1", new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode("p2", "p2"), null, "p4");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p2", new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p1, new MaterialRevision(null));
+        graph.addUpstreamNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p2, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);

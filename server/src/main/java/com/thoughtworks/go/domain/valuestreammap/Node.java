@@ -1,21 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.valuestreammap;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class Node implements Comparable<Node>{
-    protected final String id;
+    protected final CaseInsensitiveString id;
     protected final String nodeName;
     private final List<Node> parents = new ArrayList<>();
     private final List<Node> children = new ArrayList<>();
@@ -33,7 +34,7 @@ public abstract class Node implements Comparable<Node>{
     protected DependencyNodeType type;
     private VSMViewType viewType;
 
-    public Node(DependencyNodeType dependencyNodeType, String nodeId, String nodeName) {
+    public Node(DependencyNodeType dependencyNodeType, CaseInsensitiveString nodeId, String nodeName) {
         this.id = nodeId;
         this.type= dependencyNodeType;
         this.nodeName = nodeName;
@@ -43,7 +44,7 @@ public abstract class Node implements Comparable<Node>{
         return nodeName;
     }
 
-    public String getId() {
+    public CaseInsensitiveString getId() {
         return id;
     }
 
@@ -137,7 +138,7 @@ public abstract class Node implements Comparable<Node>{
         List<String> childIds = CollectionUtil.map(children, new CollectionUtil.MapFn<Node, String>() {
             @Override
             public String map(Node node) {
-                return node.getId();
+                return node.getId().toString();
             }
         });
         return String.format("id='%s' name='%s' level='%d' depth='%d' revisions='%s' children='%s'", id, nodeName, level, depth, revisions(), StringUtils.join(childIds, ','));
@@ -185,7 +186,7 @@ public abstract class Node implements Comparable<Node>{
 
     public abstract List<Revision> revisions();
 
-    public boolean hasCycleInSubGraph(Set<String> nodesInPath, Set<Node> verifiedNodes) {
+    public boolean hasCycleInSubGraph(Set<CaseInsensitiveString> nodesInPath, Set<Node> verifiedNodes) {
         if (nodesInPath.contains(getId())) {
             return true;
         }

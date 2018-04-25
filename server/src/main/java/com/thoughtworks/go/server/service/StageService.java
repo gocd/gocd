@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.dto.DurationBean;
-import com.thoughtworks.go.dto.DurationBeans;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
@@ -187,14 +186,6 @@ public class StageService implements StageRunFinder, StageFinder {
         });
     }
 
-    public DurationBeans getBuildDurations(String pipelineName, Stage stage) {
-        DurationBeans durationBeans = new DurationBeans();
-        for (JobInstance job : stage.getJobInstances()) {
-            durationBeans.add(getDuration(pipelineName, stage.getName(), job));
-        }
-        return durationBeans;
-    }
-
     public DurationBean getBuildDuration(String pipelineName, String stageName, JobInstance job) {
         return getDuration(pipelineName, stageName, job);
     }
@@ -306,15 +297,6 @@ public class StageService implements StageRunFinder, StageFinder {
                 stageDao.updateResult(stage, stage.getResult());
             }
         });
-    }
-
-    public Stage mostRecentStageWithBuilds(String pipelineName, StageConfig stageConfig) {
-        Stage stage = findLatestStage(pipelineName, CaseInsensitiveString.str(stageConfig.name()));
-        if (stage == null) {
-            return NullStage.createNullStage(stageConfig);
-        }
-        stage.setJobInstances(jobInstanceService.currentJobsOfStage(pipelineName, stageConfig));
-        return stage;
     }
 
     public Stage findLatestStage(String pipelineName, String stageName) {

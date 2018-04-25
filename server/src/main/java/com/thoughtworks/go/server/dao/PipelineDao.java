@@ -70,8 +70,6 @@ public interface PipelineDao {
 
     PipelineInstanceModel findPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter);
 
-    StageIdentifier findLastSuccessfulStageIdentifier(String pipelineName, String stageName);
-
     PipelineInstanceModels loadActivePipelines();
 
     Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel);

@@ -192,19 +192,6 @@
         <flushOnExecute statement="updateStageStatus"/>
     </cacheModel>
 
-    <select id="getLastSuccessfulStageInPipeline" resultMap="Pipeline.pipeline-with-stage" cacheModel="pipelineWithLatestSuccessfulStage">
-        SELECT
-            name as stageName, id as stageId,
-            pipelineId, approvalType, counter as stageCounter, completedByTransitionId, state as stageState, latestRun, fetchMaterials, cleanWorkingDir,
-            approvedBy, createdTime, orderId, result as stageResult, rerunOfCounter, pipelineLabel as label, pipelineCounter, artifactsDeleted, configVersion, lastTransitionedTime
-        FROM _stages
-        WHERE name = #stageName#
-        AND pipelineName = #pipelineName#
-        AND result = 'Passed'
-        ORDER BY id DESC
-        LIMIT 1
-    </select>
-
     <select id="getMostRecentPassedStageId" resultClass="java.lang.Long">
         SELECT id
         FROM _stages

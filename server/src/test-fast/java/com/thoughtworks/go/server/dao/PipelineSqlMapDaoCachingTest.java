@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -120,18 +119,6 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void findLastSuccessfulStageIdentifier_shouldCacheResult() {
-        StageIdentifier expected = new StageIdentifier("pipeline", 0, "${COUNT}", "stage", "1");
-        when(mockTemplate.queryForObject(eq("getLastSuccessfulStageInPipeline"), any())).thenReturn(PipelineMother.passedPipelineInstance("pipeline", "stage", "job"));
-        pipelineDao.findLastSuccessfulStageIdentifier("pipeline", "stage");
-
-        StageIdentifier actual = pipelineDao.findLastSuccessfulStageIdentifier("pipeline", "stage");
-
-        assertEquals(actual, expected);
-        verify(mockTemplate, times(1)).queryForObject(eq("getLastSuccessfulStageInPipeline"), any());
-    }
-
-    @Test
     public void findPipelineIds_shouldCacheResultWhenOnlyLatestPipelineIdIsRequested() {
         List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
@@ -180,76 +167,6 @@ public class PipelineSqlMapDaoCachingTest {
         pipelineDao.save(PipelineMother.pipeline("pipelineName".toUpperCase()));
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
         verify(mockTemplate, times(2)).queryForList(eq("getPipelineRange"), any());
-    }
-
-    @Test
-    public void findLastSuccessfulStageIdentifier_shouldEnsureOnlyOneThreadCanUpdateCacheAtATime() throws Exception {
-        Pipeline pipelineWithOlderStage = PipelineMother.passedPipelineInstance("pipeline-name", "stage", "job");
-        Stage stage = pipelineWithOlderStage.findStage("stage");
-        stage.setIdentifier(new StageIdentifier("pipeline-name", 1, "stage", "1"));
-        stage.setPipelineId(1L);
-        when(mockTemplate.queryForObject(eq("getLastSuccessfulStageInPipeline"), any())).thenReturn(pipelineWithOlderStage);
-        pipelineDao = new PipelineSqlMapDao(null, null, goCache, null, null, null, transactionSynchronizationManager, null, configFileDao, null, mock(SessionFactory.class));
-        pipelineDao.setSqlMapClientTemplate(mockTemplate);
-
-        final Stage newerStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
-        newerStage.setPipelineId(1L);
-        final StageIdentifier newerIdentifer = new StageIdentifier("pipeline-name", 1, "stage", "999999");
-        newerStage.setIdentifier(newerIdentifer);
-
-        new Thread(new Runnable() {
-            public void run() {
-                pipelineDao.stageStatusChanged(newerStage);
-            }
-        }).start();
-        TestUtils.sleepQuietly(200);
-
-        List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            final Pipeline pipeline = PipelineMother.pipeline("mingle");
-            pipeline.setCounter(i + 1);
-
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    assertEquals(newerIdentifer, pipelineDao.findLastSuccessfulStageIdentifier("pipeline-name", "stage"));
-                }
-            }, "thread-" + i);
-            threads.add(thread);
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            thread.join();
-        }
-
-        verify(mockTemplate, never()).queryForObject(eq("getLastSuccessfulStageInPipeline"), any());
-    }
-
-    @Test
-    public void stageStateChanged_shouldUpdateLatestSuccessfulStageIdentifierCache() {
-        Stage passed = StageMother.passedStageInstance("dev", "job", "pipeline-name");
-        passed.setPipelineId(1L);
-        pipelineDao.stageStatusChanged(passed);
-        StageIdentifier actual = pipelineDao.findLastSuccessfulStageIdentifier("pipeline-name", "dev");
-        assertEquals(passed.getIdentifier(), actual);
-        verify(mockTemplate, never()).queryForObject(eq("getLastSuccessfulStageInPipeline"), any());
-    }
-
-    @Test
-    public void stageStateChanged_shouldNotUpdateLatestSuccessfulStageIdentifierCacheIfStageIsNotPassed() {
-        Stage passed = StageMother.createPassedStage("pipeline", 1, "stage", 8, "job", new Date());
-        passed.setPipelineId(1L);
-        pipelineDao.stageStatusChanged(passed);
-        pipelineDao.findLastSuccessfulStageIdentifier("pipeline", "stage");
-
-        Stage failed = StageMother.completedFailedStageInstance("pipeline", "dev", "job");
-        failed.setIdentifier(new StageIdentifier("pipeline", 1, "LABEL-1", "stage", "10000"));
-        failed.setPipelineId(1L);
-        pipelineDao.stageStatusChanged(failed);
-
-        StageIdentifier actual = pipelineDao.findLastSuccessfulStageIdentifier("pipeline", "stage");
-        assertEquals(passed.getIdentifier(), actual);
-
-        verify(mockTemplate, never()).queryForObject(eq("getLastSuccessfulStageInPipeline"), any());
     }
 
     @Test

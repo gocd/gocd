@@ -84,10 +84,6 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.mostRecentPipeline(pipeLineName);
     }
 
-    public StageIdentifier findLastSuccessfulStageIdentifier(String pipelineName, String stageName) {
-        return pipelineDao.findLastSuccessfulStageIdentifier(pipelineName, stageName);
-    }
-
     public Pipeline save(final Pipeline pipeline) {
         String mutexPipelineName = PipelinePauseService.mutexForPausePipeline(pipeline.getName());
         synchronized (mutexPipelineName) {

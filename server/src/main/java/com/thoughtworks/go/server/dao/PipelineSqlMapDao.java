@@ -194,30 +194,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return (Pipeline) getSqlMapClientTemplate().queryForObject("findPipelineByNameAndLabel", map);
     }
 
-    public StageIdentifier findLastSuccessfulStageIdentifier(String pipelineName, String stageName) {
-        String cacheKey = latestSuccessfulStageCacheKey(pipelineName, stageName);
-        synchronized (cacheKey) {
-            StageIdentifier lastStageIdentifier = (StageIdentifier) goCache.get(cacheKey);
-            if (lastStageIdentifier == null) {
-                lastStageIdentifier = _findLastSuccessfulStageIdentifier(pipelineName, stageName);
-                goCache.put(cacheKey, lastStageIdentifier);
-            }
-            return lastStageIdentifier;
-        }
-    }
-
-    private StageIdentifier _findLastSuccessfulStageIdentifier(String pipelineName, String stageName) {
-        // This query returns a bare bones pipeline containing one bare bones stage.
-        Map<String, Object> map = arguments("pipelineName", pipelineName).and("stageName", stageName).asMap();
-        Pipeline lastSuccessful = (Pipeline) getSqlMapClientTemplate().queryForObject("getLastSuccessfulStageInPipeline", map);
-        if (lastSuccessful == null) {
-            return null;
-        } else {
-            Stage laststage = lastSuccessful.findStage(stageName);
-            return new StageIdentifier(pipelineName, lastSuccessful.getCounter(), lastSuccessful.getLabel(), laststage.getName(), Integer.toString(laststage.getCounter()));
-        }
-    }
-
     protected void updateCachedLatestSuccessfulStage(Stage stage) {
         if (stage.passed()) {
             StageIdentifier identifier = stage.getIdentifier();

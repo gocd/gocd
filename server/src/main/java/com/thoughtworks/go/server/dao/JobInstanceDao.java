@@ -43,8 +43,6 @@ public interface JobInstanceDao {
 
     void ignore(JobInstance job);
 
-    boolean isValid(String pipelineName, String stageName, String buildName);
-
     JobInstance getLatestInProgressBuildByAgentUuid(String uuid);
 
     JobInstances findHungJobs(List<String> liveAgentIdList);

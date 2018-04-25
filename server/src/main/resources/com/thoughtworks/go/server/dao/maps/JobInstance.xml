@@ -38,7 +38,7 @@
     <resultMap id="select-build-with-identifier"
                class="com.thoughtworks.go.domain.JobInstance"
                extends="select-build-map">
-        <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>        
+        <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>
     </resultMap>
 
     <resultMap id="select-build-with-identifier-transitions"
@@ -222,7 +222,7 @@
         INNER JOIN stages ON stages.id = builds.stageId
         INNER JOIN pipelines ON stages.pipelineId = pipelines.id
        WHERE builds.id = #value#
-       ORDER BY buildstatetransitions.id ASC 
+       ORDER BY buildstatetransitions.id ASC
     </select>
 
     <select id="buildById" resultMap="select-build-with-identifier">
@@ -249,7 +249,7 @@
             *, id AS buildId
         FROM _builds
     </sql>
-    
+
     <select id="getLatestInProgressBuildOnAgent" resultMap="select-build-with-identifier">
         <include refid="select-builds-with-identifier"/>
         WHERE agentUuid = #agentId#
@@ -268,15 +268,6 @@
 
     <select id="buildInstanceExists" resultClass="java.lang.Boolean">
         SELECT count(*) = 1 FROM builds WHERE id = #value#
-    </select>
-
-    <select id="isValid" resultClass="java.lang.Boolean">
-        SELECT count(*) > 0 FROM builds
-        INNER JOIN stages ON stages.id = builds.stageId
-        INNER JOIN pipelines ON pipelines.id = stages.pipelineId
-        WHERE stages.name = #stageName#
-            AND builds.name = #buildName#
-            AND pipelines.name = #pipelineName#
     </select>
 
     <update id="updateAssignedInfo" parameterClass="com.thoughtworks.go.domain.JobInstance">

@@ -378,14 +378,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         getSqlMapClientTemplate().update("updateResult", job);
     }
 
-    public boolean isValid(String pipelineName, String stageName, String buildName) {
-        return (Boolean) getSqlMapClientTemplate().queryForObject("isValid",
-                arguments("pipelineName", pipelineName)
-                        .and("stageName", stageName)
-                        .and("buildName", buildName).asMap()
-        );
-    }
-
     public void ignore(JobInstance job) {
         getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
         deleteJobPlanAssociatedEntities(job);

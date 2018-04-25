@@ -1024,12 +1024,6 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldKnowIfBuildIdentifierIsValid() {
-        assertThat(jobInstanceDao.isValid(PIPELINE_NAME, STAGE_NAME, JOB_NAME), is(true));
-        assertThat(jobInstanceDao.isValid("unknown", STAGE_NAME, JOB_NAME), is(false));
-    }
-
-    @Test
     public void shouldGetCompletedJobsOnAgentForARange() {
         String agentUuid = "special_uuid";
         JobInstance buildingJob = building("job1", new Date(1));

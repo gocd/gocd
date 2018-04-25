@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 public class StageActiveCheckerTest {
 
-    private CurrentActivityService service;
+    private StageService service;
     private String pipelineName;
     private StageActiveChecker checker;
     private String stageName;
@@ -37,7 +37,7 @@ public class StageActiveCheckerTest {
 
     @Before
     public void setUp() throws Exception {
-        service = mock(CurrentActivityService.class);
+        service = mock(StageService.class);
         pipelineName = "cruise";
         stageName = "dev";
         checker = new StageActiveChecker(pipelineName, stageName, service);

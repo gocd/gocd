@@ -23,17 +23,17 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 public class StageActiveChecker implements SchedulingChecker {
     private String pipelineName;
     private String stageName;
-    private CurrentActivityService activityService;
+    private StageService stageService;
 
-    public StageActiveChecker(String pipelineName, String stageName, CurrentActivityService activityService) {
+    public StageActiveChecker(String pipelineName, String stageName, StageService stageService) {
         this.pipelineName = pipelineName;
         this.stageName = stageName;
-        this.activityService = activityService;
+        this.stageService = stageService;
     }
 
     public void check(OperationResult result) {
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
-        if (activityService.isStageActive(pipelineName, stageName)) {
+        if (stageService.isStageActive(pipelineName, stageName)) {
             String message = String.format("Failed to trigger pipeline [%s]", pipelineName);
             result.conflict(message, String.format("Stage [%s] in pipeline [%s] is still in progress", stageName, pipelineName), healthStateType);
         } else {

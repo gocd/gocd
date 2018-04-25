@@ -50,7 +50,7 @@ public class SchedulingCheckerServiceUnitTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        schedulingChecker = spy(new SchedulingCheckerService(mock(GoConfigService.class), mock(CurrentActivityService.class),
+        schedulingChecker = spy(new SchedulingCheckerService(mock(GoConfigService.class), mock(StageService.class),
                 mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class),
                 mock(PipelinePauseService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
 

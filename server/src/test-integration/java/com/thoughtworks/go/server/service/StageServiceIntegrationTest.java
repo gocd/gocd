@@ -92,6 +92,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -210,7 +211,7 @@ public class StageServiceIntegrationTest {
         fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        assertThat(stageService.isAnyStageActiveForPipeline(fixture.pipelineName, pipeline.getCounter()), Is.is(false));
+        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), Is.is(false));
     }
 
     @Test
@@ -219,7 +220,15 @@ public class StageServiceIntegrationTest {
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
-        assertThat(stageService.isAnyStageActiveForPipeline(fixture.pipelineName, pipeline.getCounter()), Is.is(true));
+        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), Is.is(true));
+    }
+
+    @Test
+    public void testShouldReturnTrueIfAStageOfAPipelineHasBeenScheduked() throws Exception {
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
+        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        Pipeline pipeline = fixture.createPipelineWithFirstStageScheduled();
+        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), is(true));
     }
 
     @Test
@@ -700,6 +709,14 @@ public class StageServiceIntegrationTest {
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage",13L)),is(true));
         assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage",14L)),is(true));
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
+    }
+
+    @Test
+    public void testShouldReturnTrueIfAStageIsActive_CaseInsensitive() throws Exception {
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
+        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        assertThat(stageService.isStageActive(pipeline.getName().toUpperCase(), "FT"), is(true));
     }
 
     private void assertStageEntryAuthorAndMingleCards(MingleConfig upstreamMingle, MingleConfig downstreamMingle, FeedEntries feed) {

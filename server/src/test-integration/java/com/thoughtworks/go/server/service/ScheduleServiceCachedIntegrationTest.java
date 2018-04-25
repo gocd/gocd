@@ -62,7 +62,6 @@ public class ScheduleServiceCachedIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private CachedCurrentActivityService currentActivityService;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
@@ -109,7 +108,7 @@ public class ScheduleServiceCachedIntegrationTest {
     @Test
     // #2296
     public void shouldUseLatestStageStateInsteadOfCachedWhenScheduling() throws Exception {
-        assertThat(currentActivityService.isStageActive(preCondition.pipelineName, preCondition.devStage), is(false));
+        assertThat(stageService.isStageActive(preCondition.pipelineName, preCondition.devStage), is(false));
 
         Pipeline pipeline0 = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
 

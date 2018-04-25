@@ -500,8 +500,8 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.isStageActive(pipelineName, stageName);
     }
 
-    public boolean isAnyStageActiveForPipeline(String pipelineName, int counter) {
-        return stageDao.findAllStagesFor(pipelineName, counter).isAnyStageActive();
+    public boolean isAnyStageActiveForPipeline(PipelineIdentifier pipelineIdentifier) {
+        return stageDao.findAllStagesFor(pipelineIdentifier.getName(), pipelineIdentifier.getCounter()).isAnyStageActive();
     }
 
     public List<Stage> oldestStagesWithDeletableArtifacts() {

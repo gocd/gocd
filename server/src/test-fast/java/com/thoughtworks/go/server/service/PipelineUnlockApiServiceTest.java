@@ -35,17 +35,17 @@ public class PipelineUnlockApiServiceTest {
     private PipelineUnlockApiService pipelineUnlockApiService;
     private PipelineSqlMapDao pipelineDao;
     private GoConfigService goConfigService;
-    private CachedCurrentActivityService currentActivityService;
+    private StageService stageService;
     private SecurityService securityService;
     private PipelineLockService pipelineLockService;
 
     @Before public void setup() throws Exception {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigService = mock(GoConfigService.class);
-        currentActivityService = Mockito.mock(CachedCurrentActivityService.class);
+        stageService = Mockito.mock(StageService.class);
         securityService = Mockito.mock(SecurityService.class);
         pipelineLockService = Mockito.mock(PipelineLockService.class);
-        pipelineUnlockApiService = new PipelineUnlockApiService(goConfigService, pipelineLockService, currentActivityService, securityService);
+        pipelineUnlockApiService = new PipelineUnlockApiService(goConfigService, pipelineLockService, stageService, securityService);
     }
 
     @Test public void unlockShouldSetResultToOkWhenSuccessful() throws Exception {
@@ -111,7 +111,7 @@ public class PipelineUnlockApiServiceTest {
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         StageIdentifier identifier = new StageIdentifier("pipeline-name", 10, "10", "stage", "1");
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(identifier);
-        when(currentActivityService.isAnyStageActive(identifier.pipelineIdentifier())).thenReturn(true);
+        when(stageService.isAnyStageActiveForPipeline(identifier.pipelineIdentifier())).thenReturn(true);
 
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
@@ -127,7 +127,7 @@ public class PipelineUnlockApiServiceTest {
         Mockito.when(goConfigService.isLockable(pipelineName)).thenReturn(true);
         StageIdentifier identifier = new StageIdentifier(pipelineName, 10, "10", "stage", "1");
         Mockito.when(pipelineLockService.lockedPipeline(pipelineName)).thenReturn(identifier);
-        Mockito.when(currentActivityService.isAnyStageActive(new PipelineIdentifier(pipelineName, 10, "10"))).thenReturn(false);
+        Mockito.when(stageService.isAnyStageActiveForPipeline(new PipelineIdentifier(pipelineName, 10, "10"))).thenReturn(false);
 
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock(pipelineName, new Username(new CaseInsensitiveString("username")), result);
@@ -140,7 +140,7 @@ public class PipelineUnlockApiServiceTest {
     public void shouldBeAbleToVerifyUnlockStatusOfAPipelineWithoutCheckingForUserPermissions() throws Exception {
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
-        when(currentActivityService.isAnyStageActive(new PipelineIdentifier("pipeline-name", 10, "10"))).thenReturn(false);
+        when(stageService.isAnyStageActiveForPipeline(new PipelineIdentifier("pipeline-name", 10, "10"))).thenReturn(false);
 
         assertThat(pipelineUnlockApiService.isUnlockable("pipeline-name"), is(true));
 

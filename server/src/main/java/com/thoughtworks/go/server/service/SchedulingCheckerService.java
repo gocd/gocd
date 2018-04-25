@@ -34,7 +34,7 @@ import static java.util.Arrays.asList;
 @Service
 public class SchedulingCheckerService {
     private final GoConfigService goConfigService;
-    private final CurrentActivityService activityService;
+    private final StageService stageService;
     private final SecurityService securityService;
     private final PipelineLockService pipelineLockService;
     private final TriggerMonitor triggerMonitor;
@@ -44,13 +44,13 @@ public class SchedulingCheckerService {
 
     @Autowired
     public SchedulingCheckerService(GoConfigService goConfigService,
-                                    CurrentActivityService activityService,
+                                    StageService stageService,
                                     SecurityService securityService,
                                     PipelineLockService pipelineLockService,
                                     TriggerMonitor triggerMonitor, PipelineScheduleQueue pipelineScheduleQueue,
                                     PipelinePauseService pipelinePauseService, OutOfDiskSpaceChecker outOfDiskSpaceChecker) {
         this.goConfigService = goConfigService;
-        this.activityService = activityService;
+        this.stageService = stageService;
         this.securityService = securityService;
         this.pipelineLockService = pipelineLockService;
         this.triggerMonitor = triggerMonitor;
@@ -110,7 +110,7 @@ public class SchedulingCheckerService {
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
         SchedulingChecker checker = buildScheduleCheckers(asList(new PipelinePauseChecker(pipelineName, pipelinePauseService), new PipelineLockChecker(pipelineName, pipelineLockService),
-                new StageActiveChecker(pipelineName, stageName, activityService)));
+                new StageActiveChecker(pipelineName, stageName, stageService)));
         checker.check(result);
         return result.getServerHealthState().isSuccess();
     }
@@ -122,7 +122,7 @@ public class SchedulingCheckerService {
                 new PipelineLockChecker(pipelineName, pipelineLockService),
                 new ManualPipelineChecker(pipelineConfig),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
-                new StageActiveChecker(pipelineName, CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name()), activityService)));
+                new StageActiveChecker(pipelineName, CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name()), stageService)));
         checker.check(operationResult);
     }
 
@@ -133,8 +133,8 @@ public class SchedulingCheckerService {
         SchedulingChecker canRerunChecker = buildScheduleCheckers(asList(
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
-                new PipelineActiveChecker(activityService, pipelineIdentifier),
-                new StageActiveChecker(pipelineName, stageName, activityService),
+                new PipelineActiveChecker(stageService, pipelineIdentifier),
+                new StageActiveChecker(pipelineName, stageName, stageService),
                 diskCheckers()));
         canRerunChecker.check(result);
         return result.getServerHealthState().isSuccess();
@@ -148,8 +148,8 @@ public class SchedulingCheckerService {
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new StageLockChecker(pipelineIdentifier, pipelineLockService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
-                new PipelineActiveChecker(activityService, pipelineIdentifier),
-                new StageActiveChecker(pipelineName, stageName, activityService),
+                new PipelineActiveChecker(stageService, pipelineIdentifier),
+                new StageActiveChecker(pipelineName, stageName, stageService),
                 diskCheckers()));
         checker.check(result);
         return result.canContinue();
@@ -177,7 +177,7 @@ public class SchedulingCheckerService {
         return new CompositeChecker(
                 new AboutToBeTriggeredChecker(pipelineConfig.name(), triggerMonitor, pipelineScheduleQueue),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
-                new StageActiveChecker(pipelineName, stageName, activityService),
+                new StageActiveChecker(pipelineName, stageName, stageService),
                 new PipelineLockChecker(pipelineName, pipelineLockService),
                 diskCheckers());
     }

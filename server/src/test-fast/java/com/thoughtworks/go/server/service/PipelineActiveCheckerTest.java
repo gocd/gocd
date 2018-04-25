@@ -27,20 +27,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PipelineActiveCheckerTest {
-    private CurrentActivityService service;
+    private StageService service;
     private PipelineActiveChecker checker;
     private PipelineIdentifier pipelineIdentifier;
 
     @Before
     public void setUp() throws Exception {
-        service = mock(CurrentActivityService.class);
+        service = mock(StageService.class);
         pipelineIdentifier = new PipelineIdentifier("cruise", 1, "label-1");
         checker = new PipelineActiveChecker(service, pipelineIdentifier);
     }
 
     @Test
     public void shouldFailIfPipelineIsActive() {
-        when(service.isAnyStageActive(pipelineIdentifier)).thenReturn(true);
+        when(service.isAnyStageActiveForPipeline(pipelineIdentifier)).thenReturn(true);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
@@ -51,7 +51,7 @@ public class PipelineActiveCheckerTest {
 
     @Test
     public void shouldPassIfPipelineIsNotActive() {
-        when(service.isAnyStageActive(pipelineIdentifier)).thenReturn(false);
+        when(service.isAnyStageActiveForPipeline(pipelineIdentifier)).thenReturn(false);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);

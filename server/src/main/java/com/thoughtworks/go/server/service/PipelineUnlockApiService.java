@@ -41,15 +41,15 @@ import static java.lang.String.format;
 public class PipelineUnlockApiService {
     private final GoConfigService goConfigService;
     private final PipelineLockService pipelineLockService;
-    private final CurrentActivityService currentActivityService;
+    private final StageService stageService;
     private final SecurityService securityService;
 
     @Autowired
     public PipelineUnlockApiService(GoConfigService goConfigService, PipelineLockService pipelineLockService,
-                                    CurrentActivityService currentActivityService, SecurityService securityService) {
+                                    StageService stageService, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.pipelineLockService = pipelineLockService;
-        this.currentActivityService = currentActivityService;
+        this.stageService = stageService;
         this.securityService = securityService;
     }
 
@@ -90,7 +90,7 @@ public class PipelineUnlockApiService {
             result.conflict(msg, msg, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
-        if (currentActivityService.isAnyStageActive(stageIdentifier.pipelineIdentifier())) {
+        if (stageService.isAnyStageActiveForPipeline(stageIdentifier.pipelineIdentifier())) {
             String message = "Locked pipeline instance is currently running (one of the stages is in progress)";
             result.conflict(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;

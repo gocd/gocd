@@ -13,21 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<li role="presentation">
-  <a href="/go/admin/pipelines">Pipelines</a>
-</li>
-<li role="presentation">
-  <a href="/go/admin/templates">Templates</a>
-</li>
-<li role="presentation">
-  <a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a>
-</li>
-<li role="presentation">
-  <a href="/go/admin/pipelines/snippet">Config XML</a>
-</li>
-<li role="presentation">
-  <a href="/go/admin/plugins">Plugins</a>
-</li>
-<li role="presentation">
-  <a href="/go/admin/package_repositories/new">Package Repositories</a>
-</li>
+<li role="presentation"><a href="/go/admin/pipelines">Pipelines</a></li>
+<li role="presentation"><a href="/go/admin/templates">Templates</a></li>
+<li role="presentation"><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>
+<li role="presentation"><a href="/go/admin/pipelines/snippet">Config XML</a></li>
+<li role="presentation"><a href="/go/admin/plugins">Plugins</a></li>
+<li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>

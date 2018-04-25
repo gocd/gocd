@@ -21,18 +21,12 @@
 <li role="presentation"><a href="/go/admin/users">User Summary</a></li>
 <li role="presentation"><a href="/go/oauth/admin/clients?column=status&order=ASC">OAuth Clients</a></li>
 <li role="presentation"><a href="/go/admin/backup">Backup</a></li>
-<li role="presentation">
-  <a href="/go/admin/plugins">Plugins</a>
-</li>
+<li role="presentation"><a href="/go/admin/plugins">Plugins</a></li>
 <li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>
 <li role="presentation" class="sub-menu">
   <a href="#">Security</a>
   <ul class="dropdown menu" data-dropdown-menu>
-    <li role="presentation">
-      <a href="/go/admin/security/auth_configs">Authorization Configuration</a>
-    </li>
-    <li role="presentation">
-      <a href="/go/admin/security/roles">Role Configuration</a>
-    </li>
+    <li role="presentation"><a href="/go/admin/security/auth_configs">Authorization Configuration</a></li>
+    <li role="presentation"><a href="/go/admin/security/roles">Role Configuration</a></li>
   </ul>
 </li>

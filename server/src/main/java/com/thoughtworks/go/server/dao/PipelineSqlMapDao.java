@@ -302,25 +302,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return loadMaterialRevisions(pipeline);
     }
 
-    public Pipeline pipelineWithModsByStageId(String pipelineName, long stageId) {
-        String cacheKey = cacheKeyForPipelineWithStageId(pipelineName, stageId);
-        synchronized (cacheKey) {
-            Pipeline pipeline = (Pipeline) goCache.get(cacheKey);
-            if (pipeline == null) {
-                pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByStageId", stageId);
-                if (pipeline == null) {
-                    return new NullPipeline(pipelineName);
-                }
-                goCache.put(cacheKey, loadMaterialRevisions(pipeline));
-            }
-            return pipeline;
-        }
-    }
-
-    private String cacheKeyForPipelineWithStageId(String pipelineName, long stageId) {
-        return (PipelineSqlMapDao.class + "_pipelineWithStageId_" + pipelineName.toLowerCase() + "_" + stageId).intern();
-    }
-
     public Pipeline loadAssociations(Pipeline pipeline, String pipelineName) {
         pipeline = loadStages(pipeline);
         pipeline = loadMaterialRevisions(pipeline);

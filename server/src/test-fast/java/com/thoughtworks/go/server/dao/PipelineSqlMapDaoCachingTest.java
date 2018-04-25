@@ -120,21 +120,6 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void pipelineWithModsByStageId_shouldCachePipelineWithMods() throws Exception {
-        Pipeline expected = PipelineMother.pipeline("pipeline");
-        expected.setId(1);
-
-        when(mockTemplate.queryForObject("getPipelineByStageId", 1L)).thenReturn(expected);
-
-        Pipeline actual = pipelineDao.pipelineWithModsByStageId("pipeline", 1L);
-        assertSame(expected, actual);
-
-        pipelineDao.pipelineWithModsByStageId("pipeline".toUpperCase(), 1L);
-        verify(mockTemplate, times(1)).queryForObject("getPipelineByStageId", 1L);
-    }
-
-
-    @Test
     public void findLastSuccessfulStageIdentifier_shouldCacheResult() {
         StageIdentifier expected = new StageIdentifier("pipeline", 0, "${COUNT}", "stage", "1");
         when(mockTemplate.queryForObject(eq("getLastSuccessfulStageInPipeline"), any())).thenReturn(PipelineMother.passedPipelineInstance("pipeline", "stage", "job"));

@@ -33,8 +33,6 @@ public interface PipelineDao {
 
     Pipeline mostRecentPipeline(String pipelineName);
 
-    Pipeline pipelineWithModsByStageId(String pipelineName, long stageId);
-
     PipelineInstanceModel loadHistory(long id);
 
     PipelineInstanceModels loadHistory(String pipelineName, int resultsPerPage, int start);

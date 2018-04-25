@@ -509,15 +509,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(actual.getCounter(), is(expected.getCounter()));
     }
 
-    @Test
-    public void shouldLoadPipelineFromStageInstanceId() throws Exception {
-        String stageName = "dev";
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
-        Pipeline mingle = schedulePipelineWithStages(mingleConfig);
-        Stage stage = stageOf(mingle);
-        assertThat(pipelineDao.pipelineWithModsByStageId(mingle.getName(), stage.getId()), hasSameId(mingle));
-    }
-
     //TODO FIXME sorted by Id is not good.
     // - Comment by Bobby: Sorted by Id is exactly what we want here. Please discuss.
     @Test

@@ -16,7 +16,6 @@
 
 const m = require('mithril');
 
-
 const Interactions          = require("models/shared/analytics_interaction_manager");
 const Models                = Interactions.ensure().ns("PipelineMetrics");
 const init                  = require("rails-shared/plugin-endpoint").init;

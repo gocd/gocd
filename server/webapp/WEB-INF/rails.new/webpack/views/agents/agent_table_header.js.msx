@@ -104,6 +104,7 @@ const AgentsTableHeader = {
                             sortOrder={vnode.attrs.sortOrder}
                             sortClass={vnode.state.sortClass}/>
         </th>
+        <th></th>
       </tr>
       </thead>
     );

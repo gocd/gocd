@@ -111,7 +111,7 @@ describe("Agents Widget", () => {
   it('should contain the agent row information', () => {
     const agentInfo      = $root.find('table tbody tr')[0];
     const firstAgentInfo = $(agentInfo).find('td');
-    expect(firstAgentInfo).toHaveLength(10);
+    expect(firstAgentInfo).toHaveLength(11);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
     expect($(firstAgentInfo[2]).find('.content')).toHaveText('host-1');
     expect($(firstAgentInfo[3]).find('.content')).toHaveText('usr/local/foo');

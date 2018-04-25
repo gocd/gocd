@@ -620,6 +620,7 @@ describe('PluginInfos', () => {
         },
         "capabilities":     {
           "supported_analytics": [
+            {type: "agent", id: "bar"},
             {type: "pipeline", id: "rawr"},
             {type: "dashboard", id: "foo"}
           ]
@@ -985,6 +986,7 @@ describe('PluginInfos', () => {
         "type": "dashboard",
         "id":   "foo"
       }]);
+      expect(extensionInfo.capabilities().supportedAgentAnalytics()).toEqual([{"type": "agent", "id":   "bar"}]);
     });
   });
 

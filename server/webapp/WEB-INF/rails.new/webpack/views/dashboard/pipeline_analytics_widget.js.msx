@@ -24,11 +24,16 @@ const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-reque
 const Frame                        = require('models/shared/frame');
 
 
+const models = {};
+PluginEndpointRequestHandler.defineLinkHandler();
+PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
+
 function createModal(pluginId, metricId, pipeline) {
-  PluginEndpointRequestHandler.defineLinkHandler();
+  const model = new Frame(m.redraw),
+    uid = `f-${pluginId}:pipeline:0`;
+  models[uid] = model;
   PluginEndpoint.ensure("v1");
 
-  const model = new Frame(m.redraw);
   model.pluginId(pluginId);
   model.url(Routes.showAnalyticsPath(pluginId, "pipeline", metricId, {
     pipeline_name: pipeline.name,  // eslint-disable-line camelcase
@@ -37,7 +42,7 @@ function createModal(pluginId, metricId, pipeline) {
   const modal = new Modal({
     size:    "analytics-modal",
     title:   `Analytics`,
-    body:    () => (m(AnalyticsiFrameWidget, {model, title: "Pipeline Build Time", pluginId, init: PluginEndpoint.init})),
+    body:    () => (m(AnalyticsiFrameWidget, {model, uid, title: "Pipeline Build Time", pluginId, init: PluginEndpoint.init})),
     onclose: () => modal.destroy(),
     buttons: []
   });

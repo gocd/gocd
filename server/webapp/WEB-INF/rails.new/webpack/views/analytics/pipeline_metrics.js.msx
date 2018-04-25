@@ -21,13 +21,16 @@
   const $ = require("jquery");
   const _ = require('lodash');
 
-  const PluginEndpoint           = require('rails-shared/plugin-endpoint');
-  const AnalyticsiFrameWidget    = require('views/shared/analytics_iframe_widget');
-  const Frame                    = require('models/shared/frame');
-  const Routes                   = require('gen/js-routes');
+  const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
+  const PluginEndpoint               = require('rails-shared/plugin-endpoint');
+  const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
+  const Frame                        = require('models/shared/frame');
+  const Routes                       = require('gen/js-routes');
 
   const models = {};
   let currentPipeline = null;
+
+  PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
 
   const PipelineMetrics = function() {
     let data = null;

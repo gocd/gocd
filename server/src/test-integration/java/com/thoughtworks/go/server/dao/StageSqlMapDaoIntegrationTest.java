@@ -888,12 +888,6 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnName() throws Exception {
-        Stage stage = pipelineAndFirstStageOf(dbHelper.schedulePipeline(mingleConfig, new TimeProvider())).stage;
-        assertThat(stageDao.stageNameByStageId(stage.getId()), is(STAGE_DEV));
-    }
-
-    @Test
     public void shouldReturnNoStageConfigWhenNoBuildsExist() {
         Stage completed = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(mingleConfig.name()), mingleConfig.get(0));
         assertThat(completed.getId(), is(-1L));

@@ -120,10 +120,6 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.getStageByBuild(buildId);
     }
 
-    public String stageNameByStageId(long stageId) {
-        return stageDao.stageNameByStageId(stageId);
-    }
-
     public Stage stageById(long id) {
         return stageDao.stageById(id);
     }

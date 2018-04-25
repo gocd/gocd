@@ -145,7 +145,7 @@
         UPDATE stages
         SET latestRun = false
         WHERE pipelineId = #pipelineId#
-            AND name = #stageName# 
+            AND name = #stageName#
     </update>
 
 
@@ -606,10 +606,6 @@
         <flushOnExecute statement="insertStage"/>
         <flushOnExecute statement="updateStageStatus"/>
     </cacheModel>
-
-    <select id="getStageNameByStageId" parameterClass="long" resultClass="java.lang.String" cacheModel="stage-name-from-stageId">
-        SELECT name FROM stages WHERE id = #value#
-    </select>
 
     <select id="getLastTransitionedTimeByStageId" parameterClass="long" resultClass="java.sql.Timestamp" >
         SELECT lastTransitionedTime FROM stages WHERE id = #value#

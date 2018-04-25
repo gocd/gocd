@@ -31,8 +31,6 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage mostRecentWithBuilds(String pipelineName, StageConfig stageConfig);
 
-    String stageNameByStageId(long stageId);
-
     Stage save(Pipeline pipeline, Stage stage);
     @Deprecated
     // This is only used in test for legacy purpose.

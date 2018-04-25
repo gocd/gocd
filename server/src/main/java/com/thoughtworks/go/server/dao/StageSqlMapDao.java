@@ -587,10 +587,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
 
-    public Stage stageByIdWithBuilds(long id) {
-        return stageById(id);
-    }
-
     public Stage stageById(long id) {
         String key = cacheKeyForStageById(id);
         Stage stage = (Stage) goCache.get(key);
@@ -617,7 +613,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     public Stage mostRecentPassed(String pipelineName, String stageName) {
         Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).asMap();
         Long mostRecentId = (Long) getSqlMapClientTemplate().queryForObject("getMostRecentPassedStageId", toGet);
-        return mostRecentId == null ? null : stageByIdWithBuilds(mostRecentId);
+        return mostRecentId == null ? null : stageById(mostRecentId);
     }
 
     public boolean isStageActive(String pipelineName, String stageName) {

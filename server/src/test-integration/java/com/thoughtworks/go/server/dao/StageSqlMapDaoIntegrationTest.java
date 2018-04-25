@@ -943,7 +943,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldSaveStageWithCreatedTimeAndAllItsBuilds() throws Exception {
         Pipeline pipeline = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         Stage stage = pipelineAndFirstStageOf(pipeline).stage;
-        Stage actualStage = stageDao.stageByIdWithBuilds(stage.getId());
+        Stage actualStage = stageDao.stageById(stage.getId());
         assertThat(actualStage.getCreatedTime(), is(not(nullValue())));
         JobInstances actualJobs = actualStage.getJobInstances();
         assertThat(actualJobs.size(), is(2));
@@ -960,13 +960,13 @@ public class StageSqlMapDaoIntegrationTest {
         when(clock.currentTimeMillis()).thenReturn(date.getTime());
         when(clock.currentTime()).thenReturn(date);
         Pipeline pipeline = dbHelper.schedulePipeline(custom("pipeline", "stage", new JobConfigs(new JobConfig("job")), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig())), clock);
-        Stage actualStage = stageDao.stageByIdWithBuilds(pipelineAndFirstStageOf(pipeline).stage.getId());
+        Stage actualStage = stageDao.stageById(pipelineAndFirstStageOf(pipeline).stage.getId());
         assertThat(actualStage.completedDate(), is(nullValue()));
         assertEquals(actualStage.getJobInstances().first().getTransition(JobState.Scheduled).getStateChangeTime(), actualStage.getLastTransitionedTime());
 
         dbHelper.pass(pipeline);
 
-        actualStage = stageDao.stageByIdWithBuilds(pipelineAndFirstStageOf(pipeline).stage.getId());
+        actualStage = stageDao.stageById(pipelineAndFirstStageOf(pipeline).stage.getId());
 
         assertEquals(date, actualStage.scheduledDate());
         assertThat(actualStage.getJobInstances().first().getTransition(JobState.Scheduled).getStateChangeTime(), is(date));

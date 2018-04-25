@@ -124,10 +124,6 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.stageById(id);
     }
 
-    public Stage getStageByIdWithBuilds(long id) {
-        return stageDao.stageByIdWithBuilds(id);
-    }
-
     public Stage findStageWithIdentifier(String pipelineName,
                                          int pipelineCounter,
                                          String stageName,
@@ -211,10 +207,6 @@ public class StageService implements StageRunFinder, StageFinder {
 
         Long duration = stageDao.getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
         return new DurationBean(job.getId(), duration == null ? 0L : duration);
-    }
-
-    public Stage stageByIdWithModifications(long stageId) {
-        return stageDao.stageById(stageId);
     }
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {

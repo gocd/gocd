@@ -43,8 +43,6 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage stageById(long stageId);
 
-    Stage stageByIdWithBuilds(long stageId);
-
     Stage getStageByBuild(long buildInstanceId);
 
     long getStageIdFromBuildId(long buildId);

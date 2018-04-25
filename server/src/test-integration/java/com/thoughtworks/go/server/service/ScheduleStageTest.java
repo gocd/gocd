@@ -136,7 +136,7 @@ public class ScheduleStageTest {
     public void shouldResolveEnvironmentVariablesForJobReRun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
-        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
+       Stage oldStage = stageDao.stageById(pipeline.getStages().byName(fixture.devStage).getId());
 
         EnvironmentVariablesConfig pipelineVariables = new EnvironmentVariablesConfig();
         pipelineVariables.add("pipelineEnv", "pipelineFoo");
@@ -174,7 +174,7 @@ public class ScheduleStageTest {
 
         assertThat(stage.hasRerunJobs(), is(false));
 
-        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
+        Stage oldStage = stageDao.stageById(pipeline.getStages().byName(fixture.devStage).getId());
 
         assertThat(oldStage.hasRerunJobs(), is(false));
 
@@ -219,7 +219,7 @@ public class ScheduleStageTest {
 
         dbHelper.passStage(stage);
 
-        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
+        Stage oldStage = stageDao.stageById(pipeline.getStages().byName(fixture.devStage).getId());
 
         assertThat(oldStage.hasRerunJobs(), is(false));
 

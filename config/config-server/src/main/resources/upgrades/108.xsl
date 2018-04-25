@@ -17,7 +17,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:template match="/cruise/@schemaVersion">
-    <xsl:attribute name="schemaVersion">107</xsl:attribute>
+    <xsl:attribute name="schemaVersion">108</xsl:attribute>
   </xsl:template>
   <!-- Copy everything -->
   <xsl:template match="@*|node()">
@@ -25,18 +25,14 @@
       <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
   </xsl:template>
-
-  <xsl:template match="//fetchartifact">
+  <xsl:template match="//artifact[@type = 'external']">
     <xsl:copy>
-      <xsl:attribute name="origin">gocd</xsl:attribute>
-      <xsl:apply-templates select="@*|node()"/>
+      <xsl:copy-of select="@*"/>
+      <xsl:if test="node()">
+        <configuration>
+          <xsl:copy-of select="node()"/>
+        </configuration>
+      </xsl:if>
     </xsl:copy>
-  </xsl:template>
-
-  <xsl:template match="//fetchPluggableArtifact">
-    <xsl:element name="fetchartifact">
-      <xsl:attribute name="origin">external</xsl:attribute>
-      <xsl:apply-templates select="@*|node()"/>
-    </xsl:element>
   </xsl:template>
 </xsl:stylesheet>

@@ -82,7 +82,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="108"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="107"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -713,7 +713,7 @@
 
   <xsd:complexType name="artifactType">
     <xsd:sequence>
-      <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
+      <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
     </xsd:sequence>
     <xsd:attribute name="src" type="xsd:string"/>
     <xsd:attribute name="dest" type="filePathType"/>
@@ -1070,4 +1070,3 @@
     <xsd:attribute name="secure" type="xsd:boolean"/>
   </xsd:complexType>
 </xsd:schema>
-

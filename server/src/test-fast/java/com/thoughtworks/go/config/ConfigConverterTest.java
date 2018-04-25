@@ -807,7 +807,7 @@ public class ConfigConverterTest {
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
-        assertThat(pluggableArtifactConfig.isEmpty(), is(true));
+        assertThat(pluggableArtifactConfig.getConfiguration().isEmpty(), is(true));
     }
 
     @Test
@@ -816,9 +816,10 @@ public class ConfigConverterTest {
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
-        assertThat(pluggableArtifactConfig.size(), is(1));
-        assertThat(pluggableArtifactConfig.get(0).getConfigKeyName(), is("filename"));
-        assertThat(pluggableArtifactConfig.get(0).getConfigValue(), is("who-cares"));
+        Configuration configuration = pluggableArtifactConfig.getConfiguration();
+        assertThat(configuration.size(), is(1));
+        assertThat(configuration.get(0).getConfigKeyName(), is("filename"));
+        assertThat(configuration.get(0).getConfigValue(), is("who-cares"));
     }
 
     @Test

@@ -195,19 +195,11 @@ public class FetchTask extends AbstractFetchTask {
         if (dest != null ? !dest.equals(fetchTask.dest) : fetchTask.dest != null) {
             return false;
         }
-        if (job != null ? !job.equals(fetchTask.job) : fetchTask.job != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(fetchTask.pipelineName) : fetchTask.pipelineName != null) {
-            return false;
-        }
+
         if (srcdir != null ? !srcdir.equals(fetchTask.srcdir) : fetchTask.srcdir != null) {
             return false;
         }
         if (srcfile != null ? !srcfile.equals(fetchTask.srcfile) : fetchTask.srcfile != null) {
-            return false;
-        }
-        if (stage != null ? !stage.equals(fetchTask.stage) : fetchTask.stage != null) {
             return false;
         }
 

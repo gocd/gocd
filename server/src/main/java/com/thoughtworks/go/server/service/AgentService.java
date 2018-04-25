@@ -101,18 +101,6 @@ public class AgentService {
         agentInstances.sync(agents);
     }
 
-    public List<String> getUniqueAgentNames() {
-        return new ArrayList<>(agentInstances.getAllHostNames());
-    }
-
-    public List<String> getUniqueIPAddresses() {
-        return new ArrayList<>(agentInstances.getAllIpAddresses());
-    }
-
-    public List<String> getUniqueAgentOperatingSystems() {
-        return new ArrayList<>(agentInstances.getAllOperatingSystems());
-    }
-
     AgentInstances agents() {
         return agentInstances;
     }

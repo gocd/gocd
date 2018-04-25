@@ -241,30 +241,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return filtered;
     }
 
-    public Set<String> getAllHostNames() {
-        Set<String> names = new HashSet<>();
-        for (AgentInstance agentInstance : agentInstances.values()) {
-            names.add(agentInstance.getHostname());
-        }
-        return names;
-    }
-
-    public Set<String> getAllIpAddresses() {
-        Set<String> ips = new HashSet<>();
-        for (AgentInstance agentInstance : agentInstances.values()) {
-            ips.add(agentInstance.getIpAddress());
-        }
-        return ips;
-    }
-
-    public Set<String> getAllOperatingSystems() {
-        Set<String> osList = new HashSet<>();
-        for (AgentInstance agentInstance : agentInstances.values()) {
-            osList.add(agentInstance.getOperatingSystem());
-        }
-        return osList;
-    }
-
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgentsGroupedByPluginId() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> map = new LinkedMultiValueMap<>();
 

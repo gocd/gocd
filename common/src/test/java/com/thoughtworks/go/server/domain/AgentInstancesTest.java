@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -228,29 +227,6 @@ public class AgentInstancesTest {
         thrown.expectMessage("Max pending agents allowed 100, limit reached");
         AgentConfig agentConfig = new AgentConfig("uuid" + 200, "CCeDev_" + 200, "10.18.5." + 200);
         agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux", false));
-    }
-
-    @Test
-    public void shouldReturnAllAgentHostnames() {
-        AgentInstances agentInstances = sample();
-        Set<String> names = agentInstances.getAllHostNames();
-        assertThat(names, hasItems("CCeDev01", "CCeDev03", "CCeDev04"));
-    }
-
-    @Test
-    public void shouldReturnAllAgentIPAddresses() {
-        AgentInstances agentInstances = sample();
-
-        Set<String> names = agentInstances.getAllIpAddresses();
-        assertThat(names, hasItems("10.18.5.1", "10.18.5.3", "10.18.5.4"));
-    }
-
-    @Test
-    public void shouldReturnAllAgentOperatingSystems() {
-        AgentInstances agentInstances = sample();
-
-        Set<String> names = agentInstances.getAllOperatingSystems();
-        assertThat(names, hasItems("linux", "macOS", "windows"));
     }
 
     private AgentInstances sample() {

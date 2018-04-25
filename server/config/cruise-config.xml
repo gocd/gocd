@@ -36,29 +36,6 @@
           <job name="up42_job">
             <tasks>
               <exec command="ls" />
-              <task>
-                <pluginConfiguration id="script-executor" version="1" />
-                <configuration>
-                  <property>
-                    <key>script</key>
-                    <value>asdf</value>
-                  </property>
-                  <property>
-                    <key>shtype</key>
-                    <value>bash</value>
-                  </property>
-                </configuration>
-                <runif status="passed" />
-              </task>
-              <ant buildfile="afa" target="asdf" workingdir="adf">
-                <runif status="passed" />
-              </ant>
-              <nant nantpath="asdf" buildfile="asdf" target="asdf" workingdir="asdf">
-                <runif status="passed" />
-              </nant>
-              <rake buildfile="asdf" target="asdf" workingdir="asdf">
-                <runif status="passed" />
-              </rake>
             </tasks>
           </job>
         </jobs>

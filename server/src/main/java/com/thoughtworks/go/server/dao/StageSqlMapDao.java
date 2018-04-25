@@ -223,6 +223,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
 
+    // TODO: (ketan) do we really care about duration on this agent, can't we just average the last few runs?
+    // TODO: this performans (miserably) on an environment with elastic agents, and there is no result or ETA
+    // TODO: to show because of this implementation
     public Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job) {
         String key = job.getBuildDurationKey(pipelineName, stageName);
         Long duration;

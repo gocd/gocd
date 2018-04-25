@@ -347,6 +347,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         goCache.remove(cacheKeyForJobPlan(jobInstance.getId()));
     }
 
+    // TODO: (ketan) do we really need to reload the current state from DB?
     private void logIfJobIsCompleted(JobInstance jobInstance) {
         JobState currentState = getCurrentState(jobInstance.getId());
         if (currentState.isCompleted() && !jobInstance.isCopy()) {

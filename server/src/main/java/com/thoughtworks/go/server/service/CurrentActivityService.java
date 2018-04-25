@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.server.presentation.models.PipelineJsonPresentationModel;
 
 public interface CurrentActivityService {
 
@@ -25,5 +24,4 @@ public interface CurrentActivityService {
 
     boolean isAnyStageActive(PipelineIdentifier pipelineIdentifier);
 
-    PipelineJsonPresentationModel getPipelineStatus(String name);
 }

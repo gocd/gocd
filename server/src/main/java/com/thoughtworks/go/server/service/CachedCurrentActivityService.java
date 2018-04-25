@@ -16,46 +16,18 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.dto.DurationBeans;
-import com.thoughtworks.go.server.presentation.models.PipelineJsonPresentationModel;
-import com.thoughtworks.go.server.presentation.models.StageJsonPresentationModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CachedCurrentActivityService implements CurrentActivityService {
 
-    private GoConfigService goConfigService;
     private StageService stageService;
-    private PipelineScheduleQueue pipelineScheduleQueue;
-    private PipelineService pipelineService;
-    private PipelinePauseService pipelinePauseService;
-    private AgentService agentService;
 
     @Autowired
-    public CachedCurrentActivityService(GoConfigService goConfigService,
-                                        StageService stageService,
-                                        PipelineScheduleQueue pipelineScheduleQueue,
-                                        PipelineService pipelineService, PipelinePauseService pipelinePauseService,
-                                        AgentService agentService) {
-        this.goConfigService = goConfigService;
+    public CachedCurrentActivityService(StageService stageService) {
         this.stageService = stageService;
-        this.pipelineScheduleQueue = pipelineScheduleQueue;
-        this.pipelineService = pipelineService;
-        this.pipelinePauseService = pipelinePauseService;
-        this.agentService = agentService;
     }
 
     public boolean isStageActive(String pipelineName, String stageName) {
@@ -66,32 +38,4 @@ public class CachedCurrentActivityService implements CurrentActivityService {
         return stageService.isAnyStageActiveForPipeline(pipelineIdentifier.getName(), pipelineIdentifier.getCounter());
     }
 
-    public PipelineJsonPresentationModel getPipelineStatus(String name) {
-        return pipelineModel(goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(name)));
-    }
-
-    private PipelineJsonPresentationModel pipelineModel(PipelineConfig pipelineConfig) {
-        String name = CaseInsensitiveString.str(pipelineConfig.name());
-        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(name);
-        boolean forcedBuild = pipelineScheduleQueue.hasForcedBuildCause(pipelineConfig.name());
-        List<StageJsonPresentationModel> stageModels = stagesModel(pipelineConfig);
-        return new PipelineJsonPresentationModel(goConfigService.findGroupNameByPipeline(pipelineConfig.name()), name, pauseInfo, forcedBuild, stageModels);
-    }
-
-    private List<StageJsonPresentationModel> stagesModel(PipelineConfig pipelineConfig) {
-        List<StageJsonPresentationModel> presenters = new ArrayList<>();
-        for (StageConfig stageConfig : pipelineConfig) {
-            Stage mostRecentStage = stageService.mostRecentStageWithBuilds(CaseInsensitiveString.str(pipelineConfig.name()), stageConfig);
-            Pipeline pipeline = pipelineService.pipelineWithModsByStageId(CaseInsensitiveString.str(pipelineConfig.name()), mostRecentStage.getId());
-            presenters.add(stageModel(pipeline, mostRecentStage));
-        }
-        return presenters;
-    }
-
-    private StageJsonPresentationModel stageModel(Pipeline currentPipeline, Stage stage) {
-        StageIdentifier lastSuccessfulPipelineForStage = pipelineService.findLastSuccessfulStageIdentifier(currentPipeline.getName(), stage.getName());
-        final DurationBeans durations = stageService.getBuildDurations(currentPipeline.getName(), stage);
-        TrackingTool trackingTool = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(currentPipeline.getName())).trackingTool();
-        return new StageJsonPresentationModel(currentPipeline, stage, lastSuccessfulPipelineForStage, agentService, durations, trackingTool);
-    }
 }

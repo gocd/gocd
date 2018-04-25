@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.AgentInstances;
@@ -386,21 +385,6 @@ public class AgentConfigService {
         updateAgents(command, validator, currentUser);
     }
 
-    private List<ConfigErrors> getAllErrors(Validatable v) {
-        final List<ConfigErrors> allErrors = new ArrayList<>();
-        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
-            @Override
-            public void handleValidation(Validatable validatable, ValidationContext context) {
-                // do nothing here
-            }
-        });
-        return allErrors;
-    }
-
-
-    public Agents findAgents(List<String> uuids) {
-        return agents().filter(uuids);
-    }
 
     /**
      * @understands how to update the agent approval status

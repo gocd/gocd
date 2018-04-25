@@ -477,13 +477,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return new JobInstances(list);
     }
 
-    public int getNumberOfActiveBuildsOnRemoteAgent(List<String> localAgentIds) {
-        String sqlValue = SqlUtil.joinWithQuotesForSql(localAgentIds.toArray());
-        Integer count = (Integer) getSqlMapClientTemplate().queryForObject("getNumberOfActiveBuildsOnRemoteAgent",
-                arguments("localAgentIds", sqlValue).asMap());
-        return count;
-    }
-
     private void saveTransitions(JobInstance jobInstance) {
         for (JobStateTransition transition : jobInstance.getTransitions()) {
             if (!transition.hasId()) {

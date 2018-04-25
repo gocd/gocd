@@ -42,9 +42,4 @@
         </selectKey>
     </insert>
 
-    <select id="getBuildTransitionsByBuildInstanceId" resultMap="build-transition" parameterClass="long">
-        SELECT id as stateId, currentState, stateChangeTime, buildId, stageId
-        FROM buildStateTransitions
-        WHERE buildId = #buildId#
-    </select>
 </sqlMap>

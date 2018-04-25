@@ -29,8 +29,6 @@ public interface PipelineDao {
 
     Pipeline save(Pipeline pipeline);
 
-    void updatePauseInfo(Pipeline pipeline);
-
     Pipeline loadPipeline(long pipelineId);
 
     Pipeline mostRecentPipeline(String pipelineName);

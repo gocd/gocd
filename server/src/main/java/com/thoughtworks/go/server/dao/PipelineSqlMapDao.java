@@ -232,10 +232,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return (PipelineSqlMapDao.class.getName() + "_latestSuccessfulStage_" + pipelineName + "-" + stageName).intern();
     }
 
-    public void updatePauseInfo(Pipeline pipeline) {
-        getSqlMapClientTemplate().update("updatePipelinePause", pipeline);
-    }
-
     private void savePipelineMaterialRevisions(Pipeline pipeline, final Long pipelineId) {
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         materialRepository.createPipelineMaterialRevisions(pipeline, pipelineId, materialRevisions);

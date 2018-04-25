@@ -149,15 +149,6 @@
         LIMIT 1
     </select>
 
-    <cacheModel id="find-job-id-by-label" type="MEMORY" readOnly="true">
-        <flushInterval seconds="300"/>
-        <flushOnExecute statement="insertBuild"/>
-        <flushOnExecute statement="ignoreBuildById"/>
-        <flushOnExecute statement="updateResult"/>
-        <flushOnExecute statement="updateStatus"/>
-        <property name="cache-size" value="200" />
-    </cacheModel>
-
     <resultMap id="select-job-plan" class="com.thoughtworks.go.domain.DefaultJobPlan" groupBy="jobId">
         <result property="jobId" column="buildId" nullValue="0"/>
         <result property="agentUuid" column="agentUuid"/>
@@ -256,14 +247,9 @@
         AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
     </select>
 
-    <!--no union reduces the execution time from 5ms to 1ms -->
     <select id="getHungJobs" resultMap="select-build-with-identifier">
         <include refid="select-builds-with-identifier"/>
         WHERE agentUuid NOT IN ($liveAgentIdList$) AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
-        <!--SELECT *, id AS buildId-->
-            <!--FROM TABLE(X VARCHAR=#liveAgentIdList#) T-->
-            <!--INNER JOIN _builds AS b ON b.agentUuid != T.X-->
-            <!--WHERE state IN ('Assigned', 'Preparing', 'Building', 'Completing');-->
     </select>
 
     <select id="buildInstanceExists" resultClass="java.lang.Boolean">

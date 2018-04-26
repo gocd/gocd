@@ -54,11 +54,7 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (SessionUtils.hasAuthenticationToken(request)) {
-            filterChain.doFilter(request, response);
-        } else {
-            performAuthentication(request, response, filterChain);
-        }
+        performAuthentication(request, response, filterChain);
     }
 
     private void performAuthentication(HttpServletRequest request,

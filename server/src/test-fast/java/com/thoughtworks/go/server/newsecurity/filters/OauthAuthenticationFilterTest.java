@@ -183,5 +183,29 @@ class OauthAuthenticationFilterTest {
                     .isUnauthorized()
                     .hasBody("Provided OAuth token is invalid.");
         }
+
+        @Test
+        void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
+            request = HttpRequestBuilder.GET("/")
+                    .withOAuth("valid-token")
+                    .build();
+
+            com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
+            final HttpSession originalSession = request.getSession(true);
+
+            final GoUserPrinciple goUserPrinciple = new GoUserPrinciple("bob", "Bob", GoAuthority.ROLE_SUPERVISOR.asAuthority());
+            final OAuthCredentials oAuthCredentials = new OAuthCredentials("valid-token");
+            final AuthenticationToken<OAuthCredentials> authenticationToken = new AuthenticationToken<>(goUserPrinciple, oAuthCredentials, null, System.currentTimeMillis(), null);
+
+            when(authenticationProvider.authenticate(oAuthCredentials, null)).thenReturn(authenticationToken);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(filterChain).doFilter(request, response);
+            assertThat(request.getSession(false)).isNotSameAs(originalSession);
+            assertThat(SessionUtils.getAuthenticationToken(request)).isEqualTo(authenticationToken);
+
+            MockHttpServletResponseAssert.assertThat(response).isOk();
+        }
     }
 }

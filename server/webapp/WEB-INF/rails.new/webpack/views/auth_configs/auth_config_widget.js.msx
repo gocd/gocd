@@ -17,7 +17,7 @@
 const m               = require('mithril');
 const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
-const ActionButtons   = require('views/shared/plugin_config/action_buttons');
+const ActionButtons   = require('views/shared/action_buttons');
 
 const AuthConfigWidget = {
   oninit (vnode) {

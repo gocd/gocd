@@ -18,7 +18,7 @@ const m                      = require('mithril');
 const Stream                 = require('mithril/stream');
 const ComponentMixins        = require('helpers/mithril_component_mixins');
 const RoleUserReadOnlyWidget = require('views/roles/gocd_role_user_readonly_widget');
-const ActionButtons          = require('views/shared/plugin_config/action_buttons');
+const ActionButtons          = require('views/shared/action_buttons');
 
 const RoleWidget = {
   oninit (vnode) {

@@ -18,7 +18,7 @@ describe('Plugin Config Action Buttons', () => {
 
   const m             = require('mithril');
   const _             = require('lodash');
-  const ActionButtons = require('views/shared/plugin_config/action_buttons');
+  const ActionButtons = require('views/shared/action_buttons');
   const simulateEvent = require('simulate-event');
 
   const unmount = () => {

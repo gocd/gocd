@@ -16,7 +16,7 @@
 
 const m                     = require('mithril');
 const PluginCollapsibleList = require('views/shared/plugin_config/plugin_collapsible_list');
-const ActionButtons         = require('views/shared/plugin_config/action_buttons');
+const ActionButtons         = require('views/shared/action_buttons');
 
 class ArtifactStoreWidget {
 

@@ -129,7 +129,7 @@ $(() => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
       const supportedPipelineAnalytics = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics();
       if(supportedPipelineAnalytics.length > 0) {
-        pluginsSupportingAnalytics[pluginInfo.id()] = supportedPipelineAnalytics[0].id;
+        pluginsSupportingAnalytics[pluginInfo.id()] = supportedPipelineAnalytics;
       }
     });
 

@@ -21,7 +21,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.GoAuthority;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @understands a user principle in Go
@@ -29,7 +32,12 @@ import java.util.Set;
 public class GoUserPrinciple {
 
     public static GoUserPrinciple ANONYMOUS_WITH_SECURITY_ENABLED = new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority());
-    public static GoUserPrinciple ANONYMOUS_WITH_SECURITY_DISABLED = new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_SUPERVISOR.asAuthority());
+    public static GoUserPrinciple ANONYMOUS_WITH_SECURITY_DISABLED = new GoUserPrinciple("anonymous", "anonymous", Arrays.stream(GoAuthority.values()).map(new Function<GoAuthority, GrantedAuthority>() {
+        @Override
+        public GrantedAuthority apply(GoAuthority goAuthority) {
+            return goAuthority.asAuthority();
+        }
+    }).collect(Collectors.toSet()));
 
     private final Set<GrantedAuthority> authorities;
 

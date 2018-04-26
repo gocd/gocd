@@ -57,7 +57,7 @@ public class SessionUtils {
 
     public static void setAuthenticationTokenAfterRecreatingSession(AuthenticationToken<?> authenticationToken,
                                                                     HttpServletRequest request) {
-        recreateSession(request);
+        recreateSessionWithoutCopyingOverSessionState(request);
         LOGGER.debug("Setting authentication on new session.");
         request.getSession().setAttribute(AUTHENTICATION_TOKEN, authenticationToken);
     }
@@ -86,12 +86,10 @@ public class SessionUtils {
         saveRequest(request, new DefaultSavedRequest(request, PORT_RESOLVER));
     }
 
-    public static void recreateSession(HttpServletRequest request) {
+    public static void recreateSessionWithoutCopyingOverSessionState(HttpServletRequest request) {
         LOGGER.debug("Creating new session.");
-        final SavedRequest originalSavedRequest = savedRequest(request);
         request.getSession().invalidate();
         request.getSession();
-        saveRequest(request, originalSavedRequest);
     }
 
     public static void setAuthenticationError(String message, HttpServletRequest request) {

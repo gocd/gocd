@@ -18,7 +18,7 @@ module ApiV1
   module Admin
     module Internal
       class ResourcesController < ApiV1::BaseController
-        before_action :check_admin_user_or_group_admin_user_and_401
+        before_action :check_admin_user_and_401
 
         def index
           resource_list = go_config_service.getResourceList()

@@ -48,10 +48,10 @@ describe ApiV1::Admin::Internal::ResourcesController do
         expect(controller).to allow_action(:get, :index)
       end
 
-      it 'should allow group admin users, with security enabled' do
+      it 'should not allow group admin users, with security enabled' do
         login_as_group_admin
 
-        expect(controller).to allow_action(:get, :index)
+        expect(controller).to disallow_action(:get, :index)
       end
 
     end

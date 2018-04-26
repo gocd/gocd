@@ -70,6 +70,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
@@ -121,12 +123,13 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
+    private GoConfigFileHelper configHelper;
 
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
         goCache.clear();
-        GoConfigFileHelper configHelper = new GoConfigFileHelper();
+        configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         notifier.disableUpdates();
@@ -1701,6 +1704,39 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineInstanceModelsForPipeline1.get(0).getCounter(), is(4));
         assertThat(pipelineInstanceModelsForPipeline1.get(1).getCounter(), is(3));
         assertThat(pipelineInstanceModelsForPipeline1.get(2).getCounter(), is(2));
+    }
+
+    @Test
+    public void ensureActivePipelineCacheUsedByOldDashboardIsCaseInsensitiveWRTPipelineNames(){
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+
+        ScheduleTestUtil.AddedPipeline pipeline1 = u.saveConfigWith("pipeline1", u.m(g1));
+        Pipeline pipeline1_1 = dbHelper.schedulePipeline(pipeline1.config, new TestingClock(new Date()));
+        pipelineDao.loadActivePipelines(); //to initialize cache
+
+        dbHelper.pass(pipeline1_1);
+        pipelineDao.stageStatusChanged(pipeline1_1.getFirstStage());
+        assertThat(getActivePipelinesForPipelineName(pipeline1).count(), is(1L));
+        assertThat(getActivePipelinesForPipelineName(pipeline1).findFirst().get().getName(), is(pipeline1.config.name().toString()));
+
+        configHelper.removePipeline(pipeline1.config.name().toString());
+        ScheduleTestUtil.AddedPipeline p1ReincarnatedWithDifferentCase = u.saveConfigWith("PIPELINE1", u.m(g1));
+        Pipeline pipelineReincarnatedWithDifferentCase_1 = dbHelper.schedulePipeline(p1ReincarnatedWithDifferentCase.config, new TestingClock(new Date()));
+        pipelineDao.loadActivePipelines(); //to initialize cache
+        pipelineDao.stageStatusChanged(pipelineReincarnatedWithDifferentCase_1.getFirstStage());
+
+        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).count(), is(1L));
+        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).findFirst().get().getName(), is(p1ReincarnatedWithDifferentCase.config.name().toString()));
+    }
+
+    private Stream<PipelineInstanceModel> getActivePipelinesForPipelineName(ScheduleTestUtil.AddedPipeline pipeline1) {
+        return pipelineDao.loadActivePipelines().stream().filter(new Predicate<PipelineInstanceModel>() {
+            @Override
+            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                return pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString());
+            }
+        });
     }
 
     public static MaterialRevisions revisions(boolean changed) {

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
@@ -151,7 +152,7 @@ public class PipelineSqlMapDaoTest {
         when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
         when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(new ArrayList<PipelineInstanceModel>());
 
-        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(pipelineName);
+        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(pipelineName));
 
         assertTrue(models.isEmpty());
     }
@@ -169,7 +170,7 @@ public class PipelineSqlMapDaoTest {
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()))).thenReturn(pimForP1_1);
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_2.getId()))).thenReturn(pimForP1_2);
 
-        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(p1);
+        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(p1));
 
         assertThat(models.size(), is(2));
 

@@ -38,6 +38,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -97,6 +98,7 @@ public class AuthenticationFilterChainTest {
         assertThat(SessionUtils.getAuthenticationToken(request).getCredentials()).isInstanceOf(X509Credential.class);
     }
 
+    @Disabled
     @ParameterizedTest
     @ValueSource(strings = {"/remoting/blah", "/agent-websocket/blah"})
     void shouldSkipAuthenticationIfRequestIsAlreadyAuthenticated(String url) throws IOException, ServletException {

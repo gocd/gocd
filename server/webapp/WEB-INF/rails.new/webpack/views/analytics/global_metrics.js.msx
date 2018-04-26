@@ -45,7 +45,7 @@
   const GlobalMetrics = {
     view(vnode) { // eslint-disable-line no-unused-vars
       const frames = [];
-      $.each(vnode.attrs.model.data, (pluginId, supportedAnalytics) => {
+      $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
         $.each(supportedAnalytics, (idx, sa) => {
           const uid   = `f-${pluginId}:${sa.id}:${idx}`,
                 title = sa.title,

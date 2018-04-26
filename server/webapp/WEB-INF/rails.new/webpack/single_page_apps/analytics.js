@@ -14,44 +14,51 @@
  * limitations under the License.
  */
 
-(function() {
-  "use strict";
+const $               = require('jquery');
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const AnalyticsWidget = require('views/analytics/analytics_widget');
+const PluginInfos     = require('models/shared/plugin_infos');
+const VersionUpdater  = require('models/shared/version_updater');
+const PluginEndpoint  = require('rails-shared/plugin-endpoint');
+require('foundation-sites');
+require('helpers/server_health_messages_helper');
 
-  const m = require("mithril");
-  const $ = require("jquery");
-
-  require("foundation-sites");
-  require('helpers/server_health_messages_helper');
-
-  const PluginEndpoint           = require('rails-shared/plugin-endpoint');
-  const VersionUpdater           = require('models/shared/version_updater');
-  const Tab                      = require('models/analytics/tab');
-  const Tabs                     = require('models/analytics/tabs');
-  const AnalyticsDashboardHeader = require('views/analytics/header');
-  const DashboardTabs            = require('views/analytics/tabs');
-  const GlobalMetrics            = require('views/analytics/global_metrics');
-  const PipelineMetrics          = require('views/analytics/pipeline_metrics');
+$(() => {
+  $(document).foundation();
+  new VersionUpdater().update();
 
   PluginEndpoint.ensure("v1");
+  const analyticsElem = $('.analytics-container');
+  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list'));
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const main = document.querySelector("[data-supported-dashboard-metrics]");
-
-    m.mount(main, {
-      view() {
-        const metrics = $(main).data("supported-dashboard-metrics");
-        const pageItems = [];
-        const tabs = new Tabs();
-        pageItems.push(m(AnalyticsDashboardHeader));
-        tabs.push(new Tab("Global", GlobalMetrics, metrics));
-        tabs.push(new Tab("Pipeline", PipelineMetrics, {pipelines: $(main).data("pipeline-list"), plugins: Object.keys(metrics)}));
-        pageItems.push(m(DashboardTabs, {tabs}));
-        return pageItems;
-      }
+  const onSuccess = (pluginInfos) => {
+    const plugins = pluginInfos.mapPluginInfos((p) => p.id());
+    const metrics = {};
+    pluginInfos.eachPluginInfo((p) => {
+      metrics[p.id()] = p.extensions().analytics.capabilities().supportedAnalyticsDashboardMetrics();
     });
 
-    // boilerplate to init menus and check for updates
-    $(document).foundation();
-    new VersionUpdater().update();
-  });
-})();
+    const component = {
+      view() {
+        return m(AnalyticsWidget, {
+          pluginInfos: Stream(pluginInfos),
+          metrics,
+          pipelines,
+          plugins
+        });
+      }
+    };
+
+    m.mount(analyticsElem.get(0), component);
+  };
+
+  const onFailure = () => {
+    analyticsElem.html($('<div class="alert callout">')
+      .append('<h5>There was a problem fetching the analytics</h5>')
+      .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')
+    );
+  };
+
+  PluginInfos.all(null, {type: 'analytics'}).then(onSuccess, onFailure);
+});

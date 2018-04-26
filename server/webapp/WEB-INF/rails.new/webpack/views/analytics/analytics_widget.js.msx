@@ -1,0 +1,72 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m               = require('mithril');
+const f               = require("helpers/form_helper");
+const TabsVM          = require('views/analytics/models/tabs_view_model');
+const GlobalMetrics   = require('views/analytics/global_metrics');
+const PipelineMetrics = require('views/analytics/pipeline_metrics');
+
+
+const AnalyticsWidget = {
+  oninit(vnode) {
+    const self = vnode.state;
+    self.vm    = new TabsVM();
+  },
+
+  view(vnode) {
+    const self = vnode.state;
+    const vm   = self.vm;
+
+    let analyticsMetric;
+    if (vm.isGlobalTabSelected()) {
+      analyticsMetric = (<GlobalMetrics metrics={vnode.attrs.metrics}/>);
+    } else {
+      analyticsMetric = (<PipelineMetrics pipelines={vnode.attrs.pipelines} plugins={vnode.attrs.plugins}/>);
+    }
+
+    return (<div class="analytics-main-container">
+      <div class="header-panel">
+        <header class="page-header">
+          <f.row>
+            <f.column size={6}>
+              <h1>Analytics</h1>
+            </f.column>
+          </f.row>
+        </header>
+      </div>
+      <div class="dashboard-content">
+        <div class="dashboard-tabs-container">
+          <ul class="dashboard-tabs">
+            <li class={vm.isGlobalTabSelected() ? "current" : ""}
+                onclick={vm.setGlobalTabSelection}>
+              Global
+            </li>
+            <li class={vm.isPipelineTabSelected() ? "current" : ""}
+                onclick={vm.setPipelineTabSelection}>
+              Pipeline
+            </li>
+          </ul>
+        </div>
+        <div class={`dashboard-charts ${vm.isGlobalTabSelected() ? "global" : "pipeline"}`}>
+          {analyticsMetric}
+        </div>
+      </div>
+    </div>);
+  }
+};
+
+module.exports = AnalyticsWidget;

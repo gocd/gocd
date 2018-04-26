@@ -89,27 +89,10 @@ describe AnalyticsController do
 
     it 'should include the plugin ids in the SPA skeleton' do
       plugin_info_finder = instance_double('DefaultPluginInfoFinder')
-
-      descriptor1 = com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, false)
-      descriptor2 = com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor.new('com.tw.yourplugin', nil, nil, nil, nil, false)
-
-      supported_analytics1 = com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new('dashboard', 'top_ten_agents', 'Top 10 Agents')
-      supported_analytics2 = com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new('dashboard', 'top_ten_jobs', 'Top 10 Jobs')
-
-      cap1 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics1])
-      cap2 = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([supported_analytics2])
-
-      plugin1 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor1, nil, cap1, nil))
-      plugin2 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor2, nil, cap2, nil))
-
       allow(controller).to receive(:default_plugin_info_finder).and_return(plugin_info_finder)
-      allow(plugin_info_finder).to receive(:allPluginInfos).with(PluginConstants.ANALYTICS_EXTENSION).and_return([plugin1, plugin2])
 
       get :index
-
       expect(response).to be_ok
-      expect(controller.instance_variable_get(:@supported_dashboard_metrics)).to eq({'com.tw.myplugin' => [{type: 'dashboard', id: 'top_ten_agents', title: 'Top 10 Agents'}],
-                                                                                     'com.tw.yourplugin' => [{type: 'dashboard', id: 'top_ten_jobs', title: 'Top 10 Jobs'}]})
     end
   end
 

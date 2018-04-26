@@ -18,6 +18,8 @@ module ApiV4
   module Admin
     class PluginInfosController < BaseController
 
+      before_action :check_user_and_401
+
       PLUGIN_TYPES_FOR_VERSION = [
         PluginConstants.AUTHORIZATION_EXTENSION,
         PluginConstants.ELASTIC_AGENT_EXTENSION,

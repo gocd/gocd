@@ -18,6 +18,8 @@ module ApiV3
   module Admin
     class PluginInfosController < BaseController
 
+      before_action :check_user_and_401
+
       PLUGIN_TYPES_FOR_VERSION = [
         PluginConstants.AUTHORIZATION_EXTENSION,
         PluginConstants.ELASTIC_AGENT_EXTENSION,
@@ -27,8 +29,6 @@ module ApiV3
         PluginConstants.PACKAGE_MATERIAL_EXTENSION,
         PluginConstants.CONFIG_REPO_EXTENSION
       ]
-
-      before_action :check_admin_user_or_group_admin_user_and_401
 
       def index
         plugin_infos = default_plugin_info_finder.allPluginInfos(params[:type]).reject do |combined_plugin_info|

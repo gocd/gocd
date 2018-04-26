@@ -280,7 +280,7 @@ describe Admin::ServerController do
     end
 
     it "should validate port" do
-      @default_localized_result.notAcceptable("Invalid Port.")
+      @default_localized_result.notAcceptable("Invalid port.")
       expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
 
       get :validate, :port => "-1"
@@ -298,12 +298,12 @@ describe Admin::ServerController do
 
     it "should return success if valid" do
       expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
-      @default_localized_result.notAcceptable("Invalid Port.")
+      @default_localized_result.notAcceptable("Invalid port.")
 
       get :validate, :port => "-1"
 
       json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Invalid Port.")
+      expect(json["error"]).to eq("Invalid port.")
       expect(json["success"]).to eq(nil)
     end
 
@@ -330,14 +330,14 @@ describe Admin::ServerController do
 
       res = nil
       expect(@server_config_service).to receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult)) do |mail_host, op_result|
-        op_result.badRequest("Invalid Port.")
+        op_result.badRequest("Invalid port.")
         res = op_result
       end
 
       post :test_email, :server_configuration_form => @valid_mail_host_params
 
       json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Invalid Port.")
+      expect(json["error"]).to eq("Invalid port.")
       expect(json["success"]).to eq(nil)
     end
 

@@ -65,7 +65,7 @@ class Admin::ServerController < AdminController
         @result = server_config_service.validatePort(Integer(params[:port]))
       else
         @result = HttpLocalizedOperationResult.new
-        @result.invalid("Invalid Port.")
+        @result.invalid("Invalid port.")
       end
     end
     @result = server_config_service.validateHostName(params[:hostName]) if params[:hostName]

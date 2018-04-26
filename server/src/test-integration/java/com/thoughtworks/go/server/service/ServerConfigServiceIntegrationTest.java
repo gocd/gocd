@@ -204,7 +204,7 @@ public class ServerConfigServiceIntegrationTest {
                 "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Invalid Port."));
+        assertThat(result.message(), is("Invalid port."));
         assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
     }
 

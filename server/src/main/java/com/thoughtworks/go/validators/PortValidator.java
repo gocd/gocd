@@ -22,7 +22,7 @@ public class PortValidator implements Validator<Integer> {
 
     public void validate(Integer port, LocalizedOperationResult result) {
         if (outOfRange(port)) {
-            result.notAcceptable("Invalid Port.");
+            result.notAcceptable("Invalid port.");
         }
     }
 

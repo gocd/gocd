@@ -45,14 +45,14 @@ public class ValidatorTest {
 
         result = mock(LocalizedOperationResult.class);
         new PortValidator().validate(234444, result);
-        verify(result).notAcceptable("Invalid Port.");
+        verify(result).notAcceptable("Invalid port.");
 
         result = mock(LocalizedOperationResult.class);
         new PortValidator().validate(0, result);
-        verify(result).notAcceptable("Invalid Port.");
+        verify(result).notAcceptable("Invalid port.");
 
         result = mock(LocalizedOperationResult.class);
         new PortValidator().validate(null, result);
-        verify(result).notAcceptable("Invalid Port.");
+        verify(result).notAcceptable("Invalid port.");
     }
 }

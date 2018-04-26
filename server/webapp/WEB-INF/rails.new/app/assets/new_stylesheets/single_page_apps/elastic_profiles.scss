@@ -19,6 +19,9 @@
 @import 'shared/modal';
 @import 'shared/header';
 @import 'shared/alert';
+@import 'shared/plugin_config/plugin_group_header';
+@import 'shared/plugin_config/plugin_collapsible_list';
+@import 'shared/action_buttons';
 
 $elastic-profile-plugin-icon-size: 30px;
 $elastic-profile-icon-text-padding: 20px;
@@ -41,71 +44,6 @@ $elastic-profile-icon-hover-color: #000;
   overflow:         auto;
 }
 
-.elastic-profile {
-  background:    $go-white;
-  position:      relative;
-  border-top:    1px solid #ddd;
-  border-radius: $global-border-radius;
-  cursor:        pointer;
-
-  &.expanded {
-    background: #fcfaff;
-  }
-
-  &.collapsed {
-    background: #fff;
-  }
-}
-
-.elastic-profile-header {
-  padding: 10px;
-}
-
-.edit-profile {
-  @include icon-before($type: pencil-square-o, $color: $elastic-profile-icon-color);
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $elastic-profile-icon-hover-color;
-      }
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
-.delete-profile-confirm {
-  @include icon-before($type: trash, $color: $elastic-profile-icon-color);
-  position: relative;
-  top:      -2px;
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $elastic-profile-icon-hover-color;
-      }
-    }
-  }
-}
-
-.clone-profile {
-  @include icon-before($type: clone, $color: $elastic-profile-icon-color);
-  &:hover {
-    &:before {
-      color: $elastic-profile-icon-hover-color;
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
 .reveal .delete-profile {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
@@ -118,46 +56,6 @@ $elastic-profile-icon-hover-color: #000;
   float:          left;
 }
 
-.plugin-description {
-  display:        inline-block;
-  vertical-align: middle;
-  padding-left:   $elastic-profile-icon-text-padding;
-  width:          calc(100% - #{$elastic-profile-plugin-icon-size});
-
-  .plugin-id, .profile-id {
-    display:   inline-block;
-    min-width: 300px;
-  }
-  .key {
-    font-weight: 600;
-    font-size:   rem-calc(13px);
-  }
-}
-
-.plugin-actions {
-  position: absolute;
-  right:    10px;
-  top:      13px;
-}
-
-.plugin-config-read-only {
-  box-sizing: border-box;
-  padding:    10px 10px 10px 60px;
-  .key-value-pair {
-    dt {
-      width: 20%;
-    }
-    dd {
-      width: 80%;
-    }
-    pre {
-      width:       100%;
-      display:     block;
-      white-space: inherit;
-    }
-  }
-}
-
 .unknown-plugin-icon {
   @include icon-before($type: question, $size: $elastic-profile-plugin-icon-size, $color: $light-gray);
   &:before {
@@ -166,31 +64,7 @@ $elastic-profile-icon-hover-color: #000;
 }
 
 .elastic-profile-plugin-group {
-  border-top-left-radius:  3px;
-  border-top-right-radius: 3px;
   margin-bottom:           15px;
-
-  .elastic-profile-plugin-group-header {
-    padding:                 10px;
-    background:              #d1c4e9;
-    border-top-left-radius:  3px;
-    border-top-right-radius: 3px;
-    border-bottom:           1px solid #ddd;
-
-    .warning {
-      @include icon-before($type: exclamation-triangle, $size: $elastic-profile-plugin-icon-size, $color: #fff702);
-      &:before {
-        font-size:      20px;
-        text-align:     center;
-        vertical-align: middle;
-      }
-    }
-
-    .plugin-name, .plugin-id {
-      font-weight: 600;
-      line-height: $elastic-profile-plugin-icon-size;
-    }
-  }
 }
 
 .plugin-not-installed {

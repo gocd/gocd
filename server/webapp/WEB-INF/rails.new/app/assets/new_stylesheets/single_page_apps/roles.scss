@@ -19,6 +19,7 @@
 @import 'shared/modal';
 @import 'shared/header';
 @import 'shared/alert';
+@import 'shared/action_buttons';
 
 $role-plugin-icon-size: 30px;
 $role-icon-text-padding: 20px;
@@ -60,51 +61,6 @@ $role-icon-hover-color: #000;
   padding: 10px;
 }
 
-.edit-role {
-  @include icon-before($type: pencil-square-o, $color: $role-icon-color);
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $role-icon-hover-color;
-      }
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
-.clone-role {
-  @include icon-before($type: clone, $color: $role-icon-color);
-  &:hover {
-    &:before {
-      color: $role-icon-hover-color;
-    }
-  }
-
-  &.disabled {
-    &:before {
-      color: $dark-gray;
-    }
-  }
-}
-
-.delete-role-confirm {
-  @include icon-before($type: trash, $color: $role-icon-color);
-  position: relative;
-  top:      -2px;
-  &:not(.disabled) {
-    &:hover {
-      &:before {
-        color: $role-icon-hover-color;
-      }
-    }
-  }
-}
-
 .reveal .delete-role {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
@@ -135,12 +91,6 @@ $role-icon-hover-color: #000;
     font-weight: 600;
     font-size:   rem-calc(13px);
   }
-}
-
-.role-actions {
-  position: absolute;
-  right:    10px;
-  top:      13px;
 }
 
 .plugin-role-read-only {

@@ -18,11 +18,13 @@ const m                       = require('mithril');
 const f                       = require('helpers/form_helper');
 const ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
 const ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
+const HeaderPanel             = require('views/shared/header_panel');
 const Stream                  = require('mithril/stream');
 const _                       = require('lodash');
 const Modal                   = require('views/shared/new_modal');
 const ComponentMixins         = require('helpers/mithril_component_mixins');
 const ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
+const PluginGroupHeader       = require('views/shared/plugin_config/plugin_group_header');
 
 require('jquery-textcomplete');
 
@@ -210,35 +212,13 @@ const ElasticProfilesWidget = {
     };
   },
 
-  view:  (vnode) => {
-
-    let errorMessage;
-    if (vnode.state.message().message) {
-      errorMessage = (
-        <f.row>
-          <f.callout type={vnode.state.message().type}>
-            {vnode.state.message().message}
-
-            <button class="close-button" aria-label="Dismiss alert" type="button"
-                    onclick={vnode.state.clearMessage.bind(vnode.state)}>
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </f.callout>
-        </f.row>
-      );
-    }
+  view: (vnode) => {
 
     const noElasticAgentPluginInstalled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
 
     let noElasticAgentPluginMessage;
     if (noElasticAgentPluginInstalled) {
-      noElasticAgentPluginMessage = (
-        <f.row>
-          <f.callout type="info">
-            No elastic agent plugin installed.
-          </f.callout>
-        </f.row>
-      );
+      noElasticAgentPluginMessage = <f.infoRow message="No elastic agent plugin installed."/>;
     }
 
     const addElasticProfileButton = (
@@ -250,52 +230,27 @@ const ElasticProfilesWidget = {
 
     return (
       <div>
-        <div class="header-panel">
-          <header class="page-header">
-            <f.row>
-              <f.column size={6}>
-                <h1>Elastic Agent Profiles</h1>
-              </f.column>
-
-              <f.column size={6}>
-                {addElasticProfileButton}
-              </f.column>
-            </f.row>
-          </header>
-        </div>
-
+        <HeaderPanel title="Elastic Agent Profiles" button={addElasticProfileButton}/>
 
         <div class="elastic-profiles">
           {noElasticAgentPluginMessage}
-          {errorMessage}
+          <f.dismissableCallout message={vnode.state.message} />
           <f.row>
 
             {_.map(vnode.state.profiles().groupByProfileProperty('pluginId'), (profiles, pluginId) => {
               const pluginInfo = vnode.attrs.pluginInfos().findById(pluginId);
-              let statusReportButton, pluginNameLabel, pluginIcon;
+              let statusReportButton;
 
               if (pluginInfo) {
-                pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
-                pluginNameLabel = (<label className="medium-4 column plugin-name">{pluginInfo.about().name()}</label>);
-
                 if (pluginInfo.extensions()['elastic-agent'].capabilities() && pluginInfo.extensions()['elastic-agent'].capabilities().supportsStatusReport()) {
                   statusReportButton = (
                     <f.link class="button plugin-status end" href={`status_reports/${pluginId}`}>Status Report</f.link>);
                 }
-              } else {
-                pluginNameLabel = (
-                  <label className="medium-4 column plugin-not-installed">Plugin is not installed</label>);
-                pluginIcon      = (<span class="plugin-icon warning"></span>);
               }
 
               return (<div class="elastic-profile-plugin-group">
 
-                <div class="elastic-profile-plugin-group-header row">
-                  {pluginIcon}
-                  {pluginNameLabel}
-                  <label className="medium-4 column plugin-id end">Plugin ID: {pluginId}</label>
-                  {statusReportButton}
-                </div>
+                <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId} statusReportButton={statusReportButton}/>
 
                 <div class="elastic-profile-plugin-group-content">
                   {_.map(profiles, (profile) => {

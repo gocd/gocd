@@ -52,5 +52,13 @@ module.exports = {
 
   buildCausePath: (pipelineName, pipelineCounter) => {
     return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
+  },
+
+  artifactStoresPath: (id) => {
+    if (id) {
+      return `/go/api/admin/artifact_stores/${id}`;
+    } else {
+      return "/go/api/admin/artifact_stores";
+    }
   }
 };

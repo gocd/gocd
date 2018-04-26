@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,13 @@
  */
 
 const m                     = require('mithril');
-const ComponentMixins       = require('helpers/mithril_component_mixins');
 const PluginCollapsibleList = require('views/shared/plugin_config/plugin_collapsible_list');
 const ActionButtons         = require('views/shared/action_buttons');
 
-const ElasticProfileWidget = {
-  oninit(vnode) {
-    this.args = vnode.attrs;
-    ComponentMixins.HasViewModel.call(this);
-  },
+class ArtifactStoreWidget {
 
   view(vnode) {
-    const profile = vnode.attrs.profile;
     let actionButtons;
-
     if (vnode.attrs.pluginInfo) {
       actionButtons = (
         <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
@@ -39,11 +32,11 @@ const ElasticProfileWidget = {
                        title="Plugin not found" disabled={true}/>
       );
     }
-    return (
-      <PluginCollapsibleList headerKey="Profile ID" headerValue={profile.id()} properties={profile.properties()}
-                             actionButtons={actionButtons}/>
-    );
+    return (<PluginCollapsibleList headerKey="Store ID" headerValue={vnode.attrs.artifactStore.id()}
+                                   properties={vnode.attrs.artifactStore.properties()}
+                                   actionButtons={actionButtons}/>);
   }
-};
 
-module.exports = ElasticProfileWidget;
+}
+
+module.exports = ArtifactStoreWidget;

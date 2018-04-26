@@ -20,6 +20,7 @@ const Stream         = require('mithril/stream');
 const PluginsWidget  = require('views/plugins/plugins_widget');
 const PluginInfos    = require('models/shared/plugin_infos');
 const VersionUpdater = require('models/shared/version_updater');
+const PageLoadError  = require('views/shared/page_load_error');
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
@@ -32,10 +33,7 @@ $(() => {
   const onSuccess = (pluginInfos) => {
     const component = {
       view() {
-        return m(PluginsWidget, {
-          pluginInfos: Stream(pluginInfos),
-          isUserAnAdmin: Stream(isUserAnAdmin === 'true')
-        });
+        return (<PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);
       }
     };
 
@@ -43,10 +41,12 @@ $(() => {
   };
 
   const onFailure = () => {
-    $("#plugins").html($('<div class="alert callout">')
-      .append('<h5>There was a problem fetching plugins</h5>')
-      .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')
-    );
+    const component = {
+      view() {
+        return (<PageLoadError message="There was a problem fetching plugins"/>);
+      }
+    };
+    m.mount($("#plugins").get(0), component);
   };
 
   PluginInfos.all(null, {'include_bad': true}).then(onSuccess, onFailure);

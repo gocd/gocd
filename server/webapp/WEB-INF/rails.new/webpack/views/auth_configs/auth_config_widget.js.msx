@@ -16,8 +16,8 @@
 
 const m               = require('mithril');
 const Stream          = require('mithril/stream');
-const f               = require('helpers/form_helper');
 const ComponentMixins = require('helpers/mithril_component_mixins');
+const ActionButtons   = require('views/shared/action_buttons');
 
 const AuthConfigWidget = {
   oninit (vnode) {
@@ -40,25 +40,18 @@ const AuthConfigWidget = {
   view (vnode) {
     const authConfig = vnode.attrs.authConfig;
     let image;
-    let actionIcons;
+    let actionButtons;
 
     if (vnode.attrs.pluginInfo) {
       image       = (<img src={vnode.attrs.pluginInfo.imageUrl()}/>);
-      actionIcons = (
-        <div class="plugin-actions">
-          <f.link class='edit-auth-config' onclick={vnode.attrs.onEdit}/>
-          <f.link class='clone-auth-config' onclick={vnode.attrs.onClone}/>
-          <f.link class='delete-auth-config-confirm' onclick={vnode.attrs.onDelete}/>
-        </div>
+      actionButtons = (
+        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
       );
     } else {
       image       = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
-      actionIcons = (
-        <div class="plugin-actions">
-          <f.link class='edit-auth-config disabled' title="Plugin not found"/>
-          <f.link class='clone-auth-config disabled' title="Plugin not found"/>
-          <f.link class='delete-auth-config-confirm disabled' title="Plugin not found" onclick={vnode.attrs.onDelete}/>
-        </div>
+      actionButtons = (
+        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}
+                       disabled={true} title="Plugin not found"/>
       );
     }
     return (
@@ -88,7 +81,7 @@ const AuthConfigWidget = {
             })}
           </dl>
         </div>
-        {actionIcons}
+        {actionButtons}
       </div>
     );
   }

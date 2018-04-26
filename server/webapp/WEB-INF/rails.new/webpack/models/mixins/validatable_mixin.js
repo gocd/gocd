@@ -144,4 +144,17 @@ Validatable.ErrorMessages = {
     return `${s.humanize(attribute)} must contain the string '${string}'`;
   }
 };
-module.exports            = Validatable;
+
+Validatable.DefaultOptions = {
+  forId(attribute) {
+    if (!attribute) {
+      attribute = 'id';
+    }
+    return {
+      format:  /^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$/,
+      message: `Invalid ${attribute}. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.`
+    };
+  }
+};
+
+module.exports = Validatable;

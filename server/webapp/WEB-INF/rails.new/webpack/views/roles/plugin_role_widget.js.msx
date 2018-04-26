@@ -16,9 +16,9 @@
 
 const m                   = require('mithril');
 const Stream              = require('mithril/stream');
-const f                   = require('helpers/form_helper');
 const ComponentMixins     = require('helpers/mithril_component_mixins');
 const ConfigurationWidget = require('views/roles/plugin_role_configuration_widget');
+const ActionButtons       = require('views/shared/action_buttons');
 
 const PluginRoleWidget = {
   oninit (vnode) {
@@ -64,14 +64,9 @@ const PluginRoleWidget = {
     }
 
 
-    const actionIcons = (
-      <div class="role-actions">
-        <f.link onclick={disabled ? null : vnode.attrs.onEdit} class={disabled ? 'edit-role disabled' : 'edit-role'}
-                title={errorMessage} disabled={disabled}/>
-        <f.link onclick={disabled ? null : vnode.attrs.onClone} class={disabled ? 'clone-role disabled' : 'clone-role'}
-                title={errorMessage} disabled={disabled}/>
-        <f.link class='delete-role-confirm' onclick={vnode.attrs.onDelete}/>
-      </div>
+    const actionButtons = (
+      <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}
+                     disabled={disabled} title={errorMessage}/>
     );
 
     let pluginInfoView;
@@ -107,7 +102,7 @@ const PluginRoleWidget = {
           </div>
         </div>
         <ConfigurationWidget role={vnode.attrs.role()} showState={showState}/>
-        {actionIcons}
+        {actionButtons}
       </div>
     );
   }

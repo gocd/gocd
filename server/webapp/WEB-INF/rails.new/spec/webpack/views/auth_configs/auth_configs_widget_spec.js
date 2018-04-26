@@ -214,8 +214,8 @@ describe("AuthConfigsWidget", () => {
 
       expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(authConfigJSON.id);
       expect(rows.eq(0).find('.plugin-id .value').text()).toEqual(authConfigJSON.plugin_id);
-      expect(actions.eq(0).find('.edit-auth-config').hasClass('disabled')).toEqual(true);
-      expect(actions.eq(0).find('.clone-auth-config').hasClass('disabled')).toEqual(true);
+      expect(actions.eq(0).find('.edit-button').hasClass('disabled')).toEqual(true);
+      expect(actions.eq(0).find('.clone-button').hasClass('disabled')).toEqual(true);
     });
   });
 
@@ -339,7 +339,7 @@ describe("AuthConfigsWidget", () => {
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.edit-auth-config').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
 
       expect($('.reveal:visible')).toBeInDOM();
       expect($('.reveal:visible input[data-prop-name=id]')).toBeDisabled();
@@ -351,7 +351,7 @@ describe("AuthConfigsWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.edit-auth-config').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
 
       expect($('.alert')).toContainText('Boom!');
     });
@@ -368,7 +368,7 @@ describe("AuthConfigsWidget", () => {
       m.redraw();
       expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 
-      simulateEvent.simulate($root.find('.edit-auth-config').get(0), 'click');
+      simulateEvent.simulate($root.find('.edit-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .close-button span').get(0), 'click');
       m.redraw();
@@ -380,7 +380,7 @@ describe("AuthConfigsWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show confirm modal before deleting a auth config", () => {
-      simulateEvent.simulate($root.find('.delete-auth-config-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
     });
@@ -391,7 +391,7 @@ describe("AuthConfigsWidget", () => {
         status:       200
       });
 
-      simulateEvent.simulate($root.find('.delete-auth-config-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-auth-config').get(0), 'click');
       m.redraw();
@@ -405,7 +405,7 @@ describe("AuthConfigsWidget", () => {
         status:       400
       });
 
-      simulateEvent.simulate($root.find('.delete-auth-config-confirm').get(0), 'click');
+      simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
       m.redraw();
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-auth-config').get(0), 'click');
       m.redraw();
@@ -506,7 +506,7 @@ describe("AuthConfigsWidget", () => {
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.clone-auth-config').get(0), 'click');
+      simulateEvent.simulate($root.find('.clone-button').get(0), 'click');
 
       expect($('.reveal:visible')).toBeInDOM();
       expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();

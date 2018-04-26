@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,30 @@ const Stream               = require('mithril/stream');
 const s                    = require('string-plus');
 const Mixins               = require('models/mixins/model_mixins');
 const PluginConfigurations = require('models/shared/plugin_configurations');
-const Routes               = require('gen/js-routes');
+const SparkRoutes          = require('helpers/spark_routes');
 const Validatable          = require('models/mixins/validatable_mixin');
 const CrudMixins           = require('models/mixins/crud_mixins');
 
-const ElasticProfiles = function (data) {
+const ArtifactStores = function (data) {
   Mixins.HasMany.call(this, {
-    factory:    ElasticProfiles.Profile.create,
-    as:         'Profile',
+    factory:    ArtifactStores.ArtifactStore.create,
+    as:         'ArtifactStore',
     collection: data,
     uniqueOn:   'id'
   });
 };
 
-ElasticProfiles.API_VERSION = 'v1';
+ArtifactStores.API_VERSION = 'v1';
 
 CrudMixins.Index({
-  type:     ElasticProfiles,
-  indexUrl: Routes.apiv1ElasticProfilesPath(),
-  version:  ElasticProfiles.API_VERSION,
-  dataPath: '_embedded.profiles'
+  type:     ArtifactStores,
+  indexUrl: SparkRoutes.artifactStoresPath(),
+  version:  ArtifactStores.API_VERSION,
+  dataPath: '_embedded.artifact_stores'
 });
 
 
-ElasticProfiles.Profile = function (data) {
+ArtifactStores.ArtifactStore = function (data) {
   this.id         = Stream(s.defaultToIfBlank(data.id, ''));
   this.pluginId   = Stream(s.defaultToIfBlank(data.pluginId, ''));
   this.properties = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
@@ -57,21 +57,21 @@ ElasticProfiles.Profile = function (data) {
 
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'],
     {
-      type:     ElasticProfiles.Profile,
-      indexUrl: Routes.apiv1ElasticProfilesPath(),
-      version:  ElasticProfiles.API_VERSION,
-      resourceUrl(profile) {
-        return Routes.apiv1ElasticProfilePath(profile.id());
+      type:     ArtifactStores.ArtifactStore,
+      indexUrl: SparkRoutes.artifactStoresPath(),
+      version:  ArtifactStores.API_VERSION,
+      resourceUrl(store) {
+        return SparkRoutes.artifactStoresPath(store.id());
       }
     }
   );
 };
 
-ElasticProfiles.Profile.get = (id) => new ElasticProfiles.Profile({id}).refresh();
+ArtifactStores.ArtifactStore.get = (id) => new ArtifactStores.ArtifactStore({id}).refresh();
 
-ElasticProfiles.Profile.create = (data) => new ElasticProfiles.Profile(data);
+ArtifactStores.ArtifactStore.create = (data) => new ArtifactStores.ArtifactStore(data);
 
-ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({ //eslint-disable-line camelcase
+ArtifactStores.ArtifactStore.fromJSON = ({id, plugin_id, errors, properties}) => new ArtifactStores.ArtifactStore({ //eslint-disable-line camelcase
   id,
   pluginId:   plugin_id, //eslint-disable-line camelcase
   errors,
@@ -79,10 +79,10 @@ ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new 
 });
 
 Mixins.fromJSONCollection({
-  parentType: ElasticProfiles,
-  childType:  ElasticProfiles.Profile,
-  via:        'addProfile'
+  parentType: ArtifactStores,
+  childType:  ArtifactStores.ArtifactStore,
+  via:        'addArtifactStore'
 });
 
 
-module.exports = ElasticProfiles;
+module.exports = ArtifactStores;

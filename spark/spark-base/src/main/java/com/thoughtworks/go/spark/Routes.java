@@ -177,6 +177,10 @@ public class Routes {
         public static final String BASE = "/admin/security/roles";
     }
 
+    public class ArtifactStoresSPA {
+        public static final String BASE = "/admin/artifact_stores";
+    }
+
     public class PipelineSelection {
         public static final String BASE = "/api/internal/pipeline_selection";
     }

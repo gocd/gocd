@@ -1,0 +1,75 @@
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "shared/go-variables";
+@import "shared/mixins";
+@import "shared/common";
+
+$action-icon-text-padding: 20px;
+$action-icon-color: #555;
+$action-icon-hover-color: #000;
+
+.plugin-actions {
+  position: absolute;
+  right:    10px;
+  top:      13px;
+
+  .edit-button {
+    @include icon-before($type: pencil-square-o, $color: $action-icon-color);
+    &:not(.disabled) {
+      &:hover {
+        &:before {
+          color: $action-icon-hover-color;
+        }
+      }
+    }
+
+    &.disabled {
+      &:before {
+        color: $dark-gray;
+      }
+    }
+  }
+
+  .delete-button {
+    @include icon-before($type: trash, $color: $action-icon-color);
+    position: relative;
+    top:      -2px;
+    &:not(.disabled) {
+      &:hover {
+        &:before {
+          color: $action-icon-hover-color;
+        }
+      }
+    }
+  }
+
+  .clone-button {
+    @include icon-before($type: clone, $color: $action-icon-color);
+    &:hover {
+      &:before {
+        color: $action-icon-hover-color;
+      }
+    }
+
+    &.disabled {
+      &:before {
+        color: $dark-gray;
+      }
+    }
+  }
+}
+

@@ -54,6 +54,10 @@
   @include icon-before($type: plus-circle);
 }
 
+.delete-button {
+  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
+}
+
 .app-footer {
   .row.expanded {
     padding: 0;

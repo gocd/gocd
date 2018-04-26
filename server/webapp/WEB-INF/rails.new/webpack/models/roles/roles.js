@@ -57,11 +57,7 @@ Roles.Role = function (type, data) {
 
   role.validatePresenceOf('name');
   role.validatePresenceOf('type');
-  role.validateFormatOf('name', {
-    format:  /^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$/,
-    message: 'Invalid name. This must be alphanumeric and can contain underscores and periods (however, it cannot start ' +
-             'with a period). The maximum allowed length is 255 characters.'
-  });
+  role.validateFormatOf('name', Validatable.DefaultOptions.forId('name'));
 
   role.isPluginRole = function () {
     return role.type() === 'plugin';

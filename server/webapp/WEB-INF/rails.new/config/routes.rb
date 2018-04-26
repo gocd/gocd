@@ -355,7 +355,6 @@ Go::Application.routes.draw do
       resources :roles, only: [:index], controller: :roles, as: :roles
     end
 
-    get 'agents', to: redirect('/go/agents')
   end
 
   namespace :api, as: "" do

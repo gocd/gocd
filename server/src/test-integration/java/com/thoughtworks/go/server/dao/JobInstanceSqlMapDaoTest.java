@@ -548,7 +548,7 @@ public class JobInstanceSqlMapDaoTest {
         JobInstances instances = jobInstanceDao.latestCompletedJobs(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 25);
 
         for (JobInstance instance : instances) {
-            Pipeline pipeline = pipelineDao.pipelineByBuildIdWithMods(instance.getId());
+            Pipeline pipeline = pipelineDao.pipelineWithMaterialsAndModsByBuildId(instance.getId());
             String locator = pipeline.getName() +
                     "/" + pipeline.getLabel() + "/" + savedStage.getName() + "/1/" + JOB_NAME;
             assertThat(instance.getIdentifier().buildLocator(), Is.is(locator));

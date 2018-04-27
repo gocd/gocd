@@ -120,7 +120,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         Stage stageForBuild = stageService.getStageByBuild(job.getId());
         stageForBuild.setJobInstances(new JobInstances(job));
 
-        Pipeline pipeline = pipelineDao.pipelineByBuildIdWithMods(job.getId());
+        Pipeline pipeline = pipelineDao.pipelineWithMaterialsAndModsByBuildId(job.getId());
         pipeline.setStages(new Stages(stageForBuild));
         return pipeline;
     }

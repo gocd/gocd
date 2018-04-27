@@ -39,8 +39,6 @@ public interface PipelineDao {
 
     int count(String pipelineName);
 
-    Pipeline pipelineByBuildIdWithMods(long buildId);
-
     Pipeline pipelineByIdWithMods(long pipelineId);
 
     Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId);

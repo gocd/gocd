@@ -54,8 +54,6 @@ public interface PipelineDao {
 
     String mostRecentLabel(String pipelineName);
 
-    PipelineInstanceModels loadHistory(String name, int count, String startingLabel);
-
     Integer getCounterForPipeline(String name);
 
     void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount);

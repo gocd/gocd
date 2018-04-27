@@ -245,15 +245,6 @@
         OFFSET #offset#
     </select>
 
-    <select id="getPipelineRangeForLabel" resultClass="java.lang.Long">
-        SELECT pipelines.id
-        FROM pipelines
-        WHERE pipelines.name = #pipelineName#
-        AND pipelines.id &lt;= (SELECT p.id FROM pipelines p WHERE p.name = #pipelineName# AND p.label = #pipelineLabel#)
-        ORDER BY pipelines.id DESC
-        LIMIT #limit#
-    </select>
-
     <sql id="getPipelineHistory">
         SELECT
         pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,

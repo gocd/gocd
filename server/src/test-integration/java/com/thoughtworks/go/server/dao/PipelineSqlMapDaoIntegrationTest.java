@@ -593,43 +593,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistoriesStartingAtTheSuppliedLabel() throws Exception {
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
-        mingleConfig.setLabelTemplate("LABEL:${COUNT}");
-
-        Pipeline pipeline1 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline2 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline3 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline4 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline5 = schedulePipelineWithStages(mingleConfig);
-
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(pipeline1.getName(), 2,
-                pipeline3.getLabel());
-
-        assertThat(pipelineHistories.size(), is(2));
-        assertThat(pipelineHistories.get(0).getLabel(), is(pipeline3.getLabel()));
-        assertThat(pipelineHistories.get(1).getLabel(), is(pipeline2.getLabel()));
-    }
-
-    @Test
-    public void shouldLoadPipelineHistoriesStartingAtTheLatestPipeline() throws Exception {
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
-        mingleConfig.setLabelTemplate("LABEL:${COUNT}");
-
-        Pipeline pipeline1 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline2 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline3 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline4 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline5 = schedulePipelineWithStages(mingleConfig);
-
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(pipeline1.getName(), 2, "latest");
-
-        assertThat(pipelineHistories.size(), is(2));
-        assertThat(pipelineHistories.get(0).getLabel(), is(pipeline5.getLabel()));
-        assertThat(pipelineHistories.get(1).getLabel(), is(pipeline4.getLabel()));
-    }
-
-    @Test
     public void shouldReturnEmptyListWhenThereIsNoPipelineHistory() throws Exception {
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory("something not exist", 10, 0);
         assertThat(pipelineHistories.size(), is(0));

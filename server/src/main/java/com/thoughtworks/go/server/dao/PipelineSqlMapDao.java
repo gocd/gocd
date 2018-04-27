@@ -609,21 +609,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return loadHistory(pipelineName, ids);
     }
 
-    public PipelineInstanceModels loadHistory(String pipelineName, int count, String startingLabel) {
-        if (startingLabel.equals("latest")) {
-            List<Long> ids = findPipelineIds(pipelineName, count, 0);
-            return loadHistory(pipelineName, ids);
-        } else {
-            Map<String, Object> toGet =
-                    arguments("pipelineName", pipelineName)
-                            .and("pipelineLabel", startingLabel)
-                            .and("limit", count).asMap();
-            List<Long> ids = getSqlMapClientTemplate().queryForList("getPipelineRangeForLabel", toGet);
-
-            return loadHistory(pipelineName, ids);
-        }
-    }
-
     public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
         Integer maxCounter = getCounterForPipeline(pipelineName);
         Pagination pagination = Pagination.pageStartingAt((maxCounter - pipelineCounter), maxCounter, limit);

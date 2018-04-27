@@ -37,17 +37,6 @@
         ORDER BY key
     </select>
 
-    <select id="pipelineIdByLabel" resultClass="long">
-        SELECT pipelines.id
-        FROM pipelines
-        WHERE pipelines.name = #pipeline#
-        <isPropertyAvailable property="limitLabel" prepend="AND">
-            pipelines.label = #limitLabel#
-        </isPropertyAvailable>
-        ORDER BY pipelines.id DESC
-        LIMIT 1
-    </select>
-
     <select id="limitedPipelineIds" resultClass="long">
         SELECT pipelineId
         FROM _builds

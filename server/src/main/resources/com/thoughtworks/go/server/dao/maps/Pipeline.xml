@@ -457,10 +457,4 @@
         ORDER BY pipelines.id DESC
     </select>
 
-    <select id="pipelineIdsByNames" parameterClass="list" resultClass="long">
-        SELECT max(id) as mid FROM TABLE(X VARCHAR_IGNORECASE(255)=
-        <iterate open="(" close=")" conjunction=",">#[]# </iterate>) T
-        INNER JOIN pipelines ON pipelines.name=T.X
-        group by name
-    </select>
 </sqlMap>

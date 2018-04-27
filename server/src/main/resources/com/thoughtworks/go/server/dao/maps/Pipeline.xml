@@ -316,13 +316,6 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
-    <!-- TODO: ketan pkr unused query?-->
-    <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
-        <include refid="getPipelineHistory" />
-        WHERE pipelines.id IN ($pipelineIds$)
-        ORDER BY pipelines.id DESC, stages.orderId ASC
-    </select>
-
     <select id="findMatchingPipelineInstances" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         WHERE pipelines.id IN (

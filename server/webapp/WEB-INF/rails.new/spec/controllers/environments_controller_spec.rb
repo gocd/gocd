@@ -177,7 +177,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_dao)
+      @config_helper.using_cruise_config_dao(Spring.bean("goConfigDao"))
       allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
       allow(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
@@ -359,7 +359,7 @@ describe EnvironmentsController do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_dao)
+      @config_helper.using_cruise_config_dao(Spring.bean('goConfigDao'))
       allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       @config_helper.addAdmins(["user_foo"].to_java(:string))
       @environment_name = "foo-environment"
@@ -448,7 +448,7 @@ describe EnvironmentsController do
     before do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
-      @config_helper.using_cruise_config_dao(controller.go_config_dao)
+      @config_helper.using_cruise_config_dao(Spring.bean('goConfigDao'))
       allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       @config_helper.addAdmins(["user_foo"].to_java(:string))
       @environment_name = "foo-env"

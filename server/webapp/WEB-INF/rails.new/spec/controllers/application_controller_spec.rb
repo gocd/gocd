@@ -85,11 +85,6 @@ describe ApplicationController do
       expect(controller.xml_api_service).to eq(xml_api_service)
     end
 
-    it "should load dependency_material_service" do
-      expect(Spring).to receive(:bean).with('dependencyMaterialService').and_return(dependency_material_service = Object.new)
-      expect(controller.dependency_material_service).to eq(dependency_material_service)
-    end
-
     it "should load failure_service" do
       expect(Spring).to receive(:bean).with('failureService').and_return(service = Object.new)
       expect(controller.failure_service).to eq(service)

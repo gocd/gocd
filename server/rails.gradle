@@ -130,6 +130,7 @@ task compileRailsAssets(type: CacheableExecuteUnderRailsTask) {
   def outputAssetsDir = file("${project.buildDir}/rails-assets")
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
+  inputs.dir(file("${project.railsRoot}/config"))
   inputs.dir(file("${project.railsRoot}/app/assets"))
   inputs.dir(file("${project.railsRoot}/vendor/assets"))
 

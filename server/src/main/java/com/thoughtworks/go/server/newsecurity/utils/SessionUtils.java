@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.function.Supplier;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
+import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 
 public class SessionUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionUtils.class);
@@ -45,7 +46,7 @@ public class SessionUtils {
     private static final ThreadLocal<GoUserPrinciple> USERS = ThreadLocal.withInitial(new Supplier<GoUserPrinciple>() {
         @Override
         public GoUserPrinciple get() {
-            return GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED;
+            return new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority());
         }
     });
 

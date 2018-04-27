@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.thoughtworks.go.server.security.GoAuthority.ALL_AUTHORITIES;
+import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 
 @Component
 public class AuthorityGranter {
@@ -36,6 +40,23 @@ public class AuthorityGranter {
     }
 
     public Set<GrantedAuthority> authorities(String username) {
+        if (username.equals("anonymous")) {
+            return authoritiesForAnonymousUser();
+        } else {
+            return authoritiesBasedOnConfiguration(username);
+        }
+    }
+
+    private Set<GrantedAuthority> authoritiesForAnonymousUser() {
+        if (securityService.isSecurityEnabled()) {
+            return anonymousOnlyAuthority();
+        } else {
+
+            return ALL_AUTHORITIES;
+        }
+    }
+
+    private Set<GrantedAuthority> authoritiesBasedOnConfiguration(String username) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         checkAndAddSuperAdmin(username, authorities);
         checkAndAddGroupAdmin(username, authorities);
@@ -43,6 +64,10 @@ public class AuthorityGranter {
         checkAndAddTemplateViewUser(username, authorities);
         authorities.add(GoAuthority.ROLE_USER.asAuthority());
         return authorities;
+    }
+
+    private Set<GrantedAuthority> anonymousOnlyAuthority() {
+        return Collections.singleton(ROLE_ANONYMOUS.asAuthority());
     }
 
     private void checkAndAddTemplateAdmin(String username, Set<GrantedAuthority> authorities) {

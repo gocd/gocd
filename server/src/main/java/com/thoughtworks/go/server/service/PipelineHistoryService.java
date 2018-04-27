@@ -225,15 +225,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         pipelineInstanceModel.setCanRun(canPipelineRun);
     }
 
-    public PipelineInstanceModels findPipelineInstances(String pipelineName, String pipelineLabel, int count, String username) {
-        PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, count, pipelineLabel);
-        addPlaceholderStages(history);
-        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)), false);
-        applySecurity(history, pipelineName, username);
-        applyCanRun(new Username(new CaseInsensitiveString(username)), history);
-        return history;
-    }
-
     public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
         return pipelineDao.getPageNumberForCounter(pipelineName, pipelineCounter, limit);
     }
@@ -252,24 +243,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         populatePipelineInstanceModel(username, populateCanRun, pipelineConfig, model);
         model.setCanRun(true);
         return model;
-    }
-
-    private void applyCanRun(Username username, PipelineInstanceModels history) {
-        for (PipelineInstanceModel pipelineInstanceModel : history) {
-            populateCanRunStatus(username, pipelineInstanceModel);
-        }
-    }
-
-    private void addPlaceholderStages(PipelineInstanceModels history) {
-        for (PipelineInstanceModel pipelineInstanceModel : history) {
-            populatePlaceHolderStages(pipelineInstanceModel);
-        }
-    }
-
-    private void applySecurity(PipelineInstanceModels history, String pipelineName, String username) {
-        if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(username)), pipelineName)) {
-            history.clear();
-        }
     }
 
     public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {

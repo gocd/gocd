@@ -46,8 +46,6 @@ describe ComparisonController, "view" do
       @to_pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 17, "some-label", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
       allow(@phs).to receive(:findPipelineInstance).with("some_pipeline", 17, @loser, @result).and_return(@to_pipeline)
 
-      allow(@phs).to receive(:findPipelineInstances).with(17, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
-      allow(@phs).to receive(:findPipelineInstances).with(10, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
 
       @modification = Modification.new(@date=java.util.Date.new, "1234", "label-1", nil)
       @modification.setUserName("username")

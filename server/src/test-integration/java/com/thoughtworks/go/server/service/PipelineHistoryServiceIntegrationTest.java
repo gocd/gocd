@@ -367,21 +367,6 @@ public class PipelineHistoryServiceIntegrationTest {
         }
     }
 
-    @Test public void shouldSetCanRunWhenFirstStageIsManuallyTriggerable() throws Exception {
-        configHelper.setViewPermissionForGroup(pipelineOne.groupName, "jez");
-        pipelineOne.createPipelineWithFirstStageScheduled();
-        pipelineOne.moveStageToEnd(CaseInsensitiveString.str(pipelineOne.stageConfig(1).name()));
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 1, "jez");
-        assertThat(pipelineInstanceModels.get(0).getCanRun(), is(true));
-    }
-
-    @Test public void shouldMakePipelineInstanceCanRunFalseWhenFirstStageIsRunning() throws Exception {
-        pipelineOne.createPipelineWithFirstStageScheduled();
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 1, "anyone");
-        assertThat(pipelineInstanceModels.get(0).getCanRun(), is(false));
-    }
-
     @Test
     public void shouldNotLoadDuplicatPlaceholderStages() throws Exception {
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job"), "pipeline-group");
@@ -393,47 +378,6 @@ public class PipelineHistoryServiceIntegrationTest {
         StageInstanceModels stageHistory = instanceModel.getStageHistory();
         assertThat(stageHistory.size(), is(1));
         assertThat(stageHistory.first() instanceof NullStageHistoryItem, is(true));
-    }
-
-    @Test
-    public void shouldLoadACertainNumberOfPipelines() throws Exception {
-        Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-        PipelineInstanceModels history = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-
-        assertThat(history.get(0).getName(), is(pipeline.getName()));
-        assertThat(history.get(0).getLabel(), is(pipeline.getLabel()));
-    }
-
-    @Test
-    public void shouldOnlyLoadPipelinesThatTheUserHasAcessTo() throws Exception {
-        Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-
-        PipelineInstanceModels history = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-
-        assertThat(history.get(0).getName(), is(pipeline.getName()));
-        assertThat(history.get(0).getLabel(), is(pipeline.getLabel()));
-    }
-
-    @Test public void shouldHidePipelinesThatIDoNotHaveAccessTo() throws Exception {
-        Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        configHelper.setViewPermissionForGroup("group1", "NOONE");
-
-        PipelineInstanceModels history =
-                pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-
-        assertThat(history.size(), is(0));
-    }
-
-    @Test public void shoulShowPipelinesThatIHaveAccessTo() throws Exception {
-        Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-
-        PipelineInstanceModels history =
-                pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-
-        assertThat(history.size(), is(1));
     }
 
     @Test public void shouldContainLatestRevisionForEachPipeline() throws Exception {
@@ -485,35 +429,6 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(instanceModel.getLatestRevision(svnMaterial).getRevision(), is("No historical data"));
         assertThat(instanceModel.getStageHistory().size(), is(1));
         assertThat(instanceModel.getStageHistory().get(0).getName(), is("new-stage"));
-    }
-
-    @Test public void shouldReturnEmptyPipelineInstanceModel() throws Exception {
-        configHelper.setViewPermissionForGroup(pipelineOne.groupName, "jez");
-        PipelineInstanceModels models = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "jez");
-        assertThat(models.size(), is(1));
-        PipelineInstanceModel emptyModel = models.get(0);
-        assertThat(emptyModel.getName(), is(pipelineOne.pipelineName));
-        assertThat(emptyModel.getLabel(), is("unknown"));
-        assertThat(emptyModel.getBuildCauseMessage(), is("No modifications"));
-        assertThat(emptyModel.getStageHistory().size(), is(3));
-        assertThat(emptyModel.getStageHistory().get(0).getState(), is(StageState.Unknown));
-        assertThat(emptyModel.getCreatedTimeForDisplay(), is(TimeConverter.ConvertedTime.NO_HISTORICAL_DATA));
-        assertThat(emptyModel.getCanRun(), is(true));
-    }
-
-    @Test public void shouldUnderstandIfEmptyPipelineHasNewModifications() throws Exception {
-        saveRev(new MaterialRevision(pipelineOne.getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-        PipelineInstanceModels models = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-        PipelineInstanceModel emptyModel = models.get(0);
-        assertThat(emptyModel.hasNewRevisions(), is(true));
-    }
-
-    @Test public void shouldUnderstandIfEmptyPipelineHasNoNewModifications() throws Exception {
-        configHelper.setViewPermissionForGroup("group1", "anyone");
-        PipelineInstanceModels models = pipelineHistoryService.findPipelineInstances(pipelineOne.pipelineName, "latest", 3, "anyone");
-        PipelineInstanceModel emptyModel = models.get(0);
-        assertThat(emptyModel.hasNewRevisions(), is(false));
     }
 
     @Test public void shouldUnderstandIfMaterialHasNewModifications() throws Exception {

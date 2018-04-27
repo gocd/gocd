@@ -24,12 +24,8 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -72,11 +68,7 @@ class AssumeAnonymousUserFilterTest {
         assertThat(SessionUtils.getAuthenticationToken(request).getCredentials()).isSameAs(AnonymousCredential.INSTANCE);
         assertThat(SessionUtils.getAuthenticationToken(request).getUser().getUsername()).isEqualTo("anonymous");
         assertThat(SessionUtils.getAuthenticationToken(request).getUser().getAuthorities())
-                .containsAll(Arrays.stream(GoAuthority.values()).map(new Function<GoAuthority, GrantedAuthority>() {
-                    @Override
-                    public GrantedAuthority apply(GoAuthority goAuthority) {
-                        return goAuthority.asAuthority();
-                    }
-                }).collect(Collectors.toSet()));
+                .hasSize(1)
+                .contains(GoAuthority.ROLE_SUPERVISOR.asAuthority());
     }
 }

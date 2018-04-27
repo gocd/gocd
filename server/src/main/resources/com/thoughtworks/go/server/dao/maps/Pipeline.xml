@@ -226,12 +226,6 @@
         <flushOnExecute statement="updatePipelineLabelCounter"/>
     </cacheModel>
 
-    <select id="getPipelineByStageId" parameterClass="java.lang.Long" resultMap="select-pipeline" cacheModel="pipeline-by-stageId">
-        SELECT pipelineId, pipelineName, buildCauseType, pipelineLabel AS label, buildCauseMessage, pipelineCounter, naturalOrder
-        FROM _stages
-        WHERE id = #stageId#
-    </select>
-
     <sql id="selectLatestStageInPipeline">
         stages.latestRun = true
     </sql>

@@ -43,7 +43,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter.SECURITY_CONFIG_LAST_CHANGE;
@@ -93,15 +92,6 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         assertThat(registeredListeners.get(0)).isInstanceOf(InvalidateAuthenticationOnSecurityConfigChangeFilter.class);
         assertThat(registeredListeners.get(0)).isSameAs(filter);
         assertThat(registeredListeners.get(1)).isInstanceOf(SecurityConfigChangeListener.class);
-    }
-
-    @Test
-    void shouldContinueWithChainReturnIfAuthenticationIsNull() throws IOException, ServletException {
-        request = new MockHttpServletRequest();
-        filter.doFilter(request, response, filterChain);
-        verify(filterChain).doFilter(request, response);
-        assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
-        assertThat(Collections.list(request.getSession(false).getAttributeNames())).isEmpty();
     }
 
     @Test

@@ -20,8 +20,10 @@ import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.http.mocks.*;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
+import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
+import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -59,6 +61,7 @@ public class AbstractReAuthenticationFilterTest {
     private TestingClock clock;
     private AbstractReAuthenticationFilter filter;
     private SystemEnvironment systemEnvironment;
+    private AnonymousAuthenticationProvider anonymousAuthenticationProvider;
 
     @BeforeEach
     void setUp() {
@@ -69,8 +72,10 @@ public class AbstractReAuthenticationFilterTest {
         when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
         passwordBasedPluginAuthenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
         webBasedPluginAuthenticationProvider = mock(WebBasedPluginAuthenticationProvider.class);
+        anonymousAuthenticationProvider = mock(AnonymousAuthenticationProvider.class);
+
         clock = new TestingClock();
-        filter = spy(new AbstractReAuthenticationFilter(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider) {
+        filter = spy(new AbstractReAuthenticationFilter(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider, anonymousAuthenticationProvider) {
 
             @Override
             protected void onAuthenticationFailure(HttpServletRequest request,
@@ -156,7 +161,6 @@ public class AbstractReAuthenticationFilterTest {
             verify(filter, never()).onAuthenticationFailure(any(), any(), any());
         }
 
-
         @Test
         void shouldReAuthenticateWebBasedTokenWhenItHasExpired() throws IOException, ServletException {
             request = HttpRequestBuilder.GET("/").build();
@@ -169,6 +173,32 @@ public class AbstractReAuthenticationFilterTest {
             final AuthenticationToken<AccessToken> reAuthenticatedToken = SessionUtilsHelper.createWebAuthentication(Collections.singletonMap("access_token", "some-token"), clock.currentTimeMillis());
 
             when(webBasedPluginAuthenticationProvider.reauthenticate(authenticationToken)).thenReturn(reAuthenticatedToken);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(filterChain).doFilter(request, response);
+
+            assertThat(authenticationToken).isNotSameAs(reAuthenticatedToken);
+
+            assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(reAuthenticatedToken);
+
+            MockHttpServletResponseAssert.assertThat(response)
+                    .isOk();
+            verify(filter, never()).onAuthenticationFailure(any(), any(), any());
+        }
+
+        @Test
+        void shouldReAuthenticateAnonymousTokenWhenItHasExpired() throws IOException, ServletException {
+            request = HttpRequestBuilder.GET("/").build();
+            SessionUtilsHelper.loginAsAnonymous(request);
+            AuthenticationToken<AnonymousCredential> authenticationToken = (AuthenticationToken<AnonymousCredential>) SessionUtils.getAuthenticationToken(request);
+
+            clock.addSeconds(3601);
+            when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(3600 * 1000L);
+
+            final AuthenticationToken<AnonymousCredential> reAuthenticatedToken = SessionUtilsHelper.createAnonymousAuthentication(clock.currentTimeMillis());
+
+            when(anonymousAuthenticationProvider.reauthenticate(authenticationToken)).thenReturn(reAuthenticatedToken);
 
             filter.doFilter(request, response, filterChain);
 

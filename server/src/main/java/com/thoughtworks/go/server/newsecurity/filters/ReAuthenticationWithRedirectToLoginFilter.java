@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -36,8 +37,9 @@ public class ReAuthenticationWithRedirectToLoginFilter extends AbstractReAuthent
                                                      SystemEnvironment systemEnvironment,
                                                      Clock clock,
                                                      PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider,
-                                                     WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider) {
-        super(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider);
+                                                     WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider,
+                                                     AnonymousAuthenticationProvider anonymousAuthenticationProvider) {
+        super(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider, anonymousAuthenticationProvider);
     }
 
     @Override

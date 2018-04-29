@@ -119,7 +119,10 @@ public class ConfigConverter {
         if (crEnvironmentVariable.hasEncryptedValue()) {
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), crEnvironmentVariable.getEncryptedValue());
         } else {
-            return new EnvironmentVariableConfig(crEnvironmentVariable.getName(), crEnvironmentVariable.getValue());
+            String value = crEnvironmentVariable.getValue();
+            if(StringUtils.isBlank(value))
+                value = "";
+            return new EnvironmentVariableConfig(crEnvironmentVariable.getName(), value);
         }
     }
 

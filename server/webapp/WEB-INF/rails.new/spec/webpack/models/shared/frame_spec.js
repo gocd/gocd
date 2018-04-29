@@ -23,8 +23,6 @@ function FakeWindow() {
   };
 }
 
-function noop() {}
-
 const TEST_URL = "http://test.tld/path";
 
 describe("Frame", () => {
@@ -34,7 +32,7 @@ describe("Frame", () => {
     it("should only pass through ui=test query parameter", () => {
 
       const mockWindow = new FakeWindow();
-      const f = new Frame(noop, mockWindow);
+      const f = new Frame(mockWindow);
       f.view(TEST_URL);
 
       mockWindow.withQuery("?ui");

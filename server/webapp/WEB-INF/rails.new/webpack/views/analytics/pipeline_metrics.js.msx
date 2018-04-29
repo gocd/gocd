@@ -21,72 +21,64 @@
   const $ = require("jquery");
   const _ = require('lodash');
 
-  const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
-  const PluginEndpoint               = require('rails-shared/plugin-endpoint');
-  const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
-  const Frame                        = require('models/shared/frame');
-  const Routes                       = require('gen/js-routes');
+  const Interactions          = require("models/shared/analytics_interaction_manager");
+  const Models                = Interactions.ensure().ns("PipelineMetrics");
+  const init                  = require("rails-shared/plugin-endpoint").init;
 
-  const models = {};
+  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
+
+  function pipelineParams(pipeline) {
+    return {pipeline_name: pipeline, context: "dashboard"}; // eslint-disable-line camelcase
+  }
+
   let currentPipeline = null;
 
-  PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
-
-  const PipelineMetrics = function() {
-    let data = null;
-
-    function oninit(vnode) {
-      data = vnode.attrs;
+  const PipelineDropdown = {
+    oninit(vnode) {
       if (!currentPipeline) {
         currentPipeline = vnode.attrs.pipelines[0];
       }
-    }
+    },
 
-    function newFrame(pluginId) {
-      const frame = new Frame(m.redraw);
-      frame.pluginId(pluginId);
-      frame.url(Routes.showAnalyticsPath(pluginId, "dashboard", "pipeline_duration", {pipeline_name: currentPipeline, context: "dashboard"})); // eslint-disable-line camelcase
-      return frame;
-    }
-
-    function dropdown() {
-      const pipelineOptions = _.map(data.pipelines, (pipeline) => {
-        if (pipeline === currentPipeline) {
-          return (<option selected>{pipeline}</option>);
-        } else {
-          return (<option>{pipeline}</option>);
-        }
+    view(vnode) {
+      const pipelineOptions = _.map(vnode.attrs.pipelines, (pipeline) => {
+        return <option selected={pipeline === currentPipeline}>{pipeline}</option>;
       });
 
       const select = m("select", {
-        onchange: function() { // eslint-disable-line object-shorthand
+        onchange() {
           currentPipeline = $(this).val();
-          $.each(models, (uid, model) => {
-            models[uid] = newFrame(model.pluginId());
+          $.each(Models.all(), (uid, m) => {
+            m.url(Models.toUrl(uid, pipelineParams(currentPipeline)));
           });
         }
       }, pipelineOptions);
 
-      return (<div class="chart-pipeline-selector">Analytics For Pipeline: {select} </div>);
+      return <div class="chart-pipeline-selector">Analytics For Pipeline: {select}</div>;
     }
+  };
 
-    function view(vnode) { // eslint-disable-line no-unused-vars
-      const pageItems = [];
-      pageItems.push(dropdown());
+  const PipelineMetrics = {
+    oninit(vnode) {
+      if (!currentPipeline) {
+        currentPipeline = vnode.attrs.pipelines[0];
+      }
+    },
 
-      $.each(data.plugins, (idx, pluginId) => { // eslint-disable-line no-unused-vars
-        const uid = `f-${pluginId}:pipeline:${idx}`;
-        let model = models[uid];
-        if (!model) {
-          model = models[uid] = newFrame(pluginId);
-        }
+    view(vnode) {
+      const elements = [<PipelineDropdown pipelines={vnode.attrs.pipelines}/>];
 
-        pageItems.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title: "Pipeline Build Time", init: PluginEndpoint.init}));
+      $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
+        $.each(supportedAnalytics, (idx, sa) => {
+          const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
+                title = sa.title,
+                model = Models.modelFor(uid, pipelineParams(currentPipeline));
+
+          elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+        });
       });
-
-      return pageItems;
+      return elements;
     }
-    return {view, oninit};
   };
 
   module.exports = PipelineMetrics;

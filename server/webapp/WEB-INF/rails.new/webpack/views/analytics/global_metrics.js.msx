@@ -20,41 +20,24 @@
   const m = require("mithril");
   const $ = require("jquery");
 
-  const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
-  const PluginEndpoint               = require('rails-shared/plugin-endpoint');
-  const Frame                        = require('models/shared/frame');
-  const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
-  const Routes                       = require('gen/js-routes');
-
-  const models = {};
-
-  PluginEndpointRequestHandler.defineLinkHandler();
-  PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
-
-  function ensureModel(uid, pluginId, type, id) {
-    let model = models[uid];
-
-    if (!model) {
-      model = models[uid] = new Frame(m.redraw);
-      model.url(Routes.showAnalyticsPath(pluginId, type, id)); // eslint-disable-line camelcase
-    }
-
-    return model;
-  }
+  const init                  = require("rails-shared/plugin-endpoint").init;
+  const AnalyticsiFrameWidget = require("views/shared/analytics_iframe_widget");
+  const Interactions          = require("models/shared/analytics_interaction_manager");
+  const Models                = Interactions.ensure().ns("GlobalMetrics");
 
   const GlobalMetrics = {
-    view(vnode) { // eslint-disable-line no-unused-vars
-      const frames = [];
+    view(vnode) {
+      const elements = [];
       $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
         $.each(supportedAnalytics, (idx, sa) => {
-          const uid   = `f-${pluginId}:${sa.id}:${idx}`,
+          const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
                 title = sa.title,
-                model = ensureModel(uid, pluginId, sa.type, sa.id);
+                model = Models.modelFor(uid);
 
-          frames.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init: PluginEndpoint.init}));
+          elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
         });
       });
-      return frames;
+      return elements;
     }
   };
 

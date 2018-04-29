@@ -14,51 +14,58 @@
  * limitations under the License.
  */
 
-const $               = require('jquery');
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const AnalyticsWidget = require('views/analytics/analytics_widget');
-const PluginInfos     = require('models/shared/plugin_infos');
-const VersionUpdater  = require('models/shared/version_updater');
-const PluginEndpoint  = require('rails-shared/plugin-endpoint');
+const $                 = require("jquery");
+const m                 = require("mithril");
+const Stream            = require("mithril/stream");
+const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
+const AnalyticsWidget   = require("views/analytics/analytics_widget");
+const PluginInfos       = require("models/shared/plugin_infos");
+const VersionUpdater    = require("models/shared/version_updater");
+
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
+
+function metricsInfo(infos, method) {
+  const metrics = {};
+  infos.eachPluginInfo((p) => {
+    metrics[p.id()] = p.extensions().analytics.capabilities()[method]();
+  });
+  return metrics;
+}
+
+AnalyticsEndpoint.ensure("v1");
 
 $(() => {
   $(document).foundation();
   new VersionUpdater().update();
 
-  PluginEndpoint.ensure("v1");
   const analyticsElem = $('.analytics-container');
   const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list'));
 
-  const onSuccess = (pluginInfos) => {
-    const plugins = pluginInfos.mapPluginInfos((p) => p.id());
-    const metrics = {};
-    pluginInfos.eachPluginInfo((p) => {
-      metrics[p.id()] = p.extensions().analytics.capabilities().supportedAnalyticsDashboardMetrics();
-    });
+  function onSuccess(pluginInfos) {
+    const pipelineMetrics = metricsInfo(pluginInfos, "supportedPipelineAnalytics");
+    const globalMetrics = metricsInfo(pluginInfos, "supportedAnalyticsDashboardMetrics");
 
     const component = {
       view() {
         return m(AnalyticsWidget, {
           pluginInfos: Stream(pluginInfos),
-          metrics,
+          globalMetrics,
           pipelines,
-          plugins
+          pipelineMetrics
         });
       }
     };
 
     m.mount(analyticsElem.get(0), component);
-  };
+  }
 
-  const onFailure = () => {
+  function onFailure() {
     analyticsElem.html($('<div class="alert callout">')
       .append('<h5>There was a problem fetching the analytics</h5>')
       .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')
     );
-  };
+  }
 
   PluginInfos.all(null, {type: 'analytics'}).then(onSuccess, onFailure);
 });

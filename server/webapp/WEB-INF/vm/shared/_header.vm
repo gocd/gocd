@@ -65,7 +65,7 @@
               <div class="header">
                 <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
                     <div class="application_nav">
-                        #if ($principal)
+                        #if ($principal && $principal != "anonymous")
                           <ul class="user">
                             <li class="help">
                               <a href="https://gocd.org/help" target="_blank">Need Help?</a>

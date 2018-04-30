@@ -21,7 +21,11 @@ describe("Pipeline Dashboard Metrics", () => {
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
   let $root, root;
-  const supportedMetrics = ["plugin-id-x", "plugin-id-y"];
+  const supportedMetrics = {
+    "plugin-id-x": [{type: "pipeline", id: "metric-1"}],
+    "plugin-id-y": [{type: "pipeline", id: "metric-1"}]
+  };
+
   const pipelineList = ["p1", "p2", "p3"];
 
   beforeEach(() => {
@@ -51,8 +55,8 @@ describe("Pipeline Dashboard Metrics", () => {
 
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(2);
-    expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/dashboard/pipeline_duration?pipeline_name=p1&context=dashboard');
-    expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/dashboard/pipeline_duration?pipeline_name=p1&context=dashboard');
+    expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p1&context=dashboard');
+    expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/pipeline/metric-1?pipeline_name=p1&context=dashboard');
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
@@ -61,16 +65,16 @@ describe("Pipeline Dashboard Metrics", () => {
     $root.find("select").val("p2").trigger("change");
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
-    expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/dashboard/pipeline_duration?pipeline_name=p2&context=dashboard');
-    expect(requests.at(3).url).toBe('/go/analytics/plugin-id-y/dashboard/pipeline_duration?pipeline_name=p2&context=dashboard');
+    expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p2&context=dashboard');
+    expect(requests.at(3).url).toBe('/go/analytics/plugin-id-y/pipeline/metric-1?pipeline_name=p2&context=dashboard');
   });
 
-  const mount = (pipelines, plugins) => {
+  const mount = (pipelines, metrics) => {
     m.mount(root, {
       view() {
         return m(PipelineMetrics, {
           pipelines,
-          plugins
+          metrics
         });
       }
     });

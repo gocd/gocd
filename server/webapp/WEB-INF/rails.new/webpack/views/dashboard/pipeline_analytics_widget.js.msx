@@ -16,44 +16,40 @@
 
 const m = require('mithril');
 
-const PluginEndpoint               = require('rails-shared/plugin-endpoint');
-const Modal                        = require('views/shared/new_modal');
-const Routes                       = require('gen/js-routes');
-const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
-const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
-const Frame                        = require('models/shared/frame');
 
+const Interactions          = require("models/shared/analytics_interaction_manager");
+const Models                = Interactions.ensure().ns("PipelineMetrics");
+const init                  = require("rails-shared/plugin-endpoint").init;
 
-const models = {};
-PluginEndpointRequestHandler.defineLinkHandler();
-PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
+const Modal                 = require("views/shared/new_modal");
+const AnalyticsiFrameWidget = require("views/shared/analytics_iframe_widget");
+const AnalyticsEndpoint     = require("rails-shared/plugin-endpoint");
 
 function createModal(pluginId, metricId, pipeline) {
-  const model = new Frame(m.redraw),
-    uid = `f-${pluginId}:pipeline:0`;
-  models[uid] = model;
-  PluginEndpoint.ensure("v1");
+  const uid = Models.uid(0, pluginId, "pipeline", metricId),
+      model = Models.modelFor(uid),
+     params = { pipeline_name: pipeline.name }; // eslint-disable-line camelcase
 
-  model.pluginId(pluginId);
-  model.url(Routes.showAnalyticsPath(pluginId, "pipeline", metricId, {
-    pipeline_name: pipeline.name,  // eslint-disable-line camelcase
-    key:           "analytics.pipeline-chart"
-  }));
+  model.url(Models.toUrl(uid, params));
+
+  AnalyticsEndpoint.ensure("v1");
+
   const modal = new Modal({
     size:    "analytics-modal",
-    title:   `Analytics`,
-    body:    () => (m(AnalyticsiFrameWidget, {model, uid, title: "Pipeline Build Time", pluginId, init: PluginEndpoint.init})),
+    title:   "Analytics",
+    body:    () => (m(AnalyticsiFrameWidget, {model, uid, title: "Pipeline Build Time", pluginId, init})),
     onclose: () => modal.destroy(),
     buttons: []
   });
+
   modal.render();
 }
 
 const PipelineAnalyticsWidget = {
-  view: (vnode) => {
+  view(vnode) {
     return m("a", {
-      class:   "pipeline-analytics",
-      onclick: () => {
+      class: "pipeline-analytics",
+      onclick() {
         createModal(vnode.attrs.pluginId, vnode.attrs.metricId, vnode.attrs.pipeline);
       }
     });

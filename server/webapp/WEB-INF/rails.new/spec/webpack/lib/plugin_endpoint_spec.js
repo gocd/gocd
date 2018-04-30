@@ -51,6 +51,7 @@
   afterEach(() => {
     window.postMessage = origPostMessage;
     window.addEventListener = origListener;
+    PluginEndpoint.reset();
   });
 
   it("should send response for matching request", (done) => {

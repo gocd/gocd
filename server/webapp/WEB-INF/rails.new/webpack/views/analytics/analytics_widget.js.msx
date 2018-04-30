@@ -20,23 +20,17 @@ const TabsVM          = require('views/analytics/models/tabs_view_model');
 const GlobalMetrics   = require('views/analytics/global_metrics');
 const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
-
 const AnalyticsWidget = {
   oninit(vnode) {
-    const self = vnode.state;
-    self.vm    = new TabsVM();
+    vnode.state.vm = new TabsVM();
   },
 
   view(vnode) {
-    const self = vnode.state;
-    const vm   = self.vm;
+    const vm = vnode.state.vm;
 
-    let analyticsMetric;
-    if (vm.isGlobalTabSelected()) {
-      analyticsMetric = (<GlobalMetrics metrics={vnode.attrs.metrics}/>);
-    } else {
-      analyticsMetric = (<PipelineMetrics pipelines={vnode.attrs.pipelines} plugins={vnode.attrs.plugins}/>);
-    }
+    const analyticsMetric = vm.isGlobalTabSelected() ?
+      <GlobalMetrics metrics={vnode.attrs.globalMetrics}/> :
+      <PipelineMetrics pipelines={vnode.attrs.pipelines} metrics={vnode.attrs.pipelineMetrics}/>;
 
     return (<div class="analytics-main-container">
       <div class="header-panel">

@@ -43,27 +43,29 @@
     return url;
   }
 
-  function Frame(callback, self=window) {
+  function Frame(self=window) {
     const url = Stream();
     const view = Stream();
     const data = Stream();
-    const pluginId = Stream();
     const errors = Stream();
 
-    function load() {
+    function load(before, after) {
       errors(null);
 
       $.ajax({
         url: url(),
         type: "GET",
-        dataType: "json"
+        dataType: "json",
+        beforeSend: "function" === typeof before && before
       }).done((r) => {
         data(r.data);
         view(r.view_path);
       }).fail((xhr) => {
         errors(xhr);
       }).always(() => {
-        callback();
+        if ("function" === typeof after) {
+          after();
+        }
       });
     }
 
@@ -91,7 +93,7 @@
       return view(value);
     }
 
-    (Object.assign || $.extend)(this, {url, view: viewWithToggles, data, load, fetch, pluginId, errors});
+    (Object.assign || $.extend)(this, {url, view: viewWithToggles, data, load, fetch, errors});
   }
 
   module.exports = Frame;

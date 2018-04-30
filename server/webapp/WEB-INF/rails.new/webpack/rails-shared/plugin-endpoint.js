@@ -247,6 +247,17 @@
   }
 
   var AnalyticsEndpoint = {
+    reset: function reset() {
+      HANDLERS = {},
+      attached = false,
+      uid = undefined,
+      pluginId = undefined,
+
+      REQUEST_ID_SEQ = 0,
+      PENDING_REQUESTS = new RequestTable();
+
+      window.removeEventListener("message", dispatch);
+    },
     ensure: function ensure(version) {
       VERSION = validateVersion(version);
 

@@ -49,9 +49,10 @@
     const data = Stream();
     const errors = Stream();
 
+    let nonce = 0;
+
     function load(before, after) {
       errors(null);
-
       $.ajax({
         url: url(),
         type: "GET",
@@ -59,7 +60,7 @@
         beforeSend: "function" === typeof before && before
       }).done((r) => {
         data(r.data);
-        view(r.view_path);
+        view(withParam(r.view_path, "~n.o.n.c.e", nonce++));
       }).fail((xhr) => {
         errors(xhr);
       }).always(() => {

@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.Task;
 
@@ -83,7 +84,7 @@ public class TaskRepresenter {
             case PluggableTask.TYPE:
                 return PluggableTaskRepresenter.fromJSON(attributes);
             default:
-                throw new RuntimeException(String.format("Invalid task type %s. It has to be one of '%s'.", type, String.join(",", ExecTask.TYPE, AntTask.TYPE, NantTask.TYPE, RakeTask.TYPE, FetchTask.TYPE, PluggableTask.TYPE)));
+                throw new UnprocessableEntityException(String.format("Invalid task type %s. It has to be one of '%s'.", type, String.join(",", ExecTask.TYPE, AntTask.TYPE, NantTask.TYPE, RakeTask.TYPE, FetchTask.TYPE, PluggableTask.TYPE)));
 
         }
     }

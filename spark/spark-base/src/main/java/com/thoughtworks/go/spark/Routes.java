@@ -44,6 +44,21 @@ public class Routes {
         }
     }
 
+    public static class ConfigView {
+        public static final  String SELF = "/admin/config_xml";
+    }
+
+    public static class ConfigRepos {
+        public static final String BASE = "/api/admin/config_repos";
+        public static final String DOC = "https://api.gocd.org/#config-repos";
+
+        public static String find() { return BASE + "/:id"; }
+
+        public static String id(String id) {
+            return find().replaceAll(":id", id);
+        }
+    }
+
     public static class Roles {
         public static final String BASE = "/api/admin/security/roles";
         public static final String DOC = "https://api.gocd.org/#roles";
@@ -201,6 +216,20 @@ public class Routes {
 
         public static String id(String id) {
             return find().replaceAll(":id", id);
+        }
+    }
+
+    public static class PipelineConfig {
+        public static final String BASE = "/api/admin/pipelines";
+        public static final String NAME = "/:pipeline_name";
+        public static final String DOC = "https://api.gocd.org/current/#pipeline-config";
+
+        public static String find() {
+            return BASE + NAME;
+        }
+
+        public static String name(String name) {
+            return find().replaceAll(":pipeline_name", name);
         }
     }
 

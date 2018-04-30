@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.BuiltinArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 
 import java.util.HashMap;
 
@@ -59,7 +60,7 @@ public class ArtifactRepresenter {
                 break;
             default:
                 //TODO: change this when support for external artifacts is introduced
-                throw new RuntimeException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test")));
+                throw new UnprocessableEntityException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test")));
         }
         jsonReader.readStringIfPresent("source", artifactConfig::setSource);
         jsonReader.readStringIfPresent("destination", artifactConfig::setDestination);

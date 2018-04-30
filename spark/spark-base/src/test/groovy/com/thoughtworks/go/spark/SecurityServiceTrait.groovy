@@ -81,7 +81,7 @@ trait SecurityServiceTrait {
     when(securityService.isSecurityEnabled()).thenReturn(true)
   }
 
-  void loginAsGroupAdmin(String pipelineName) {
+  void loginAsGroupAdmin(String pipelineName = 'foo') {
     Username username = loginAsRandomUser()
     String groupName = generateGroupName()
 

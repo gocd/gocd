@@ -18,9 +18,11 @@ package com.thoughtworks.go.apiv6.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.helper.JobConfigMother
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.quartz.Job
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -282,8 +284,9 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         tasks: [[type: 'invalid', attributes: [command: 'dont-care']]]
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
-      assertThrows(RuntimeException.class, null, "Invalid task type invalid. It has to be one of 'exec,ant,nant,rake,fetch,pluggable_task'.")
+
+      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader) })
+      assertEquals("Invalid task type invalid. It has to be one of 'exec,ant,nant,rake,fetch,pluggable_task'.", exception.getMessage())
     }
 
     @Test
@@ -337,13 +340,14 @@ class JobRepresenterTest {
       assertEquals(artifactTypes.get(1), 'test')
     }
 
+    @Test
     void 'should raise exception when invalid artifact type is passed'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         artifacts: [[type: 'invalid']]
       ])
 
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
-      assertThrows(RuntimeException.class)
+      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader) })
+      assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test.", exception.getMessage())
     }
 
     @Test

@@ -60,20 +60,9 @@ public class StageRepresenter {
       return stageConfig;
     }
     jsonReader.readCaseInsensitiveStringIfPresent("name", stageConfig::setName);
-    if (jsonReader.hasJsonObject("fetch_materials")) {
-      Boolean fetchMaterials = jsonReader.optBoolean("fetch_materials").get();
-      stageConfig.setFetchMaterials(fetchMaterials);
-    }
-
-    if (jsonReader.hasJsonObject("clean_working_directory")) {
-      Boolean cleanWorkingDirectory = jsonReader.optBoolean("clean_working_directory").get();
-      stageConfig.setCleanWorkingDir(cleanWorkingDirectory);
-    }
-
-    if (jsonReader.hasJsonObject("never_cleanup_artifacts")) {
-      Boolean neverCleanupArtifacts = jsonReader.optBoolean("never_cleanup_artifacts").get();
-      stageConfig.setArtifactCleanupProhibited(neverCleanupArtifacts);
-    }
+    jsonReader.optBoolean("fetch_materials").ifPresent(stageConfig::setFetchMaterials);
+    jsonReader.optBoolean("clean_working_directory").ifPresent(stageConfig::setCleanWorkingDir);
+    jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
 
     setEnvironmentVariables(jsonReader, stageConfig);
     setJobs(jsonReader, stageConfig);

@@ -22,12 +22,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
 
 class AgentMetadataDTO implements Serializable {
     private static final Gson GSON = new GsonBuilder().
@@ -74,12 +70,6 @@ class AgentMetadataDTO implements Serializable {
 
     public JsonElement toJSON() {
         return GSON.toJsonTree(this);
-    }
-
-    public static Collection<AgentMetadataDTO> fromJSONArray(String json) {
-        Type AGENT_METADATA_LIST_TYPE = new TypeToken<List<AgentMetadataDTO>>() {
-        }.getType();
-        return GSON.fromJson(json, AGENT_METADATA_LIST_TYPE);
     }
 
     @Override

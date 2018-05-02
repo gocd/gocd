@@ -668,7 +668,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForPipelineAndStage(String pipelineName, String stageName) {
-        return String.format("%s_isStageActive_%s_%s", StageSqlMapDao.class.getName(), pipelineName, stageName).intern();
+        return String.format("%s_isStageActive_%s_%s", StageSqlMapDao.class.getName(), pipelineName.toLowerCase(), stageName.toLowerCase()).intern();
     }
 
     public Stages findAllStagesFor(String pipelineName, int counter) {

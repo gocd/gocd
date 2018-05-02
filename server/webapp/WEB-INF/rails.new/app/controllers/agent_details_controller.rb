@@ -38,7 +38,7 @@ class AgentDetailsController < ApplicationController
 
   def populate_agent_for_details
     uuid = params[:uuid]
-    @agent = agent_service.findAgentViewModel(uuid)
+    @agent = agent_service.findAgentAndRefreshStatus(uuid)
     if @agent.isNullAgent()
       render_error_response("Agent with uuid '#{uuid}' not found.", 404, false)
       false

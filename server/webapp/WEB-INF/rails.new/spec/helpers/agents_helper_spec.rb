@@ -19,7 +19,7 @@ require 'rails_helper'
 
 describe AgentsHelper do
   include AgentsHelper
-  include AgentMother
+  include AgentInstanceFactory
   include GoUtil
 
   before do
@@ -89,7 +89,7 @@ describe AgentsHelper do
       agent = AgentInstanceMother.building()
       agent.cancel()
       agent.deny()
-      expect(agent_status_cell(AgentViewModel.new(agent))).to match(/>disabled \(building\)</)
+      expect(agent_status_cell(agent)).to match(/>disabled \(building\)</)
     end
 
     it "should title status cell with last heard time if agent status is lost contact" do
@@ -132,7 +132,7 @@ describe AgentsHelper do
   def security_service
     @security_service
   end
-  
+
   it "should call security service to check if user has view or operate permission" do
     @security_service = double(SecurityService)
     should_receive(:current_user).and_return(:user)

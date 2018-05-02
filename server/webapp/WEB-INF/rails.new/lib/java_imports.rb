@@ -149,8 +149,6 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult unless defined? HttpLocalizedOperationResult
   java_import com.thoughtworks.go.server.service.result.HttpOperationResult unless defined? HttpOperationResult
   java_import com.thoughtworks.go.server.service.UserService unless defined? UserService
-  java_import com.thoughtworks.go.server.ui.AgentsViewModel unless defined? AgentsViewModel
-  java_import com.thoughtworks.go.server.ui.AgentViewModel unless defined? AgentViewModel
   java_import com.thoughtworks.go.server.ui.JobInstanceModel unless defined? JobInstanceModel
   java_import com.thoughtworks.go.server.ui.StageSummaryModel unless defined? StageSummaryModel
   java_import com.thoughtworks.go.server.ui.StageSummaryModels unless defined? StageSummaryModels

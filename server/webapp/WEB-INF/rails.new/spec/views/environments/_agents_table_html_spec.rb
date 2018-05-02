@@ -17,18 +17,18 @@
 require 'rails_helper'
 
 describe "Environments agents table" do
-  include AgentMother
+  include AgentInstanceFactory
 
   before :each do
     @agent1 = idle_agent(:hostname => 'host1', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1")
     @agent2 = disabled_agent
-    assign(:agents, AgentsViewModel.new([@agent1, @agent2].to_java(AgentViewModel)))
+    assign(:agents, {@agent1 => [], @agent2 => []})
     allow(view).to receive(:has_operate_permission_for_agents?).and_return(true)
     allow(view).to receive(:url_for).and_return("url")
   end
 
   it "should not link to agent details for a pending agent" do
-    assign(:agents, AgentsViewModel.new([pending_agent].to_java(AgentViewModel)))
+    assign(:agents, {pending_agent => []})
 
     render :partial => "environments/agents_table.html",:locals => {:scope => {:sortable_columns => false}}
 
@@ -79,7 +79,7 @@ describe "Environments agents table" do
         :environments => [dangerous_environments_value]
     )
 
-    assign(:agents, AgentsViewModel.new([agent_with_dangerous_values].to_java(AgentViewModel)))
+    assign(:agents, {agent_with_dangerous_values => []})
 
 
     render :partial => "environments/agents_table.html",:locals => {:scope => {}}

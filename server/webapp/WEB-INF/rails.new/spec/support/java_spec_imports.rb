@@ -23,8 +23,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.helper.ConfigFileFixture unless defined? ConfigFileFixture
   java_import com.thoughtworks.go.config.ConfigMigrator unless defined? ConfigMigrator
   java_import com.thoughtworks.go.helper.AgentInstanceMother unless defined? AgentInstanceMother
-  java_import com.thoughtworks.go.server.ui.helper.AgentsViewModelMother unless defined? AgentsViewModelMother
-  java_import com.thoughtworks.go.server.ui.AgentsViewModel unless defined? AgentsViewModel
   java_import com.thoughtworks.go.domain.DiskSpace unless defined? DiskSpace
   java_import com.thoughtworks.go.domain.AgentConfigStatus unless defined? AgentConfigStatus
   java_import com.thoughtworks.go.helper.GoConfigMother unless defined? GoConfigMother

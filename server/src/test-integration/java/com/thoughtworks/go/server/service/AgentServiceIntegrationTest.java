@@ -33,8 +33,6 @@ import com.thoughtworks.go.server.messaging.notifications.AgentStatusChangeNotif
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -255,22 +253,6 @@ public class AgentServiceIntegrationTest {
         assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("resource-2")));
         assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),not(hasItem(new ResourceConfig("resource-1"))));
 
-    }
-
-    @Test
-    public void shouldFindAnAgentForAGivenUUID() {
-        createEnabledAgent(UUID);
-        createEnabledAgent(UUID2);
-        BasicEnvironmentConfig foo = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
-        foo.addAgent(UUID);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.createEnvironment(foo, Username.ANONYMOUS, result);
-
-        assertThat(result.isSuccessful(), is(true));
-
-        AgentViewModel actual = agentService.findAgentViewModel(UUID);
-
-        assertThat(actual, is(new AgentViewModel(agentService.findAgentAndRefreshStatus(UUID), "foo")));
     }
 
     @Test
@@ -740,25 +722,6 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = agentService.findAgentAndRefreshStatus("uuid1");
         assertThat(instance.getStatus(), is(AgentStatus.Idle));
 
-    }
-
-    @Test
-    public void enabledAgents_shouldNotIncludePendingAgents() throws Exception {
-        AgentInstance idle = AgentInstanceMother.updateUuid(AgentInstanceMother.idle(new Date(), "CCeDev01"), UUID);
-        AgentInstance pending = AgentInstanceMother.pending();
-        AgentInstance building = AgentInstanceMother.building();
-        AgentInstance denied = AgentInstanceMother.disabled();
-        createEnvironment("uat");
-        EnvironmentConfig environment = environmentConfigService.named("uat");
-        environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
-        AgentService agentService = getAgentService(instances);
-
-        AgentsViewModel agents = agentService.registeredAgents();
-        assertThat(agents.size(), is(3));
-        for (AgentViewModel agent : agents) {
-            assertThat(agent.getStatus().getConfigStatus(), not(is(AgentConfigStatus.Pending)));
-        }
     }
 
     @Test

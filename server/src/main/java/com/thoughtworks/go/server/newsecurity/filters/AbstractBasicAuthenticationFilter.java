@@ -61,8 +61,10 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
             final UsernamePassword usernamePassword = extractBasicAuthenticationCredentials(request);
 
             if (securityService.isSecurityEnabled()) {
+                LOGGER.debug("Security is enabled.");
                 filterWhenSecurityEnabled(request, response, filterChain, usernamePassword);
             } else {
+                LOGGER.debug("Security is disabled.");
                 filterWhenSecurityDisabled(request, response, filterChain, usernamePassword);
             }
         } catch (AuthenticationException e) {
@@ -75,8 +77,10 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
                                            FilterChain filterChain,
                                            UsernamePassword usernamePassword) throws IOException, ServletException {
         if (usernamePassword == null) {
+            LOGGER.debug("Basic auth credentials are not provided in request.");
             filterChain.doFilter(request, response);
         } else {
+            LOGGER.debug("authenticating user {} using basic auth credentials", usernamePassword.getUsername());
             final AuthenticationToken<UsernamePassword> authenticationToken = authenticationProvider.authenticate(usernamePassword, null);
 
             if (authenticationToken == null) {

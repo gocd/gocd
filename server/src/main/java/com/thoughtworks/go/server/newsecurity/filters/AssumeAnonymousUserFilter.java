@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
-import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -35,7 +34,7 @@ import java.io.IOException;
 
 @Component
 public class AssumeAnonymousUserFilter extends OncePerRequestFilter {
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssumeAnonymousUserFilter.class);
     private final SecurityService securityService;
 
 
@@ -53,18 +52,16 @@ public class AssumeAnonymousUserFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         if (!securityService.isSecurityEnabled()) {
-            final AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
-            if (authenticationToken != null && !(authenticationToken.getCredentials() instanceof AnonymousCredential)) {
-                authenticateAsAnonymous(request);
-            }
-        }
-
-        if (SessionUtils.hasAuthenticationToken(request)) {
+            LOGGER.debug("Security is disabled.");
+            authenticateAsAnonymous(request);
+        } else if (SessionUtils.hasAuthenticationToken(request)) {
             LOGGER.debug("Already authenticated request.");
         } else {
+            LOGGER.debug("Security is enabled.");
             authenticateAsAnonymous(request);
         }
 
+        LOGGER.debug("User authenticated as anonymous user {}", SessionUtils.getAuthenticationToken(request));
         filterChain.doFilter(request, response);
 
     }

@@ -31,10 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
+import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -44,10 +42,11 @@ class AssumeAnonymousUserFilterTest {
     private MockHttpServletRequest request;
     private FilterChain filterChain;
     private MockHttpServletResponse response;
+    private TestingClock clock;
 
     @BeforeEach
     void setUp() {
-        final TestingClock clock = new TestingClock();
+        clock = new TestingClock();
         securityService = mock(SecurityService.class);
         anonymousAuthenticationProvider = new AnonymousAuthenticationProvider(clock, new AuthorityGranter(securityService));
         filterChain = mock(FilterChain.class);
@@ -65,7 +64,6 @@ class AssumeAnonymousUserFilterTest {
 
         @Test
         void shouldGiveAnonymousUserRoleAnonymousAuthorityWhenSecurityIsEnabledInCruiseConfig() throws Exception {
-
             new AssumeAnonymousUserFilter(securityService, anonymousAuthenticationProvider)
                     .doFilter(request, response, filterChain);
 
@@ -74,7 +72,7 @@ class AssumeAnonymousUserFilterTest {
             assertThat(SessionUtils.getAuthenticationToken(request).getUser().getUsername()).isEqualTo("anonymous");
             assertThat(SessionUtils.getAuthenticationToken(request).getUser().getAuthorities())
                     .hasSize(1)
-                    .contains(GoAuthority.ROLE_ANONYMOUS.asAuthority());
+                    .contains(ROLE_ANONYMOUS.asAuthority());
         }
     }
 
@@ -87,7 +85,7 @@ class AssumeAnonymousUserFilterTest {
         }
 
         @Test
-        void shouldGiveAnonymousUserRoleSupervisorAuthorityWhenSecurityIsDisabledInCruiseConfig() throws Exception {
+        void shouldAlwaysGiveAnonymousUserRoleSupervisorAuthority() throws Exception {
             new AssumeAnonymousUserFilter(securityService, anonymousAuthenticationProvider)
                     .doFilter(request, response, filterChain);
 
@@ -97,26 +95,6 @@ class AssumeAnonymousUserFilterTest {
             assertThat(SessionUtils.getAuthenticationToken(request).getUser().getAuthorities())
                     .hasSize(GoAuthority.values().length)
                     .containsExactly(GoAuthority.ALL_AUTHORITIES.toArray(new GrantedAuthority[0]));
-        }
-
-        @Test
-        void shouldAuthenticateAsAnonymousWhenPreviousAuthenticationTokenWasNotAnonymous() throws ServletException, IOException {
-            // this simulates a case when a user was earlier authenticated via web/password and then security was disabled
-
-            com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
-
-            HttpSession originalSession = request.getSession(false);
-
-            new AssumeAnonymousUserFilter(securityService, anonymousAuthenticationProvider)
-                    .doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            assertThat(SessionUtils.getAuthenticationToken(request).getCredentials()).isSameAs(AnonymousCredential.INSTANCE);
-            assertThat(SessionUtils.getAuthenticationToken(request).getUser().getUsername()).isEqualTo("anonymous");
-            assertThat(SessionUtils.getAuthenticationToken(request).getUser().getAuthorities())
-                    .hasSize(GoAuthority.values().length)
-                    .containsExactly(GoAuthority.ALL_AUTHORITIES.toArray(new GrantedAuthority[0]));
-            assertThat(request.getSession(false)).isSameAs(originalSession);
         }
     }
 }

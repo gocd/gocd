@@ -54,7 +54,7 @@ public class VerifyAuthorityFilter extends OncePerRequestFilter {
             LOGGER.debug("User {} authorized to access {}", authentication.getUser().getUsername(), request.getRequestURI());
             filterChain.doFilter(request, response);
         } else {
-            LOGGER.debug("User {} not authorized to access {}", authentication.getUser().getUsername(), request.getRequestURI());
+            LOGGER.debug("User {} not authorized to access {}: has authorities {}", authentication.getUser().getUsername(), request.getRequestURI(), authentication.getUser().getAuthorities());
             requestHandler.handle(request, response, "You are not authorized to access this resource!");
         }
     }

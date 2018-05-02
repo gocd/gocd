@@ -170,6 +170,21 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         assertThat(request.getSession(false).getAttribute(SECURITY_CONFIG_LAST_CHANGE)).isEqualTo(clock.currentTimeMillis());
     }
 
+    @Test
+    void shouldContinueFilterChainWhenRequestDoesNotHaveAuthenticationToken() throws ServletException, IOException {
+        request = HttpRequestBuilder.GET("/")
+                .withRequestedSessionIdFromSession()
+                .build();
+
+        final HttpSession originalSession = request.getSession(false);
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
+        assertThat(originalSession).isSameAs(request.getSession(false));
+        verify(filterChain).doFilter(request, response);
+    }
+
     private AuthenticationToken<UsernamePassword> setupAuthentication(GrantedAuthority... grantedAuthorities) {
         final GoUserPrinciple goUserPrinciple = new GoUserPrinciple("bob", "Bob", grantedAuthorities);
         return new AuthenticationToken<>(goUserPrinciple,

@@ -183,7 +183,7 @@ public class ValueStreamMapService {
         ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
         Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 
-        traverseDownstream(material.getFingerprint(), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
+        traverseDownstream(new CaseInsensitiveString(material.getFingerprint()), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
 
         addInstanceInformationToTheGraph(valueStreamMap);
         removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
@@ -232,13 +232,13 @@ public class ValueStreamMapService {
 
     private void traverseDownstream(CaseInsensitiveString upstreamPipelineName, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         List<PipelineConfig> downstreamPipelines = pipelineToDownstreamMap.get(upstreamPipelineName);
-        traverseDownstream(upstreamPipelineName.toString(), downstreamPipelines, pipelineToDownstreamMap, graph, visitedNodes);
+        traverseDownstream(upstreamPipelineName, downstreamPipelines, pipelineToDownstreamMap, graph, visitedNodes);
     }
 
-    private void traverseDownstream(String materialId, List<PipelineConfig> downstreamPipelines, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
+    private void traverseDownstream(CaseInsensitiveString materialId, List<PipelineConfig> downstreamPipelines, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         for (PipelineConfig downstreamPipeline : downstreamPipelines) {
             graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipeline.name(),
-                    downstreamPipeline.name().toString()), new CaseInsensitiveString(materialId));
+                    downstreamPipeline.name().toString()), materialId);
             if (visitedNodes.contains(downstreamPipeline)) {
                 continue;
             }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.api.representers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
@@ -44,7 +45,7 @@ public class JsonReader {
     }
 
     public Optional<String> optString(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsString());
             } catch (Exception e) {
@@ -55,7 +56,7 @@ public class JsonReader {
     }
 
     public Optional<CaseInsensitiveString> optCaseInsensitiveString(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.of(new CaseInsensitiveString(jsonObject.get(property).getAsString()));
             } catch (Exception e) {
@@ -66,7 +67,7 @@ public class JsonReader {
     }
 
     public Optional<JsonArray> optJsonArray(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.ofNullable(jsonObject.getAsJsonArray(property));
             } catch (Exception e) {
@@ -88,7 +89,7 @@ public class JsonReader {
     }
 
     public Optional<JsonReader> optJsonObject(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.of(new JsonReader(jsonObject.getAsJsonObject(property)));
             } catch (Exception e) {
@@ -103,8 +104,8 @@ public class JsonReader {
             .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
-    public boolean hasJsonObject (String property) {
-        return jsonObject.has(property);
+    public boolean hasJsonObject(String property) {
+        return jsonObject.has(property) && !(jsonObject.get(property) instanceof JsonNull);
     }
 
     public void readStringIfPresent(String key, Consumer<String> setterMethod) {

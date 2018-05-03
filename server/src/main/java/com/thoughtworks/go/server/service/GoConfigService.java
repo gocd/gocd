@@ -846,18 +846,18 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, String groupName) {
-        if (!isSecurityEnabled()) {
+        if (!isSecurityEnabled() || isUserAdmin(new Username(userName))) {
             return true;
         }
         PipelineConfigs group = null;
         if (groupName != null) {
             group = getCurrentConfig().findGroup(groupName);
         }
-        return isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group);
+        return isUserAdminOfGroup(userName, group);
     }
 
     public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
-        return group.isUserAnAdmin(userName, rolesForUser(userName));
+        return group != null && group.isUserAnAdmin(userName, rolesForUser(userName));
     }
 
     public boolean isUserAdmin(Username username) {

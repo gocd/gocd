@@ -123,7 +123,7 @@ public class PipelineConfigRepresenter {
         jsonReader.readStringIfPresent("label_template", pipelineConfig::setLabelTemplate);
         jsonReader.readStringIfPresent("lock_behavior", pipelineConfig::setLockBehaviorIfNecessary);
         jsonReader.readStringIfPresent("name", pipelineConfig::setName);
-        jsonReader.readCaseInsensitiveStringIfPresent("template_name", pipelineConfig::setTemplateName);
+        jsonReader.readCaseInsensitiveStringIfPresent("template", pipelineConfig::setTemplateName);
         pipelineConfig.setOrigin(new FileConfigOrigin());
         setParameters(jsonReader, pipelineConfig);
         setEnvironmentVariables(jsonReader, pipelineConfig);

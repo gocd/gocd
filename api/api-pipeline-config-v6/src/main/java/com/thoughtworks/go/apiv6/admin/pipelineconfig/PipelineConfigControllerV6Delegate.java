@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.Routes;
+import org.apache.commons.lang.StringUtils;
 import spark.Request;
 import spark.Response;
 
@@ -108,8 +109,8 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
             before("/*", mimeType, this::setContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd401);
+            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd401);
 
             post("", mimeType, this::create);
 
@@ -150,16 +151,6 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
-    private void haltIfPipelineIsDefinedRemotely(PipelineConfig existingPipelineConfig) {
-        if (!existingPipelineConfig.isLocal()) {
-            throw haltBecauseOfReason(String.format("Can not operate on pipeline '%s' as it is defined remotely in '%s'.", existingPipelineConfig.name(), existingPipelineConfig.getOrigin().displayName()));
-        }
-    }
-
-    private boolean isRenameAttempt(PipelineConfig existingPipelineConfig, PipelineConfig pipelineConfigFromRequest) {
-        return !existingPipelineConfig.getName().equals(pipelineConfigFromRequest.getName());
-    }
-
     public String create(Request req, Response res) throws IOException {
         PipelineConfig pipelineConfigFromRequest = getEntityFromRequestBody(req);
 
@@ -176,14 +167,6 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
-    private String getOrHaltForGroupName(Request req) {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        if (!jsonReader.hasJsonObject("group")) {
-            throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
-        }
-        return  jsonReader.getString("group");
-    }
-
     public String show(Request req, Response res) throws IOException {
         PipelineConfig pipelineConfig = getEntityFromConfig(req.params("pipeline_name"));
         if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
@@ -192,6 +175,24 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
             setEtagHeader(pipelineConfig, res);
             return writerForTopLevelObject(req, res, writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig));
         }
+    }
+
+    private void haltIfPipelineIsDefinedRemotely(PipelineConfig existingPipelineConfig) {
+        if (!existingPipelineConfig.isLocal()) {
+            throw haltBecauseOfReason(String.format("Can not operate on pipeline '%s' as it is defined remotely in '%s'.", existingPipelineConfig.name(), existingPipelineConfig.getOrigin().displayName()));
+        }
+    }
+
+    private boolean isRenameAttempt(PipelineConfig existingPipelineConfig, PipelineConfig pipelineConfigFromRequest) {
+        return !existingPipelineConfig.getName().equals(pipelineConfigFromRequest.getName());
+    }
+
+    private String getOrHaltForGroupName(Request req) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        if (!jsonReader.hasJsonObject("group") || StringUtils.isBlank(jsonReader.getString("group"))) {
+            throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
+        }
+        return  jsonReader.getString("group");
     }
 
 

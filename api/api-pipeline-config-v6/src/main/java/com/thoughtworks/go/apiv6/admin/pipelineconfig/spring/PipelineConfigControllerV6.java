@@ -29,15 +29,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PipelineConfigControllerV6 implements SparkSpringController {
-  private final PipelineConfigControllerV6Delegate delegate;
 
-  @Autowired
-  public PipelineConfigControllerV6(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, PipelinePauseService pipelinePauseService) {
-    delegate = new PipelineConfigControllerV6Delegate(pipelineConfigService, apiAuthenticationHelper, entityHashingService, passwordDeserializer, goConfigService, pipelinePauseService);
-  }
+    private final PipelineConfigControllerV6Delegate delegate;
 
-  @Override
-  public void setupRoutes() {
-      delegate.setupRoutes();
-  }
+    @Autowired
+    public PipelineConfigControllerV6(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, PipelinePauseService pipelinePauseService) {
+        delegate = new PipelineConfigControllerV6Delegate(pipelineConfigService, apiAuthenticationHelper, entityHashingService, passwordDeserializer, goConfigService, pipelinePauseService);
+    }
+
+    @Override
+    public void setupRoutes() {
+        delegate.setupRoutes();
+    }
 }

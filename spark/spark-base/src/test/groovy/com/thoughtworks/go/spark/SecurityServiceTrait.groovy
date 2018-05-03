@@ -88,6 +88,7 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, eq(groupName))).thenReturn(true)
+    when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(true)
 
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
@@ -122,6 +123,7 @@ trait SecurityServiceTrait {
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(false)
     when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)

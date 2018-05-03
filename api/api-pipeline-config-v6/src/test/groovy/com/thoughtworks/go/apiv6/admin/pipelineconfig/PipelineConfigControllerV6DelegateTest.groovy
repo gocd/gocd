@@ -20,16 +20,25 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
+import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
+import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
+import com.thoughtworks.go.domain.scm.SCMMother
+import com.thoughtworks.go.helper.GoConfigMother
 import com.thoughtworks.go.helper.PipelineConfigMother
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.PipelineConfigService
+import com.thoughtworks.go.server.service.PipelinePauseService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -39,8 +48,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -62,10 +72,12 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
   @Mock
   private PasswordDeserializer passwordDeserializer
 
+  @Mock
+  private PipelinePauseService pipelinePauseService
 
   @Override
   PipelineConfigControllerV6Delegate createControllerInstance() {
-    return new PipelineConfigControllerV6Delegate(pipelineConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
+    return new PipelineConfigControllerV6Delegate(pipelineConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, pipelinePauseService)
   }
 
   @Nested
@@ -100,7 +112,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
       @Test
       void "should not show pipeline config for Non Admin users"() {
         loginAsPipelineViewUser()
-        def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
         assertThatResponse()
@@ -112,10 +123,10 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
       void 'should show pipeline config for an admin'() {
         def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
+        def pipelineMd5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
@@ -176,16 +187,9 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
   @Nested
   class Create {
 
-    @BeforeEach
-    void setUp() {
-      enableSecurity()
-      loginAsAdmin()
-
-      when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
-    }
-
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
       @Override
       String getControllerMethodUnderTest() {
         return "create"
@@ -193,31 +197,29 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), "{}")
-
+        postWithApiHeader(controller.controllerPath(), [group: "new_grp"])
       }
+
     }
 
     @Nested
     class AsAdmin {
 
-      @Test
-      void "should not allow non admin users to create a new pipeline config"() {
-        loginAsPipelineViewUser()
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
 
-        postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: pipeline()])
-
-        assertThatResponse()
-          .hasStatus(401)
-          .hasJsonMessage("You are not authorized to perform this action.")
-
+        when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
       }
 
       @Test
       void "should not allow admin users of one pipeline group to create a new pipeline config in another group"() {
         loginAsGroupAdmin()
-        when(securityService.isUserAdminOfGroup(any(), any())).thenReturn(false)
+        when(securityService.isUserAdminOfGroup(any(Username.class) as Username, any(String.class))).thenReturn(false)
         when(securityService.isUserAdmin(any())).thenReturn(false)
+
         postWithApiHeader(controller.controllerPath(), [group: 'another_group', pipeline: pipeline()])
 
         assertThatResponse()
@@ -229,13 +231,14 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
       void "should allow admin users create a new pipeline config in any group"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
-        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null, pipelineConfig)
 
-        postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: pipeline()])
+        postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: toObject({
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+        })])
 
-        verify(pipelineConfigService.createPipelineConfig(any(), any(), any(), "new_group"))
-        //TODO: verify pipeline pause service
+        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelinePauseService).pause(any(), eq("Under construction"), any())
         assertThatResponse()
           .isOk()
           .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
@@ -247,20 +250,13 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
 
-        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
-
-//        allow(controller).to receive(: get_pipeline_from_request) do
-//        controller.instance_variable_set(: @pipeline_config_from_request, @pipeline)
-//        end
-
-        when(pipelineConfigService.createPipelineConfig(any(), any(), any(), "group")).then({ InvocationOnMock invocation ->
+        when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
           pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, "foo bar"))
           result = invocation.getArguments()[2]
-          result.setMessage("message from server")
+          result.unprocessableEntity("message from server")
         })
-        when(pipelineConfigService.createPipelineConfig(any(), any(), result, "group"))
 
-        postWithApiHeader(controller.controllerPath(), [group: 'group', pipeline: invalidPipeline])
+        postWithApiHeader(controller.controllerPath(), [group: 'group', pipeline: invalidPipeline()])
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -279,13 +275,11 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Failed to add pipeline. The pipeline 'pipeline1' already exists.")
+          .hasJsonMessage("Failed to add pipeline 'pipeline1'. Another pipeline with the same name already exists.")
       }
 
       @Test
       void "should fail if group is blank"() {
-        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
-
         postWithApiHeader(controller.controllerPath(), [group: '', pipeline: pipeline()])
 
         assertThatResponse()
@@ -293,93 +287,46 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           .hasJsonMessage("Pipeline group must be specified for creating a pipeline.")
       }
 
-//      @Test
-//      void "should set package definition on to package material before save"() {
-//        def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
-//        pipelineConfig.setOrigin(new FileConfigOrigin())
-//
-//        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
-//        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-//        expect(@pipeline_pause_service).to receive(: pause).with("pipeline1", "Under construction", @user)
-//
-//        allow(@pipeline_config_service).to receive(: createPipelineConfig) do | user, pipeline, result, group |
-//          pipeline_being_saved = pipeline
-//        end
-//
-//        post_with_api_header:
-//        create, : pipeline = > pipeline_with_pluggable_material("pipeline1", "package", "package-name"), : group = > "group"
-//        expect(response).to be_ok
-//        expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
-//      }
-//
-//      @Test
-//      void "should set scm config on to pluggable scm material before save"() {
-//        login_as_pipeline_group_admin_user("group")
-//        pipeline_being_saved = nil
-//        expect(@pipeline_config_service).to receive(: getPipelineConfig).with(@pipeline_name).and_return(nil)
-//        expect(@pipeline_config_service).to receive(: getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-//        expect(@pipeline_pause_service).to receive(: pause).with("pipeline1", "Under construction", @user)
-//
-//        allow(@pipeline_config_service).to receive(: createPipelineConfig) do | user, pipeline, result, group |
-//          pipeline_being_saved = pipeline
-//        end
-//
-//        post_with_api_header:
-//        create, : pipeline = > pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id"), : group = > "group"
-//        expect(response).to be_ok
-//        expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
-//      }
+      @Test
+      void "should set package definition on to package material before save"() {
+        def packageRepository = PackageRepositoryMother.create("repoid")
+        def cruiseConfig = GoConfigMother.defaultCruiseConfig()
+        cruiseConfig.getPackageRepositories().add(packageRepository)
+        PipelineConfig pipelineBeingSaved = null
+        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+        when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
+          pipelineBeingSaved = invocation.getArguments()[1]
+        })
+
+        postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "package", "package-name")])
+
+        assertThatResponse().isOk()
+
+        verify(pipelinePauseService).pause(eq("pipeline1"), eq("Under construction"), any(Username.class))
+        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getPackageDefinition())
+      }
+
+      @Test
+      void "should set scm config on to pluggable scm material before save"() {
+        def scm = SCMMother.create("scm-id")
+        def cruiseConfig = GoConfigMother.defaultCruiseConfig()
+        cruiseConfig.getSCMs().add(scm)
+
+        PipelineConfig pipelineBeingSaved = null
+        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+        when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
+          pipelineBeingSaved = invocation.getArguments()[1]
+        })
+
+        postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
+
+
+        verify(pipelinePauseService).pause(eq("pipeline1"), eq("Under construction"), any(Username.class))
+        assertThatResponse().isOk()
+
+        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getSCMConfig()))
+      }
     }
-
-    def expectedDataWithValidationErrors =
-      [
-        lock_behavior        : "none",
-        errors               : [label_template: ["Invalid label 'foo bar'. Label should be composed of alphanumeric text, it can contain the build number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]],
-        label_template       : "\${COUNT}",
-        materials            : [[type: "svn", attributes: [url: "http://some/svn/url", destination: "svnDir", filter: null, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: null]]],
-        name                 : "pipeline1",
-        origin               : [
-          _links: [
-            self: [
-              href: 'http://test.host/go/admin/config_xml'
-            ],
-            doc : [
-              href: 'https://api.gocd.org/current/#get-configuration'
-            ]
-          ],
-          type  : 'gocd'
-        ],
-        environment_variables: [],
-        parameters           : [],
-        stages               : [[name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: "success", authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
-        template             : null,
-        timer                : null,
-        tracking_tool        : null
-      ]
-
-    def invalidPipeline =
-      [
-        label_template: "${COUNT}",
-        lock_behavior : "none",
-        name          : "pipeline1",
-        materials     : [
-          [
-            type      : "SvnMaterial",
-            attributes: [
-              name           : "http___some_svn_url",
-              auto_update    : true,
-              url            : "http://some/svn/url",
-              destination    : "svnDir",
-              filter         : null,
-              check_externals: false,
-              username       : null,
-              password       : null
-            ]
-          ]
-        ],
-        stages        : [[name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: "success", authorization: []], jobs: []]],
-        errors        : [label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]]
-      ]
   }
 
   @Nested
@@ -394,11 +341,13 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
       @Override
       void makeHttpCall() {
+        def pipelineConfig = PipelineConfigMother.pipelineConfig("foo")
+        pipelineConfig.setOrigin(new FileConfigOrigin())
         putWithApiHeader(controller.controllerPath('/foo'), [
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-md5',
           'content-type': 'application/json'
-        ], toObjectString({ PipelineConfigRepresenter.toJSON(it, PipelineConfigMother.pipelineConfig("foo")) }))
+        ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) }))
       }
     }
 
@@ -428,7 +377,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         pipelineConfig.setOrigin(new FileConfigOrigin())
         when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        doNothing().when(pipelineConfigService.updatePipelineConfig(any(), any(), "md5", any()))
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -436,11 +384,13 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline()])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: toObject({
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+        })])
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipeline, PipelineConfigRepresenter)
+          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
       }
 
       @Test
@@ -459,7 +409,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         assertThatResponse()
           .isPreconditionFailed()
-          .hasJsonMessage("Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes.")
+          .hasJsonMessage("Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes and try again.")
       }
 
       @Test
@@ -476,7 +426,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         assertThatResponse()
           .isPreconditionFailed()
-          .hasJsonMessage("Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes.")
+          .hasJsonMessage("Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes and try again.")
 
       }
 
@@ -504,15 +454,17 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
       @Test
       void "should handle server validation errors"() {
+        HttpLocalizedOperationResult result
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), "md5", any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[2]
-          result.setMessage("message from server")
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), eq("md5"), any())).then({ InvocationOnMock invocation ->
+          result = invocation.getArguments()[3]
+          result.unprocessableEntity("message from server")
         })
 
         def headers = [
@@ -522,13 +474,12 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         ]
 
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: invalidPipeline])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: invalidPipeline()])
 
         assertThatResponse()
+          .isUnprocessableEntity()
           .hasJsonMessage("message from server")
 
-        def actualJson = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) })
-        assertThatJson(actualJson).isEqualTo(expectedDataWithValidationErrors)
       }
 
       @Test
@@ -547,98 +498,71 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline("renamed_pipeline")])
 
         assertThatResponse()
-          .hasStatus(406)
-          .hasJsonMessage("Renaming the pipeline resource is not supported by this API.")
+          .hasStatus(422)
+          .hasJsonMessage("Renaming of pipelines is not supported by this API.")
       }
 
-//      void "should set package definition on to package material before save"() {
-//        expect(@pipeline_config_service).to receive(: getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
-//        pipeline_being_saved = nil
-//        allow(@pipeline_config_service).to receive(: updatePipelineConfig) do | user, pipeline, result |
-//          pipeline_being_saved = pipeline
-//        end
-//        controller.request.env['HTTP_IF_MATCH'] =
-//        @latest_etag
-//
-//          put_with_api_header: update, pipeline_name:
-//        @pipeline_name, : pipeline = > pipeline_with_pluggable_material("pipeline1", "package", "package-name")
-//
-//        expect(response).to be_ok
-//        expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
-//      }
-//
-//      void "should set scm config on to pluggable scm material before save"() {
-//        pipeline_being_saved = nil
-//        expect(@pipeline_config_service).to receive(: getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
-//
-//        allow(@pipeline_config_service).to receive(: updatePipelineConfig) do | user, pipeline, result |
-//          pipeline_being_saved = pipeline
-//        end
-//        controller.request.env['HTTP_IF_MATCH'] =
-//        @latest_etag
-//
-//          put_with_api_header: update, pipeline_name:
-//        @pipeline_name, : pipeline = > pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id")
-//        expect(response).to be_ok
-//        expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
-//      }
+      @Test
+      void "should set package definition on to package material before save"() {
+        def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipelineConfig.setOrigin(new FileConfigOrigin())
 
+        def packageRepository = PackageRepositoryMother.create("repoid")
+        def cruiseConfig = GoConfigMother.defaultCruiseConfig()
+        cruiseConfig.getPackageRepositories().add(packageRepository)
+        PipelineConfig pipelineBeingSaved = null
+
+        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
+          pipelineBeingSaved = invocation.getArguments()[1]
+        })
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
+
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipelineWithPluggableMaterial("pipeline1", "package", "package-name")])
+
+        assertThatResponse().isOk()
+        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getPackageDefinition())
+      }
+
+      @Test
+      void "should set scm config on to pluggable scm material before save"() {
+        def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipelineConfig.setOrigin(new FileConfigOrigin())
+
+        def scm = SCMMother.create("scm-id")
+        def cruiseConfig = GoConfigMother.defaultCruiseConfig()
+        cruiseConfig.getSCMs().add(scm)
+
+        PipelineConfig pipelineBeingSaved = null
+
+        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
+          pipelineBeingSaved = invocation.getArguments()[1]
+        })
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
+
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
+
+        assertThatResponse().isOk()
+        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getSCMConfig()))
+      }
     }
-
-    def expectedDataWithValidationErrors =
-      [
-        lock_behavior        : "none",
-        errors               : [label_template: ["Invalid label 'foo bar'. Label should be composed of alphanumeric text, it can contain the build number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]],
-        label_template       : "\${COUNT}",
-        materials            : [[type: "svn", attributes: [url: "http://some/svn/url", destination: "svnDir", filter: null, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: null]]],
-        name                 : "pipeline1",
-        origin               : [
-          _links: [
-            self: [
-              href: 'http://test.host/go/admin/config_xml'
-            ],
-            doc : [
-              href: 'https://api.gocd.org/current/#get-configuration'
-            ]
-          ],
-          type  : 'gocd'
-        ],
-        environment_variables: [],
-        parameters           : [],
-        stages               : [[name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: "success", authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
-        template             : null,
-        timer                : null,
-        tracking_tool        : null
-      ]
-
-    def invalidPipeline =
-      [
-        label_template: "${COUNT}",
-        lock_behavior : "none",
-        name          : "pipeline1",
-        materials     : [
-          [
-            type      : "SvnMaterial",
-            attributes: [
-              name           : "http___some_svn_url",
-              auto_update    : true,
-              url            : "http://some/svn/url",
-              destination    : "svnDir",
-              filter         : null,
-              check_externals: false,
-              username       : null,
-              password       : null
-            ]
-          ]
-        ],
-        stages        : [[name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: "success", authorization: []], jobs: []]],
-        errors        : [label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]]
-      ]
-
   }
-
-
-
 
   @Nested
   class Destroy {
@@ -711,7 +635,63 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
     }
   }
 
-  def pipeline(pipeline_name = "pipeline1", material_type = "hg", task_type = "exec") {
+  static def invalidPipeline() {
+    return [
+      label_template: "\${COUNT}",
+      lock_behavior : "none",
+      name          : "pipeline1",
+      materials     : [
+        [
+          type      : "svn",
+          attributes: [
+            name           : "http___some_svn_url",
+            auto_update    : true,
+            url            : "http://some/svn/url",
+            destination    : "svnDir",
+            filter         : null,
+            check_externals: false,
+            username       : null,
+            password       : null
+          ]
+        ]
+      ],
+      stages        : [[name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: "success", authorization: [:]], jobs: []]],
+      errors        : [label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]]
+    ]
+  }
+
+  static def pipelineWithPluggableMaterial(pipeline_name, material_type, ref) {
+    return [
+      label_template: "\${COUNT}",
+      name          : pipeline_name,
+      materials     :
+        [[
+           type      : material_type,
+           attributes:
+             [
+               ref: ref
+             ]
+         ]],
+      stages        :
+        [[
+           name: "up42_stage",
+           jobs:
+             [[
+                name : "up42_job",
+                tasks:
+                  [[
+                     type      : "exec",
+                     attributes:
+                       [
+                         command: "ls"
+                       ]
+                   ]]
+              ]]
+         ]]
+    ]
+  }
+
+  static def pipeline(pipeline_name = "pipeline1", material_type = "hg", task_type = "exec") {
     return [
       label_template       : "Jyoti-\${COUNT}",
       lock_behavior        : "none",

@@ -17,10 +17,13 @@
 const $                    = require('jquery');
 const m                    = require('mithril');
 const ArtifactStoresWidget = require('views/artifact_stores/artifact_stores_widget');
+const VersionUpdater       = require('models/shared/version_updater');
+require('helpers/server_health_messages_helper');
 require('foundation-sites');
 
 $(() => {
   $(document).foundation();
+  new VersionUpdater().update();
 
   m.mount($("#artifact-stores").get(0), ArtifactStoresWidget);
 

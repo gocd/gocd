@@ -7,6 +7,11 @@
 <li role="presentation">
   <%= link_to 'Elastic Agent Profiles', '/go/admin/elastic_profiles' -%>
 </li>
+<% if artifact_stores_enabled? %>
+<li role="presentation">
+  <%= link_to 'Artifact Stores', '/go/admin/artifact_stores' -%>
+</li>
+<% end %>
 <li role="presentation">
     <%= link_to 'Config XML', main_app.config_view_path -%>
 </li>

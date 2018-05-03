@@ -16,6 +16,9 @@
 <li role="presentation"><a href="/go/admin/pipelines">Pipelines</a></li>
 <li role="presentation"><a href="/go/admin/templates">Templates</a></li>
 <li role="presentation"><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>
+#if($artifactStoresEnabled)
+  <li role="presentation"><a href="/go/admin/artifact_stores">Artifact Stores</a></li>
+#end
 <li role="presentation"><a href="/go/admin/config_xml">Config XML</a></li>
 <li role="presentation"><a href="/go/admin/config/server">Server Configuration</a></li>
 <li role="presentation"><a href="/go/admin/users">User Summary</a></li>

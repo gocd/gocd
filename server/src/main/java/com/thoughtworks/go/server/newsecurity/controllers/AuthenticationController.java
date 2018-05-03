@@ -92,8 +92,8 @@ public class AuthenticationController {
             return new RedirectView(redirectUrl, false);
 
         } catch (AuthenticationException e) {
-            LOGGER.error("Unable to authenticate user: " + username, e);
-            return badAuthentication(request, BAD_CREDENTIALS_MSG);
+            LOGGER.error("Failed to authenticate user: {} ", username, e);
+            return badAuthentication(request, e.getMessage());
         } catch (Exception e) {
             return unknownAuthenticationError(request);
         }
@@ -153,6 +153,9 @@ public class AuthenticationController {
             }
 
             SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+        } catch (AuthenticationException e) {
+            LOGGER.error("Failed to authenticate user.", e);
+            return badAuthentication(request, e.getMessage());
         } catch (Exception e) {
             return unknownAuthenticationError(request);
         }

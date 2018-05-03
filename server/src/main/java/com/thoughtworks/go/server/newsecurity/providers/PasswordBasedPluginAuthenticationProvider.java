@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.newsecurity.providers;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -40,8 +39,6 @@ import static java.util.Collections.singletonList;
 @Component
 public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<UsernamePassword> {
     private final AuthorizationExtension authorizationExtension;
-    private final AuthorityGranter authorityGranter;
-    private final UserService userService;
     private final AuthorizationMetadataStore store;
     private final Clock clock;
 
@@ -52,14 +49,11 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
                                                      PluginRoleService pluginRoleService,
                                                      UserService userService,
                                                      Clock clock) {
-        super(goConfigService, pluginRoleService);
+        super(goConfigService, pluginRoleService, userService, authorityGranter);
         this.authorizationExtension = authorizationExtension;
-        this.authorityGranter = authorityGranter;
-        this.userService = userService;
         this.store = AuthorizationMetadataStore.instance();
         this.clock = clock;
     }
-
 
     @Override
     protected String getUsername(AuthenticationToken<UsernamePassword> authenticationToken) {
@@ -72,38 +66,24 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
     }
 
     @Override
-    protected AuthenticationToken<UsernamePassword> authenticateUser(UsernamePassword usernamePassword,
-                                                                     SecurityAuthConfig authConfig) {
-        String username = usernamePassword.getUsername();
-        String password = usernamePassword.getPassword();
+    protected boolean doesPluginSupportAuthentication(String pluginId) {
+        return store.doesPluginSupportPasswordBasedAuthentication(pluginId);
+    }
 
-        String pluginId = authConfig.getPluginId();
+    @Override
+    protected AuthenticationResponse authenticateWithExtension(String pluginId,
+                                                               UsernamePassword credentials,
+                                                               SecurityAuthConfig authConfig,
+                                                               List<PluginRoleConfig> pluginRoleConfigs) {
+        return authorizationExtension.authenticateUser(pluginId, credentials.getUsername(), credentials.getPassword(),
+                singletonList(authConfig), pluginRoleConfigs);
+    }
 
-        try {
-            if (!store.doesPluginSupportPasswordBasedAuthentication(pluginId)) {
-                return null;
-            }
-
-            final List<PluginRoleConfig> roleConfigs = goConfigService.security().getRoles().pluginRoleConfigsFor(authConfig.getId());
-            LOGGER.debug("Authenticating user: `{}` using the authorization plugin: `{}`", username, pluginId);
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, singletonList(authConfig), roleConfigs);
-            com.thoughtworks.go.plugin.access.authorization.models.User user = ensureDisplayNamePresent(response.getUser());
-            if (user != null) {
-                userService.addUserIfDoesNotExist(toDomainUser(user));
-
-                pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", username, pluginId);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(),
-                        authorityGranter.authorities(user.getUsername()));
-
-                return new AuthenticationToken<>(goUserPrinciple, usernamePassword, pluginId, clock.currentTimeMillis(), authConfig.getId());
-
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error while authenticating user: `{}` using the authorization plugin: {} ", username, pluginId);
-        }
-        LOGGER.debug("Authentication failed for user: `{}` using the authorization plugin: `{}`", username, pluginId);
-        return null;
+    @Override
+    protected AuthenticationToken<UsernamePassword> createAuthenticationToken(GoUserPrinciple userPrinciple,
+                                                                              UsernamePassword credentials,
+                                                                              String pluginId,
+                                                                              String authConfigId) {
+        return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
     }
 }

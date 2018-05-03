@@ -81,13 +81,18 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
             filterChain.doFilter(request, response);
         } else {
             LOGGER.debug("authenticating user {} using basic auth credentials", usernamePassword.getUsername());
-            final AuthenticationToken<UsernamePassword> authenticationToken = authenticationProvider.authenticate(usernamePassword, null);
+            try {
+                final AuthenticationToken<UsernamePassword> authenticationToken = authenticationProvider.authenticate(usernamePassword, null);
 
-            if (authenticationToken == null) {
-                onAuthenticationFailure(request, response, BAD_CREDENTIALS_MSG);
-            } else {
-                SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
-                filterChain.doFilter(request, response);
+                if (authenticationToken == null) {
+                    onAuthenticationFailure(request, response, BAD_CREDENTIALS_MSG);
+                } else {
+                    SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+                    filterChain.doFilter(request, response);
+                }
+            } catch (AuthenticationException e) {
+                LOGGER.debug("Failed to authenticate user.", e);
+                onAuthenticationFailure(request, response, e.getMessage());
             }
         }
     }

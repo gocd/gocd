@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.newsecurity.providers;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -43,8 +42,6 @@ import static java.util.Collections.singletonList;
 @Component
 public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<AccessToken> {
     private final AuthorizationExtension authorizationExtension;
-    private final AuthorityGranter authorityGranter;
-    private final UserService userService;
     private final Clock clock;
     private final AuthorizationMetadataStore store;
 
@@ -55,10 +52,8 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
                                                 PluginRoleService pluginRoleService,
                                                 UserService userService,
                                                 Clock clock) {
-        super(goConfigService, pluginRoleService);
+        super(goConfigService, pluginRoleService, userService, authorityGranter);
         this.authorizationExtension = authorizationExtension;
-        this.authorityGranter = authorityGranter;
-        this.userService = userService;
         this.clock = clock;
         this.store = AuthorizationMetadataStore.instance();
     }
@@ -74,38 +69,25 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
     }
 
     @Override
-    protected AuthenticationToken<AccessToken> authenticateUser(AccessToken accessToken,
-                                                                SecurityAuthConfig authConfig) {
-        String pluginId = authConfig.getPluginId();
-
-        try {
-            if (!store.doesPluginSupportWebBasedAuthentication(pluginId)) {
-                return null;
-            }
-
-            final List<PluginRoleConfig> roleConfigs = goConfigService.security().getRoles().pluginRoleConfigsFor(authConfig.getId());
-            LOGGER.debug("Authenticating user using the authorization plugin: `{}`", pluginId);
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, accessToken.getCredentials(), singletonList(authConfig), roleConfigs);
-            com.thoughtworks.go.plugin.access.authorization.models.User user = ensureDisplayNamePresent(response.getUser());
-            if (user != null) {
-                userService.addUserIfDoesNotExist(toDomainUser(user));
-
-                pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", user.getUsername(), pluginId);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(),
-                        authorityGranter.authorities(user.getUsername()));
-
-                return new AuthenticationToken<>(goUserPrinciple, accessToken, pluginId, clock.currentTimeMillis(), authConfig.getId());
-
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error while authenticating user using auth_config: {} with the authorization plugin: {} ", authConfig.getId(), pluginId);
-        }
-        LOGGER.debug("Authentication failed using the authorization plugin: `{}`", pluginId);
-        return null;
+    protected boolean doesPluginSupportAuthentication(String pluginId) {
+        return store.doesPluginSupportWebBasedAuthentication(pluginId);
     }
 
+    @Override
+    protected AuthenticationResponse authenticateWithExtension(String pluginId,
+                                                               AccessToken credentials,
+                                                               SecurityAuthConfig authConfig,
+                                                               List<PluginRoleConfig> pluginRoleConfigs) {
+        return authorizationExtension.authenticateUser(pluginId, credentials.getCredentials(), singletonList(authConfig), pluginRoleConfigs);
+    }
+
+    @Override
+    protected AuthenticationToken<AccessToken> createAuthenticationToken(GoUserPrinciple userPrinciple,
+                                                                         AccessToken credentials,
+                                                                         String pluginId,
+                                                                         String authConfigId) {
+        return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
+    }
 
     private String getRootUrl(String string) {
         try {

@@ -20,7 +20,14 @@ package com.thoughtworks.go.server.security;
 import org.springframework.security.authentication.AccountStatusException;
 
 public class OnlyKnownUsersAllowedException extends AccountStatusException {
-    public OnlyKnownUsersAllowedException(String msg) {
+    private final String username;
+
+    public OnlyKnownUsersAllowedException(String username, String msg) {
         super(msg);
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

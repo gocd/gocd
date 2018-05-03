@@ -26,8 +26,6 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -42,11 +40,13 @@ import org.junit.Test;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -137,10 +137,9 @@ public class AgentServiceTest {
         AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false), new SystemEnvironment(), null);
         AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false), new SystemEnvironment(), null);
         when(agentInstances.filter(Arrays.asList("uuid-1", "uuid-3"))).thenReturn(Arrays.asList(instance1, instance3));
-        AgentsViewModel agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
-        AgentViewModel view1 = new AgentViewModel(instance1);
-        AgentViewModel view2 = new AgentViewModel(instance3);
-        assertThat(agents, is(new AgentsViewModel(view1, view2)));
+        List<AgentInstance> agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
+        assertThat(agents, hasSize(2));
+        assertThat(agents, hasItems(instance1, instance3));
         verify(agentInstances).filter(Arrays.asList("uuid-1", "uuid-3"));
     }
 

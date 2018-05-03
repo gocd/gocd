@@ -18,7 +18,7 @@ require 'rails_helper'
 
 
 describe "/agent_details/show.html.erb" do
-  include AgentMother
+  include AgentInstanceFactory
 
   before do
     allow(view).to receive(:is_user_an_admin?).and_return(true)

@@ -85,7 +85,7 @@ Util.on_load(function() {
     </tr>
     </thead>
     <tbody>
-    <% scope[:agents].each do |agent_in_agent_table| %>
+    <% scope[:agents].each do |agent_in_agent_table, environments| %>
         <tr class='agent_instance <%= get_agent_status_class(scope[:show_only_disabled],agent_in_agent_table.getStatus()) %>' id='<%= agent_in_agent_table.getUuid() %>'>
             <% agent_uuid = agent_in_agent_table.getUuid()-%>
             <% if has_operate_permission_for_agents? %>
@@ -127,11 +127,11 @@ Util.on_load(function() {
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('resources') -%>
-                <%== piped_cell(agent_in_agent_table.getResources(), 'no resources specified', "resources") %>
+                <%== piped_cell(agent_in_agent_table.resources().resourceNames(), 'no resources specified', "resources") %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('environments') -%>
-                <%== piped_cell(agent_in_agent_table.getEnvironments(), 'no environments specified', "environments") %>
+                <%== piped_cell(environments, 'no environments specified', "environments") %>
             <% end -%>
 
 

@@ -122,8 +122,8 @@ class EnvironmentsController < ApplicationController
       collection << pipeline
     end
 
-    @agents = agent_service.registeredAgents()
-    @agents.sortBy(AgentViewModel.HOSTNAME_COMPARATOR, SortOrder::ASC)
+    @agents = agent_service.agentEnvironmentMap()
+    @agents = Hash[@agents.sort {|a, b| a.getHostname().downcase() <=> b.getHostName().downcase() } ]
   end
 
     def set_tab_name

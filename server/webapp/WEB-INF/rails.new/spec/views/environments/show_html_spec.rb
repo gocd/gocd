@@ -24,7 +24,7 @@ describe 'environments/show.html.erb' do
     @environment.addEnvironmentVariable("ENV2", "VAL2")
     @environment.getVariables().add(EnvironmentVariableConfig.new(GoCipher.new, "SECURE_VAR", "SECURE_VALUE", true))
 
-    @agent_details = AgentsViewModelMother.getTwoAgents()
+    @agent_details = [AgentInstanceFactory.building_agent(uuid: 'foo'), AgentInstanceFactory.building_agent(uuid: 'bar')]
 
     assign(:environment, @environment)
     assign(:agent_details, @agent_details)

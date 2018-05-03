@@ -310,37 +310,6 @@ module APIModelMother
     @pipeline_history_view_model
   end
 
-  def create_agent_model
-    @agent_view_model = double('AgentViewModel')
-    allow(@agent_view_model).to receive(:getUuid).and_return("uuid3")
-    allow(@agent_view_model).to receive(:getHostname).and_return("CCeDev01")
-    allow(@agent_view_model).to receive(:getIpAddress).and_return("127.0.0.1")
-    allow(@agent_view_model).to receive(:getLocation).and_return("/var/lib/go-server")
-    allow(@agent_view_model).to receive(:getStatusForDisplay).and_return("Idle")
-    allow(@agent_view_model).to receive(:buildLocator).and_return("/pipeline/1/stage/1/job")
-    allow(@agent_view_model).to receive(:getOperatingSystem).and_return("Linux")
-    disk_space = DiskSpace.new(0)
-    allow(@agent_view_model).to receive(:freeDiskSpace).and_return(disk_space)
-    allow(@agent_view_model).to receive(:getResources).and_return(["java"])
-    allow(@agent_view_model).to receive(:getEnvironments).and_return(["foo"])
-    @agent_view_model
-  end
-
-  def create_empty_agent_model
-    @agent_view_model = double('AgentViewModel')
-    allow(@agent_view_model).to receive(:getUuid).and_return(nil)
-    allow(@agent_view_model).to receive(:getHostname).and_return(nil)
-    allow(@agent_view_model).to receive(:getIpAddress).and_return(nil)
-    allow(@agent_view_model).to receive(:getLocation).and_return(nil)
-    allow(@agent_view_model).to receive(:getStatusForDisplay).and_return(nil)
-    allow(@agent_view_model).to receive(:buildLocator).and_return(nil)
-    allow(@agent_view_model).to receive(:getOperatingSystem).and_return(nil)
-    allow(@agent_view_model).to receive(:freeDiskSpace).and_return(nil)
-    allow(@agent_view_model).to receive(:getResources).and_return(nil)
-    allow(@agent_view_model).to receive(:getEnvironments).and_return(nil)
-    @agent_view_model
-  end
-
   def create_config_revision_model
     @config_revision_view_model = double('config_revision_view_model')
     allow(@config_revision_view_model).to receive(:getMd5).and_return('md5')

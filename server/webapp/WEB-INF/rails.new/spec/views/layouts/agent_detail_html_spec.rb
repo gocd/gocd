@@ -18,7 +18,7 @@ require 'rails_helper'
 require_relative 'layout_html_examples'
 
 describe "/layouts/agent_detail" do
-  include AgentMother
+  include AgentInstanceFactory
   include GoUtil
   include EngineUrlHelper
 

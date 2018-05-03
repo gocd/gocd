@@ -32,8 +32,6 @@ import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -123,22 +121,6 @@ public class AgentService {
             allAgents.put(agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()));
         }
         return allAgents;
-    }
-
-    public AgentsViewModel registeredAgents() {
-        return toAgentViewModels(agentInstances.findRegisteredAgents());
-    }
-
-    private AgentsViewModel toAgentViewModels(AgentInstances instances) {
-        AgentsViewModel agents = new AgentsViewModel();
-        for (AgentInstance instance : instances) {
-            agents.add(toAgentViewModel(instance));
-        }
-        return agents;
-    }
-
-    private AgentViewModel toAgentViewModel(AgentInstance instance) {
-        return new AgentViewModel(instance, environmentConfigService.environmentsFor(instance.getUuid()));
     }
 
     public AgentInstances findRegisteredAgents() {
@@ -373,16 +355,8 @@ public class AgentService {
         return agent;
     }
 
-    public AgentsViewModel filter(List<String> uuids) {
-        AgentsViewModel viewModels = new AgentsViewModel();
-        for (AgentInstance agentInstance : agentInstances.filter(uuids)) {
-            viewModels.add(new AgentViewModel(agentInstance));
-        }
-        return viewModels;
-    }
-
-    public AgentViewModel findAgentViewModel(String uuid) {
-        return toAgentViewModel(findAgentAndRefreshStatus(uuid));
+    public List<AgentInstance> filter(List<String> uuids) {
+        return agentInstances.filter(uuids);
     }
 
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {

@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe "/agent_details/job_run_history.html.erb" do
-  include AgentMother
+  include AgentInstanceFactory
   include GoUtil
   include AgentsHelper
 

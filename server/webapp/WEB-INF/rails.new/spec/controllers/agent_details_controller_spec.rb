@@ -39,7 +39,7 @@ describe AgentDetailsController do
 
 
   describe "agent_details" do
-    include AgentMother
+    include AgentInstanceFactory
 
     before :each do
       @uuid="fff2222233333"
@@ -47,7 +47,7 @@ describe AgentDetailsController do
     end
 
     it "should show agent details" do
-      expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
+      expect(@agent_service).to receive(:findAgentAndRefreshStatus).with(@uuid).and_return(@agent)
 
       get "show", :uuid =>@uuid
 
@@ -60,7 +60,7 @@ describe AgentDetailsController do
       render_views
 
       it "should show 404 when an agent is not found" do
-        expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(AgentViewModel.new(com.thoughtworks.go.domain.NullAgentInstance.new(@uuid)))
+        expect(@agent_service).to receive(:findAgentAndRefreshStatus).with(@uuid).and_return(com.thoughtworks.go.domain.NullAgentInstance.new(@uuid))
 
         get "show", :uuid => @uuid
         expect(response.status).to eq(404)
@@ -69,7 +69,7 @@ describe AgentDetailsController do
     end
 
     it "should show job run history" do
-      expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
+      expect(@agent_service).to receive(:findAgentAndRefreshStatus).with(@uuid).and_return(@agent)
       expect(@job_instance_service).to receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.completed, SortOrder::DESC, 1, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
       get "job_run_history", :uuid => @uuid
@@ -81,7 +81,7 @@ describe AgentDetailsController do
     end
 
     it "should show a later page of job run history" do
-      expect(@agent_service).to receive(:findAgentViewModel).with(@uuid).and_return(@agent)
+      expect(@agent_service).to receive(:findAgentAndRefreshStatus).with(@uuid).and_return(@agent)
       expect(@job_instance_service).to receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.stage, SortOrder::ASC, 3, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
       get "job_run_history", :uuid => @uuid, :page => 3, :column => 'stage', :order => 'ASC'

@@ -34,7 +34,6 @@ def agent = [
     '/usr/share/doc/go-agent/LICENSE'                        : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
     '/usr/share/go-agent/agent-bootstrapper.jar'             : [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
     '/usr/share/go-agent/agent.sh'                           : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
-    '/usr/share/go-agent/stop-agent.sh'                      : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path]
   ],
   description: '''
       Go Agent Component
@@ -60,7 +59,6 @@ def server = [
       '/usr/share/doc/go-server/LICENSE'   : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
       '/usr/share/go-server/go.jar'        : [mode: 0644, owner: 'root', group: 'root', source: configurations.serverJar.singleFile.path],
       '/usr/share/go-server/server.sh'     : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/server.sh').path],
-      '/usr/share/go-server/stop-server.sh': [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/stop-server.sh').path]
     ],
   description: '''
       Go Server Component

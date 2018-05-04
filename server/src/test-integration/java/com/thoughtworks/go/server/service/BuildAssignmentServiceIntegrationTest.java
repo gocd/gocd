@@ -709,7 +709,7 @@ public class BuildAssignmentServiceIntegrationTest {
         String[] hgRevs = new String[]{"h1"};
         u.checkinInOrder(hgMaterial, hgRevs);
 
-        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE",  u.m(hgMaterial));
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("ANOTHER_PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE",  u.m(hgMaterial));
         BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
         Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name().toString(), buildCause);
         ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, p1.config.name().toLower(), p1.config.getStages().first().name().toLower());

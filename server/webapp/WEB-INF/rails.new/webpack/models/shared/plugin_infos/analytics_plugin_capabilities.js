@@ -18,12 +18,14 @@ const Stream = require('mithril/stream');
 const _      = require('lodash');
 
 const Capabilities = function (data) {
-  this.supportedAnalyticsDashboardMetrics  = Stream(data.supportedAnalyticsDashboardMetrics);
-  this.supportedPipelineAnalytics          = Stream(data.supportedPipelineAnalytics);
+  this.supportedAgentAnalytics            = Stream(data.supportedAgentAnalytics);
+  this.supportedPipelineAnalytics         = Stream(data.supportedPipelineAnalytics);
+  this.supportedAnalyticsDashboardMetrics = Stream(data.supportedAnalyticsDashboardMetrics);
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
-  supportedPipelineAnalytics: _.filter(data, {type: 'pipeline'}),
+  supportedAgentAnalytics:            _.filter(data, {type: 'agent'}),
+  supportedPipelineAnalytics:         _.filter(data, {type: 'pipeline'}),
   supportedAnalyticsDashboardMetrics: _.filter(data, {type: 'dashboard'})
 });
 

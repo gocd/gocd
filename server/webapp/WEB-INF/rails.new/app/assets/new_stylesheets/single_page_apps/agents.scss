@@ -18,6 +18,7 @@
 @import '../shared/modal';
 @import '../shared/header';
 @import '../shared/alert';
+@import 'shared/analytics-common';
 
 .agents {
   transition: all 0.3s ease-in-out;
@@ -419,4 +420,15 @@ $arrow-color: #000;
 
 .spinner-container {
   height: 303px;
+}
+
+.agent-analytics {
+  @include icon-before($type: bar-chart);
+  padding:   0;
+  font-size: 14px;
+  color:     #555;
+  cursor:    pointer;
+  &:hover {
+    color: #000;
+  }
 }

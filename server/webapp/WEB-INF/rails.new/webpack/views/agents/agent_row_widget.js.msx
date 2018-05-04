@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-const m                  = require('mithril');
-const f                  = require('helpers/form_helper');
-const BuildDetailsWidget = require('views/agents/build_details_widget');
+const _                    = require('lodash');
+const m                    = require('mithril');
+const f                    = require('helpers/form_helper');
+const BuildDetailsWidget   = require('views/agents/build_details_widget');
+const AgentAnalyticsWidget = require('views/agents/agent_analytics_widget');
 
 
 const joinOrNoneSpecified = function (things) {
@@ -82,6 +84,25 @@ const AgentRowWidget = {
     this.dropdownClass = function (name) {
       return args.dropdown.isDropDownOpen(name) ? "is-open" : '';
     };
+
+    this.getPluginSupportingAgentAnalytics = function (pluginInfos) {
+      const agentAnalyticsPlugins = {};
+
+      if (!pluginInfos || !pluginInfos()) {
+        return agentAnalyticsPlugins;
+      }
+
+      pluginInfos().eachPluginInfo((p) => {
+        if (p.extensions().analytics) {
+          const agentAnalytics = p.extensions().analytics.capabilities().supportedAgentAnalytics();
+          if (agentAnalytics.length > 0) {
+            agentAnalyticsPlugins[p.id] = agentAnalytics;
+          }
+        }
+      });
+
+      return agentAnalyticsPlugins;
+    };
   },
 
   view(vnode) {
@@ -121,6 +142,12 @@ const AgentRowWidget = {
                checked={args.checkBoxModel()}
                onclick={m.withAttr('checked', args.checkBoxModel)}/>
       );
+    }
+
+    let analyticsIcon;
+    const agentAnalytics = vnode.state.getPluginSupportingAgentAnalytics(pluginInfos);
+    if (!_.isEmpty(agentAnalytics)) {
+      analyticsIcon = (<AgentAnalyticsWidget agent={agent} supportedAnalytics={agentAnalytics}/>);
     }
 
     return (
@@ -166,6 +193,9 @@ const AgentRowWidget = {
         <td key="environments">
           <label class="hide-for-large">Environments</label>
           <span class="content">{environments}</span>
+        </td>
+        <td key="analyticsIcon">
+          <span class="show-for-large">{analyticsIcon}</span>
         </td>
       </tr>
     );

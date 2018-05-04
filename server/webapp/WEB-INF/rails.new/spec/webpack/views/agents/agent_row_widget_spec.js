@@ -186,6 +186,17 @@ describe("Agent Row Widget", () => {
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
+  it('should not render analytics plugin icon if no analytics plugin supports agent metric', () => {
+    mount(agents(), model, true);
+    expect($root.find('.agent-analytics')).not.toBeInDOM();
+  });
+
+  it('should render analytics plugin icon if any analytics plugin supports agent metric', () => {
+    elasticAgentPluginInfo.extensions.push(analyticsExtension);
+    mount(agents(), model, true);
+    expect($root.find('.agent-analytics')).toBeInDOM();
+  });
+
   const mount = (agent, model, isUserAdmin, supportsAgentStatusReportPage = false) => {
     elasticAgentPluginInfo.extensions[0]['capabilities']['supports_agent_status_report'] = supportsAgentStatusReportPage;
 
@@ -385,8 +396,7 @@ describe("Agent Row Widget", () => {
           }
         },
         "profile_settings": {
-          "configurations": [
-          ],
+          "configurations": [],
           "view":           {
             "template": 'some cool template!'
           }
@@ -397,5 +407,38 @@ describe("Agent Row Widget", () => {
         }
       }
     ]
+  };
+
+  const analyticsExtension = {
+    "type":             "analytics",
+    "plugin_settings":  {
+      "configurations": [
+        {
+          "key":      "instance_type",
+          "metadata": {
+            "secure":   false,
+            "required": true
+          }
+        }
+      ],
+      "view":           {
+        "template": "analytics plugin settings view"
+      }
+    },
+    "profile_settings": {
+      "configurations": [],
+      "view":           {
+        "template": 'some cool template!'
+      }
+    },
+    "capabilities":     {
+      "supported_analytics": [
+        {
+          "type":  "agent",
+          "id":    "agent utilization",
+          "title": "Agent Utilization"
+        }
+      ]
+    }
   };
 });

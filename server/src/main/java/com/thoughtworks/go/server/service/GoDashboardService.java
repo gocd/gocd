@@ -124,6 +124,11 @@ public class GoDashboardService {
     }
 
     private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {
+        if (group == null) {
+            cache.remove(pipelineConfig.name().toString());
+            return;
+        }
+
         cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group));
     }
 }

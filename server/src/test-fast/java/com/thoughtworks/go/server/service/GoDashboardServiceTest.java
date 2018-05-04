@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
@@ -222,6 +219,19 @@ public class GoDashboardServiceTest {
         assertThat(pipelineGroups.size(), is(1));
         assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
         assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
+    }
+
+    @Test
+    public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineConfigIsRemoved() throws Exception {
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
+        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+
+        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        // simulate the event
+        service.updateCacheForPipeline(pipelineConfig);
+        verify(cache).remove(pipelineConfig.getName().toString());
+        verifyZeroInteractions(dashboardCurrentStateLoader);
     }
 
     private List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username username) {

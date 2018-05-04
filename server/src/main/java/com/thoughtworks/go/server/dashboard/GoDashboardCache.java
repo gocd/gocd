@@ -50,6 +50,10 @@ public class GoDashboardCache {
         cacheHasChanged();
     }
 
+    public void remove(String pipelineName) {
+        cache.remove(pipelineName);
+    }
+
     public void replaceAllEntriesInCacheWith(List<GoDashboardPipeline> newPipelinesToCache) {
         cache.clear();
         cache.putAll(createMapFor(newPipelinesToCache));

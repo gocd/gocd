@@ -230,7 +230,7 @@ public class GoDashboardServiceTest {
         when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig);
-        verify(cache).remove(pipelineConfig.getName().toString());
+        verify(cache).remove(pipelineConfig.getName());
         verifyZeroInteractions(dashboardCurrentStateLoader);
     }
 

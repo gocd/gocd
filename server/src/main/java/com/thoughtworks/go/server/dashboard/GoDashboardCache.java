@@ -50,7 +50,7 @@ public class GoDashboardCache {
         cacheHasChanged();
     }
 
-    public void remove(String pipelineName) {
+    public void remove(CaseInsensitiveString pipelineName) {
         cache.remove(pipelineName);
     }
 

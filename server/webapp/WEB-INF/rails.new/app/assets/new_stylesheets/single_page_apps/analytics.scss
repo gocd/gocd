@@ -24,6 +24,11 @@
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
+.message {
+  width:   100%;
+  padding: 10px 20px 20px 10px;
+}
+
 // scss-lint:disable SelectorDepth
 
 $aspect-ratio: 1.61803398875; // golden ratio

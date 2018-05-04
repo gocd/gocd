@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-(function() {
+(function () {
   "use strict";
 
   const m = require("mithril");
   const $ = require("jquery");
   const _ = require('lodash');
+  const f = require("helpers/form_helper");
 
-  const Interactions          = require("models/shared/analytics_interaction_manager");
-  const Models                = Interactions.ensure().ns("PipelineMetrics");
-  const init                  = require("rails-shared/plugin-endpoint").init;
+  const Interactions = require("models/shared/analytics_interaction_manager");
+  const Models       = Interactions.ensure().ns("PipelineMetrics");
+  const init         = require("rails-shared/plugin-endpoint").init;
 
   const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
 
@@ -77,6 +78,13 @@
           elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
         });
       });
+
+      if (elements.length === 1) { // check for length 1, as the pipeline dropdown has already been added
+        return (<div class="message">
+          <f.callout type="info">No analytics plugin supports pipeline analytics.</f.callout>
+        </div>);
+      }
+
       return elements;
     }
   };

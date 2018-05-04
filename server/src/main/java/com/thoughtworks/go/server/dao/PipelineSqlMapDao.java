@@ -39,6 +39,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +135,18 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public Integer getCounterForPipeline(String name) {
         Integer counter = (Integer) getSqlMapClientTemplate().queryForObject("getCounterForPipeline", name);
         return counter == null ? 0 : counter;
+    }
+
+    public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
+        List<String> pipelinenames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
+        if(pipelinenames.size() > 0 && StringUtils.isBlank(pipelinenames.get(0)))
+            return new ArrayList<>();
+        return pipelinenames;
+    }
+
+    public void deleteOldPipelineLabelCountForPipeline(String pipelineName) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipeline", args);
     }
 
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {
@@ -421,7 +434,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             @Override
             public void run() {
                 LOGGER.info("Loading Active Pipelines to cache...Started");
-                Map<String, TreeSet<Long>> result = groupPipelineInstanceIdsByPipelineName(pipelines);
+                Map<CaseInsensitiveString, TreeSet<Long>> result = groupPipelineInstanceIdsByPipelineName(pipelines);
                 goCache.put(activePipelinesCacheKey(), result);
                 LOGGER.info("Loading Active Pipelines to cache...Done");
             }
@@ -446,9 +459,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public PipelineInstanceModels loadActivePipelineInstancesFor(String pipelineName) {
-        Map<String, TreeSet<Long>> allActivePipelineNamesVsTheirInstanceIDs = getAllActivePipelineNamesVsTheirInstanceIDs();
-        Map<String, TreeSet<Long>> similarMapForSinglePipeline = new HashMap<>();
+    public PipelineInstanceModels loadActivePipelineInstancesFor(CaseInsensitiveString pipelineName) {
+        Map<CaseInsensitiveString, TreeSet<Long>> allActivePipelineNamesVsTheirInstanceIDs = getAllActivePipelineNamesVsTheirInstanceIDs();
+        Map<CaseInsensitiveString, TreeSet<Long>> similarMapForSinglePipeline = new HashMap<>();
 
         if (allActivePipelineNamesVsTheirInstanceIDs.containsKey(pipelineName)) {
             similarMapForSinglePipeline.put(pipelineName, allActivePipelineNamesVsTheirInstanceIDs.get(pipelineName));
@@ -477,7 +490,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         materialRepository.cacheMaterialRevisionsForPipelines(ids);
     }
 
-    private PipelineInstanceModels convertToPipelineInstanceModels(Map<String, TreeSet<Long>> result) {
+    private PipelineInstanceModels convertToPipelineInstanceModels(Map<CaseInsensitiveString, TreeSet<Long>> result) {
         List<PipelineInstanceModel> models = new ArrayList<PipelineInstanceModel>();
 
         List<CaseInsensitiveString> pipelinesInConfig = getPipelineNamesInConfig();
@@ -505,11 +518,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return PipelineInstanceModels.createPipelineInstanceModels(models);
     }
 
-    private List<Long> loadIdsFromHistory(Map<String, TreeSet<Long>> result) {
+    private List<Long> loadIdsFromHistory(Map<CaseInsensitiveString, TreeSet<Long>> result) {
         List<Long> idsForHistory = new ArrayList<Long>();
         try {
             activePipelineReadLock.lock();
-            for (Map.Entry<String, TreeSet<Long>> pipelineToIds : result.entrySet()) {
+            for (Map.Entry<CaseInsensitiveString, TreeSet<Long>> pipelineToIds : result.entrySet()) {
                 idsForHistory.addAll(pipelineToIds.getValue().descendingSet());
             }
         } finally {
@@ -524,11 +537,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return model;
     }
 
-    private Map<String, TreeSet<Long>> groupPipelineInstanceIdsByPipelineName(List<PipelineInstanceModel> pipelines) {
-        Map<String, TreeSet<Long>> result;
-        result = new HashMap<String, TreeSet<Long>>();
+    private Map<CaseInsensitiveString, TreeSet<Long>> groupPipelineInstanceIdsByPipelineName(List<PipelineInstanceModel> pipelines) {
+        Map<CaseInsensitiveString, TreeSet<Long>> result = new HashMap<CaseInsensitiveString, TreeSet<Long>>();
         for (PipelineInstanceModel pipeline : pipelines) {
-            TreeSet<Long> ids = initializePipelineInstances(result, pipeline.getName());
+            TreeSet<Long> ids = initializePipelineInstances(result, new CaseInsensitiveString(pipeline.getName()));
             ids.add(pipeline.getId());
         }
         return result;
@@ -571,11 +583,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
 
     private void syncCachedActivePipelines(Stage stage) {
-        Map<String, TreeSet<Long>> activePipelinesToIds = (Map<String, TreeSet<Long>>) goCache.get(activePipelinesCacheKey());
+        Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(activePipelinesCacheKey());
         if (activePipelinesToIds == null) {
             return;
         }
-        String pipelineName = loadHistory(stage.getPipelineId()).getName();
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString(loadHistory(stage.getPipelineId()).getName());
         try {
             activePipelineWriteLock.lock();
             addActiveAsLatest(stage, activePipelinesToIds, pipelineName);
@@ -585,7 +597,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private void addActiveAsLatest(Stage stage, Map<String, TreeSet<Long>> activePipelinesToIds, String pipelineName) {
+    private void addActiveAsLatest(Stage stage, Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds, CaseInsensitiveString pipelineName) {
         if (stage.getState().isActive()) {
             TreeSet<Long> ids = initializePipelineInstances(activePipelinesToIds, pipelineName);
             removeCurrentLatestIfNoLongerActive(stage, ids);
@@ -593,7 +605,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private void removeCompletedIfNotLatest(Stage stage, Map<String, TreeSet<Long>> activePipelinesToIds, String pipelineName) {
+    private void removeCompletedIfNotLatest(Stage stage, Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds, CaseInsensitiveString pipelineName) {
         if (stage.getState().completed()) {
             if (activePipelinesToIds.containsKey(pipelineName)) {
                 TreeSet<Long> ids = activePipelinesToIds.get(pipelineName);
@@ -620,7 +632,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return !loadHistory(ids.last()).isAnyStageActive();
     }
 
-    private TreeSet<Long> initializePipelineInstances(Map<String, TreeSet<Long>> pipelineToIds, String pipelineName) {
+    private TreeSet<Long> initializePipelineInstances(Map<CaseInsensitiveString, TreeSet<Long>> pipelineToIds, CaseInsensitiveString pipelineName) {
         if (!pipelineToIds.containsKey(pipelineName)) {
             pipelineToIds.put(pipelineName, new TreeSet<Long>());
         }
@@ -967,12 +979,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
     }
 
-    private Map<String, TreeSet<Long>> getAllActivePipelineNamesVsTheirInstanceIDs() {
+    private Map<CaseInsensitiveString, TreeSet<Long>> getAllActivePipelineNamesVsTheirInstanceIDs() {
         String cacheKey = activePipelinesCacheKey();
-        Map<String, TreeSet<Long>> result = (Map<String, TreeSet<Long>>) goCache.get(cacheKey);
+        Map<CaseInsensitiveString, TreeSet<Long>> result = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
-                result = (Map<String, TreeSet<Long>>) goCache.get(cacheKey);
+                result = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(cacheKey);
                 if (result == null) {
                     List<PipelineInstanceModel> pipelines = getAllPIMs();
                     result = groupPipelineInstanceIdsByPipelineName(pipelines);

@@ -96,15 +96,27 @@
     </insert>
 
     <insert id="insertPipelineLabelCounter">
-        INSERT INTO pipelineLabelCounts (pipelineName, labelCount)
-        VALUES (#pipelineName#, #count#)
+        INSERT INTO pipelineLabelCounts (pipelineName, labelCount, caseInsensitivePipelineName)
+        VALUES (#pipelineName#, #count#, #pipelineName#)
     </insert>
 
     <update id="updatePipelineLabelCounter">
         UPDATE pipelineLabelCounts
         SET labelCount = #count#
-        WHERE pipelineName = #pipelineName#
+        WHERE caseInsensitivePipelineName = #pipelineName#
     </update>
+
+
+    <select id="getPipelineNamesWithMultipleEntriesForLabelCount" resultClass="java.lang.String">
+        SELECT caseInsensitivePipelineName FROM PIPELINELABELCOUNTS GROUP BY caseInsensitivePipelineName HAVING COUNT(*) > 1;
+    </select>
+
+    <delete id="deleteOldPipelineLabelCountForPipeline">
+        DELETE FROM PIPELINELABELCOUNTS
+        WHERE
+        caseInsensitivePipelineName = #pipelineName#
+        AND pipelinename != #pipelineName#
+    </delete>
 
     <update id="updatePipelineComment">
         UPDATE pipelines
@@ -164,31 +176,31 @@
     <select id="hasPipelineInfoRow" parameterClass="java.lang.String" resultClass="java.lang.Integer">
         SELECT COUNT(*)
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
+        WHERE caseInsensitivePipelineName = #value#
     </select>
 
     <select id="getCounterForPipeline" parameterClass="java.lang.String" resultClass="java.lang.Integer">
         SELECT labelCount
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
+        WHERE caseInsensitivePipelineName = #value#
         ORDER BY id DESC
     </select>
 
     <select id="getPipelinePauseState" resultMap="select-pipeline-pause-info">
         SELECT pause_cause, pause_by, paused
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
+        WHERE caseInsensitivePipelineName = #value#
     </select>
 
     <insert id="insertPipelinePauseState">
-        INSERT INTO pipelineLabelCounts (pipelineName, pause_cause, pause_by, paused)
-        VALUES (#pipelineName#, #pauseCause#, #pauseBy#, true)
+        INSERT INTO pipelineLabelCounts (pipelineName, pause_cause, pause_by, paused, caseInsensitivePipelineName)
+        VALUES (#pipelineName#, #pauseCause#, #pauseBy#, true, #pipelineName#)
     </insert>
 
     <update id="updatePipelinePauseState">
         UPDATE pipelineLabelCounts
         SET pause_cause = #pauseCause#, pause_by = #pauseBy#, paused = #paused#
-        WHERE pipelineName = #pipelineName#
+        WHERE caseInsensitivePipelineName = #pipelineName#
     </update>
 
     <cacheModel id="pipeline-by-buildId" type="MEMORY" readOnly="true">

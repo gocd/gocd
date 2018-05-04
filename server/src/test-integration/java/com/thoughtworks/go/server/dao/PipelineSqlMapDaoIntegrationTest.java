@@ -70,12 +70,15 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
@@ -83,6 +86,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -121,12 +125,13 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
+    private GoConfigFileHelper configHelper;
 
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
         goCache.clear();
-        GoConfigFileHelper configHelper = new GoConfigFileHelper();
+        configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         notifier.disableUpdates();
@@ -1388,12 +1393,38 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldPauseExistingPipelineCaseInsensitive() throws Exception {
+        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
+        schedulePipelineWithStages(mingleConfig);
+
+        pipelineDao.pause(mingleConfig.name().toString(), "cause", "by");
+
+        PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString().toUpperCase());
+        PipelinePauseInfo expected = new PipelinePauseInfo(true, "cause", "by");
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
     public void shouldUnPauseAPausedPipeline() throws Exception {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
         pipelineDao.pause(mingleConfig.name().toString(), "cause", "by");
 
         pipelineDao.unpause(mingleConfig.name().toString());
+
+        PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString());
+        PipelinePauseInfo expected = new PipelinePauseInfo(false, null, null);
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void shouldUnPauseAPausedPipelineCaseInsensitive() throws Exception {
+        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
+        schedulePipelineWithStages(mingleConfig);
+        pipelineDao.pause(mingleConfig.name().toString(), "cause", "by");
+
+        pipelineDao.unpause(mingleConfig.name().toString().toUpperCase());
 
         PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString());
         PipelinePauseInfo expected = new PipelinePauseInfo(false, null, null);
@@ -1423,6 +1454,17 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldReturnCurrentPauseStateOfPipelineCaseInsensitive() throws Exception {
+        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
+        schedulePipelineWithStages(mingleConfig);
+
+        pipelineDao.pause(mingleConfig.name().toString(), "really good reason", "me");
+
+        PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString().toUpperCase());
+        assertThat(actual, is(new PipelinePauseInfo(true, "really good reason", "me")));
+    }
+
+    @Test
     public void shouldUpdateCounter_WhenPipelineRowIsPresentWhichWasInsertedByPauseAction() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
@@ -1443,7 +1485,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipeline = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig); // Counter is 1
         dbHelper.newPipelineWithAllStagesPassed(pipelineConfig); // Counter should be incremented
 
-        assertThat(pipelineDao.getCounterForPipeline(pipeline.getName()), is(pipeline.getCounter() + 1));
+        assertThat(pipelineDao.getCounterForPipeline(pipeline.getName().toUpperCase()), is(pipeline.getCounter() + 1));
     }
 
     @Test
@@ -1606,7 +1648,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-            /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */
+    /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */
     public void shouldReturnListOfDownstreamPipelineIdentifiersForARunOfUpstreamPipeline_AlthoughUpstreamHasHadAStageReRun() throws Exception {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
@@ -1701,6 +1743,56 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineInstanceModelsForPipeline1.get(0).getCounter(), is(4));
         assertThat(pipelineInstanceModelsForPipeline1.get(1).getCounter(), is(3));
         assertThat(pipelineInstanceModelsForPipeline1.get(2).getCounter(), is(2));
+    }
+
+    @Test
+    public void ensureActivePipelineCacheUsedByOldDashboardIsCaseInsensitiveWRTPipelineNames(){
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+
+        ScheduleTestUtil.AddedPipeline pipeline1 = u.saveConfigWith("pipeline1", u.m(g1));
+        Pipeline pipeline1_1 = dbHelper.schedulePipeline(pipeline1.config, new TestingClock(new Date()));
+        pipelineDao.loadActivePipelines(); //to initialize cache
+
+        dbHelper.pass(pipeline1_1);
+        pipelineDao.stageStatusChanged(pipeline1_1.getFirstStage());
+        assertThat(getActivePipelinesForPipelineName(pipeline1).count(), is(1L));
+        assertThat(getActivePipelinesForPipelineName(pipeline1).findFirst().get().getName(), is(pipeline1.config.name().toString()));
+
+        configHelper.removePipeline(pipeline1.config.name().toString());
+        ScheduleTestUtil.AddedPipeline p1ReincarnatedWithDifferentCase = u.saveConfigWith("PIPELINE1", u.m(g1));
+        Pipeline pipelineReincarnatedWithDifferentCase_1 = dbHelper.schedulePipeline(p1ReincarnatedWithDifferentCase.config, new TestingClock(new Date()));
+        pipelineDao.loadActivePipelines(); //to initialize cache
+        pipelineDao.stageStatusChanged(pipelineReincarnatedWithDifferentCase_1.getFirstStage());
+
+        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).count(), is(1L));
+        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).findFirst().get().getName(), is(p1ReincarnatedWithDifferentCase.config.name().toString()));
+    }
+
+    @Test
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() throws SQLException {
+        String pipelineName = "Pipeline-Name";
+        configHelper.addPipeline(pipelineName, "stage-name");
+        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
+        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
+        assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
+
+        pipelineDao.deleteOldPipelineLabelCountForPipeline(pipelineName);
+        assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty(), is(true));
+        assertThat(pipelineDao.getCounterForPipeline(pipelineName), is(30));
+        assertThat(pipelineDao.getCounterForPipeline(pipelineName.toLowerCase()), is(30));
+        assertThat(pipelineDao.getCounterForPipeline(pipelineName.toUpperCase()), is(30));
+    }
+
+    private Stream<PipelineInstanceModel> getActivePipelinesForPipelineName(ScheduleTestUtil.AddedPipeline pipeline1) {
+        return pipelineDao.loadActivePipelines().stream().filter(new Predicate<PipelineInstanceModel>() {
+            @Override
+            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                return pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString());
+            }
+        });
     }
 
     public static MaterialRevisions revisions(boolean changed) {

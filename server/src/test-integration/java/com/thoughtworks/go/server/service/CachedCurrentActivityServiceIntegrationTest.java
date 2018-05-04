@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -45,11 +46,16 @@ import static org.junit.Assert.assertThat;
 })
 public class CachedCurrentActivityServiceIntegrationTest {
 
-    @Autowired private CachedCurrentActivityService cachedCurrentActivityService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private CachedCurrentActivityService cachedCurrentActivityService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -96,4 +102,9 @@ public class CachedCurrentActivityServiceIntegrationTest {
         assertThat(cachedCurrentActivityService.isStageActive(pipeline.getName(), "ft"), is(true));
     }
 
+    @Test
+    public void testShouldReturnTrueIfAStageIsActive_CaseInsensitive() {
+        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        assertThat(cachedCurrentActivityService.isStageActive(pipeline.getName().toUpperCase(), "FT"), is(true));
+    }
 }

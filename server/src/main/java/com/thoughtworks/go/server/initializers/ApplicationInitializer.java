@@ -85,6 +85,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Autowired private SCMMaterialSource scmMaterialSource;
     @Autowired private ResourceMonitoring resourceMonitoring;
+    @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
 
@@ -123,6 +124,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             pipelineLockService.initialize();
             buildAssignmentService.initialize();
             materialUpdateService.initialize();
+            pipelineLabelCorrector.correctPipelineLabelCountEntries();
             pipelineScheduler.initialize();
             removeAdminPermissionFilter.initialize();
 

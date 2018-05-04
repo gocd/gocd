@@ -16,20 +16,16 @@
 
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.server.util.Pagination;
+
+import java.util.List;
 
 public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel> {
     private Pagination pagination;
 
-    private PipelineInstanceModels(PipelineInstanceModel[] instances) {
+    private PipelineInstanceModels(PipelineInstanceModel... instances) {
         super(instances);
-    }
-
-    public static PipelineInstanceModels createPipelineInstanceModels() {
-        return new PipelineInstanceModels(new PipelineInstanceModel[]{});
     }
 
     public static PipelineInstanceModels createPipelineInstanceModels(PipelineInstanceModel... instances) {

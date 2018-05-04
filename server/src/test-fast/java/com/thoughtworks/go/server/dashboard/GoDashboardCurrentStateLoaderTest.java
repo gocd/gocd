@@ -40,11 +40,10 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -420,6 +419,34 @@ public class GoDashboardCurrentStateLoaderTest {
         loader.allPipelines(config);
 
         verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()));
+    }
+
+    @Test
+    public void shouldLoadFromDBPipelinesThatHaveBeenAdded() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+
+        when(pipelineSqlMapDao.loadHistoryForDashboard(any())).thenAnswer(new Answer<PipelineInstanceModels>() {
+            @Override
+            public PipelineInstanceModels answer(InvocationOnMock invocation) throws Throwable {
+                List<String> pipelineNames = invocation.getArgument(0);
+                List<PipelineInstanceModel> models = new ArrayList<>();
+                for (String pipelineName : pipelineNames) {
+                    PipelineInstanceModel pim = pim(config.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)));
+                    models.add(pim);
+                }
+                return PipelineInstanceModels.createPipelineInstanceModels(models);
+            }
+        });
+
+        loader.allPipelines(config.cloneForValidation());
+
+        PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1", "job1");
+        config.findGroup("group1").remove(p1Config);
+
+        loader.allPipelines(config.cloneForValidation());
+        verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()));
+        verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p2Config.getName()));
+        verifyNoMoreInteractions(pipelineSqlMapDao);
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

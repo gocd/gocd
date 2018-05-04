@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -111,7 +112,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return caseInsensitiveStrings(Arrays.asList(roles));
     }
 
-    public static List<String> toStringList(List<CaseInsensitiveString> strings) {
+    public static List<String> toStringList(Collection<CaseInsensitiveString> strings) {
         return toStringList(strings.stream());
     }
 

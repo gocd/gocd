@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.dashboard;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
@@ -39,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
@@ -59,8 +61,8 @@ public class GoDashboardCurrentStateLoader {
     private GoConfigPipelinePermissionsAuthority permissionsAuthority;
     private TimeStampBasedCounter timeStampBasedCounter;
     private boolean everLoadedCurrentState = false;
-    private PipelineInstanceModels historyForDashboard;
-    private Set<CaseInsensitiveString> previousPipelineNames;
+    private PipelineInstanceModels historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
+    private Set<CaseInsensitiveString> previousPipelineNames = new HashSet<>();
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
@@ -81,11 +83,24 @@ public class GoDashboardCurrentStateLoader {
         List<CaseInsensitiveString> allPipelineNames = config.getAllPipelineNames();
 
         HashSet<CaseInsensitiveString> newPipelineNames = new HashSet<>(allPipelineNames);
-        if (!newPipelineNames.equals(previousPipelineNames)) {
-            List<String> pipelineNames = CaseInsensitiveString.toStringList(allPipelineNames);
-            historyForDashboard = loadHistoryForPipelines(pipelineNames);
-            previousPipelineNames = newPipelineNames;
+
+        Collection<CaseInsensitiveString> pipelinesToRemove = Sets.difference(previousPipelineNames, newPipelineNames);
+        Collection<CaseInsensitiveString> pipelinesToAdd = Sets.difference(newPipelineNames, previousPipelineNames);
+
+        if (!pipelinesToAdd.isEmpty()) {
+            historyForDashboard.addAll(loadHistoryForPipelines(new ArrayList<>(CaseInsensitiveString.toStringList(pipelinesToAdd))));
         }
+
+        for (CaseInsensitiveString pipelineNameToRemove : pipelinesToRemove) {
+            historyForDashboard.removeIf(new Predicate<PipelineInstanceModel>() {
+                @Override
+                public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                    return pipelineNameToRemove.equals(new CaseInsensitiveString(pipelineInstanceModel.getName()));
+                }
+            });
+        }
+
+        previousPipelineNames = newPipelineNames;
 
         LOGGER.debug("Loading permissions from authority");
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = permissionsAuthority.pipelinesAndTheirPermissions();
@@ -199,5 +214,10 @@ public class GoDashboardCurrentStateLoader {
             return pipelinesAndTheirPermissions.get(pipelineConfig.name());
         }
         return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
+    }
+
+    void reset() {
+        historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
+        previousPipelineNames = new HashSet<>();
     }
 }

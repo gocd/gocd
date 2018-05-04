@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class AddEnvironmentCommandTest {
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         environmentName = new CaseInsensitiveString("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
@@ -99,7 +99,6 @@ public class AddEnvironmentCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
 
         assertThat(command.isValid(cruiseConfig), is(false));
-        String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
         expectedResult.unprocessableEntity("Could not add environment Dev Environment Variable name 'foo' is not unique for environment 'Dev'., Environment Variable name 'foo' is not unique for environment 'Dev'.");
         assertThat(result, is(expectedResult));
     }
@@ -109,7 +108,7 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized("Failed to add environment. User 'user' does not have permission to add environments", HealthStateType.unauthorised());
+        expectedResult.unauthorized("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -118,7 +117,7 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.conflict(resourceAlreadyExists("environment", environmentName));

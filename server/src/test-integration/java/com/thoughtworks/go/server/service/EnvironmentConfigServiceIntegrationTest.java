@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is("Failed to add environment. User 'evil_hacker' does not have permission to add environments"));
+        assertThat(result.message(), is("Failed to access environment 'foo-env'. User 'evil_hacker' does not have permission to access environment."));
     }
 
     @Test
@@ -168,7 +168,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo"));
         service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
-        assertThat(result.message(), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments."));
+        assertThat(result.message(), is("Failed to access environment 'foo-env'. User 'evil_hacker' does not have permission to access environment."));
     }
 
     @Test
@@ -220,7 +220,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.deleteEnvironment(service.getEnvironmentConfig("foo"), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is("Failed to delete environment 'foo'. User 'evil_hacker' does not have permission to update environments."));
+        assertThat(result.message(), is("Failed to access environment 'foo'. User 'evil_hacker' does not have permission to access environment."));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+        assertThat(result.message(), is("Failed to access environment 'foo'. User 'evil_hacker' does not have permission to access environment."));
     }
 
     @Test

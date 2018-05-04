@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,36 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class EnvironmentCommand {
+
+public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
     protected String actionFailed;
-    private EnvironmentConfig config;
-    private LocalizedOperationResult result;
+    protected EnvironmentConfig environmentConfig;
+    protected LocalizedOperationResult result;
+    protected GoConfigService goConfigService;
+    protected Username username;
 
-    public EnvironmentCommand(String actionFailed, EnvironmentConfig config, LocalizedOperationResult result) {
+    public EnvironmentCommand(String actionFailed, EnvironmentConfig environmentConfig, LocalizedOperationResult result, GoConfigService goConfigService, Username username) {
         this.actionFailed = actionFailed;
-        this.config = config;
+        this.environmentConfig = environmentConfig;
         this.result = result;
+        this.goConfigService = goConfigService;
+        this.username = username;
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.config.name());
+        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.environmentConfig.name());
         boolean isValid = config.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig), preprocessedConfig);
 
         if (!isValid) {
@@ -46,7 +56,21 @@ public class EnvironmentCommand {
         return isValid;
     }
 
+    @Override
+    public void clearErrors() {
+        BasicCruiseConfig.clearErrors(environmentConfig);
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!goConfigService.isAdministrator(username.getUsername())) {
+            result.unauthorized(LocalizedMessage.unauthorizedToEditResource("environment", environmentConfig.name(), username.getDisplayName()), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
+    }
+
     public EnvironmentConfig getPreprocessedEntityConfig() {
-        return config;
+        return environmentConfig;
     }
 }

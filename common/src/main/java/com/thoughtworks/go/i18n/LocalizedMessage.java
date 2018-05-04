@@ -87,6 +87,14 @@ public abstract class LocalizedMessage {
         return unauthorizedToEditPipeline(pipelineName.toString());
     }
 
+    public static String unauthorizedToEditResource(String resourceType, String resourceName, String username) {
+        return String.format("Failed to access %s '%s'. User '%s' does not have permission to access %s.", resourceType, resourceName, username, resourceType);
+    }
+
+    public static String unauthorizedToEditResource(String resourceType, CaseInsensitiveString resourceName, String username) {
+        return unauthorizedToEditResource(resourceType, resourceName.toString(), username);
+    }
+
     public static String resourceAlreadyExists(String resourceType, String resourceName) {
         return "Failed to add " + resourceType + ". The " + resourceType + " '" + resourceName + "' already exists.";
     }

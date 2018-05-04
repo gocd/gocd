@@ -59,6 +59,8 @@ public class GoDashboardCurrentStateLoader {
     private GoConfigPipelinePermissionsAuthority permissionsAuthority;
     private TimeStampBasedCounter timeStampBasedCounter;
     private boolean everLoadedCurrentState = false;
+    private PipelineInstanceModels historyForDashboard;
+    private Set<CaseInsensitiveString> previousPipelineNames;
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
@@ -76,8 +78,14 @@ public class GoDashboardCurrentStateLoader {
     }
 
     public List<GoDashboardPipeline> allPipelines(CruiseConfig config) {
-        List<String> pipelineNames = CaseInsensitiveString.toStringList(config.getAllPipelineNames());
-        PipelineInstanceModels historyForDashboard = loadHistoryForPipelines(pipelineNames);
+        List<CaseInsensitiveString> allPipelineNames = config.getAllPipelineNames();
+
+        HashSet<CaseInsensitiveString> newPipelineNames = new HashSet<>(allPipelineNames);
+        if (!newPipelineNames.equals(previousPipelineNames)) {
+            List<String> pipelineNames = CaseInsensitiveString.toStringList(allPipelineNames);
+            historyForDashboard = loadHistoryForPipelines(pipelineNames);
+            previousPipelineNames = newPipelineNames;
+        }
 
         LOGGER.debug("Loading permissions from authority");
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = permissionsAuthority.pipelinesAndTheirPermissions();

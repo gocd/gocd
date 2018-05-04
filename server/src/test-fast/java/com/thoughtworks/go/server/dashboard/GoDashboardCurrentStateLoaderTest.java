@@ -408,6 +408,20 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(model.getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
     }
 
+    @Test
+    public void shouldNotReloadFromDBIfListOfPipelinesHasNotChanged() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+
+        when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        loader.allPipelines(config);
+        goConfigMother.addStageToPipeline(config, p1Config.getName().toString(), "someStage", "someJob");
+        loader.allPipelines(config);
+
+        verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()));
+    }
+
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {
         assertThat(pipeline.groupName(), is(group));
         assertThat(pipeline.model().getName(), is(pims[0].getName()));

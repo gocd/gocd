@@ -28,21 +28,17 @@ const AnalyticsWidget = {
   view(vnode) {
     const vm = vnode.state.vm;
 
-    const analyticsMetric = vm.isGlobalTabSelected() ?
-      <GlobalMetrics metrics={vnode.attrs.globalMetrics}/> :
-      <PipelineMetrics pipelines={vnode.attrs.pipelines} metrics={vnode.attrs.pipelineMetrics}/>;
+    let content;
+    if (vnode.attrs.pluginInfos().countPluginInfo() === 0) {
+      content = (<div class="message">
+        <f.callout type="info">No analytics plugin installed.</f.callout>
+      </div>);
+    } else {
+      const analyticsMetric = vm.isGlobalTabSelected() ?
+        <GlobalMetrics metrics={vnode.attrs.globalMetrics}/> :
+        <PipelineMetrics pipelines={vnode.attrs.pipelines} metrics={vnode.attrs.pipelineMetrics}/>;
 
-    return (<div class="analytics-main-container">
-      <div class="header-panel">
-        <header class="page-header">
-          <f.row>
-            <f.column size={6}>
-              <h1>Analytics</h1>
-            </f.column>
-          </f.row>
-        </header>
-      </div>
-      <div class="dashboard-content">
+      content = <div class="dashboard-content">
         <div class="dashboard-tabs-container">
           <ul class="dashboard-tabs">
             <li class={vm.isGlobalTabSelected() ? "current" : ""}
@@ -58,7 +54,20 @@ const AnalyticsWidget = {
         <div class={`dashboard-charts ${vm.isGlobalTabSelected() ? "global" : "pipeline"}`}>
           {analyticsMetric}
         </div>
+      </div>;
+    }
+
+    return (<div class="analytics-main-container">
+      <div class="header-panel">
+        <header class="page-header">
+          <f.row>
+            <f.column size={6}>
+              <h1>Analytics</h1>
+            </f.column>
+          </f.row>
+        </header>
       </div>
+      {content}
     </div>);
   }
 };

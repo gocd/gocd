@@ -19,6 +19,7 @@
 
   const m = require("mithril");
   const $ = require("jquery");
+  const f = require("helpers/form_helper");
 
   const init                  = require("rails-shared/plugin-endpoint").init;
   const AnalyticsiFrameWidget = require("views/shared/analytics_iframe_widget");
@@ -37,6 +38,13 @@
           elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
         });
       });
+
+      if (elements.length === 0) {
+        return (<div class="message">
+          <f.callout type="info">No analytics plugin supports global analytics.</f.callout>
+        </div>);
+      }
+
       return elements;
     }
   };

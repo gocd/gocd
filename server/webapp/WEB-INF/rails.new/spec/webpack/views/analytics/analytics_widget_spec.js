@@ -61,10 +61,24 @@ describe("Analytics Widget", () => {
     expect($root.find('.pipeline')).toBeInDOM();
   });
 
-  const mount = () => {
+  it('should render no analytics plugin installed message when no analytics plugin is installed', () => {
+    unmount();
+    mount(0);
+
+    expect($root.find('.info')).toContainText('No analytics plugin installed.');
+  });
+
+
+  const mount = (analyticsPluginCount = 1) => {
+    const pluginInfos = function () {
+      return {
+        countPluginInfo: () => analyticsPluginCount
+      };
+    };
+
     m.mount(root, {
       view() {
-        return <AnalyticsWidget metrics={{}} pipelines={[]} plugins={[]}/>;
+        return <AnalyticsWidget metrics={{}} pipelines={[]} pluginInfos={pluginInfos}/>;
       }
     });
     m.redraw();

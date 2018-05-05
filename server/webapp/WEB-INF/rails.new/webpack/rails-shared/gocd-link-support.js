@@ -51,6 +51,11 @@
       openLinkInNewTab(jobDetailsPagePath);
     },
 
+    "stage_details_page": function stageDetailsPage(params) {
+      var stageDetailsPagePath = '/go/pipelines/' + pipelineName(params) + '/' + pipelineCounter(params) + '/' + stageName(params) + '/' + stageCounter(params);
+      openLinkInNewTab(stageDetailsPagePath);
+    },
+
     "pipeline_instance_page": function pipelineInstancePage(params) {
       var pipelineInstancePath = '/go/internal/pipelines/' + pipelineName(params) + '/' + pipelineCounter(params);
       openLinkInNewTab(pipelineInstancePath);

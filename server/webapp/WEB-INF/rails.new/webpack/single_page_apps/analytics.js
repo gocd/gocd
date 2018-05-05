@@ -16,7 +16,6 @@
 
 const $                 = require("jquery");
 const m                 = require("mithril");
-const COMPARATOR        = require("string-plus").caseInsensitiveCompare;
 const Stream            = require("mithril/stream");
 const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
 const AnalyticsWidget   = require("views/analytics/analytics_widget");
@@ -34,17 +33,32 @@ function metricsInfo(infos, method) {
   return metrics;
 }
 
+function mergeMetrics(m1, m2) {
+  for (const k in m2) {
+    if ((k in m1) && (m1[k] instanceof Array) && (m2[k] instanceof Array)) {
+      m1[k] = m1[k].concat(m2[k]);
+    } else {
+      m1[k] = m2[k];
+    }
+  }
+  return m1;
+}
+
 AnalyticsEndpoint.ensure("v1");
 
 $(() => {
   $(document).foundation();
   new VersionUpdater().update();
 
-  const analyticsElem = $('.analytics-container');
-  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list')).sort(COMPARATOR);
+  const analyticsElem      = $('.analytics-container');
+  const pipelinesAndStages = JSON.parse(analyticsElem.attr('data-pipelines-map'));
 
   function onSuccess(pluginInfos) {
-    const pipelineMetrics = metricsInfo(pluginInfos, "supportedPipelineAnalytics");
+    const pipelineMetrics = mergeMetrics(
+      metricsInfo(pluginInfos, "supportedPipelineAnalytics"),
+      metricsInfo(pluginInfos, "supportedStageAnalytics")
+    );
+
     const globalMetrics = metricsInfo(pluginInfos, "supportedAnalyticsDashboardMetrics");
 
     const component = {
@@ -52,7 +66,7 @@ $(() => {
         return m(AnalyticsWidget, {
           pluginInfos: Stream(pluginInfos),
           globalMetrics,
-          pipelines,
+          pipelinesAndStages,
           pipelineMetrics
         });
       }

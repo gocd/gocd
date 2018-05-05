@@ -19,10 +19,12 @@ const f               = require("helpers/form_helper");
 const TabsVM          = require('views/analytics/models/tabs_view_model');
 const GlobalMetrics   = require('views/analytics/global_metrics');
 const PipelineMetrics = require('views/analytics/pipeline_metrics');
+const PipelineStageVM = require("views/analytics/models/pipeline-stages-model");
 
 const AnalyticsWidget = {
   oninit(vnode) {
     vnode.state.vm = new TabsVM();
+    vnode.state.pipelineSelectorModel = new PipelineStageVM(vnode.attrs.pipelinesAndStages);
   },
 
   view(vnode) {
@@ -36,7 +38,7 @@ const AnalyticsWidget = {
     } else {
       const analyticsMetric = vm.isGlobalTabSelected() ?
         <GlobalMetrics metrics={vnode.attrs.globalMetrics}/> :
-        <PipelineMetrics pipelines={vnode.attrs.pipelines} metrics={vnode.attrs.pipelineMetrics}/>;
+        <PipelineMetrics model={vnode.state.pipelineSelectorModel} metrics={vnode.attrs.pipelineMetrics}/>;
 
       content = <div class="dashboard-content">
         <div class="dashboard-tabs-container">

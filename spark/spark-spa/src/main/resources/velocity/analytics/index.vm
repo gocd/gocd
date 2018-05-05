@@ -13,4 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div class="analytics-container" data-pipeline-list="${pipelines}" />
+<div class="analytics-container" data-pipelines-map="${pipelines}" />

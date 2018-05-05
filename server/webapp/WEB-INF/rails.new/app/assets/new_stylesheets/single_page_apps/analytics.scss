@@ -96,7 +96,7 @@ $analytics-min-support-screen-width: 1366px;
 
       .chart-pipeline-selector {
         width:          100%;
-        height:         40px;
+        min-height:     40px;
         font-size:      14px;
         font-weight:    600;
         font-style:     normal;
@@ -106,13 +106,17 @@ $analytics-min-support-screen-width: 1366px;
         text-align:     left;
         color:          #333;
 
+        label {
+          display: inline-block;
+        }
+
         select {
           height:      30px;
           font-weight: normal;
           font-size:   13px;
           color:       #050505;
           width:       300px;
-          margin-left: 10px;
+          margin:      0 0 5px 5px;
         }
       }
 

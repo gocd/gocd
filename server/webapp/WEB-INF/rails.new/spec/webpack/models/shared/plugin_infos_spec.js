@@ -621,6 +621,7 @@ describe('PluginInfos', () => {
         "capabilities":     {
           "supported_analytics": [
             {type: "agent", id: "bar"},
+            {type: "stage", id: "ta-da!"},
             {type: "pipeline", id: "rawr"},
             {type: "dashboard", id: "foo"}
           ]
@@ -981,6 +982,7 @@ describe('PluginInfos', () => {
       });
 
       const extensionInfo = pluginInfo.extensions().analytics;
+      expect(extensionInfo.capabilities().supportedStageAnalytics()).toEqual([{type: "stage", id: "ta-da!"}]);
       expect(extensionInfo.capabilities().supportedPipelineAnalytics()).toEqual([{type: "pipeline", id: "rawr"}]);
       expect(extensionInfo.capabilities().supportedAnalyticsDashboardMetrics()).toEqual([{
         "type": "dashboard",

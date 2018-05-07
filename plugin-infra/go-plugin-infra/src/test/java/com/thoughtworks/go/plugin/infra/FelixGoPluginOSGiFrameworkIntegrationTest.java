@@ -23,18 +23,19 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.osgi.framework.*;
+import org.junit.*;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.rules.TemporaryFolder;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Random;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -42,9 +43,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class FelixGoPluginOSGiFrameworkIntegrationTest {
-    private static final Random RANDOM = new Random();
+    @ClassRule
+    public static final RestoreSystemProperties RESTORE_SYSTEM_PROPERTIES = new RestoreSystemProperties();
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private FelixGoPluginOSGiFramework pluginOSGiFramework;
-    private File TMP_DIR;
     private File descriptorBundleDir;
     private File errorGeneratingDescriptorBundleDir;
     private File exceptionThrowingAtLoadDescriptorBundleDir;
@@ -53,9 +58,6 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        TMP_DIR = new File("./tmp" + RANDOM.nextFloat());
-        recreateDirectory(TMP_DIR);
-
         registry = new DefaultPluginRegistry();
         pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment());
         pluginOSGiFramework.start();
@@ -79,7 +81,6 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @After
     public void tearDown() {
-        FileUtils.deleteQuietly(TMP_DIR);
         pluginOSGiFramework.stop();
     }
 
@@ -238,8 +239,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     private File explodeBundleIntoDirectory(ZipInputStream src, String destinationDir) throws IOException, URISyntaxException {
-        File destinationPluginBundleLocation = new File(TMP_DIR, destinationDir);
-        destinationPluginBundleLocation.mkdirs();
+        File destinationPluginBundleLocation = temporaryFolder.newFolder(destinationDir);
         new ZipUtil().unzip(src, destinationPluginBundleLocation);
         return destinationPluginBundleLocation;
     }

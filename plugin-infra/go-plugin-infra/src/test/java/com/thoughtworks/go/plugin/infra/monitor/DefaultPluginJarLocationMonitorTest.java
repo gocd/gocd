@@ -45,9 +45,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON,  OSChecker.WINDOWS})
 public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private DefaultPluginJarLocationMonitor monitor;
     private File bundledPluginDir;
     private File pluginExternalDir;

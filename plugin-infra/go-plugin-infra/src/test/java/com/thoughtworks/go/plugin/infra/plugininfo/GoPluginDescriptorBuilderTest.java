@@ -16,19 +16,18 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import org.apache.commons.io.FileUtils;
+import org.hamcrest.CoreMatchers;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.UUID;
-
-import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +35,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 public class GoPluginDescriptorBuilderTest {
-    private static final File TMP_DIR = new File("./tmp");
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private static final String TESTPLUGIN_ID = "testplugin.descriptorValidator";
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
     private File pluginDirectory;
@@ -44,21 +44,13 @@ public class GoPluginDescriptorBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        pluginDirectory = new File(TMP_DIR + "-plugins-" + UUID.randomUUID().toString());
-        FileUtil.recreateDirectory(pluginDirectory);
+        pluginDirectory = temporaryFolder.newFolder("pluginDir");
 
-        bundleDirectory = new File(TMP_DIR + "-bundles-" + UUID.randomUUID().toString());
-        FileUtil.recreateDirectory(bundleDirectory);
+        bundleDirectory = temporaryFolder.newFolder("bundleDir");
 
         goPluginDescriptorBuilder = spy(new GoPluginDescriptorBuilder());
         doReturn(bundleDirectory).when(goPluginDescriptorBuilder).bundlePath();
 
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(pluginDirectory);
-        FileUtils.deleteQuietly(bundleDirectory);
     }
 
     @Test

@@ -30,10 +30,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.io.File;
-import java.util.Random;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -43,9 +41,9 @@ import static org.mockito.Mockito.*;
 @RunWith(JunitExtRunner.class)
 @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON,  OSChecker.WINDOWS})
 public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
-    private static final Random RANDOM = new Random();
-    private File PLUGIN_BUNDLED_DIR;
-    private File PLUGIN_EXTERNAL_DIR;
+
+    private File pluginBundledDir;
+    private File pluginExternalDir;
 
     private DefaultPluginJarLocationMonitor monitor;
     private PluginJarChangeListener changeListener;
@@ -54,19 +52,14 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        String pluginBundledDirName = "./tmp-bundled-DEPJLMT" + RANDOM.nextInt();
-        PLUGIN_BUNDLED_DIR = new File(pluginBundledDirName);
-        recreateDirectory(PLUGIN_BUNDLED_DIR);
-
-        String pluginExternalDirName = "./tmp-external-DEPJLMT" + RANDOM.nextInt();
-        PLUGIN_EXTERNAL_DIR = new File(pluginExternalDirName);
-        recreateDirectory(PLUGIN_EXTERNAL_DIR);
-
+        temporaryFolder.create();
+        pluginBundledDir = temporaryFolder.newFolder("bundledDir");
+        pluginExternalDir = temporaryFolder.newFolder("externalDir");
 
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
-        when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(pluginBundledDirName);
-        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDirName);
+        when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(pluginBundledDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
 
         changeListener = mock(PluginJarChangeListener.class);
         monitor = new DefaultPluginJarLocationMonitor(systemEnvironment);
@@ -76,16 +69,15 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     @After
     public void tearDown() throws Exception {
         monitor.stop();
-        FileUtils.deleteQuietly(PLUGIN_BUNDLED_DIR);
-        FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
         super.tearDown();
+        temporaryFolder.delete();
     }
 
     @Test
     public void shouldCreateExternalPluginDirectoryIfItDoesNotExist() throws Exception {
-        PLUGIN_EXTERNAL_DIR.delete();
+        pluginExternalDir.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-        assertThat(PLUGIN_EXTERNAL_DIR.exists(), is(true));
+        assertThat(pluginExternalDir.exists(), is(true));
     }
 
     @Test
@@ -104,10 +96,10 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-plugin-2.jar");
         waitAMoment();
 
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-plugin-2.jar", false));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -116,7 +108,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin.something-other-than-jar.zip");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-plugin.something-other-than-jar.zip");
         waitAMoment();
 
         verifyNoMoreInteractions(changeListener);
@@ -126,14 +118,14 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     public void shouldDetectRemovedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-plugin-2.jar");
         waitAMoment();
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-plugin-2.jar", false));
 
-        FileUtils.deleteQuietly(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar"));
+        FileUtils.deleteQuietly(new File(pluginExternalDir, "descriptor-aware-test-plugin-2.jar"));
         waitAMoment();
 
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-plugin-2.jar", false));
+        verify(changeListener).pluginJarRemoved(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-plugin-2.jar", false));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -142,15 +134,15 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
         waitAMoment();
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar");
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-3.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-3.jar");
         waitAMoment();
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar", false));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-3.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-3.jar", false));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -159,19 +151,19 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar");
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-3.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-3.jar");
         waitAMoment();
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar", false));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-3.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-3.jar", false));
 
-        FileUtils.deleteQuietly(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar"));
-        FileUtils.deleteQuietly(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar"));
+        FileUtils.deleteQuietly(new File(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar"));
+        FileUtils.deleteQuietly(new File(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar"));
         waitAMoment();
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-2.jar", false));
+        verify(changeListener).pluginJarRemoved(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
+        verify(changeListener).pluginJarRemoved(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-2.jar", false));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -180,12 +172,12 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
         waitAMoment();
-        PluginFileDetails orgExternalFile = pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false);
+        PluginFileDetails orgExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false);
         verify(changeListener).pluginJarAdded(orgExternalFile);
 
-        PluginFileDetails newExternalFile = pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1-new.jar", false);
+        PluginFileDetails newExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1-new.jar", false);
         FileUtils.moveFile(orgExternalFile.file(), newExternalFile.file());
 
         waitAMoment();
@@ -200,14 +192,14 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     public void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin.jar");
         waitAMoment();
-        verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin.jar", false));
+        verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin.jar", false));
 
-        updateFileContents(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin.jar"));
+        updateFileContents(new File(pluginExternalDir, "descriptor-aware-test-external-plugin.jar"));
         waitAMoment();
 
-        verify(changeListener).pluginJarUpdated(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin.jar", false));
+        verify(changeListener).pluginJarUpdated(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin.jar", false));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -216,27 +208,27 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar");
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
         waitAMoment();
         InOrder jarAddedOrder = inOrder(changeListener);
-        jarAddedOrder.verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar", true));
-        jarAddedOrder.verify(changeListener).pluginJarAdded(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
+        jarAddedOrder.verify(changeListener).pluginJarAdded(pluginFileDetails(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar", true));
+        jarAddedOrder.verify(changeListener).pluginJarAdded(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
 
 
-        updateFileContents(new File(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar"));
-        updateFileContents(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar"));
+        updateFileContents(new File(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar"));
+        updateFileContents(new File(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar"));
         waitAMoment();
         InOrder jarUpdatedOrder = inOrder(changeListener);
-        jarUpdatedOrder.verify(changeListener).pluginJarUpdated(pluginFileDetails(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar", true));
-        jarUpdatedOrder.verify(changeListener).pluginJarUpdated(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
+        jarUpdatedOrder.verify(changeListener).pluginJarUpdated(pluginFileDetails(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar", true));
+        jarUpdatedOrder.verify(changeListener).pluginJarUpdated(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
 
-        FileUtils.deleteQuietly(new File(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar"));
-        FileUtils.deleteQuietly(new File(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar"));
+        FileUtils.deleteQuietly(new File(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar"));
+        FileUtils.deleteQuietly(new File(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar"));
         waitAMoment();
         InOrder jarRemovedOrder = inOrder(changeListener);
-        jarRemovedOrder.verify(changeListener).pluginJarRemoved(pluginFileDetails(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar", true));
-        jarRemovedOrder.verify(changeListener).pluginJarRemoved(pluginFileDetails(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar", false));
+        jarRemovedOrder.verify(changeListener).pluginJarRemoved(pluginFileDetails(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar", true));
+        jarRemovedOrder.verify(changeListener).pluginJarRemoved(pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false));
 
         verifyNoMoreInteractions(changeListener);
     }
@@ -246,8 +238,8 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar");
-        copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar");
+        copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
         ArgumentCaptor<PluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(PluginFileDetails.class);
         waitAMoment();
         verify(changeListener, times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());

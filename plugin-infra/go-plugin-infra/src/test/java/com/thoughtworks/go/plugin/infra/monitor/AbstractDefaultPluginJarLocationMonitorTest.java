@@ -18,6 +18,10 @@ package com.thoughtworks.go.plugin.infra.monitor;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +33,10 @@ import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
-    public static final File TEMP_SOURCE = new File("temp-file-in-plugin-monitor-test");
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    protected File tempSource;
 
     protected void waitAMoment() throws InterruptedException {
         Thread.yield();
@@ -39,10 +46,10 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     protected void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");
 
-        FileUtils.copyURLToFile(resource, TEMP_SOURCE);
+        FileUtils.copyURLToFile(resource, tempSource);
 
         File destination = new File(pluginDir, destinationFilenameOfPlugin);
-        Files.move(TEMP_SOURCE.toPath(), destination.toPath(), REPLACE_EXISTING);
+        Files.move(tempSource.toPath(), destination.toPath(), REPLACE_EXISTING);
     }
 
     protected void updateFileContents(File someFile) {
@@ -61,10 +68,14 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
         return new PluginFileDetails(new File(directory, pluginFile), bundledPlugin);
     }
 
+    @Before
     public void setUp() throws Exception {
+        temporaryFolder.create();
+        tempSource = temporaryFolder.newFile("temp-file-in-plugin-monitor-test");
     }
 
+    @After
     public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(TEMP_SOURCE);
+        temporaryFolder.delete();
     }
 }

@@ -286,11 +286,6 @@ public class FileUtil {
         }
     }
 
-    public static void recreateDirectory(File dir) throws IOException {
-        FileUtils.deleteDirectory(dir);
-        dir.mkdirs();
-    }
-
     public static void deleteDirectoryNoisily(File defaultDirectory) throws IOException {
         if (!defaultDirectory.exists()) {
             return;

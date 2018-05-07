@@ -16,20 +16,18 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.junitext.SystemPropertyAffectingTestBase;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,21 +41,25 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
-public class DefaultPluginManagerIntegrationTest extends SystemPropertyAffectingTestBase {
+@DirtiesContext
+public class DefaultPluginManagerIntegrationTest {
+    @ClassRule
+    public static final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     public static final String PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1 = "testplugin.descriptorValidator.setPluginDescriptor.invoked";
-    private static final String PLUGIN_DIR_NAME = "./tmp-DefPlgnMgrIntTest";
-    private static final String BUNDLE_DIR_NAME = "./tmp-bundles-DefPlgnMgrIntTest";
-    private static final File PLUGIN_DIR = new File(PLUGIN_DIR_NAME);
-    private static final File BUNDLE_DIR = new File(BUNDLE_DIR_NAME);
     private static final String PLUGIN_ID_1 = "testplugin.descriptorValidator";
+    private static File bundleDir;
     @Autowired DefaultPluginManager pluginManager;
     @Autowired DefaultPluginJarChangeListener jarChangeListener;
     @Autowired SystemEnvironment systemEnvironment;
 
     @BeforeClass
-    public static void overrideProperties() {
-        overrideProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
-        overrideProperty(PLUGIN_BUNDLE_PATH.propertyName(), BUNDLE_DIR_NAME);
+    public static void overrideProperties() throws IOException {
+        System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
+        bundleDir = temporaryFolder.newFolder("bundleDir");
+        System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), bundleDir.getAbsolutePath());
     }
 
     private static File pathOfFileInDefaultFiles(String filePath) {
@@ -81,8 +83,6 @@ public class DefaultPluginManagerIntegrationTest extends SystemPropertyAffecting
 
     @Before
     public void setUpPluginInfrastructure() throws IOException {
-        PLUGIN_DIR.mkdirs();
-        BUNDLE_DIR.mkdirs();
         try {
             pluginManager.startInfrastructure(true);
         } catch (Exception e) {
@@ -93,12 +93,7 @@ public class DefaultPluginManagerIntegrationTest extends SystemPropertyAffecting
 
     @After
     public void tearDown() throws Exception {
-        System.clearProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1);
-        FileUtils.deleteQuietly(PLUGIN_DIR);
-        FileUtils.deleteQuietly(BUNDLE_DIR);
         pluginManager.stopInfrastructure();
-        FileUtils.deleteQuietly(PLUGIN_DIR);
-        FileUtils.deleteQuietly(BUNDLE_DIR);
     }
 
     //TODO: Write Test to handle OSGIFWK and PLugin Manager Interaction.

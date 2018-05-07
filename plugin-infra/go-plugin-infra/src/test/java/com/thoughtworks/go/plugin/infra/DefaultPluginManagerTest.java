@@ -29,9 +29,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -42,7 +43,6 @@ import org.osgi.framework.Bundle;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Random;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
@@ -55,9 +55,8 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultPluginManagerTest {
-    private static final String TEST_PLUGIN_BUNDLE_PATH = "test-bundles-dir";
-    private static final File NON_JAR_FILE = new File("ice-cream-photo.jpg");
-    private static final File NEW_JAR_FILE = new File("a-fancy-hipster-plugin.jar");
+    private File nonJarFile;
+    private File newJarFile;
 
     @Mock
     private DefaultPluginJarLocationMonitor monitor;
@@ -76,65 +75,60 @@ public class DefaultPluginManagerTest {
     @Mock
     private PluginValidator pluginValidator;
 
-    private File BUNDLE_DIR;
-    private File PLUGIN_EXTERNAL_DIR;
+    private File bundleDir;
+    private File pluginExternalDir;
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
-        BUNDLE_DIR = new File(TEST_PLUGIN_BUNDLE_PATH);
-        String pluginExternalDirName = "./tmp-external-DPJLMT" + new Random().nextInt();
-        PLUGIN_EXTERNAL_DIR = new File(pluginExternalDirName);
-        PLUGIN_EXTERNAL_DIR.mkdirs();
+        bundleDir = temporaryFolder.newFolder("bundleDir");
+        pluginExternalDir = temporaryFolder.newFolder("externalDir");
 
-        when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(TEST_PLUGIN_BUNDLE_PATH);
-        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDirName);
-    }
+        newJarFile = temporaryFolder.newFile("jar-file.jar");
+        nonJarFile = temporaryFolder.newFile("some-picture.jpg");
 
-    @After
-    public void clean() {
-        FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
-        FileUtils.deleteQuietly(NEW_JAR_FILE);
-        FileUtils.deleteQuietly(NON_JAR_FILE);
+        when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
     }
 
     @Test
     public void shouldProceedToPluginWriterWithValidJarFile() throws Exception {
-        NEW_JAR_FILE.createNewFile();
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-        when(pluginValidator.namecheckForJar(NEW_JAR_FILE.getName())).thenReturn(true);
+        when(pluginValidator.namecheckForJar(newJarFile.getName())).thenReturn(true);
 
-        defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName());
+        defaultPluginManager.addPlugin(newJarFile, newJarFile.getName());
 
         ArgumentCaptor<File> fileArgumentCaptor = ArgumentCaptor.forClass(File.class);
         ArgumentCaptor<String> filenameArgumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(pluginWriter).addPlugin(fileArgumentCaptor.capture(), filenameArgumentCaptor.capture());
 
-        assertThat(fileArgumentCaptor.getValue(), is(NEW_JAR_FILE));
-        assertThat(filenameArgumentCaptor.getValue(), is(NEW_JAR_FILE.getName()));
+        assertThat(fileArgumentCaptor.getValue(), is(newJarFile));
+        assertThat(filenameArgumentCaptor.getValue(), is(newJarFile.getName()));
     }
 
     @Test
     public void shouldReturnTheResponseReturnedByPluginWriterWithValidJarFile() throws Exception {
-        NEW_JAR_FILE.createNewFile();
+        newJarFile.createNewFile();
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-        when(pluginValidator.namecheckForJar(NEW_JAR_FILE.getName())).thenReturn(true);
+        when(pluginValidator.namecheckForJar(newJarFile.getName())).thenReturn(true);
         PluginUploadResponse expectedResponse = PluginUploadResponse.create(true, "successful!", null);
-        when(pluginWriter.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName())).thenReturn(expectedResponse);
+        when(pluginWriter.addPlugin(newJarFile, newJarFile.getName())).thenReturn(expectedResponse);
 
-        PluginUploadResponse response = defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName());
+        PluginUploadResponse response = defaultPluginManager.addPlugin(newJarFile, newJarFile.getName());
 
         assertThat(response, is(expectedResponse));
     }
 
     @Test
     public void shouldReturnResponseWithErrorsWithInvalidJarFile() throws Exception {
-        NON_JAR_FILE.createNewFile();
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment);
-        when(pluginValidator.namecheckForJar(NON_JAR_FILE.getName())).thenReturn(false);
+        when(pluginValidator.namecheckForJar(nonJarFile.getName())).thenReturn(false);
 
-        PluginUploadResponse response = defaultPluginManager.addPlugin(NON_JAR_FILE, "not a jar");
+        PluginUploadResponse response = defaultPluginManager.addPlugin(nonJarFile, "not a jar");
 
         assertThat(response.success(), isEmptyString());
         assertFalse(response.isSuccess());
@@ -145,11 +139,11 @@ public class DefaultPluginManagerTest {
     @Test
     public void shouldCleanTheBundleDirectoryAtStart() throws Exception {
         String pluginJarFile = "descriptor-aware-test-plugin.should.be.deleted.jar";
-        copyPluginToTheDirectory(BUNDLE_DIR, pluginJarFile);
+        copyPluginToTheDirectory(bundleDir, pluginJarFile);
 
         new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment).startInfrastructure(true);
 
-        assertThat(BUNDLE_DIR.exists(), is(false));
+        assertThat(bundleDir.exists(), is(false));
     }
 
     @Test
@@ -344,11 +338,6 @@ public class DefaultPluginManagerTest {
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
 
         assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(BUNDLE_DIR);
     }
 
     private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

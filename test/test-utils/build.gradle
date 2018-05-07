@@ -33,6 +33,7 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: versions.jetty
   compile group: 'com.sun.mail', name: 'mailapi', version: versions.mail
+  compile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.17.0'
 
   compileOnly group: 'junit', name: 'junit', version: project.versions.junit
   runtimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5

@@ -22,9 +22,10 @@ import com.thoughtworks.go.plugin.infra.plugininfo.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
@@ -42,11 +43,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class DefaultPluginJarChangeListenerTest {
-    private static final String TEST_BUNDLES_DIR = "test-bundles-dir";
-    private static final String TEST_PLUGINS_DIR = "test-plugins-dir";
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static final String PLUGIN_JAR_FILE_NAME = "descriptor-aware-test-plugin.jar";
-    private File PLUGIN_DIR;
-    private File BUNDLE_DIR;
+    private File pluginDir;
+    private File bundleDir;
     private DefaultPluginRegistry registry;
     private GoPluginOSGiManifestGenerator osgiManifestGenerator;
     private DefaultPluginJarChangeListener listener;
@@ -56,8 +58,8 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        BUNDLE_DIR = new File(TEST_BUNDLES_DIR);
-        PLUGIN_DIR = new File(TEST_PLUGINS_DIR);
+        bundleDir = temporaryFolder.newFolder("bundleDir");
+        pluginDir = temporaryFolder.newFolder("pluginDir");
 
         registry = mock(DefaultPluginRegistry.class);
         osgiManifestGenerator = mock(GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator.class);
@@ -65,26 +67,19 @@ public class DefaultPluginJarChangeListenerTest {
         goPluginDescriptorBuilder = mock(GoPluginDescriptorBuilder.class);
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("defaultFiles/go-plugin-activator.jar");
-        when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(TEST_BUNDLES_DIR);
+        when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
     }
 
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(PLUGIN_DIR);
-        FileUtils.deleteQuietly(BUNDLE_DIR);
-        FileUtils.deleteQuietly(new File(PLUGIN_JAR_FILE_NAME));
-    }
-
     @Test
     public void shouldCopyPluginToBundlePathAndInformRegistryAndUpdateTheOSGiManifestWhenAPluginIsAdded() throws Exception {
         String pluginId = "testplugin.descriptorValidator";
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId(pluginId, pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
         when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
@@ -104,12 +99,12 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldOverwriteAFileCalledGoPluginActivatorInLibWithOurOwnGoPluginActivatorEvenIfItExists() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
         File activatorFileLocation = new File(expectedBundleDirectory, "lib/go-plugin-activator.jar");
         FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA", UTF_8);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
         doNothing().when(registry).loadPlugin(descriptor);
@@ -126,8 +121,7 @@ public class DefaultPluginJarChangeListenerTest {
         String pluginId = "plugin-id";
         String pluginJarFileName = "jarName";
         File pluginJarFile = mock(File.class);
-        File oldPluginBundleDirectory = new File(TEST_BUNDLES_DIR, "old-bundle");
-        FileUtils.forceMkdir(oldPluginBundleDirectory);
+        File oldPluginBundleDirectory = temporaryFolder.newFolder("bundleDir", "old-bundle");
 
         final File explodedDirectory = mock(File.class);
         doNothing().when(spy).explodePluginJarToBundleDir(pluginJarFile, explodedDirectory);
@@ -167,8 +161,8 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldRemovePluginFromBundlePathAndInformRegistryWhenAPluginIsRemoved() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File removedBundleDirectory = new File(BUNDLE_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File removedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
         Bundle bundle = mock(Bundle.class);
         GoPluginDescriptor descriptorOfThePluginWhichWillBeRemoved = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), removedBundleDirectory, true);
@@ -177,7 +171,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(registry.getPluginByIdOrFileName(null,descriptorOfThePluginWhichWillBeRemoved.fileName())).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
         when(registry.unloadPlugin(descriptorOfThePluginWhichWillBeRemoved)).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
 
-        copyPluginToTheDirectory(BUNDLE_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(bundleDir, PLUGIN_JAR_FILE_NAME);
 
         listener.pluginJarRemoved(new PluginFileDetails(pluginJarFile, true));
 
@@ -188,9 +182,9 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotTryAndUpdateManifestOfAnAddedInvalidPlugin() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
         GoPluginDescriptor descriptorForInvalidPlugin = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true).markAsInvalid(
                 asList("For a test"), null);
@@ -209,10 +203,10 @@ public class DefaultPluginJarChangeListenerTest {
     public void shouldNotTryAndUpdateManifestOfAnUpdatedInvalidPlugin() throws Exception {
         DefaultPluginJarChangeListener spy = spy(listener);
         String pluginId = "plugin-id";
-        File pluginFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File expectedBundleDirectoryForInvalidPlugin = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
-        File bundleDirectoryForOldPlugin = new File(TEST_BUNDLES_DIR, "descriptor-aware-test-plugin-old.jar");
+        File pluginFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectoryForInvalidPlugin = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
+        File bundleDirectoryForOldPlugin = new File(bundleDir, "descriptor-aware-test-plugin-old.jar");
         FileUtils.forceMkdir(bundleDirectoryForOldPlugin);
 
         GoPluginDescriptor descriptorForInvalidPlugin = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginFile.getAbsolutePath(), expectedBundleDirectoryForInvalidPlugin,
@@ -245,10 +239,10 @@ public class DefaultPluginJarChangeListenerTest {
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("some-path-which-does-not-exist.jar");
 
 
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        File bundleDirectory = new File(TEST_BUNDLES_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File bundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("some.old.id", pluginJarFile.getAbsolutePath(), bundleDirectory, true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
 
@@ -344,9 +338,9 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
@@ -365,8 +359,8 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXMLForUpdatePath() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
 
         String pluginID = "some.id";
         GoPluginDescriptor newPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Mac OS X")), null,
@@ -391,9 +385,9 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldLoadAPluginWhenCurrentOSIsAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Linux")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
@@ -408,9 +402,9 @@ public class DefaultPluginJarChangeListenerTest {
 
     @Test
     public void shouldLoadAPluginWhenAListOfTargetOSesIsNotDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(PLUGIN_DIR, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);

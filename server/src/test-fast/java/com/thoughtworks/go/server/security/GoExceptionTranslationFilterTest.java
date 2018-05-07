@@ -32,8 +32,7 @@ import org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 public class GoExceptionTranslationFilterTest {
@@ -71,10 +70,22 @@ public class GoExceptionTranslationFilterTest {
     }
 
     @Test
-    public void shouldSetStatusAs401ForApiRequest() throws ServletException, IOException {
+    public void shouldSetStatusAs401ForApiXhrRequest() throws ServletException, IOException {
+        request.setRequestURI("/go/api/server_health_messages");
+        request.addHeader("X-Requested-With", "XMLHttpRequest");
+
+        filter.sendStartAuthentication(request, response, filterChain, authenticationException);
+
+        assertThat(response.getStatus(), is(HttpServletResponse.SC_UNAUTHORIZED));
+        verify(basicAuth, never()).commence(request, response, authenticationException);
+    }
+
+    @Test
+    public void shouldUseBasicProcessingFilterEntryPointForApiRequests() throws ServletException, IOException {
         request.setRequestURI("/go/api/server_health_messages");
         filter.sendStartAuthentication(request, response, filterChain, authenticationException);
-        assertThat(response.getStatus(), is(HttpServletResponse.SC_UNAUTHORIZED));
+
+        verify(basicAuth).commence(request, response, authenticationException);
     }
 
     @Test

@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -104,12 +105,12 @@ public class JobController {
         this.systemEnvironment = systemEnvironment;
     }
 
-    @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
-    public ModelAndView jobDetail(@RequestParam("pipelineName") String pipelineName,
-                                  @RequestParam("label") String counterOrLabel,
-                                  @RequestParam("stageName") String stageName,
-                                  @RequestParam("stageCounter") String stageCounter,
-                                  @RequestParam("jobName") String jobName) throws Exception {
+    @RequestMapping(value = "/tab/build/detail/{pipelineName}/{label}/{stageName}/{stageCounter}/{jobName}", method = RequestMethod.GET)
+    public ModelAndView jobDetail(@PathVariable("pipelineName") String pipelineName,
+                                  @PathVariable("label") String counterOrLabel,
+                                  @PathVariable("stageName") String stageName,
+                                  @PathVariable("stageCounter") String stageCounter,
+                                  @PathVariable("jobName") String jobName) throws Exception {
 
         Pipeline pipeline = pipelineService.findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
         if (pipeline == null) {

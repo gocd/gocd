@@ -45,14 +45,14 @@
         <ref bean="authorizationInterceptor"/>
       </list>
     </property>
-    <property name="alwaysUseFullPath" value="true"></property>
+    <property name="alwaysUseFullPath" value="true"/>
   </bean>
 
+  <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
   <bean id="interceptorInjector"
         class="com.thoughtworks.go.server.web.InterceptorInjector">
     <property name="interceptors">
       <list>
-        <ref bean="authorizationInterceptor"/>
         <ref bean="flashMessageInterceptor"/>
       </list>
     </property>
@@ -67,9 +67,6 @@
           method="mergeInterceptorsToTabs"/>
     </aop:aspect>
   </aop:config>
-
-  <!-- Interceptors -->
-  <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
 
   <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
     <property name="maxUploadSize" value="-1"/> <!-- i.e. unlimited -->

@@ -442,12 +442,6 @@
     </rule>
 
     <rule>
-        <name>RESTful rerun - Rerun a stage</name>
-        <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
-        <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
-    </rule>
-
-    <rule>
         <name>RESTful Artifacts - List All builds artifacts</name>
         <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
         <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
@@ -477,38 +471,6 @@
     </rule>
 
     <rule>
-        <name>RESTful Properties Search for one job</name>
-        <condition type="parameter" name="pipelineLabel"/>
-        <from>^/properties/search(\?.*)?$</from>
-        <to type="forward">/repository/restful/properties/job/search</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Properties Search for all jobs</name>
-        <from>^/properties/search(\?.*)?$</from>
-        <to type="forward">/repository/restful/properties/jobs/search</to>
-    </rule>
-
-    <rule>
-        <name>Post RESTful Property for a job</name>
-        <condition type="parameter" name="value"/>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Property for a job</name>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Properties for a job</name>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
-    </rule>
-
-    <rule>
         <name>Cruise Configuration Administration RESTful url - File</name>
         <from>^/api/admin/config.xml$</from>
         <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
@@ -524,25 +486,6 @@
         <name>Cruise Configuration Administration RESTful url - File</name>
         <from>^/admin/configuration/file\.xml(\?.*)?$</from>
         <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
-    </rule>
-
-    <rule>
-        <name>Specific Build Detail</name>
-        <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-        <to type="forward">/tab/build/recent?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
-    </rule>
-
-
-    <rule>
-        <name>Pipeline history</name>
-        <from>/tab/pipeline/history/([^/]+)</from>
-        <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
-    </rule>
-
-    <rule>
-        <name>Stage detail beta</name>
-        <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-        <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
     </rule>
 </urlrewrite>
 

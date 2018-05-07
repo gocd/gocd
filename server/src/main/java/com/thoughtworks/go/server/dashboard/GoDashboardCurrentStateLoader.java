@@ -47,6 +47,7 @@ import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyMo
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createEmptyPipelineInstanceModel;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPreparingToSchedule;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
+import static java.util.stream.Collectors.toList;
 
 /* Understands the current state of a pipeline, which is to be shown on the dashboard. */
 @Component
@@ -144,10 +145,21 @@ public class GoDashboardCurrentStateLoader {
 
     public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig) {
         List<String> pipelineNames = CaseInsensitiveString.toStringList(Collections.singletonList(pipelineConfig.getName()));
-        PipelineInstanceModels historyForDashboard = loadHistoryForPipelines(pipelineNames);
-
+        PipelineInstanceModels pipelineHistoryForDashboard = loadHistoryForPipelines(pipelineNames);
+        syncHistoryForDashboard(pipelineHistoryForDashboard, pipelineConfig.name());
         Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
-        return createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, groupConfig);
+        return createGoDashboardPipeline(pipelineConfig, permissions, pipelineHistoryForDashboard, groupConfig);
+    }
+
+    private void syncHistoryForDashboard(PipelineInstanceModels pipelineHistoryForDashboard, final CaseInsensitiveString pipelineName) {
+        List<PipelineInstanceModel> allPipelinesExceptPipelineConfigInContext = historyForDashboard.stream().filter(new Predicate<PipelineInstanceModel>() {
+            @Override
+            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                return !pipelineInstanceModel.getName().equalsIgnoreCase(pipelineName.toString());
+            }
+        }).collect(toList());
+        historyForDashboard = createPipelineInstanceModels(allPipelinesExceptPipelineConfigInContext);
+        historyForDashboard.addAll(pipelineHistoryForDashboard);
     }
 
     private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group) {
@@ -216,7 +228,7 @@ public class GoDashboardCurrentStateLoader {
         return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
     }
 
-    void reset() {
+    public void reset() {
         historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
         previousPipelineNames = new HashSet<>();
     }

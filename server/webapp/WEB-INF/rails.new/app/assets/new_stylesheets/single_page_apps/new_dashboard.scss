@@ -647,12 +647,10 @@ body {
 }
 
 .pipeline_name {
-  font-size:     14px;
-  font-weight:   600;
-  margin:        0 5px 5px 0;
-  white-space:   nowrap;
-  overflow:      hidden;
-  text-overflow: ellipsis;
+  font-size:   14px;
+  font-weight: 600;
+  margin:      0 5px 5px 0;
+  word-break:  break-all;
 }
 
 .pipeline_sub_header {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         if (buildId != null ? !buildId.equals(that.buildId) : that.buildId != null) {
             return false;
         }
-        if (buildName != null ? !buildName.equals(that.buildName) : that.buildName != null) {
+        if (buildName != null ? !buildName.equalsIgnoreCase(that.buildName) : that.buildName != null) {
             return false;
         }
         if (pipelineCounter != null ? !pipelineCounter.equals(that.pipelineCounter) : that.pipelineCounter != null) {
@@ -181,13 +181,13 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         if (pipelineLabel != null ? !pipelineLabel.equals(that.pipelineLabel) : that.pipelineLabel != null) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (pipelineName != null ? !pipelineName.equalsIgnoreCase(that.pipelineName) : that.pipelineName != null) {
             return false;
         }
         if (stageCounter != null ? !stageCounter.equals(that.stageCounter) : that.stageCounter != null) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
+        if (stageName != null ? !stageName.equalsIgnoreCase(that.stageName) : that.stageName != null) {
             return false;
         }
 

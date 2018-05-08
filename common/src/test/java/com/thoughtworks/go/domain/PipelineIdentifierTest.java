@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,5 +39,10 @@ public class PipelineIdentifierTest {
     public void shouldReturnURN() throws Exception {
         PipelineIdentifier identifier = new PipelineIdentifier("cruise", 1, "label-1");
         assertThat(identifier.asURN(), is("urn:x-go.studios.thoughtworks.com:job-id:cruise:1"));
+    }
+
+    @Test
+    public void equalsShouldBeCaseInsensitive(){
+        assertThat(new PipelineIdentifier("pipeline", 1, "label-1"), is(new PipelineIdentifier("PIPELINE", 1, "label-1")));
     }
 }

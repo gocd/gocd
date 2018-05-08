@@ -1785,6 +1785,26 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineDao.getCounterForPipeline(pipelineName.toUpperCase()), is(30));
     }
 
+    @Test
+    public void ensureCacheKeyForFindLastSuccessfulStageIdentifierIsCaseInsensitive() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        Pipeline pipelineCounter1 = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipelineCounter1);
+
+
+        StageIdentifier lastSuccessfulStageIdentifier = pipelineDao.findLastSuccessfulStageIdentifier(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(lastSuccessfulStageIdentifier, is(pipelineCounter1.getFirstStage().getIdentifier()));
+
+        Pipeline pipelineCounter2 = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipelineCounter2);
+        pipelineDao.stageStatusChanged(pipelineCounter2.getFirstStage());
+
+        StageIdentifier lastSuccessfulStageIdentifierAfterCounter2 = pipelineDao.findLastSuccessfulStageIdentifier(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(lastSuccessfulStageIdentifierAfterCounter2, is(pipelineCounter2.getFirstStage().getIdentifier()));
+    }
+
     private Stream<PipelineInstanceModel> getActivePipelinesForPipelineName(ScheduleTestUtil.AddedPipeline pipeline1) {
         return pipelineDao.loadActivePipelines().stream().filter(new Predicate<PipelineInstanceModel>() {
             @Override

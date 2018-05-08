@@ -505,6 +505,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(hgMaterial, materialRevision.getLatestModification()));
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions), is(true));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", revisions), is(true));
     }
 
     @Test
@@ -523,6 +524,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(hgMaterial, notBuiltRevision.getLatestModification()));
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions), is(false));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", revisions), is(false));
     }
 
     @Test
@@ -541,6 +543,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(depMaterial, depMaterialRevision.getLatestModification()),
                 new MaterialRevision(hgMaterial, hgMaterialRevision.getLatestModification()));
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions), is(true));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", revisions), is(true));
     }
 
     @Test
@@ -567,6 +570,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(depMaterial1, depMaterialRevision1.getLatestModification()),
                 new MaterialRevision(hgMaterial2, hgMaterialRevision2.getLatestModification()));
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions), is(true));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", revisions), is(true));
     }
 
     private Pipeline savePipeline(Pipeline pipeline) {
@@ -593,6 +597,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions newRevisions = new MaterialRevisions(depMaterialRevision, laterRevision);
         assertThat(repo.hasPipelineEverRunWith("mingle", newRevisions), is(false));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", newRevisions), is(false));
     }
 
     @Test
@@ -614,6 +619,7 @@ public class MaterialRepositoryIntegrationTest {
                 new TimeProvider()));
 
         assertThat(repo.hasPipelineEverRunWith("mingle", new MaterialRevisions(first2, second2)), is(true));
+        assertThat(repo.hasPipelineEverRunWith("MINGLE", new MaterialRevisions(first2, second2)), is(true));
     }
 
     @Test

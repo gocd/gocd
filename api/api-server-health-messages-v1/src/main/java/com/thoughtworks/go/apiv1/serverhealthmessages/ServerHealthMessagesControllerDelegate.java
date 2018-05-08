@@ -50,8 +50,8 @@ public class ServerHealthMessagesControllerDelegate extends ApiController {
             before("", this::setContentType);
             before("/*", this::setContentType);
 
-            before("", apiAuthenticationHelper::checkUserAnd401);
-            before("/*", apiAuthenticationHelper::checkUserAnd401);
+            before("", apiAuthenticationHelper::checkUserAnd403);
+            before("/*", apiAuthenticationHelper::checkUserAnd403);
 
             get("", this::show);
             head("", this::show);

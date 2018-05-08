@@ -44,7 +44,7 @@ import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
 import static com.thoughtworks.go.domain.JobState.Completed;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -153,7 +153,7 @@ public class ScheduleServiceTest {
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
 
         assertThat(resultStage, is(nullValue()));
-        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_FORBIDDEN));
         assertThat(result.isSuccessful(), is(false));
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
         verify(stageService, never()).cancelStage(spiedStage);

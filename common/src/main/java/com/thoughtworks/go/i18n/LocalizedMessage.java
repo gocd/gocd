@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.i18n;
 
@@ -35,11 +35,11 @@ public abstract class LocalizedMessage {
         return "Cannot delete the " + resourceTypeBeingDeleted + " '" + resourceNameBeingDeleted + "' as it is used by pipeline(s): '" + join(dependentPipelines, ", ") + "'";
     }
 
-    public static String unauthorizedToDelete(String resourceType, CaseInsensitiveString resourceName) {
-        return unauthorizedToDelete(resourceType, resourceName.toString());
+    public static String forbiddenToDelete(String resourceType, CaseInsensitiveString resourceName) {
+        return forbiddenToDelete(resourceType, resourceName.toString());
     }
 
-    public static String unauthorizedToDelete(String resourceType, String resourceName) {
+    public static String forbiddenToDelete(String resourceType, String resourceName) {
         return "Unauthorized to delete " + resourceType + "' " + resourceName + "'";
     }
 
@@ -51,11 +51,11 @@ public abstract class LocalizedMessage {
         return staleResourceConfig(resourceType, resourceName.toString());
     }
 
-    public static String unauthorizedToViewPipeline(CaseInsensitiveString pipelineName) {
-        return unauthorizedToViewPipeline(pipelineName.toString());
+    public static String forbiddenToViewPipeline(CaseInsensitiveString pipelineName) {
+        return forbiddenToViewPipeline(pipelineName.toString());
     }
 
-    public static String unauthorizedToViewPipeline(String pipelineName) {
+    public static String forbiddenToViewPipeline(String pipelineName) {
         return "You do not have view permissions for pipeline '" + pipelineName + "'.";
     }
 
@@ -71,28 +71,28 @@ public abstract class LocalizedMessage {
         return resourceNotFound(resourceType, resourceName.toString());
     }
 
-    public static String unauthorizedToEditGroup(String groupName) {
+    public static String forbiddenToEditGroup(String groupName) {
         return "Unauthorized to edit '" + groupName + "' group.";
     }
 
-    public static String unauthorizedToEdit() {
+    public static String forbiddenToEdit() {
         return "Unauthorized to edit.";
     }
 
-    public static String unauthorizedToEditPipeline(String pipelineName) {
+    public static String forbiddenToEditPipeline(String pipelineName) {
         return "Unauthorized to edit '" + pipelineName + "' pipeline.";
     }
 
-    public static String unauthorizedToEditPipeline(CaseInsensitiveString pipelineName) {
-        return unauthorizedToEditPipeline(pipelineName.toString());
+    public static String forbiddenToEditPipeline(CaseInsensitiveString pipelineName) {
+        return forbiddenToEditPipeline(pipelineName.toString());
     }
 
-    public static String unauthorizedToEditResource(String resourceType, String resourceName, String username) {
+    public static String forbiddenToEditResource(String resourceType, String resourceName, String username) {
         return String.format("Failed to access %s '%s'. User '%s' does not have permission to access %s.", resourceType, resourceName, username, resourceType);
     }
 
-    public static String unauthorizedToEditResource(String resourceType, CaseInsensitiveString resourceName, String username) {
-        return unauthorizedToEditResource(resourceType, resourceName.toString(), username);
+    public static String forbiddenToEditResource(String resourceType, CaseInsensitiveString resourceName, String username) {
+        return forbiddenToEditResource(resourceType, resourceName.toString(), username);
     }
 
     public static String resourceAlreadyExists(String resourceType, String resourceName) {

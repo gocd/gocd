@@ -104,7 +104,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         }
         PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString(pipeline.getName()));
         if (!securityService.hasViewPermissionForPipeline(username, pipeline.getName())) {
-            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipeline.getName())));
+            result.forbidden("Forbidden", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipeline.getName())));
             return null;
         }
         populatePipelineInstanceModel(username, false, pipelineConfig, pipeline);
@@ -141,7 +141,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 			return null;
 		}
 		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			result.forbidden("Forbidden", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}
 
@@ -165,7 +165,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 			return null;
 		}
 		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			result.forbidden("Forbidden", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}
 
@@ -323,7 +323,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             return false;
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.unauthorized(NOT_AUTHORIZED_TO_VIEW_PIPELINE, NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden(NOT_AUTHORIZED_TO_VIEW_PIPELINE, NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return false;
         }
         return true;
@@ -576,7 +576,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit, Username userName, HttpLocalizedOperationResult result) {
         pattern = escapeWildCardsAndTrim(pattern.trim());
         if (!securityService.hasViewPermissionForPipeline(userName, pipelineName)) {
-            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
         PipelineInstanceModels models = pipelineDao.findMatchingPipelineInstances(pipelineName, pattern, limitForPipeline(pipelineName, limit));
@@ -609,7 +609,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
         } else {
-            result.unauthorized("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         }
     }
 

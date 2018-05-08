@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ class Api::AgentsController < Api::ApiController
   include AuthenticationHelper
 
   before_action :check_user_and_404
-  before_action :check_admin_user_and_401, except: [:index, :show, :job_run_history]
+  before_action :check_admin_user_and_403, except: [:index, :show, :job_run_history]
 
   JobHistoryColumns = com.thoughtworks.go.server.service.JobInstanceService::JobHistoryColumns
 

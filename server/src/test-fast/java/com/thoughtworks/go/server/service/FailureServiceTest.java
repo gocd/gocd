@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class FailureServiceTest {
     public void shouldFailWhenUserIsNotPermittedToFetchFailureDetails() {
         when(securityService.hasViewPermissionForPipeline(username, "pipeline")).thenReturn(false);
         assertThat(failureService.failureDetailsFor(jobIdentifier, "suite_name", "test_name", username, result), is(nullFailureDetails()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.hasMessage(), is(true));
         assertThat(getField(result, "message"), is("User '" + "foo" + "' does not have view permission on pipeline '" + "pipeline" + "'"));
     }

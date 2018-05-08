@@ -26,8 +26,8 @@ import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
 
-    public static HaltException haltBecauseUnauthorized() {
-        return halt(HttpStatus.UNAUTHORIZED.value(), MessageJson.create(unauthorizedMessage()));
+    public static HaltException haltBecauseForbidden() {
+        return halt(HttpStatus.FORBIDDEN.value(), MessageJson.create(forbiddenMessage()));
     }
 
     public static HaltException haltBecauseEntityAlreadyExists(JsonNode jsonInRequestBody, String entityType, Object existingName) {

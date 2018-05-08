@@ -583,7 +583,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, null, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.toString(), result.httpCode(), is(401));
+        assertThat(result.toString(), result.httpCode(), is(403));
         assertThat(result.toString(), result.message().equals("Unauthorized to edit '" + pipelineConfig.name() + "' pipeline."), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
@@ -654,8 +654,8 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
 
         assertFalse(result.isSuccessful());
-        assertThat(result.message(), is(LocalizedMessage.unauthorizedToDelete("Pipeline", pipelineConfig.name())));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.message(), is(LocalizedMessage.forbiddenToDelete("Pipeline", pipelineConfig.name())));
+        assertThat(result.httpCode(), is(403));
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter, is(pipelineCountBefore));
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));

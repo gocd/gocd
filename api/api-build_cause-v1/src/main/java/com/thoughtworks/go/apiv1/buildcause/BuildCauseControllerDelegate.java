@@ -54,8 +54,8 @@ public class BuildCauseControllerDelegate extends ApiController {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
 
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);

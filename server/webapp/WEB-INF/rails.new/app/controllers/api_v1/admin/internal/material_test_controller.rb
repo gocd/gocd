@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ module ApiV1
         include_package 'com.thoughtworks.go.config.preprocessor'
         java_import com.thoughtworks.go.config.PipelineNotFoundException
 
-        before_action :check_admin_user_or_group_admin_user_and_401
+        before_action :check_admin_user_or_group_admin_user_and_403
 
         def test
           material_config = ApiV3::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV3::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)

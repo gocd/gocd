@@ -471,7 +471,7 @@ public class ScheduleService {
             String user = username == null ? null : username.getUsername().toString();
 
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, user)) {
-                opResult.unauthorized("Unauthorized to operate stage named " + stageName, HealthStateType.unauthorised());
+                opResult.forbidden("Unauthorized to operate stage named " + stageName, HealthStateType.forbidden());
                 return null;
             }
 
@@ -802,7 +802,7 @@ public class ScheduleService {
         @Override
         public void noOperatePermission(String pipelineName, String stageName) {
             String message = noOperatePermissionMessage(pipelineName, stageName);
-            result.unauthorized(message, message, stageScopedHealthState(pipelineName, stageName));
+            result.forbidden(message, message, stageScopedHealthState(pipelineName, stageName));
             super.noOperatePermission(pipelineName, stageName);
         }
 

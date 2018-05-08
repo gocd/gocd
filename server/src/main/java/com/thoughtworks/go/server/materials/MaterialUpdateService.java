@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void notifyMaterialsForUpdate(Username username, Object params, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
-            result.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised());
+            result.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
             return;
         }
         final Map attributes = (Map) params;

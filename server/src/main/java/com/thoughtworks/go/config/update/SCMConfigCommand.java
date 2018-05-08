@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,15 +21,13 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM> {
     protected final SCM globalScmConfig;
@@ -79,7 +77,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.unauthorized(unauthorizedToEdit(), unauthorised());
+            result.forbidden(forbiddenToEdit(), forbidden());
             return false;
         }
         return true;

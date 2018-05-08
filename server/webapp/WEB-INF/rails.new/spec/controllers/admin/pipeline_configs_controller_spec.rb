@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ describe Admin::PipelineConfigsController do
       allow(@user_service).to receive(:allUsernames)
       allow(@user_service).to receive(:allRoleNames)
       allow(controller).to receive(:populate_config_validity)
-      allow(controller).to receive(:check_pipeline_group_admin_user_and_401)
+      allow(controller).to receive(:check_pipeline_group_admin_user_and_403)
       allow(@go_config_service).to receive(:getAllResources).and_return([])
     end
 

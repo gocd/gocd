@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,18 +65,18 @@ public class JsonAction implements RestfulAction {
         return new JsonAction(SC_NOT_ACCEPTABLE, json);
     }
 
-    public static JsonAction jsonUnauthorized() {
-        return new JsonAction(SC_UNAUTHORIZED, new LinkedHashMap());
+    public static JsonAction jsonForbidden() {
+        return new JsonAction(SC_FORBIDDEN, new LinkedHashMap());
     }
 
-    public static JsonAction jsonUnauthorized(String message) {
+    public static JsonAction jsonForbidden(String message) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put(ERROR_FOR_JSON, message);
-        return new JsonAction(SC_UNAUTHORIZED, map);
+        return new JsonAction(SC_FORBIDDEN, map);
     }
 
-    public static JsonAction jsonUnauthorized(Exception e) {
-        return jsonUnauthorized(e.getMessage());
+    public static JsonAction jsonForbidden(Exception e) {
+        return jsonForbidden(e.getMessage());
     }
 
     public static JsonAction jsonBadRequest(Object json) {

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 class PreferencesController < ApplicationController
   include AuthenticationHelper
 
-  before_action :check_user_and_401, :load_pipelines
+  before_action :check_user_and_403, :load_pipelines
 
   layout "single_page_app"
 

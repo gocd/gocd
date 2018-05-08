@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -110,7 +108,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
+        expectedResult.forbidden(forbiddenToEdit(), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -130,7 +128,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
+        expectedResult.forbidden(forbiddenToEdit(), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -146,7 +144,7 @@ public class PackageRepositoryServiceIntegrationTest {
     @Test
     public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
+        expectedResult.forbidden(forbiddenToEdit(), forbidden());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String oldRepoId = "npmOrg";

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -401,13 +401,13 @@ describe Api::PipelinesController do
       expect(response.status).to eq(404)
     end
 
-    it "should respond with 401 when user does not have view permission" do
+    it "should respond with 403 when user does not have view permission" do
       expect(@status).to receive(:canContinue).and_return(false)
       expect(@status).to receive(:detailedMessage).and_return("Unauthorized")
-      allow(@status).to receive(:httpCode).and_return(401)
+      allow(@status).to receive(:httpCode).and_return(403)
       expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil)
       get :pipeline_instance, :id => '10', :format => "xml", :name => "pipeline", :no_layout => true
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
     end
 
     it "should resolve url to action" do

@@ -58,7 +58,7 @@ public class NewDashboardDelegate implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd401);
+            before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

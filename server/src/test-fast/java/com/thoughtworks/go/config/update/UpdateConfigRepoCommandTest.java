@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -84,7 +84,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(unauthorizedToEdit(), unauthorised());
+        expectedResult.forbidden(forbiddenToEdit(), forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

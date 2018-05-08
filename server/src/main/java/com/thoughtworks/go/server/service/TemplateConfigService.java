@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ public class TemplateConfigService {
 
     public ConfigForEdit<PipelineTemplateConfig> loadForEdit(String templateName, Username username, HttpLocalizedOperationResult result) {
         if (!securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), username)) {
-            result.unauthorized("Unauthorized to edit '" + templateName + "' template.", HealthStateType.unauthorised());
+            result.forbidden("Unauthorized to edit '" + templateName + "' template.", HealthStateType.forbidden());
             return null;
         }
         GoConfigHolder configHolder = goConfigService.getConfigHolder();
@@ -195,7 +195,7 @@ public class TemplateConfigService {
 
     public List<PipelineConfig> allPipelinesNotUsingTemplates(Username username, LocalizedOperationResult result) {
         if (!(securityService.isUserAdmin(username) || securityService.isUserGroupAdmin(username))) {
-            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
+            result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
             return null;
         }
         List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEditForUser(username);

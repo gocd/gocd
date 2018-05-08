@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 class Admin::TemplatesController < AdminController
   helper Admin::TemplatesHelper
 
-  before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions]
-  before_filter :check_admin_user_or_group_admin_user_and_401, only: [:new, :create]
-  before_filter :check_admin_or_template_admin_and_401, only: [:edit, :destroy, :update]
+  before_filter :check_admin_user_and_403, only: [:edit_permissions, :update_permissions]
+  before_filter :check_admin_user_or_group_admin_user_and_403, only: [:new, :create]
+  before_filter :check_admin_or_template_admin_and_403, only: [:edit, :destroy, :update]
   before_filter :load_templates_from_service, :only => :index
   before_filter :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
   before_filter :autocomplete_for_permissions, :only => [:edit_permissions]

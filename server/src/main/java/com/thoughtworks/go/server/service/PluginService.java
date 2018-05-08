@@ -216,7 +216,7 @@ public class PluginService {
             return true;
         }
 
-        result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
+        result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
         return false;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service.result;
 
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.http.HttpStatus;
+
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 /**
  * @understands localized operation result for http
@@ -57,10 +59,10 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     }
 
     @Override
-    public void unauthorized(String message, HealthStateType healthStateType) {
+    public void forbidden(String message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
-        httpCode = HttpStatus.SC_UNAUTHORIZED;
+        httpCode = SC_FORBIDDEN;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
@@ -34,7 +34,12 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     private String md5;
     private EntityHashingService entityHashingService;
 
-    public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
+    public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig,
+                                       Username currentUser,
+                                       SecurityService securityService,
+                                       LocalizedOperationResult result,
+                                       String md5,
+                                       EntityHashingService entityHashingService) {
         super(templateConfig, result, currentUser);
         this.securityService = securityService;
         this.md5 = md5;
@@ -63,7 +68,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
-            result.unauthorized(unauthorizedToEdit(), unauthorised());
+            result.forbidden(forbiddenToEdit(), forbidden());
             return false;
         }
         return true;

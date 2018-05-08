@@ -37,8 +37,8 @@ public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
     }
 
     @Override
-    protected HaltException renderUnauthorizedResponse() {
-        return halt(401, HtmlErrorPage.errorPage(401, "Unauthorized"));
+    protected HaltException renderForbiddenResponse() {
+        return halt(403, HtmlErrorPage.errorPage(403, "Forbidden"));
     }
 
 }

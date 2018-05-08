@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 module ApiV1
   module Admin
     class PluggableScmsController < ApiV1::BaseController
-      before_action :check_admin_user_or_group_admin_user_and_401
+      before_action :check_admin_user_or_group_admin_user_and_403
       before_action :check_for_stale_request, :check_for_scm_rename, only: [:update]
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class MingleConfigServiceIntegrationTest {
         assertThat(mingleConfig, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("You do not have view permissions for pipeline 'foo'."));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
     }
 
     @Test

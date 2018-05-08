@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,8 +61,12 @@ public class MaterialService {
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
 
     @Autowired
-    public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
-                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TransactionTemplate transactionTemplate) {
+    public MaterialService(MaterialRepository materialRepository,
+                           GoConfigService goConfigService,
+                           SecurityService securityService,
+                           PackageRepositoryExtension packageRepositoryExtension,
+                           SCMExtension scmExtension,
+                           TransactionTemplate transactionTemplate) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
@@ -87,9 +91,13 @@ public class MaterialService {
         return !materialRepository.findLatestModification(material).isEmpty();
     }
 
-    public List<MatchedRevision> searchRevisions(String pipelineName, String fingerprint, String searchString, Username username, LocalizedOperationResult result) {
+    public List<MatchedRevision> searchRevisions(String pipelineName,
+                                                 String fingerprint,
+                                                 String searchString,
+                                                 Username username,
+                                                 LocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<>();
         }
         try {
@@ -101,11 +109,16 @@ public class MaterialService {
         }
     }
 
-    public List<Modification> latestModification(Material material, File baseDir, final SubprocessExecutionContext execCtx) {
+    public List<Modification> latestModification(Material material,
+                                                 File baseDir,
+                                                 final SubprocessExecutionContext execCtx) {
         return getPollerImplementation(material).latestModification(material, baseDir, execCtx);
     }
 
-    public List<Modification> modificationsSince(Material material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
+    public List<Modification> modificationsSince(Material material,
+                                                 File baseDir,
+                                                 Revision revision,
+                                                 final SubprocessExecutionContext execCtx) {
         return getPollerImplementation(material).modificationsSince(material, baseDir, revision, execCtx);
     }
 
@@ -114,17 +127,17 @@ public class MaterialService {
         return materialPoller == null ? new NoOpPoller() : materialPoller;
     }
 
-	public Long getTotalModificationsFor(MaterialConfig materialConfig) {
-		MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+    public Long getTotalModificationsFor(MaterialConfig materialConfig) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
-		return materialRepository.getTotalModificationsFor(materialInstance);
-	}
+        return materialRepository.getTotalModificationsFor(materialInstance);
+    }
 
-	public Modifications getModificationsFor(MaterialConfig materialConfig, Pagination pagination) {
-		MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+    public Modifications getModificationsFor(MaterialConfig materialConfig, Pagination pagination) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
-		return materialRepository.getModificationsFor(materialInstance, pagination);
-	}
+        return materialRepository.getModificationsFor(materialInstance, pagination);
+    }
 
     Class<? extends Material> getMaterialClass(Material material) {
         return material.getClass();

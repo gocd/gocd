@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,16 +54,16 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("INVALID_CONFIG_MERGE", 406, HealthStateScope.GLOBAL, null);
     }
 
-    public static HealthStateType unauthorisedForPipeline(String pipelineName) {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forPipeline(pipelineName), null);
+    public static HealthStateType forbiddenForPipeline(String pipelineName) {
+        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.forPipeline(pipelineName), null);
     }
 
-    public static HealthStateType unauthorisedForGroup(String groupName) {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forGroup(groupName), null);
+    public static HealthStateType forbiddenForGroup(String groupName) {
+        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.forGroup(groupName), null);
     }
 
-    public static HealthStateType unauthorised() {
-        return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.GLOBAL, null);
+    public static HealthStateType forbidden() {
+        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType invalidLicense(HealthStateScope scope) {

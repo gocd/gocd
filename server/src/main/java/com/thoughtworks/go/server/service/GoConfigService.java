@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return false;
         }
         if (!isUserAdminOfGroup(username.getUsername(), groupName)) {
-            result.unauthorized(unauthorizedToEditPipeline(pipelineName), unauthorisedForPipeline(pipelineName));
+            result.forbidden(forbiddenToEditPipeline(pipelineName), forbiddenForPipeline(pipelineName));
             return false;
         }
         return true;
@@ -892,7 +892,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean isAdminOfGroup(String toGroupName, Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdminOfGroup(username.getUsername(), toGroupName)) {
-            result.unauthorized(unauthorizedToEditGroup(toGroupName), unauthorised());
+            result.forbidden(forbiddenToEditGroup(toGroupName), forbidden());
             return false;
         }
         return true;
@@ -906,7 +906,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     @Deprecated()
     public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
-            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), HealthStateType.unauthorised());
+            result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
         }
         return clonedConfigForEdit();
     }

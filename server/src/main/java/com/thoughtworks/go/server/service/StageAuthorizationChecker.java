@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class StageAuthorizationChecker implements SchedulingChecker {
         HealthStateType id = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
         if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, username)) {
             String message = String.format("Failed to trigger pipeline [%s]", pipelineName);
-            result.unauthorized(message,
+            result.forbidden(message,
                     "User " + username + " does not have permission to schedule " + pipelineName + "/" + stageName,
                     id);
         } else {

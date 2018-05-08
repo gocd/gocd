@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -36,10 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditPipeline;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorisedForPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
 
 @Service
 public class PipelinePauseService {
@@ -140,7 +141,7 @@ public class PipelinePauseService {
         if (securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(pauseBy), cruiseConfig.findGroupOfPipeline(pipelineConfig).getGroup())) {
             return false;
         }
-        result.unauthorized(unauthorizedToEditPipeline(pipelineName), unauthorisedForPipeline(pipelineName));
+        result.forbidden(LocalizedMessage.forbiddenToEditPipeline(pipelineName), forbiddenForPipeline(pipelineName));
         return true;
     }
 

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 module ConfigView
   class TemplatesController < ConfigView::ConfigViewController
     include Admin::AuthorizationHelper
-    before_action :check_view_access_to_template_and_401
+    before_action :check_view_access_to_template_and_403
 
     def show
       result = HttpLocalizedOperationResult.new

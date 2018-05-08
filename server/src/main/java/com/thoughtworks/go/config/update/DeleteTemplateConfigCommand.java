@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
@@ -65,7 +65,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
-            result.unauthorized(unauthorizedToEdit(), unauthorised());
+            result.forbidden(forbiddenToEdit(), forbidden());
             return false;
         }
         return true;

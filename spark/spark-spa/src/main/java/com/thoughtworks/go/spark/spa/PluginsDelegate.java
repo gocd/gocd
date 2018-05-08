@@ -49,7 +49,7 @@ public class PluginsDelegate implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd401);
+            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
             get("", this::index, engine);
         });
     }

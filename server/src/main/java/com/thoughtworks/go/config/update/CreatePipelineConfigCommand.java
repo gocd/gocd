@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
@@ -76,7 +76,7 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
-            result.unauthorized(unauthorizedToEditGroup(groupName), unauthorised());
+            result.forbidden(forbiddenToEditGroup(groupName), forbidden());
             return false;
         }
         return true;

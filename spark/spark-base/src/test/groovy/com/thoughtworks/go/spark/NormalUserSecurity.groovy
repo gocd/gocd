@@ -25,7 +25,7 @@ trait NormalUserSecurity {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -35,7 +35,7 @@ trait NormalUserSecurity {
 
     makeHttpCall()
 
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -44,7 +44,7 @@ trait NormalUserSecurity {
     loginAsUser()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
 }

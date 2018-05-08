@@ -814,7 +814,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), 1, newUser, result);
 
-		assertResult(SC_UNAUTHORIZED, "You do not have view permissions for pipeline 'p1'.");
+		assertResult(SC_FORBIDDEN, "You do not have view permissions for pipeline 'p1'.");
     }
 
     @Test
@@ -923,7 +923,7 @@ public class ValueStreamMapServiceTest {
 		// unauthorized
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_UNAUTHORIZED, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
+        assertResult(SC_FORBIDDEN, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
 
 		// material config exists but no material instance
 		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);

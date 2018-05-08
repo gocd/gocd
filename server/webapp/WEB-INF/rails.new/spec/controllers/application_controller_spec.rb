@@ -268,8 +268,8 @@ describe ApplicationController do
 
     it "should render_operation_result_if_failure" do
       result = HttpOperationResult.new
-      result.unauthorized("Unauthorized", "the real cause", nil)
-      expect(controller).to receive(:render_if_error).with("Unauthorized { the real cause }\n", 401).and_return(true)
+      result.forbidden("Unauthorized", "the real cause", nil)
+      expect(controller).to receive(:render_if_error).with("Unauthorized { the real cause }\n", 403).and_return(true)
 
       controller.render_operation_result_if_failure(result)
     end

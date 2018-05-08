@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ public class PipelineConfigsServiceTest {
         String actual = service.getXml(groupName, invalidUser, result);
 
         assertThat(actual, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
         verify(goConfigService, never()).getConfigForEditing();
@@ -188,7 +188,7 @@ public class PipelineConfigsServiceTest {
         GoConfigValidity validity = actual.getValidity();
 
         assertThat(configElement, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
         assertThat(validity.isValid(), is(true));

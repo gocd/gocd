@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ describe ApiV5::Admin::PipelinesController do
         enable_security
         login_as_pipeline_group_Non_Admin_user
         allow(@security_service).to receive(:hasViewPermissionForPipeline).and_return(false)
-        expect(controller).to disallow_action(:get, :show, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:get, :show, {:pipeline_name => "pipeline1"}).with(403, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -86,7 +86,7 @@ describe ApiV5::Admin::PipelinesController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_pipeline_group_Non_Admin_user
-        expect(controller).to disallow_action(:put, :update, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:put, :update, {:pipeline_name => "pipeline1"}).with(403, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -111,7 +111,7 @@ describe ApiV5::Admin::PipelinesController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_pipeline_group_Non_Admin_user
-        expect(controller).to disallow_action(:post, :create, :pipeline => {:name => "pipeline1"}, :group => @group).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:post, :create, :pipeline => {:name => "pipeline1"}, :group => @group).with(403, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -133,13 +133,13 @@ describe ApiV5::Admin::PipelinesController do
         enable_security
         login_as_anonymous
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -165,7 +165,7 @@ describe ApiV5::Admin::PipelinesController do
 
         get_with_api_header :show, :pipeline_name => @pipeline_name
 
-        expect(response.code).to eq("401")
+        expect(response.code).to eq("403")
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("You are not authorized to perform this action.")
       end
@@ -275,7 +275,7 @@ describe ApiV5::Admin::PipelinesController do
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
 
-        # expect(response.code).to eq("401")
+        # expect(response.code).to eq("403")
 
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("You are not authorized to perform this action.")
@@ -434,7 +434,7 @@ describe ApiV5::Admin::PipelinesController do
         login_as_pipeline_group_Non_Admin_user
         post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
 
-        expect(response.code).to eq("401")
+        expect(response.code).to eq("403")
 
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("You are not authorized to perform this action.")
@@ -449,7 +449,7 @@ describe ApiV5::Admin::PipelinesController do
 
         post_with_api_header :create, :pipeline => pipeline, :group => "another_group"
 
-        expect(response.code).to eq("401")
+        expect(response.code).to eq("403")
 
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("You are not authorized to perform this action.")

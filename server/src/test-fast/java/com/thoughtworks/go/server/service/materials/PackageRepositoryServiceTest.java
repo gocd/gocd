@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ public class PackageRepositoryServiceTest {
         updateCommand.checkPermission(GoConfigMother.configWithPipelines("sample"), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         verify(securityService).canViewAdminPage(username);
     }
 

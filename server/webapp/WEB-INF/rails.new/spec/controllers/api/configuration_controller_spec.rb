@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ describe Api::ConfigurationController do
 
       get :config_revisions, :no_layout => true
 
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
       expect(response.body).to eq("Unauthorized to access this API.\n")
     end
   end
@@ -77,7 +77,7 @@ describe Api::ConfigurationController do
 
       get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
 
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
       expect(response.body).to eq("Unauthorized to access this API.\n")
     end
   end

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :index).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do

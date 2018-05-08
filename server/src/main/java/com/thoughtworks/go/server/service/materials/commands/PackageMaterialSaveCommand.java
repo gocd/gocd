@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
     public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline));
         if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-            result.unauthorized(LocalizedMessage.unauthorizedToEdit(), null);
+            result.forbidden(LocalizedMessage.forbiddenToEdit(), null);
         }
     }
 

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,8 @@ public class ServerHealthStateOperationResult implements OperationResult {
         return error(message, description, type);
     }
 
-    public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
+    @Override
+    public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         return error(message, description, id);
     }
 

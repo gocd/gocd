@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ describe ApiV4::AgentsController do
 
       it 'should not allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -267,7 +267,7 @@ describe ApiV4::AgentsController do
 
       it 'should not allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -452,7 +452,7 @@ describe ApiV4::AgentsController do
         login_as_user
 
         delete_with_api_header :bulk_destroy, :uuids => ['foo']
-        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+        expect(response).to have_api_message_response(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -535,7 +535,7 @@ describe ApiV4::AgentsController do
         login_as_user
 
         patch_with_api_header :bulk_update, :uuids => ['foo']
-        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+        expect(response).to have_api_message_response(403, 'You are not authorized to perform this action.')
       end
     end
 

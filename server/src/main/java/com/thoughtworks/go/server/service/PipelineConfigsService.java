@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorisedForGroup;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForGroup;
 
 @Service
 public class PipelineConfigsService {
@@ -101,7 +101,7 @@ public class PipelineConfigsService {
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {
             if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-                result.unauthorized(unauthorizedToEditGroup(groupName), unauthorisedForGroup(groupName));
+                result.forbidden(forbiddenToEditGroup(groupName), forbiddenForGroup(groupName));
                 return false;
             }
         } catch (Exception e) {

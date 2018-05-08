@@ -90,7 +90,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(nullValue()));
         assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(SC_UNAUTHORIZED));
+        assertThat(operationResult.httpCode(), is(SC_FORBIDDEN));
     }
 
     @Test

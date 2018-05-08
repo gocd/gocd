@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -152,14 +152,14 @@ describe Admin::PipelinesController do
 
       it "should error out when user is unauthorized" do
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
-          result.unauthorized('Unauthorized to edit HelloWorld pipeline.', HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+          result.forbidden('Unauthorized to edit HelloWorld pipeline.', HealthStateType.unauthorised_for_pipeline("HelloWorld"))
           nil
         end
 
         get :edit, :pipeline_name => "HelloWorld", :current_tab => 'general', :stage_parent=>"pipelines"
 
         expect(assigns[:pipeline]).to be_nil
-        expect(response.status).to eq(401)
+        expect(response.status).to eq(403)
         expect(response.body).to have_selector("h3", :text => "Unauthorized to edit HelloWorld pipeline.")
       end
     end
@@ -487,7 +487,7 @@ describe Admin::PipelinesController do
       expect(@pipeline_selections_service).not_to receive(:updateUserPipelineSelections)
 
       stub_save_for_validation_error do |result, _, _|
-        result.unauthorized("unauthorized", nil)
+        result.forbidden("unauthorized", nil)
       end
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
     end
@@ -600,7 +600,7 @@ describe Admin::PipelinesController do
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
-        result.unauthorized("unauthorized", nil)
+        result.forbidden("unauthorized", nil)
       end
 
       job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
@@ -655,7 +655,7 @@ describe Admin::PipelinesController do
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
-        result.unauthorized("unauthorized", nil)
+        result.forbidden("unauthorized", nil)
       end
 
       allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline2").and_return(@pause_info)

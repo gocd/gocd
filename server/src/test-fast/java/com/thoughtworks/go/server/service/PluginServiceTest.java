@@ -336,7 +336,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).unauthorized(eq(LocalizedMessage.unauthorizedToEdit()), eq(HealthStateType.unauthorised()));
+        verify(result, times(1)).forbidden(eq(LocalizedMessage.forbiddenToEdit()), eq(HealthStateType.forbidden()));
         verifyNoMoreInteractions(result);
     }
 
@@ -396,7 +396,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).unauthorized(eq(LocalizedMessage.unauthorizedToEdit()), eq(HealthStateType.unauthorised()));
+        verify(result, times(1)).forbidden(eq(LocalizedMessage.forbiddenToEdit()), eq(HealthStateType.forbidden()));
         verifyNoMoreInteractions(result);
 
     }

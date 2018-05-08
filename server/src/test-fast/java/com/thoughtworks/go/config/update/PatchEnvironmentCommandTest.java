@@ -336,7 +336,7 @@ public class PatchEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unauthorized("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.unauthorised());
+        expectResult.forbidden("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
         assertThat(result, is(expectResult));
     }
 }

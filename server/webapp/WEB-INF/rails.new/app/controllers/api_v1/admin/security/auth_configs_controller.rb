@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ module ApiV1
   module Admin
     module Security
       class AuthConfigsController < BaseController
-        before_filter :check_admin_user_and_401
+        before_filter :check_admin_user_and_403
         before_action :check_for_stale_request, :check_for_attempted_rename, only: [:update]
 
         include ProfilesControllerActions

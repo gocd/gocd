@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock(pipelineName, new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("user does not have operate permission on the pipeline"));
     }
 

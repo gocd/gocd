@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -151,10 +151,10 @@ describe StagesController do
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
       expect(@status).to receive(:canContinue).and_return(true)
       expect(@localized_result).to receive(:isSuccessful).and_return(false)
-      allow(@localized_result).to receive(:httpCode).and_return(401)
+      allow(@localized_result).to receive(:httpCode).and_return(403)
       allow(@localized_result).to receive(:message).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      expect(response.status).to eq 401
+      expect(response.status).to eq 403
     end
 
     it "should render response code returned by the api result" do
@@ -232,10 +232,10 @@ describe StagesController do
 
     it "should render response code returned by the api result for pipeline" do
       expect(@status).to receive(:canContinue).and_return(false)
-      allow(@status).to receive(:httpCode).and_return(401)
+      allow(@status).to receive(:httpCode).and_return(403)
       allow(@status).to receive(:detailedMessage).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      expect(response.status).to eq 401
+      expect(response.status).to eq 403
     end
 
     it "should assign locked instance" do
@@ -332,9 +332,9 @@ describe StagesController do
         expect(@pipeline_history_service).to receive(:pipelineDependencyGraph).with("pipeline", 99, @user, result).and_return(:doesnt_matter)
         expect(result).to receive(:canContinue).and_return(false)
         allow(result).to receive(:detailedMessage).and_return("no view permission")
-        allow(result).to receive(:httpCode).and_return(401)
+        allow(result).to receive(:httpCode).and_return(403)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
-        expect(response.status).to eq 401
+        expect(response.status).to eq 403
       end
     end
 

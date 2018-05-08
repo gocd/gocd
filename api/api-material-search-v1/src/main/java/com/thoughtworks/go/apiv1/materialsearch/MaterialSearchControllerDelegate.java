@@ -55,8 +55,8 @@ public class MaterialSearchControllerDelegate extends ApiController {
             before("", this::setContentType);
             before("/*", this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
 
             get("", this::search);
             head("", this::search);

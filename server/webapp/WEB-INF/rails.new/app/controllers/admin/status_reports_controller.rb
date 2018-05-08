@@ -19,7 +19,7 @@ module Admin
     include AuthenticationHelper
 
     layout 'plugin'
-    before_action :check_admin_user_and_401
+    before_action :check_admin_user_and_403
     before_action :load_plugin_info
 
     def plugin_status

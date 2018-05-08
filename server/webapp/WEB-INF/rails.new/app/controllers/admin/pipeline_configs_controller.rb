@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ module Admin
 
     layout 'single_page_app'
     before_action :check_feature_toggle
-    before_action :check_pipeline_group_admin_user_and_401
+    before_action :check_pipeline_group_admin_user_and_403
     before_action :load_pipeline
 
     def edit

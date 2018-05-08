@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class PipelineStagesFeedServiceTest {
 
     private void verifyThatUserIsUnauthorized() {
         assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(401));//verify we are unauthorized
+        assertThat(operationResult.httpCode(), is(403));//verify we are unauthorized
 
         operationResult.message();
     }

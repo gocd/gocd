@@ -72,7 +72,7 @@ public class ValueStreamMapService {
     public ValueStreamMapPresentationModel getValueStreamMap(CaseInsensitiveString pipelineName, int counter, Username username, LocalizedOperationResult result) {
         try {
             if (!securityService.hasViewPermissionForPipeline(username, pipelineName.toString())) {
-                result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
+                result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
                 return null;
             }
             ValueStreamMap valueStreamMap = buildValueStreamMap(pipelineName, counter, username, result);
@@ -147,7 +147,7 @@ public class ValueStreamMapService {
             }
 
             if (!hasViewPermissionForMaterial) {
-                result.unauthorized("You do not have view permissions for material with fingerprint '" + materialFingerprint + "'.", HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+                result.forbidden("You do not have view permissions for material with fingerprint '" + materialFingerprint + "'.", HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
                 return null;
             }
 

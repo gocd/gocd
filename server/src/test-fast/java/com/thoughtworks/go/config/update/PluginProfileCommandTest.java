@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -143,7 +143,7 @@ public class PluginProfileCommandTest {
             if (goConfigService.isUserAdmin(currentUser)) {
                 return true;
             }
-            result.unauthorized(unauthorizedToEdit(), unauthorised());
+            result.forbidden(forbiddenToEdit(), forbidden());
             return false;
         }
     }

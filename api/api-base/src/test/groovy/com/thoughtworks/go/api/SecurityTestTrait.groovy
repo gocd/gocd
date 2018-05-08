@@ -46,7 +46,7 @@ trait SecurityTestTrait {
 
   abstract void makeHttpCall()
 
-  def assertRequestAuthorized() {
+  def assertRequestAllowed() {
     verify(controller)."${controllerMethodUnderTest}"(any(), any())
 
     ((MockHttpServletResponseAssert) assertThatResponse())
@@ -55,12 +55,12 @@ trait SecurityTestTrait {
       .hasJsonBody([message: reachedControllerMessage])
   }
 
-  def assertRequestNotAuthorized() {
+  def assertRequestForbidden() {
     verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
 
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType(controller.mimeType)
-      .hasStatus(401)
-      .hasJsonMessage(HaltApiMessages.unauthorizedMessage())
+      .hasStatus(403)
+      .hasJsonMessage(HaltApiMessages.forbiddenMessage())
   }
 }

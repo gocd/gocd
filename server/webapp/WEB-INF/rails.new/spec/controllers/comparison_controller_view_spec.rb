@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ describe ComparisonController, "view" do
       expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
-      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("some_pipeline"), HealthStateType.unauthorisedForPipeline("some_pipeline"))
+      result.forbidden(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("some_pipeline"), HealthStateType.forbiddenForPipeline("some_pipeline"))
 
       expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
 
@@ -96,13 +96,13 @@ describe ComparisonController, "view" do
         end
       end
       expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;some_pipeline&#39;.</h3>")
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
     end
 
     it "should show error if pipelines don't exist" do
       allow(controller).to receive(:pipeline_history_service).and_return(phs = double('PipelineHistoryService'))
 
-      @result.unauthorized("You do not have view permissions for pipeline 'admin_only'.", "too bad for you!", HealthStateType.unauthorisedForPipeline("admin_only"))
+      @result.forbidden("You do not have view permissions for pipeline 'admin_only'.", "too bad for you!", HealthStateType.forbiddenForPipeline("admin_only"))
 
       expect(HttpOperationResult).to receive(:new).and_return(@result)
       expect(phs).to receive(:findPipelineInstance).with("admin_only", 17, @loser, @result).and_return(nil)
@@ -119,7 +119,7 @@ describe ComparisonController, "view" do
         end
       end
       expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;admin_only&#39;. { too bad for you! }\n</h3>")
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
     end
 
     it "should render Checkins between the given pipeline instances" do

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
@@ -109,7 +109,7 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("Unauthorized to edit 'my-pipeline' pipeline."));
 
         result = new HttpLocalizedOperationResult();
@@ -169,7 +169,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn401WhenAUserIsNotAnAdmin() throws IOException {
+    public void shouldReturn403WhenAUserIsNotAnAdmin() throws IOException {
         configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
@@ -181,7 +181,7 @@ public class GoConfigServiceIntegrationTest {
         goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("loser")), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("Unauthorized to edit."));
     }
 
@@ -477,7 +477,7 @@ public class GoConfigServiceIntegrationTest {
         final CruiseConfig[] configObtainedInCheckPermissions = new CruiseConfig[1];
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-                result.unauthorized(unauthorizedToEditGroup("groupName"), null);
+                result.forbidden(forbiddenToEditGroup("groupName"), null);
                 configObtainedInCheckPermissions[0] = cruiseConfig;
             }
         }, md5, Username.ANONYMOUS, result);
@@ -492,7 +492,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(response.getCruiseConfig(), is(goConfigService.getConfigForEditing()));
         assertThat(response.getNode(), is(pipelineConfig));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("Unauthorized to edit 'groupName' group."));
     }
 

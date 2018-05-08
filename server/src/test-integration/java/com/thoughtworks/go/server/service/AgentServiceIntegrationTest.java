@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,7 +232,7 @@ public class AgentServiceIntegrationTest {
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.modifyEnvironments(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(UUID), Arrays.asList(new TriStateSelection("uat", TriStateSelection.Action.remove)));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 
@@ -557,7 +557,7 @@ public class AgentServiceIntegrationTest {
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.disableAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 
@@ -568,7 +568,7 @@ public class AgentServiceIntegrationTest {
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.modifyResources(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId), Arrays.asList(new TriStateSelection("dont-care", TriStateSelection.Action.add)));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 
@@ -643,13 +643,13 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn401WhenAUnauthorizedUserTriesToEnable() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToEnable() throws IOException {
         String agentId = "agent-id";
         CONFIG_HELPER.enableSecurity();
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.enableAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 
@@ -761,12 +761,12 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn401WhenAUnauthorizedUserTriesToDelete() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToDelete() throws IOException {
         CONFIG_HELPER.enableSecurity();
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.deleteAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(UUID));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 
@@ -813,12 +813,12 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn401WhenAUnauthorizedUserTriesToDeleteAgents() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToDeleteAgents() throws IOException {
         CONFIG_HELPER.enableSecurity();
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
         agentService.deleteAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(UUID));
-        assertThat(operationResult.httpCode(), is(401));
+        assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
     }
 

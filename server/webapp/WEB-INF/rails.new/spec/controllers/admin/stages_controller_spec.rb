@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -295,7 +295,7 @@ describe Admin::StagesController do
         expect(@task_view_service).to receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         stub_save_for_validation_error do |result, config, node|
-          result.unauthorized('some message', HealthStateType.unauthorisedForPipeline("pipeline-name"))
+          result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
         end
 
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
@@ -304,7 +304,7 @@ describe Admin::StagesController do
         expect(assigns[:task_view_models]).to eq(tvms)
         assert_template "new"
         assert_template layout: false
-        expect(response.status).to eq(401)
+        expect(response.status).to eq(403)
       end
 
       it "should assign config_errors for display when save fails due to validation errors" do

@@ -70,7 +70,7 @@ public class DeleteEnvironmentCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), containsString("Failed to access environment 'Dev'. User 'user' does not have permission to access environment."));
     }
 }

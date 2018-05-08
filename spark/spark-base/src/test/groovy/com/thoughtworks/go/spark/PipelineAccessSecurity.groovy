@@ -25,7 +25,7 @@ trait PipelineAccessSecurity {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -35,7 +35,7 @@ trait PipelineAccessSecurity {
 
     makeHttpCall()
 
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -44,7 +44,7 @@ trait PipelineAccessSecurity {
     loginAsUser()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -53,7 +53,7 @@ trait PipelineAccessSecurity {
     loginAsAdmin()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -63,7 +63,7 @@ trait PipelineAccessSecurity {
 
     makeHttpCall()
 
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   abstract String getPipelineName()

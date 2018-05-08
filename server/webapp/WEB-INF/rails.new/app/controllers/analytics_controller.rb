@@ -19,7 +19,7 @@ class AnalyticsController < ApplicationController
 
   layout 'single_page_app', only: [:index]
 
-  before_action :check_admin_user_and_401, only: [:index]
+  before_action :check_admin_user_and_403, only: [:index]
   before_action :check_pipeline_exists, only: [:show]
   before_action :check_permissions, only: [:show]
 
@@ -40,9 +40,9 @@ class AnalyticsController < ApplicationController
 
   def check_permissions
     if is_request_for_pipeline_analytics?
-      is_pipeline_analytics_enabled_only_for_admins? ? check_admin_user_and_401 : check_user_can_see_pipeline
+      is_pipeline_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_can_see_pipeline
     else
-      check_admin_user_and_401
+      check_admin_user_and_403
     end
   end
 

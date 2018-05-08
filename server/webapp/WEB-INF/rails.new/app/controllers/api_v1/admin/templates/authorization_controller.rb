@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ module ApiV1
     module Templates
       class AuthorizationController < BaseController
 
-        before_action :check_admin_user_and_401
+        before_action :check_admin_user_and_403
         before_action :load_template, only: [:show, :update]
         before_action :check_for_stale_request, only: [:update]
 

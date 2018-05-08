@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 module ApiV1
   module Admin
     class MergedEnvironmentsController < ApiV1::BaseController
-      before_action :check_admin_user_and_401
+      before_action :check_admin_user_and_403
 
       def index
         render DEFAULT_FORMAT => Admin::MergedEnvironments::MergedEnvironmentsConfigRepresenter.new(environment_config_service.getAllMergedEnvironments()).to_hash(url_builder: self)

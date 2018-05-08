@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ module ApiV4
   class AgentsController < ApiV4::BaseController
 
     before_action :check_user_and_404
-    before_action :check_admin_user_and_401, except: [:index, :show]
+    before_action :check_admin_user_and_403, except: [:index, :show]
     before_action :set_default_values_if_not_present, only: [:bulk_update]
     before_action :load_agent, only: [:show, :edit, :update, :destroy, :enable, :disable]
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ public class AgentService {
     private boolean hasOperatePermission(Username username, OperationResult operationResult) {
         if (!securityService.hasOperatePermissionForAgents(username)) {
             String message = "Unauthorized to operate on agent";
-            operationResult.unauthorized(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
+            operationResult.forbidden(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
         return true;

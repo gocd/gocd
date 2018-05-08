@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ describe Admin::PipelinesSnippetController do
 
       it "should return unauthorized error if the user does not have access to the group" do
         expect(@result).to receive(:isSuccessful).and_return(false)
-        expect(@result).to receive(:httpCode).and_return(401)
+        expect(@result).to receive(:httpCode).and_return(403)
         expect(@result).to receive(:message).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
@@ -102,7 +102,7 @@ describe Admin::PipelinesSnippetController do
         get :show, {:group_name => group}
 
         expect(response).to render_template 'shared/config_error'
-        assert_response 401
+        assert_response 403
       end
     end
 
@@ -133,7 +133,7 @@ describe Admin::PipelinesSnippetController do
 
       it "should return unauthorized error if the user does not have access to the group" do
         expect(@result).to receive(:isSuccessful).and_return(false)
-        expect(@result).to receive(:httpCode).and_return(401)
+        expect(@result).to receive(:httpCode).and_return(403)
         expect(@result).to receive(:message).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
@@ -142,7 +142,7 @@ describe Admin::PipelinesSnippetController do
         get :edit, {:group_name => group}
 
         expect(response).to render_template 'shared/config_error'
-        assert_response 401
+        assert_response 403
       end
 
     end

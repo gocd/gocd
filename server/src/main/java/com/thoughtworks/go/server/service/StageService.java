@@ -82,9 +82,17 @@ public class StageService implements StageRunFinder, StageFinder {
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     @Autowired
-    public StageService(StageDao stageDao, JobInstanceService jobInstanceService, StageStatusTopic stageStatusTopic, StageStatusCache stageStatusCache,
-                        SecurityService securityService, PipelineDao pipelineDao, ChangesetService changesetService, GoConfigService goConfigService,
-                        TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, GoCache goCache,
+    public StageService(StageDao stageDao,
+                        JobInstanceService jobInstanceService,
+                        StageStatusTopic stageStatusTopic,
+                        StageStatusCache stageStatusCache,
+                        SecurityService securityService,
+                        PipelineDao pipelineDao,
+                        ChangesetService changesetService,
+                        GoConfigService goConfigService,
+                        TransactionTemplate transactionTemplate,
+                        TransactionSynchronizationManager transactionSynchronizationManager,
+                        GoCache goCache,
                         StageStatusListener... stageStatusListeners) {
         this.stageDao = stageDao;
         this.jobInstanceService = jobInstanceService;
@@ -124,13 +132,18 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.stageByIdWithBuilds(id);
     }
 
-    public Stage findStageWithIdentifier(String pipelineName, int pipelineCounter, String stageName, String stageCounter, String username, OperationResult result) {
+    public Stage findStageWithIdentifier(String pipelineName,
+                                         int pipelineCounter,
+                                         String stageName,
+                                         String stageCounter,
+                                         String username,
+                                         OperationResult result) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
         if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return null;
         }
 
@@ -141,9 +154,11 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findStageWithIdentifier(identifier);
     }
 
-    public StageSummaryModel findStageSummaryByIdentifier(StageIdentifier stageId, Username username, LocalizedOperationResult result) {
+    public StageSummaryModel findStageSummaryByIdentifier(StageIdentifier stageId,
+                                                          Username username,
+                                                          LocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(username, stageId.getPipelineName())) {
-            result.unauthorized(LocalizedMessage.unauthorizedToViewPipeline(stageId.getPipelineName()), HealthStateType.general(HealthStateScope.forPipeline(stageId.getPipelineName())));
+            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(stageId.getPipelineName()), HealthStateType.general(HealthStateScope.forPipeline(stageId.getPipelineName())));
             return null;
         }
         Stages stages = stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName());
@@ -351,7 +366,9 @@ public class StageService implements StageRunFinder, StageFinder {
         return new FeedEntries(new ArrayList<>(stageEntries));
     }
 
-    private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries, String pipelineName, Username username) {
+    private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries,
+                                               String pipelineName,
+                                               Username username) {
         List<Long> pipelineIds = new ArrayList<>();
         for (StageFeedEntry stageEntry : stageEntries) {
             pipelineIds.add(stageEntry.getPipelineId());
@@ -383,7 +400,11 @@ public class StageService implements StageRunFinder, StageFinder {
         }
     }
 
-    public StageSummaryModels findStageHistoryForChart(String pipelineName, String stageName, int pageNumber, int pageSize, Username username) {
+    public StageSummaryModels findStageHistoryForChart(String pipelineName,
+                                                       String stageName,
+                                                       int pageNumber,
+                                                       int pageSize,
+                                                       Username username) {
         int total = stageDao.getTotalStageCountForChart(pipelineName, stageName);
 
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);
@@ -406,17 +427,24 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findStageHistoryPage(stage, pageSize);
     }
 
-    public StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize) {
+    public StageHistoryPage findStageHistoryPageByNumber(String pipelineName,
+                                                         String stageName,
+                                                         int pageNumber,
+                                                         int pageSize) {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
 
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination, String username, OperationResult result) {
+    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
+                                                                String stageName,
+                                                                Pagination pagination,
+                                                                String username,
+                                                                OperationResult result) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
         if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return null;
         }
 

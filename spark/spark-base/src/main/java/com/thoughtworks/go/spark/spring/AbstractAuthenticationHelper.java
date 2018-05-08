@@ -39,9 +39,9 @@ public abstract class AbstractAuthenticationHelper {
         this.goConfigService = goConfigService;
     }
 
-    protected abstract HaltException renderUnauthorizedResponse();
+    protected abstract HaltException renderForbiddenResponse();
 
-    public void checkUserAnd401(Request req, Response res) {
+    public void checkUserAnd403(Request req, Response res) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
@@ -51,58 +51,58 @@ public abstract class AbstractAuthenticationHelper {
 
     public void checkNonAnonymousUser(Request req, Response res) {
         if (currentUsername().isAnonymous()) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 
-    public void checkAdminUserAnd401(Request req, Response res) {
+    public void checkAdminUserAnd403(Request req, Response res) {
         if (!securityService.isUserAdmin(currentUsername())) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 
-    public void checkPipelineGroupOperateUserAnd401(Request request, Response response) {
+    public void checkPipelineGroupOperateUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
         String groupName = findPipelineGroupName(request);
         if (!securityService.hasOperatePermissionForGroup(currentUserLoginName(), groupName)) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 
-    public void checkPipelineGroupAdminUserAnd401(Request request, Response response) {
+    public void checkPipelineGroupAdminUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
         String groupName = findPipelineGroupName(request);
         if (!securityService.isUserAdminOfGroup(currentUsername(), groupName)) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 
-    public void checkAdminUserOrGroupAdminUserAnd401(Request request, Response response) {
+    public void checkAdminUserOrGroupAdminUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
 
         if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()))) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
 
     }
 
-    public void checkAnyAdminUserAnd401(Request request, Response response) {
+    public void checkAnyAdminUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
 
         if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 
-    public void checkPipelineViewPermissionsAnd401(Request request, Response response) {
+    public void checkPipelineViewPermissionsAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
@@ -110,7 +110,7 @@ public abstract class AbstractAuthenticationHelper {
         String pipelineName = request.params("pipeline_name");
 
         if (!hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(pipelineName, currentUsername())) {
-            throw renderUnauthorizedResponse();
+            throw renderForbiddenResponse();
         }
     }
 

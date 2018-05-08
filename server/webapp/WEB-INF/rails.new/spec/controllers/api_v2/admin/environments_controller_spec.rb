@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,12 +48,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :index).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :index).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -63,7 +63,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :index).with(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -122,12 +122,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -137,7 +137,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -242,12 +242,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -257,7 +257,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
     end
 
@@ -349,12 +349,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -364,7 +364,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
     end
@@ -440,12 +440,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -455,7 +455,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, name: @environment_name).with(403, 'You are not authorized to perform this action.')
       end
 
     end
@@ -534,12 +534,12 @@ describe ApiV2::Admin::EnvironmentsController do
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:post, :create).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:post, :create).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -549,7 +549,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should disallow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:post, :create).with(403, 'You are not authorized to perform this action.')
       end
 
     end

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,6 @@ public class HttpOperationResultTest {
 
     @Before public void setUp() {
         httpOperationResult = new HttpOperationResult();
-    }
-    
-    @Test public void shouldReturn401ForInsufficientPermissions() throws Exception {
-        httpOperationResult.unauthorized("permission denied","blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
-        assertThat(httpOperationResult.httpCode(), is(401));
-        assertThat(httpOperationResult.canContinue(), is(false));
-        assertThat(httpOperationResult.message(), is("permission denied"));
     }
 
     @Test public void shouldReturn202IfEverythingWorks() throws Exception {

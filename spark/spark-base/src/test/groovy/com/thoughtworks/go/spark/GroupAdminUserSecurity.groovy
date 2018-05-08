@@ -25,7 +25,7 @@ trait GroupAdminUserSecurity {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -35,7 +35,7 @@ trait GroupAdminUserSecurity {
 
     makeHttpCall()
 
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -44,7 +44,7 @@ trait GroupAdminUserSecurity {
     loginAsUser()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -53,7 +53,7 @@ trait GroupAdminUserSecurity {
     loginAsAdmin()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -62,7 +62,7 @@ trait GroupAdminUserSecurity {
     loginAsGroupAdmin()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -71,6 +71,6 @@ trait GroupAdminUserSecurity {
     loginAsTemplateAdmin()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 }

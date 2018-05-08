@@ -580,7 +580,7 @@ public class PipelineHistoryServiceIntegrationTest {
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.load(pipeline.getId(), new Username(new CaseInsensitiveString("foo")), result);
         assertThat(pipelineInstance, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
 
         result = new HttpOperationResult();
         pipelineInstance = pipelineHistoryService.load(pipeline.getId(), new Username(new CaseInsensitiveString("admin")), result);
@@ -649,7 +649,7 @@ public class PipelineHistoryServiceIntegrationTest {
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModels pipelineInstances = pipelineHistoryService.findAllPipelineInstances(pipeline.getName(), new Username(new CaseInsensitiveString("foo")), result);
         assertThat(pipelineInstances, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("Not authorized to view pipeline"));
         pipelineInstances = pipelineHistoryService.findAllPipelineInstances(pipeline.getName(), new Username(new CaseInsensitiveString("admin")), new HttpOperationResult());
         assertThat(pipelineInstances.size(), is(1));
@@ -711,7 +711,7 @@ public class PipelineHistoryServiceIntegrationTest {
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(new CaseInsensitiveString("foo")), result);
         assertThat(pipelineInstance, is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("Not authorized to view pipeline"));
         pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(new CaseInsensitiveString("admin")), new HttpOperationResult());
         assertThat(pipelineInstance, is(not(nullValue())));
@@ -969,7 +969,7 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineInstanceModels pipelineInstances = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "ABCD", 1000, new Username(new CaseInsensitiveString("fraud-user")), result);
         assertThat(pipelineInstances.size(), is(0));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
     }
 
     @Test
@@ -1003,7 +1003,7 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
 
         assertThat(pim.getComment(), is(nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("You do not have operate permissions for pipeline 'pipeline_name'."));
     }
 

@@ -409,7 +409,7 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(result.isSuccess(), is(false));
         assertThat(result.fullMessage(), is(String.format("Failed to trigger pipeline [%s] { User foo does not have permission to schedule %s/%s }", pipelineName, pipelineName, stageName)));
         assertThat(result.getServerHealthState().getDescription(), is(String.format("User foo does not have permission to schedule %s/%s", pipelineName, pipelineConfig.first().name())));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
     }
 

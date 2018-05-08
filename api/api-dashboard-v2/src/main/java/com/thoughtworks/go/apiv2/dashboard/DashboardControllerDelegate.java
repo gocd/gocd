@@ -65,7 +65,7 @@ public class DashboardControllerDelegate extends ApiController {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("", this::verifyContentType);
-            before("", apiAuthenticationHelper::checkUserAnd401);
+            before("", apiAuthenticationHelper::checkUserAnd403);
 
             get("", this::index);
         });

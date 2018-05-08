@@ -41,7 +41,7 @@ public interface OperationResult {
 
     ServerHealthState paymentRequired(String message, String description, HealthStateType type);
 
-    ServerHealthState unauthorized(String message, String description, HealthStateType id);
+    ServerHealthState forbidden(String message, String description, HealthStateType id);
 
     void conflict(String message, String description, HealthStateType healthStateType);
 

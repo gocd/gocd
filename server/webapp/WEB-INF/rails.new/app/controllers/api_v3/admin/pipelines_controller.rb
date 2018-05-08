@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 module ApiV3
   module Admin
     class PipelinesController < ApiV3::BaseController
-      before_action :check_pipeline_group_admin_user_and_401
+      before_action :check_pipeline_group_admin_user_and_403
       before_action :load_pipeline, only: [:show, :update, :destroy]
       before_action :check_if_pipeline_is_defined_remotely, only: [:update, :destroy]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]

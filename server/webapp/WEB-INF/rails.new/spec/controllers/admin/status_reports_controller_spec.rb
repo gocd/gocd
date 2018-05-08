@@ -47,6 +47,7 @@ describe Admin::StatusReportsController do
         login_as_group_admin
 
         expect(controller).to disallow_action(:get, :plugin_status, :plugin_id => elastic_plugin_id)
+                                .with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should be accessible by all if security is disabled' do
@@ -126,6 +127,7 @@ describe Admin::StatusReportsController do
         login_as_group_admin
 
         expect(controller).to disallow_action(:get, :agent_status, :plugin_id => elastic_plugin_id, :elastic_agent_id => 'unassigned', :job_id => '100')
+                                .with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should be accessible by all if security is disabled' do
@@ -253,6 +255,7 @@ describe Admin::StatusReportsController do
         login_as_group_admin
 
         expect(controller).to disallow_action(:get, :agent_status, :plugin_id => elastic_plugin_id, :elastic_agent_id => 'agent1')
+                                .with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should be accessible by all if security is disabled' do

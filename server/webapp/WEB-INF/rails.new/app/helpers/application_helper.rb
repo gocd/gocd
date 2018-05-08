@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -431,8 +431,8 @@ module ApplicationHelper
     hidden_field_tag('cruise_config_md5', cruise_config_md5)
   end
 
-  def unauthorized_access
-    @status == 401
+  def access_forbidden
+    @status == 403
   end
 
   def required_label(form, name, text)

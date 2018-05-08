@@ -5,7 +5,7 @@
         <div class='biggest'>:(</div>
         <h3><%= @message -%></h3>
     </div>
-    <% unless unauthorized_access -%>
+    <% unless access_forbidden -%>
         <div class="error-child-like-margin">
             <span>Jump To:</span>
             <%= link_to 'Pipelines', pipeline_groups_path -%>

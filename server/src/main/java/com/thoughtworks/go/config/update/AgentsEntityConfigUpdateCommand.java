@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.unauthorised;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     private AgentInstances agentInstances;
@@ -160,7 +160,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         if (goConfigService.isAdministrator(username.getUsername())) {
             return true;
         }
-        result.unauthorized(unauthorizedToEdit(), unauthorised());
+        result.forbidden(forbiddenToEdit(), forbidden());
         return false;
     }
 

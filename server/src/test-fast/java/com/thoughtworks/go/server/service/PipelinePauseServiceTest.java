@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,7 +180,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult401WhenPipelineIsNotAuthorizedForPausing() throws Exception {
+    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForPausing() throws Exception {
         setUpValidPipelineWithInvalidAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -188,12 +188,12 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.pause(VALID_PIPELINE, "cause", INVALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_FORBIDDEN));
         verify(pipelineDao, never()).pause(VALID_PIPELINE, "cause", "admin");
     }
 
     @Test
-    public void shouldPopulateHttpResult401WhenPipelineIsNotAuthorizedForUnPausing() throws Exception {
+    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForUnPausing() throws Exception {
         setUpValidPipelineWithInvalidAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -201,7 +201,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.unpause(VALID_PIPELINE, INVALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_FORBIDDEN));
         verify(pipelineDao, never()).unpause(VALID_PIPELINE);
     }
 

@@ -46,7 +46,7 @@ trait SecurityTestTrait {
 
   abstract void makeHttpCall()
 
-  def assertRequestAuthorized() {
+  def assertRequestAllowed() {
     verify(controller)."${controllerMethodUnderTest}"(any(), any())
 
     ((MockHttpServletResponseAssert) assertThatResponse())
@@ -55,12 +55,12 @@ trait SecurityTestTrait {
       .hasBody("rendered - foo/bar.vm with message ${reachedControllerMessage}")
   }
 
-  def assertRequestNotAuthorized() {
+  def assertRequestForbidden() {
     verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
 
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType("text/html")
-      .hasStatus(401)
-      .hasBody(HtmlErrorPage.errorPage(401, "Unauthorized"))
+      .hasStatus(403)
+      .hasBody(HtmlErrorPage.errorPage(403, "Forbidden"))
   }
 }

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -225,20 +225,20 @@ describe PipelinesController do
 
   it "should show error message if the user is not authorized to view the pipeline" do
     expect(@material_service).to receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
-      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("pipeline"), nil)
+      result.forbidden(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("pipeline"), nil)
     end
 
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
-    expect(response.status).to eq(401)
+    expect(response.status).to eq(403)
   end
 
   it "should show error message if the user is not authorized to view the pipeline - with POST" do
     expect(@material_service).to receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
-      result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("pipeline"), nil)
+      result.forbidden(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("pipeline"), nil)
     end
 
     post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
-    expect(response.status).to eq(401)
+    expect(response.status).to eq(403)
     assert_template layout: false
   end
 
@@ -358,13 +358,13 @@ describe PipelinesController do
     end
 
     context 'when the update is unauthorized' do
-      it 'it returns 401' do
+      it 'it returns 403' do
         allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user, @localized_result) do |_, _, _, _, result|
-          result.unauthorized('some message', nil)
+          result.forbidden('some message', nil)
         end
 
         post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
-        assert_response(401)
+        assert_response(403)
       end
 
     end

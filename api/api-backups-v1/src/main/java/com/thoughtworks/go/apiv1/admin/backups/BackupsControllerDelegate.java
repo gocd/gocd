@@ -61,8 +61,8 @@ public class BackupsControllerDelegate extends ApiController {
             before("", this::verifyConfirmHeader);
             before("/*", this::verifyConfirmHeader);
 
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             post("", mimeType, this::create);
         });

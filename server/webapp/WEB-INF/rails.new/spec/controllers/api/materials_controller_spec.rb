@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ describe Api::MaterialsController do
       @params = {:post_commit_hook_material_type => 'svn', :no_layout => true, :payload => {}}
     end
 
-    it "should return 401 when user is not an admin" do
+    it "should return 403 when user is not an admin" do
       expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
-        result.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised())
+        result.forbidden("Unauthorized to access this API.", HealthStateType.forbidden())
       end
       post :notify, @params
-      expect(response.status).to eq(401)
+      expect(response.status).to eq(403)
       expect(response.body).to eq("Unauthorized to access this API.\n")
     end
 

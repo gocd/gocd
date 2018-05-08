@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class MaterialConfigService {
 		}
 
 		if (!hasViewPermissionForMaterial) {
-			result.unauthorized("Unauthorized", "Do not have view permission to this material", HealthStateType.general(HealthStateScope.GLOBAL));
+			result.forbidden("Unauthorized", "Do not have view permission to this material", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
 

@@ -20,6 +20,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang.StringUtils;
 
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+
 /**
  * @understands how to turn the problems that can occur during api calls into human-readable form and http codes
  * @deprecated Use LocalizedOperationResult interface instead
@@ -81,10 +83,10 @@ public class HttpOperationResult implements OperationResult {
         return serverHealthStateOperationResult.paymentRequired(message, description, type);
     }
 
-    public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
+    public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         this.message = message;
-        httpCode = 401;
-        return serverHealthStateOperationResult.unauthorized(message, description, id);
+        httpCode = SC_FORBIDDEN;
+        return serverHealthStateOperationResult.forbidden(message, description, id);
     }
 
     public void conflict(String message, String description, HealthStateType healthStateType) {

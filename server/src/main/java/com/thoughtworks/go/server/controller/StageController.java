@@ -76,7 +76,7 @@ public class StageController {
             return ResponseCodeView.create(HttpServletResponse.SC_OK, "");
 
         } catch (GoUnauthorizedException e) {
-            return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, "");
+            return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, "");
         } catch (StageNotFoundException e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, counterOrLabel, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
@@ -98,15 +98,15 @@ public class StageController {
             scheduleService.cancelAndTriggerRelevantStages(stageId, SessionUtils.currentUsername(), cancelResult);
             return handleResult(cancelResult, response);
         } catch (GoUnauthorizedException e) {
-            return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_ACCEPTABLE, e.getMessage());
         }
     }
 
     private ModelAndView handleResult(HttpLocalizedOperationResult cancelResult, HttpServletResponse response) {
-        if (cancelResult.httpCode() == HttpServletResponse.SC_UNAUTHORIZED) {
-            return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, cancelResult.message());
+        if (cancelResult.httpCode() == HttpServletResponse.SC_FORBIDDEN) {
+            return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, cancelResult.message());
         }
         return jsonOK().respond(response);
     }

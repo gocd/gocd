@@ -24,7 +24,7 @@ trait NonAnonymousUserSecurity {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -33,7 +33,7 @@ trait NonAnonymousUserSecurity {
     loginAsAnonymous()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -42,7 +42,7 @@ trait NonAnonymousUserSecurity {
     loginAsAdmin()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -51,7 +51,7 @@ trait NonAnonymousUserSecurity {
     loginAsUser()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
 }

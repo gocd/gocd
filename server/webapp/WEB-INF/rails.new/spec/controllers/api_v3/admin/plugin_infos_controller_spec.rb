@@ -39,6 +39,13 @@ describe ApiV3::Admin::PluginInfosController do
         expect(controller).to allow_action(:get, :show)
       end
 
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+
+        expect(controller).to disallow_action(:get, :show, {:id => 'plugin_id'}).with(403, 'You are not authorized to perform this action.')
+      end
+
       it 'should allow non-admin user, with security enabled' do
         enable_security
         login_as_user
@@ -55,6 +62,13 @@ describe ApiV3::Admin::PluginInfosController do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+
+        expect(controller).to disallow_action(:get, :index).with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow non-admin user, with security enabled' do

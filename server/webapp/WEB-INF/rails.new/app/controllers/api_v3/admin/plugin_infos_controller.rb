@@ -18,7 +18,7 @@ module ApiV3
   module Admin
     class PluginInfosController < BaseController
 
-      before_action :check_user_and_401
+      before_action :check_user_and_403
 
       PLUGIN_TYPES_FOR_VERSION = [
         PluginConstants.AUTHORIZATION_EXTENSION,

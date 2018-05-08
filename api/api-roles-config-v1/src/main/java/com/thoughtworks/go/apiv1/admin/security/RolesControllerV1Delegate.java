@@ -64,8 +64,8 @@ public class RolesControllerV1Delegate extends ApiController implements CrudCont
             before("/*", mimeType, this::setContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

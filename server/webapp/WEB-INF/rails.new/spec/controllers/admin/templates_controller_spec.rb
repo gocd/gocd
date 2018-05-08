@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -273,7 +273,7 @@ describe Admin::TemplatesController do
 
     describe "create" do
       before :each do
-        allow(controller).to receive(:check_admin_user_or_group_admin_user_and_401).and_return(nil)
+        allow(controller).to receive(:check_admin_user_or_group_admin_user_and_403).and_return(nil)
         @security_service = stub_service(:security_service)
         expect(@security_service).to receive(:isUserGroupAdmin).and_return(false)
       end
@@ -347,7 +347,7 @@ describe Admin::TemplatesController do
           @cruise_config.errors().add("base", "someError")
           @cruise_config.getTemplates().get(0).addError("name", "foo")
           @cruise_config.getTemplates().get(1).addError("name", "foo")
-          result.badRequest(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToEdit())
+          result.badRequest(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToEdit())
         end
         pipeline2 = PipelineConfigMother.pipeline_config("pipeline.2")
         @cruise_config.addPipeline('default', pipeline2)

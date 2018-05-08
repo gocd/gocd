@@ -26,7 +26,7 @@ public abstract class HaltApiMessages {
         return "Either the resource you requested was not found, or you are not authorized to perform this action.";
     }
 
-    public static String unauthorizedMessage() {
+    public static String forbiddenMessage() {
         return "You are not authorized to perform this action.";
     }
 

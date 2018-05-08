@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
@@ -234,10 +233,10 @@ public class MaterialUpdateServiceTest {
         when(goConfigService.isUserAdmin(username)).thenReturn(false);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
-        HttpLocalizedOperationResult unauthorizedResult = new HttpLocalizedOperationResult();
-        unauthorizedResult.unauthorized("Unauthorized to access this API.", HealthStateType.unauthorised());
+        HttpLocalizedOperationResult forbiddenResult = new HttpLocalizedOperationResult();
+        forbiddenResult.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
 
-        assertThat(result, is(unauthorizedResult));
+        assertThat(result, is(forbiddenResult));
 
         verify(goConfigService).isUserAdmin(username);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -870,7 +870,7 @@ public class PipelineHistoryServiceTest {
 		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
 
 		assertThat(pipelineStatus, is(nullValue()));
-		assertThat(result.httpCode(), is(401));
+		assertThat(result.httpCode(), is(403));
 	}
 
 	@Test
@@ -907,7 +907,7 @@ public class PipelineHistoryServiceTest {
 		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
 
 		assertThat(pipelineInstanceModels, is(nullValue()));
-		assertThat(result.httpCode(), is(401));
+		assertThat(result.httpCode(), is(403));
 
 		result = new HttpOperationResult();
 		pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
@@ -938,7 +938,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
-        verify(result, times(1)).unauthorized("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        verify(result, times(1)).forbidden("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
     }
 
     @Test

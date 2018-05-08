@@ -94,8 +94,8 @@ public class ArtifactStoreConfigControllerDelegate extends ApiController impleme
             before("", this::setContentType);
             before("/*", this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", this::index);
             get(Routes.ArtifactStoreConfig.ID, this::show);

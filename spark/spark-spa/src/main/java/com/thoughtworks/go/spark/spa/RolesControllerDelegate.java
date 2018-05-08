@@ -46,7 +46,7 @@ public class RolesControllerDelegate implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd401);
+            before("", authenticationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
     }

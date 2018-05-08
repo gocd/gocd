@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -245,7 +245,7 @@ describe ApplicationHelper do
       expect(actual).to eq(expected)
     end
 
-    it "should append 401 handler to form" do
+    it "should append 403 handler to form" do
       expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
 
       actual = blocking_form_remote_tag(:url => "url")
@@ -447,13 +447,13 @@ describe ApplicationHelper do
 
   describe "unauthorized_access" do
 
-    it "should return true if status is 401" do
-      @status = 401
-      expect(unauthorized_access).to eq(true)
+    it "should return true if status is 403" do
+      @status = 403
+      expect(access_forbidden).to eq(true)
     end
     it "should return false if status is not true" do
       @status = 200
-      expect(unauthorized_access).to eq(false)
+      expect(access_forbidden).to eq(false)
     end
 
   end

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     @user = Username.new(CaseInsensitiveString.new('loser')) #Instance variable because the module expects this to be defined
   end
 
-  it "should return 401 if user is not a group admin" do
+  it "should return 403 if user is not a group admin" do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     def params
@@ -40,11 +40,11 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to create pipeline.")
     end
 
-  it "should return 401 if user is a normal user and group does not exist" do
+  it "should return 403 if user is a normal user and group does not exist" do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     @params = {:pipeline_group => {:group => "some_junk_group"}}
@@ -54,11 +54,11 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
-  it "should return 401 if user is an admin but no group_name given(happens when using community edition)" do
+  it "should return 403 if user is an admin but no group_name given(happens when using community edition)" do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     expect(@security_service).to receive(:isUserAdminOfGroup).with(CaseInsensitiveString.new("loser"), PipelineConfigs::DEFAULT_GROUP).and_return(false)
@@ -66,11 +66,11 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
-  it "should return 401 if user is not a group admin for 'defaultGroup' and group name is empty" do
+  it "should return 403 if user is not a group admin for 'defaultGroup' and group name is empty" do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     @params = {:pipeline_group => {:group => ""}}
@@ -79,11 +79,11 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 
-  it "should return 401 if user tries to create 'defaultGroup' and is not an admin" do
+  it "should return 403 if user tries to create 'defaultGroup' and is not an admin" do
     cruise_config = GoConfigMother.new.cruiseConfigWithPipelineUsingTwoMaterials()
     result = HttpLocalizedOperationResult.new
     @params = {:pipeline_group => {:group => ""}}
@@ -92,7 +92,7 @@ describe ConfigUpdate::CheckCanCreatePipeline, :type => :helper do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to create pipeline.")
   end
 

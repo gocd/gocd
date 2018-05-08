@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.server.controller.actions;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 public class XmlAction extends BasicRestfulAction {
     private final String md5;
@@ -65,7 +65,7 @@ public class XmlAction extends BasicRestfulAction {
         return super.respond(response);
     }
 
-    public static RestfulAction xmlUnAuthorized(String message) {
-       return new XmlAction(SC_UNAUTHORIZED, message); 
+    public static RestfulAction xmlForbidden(String message) {
+       return new XmlAction(SC_FORBIDDEN, message);
     }
 }

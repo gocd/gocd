@@ -25,7 +25,7 @@ trait PipelineGroupOperateUserSecurity {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -35,7 +35,7 @@ trait PipelineGroupOperateUserSecurity {
 
     makeHttpCall()
 
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -44,7 +44,7 @@ trait PipelineGroupOperateUserSecurity {
     loginAsUser()
 
     makeHttpCall()
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -53,7 +53,7 @@ trait PipelineGroupOperateUserSecurity {
     loginAsAdmin()
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -62,7 +62,7 @@ trait PipelineGroupOperateUserSecurity {
     loginAsGroupAdmin(pipelineName)
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   @Test
@@ -72,7 +72,7 @@ trait PipelineGroupOperateUserSecurity {
 
     makeHttpCall()
 
-    assertRequestNotAuthorized()
+    assertRequestForbidden()
   }
 
   @Test
@@ -81,7 +81,7 @@ trait PipelineGroupOperateUserSecurity {
     loginAsGroupOperateUser(pipelineName)
 
     makeHttpCall()
-    assertRequestAuthorized()
+    assertRequestAllowed()
   }
 
   abstract String getPipelineName()

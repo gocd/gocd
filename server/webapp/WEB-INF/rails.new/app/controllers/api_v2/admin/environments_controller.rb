@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 module ApiV2
   module Admin
     class EnvironmentsController < ApiV2::BaseController
-      before_action :check_admin_user_and_401
+      before_action :check_admin_user_and_403
       before_action :load_environment, only: [:show, :put, :patch, :destroy]
       before_action :check_for_stale_request, only: [:put]
 

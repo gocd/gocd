@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ describe ConfigUpdate::CheckIsSuperAdmin do
     checkPermission(cruise_config, result)
 
     expect(result.isSuccessful()).to be_falsey
-    expect(result.httpCode()).to eq(401)
+    expect(result.httpCode()).to eq(403)
     expect(result.message()).to eq("Unauthorized to edit.")
   end
 

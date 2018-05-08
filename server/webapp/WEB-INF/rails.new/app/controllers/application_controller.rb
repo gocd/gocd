@@ -89,7 +89,7 @@ class ApplicationController < ActionController::Base
 
   def allow_local_only
     return true if request_from_localhost?
-    render_if_error("Unauthorized", 401)
+    render_if_error("Forbidden", 403)
     false
   end
 

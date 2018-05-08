@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ module ConfigUpdate
     def checkPermission(cruise_config, result)
       return if has_permission(cruise_config)
 
-      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit()
-      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditGroup(pipeline_group_name) if !pipeline_group_name.nil?
-      message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEditPipeline(pipeline_name) if !pipeline_name.isBlank()
+      message = com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit()
+      message = com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup(pipeline_group_name) if !pipeline_group_name.nil?
+      message = com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline(pipeline_name) if !pipeline_name.isBlank()
 
-      result.unauthorized(message, nil)
+      result.forbidden(message, nil)
     end
   end
 end

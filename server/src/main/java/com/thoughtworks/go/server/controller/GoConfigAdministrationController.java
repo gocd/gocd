@@ -81,10 +81,10 @@ public class GoConfigAdministrationController {
 
     private RestfulAction getXmlPartial(String groupName, String oldMd5, GoConfigService.XmlPartialSaver xmlPartialSaver) {
         if (!isTemplate(groupName) && !isCurrentUserAdminOfGroup(groupName)) {
-            return XmlAction.xmlUnAuthorized(errorMessageForGroup(groupName));
+            return XmlAction.xmlForbidden(errorMessageForGroup(groupName));
         }
         if (isTemplate(groupName) && !isCurrentUserAdmin()) {
-            return XmlAction.xmlUnAuthorized(errorMessageForTemplates());
+            return XmlAction.xmlForbidden(errorMessageForTemplates());
         }
         String xml;
         try {
@@ -122,17 +122,17 @@ public class GoConfigAdministrationController {
         }
 
         if (!isCurrentUserAdmin()) {
-            return JsonAction.jsonUnauthorized().respond(response);
+            return JsonAction.jsonForbidden().respond(response);
         }
         return postXmlPartial(null, goConfigService.fileSaver(false), xmlFile, "File changed successfully.", md5).respond(response);
     }
 
     private RestfulAction postXmlPartial(String groupName, GoConfigService.XmlPartialSaver xmlPartialSaver, String xmlPartial, String successMessage, String expectedMd5) {
         if (!isTemplate(groupName) && !isCurrentUserAdminOfGroup(groupName)) {
-            return JsonAction.jsonUnauthorized(errorMessageForGroup(groupName));
+            return JsonAction.jsonForbidden(errorMessageForGroup(groupName));
         }
         if (isTemplate(groupName) && !isCurrentUserAdmin()) {
-            return JsonAction.jsonUnauthorized();
+            return JsonAction.jsonForbidden();
         }
         GoConfigValidity configValidity = xmlPartialSaver.saveXml(xmlPartial, expectedMd5);
         if (configValidity.isValid()) {

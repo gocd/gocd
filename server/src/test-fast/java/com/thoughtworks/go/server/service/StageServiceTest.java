@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,7 +255,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void findStageSummaryByIdentifierShouldRespondWith401WhenUserDoesNotHavePermissionToViewThePipeline() throws Exception {
+    public void findStageSummaryByIdentifierShouldRespondWith403WhenUserDoesNotHavePermissionToViewThePipeline() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_name")).thenReturn(false);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -265,7 +265,7 @@ public class StageServiceTest {
 
         StageSummaryModel model = service.findStageSummaryByIdentifier(new StageIdentifier("pipeline_name/10/stage_name/1"), ALWAYS_ALLOW_USER, result);
 
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
         assertThat(model, is(nullValue()));
     }
 
@@ -591,7 +591,7 @@ public class StageServiceTest {
 		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
 		assertThat(stageInstanceModels, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
 	}
 
     @Test
@@ -623,6 +623,6 @@ public class StageServiceTest {
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
 
         assertThat(stage, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(401));
+        assertThat(result.httpCode(), is(403));
     }
 }

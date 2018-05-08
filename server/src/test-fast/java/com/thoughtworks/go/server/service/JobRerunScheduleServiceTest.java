@@ -180,7 +180,7 @@ public class JobRerunScheduleServiceTest {
 
         when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(firstStage.getName()), any(String.class))).thenReturn(false);
 
-        assertScheduleFailure("unit", firstStage, "User does not have operate permissions for stage [build] of pipeline [mingle]", 401);
+        assertScheduleFailure("unit", firstStage, "User does not have operate permissions for stage [build] of pipeline [mingle]", 403);
     }
 
     @Test

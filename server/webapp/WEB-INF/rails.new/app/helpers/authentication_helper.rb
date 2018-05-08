@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ module AuthenticationHelper
     end
   end
 
-  def check_user_and_401
+  def check_user_and_403
     return unless security_service.isSecurityEnabled()
     if current_user.try(:isAnonymous)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
@@ -35,67 +35,67 @@ module AuthenticationHelper
     return unless security_service.isSecurityEnabled()
     unless security_service.hasViewPermissionForPipeline(current_user, params[:pipeline_name])
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_admin_user_and_401
+  def check_admin_user_and_403
     return unless security_service.isSecurityEnabled()
     unless security_service.isUserAdmin(current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_admin_or_template_admin_and_401
+  def check_admin_or_template_admin_and_403
     template_name = params[:template_name]
     return unless security_service.isSecurityEnabled
 
     if template_name.blank? && !(security_service.isUserAdmin(current_user) || security_service.isAuthorizedToViewAndEditTemplates(current_user))
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
     if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_view_access_to_template_and_401
+  def check_view_access_to_template_and_403
     return unless security_service.isSecurityEnabled
     template_name = params[:template_name]
     if !template_name.blank? && !security_service.isAuthorizedToViewTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
     if template_name.blank? && !security_service.isAuthorizedToViewTemplates(current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_admin_user_or_group_admin_user_and_401
+  def check_admin_user_or_group_admin_user_and_403
     return unless security_service.isSecurityEnabled()
     if !(security_service.isUserAdmin(current_user) || security_service.isUserGroupAdmin(current_user))
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_any_admin_user_and_401
+  def check_any_admin_user_and_403
     return unless security_service.isSecurityEnabled()
     if !(security_service.isUserAdmin(current_user) || security_service.isUserGroupAdmin(current_user) || security_service.isAuthorizedToViewAndEditTemplates(current_user))
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
-  def check_pipeline_group_admin_user_and_401
+  def check_pipeline_group_admin_user_and_403
     groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:pipeline_name]))
     return unless security_service.isSecurityEnabled()
     unless is_user_an_admin_for_group?(current_user, groupName)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-      render_unauthorized_error
+      render_forbidden_error
     end
   end
 
@@ -113,8 +113,8 @@ module AuthenticationHelper
     render_message("Your request could not be processed. #{exception.message}", 400)
   end
 
-  def render_unauthorized_error
-    render_message('You are not authorized to perform this action.', 401)
+  def render_forbidden_error
+    render_message('You are not authorized to perform this action.', 403)
   end
 
   private

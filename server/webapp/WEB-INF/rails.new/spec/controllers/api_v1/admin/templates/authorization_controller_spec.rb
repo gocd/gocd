@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,14 +46,14 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -144,14 +144,14 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(403, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do

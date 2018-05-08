@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class NonApiController < ApplicationController
 
   def localized_not_found_action
     hor = HttpLocalizedOperationResult.new()
-    hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
+    hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
     render_localized_operation_result(hor)
   end
 
@@ -101,13 +101,13 @@ module Api
 
     def unauthorized_action
       hor = HttpOperationResult.new()
-      hor.unauthorized("you are not allowed", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
+      hor.forbidden("you are not allowed", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
       render_operation_result(hor)
     end
 
     def localized_not_found_action
       hor = HttpLocalizedOperationResult.new()
-      hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::unauthorizedToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
+      hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
       render_localized_operation_result(hor)
     end
 

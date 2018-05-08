@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,13 @@ const mixins = {
     } else {
       return `${str}.`;
     }
+  },
+
+  caseInsensitiveCompare(a, b) {
+    a = a.toLocaleLowerCase();
+    b = b.toLocaleLowerCase();
+
+    return (a < b) ? -1 : (a > b) ? 1 : 0;
   }
 };
 

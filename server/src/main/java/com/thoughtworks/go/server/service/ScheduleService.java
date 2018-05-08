@@ -346,8 +346,7 @@ public class ScheduleService {
     }
 
     private String mutexForPipeline(String pipelineName) {
-        String s = String.format("%s_forPipeline_%s", getClass().getName(), pipelineName);
-        return s.intern(); // interned because we synchronize on it
+        return String.format("%s_forPipeline_%s", getClass().getName(), pipelineName.toLowerCase()).intern(); // interned because we synchronize on it
     }
 
     private void triggerNextStageInPipeline(Pipeline pipeline, String stageName, String approvedBy) {
@@ -564,8 +563,7 @@ public class ScheduleService {
     }
 
     private String mutexForStageInstance(String pipelineName, Integer pipelineCounter, String stageName, String stageCounter) {
-        String s = String.format("%s_forStageInstance_%s_%s_%s_%s", getClass().getName(), pipelineName, pipelineCounter, stageName, stageCounter);
-        return s.intern(); // interned because we synchronize on it
+        return String.format("%s_forStageInstance_%s_%s_%s_%s", getClass().getName(), pipelineName, pipelineCounter, stageName, stageCounter).toLowerCase().intern(); // interned because we synchronize on it
     }
 
     //Note: This is called from a Spring timer
@@ -695,7 +693,7 @@ public class ScheduleService {
     }
 
     public String mutexForJob(JobIdentifier jobIdentifier) {
-        return String.format("%s_forJobInstance_%s", getClass().getName(), jobIdentifier.buildLocator()).intern();
+        return String.format("%s_forJobInstance_%s", getClass().getName(), jobIdentifier.buildLocator().toLowerCase()).intern();
     }
 
     public void cancelJob(JobIdentifier jobIdentifier) {

@@ -167,7 +167,7 @@ public class PipelinePauseService {
      * updateCounter() and pause() are trying to insert pipeline row if one doesn't exist
      */
     public static String mutexForPausePipeline(String pipelineName) {
-        return (PipelineSqlMapDao.class.getName() + "_mutexForPausePipeline_" + pipelineName).intern();
+        return (PipelineSqlMapDao.class.getName() + "_mutexForPausePipeline_" + pipelineName.toLowerCase()).intern();
     }
 
     private void notifyListeners(PipelinePauseChangeListener.Event event) {

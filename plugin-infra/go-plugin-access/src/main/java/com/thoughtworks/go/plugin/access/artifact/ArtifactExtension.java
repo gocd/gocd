@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -125,11 +126,11 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    public PublishArtifactResponse publishArtifact(String pluginId, ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory) {
+    public PublishArtifactResponse publishArtifact(String pluginId, ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory, EnvironmentVariableContext environmentVariableContext) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactPlan, artifactStore, agentWorkingDirectory);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactPlan, artifactStore, agentWorkingDirectory, environmentVariableContext.getProperties());
             }
 
             @Override

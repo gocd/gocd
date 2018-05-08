@@ -134,7 +134,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        return completeJob(buildJob(environmentVariableContext, consoleLogCharset));
+        return completeJob(buildJob(environmentVariableContext, consoleLogCharset), environmentVariableContext);
     }
 
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
@@ -193,7 +193,7 @@ public class BuildWork implements Work {
         return execute(environmentVariableContext, consoleLogCharset);
     }
 
-    private JobResult completeJob(JobResult result) {
+    private JobResult completeJob(JobResult result, EnvironmentVariableContext environmentVariableContext) {
         if (goPublisher.isIgnored()) {
             return result;
         }
@@ -208,7 +208,7 @@ public class BuildWork implements Work {
         goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
 
         try {
-            artifactsPublisher.publishArtifacts(assignment.getArtifactPlans());
+            artifactsPublisher.publishArtifacts(assignment.getArtifactPlans(), environmentVariableContext);
         } catch (Exception e) {
             LOGGER.error(null, e);
             goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());

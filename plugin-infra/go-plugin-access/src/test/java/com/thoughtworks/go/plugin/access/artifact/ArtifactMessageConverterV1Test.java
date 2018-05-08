@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -46,24 +47,28 @@ public class ArtifactMessageConverterV1Test {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
+        final Map<String, String> environmentVariables = new HashMap<>();
+        environmentVariables.put("foo", "bar");
+        final String publishArtifactMessage = converter.publishArtifactMessage(artifactPlan, artifactStore, "/temp", environmentVariables);
 
-        final String publishArtifactMessage = converter.publishArtifactMessage(artifactPlan, artifactStore, "/temp");
-
-        final String expectedStr = "{\n" +
-                "  \"artifact_plan\": {\n" +
-                "    \"configuration\": {\n" +
-                "      \"Baz\": \"Car\"\n" +
-                "    },\n" +
-                "    \"id\": \"installers\",\n" +
-                "    \"storeId\": \"s3-store\"\n" +
-                "  },\n" +
-                "  \"artifact_store\": {\n" +
-                "    \"configuration\": {\n" +
-                "      \"Foo\": \"Bar\"\n" +
-                "    },\n" +
-                "    \"id\": \"s3-store\"\n" +
-                "  },\n" +
-                "  \"agent_working_directory\": \"/temp\"\n" +
+        final String expectedStr = "{" +
+                "  'artifact_plan': {" +
+                "    'configuration': {" +
+                "      'Baz': 'Car'" +
+                "    }," +
+                "    'id': 'installers'," +
+                "    'storeId': 's3-store'" +
+                "  }," +
+                "  'artifact_store': {" +
+                "    'configuration': {" +
+                "      'Foo': 'Bar'" +
+                "    }," +
+                "    'id': 's3-store'" +
+                "  }," +
+                "  'agent_working_directory': '/temp'," +
+                "  'environment_variables': {" +
+                "       'foo': 'bar'" +
+                "   }" +
                 "}";
 
         JSONAssert.assertEquals(expectedStr, publishArtifactMessage, true);

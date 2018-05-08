@@ -50,31 +50,41 @@ describe("Dashboard", () => {
       expect(actualPipelineGroups.length).toEqual(expectedPipelineGroups.length);
     });
 
-    it("should get pipelines", () => {
-      const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
-      const actualPipelines   = dashboard.getPipelines();
-
-      expect(actualPipelines.length).toEqual(expectedPipelines.length);
-    });
-
-    it("should find the pipeline by pipeline name", () => {
+    it("it should filter dashboard provided pipeline name as filter text", () => {
       const pipelineName     = "up42";
-      const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
-      const actualPipeline   = dashboard.findPipeline(pipelineName);
-
-      expect(actualPipeline.name).toEqual(expectedPipeline.name);
-    });
-
-    it("it should filter dashboard provided filter text", () => {
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].name).toEqual(pipelineName);
       dashboard.searchText("up42-some-more");
       expect(dashboard.getPipelineGroups()).toEqual([]);
+    });
+
+    it("it should filter dashboard provided pipeline group name as filter text", () => {
+      const pipelineGroupName     = "first";
+      expect(dashboard.getPipelineGroups()[0].name).toEqual(pipelineGroupName);
+      dashboard.searchText("fi");
+      expect(dashboard.getPipelineGroups()[0].name).toEqual(pipelineGroupName);
+      dashboard.searchText("fir");
+      expect(dashboard.getPipelineGroups()[0].name).toEqual(pipelineGroupName);
+      dashboard.searchText("first");
+      expect(dashboard.getPipelineGroups()[0].name).toEqual(pipelineGroupName);
+      dashboard.searchText("first-some-more");
+      expect(dashboard.getPipelineGroups()).toEqual([]);
+    });
+
+    it("it should filter dashboard provided pipeline status as filter text", () => {
+      const pipelineStatus     = "Failed";
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].instances[0].stages[0].status).toEqual(pipelineStatus);
+      dashboard.searchText("fai");
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].instances[0].stages[0].status).toEqual(pipelineStatus);
+      dashboard.searchText("failed");
+      expect(dashboard.getPipelineGroups()[0].pipelines[0].instances[0].stages[0].status).toEqual(pipelineStatus);
+      dashboard.searchText("building");
+      expect(dashboard.getPipelineGroups().length).toEqual(0);
     });
 
     it("should peform routing when filter text is updated", () => {

@@ -133,6 +133,10 @@ const Pipeline = function (info) {
     NO_PAUSE_PERMISSION:     "You do not have permission to pause the pipeline.",
     NO_UNPAUSE_PERMISSION:   "You do not have permission to unpause the pipeline."
   };
+
+  self.hasStatus = (filterStatus) => {
+    return _.some(self.instances, instance => instance.hasStatus(filterStatus));
+  }
 };
 
 module.exports = Pipeline;

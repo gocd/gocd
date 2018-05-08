@@ -53,6 +53,10 @@ const PipelineInstance = function (info, pipelineName) {
       return _.map(buildCause.material_revisions, (revision) => new MaterialRevision(revision));
     });
   };
+
+  self.hasStatus = (filterStatus) => {
+    return _.some(self.stages, (stage) => _.includes(stage.status.toLowerCase(), filterStatus));
+  };
 };
 
 module.exports = PipelineInstance;

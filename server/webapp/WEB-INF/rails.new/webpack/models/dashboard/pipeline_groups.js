@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const Routes = require('gen/js-routes');
+const _               = require('lodash');
+const Routes          = require('gen/js-routes');
+const Pipelines       = require('models/dashboard/pipelines');
 
 const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) {
   const self = this;
@@ -27,10 +28,28 @@ const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) 
   this.pipelines     = pipelines;
 
   this.filterBy = (filterText) => {
-    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
+    var filteredPipelines = [];
+    if (_.includes(name.toLowerCase(), filterText)) {
+      filteredPipelines = self.pipelines;
+    } else {
+      filteredPipelines = _.filter(self.pipelines, (pipeline) => {
+        if (_.includes(pipeline.name.toLowerCase(), filterText)) {
+          return true;
+        }
+        return _.some(self.pipelines, pipeline => pipeline.hasStatus(filterText));
+      });
+    }
     if (filteredPipelines.length) {
       return new PipelineGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
     }
+  };
+
+  this.replacePipelineNamesWithData = (pipelines) => {
+    const pipelinesList = [];
+    self.pipelines.forEach(pipeline => {
+      pipelinesList.push(_.find(pipelines.pipelines, pipelineData => pipelineData.name === pipeline));
+    });
+    self.pipelines = pipelinesList;
   };
 };
 
@@ -52,7 +71,13 @@ const PipelineGroups = function (groups) {
 };
 
 PipelineGroups.fromJSON = (json) => {
-  const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
+  const pipelines         = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+  const pipelineGroupJson = _.get(json, '_embedded.pipeline_groups', []);
+  const pipelineGroups    = _.map(pipelineGroupJson, (group) => {
+    const pipelineGroup = PipelineGroup.fromJSON(group);
+    pipelineGroup.replacePipelineNamesWithData(pipelines);
+    return pipelineGroup;
+  });
   return new PipelineGroups(pipelineGroups);
 };
 

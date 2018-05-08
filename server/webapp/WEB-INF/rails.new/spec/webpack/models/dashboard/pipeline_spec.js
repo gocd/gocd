@@ -179,6 +179,12 @@ describe("Dashboard", () => {
       const pipeline = new Pipeline(pipelineJson);
       expect(pipeline.getSettingsDisabledTooltipText()).toEqual("You do not have permission to edit the pipeline.");
     });
+
+    it("should return true if the status of the pipeline matches with the passed string", () => {
+      const pipeline  = new Pipeline(pipelineJson);
+      const hasStatus = pipeline.hasStatus("failed");
+      expect(hasStatus).toEqual(true);
+    });
   });
 
   describe("Pipeline Operations", () => {

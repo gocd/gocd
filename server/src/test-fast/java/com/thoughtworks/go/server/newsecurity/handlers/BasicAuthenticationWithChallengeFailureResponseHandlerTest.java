@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +57,7 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
         void shouldNotChallengeWhenSecurityIsDisabled() throws IOException {
             when(securityService.isSecurityEnabled()).thenReturn(false);
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, "some-error-message");
+                    .handle(request, response, SC_UNAUTHORIZED, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
                     .isUnauthorized()
@@ -68,10 +70,10 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
         void shouldShowChallengeWhenSecurityIsEnabled() throws IOException {
             when(securityService.isSecurityEnabled()).thenReturn(true);
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, "some-error-message");
+                    .handle(request, response, SC_FORBIDDEN, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
-                    .isUnauthorized()
+                    .isForbidden()
                     .hasHeader("Content-Type", "application/json;charset=utf-8")
                     .hasHeader("WWW-Authenticate", "Basic realm=\"GoCD\"")
                     .hasBody("{\n  \"message\": \"some-error-message\"\n}");
@@ -90,7 +92,7 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
             final MockHttpServletResponse response = new MockHttpServletResponse();
 
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, "some-error-message");
+                    .handle(request, response, SC_UNAUTHORIZED, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
                     .isUnauthorized()

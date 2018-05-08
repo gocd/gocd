@@ -42,19 +42,21 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
 
     public static HealthStateScope forPipeline(String pipelineName) {
-        return new HealthStateScope(ScopeType.PIPELINE, pipelineName);
+        return new HealthStateScope(ScopeType.PIPELINE, pipelineName.toLowerCase());
     }
 
     public static HealthStateScope forFanin(String pipelineName) {
-        return new HealthStateScope(ScopeType.FANIN, pipelineName);
+        return new HealthStateScope(ScopeType.FANIN, pipelineName.toLowerCase());
     }
 
     public static HealthStateScope forStage(String pipelineName, String stageName) {
-        return new HealthStateScope(ScopeType.STAGE, pipelineName + "/" + stageName);
+        String scope = pipelineName + "/" + stageName;
+        return new HealthStateScope(ScopeType.STAGE, scope.toLowerCase());
     }
 
     public static HealthStateScope forJob(String pipelineName, String stageName, String jobName) {
-        return new HealthStateScope(ScopeType.JOB, pipelineName + "/" + stageName + "/" + jobName);
+        String scope = pipelineName + "/" + stageName + "/" + jobName;
+        return new HealthStateScope(ScopeType.JOB, scope.toLowerCase());
     }
 
     public static HealthStateScope forMaterial(Material material) {

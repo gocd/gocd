@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
@@ -31,9 +30,9 @@ import static org.junit.Assert.assertThat;
 
 public class VSMTestHelper {
 
-    public static void assertThatLevelHasNodes(List<Node> nodesAtLevel, int numberOfDummyNodes, CaseInsensitiveString... nodeIds) {
+    public static void assertThatLevelHasNodes(List<Node> nodesAtLevel, int numberOfDummyNodes, String... nodeIds) {
         assertThat(nodesAtLevel.size(), is(numberOfDummyNodes + nodeIds.length));
-        List<CaseInsensitiveString> nodeIdsAtLevel = new ArrayList<>();
+        List<String> nodeIdsAtLevel = new ArrayList<>();
         for (Node node : nodesAtLevel) {
             if (!node.getType().equals(DependencyNodeType.DUMMY)) {
                 nodeIdsAtLevel.add(node.getId());
@@ -43,69 +42,69 @@ public class VSMTestHelper {
         assertThat(nodeIdsAtLevel, hasItems(nodeIds));
     }
 
-    public static void assertThatNodeHasChildren(ValueStreamMap graph, CaseInsensitiveString nodeId, int numberOfDummyChildren, CaseInsensitiveString... children) {
+    public static void assertThatNodeHasChildren(ValueStreamMap graph, String nodeId, int numberOfDummyChildren, String... children) {
         Node node = graph.findNode(nodeId);
         assertThat(node.getChildren().size(), is(numberOfDummyChildren + children.length));
         assertThat(childIdsOf(node), hasItems(children));
     }
 
-    public static void assertThatNodeHasParents(ValueStreamMap graph, CaseInsensitiveString nodeId, int numberOfDummyParents, CaseInsensitiveString... parents) {
+    public static void assertThatNodeHasParents(ValueStreamMap graph, String nodeId, int numberOfDummyParents, String... parents) {
         Node node = graph.findNode(nodeId);
         assertThatNodeHasParents(node, numberOfDummyParents, parents);
     }
 
-    public static void assertThatNodeHasParents(Node node, int numberOfDummyParents, CaseInsensitiveString... parents) {
+    public static void assertThatNodeHasParents(Node node, int numberOfDummyParents, String... parents) {
         assertThat(node.getParents().size(), is(numberOfDummyParents + parents.length));
         assertThat(parentIdsOf(node), hasItems(parents));
     }
 
-    public static void assertDepth(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, int expectedDepth){
+    public static void assertDepth(ValueStreamMapPresentationModel graph, String nodeId, int expectedDepth){
         assertThat(graph.findNode(nodeId).getDepth(), is(expectedDepth));
     }
 
-    public static void assertNodeHasChildren(ValueStreamMap graph, CaseInsensitiveString actualNode, CaseInsensitiveString... expectedChildren) {
+    public static void assertNodeHasChildren(ValueStreamMap graph, String actualNode, String... expectedChildren) {
         assertNodeHasChildren(graph.findNode(actualNode), expectedChildren);
     }
 
-    public static void assertNodeHasChildren(Node currentNode, CaseInsensitiveString... expectedChildren) {
+    public static void assertNodeHasChildren(Node currentNode, String... expectedChildren) {
         assertThat(childIdsOf(currentNode), hasItems(expectedChildren));
     }
 
-    public static void assertNodeHasParents(ValueStreamMap graph, CaseInsensitiveString actualNode, CaseInsensitiveString... expectedParents) {
+    public static void assertNodeHasParents(ValueStreamMap graph, String actualNode, String... expectedParents) {
         assertThat(parentIdsOf(graph.findNode(actualNode)), hasItems(expectedParents));
     }
 
-    private static List<CaseInsensitiveString> childIdsOf(Node node) {
-        List<CaseInsensitiveString> childIds = new ArrayList<>();
+    private static List<String> childIdsOf(Node node) {
+        List<String> childIds = new ArrayList<>();
         for (Node child : node.getChildren()) {
             childIds.add(child.getId());
         }
         return childIds;
     }
 
-    private static List<CaseInsensitiveString> parentIdsOf(Node node) {
-        List<CaseInsensitiveString> parentIds = new ArrayList<>();
+    private static List<String> parentIdsOf(Node node) {
+        List<String> parentIds = new ArrayList<>();
         for (Node parent : node.getParents()) {
             parentIds.add(parent.getId());
         }
         return parentIds;
     }
 
-    public static void assertNodeHasRevisions(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, Revision... expectedRevisions) {
+    public static void assertNodeHasRevisions(ValueStreamMapPresentationModel graph, String nodeId, Revision... expectedRevisions) {
         Node node = graph.findNode(nodeId);
         List<Revision> revisions = node.revisions();
         assertThat(revisions.toString(), revisions.size(), is(expectedRevisions.length));
         assertThat(revisions, hasItems(expectedRevisions));
     }
 
-    public static void assertSCMNodeHasMaterialRevisions(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, MaterialRevision... expectedMaterialRevisions) {
+    public static void assertSCMNodeHasMaterialRevisions(ValueStreamMapPresentationModel graph, String nodeId, MaterialRevision... expectedMaterialRevisions) {
         SCMDependencyNode node = (SCMDependencyNode)graph.findNode(nodeId);
         List<MaterialRevision> materialRevisions = node.getMaterialRevisions();
         assertThat(materialRevisions.toString(), materialRevisions.size(), is(expectedMaterialRevisions.length));
         assertThat(materialRevisions, hasItems(expectedMaterialRevisions));
     }
 
-    public static void assertStageDetailsOf(ValueStreamMap graph, CaseInsensitiveString nodeId, String counter, Stages expectedStages) {
+    public static void assertStageDetailsOf(ValueStreamMap graph, String nodeId, String counter, Stages expectedStages) {
         Node node = graph.findNode(nodeId);
         PipelineRevision pipelineRevision = findPipelineRevision(node, counter);
 
@@ -113,10 +112,10 @@ public class VSMTestHelper {
     }
 
     private static PipelineRevision findPipelineRevision(Node node, String counter) {
-        CaseInsensitiveString pipelineName = node.getId();
+        String pipelineName = node.getId();
         List<Revision> revisions = node.revisions();
         for (Revision revision : revisions) {
-            if (revision instanceof PipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName.toString(), Long.parseLong(counter)).pipelineLocator())) {
+            if (revision instanceof PipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName, Long.parseLong(counter)).pipelineLocator())) {
                 return (PipelineRevision) revision;
             }
         }

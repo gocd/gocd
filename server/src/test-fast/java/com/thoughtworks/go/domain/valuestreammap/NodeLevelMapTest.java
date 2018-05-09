@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import java.util.List;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.contains;
@@ -32,11 +31,11 @@ public class NodeLevelMapTest {
         NodeLevelMap nodeLevelMap = new NodeLevelMap();
         Node svn = new SCMDependencyNode("svn-fingerprint", "svn", "svn");
         svn.setLevel(-1);
-        Node current = new PipelineDependencyNode(new CaseInsensitiveString("current"),"current");
+        Node current = new PipelineDependencyNode("current","current");
         current.setLevel(0);
-        Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        Node p1 = new PipelineDependencyNode("p1","p1");
         p1.setLevel(1);
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode("p2","p2");
         p2.setLevel(1);
 
         svn.addEdge(current);

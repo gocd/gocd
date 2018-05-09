@@ -121,10 +121,10 @@ describe ValueStreamMapController do
       it "should get the pipeline dependency graph json" do
         pipeline = "P1"
         allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
-        vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("git"), "git"), nil, CaseInsensitiveString.new(pipeline))
+        vsm = ValueStreamMap.new(pipeline, nil)
+        vsm.addUpstreamNode(PipelineDependencyNode.new("git", "git"), nil, pipeline)
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
 
@@ -138,10 +138,10 @@ describe ValueStreamMapController do
         allow(controller).to receive(:is_pipeline_config_spa_enabled?).and_return(true)
         pipeline = "P1"
         allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
-        vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("git"), "git"), nil, CaseInsensitiveString.new(pipeline))
+        vsm = ValueStreamMap.new(pipeline, nil)
+        vsm.addUpstreamNode(PipelineDependencyNode.new("git", "git"), nil, pipeline)
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
 
@@ -158,12 +158,12 @@ describe ValueStreamMapController do
           modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
         scm_revision = SCMRevision.new(modification)
         pipeline = "current"
-        vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new(pipeline))
-        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modification))
-        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modifications))
+        vsm = ValueStreamMap.new(pipeline, nil)
+        vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, pipeline)
+        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), "p1", MaterialRevision.new(nil, false, modification))
+        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, "p1", MaterialRevision.new(nil, false, modifications))
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1,@user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1,@user, @result).and_return(model)
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
 
@@ -337,9 +337,9 @@ describe ValueStreamMapController do
       it "should get the pipeline dependency graph json" do
         material = GitMaterial.new("url")
         vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1"))
-        vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), vsm.current_material.getId())
+        vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(material.getFingerprint()), 'revision', @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
 
         get :show_material, material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json"
 

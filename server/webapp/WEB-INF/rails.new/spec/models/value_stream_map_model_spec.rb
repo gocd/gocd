@@ -28,12 +28,12 @@ describe ValueStreamMapModel do
     # git -> p1 -> current
     #  +---- X -----^
     #
-    vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), PipelineRevision.new("current", 1, "current-1"))
-    pipeline_dependency_node = PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1")
+    vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
+    pipeline_dependency_node = PipelineDependencyNode.new("p1", "p1")
     pipeline_dependency_node.setCanEdit(true)
-    vsm.addUpstreamNode(pipeline_dependency_node, PipelineRevision.new("p1", 1, "p1-1"), CaseInsensitiveString.new("current"))
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), CaseInsensitiveString.new("p1"), material_revision)
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), CaseInsensitiveString.new("current"), material_revision)
+    vsm.addUpstreamNode(pipeline_dependency_node, PipelineRevision.new("p1", 1, "p1-1"), "current")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), "p1", material_revision)
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), "current", material_revision)
     noop_proc = proc {}
 
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, noop_proc, noop_proc, noop_proc, proc {|pipeline_name| "/edit/#{pipeline_name}"})
@@ -111,13 +111,13 @@ describe ValueStreamMapModel do
     revision_p3_1 = UnrunPipelineRevision.new("p3")
     revision_p3_1.addStages(Stages.new([StageMother.unrunStage("unrun_stage1"), StageMother.unrunStage("unrun_stage2")]))
 
-    vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), nil)
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_2, CaseInsensitiveString.new("p2"))
+    vsm = ValueStreamMap.new("current", nil)
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, "current")
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p2", "p2"), revision_p2_1, "current")
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_2, "p2")
     modifications = modifications()
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
-    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"));
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), "p1", material_revision)
+    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new("p3", "p3"), "current");
     p3_node.addRevision(revision_p3_1);
 
     vsm_path_partial = proc do |pipeline_name, counter|
@@ -213,13 +213,13 @@ describe ValueStreamMapModel do
     revision_p2_1 = PipelineRevision.new("p2", 1, "label-p2-1")
     revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p2-1", "j1", "p2"), StageMother.unrunStage("unrun_stage")]))
 
-    vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), nil)
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("p2"))
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
+    vsm = ValueStreamMap.new("current", nil)
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, "current")
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p2", "p2"), revision_p2_1, "current")
+    vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, "p2")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), "p1", material_revision)
 
-    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"));
+    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new("p3", "p3"), "current");
     p3_node.setViewType(com.thoughtworks.go.domain.valuestreammap.VSMViewType::NO_PERMISSION)
     p3_node.setMessage("You are not authorized to view this pipeline")
 
@@ -287,9 +287,9 @@ describe ValueStreamMapModel do
   it "should populate details of material_revisions with modifications" do
     # git -> current
 
-    vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), PipelineRevision.new("current", 1, "current-1"))
+    vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
     modifications = modifications()
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), CaseInsensitiveString.new("current"), material_revision)
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), "current", material_revision)
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil)
     git_node = graph_model.levels[0].nodes[0]
 
@@ -310,7 +310,7 @@ describe ValueStreamMapModel do
     material = GitMaterial.new("url")
     modifications = modifications()
     vsm = ValueStreamMap.new(material, nil, modifications[0])
-    vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), vsm.current_material.getId())
+    vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
 
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil)
     expect(graph_model.current_pipeline).to eq(nil)

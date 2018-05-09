@@ -1,18 +1,18 @@
-/*
- * Copyright 2018 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.valuestreammap;
 
@@ -52,7 +52,7 @@ public class UnrunStagesPopulatorTest {
 
     @Test
     public void shouldPopulateRemainingStagesFromConfigurationForCurrentPipeline() throws Exception {
-        ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
+        ValueStreamMap valueStreamMap = new ValueStreamMap("p", new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", new Date()));
         stages.add(StageMother.scheduledStage("p", 10, "s3", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
@@ -71,7 +71,7 @@ public class UnrunStagesPopulatorTest {
 
     @Test
     public void shouldNotAddRemainingStagesWhenTheyAreReordered() throws Exception {
-        ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
+        ValueStreamMap valueStreamMap = new ValueStreamMap("p", new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", new Date()));
         stages.add(StageMother.scheduledStage("p", 10, "s1", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
@@ -98,24 +98,20 @@ public class UnrunStagesPopulatorTest {
              \
               +-> p3
          */
-        CaseInsensitiveString p = new CaseInsensitiveString("p");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
-        ValueStreamMap valueStreamMap = new ValueStreamMap(p, revision(p.toString(), 1));
-        Node p1_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p1, p1.toString()), p);
-        Node p2_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p2, p2.toString()), p1);
-        Node p3_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p3, p3.toString()), p);
+        ValueStreamMap valueStreamMap = new ValueStreamMap("p", revision("p", 1));
+        Node p1_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p1", "p1"), "p");
+        Node p2_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p2", "p2"), "p1");
+        Node p3_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), "p");
         addRevisions(p1_node);
         addRevisions(p2_node);
         addRevisions(p3_node);
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String grp = "first";
-        cruiseConfig.addPipeline(grp, pipelineConfig(p.toString()));
-        cruiseConfig.addPipeline(grp, pipelineConfig(p1.toString()));
-        cruiseConfig.addPipeline(grp, pipelineConfig(p2.toString()));
-        cruiseConfig.addPipeline(grp, pipelineConfig(p3.toString()));
+        cruiseConfig.addPipeline(grp, pipelineConfig("p"));
+        cruiseConfig.addPipeline(grp, pipelineConfig("p1"));
+        cruiseConfig.addPipeline(grp, pipelineConfig("p2"));
+        cruiseConfig.addPipeline(grp, pipelineConfig("p3"));
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
@@ -135,10 +131,10 @@ public class UnrunStagesPopulatorTest {
               +-> p3
          */
 
-        ValueStreamMap graph = new ValueStreamMap(new CaseInsensitiveString("p"), revision("p", 1));
-        Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1"), new CaseInsensitiveString("p"));
-        Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p1"));
-        Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), new CaseInsensitiveString("p"));
+        ValueStreamMap graph = new ValueStreamMap("p", revision("p", 1));
+        Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode("p1", "p1"), "p");
+        Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode("p2", "p2"), "p1");
+        Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), "p");
 
         addRevisions(p1_node);
 
@@ -167,9 +163,9 @@ public class UnrunStagesPopulatorTest {
 		GitMaterial gitMaterial = new GitMaterial("url");
 		ValueStreamMap graph = new ValueStreamMap(gitMaterial, null, ModificationsMother.aCheckIn("r1"));
 		Node git_node = graph.getCurrentMaterial();
-		Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1"), git_node.getId());
-		Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p1"));
-		Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), git_node.getId());
+		Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode("p1", "p1"), git_node.getId());
+		Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode("p2", "p2"), "p1");
+		Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), git_node.getId());
 
 		addRevisions(p1_node);
 		addRevisions(p3_node);

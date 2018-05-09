@@ -32,7 +32,7 @@ class ValueStreamMapModel
       @error = error
     else
       @current_pipeline = vsm.getCurrentPipeline().getName() unless vsm.getCurrentPipeline() == nil
-      @current_material = vsm.getCurrentMaterial().getId().toString() unless vsm.getCurrentMaterial() == nil
+      @current_material = vsm.getCurrentMaterial().getId() unless vsm.getCurrentMaterial() == nil
       @levels = Array.new
       vsm.getNodesAtEachLevel().each do |nodes|
         level = VSMPipelineDependencyLevelModel.new()
@@ -40,18 +40,18 @@ class ValueStreamMapModel
         nodes.each do |node|
           node_type = node.getType().to_s
           if (node_type == NODE_TYPE_FOR_MATERIAL)
-            level.nodes << VSMSCMDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map { |child| child.getId().toString() },
-                                                         node.getParents().map { |parent| parent.getId().toString() }, node.getMaterialType().upcase,
+            level.nodes << VSMSCMDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
+                                                         node.getParents().map { |parent| parent.getId() }, node.getMaterialType().upcase,
                                                          node.getDepth(), node.getMaterialNames(), vsm_material_path_partial, node.getMaterialRevisions(), node.getViewType(), node.getMessageString())
           elsif (node_type == NODE_TYPE_FOR_PIPELINE)
-            level.nodes << VSMPipelineDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map { |child| child.getId().toString() },
-                                                              node.getParents().map { |parent| parent.getId().toString() }, node_type,
+            level.nodes << VSMPipelineDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
+                                                              node.getParents().map { |parent| parent.getId() }, node_type,
                                                               node.getDepth(), node.revisions(), node.getMessageString(), node.getViewType(),
                                                               node.canEdit(), vsm_path_partial, stage_detail_path_partial, pipeline_edit_path_partial)
           else
-            level.nodes << VSMDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map {|child| child.getId().toString()},
-                                                      node.getParents().map {|parent| parent.getId().toString()}, node_type,
-                                                      node.getDepth())
+            level.nodes << VSMDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().map { |child| child.getId() },
+                                                 node.getParents().map { |parent| parent.getId() }, node_type,
+                                                 node.getDepth())
           end
         end
         @levels << level

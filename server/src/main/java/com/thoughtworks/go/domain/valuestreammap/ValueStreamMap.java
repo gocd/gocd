@@ -1,18 +1,18 @@
-/*
- * Copyright 2018 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.domain.valuestreammap;
 
@@ -32,15 +32,15 @@ public class ValueStreamMap {
     private Node currentPipeline;
     private Node currentMaterial;
 	private MaterialInstance currentMaterialInstance;
-    private LinkedHashMap<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
+    private LinkedHashMap<String, Node> nodeIdToNodeMap = new LinkedHashMap<>();
 	private List<Node> rootNodes = new ArrayList<>();
 
 	private LevelAssignment levelAssignment = new LevelAssignment();
     private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
     private CrossingMinimization crossingMinimization = new CrossingMinimization();
 
-    public ValueStreamMap(CaseInsensitiveString pipeline, PipelineRevision pipelineRevision) {
-        currentPipeline = new PipelineDependencyNode(pipeline, pipeline.toString());
+    public ValueStreamMap(String pipeline, PipelineRevision pipelineRevision) {
+        currentPipeline = new PipelineDependencyNode(pipeline, pipeline);
         nodeIdToNodeMap.put(currentPipeline.getId(), currentPipeline);
         currentPipeline.addRevision(pipelineRevision);
     }
@@ -65,13 +65,13 @@ public class ValueStreamMap {
 		return currentMaterialInstance;
 	}
 
-	public Node addUpstreamNode(Node node, PipelineRevision revision, CaseInsensitiveString dependentNodeId) {
+	public Node addUpstreamNode(Node node, PipelineRevision revision, String dependentNodeId) {
         node = addUpstreamNode(node, dependentNodeId);
         node.addRevision(revision);
         return node;
     }
 
-    public Node addUpstreamMaterialNode(Node node, CaseInsensitiveString materialName, CaseInsensitiveString dependentNodeId,
+    public Node addUpstreamMaterialNode(Node node, CaseInsensitiveString materialName, String dependentNodeId,
                                         MaterialRevision materialRevision) {
         SCMDependencyNode scmNode = (SCMDependencyNode) addUpstreamNode(node, dependentNodeId);
         scmNode.addMaterialRevision(materialRevision);
@@ -81,7 +81,7 @@ public class ValueStreamMap {
         return scmNode;
     }
 
-    public Node addDownstreamNode(Node node, CaseInsensitiveString parentNodeId) {
+    public Node addDownstreamNode(Node node, String parentNodeId) {
         Node parentNode = findNode(parentNodeId);
         if (hasNode(node.getId())) {
             node = findNode(node.getId());
@@ -92,7 +92,7 @@ public class ValueStreamMap {
         return node;
     }
 
-    private Node addUpstreamNode(Node node, CaseInsensitiveString dependentNodeId) {
+    private Node addUpstreamNode(Node node, String dependentNodeId) {
         Node dependentNode = findNode(dependentNodeId);
         if (hasNode(node.getId())) {
             node = findNode(node.getId());
@@ -103,7 +103,7 @@ public class ValueStreamMap {
         return node;
     }
 
-    public Node findNode(CaseInsensitiveString nodeId) {
+    public Node findNode(String nodeId) {
         return nodeIdToNodeMap.get(nodeId);
     }
 
@@ -127,7 +127,7 @@ public class ValueStreamMap {
 		}
 	}
 
-    private boolean hasNode(CaseInsensitiveString nodeId) {
+    private boolean hasNode(String nodeId) {
         return nodeIdToNodeMap.containsKey(nodeId);
     }
 
@@ -140,7 +140,7 @@ public class ValueStreamMap {
 
     public boolean hasCycle() {
         Set<Node> verifiedNodes = new HashSet<>();
-        Set<CaseInsensitiveString> nodesInPath = new HashSet<>();
+        Set<String> nodesInPath = new HashSet<>();
 
         for (Node node : getRootNodes()) {
             if (node.hasCycleInSubGraph(nodesInPath, verifiedNodes)) {

@@ -1,27 +1,26 @@
-/*
- * Copyright 2018 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.domain.valuestreammap;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,20 +34,15 @@ public class NodeTest {
            |        ^
            +-> p2 --+
          */
-        CaseInsensitiveString gitFingerprint = new CaseInsensitiveString("git-fingerprint");
-        Node git = new PipelineDependencyNode(gitFingerprint, "git");
+        Node git = new PipelineDependencyNode("git-fingerprint", "git");
         git.setLevel(0);
-        CaseInsensitiveString p1Name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2Name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString dummyName = new CaseInsensitiveString("dummy");
-        CaseInsensitiveString p3Name = new CaseInsensitiveString("p3");
-        Node p1 = new PipelineDependencyNode(p1Name, p1Name.toString());
+        Node p1 = new PipelineDependencyNode("p1", "p1");
         p1.setLevel(1);
-        Node p2 = new PipelineDependencyNode(p2Name, p2Name.toString());
+        Node p2 = new PipelineDependencyNode("p2", "p2");
         p2.setLevel(1);
-        Node dummy = new PipelineDependencyNode(dummyName, dummyName.toString());
+        Node dummy = new PipelineDependencyNode("dummy", "dummy");
         dummy.setLevel(1);
-        Node p3 = new PipelineDependencyNode(p3Name, p3Name.toString());
+        Node p3 = new PipelineDependencyNode("p3", "p3");
         p2.setLevel(2);
         git.addChildIfAbsent(p1);
         git.addChildIfAbsent(p2);
@@ -74,13 +68,13 @@ public class NodeTest {
            |
            +-> p2
          */
-        Node git = new PipelineDependencyNode(new CaseInsensitiveString("git-fingerprint"), "git");
+        Node git = new PipelineDependencyNode("git-fingerprint", "git");
         git.setLevel(0);
-        Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        Node p1 = new PipelineDependencyNode("p1", "p1");
         p1.setLevel(1);
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode("p2", "p2");
         p2.setLevel(1);
-        Node dummy = new PipelineDependencyNode(new CaseInsensitiveString("dummy"), "dummy");
+        Node dummy = new PipelineDependencyNode("dummy", "dummy");
         dummy.setLevel(0);
         git.addChildIfAbsent(p1);
         git.addChildIfAbsent(p2);
@@ -98,7 +92,7 @@ public class NodeTest {
     @Test
     public void shouldGetTypeForNode() {
         Node g1 = new SCMDependencyNode("g1", "g1", "git");
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode("p2", "p2");
         Node dummy = new DummyNode("dummy", "dummy");
 
         assertThat(g1.getType(), is(DependencyNodeType.MATERIAL));
@@ -108,13 +102,13 @@ public class NodeTest {
 
     @Test
     public void shouldCompareTwoNodesBasedOnBarycenterValue() {
-        PipelineDependencyNode p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        PipelineDependencyNode p1 = new PipelineDependencyNode("p1", "p1");
         p1.setLevel(1);
         p1.setDepth(5);
-        PipelineDependencyNode p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        PipelineDependencyNode p2 = new PipelineDependencyNode("p2", "p2");
         p2.setLevel(1);
         p2.setDepth(1);
-        PipelineDependencyNode p3 = new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3");
+        PipelineDependencyNode p3 = new PipelineDependencyNode("p3", "p3");
         p3.setLevel(1);
         p3.setDepth(4);
 
@@ -128,7 +122,7 @@ public class NodeTest {
         Revision p11 = new PipelineRevision("p1", 1, "label1");
         Revision p12 = new PipelineRevision("p1", 2, "label2");
 
-        PipelineDependencyNode node = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        PipelineDependencyNode node = new PipelineDependencyNode("p1", "p1");
         node.setLevel(1);
         node.addRevision(p11);
         node.addRevision(null);
@@ -142,7 +136,7 @@ public class NodeTest {
 
     @Test
     public void shouldGetRevisionsSortedInOrderOfPipelineCounters() {
-        Node node = new PipelineDependencyNode(new CaseInsensitiveString("p"), "p");
+        Node node = new PipelineDependencyNode("p", "p");
         Revision revision_2 = new PipelineRevision("p", 2, "2");
         Revision revision_1 = new PipelineRevision("p", 1, "1");
         Revision revision_3 = new PipelineRevision("p", 3, "3");

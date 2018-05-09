@@ -1,18 +1,18 @@
-/*
- * Copyright 2018 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.valuestreammap;
 
@@ -47,19 +47,17 @@ public class LevelAssignmentTest {
         ---> p2 ---
         */
 
-        CaseInsensitiveString current = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p1name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        Node p1 = new PipelineDependencyNode(p1name, p1name.toString());
-        Node p2 = new PipelineDependencyNode(p2name, p2name.toString());
+        String current = "p3";
+        Node p1 = new PipelineDependencyNode("p1", "p1");
+        Node p2 = new PipelineDependencyNode("p2", "p2");
         Node gitNode = new SCMDependencyNode("git", "g", "git");
 
-        ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
-        valueStreamMap.addUpstreamNode(p1, new PipelineRevision(p1name.toString(), 1, "1"), current);
-        valueStreamMap.addUpstreamNode(p2, new PipelineRevision(p2name.toString(), 1, "1"), current);
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), p1name, new MaterialRevision(null));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), new CaseInsensitiveString("p3"), new MaterialRevision(null));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), p2name, new MaterialRevision(null));
+        ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current, 1, "1"));
+        valueStreamMap.addUpstreamNode(p1, new PipelineRevision("p1", 1, "1"), current);
+        valueStreamMap.addUpstreamNode(p2, new PipelineRevision("p2", 1, "1"), current);
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), "p1", new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), "p3", new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), "p2", new MaterialRevision(null));
         NodeLevelMap levelToNodeMap = new LevelAssignment().apply(valueStreamMap);
 
         assertThat(valueStreamMap.getCurrentPipeline().getLevel(), is(0));
@@ -83,17 +81,14 @@ public class LevelAssignmentTest {
                ---> p2 ----
     	*/
 
-        CaseInsensitiveString current = new CaseInsensitiveString("p");
-        CaseInsensitiveString p1name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3name = new CaseInsensitiveString("p3");
-        Node p1 = new PipelineDependencyNode(p1name, p1name.toString());
-        Node p2 = new PipelineDependencyNode(p2name, p2name.toString());
-        Node p3 = new PipelineDependencyNode(p3name, p3name.toString());
+        String current = "p";
+        Node p1 = new PipelineDependencyNode("p1", "p1");
+        Node p2 = new PipelineDependencyNode("p2", "p2");
+        Node p3 = new PipelineDependencyNode("p3", "p3");
         Node gitNode = new SCMDependencyNode("git", "g", "git");
 
-        ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), new CaseInsensitiveString("p"), new MaterialRevision(null));
+        ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current, 1, "1"));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), "p", new MaterialRevision(null));
 
         valueStreamMap.addDownstreamNode(p1, current);
         valueStreamMap.addDownstreamNode(p2, current);
@@ -125,10 +120,10 @@ public class LevelAssignmentTest {
 			   ---> p2 ----
 		*/
 
-		Node p = new PipelineDependencyNode(new CaseInsensitiveString("p"), "p");
-		Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
-		Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
-		Node p3 = new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3");
+		Node p = new PipelineDependencyNode("p", "p");
+		Node p1 = new PipelineDependencyNode("p1", "p1");
+		Node p2 = new PipelineDependencyNode("p2", "p2");
+		Node p3 = new PipelineDependencyNode("p3", "p3");
 
 		GitMaterial material = new GitMaterial("url");
 		Modification modification = ModificationsMother.aCheckIn("1");

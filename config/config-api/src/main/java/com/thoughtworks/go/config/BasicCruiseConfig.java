@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1296,19 +1296,19 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
+    public Map<String, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
-        Map<CaseInsensitiveString, List<PipelineConfig>> result = new HashMap<>();
+        Map<String, List<PipelineConfig>> result = new HashMap<>();
 
         for (PipelineConfig currentPipeline : pipelineConfigs) {
-            CaseInsensitiveString currentPipelineName = currentPipeline.name();
+            String currentPipelineName = currentPipeline.name().toString();
             if (!result.containsKey(currentPipelineName)) {
                 result.put(currentPipelineName, new ArrayList<>());
             }
 
             for (MaterialConfig materialConfig : currentPipeline.materialConfigs()) {
                 if (materialConfig instanceof DependencyMaterialConfig) {
-                    CaseInsensitiveString pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName();
+                    String pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName().toString();
                     if (!result.containsKey(pipelineWhichTriggersMe)) {
                         result.put(pipelineWhichTriggersMe, new ArrayList<>());
                     }

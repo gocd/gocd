@@ -50,7 +50,7 @@ public class AuthenticationToken<T extends Credentials> {
     }
 
     public boolean isAuthenticated(Clock clock, SystemEnvironment systemEnvironment) {
-        return !(invalidated || isExpired(clock, systemEnvironment));
+        return !isAuthenticationNotValid(clock, systemEnvironment);
     }
 
     public String getPluginId() {
@@ -65,24 +65,13 @@ public class AuthenticationToken<T extends Credentials> {
         this.invalidated = true;
     }
 
-    public boolean isAnonymousToken() {
-        return credentials instanceof AnonymousCredential;
+    private boolean isAuthenticationNotValid(Clock clock, SystemEnvironment systemEnvironment) {
+        return invalidated || requiresReAuthentication(clock, systemEnvironment);
     }
 
-    private boolean isExpired(Clock clock, SystemEnvironment systemEnvironment) {
+    private boolean requiresReAuthentication(Clock clock, SystemEnvironment systemEnvironment) {
         return systemEnvironment.isReAuthenticationEnabled() &&
                 (clock.currentTimeMillis() - authenticatedAt) > systemEnvironment.getReAuthenticationTimeInterval();
-    }
-
-    @Override
-    public String toString() {
-        return "AuthenticationToken{" +
-                "user=" + user +
-                ", authConfigId='" + authConfigId + '\'' +
-                ", authenticatedAt=" + authenticatedAt +
-                ", pluginId='" + pluginId + '\'' +
-                ", invalidated=" + invalidated +
-                '}';
     }
 
     @Override

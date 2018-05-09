@@ -71,7 +71,6 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     }
 
     private void updateLastChangedTime() {
-        LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
         lastChangedTime = clock.currentTimeMillis();
     }
 
@@ -79,14 +78,8 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (!SessionUtils.hasAuthenticationToken(request)) {
-            LOGGER.debug("Authentication token is not created for the request.");
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
-        Assert.notNull(authenticationToken);
+        final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
+        Assert.notNull(authentication);
         synchronized (request.getSession(false).getId().intern()) {
             long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);
@@ -94,8 +87,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
                 request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, localCopyOfLastChangedTime);
             } else if (previousLastChangedTime < localCopyOfLastChangedTime) {
                 request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, localCopyOfLastChangedTime);
-                LOGGER.debug("Invalidating existing token {}", authenticationToken);
-                authenticationToken.invalidate();
+                authentication.invalidate();
             }
         }
         filterChain.doFilter(request, response);
@@ -105,6 +97,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
         if (!Objects.equals(this.securityConfig, newSecurityConfig)) {
+            LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
             updateLastChangedTime();
         }
         this.securityConfig = newSecurityConfig;

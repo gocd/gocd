@@ -42,7 +42,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 public class OauthAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION = "Authorization";
     private static final Pattern OAUTH_TOKEN_PATTERN = Pattern.compile("^Token token=\"(.*?)\"$");
-    private static final Logger LOGGER = LoggerFactory.getLogger(OauthAuthenticationFilter.class);
+    protected final Logger LOGGER = LoggerFactory.getLogger(OauthAuthenticationFilter.class);
     private final SecurityService securityService;
     private final OAuthAuthenticationProvider authenticationProvider;
 
@@ -61,10 +61,8 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
             OAuthCredentials oAuthCredentials = extractOAuthToken(request);
 
             if (securityService.isSecurityEnabled()) {
-                LOGGER.debug("Security is enabled.");
                 filterWhenSecurityEnabled(request, response, filterChain, oAuthCredentials);
             } else {
-                LOGGER.debug("Security is disabled.");
                 filterWhenSecurityDisabled(request, response, filterChain, oAuthCredentials);
             }
         } catch (AuthenticationException e) {
@@ -79,8 +77,8 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
         if (oAuthCredentials == null) {
             filterChain.doFilter(request, response);
         } else {
-            LOGGER.debug("authenticating user {} using OAuth token.");
             final AuthenticationToken<OAuthCredentials> authenticationToken = authenticationProvider.authenticate(oAuthCredentials, null);
+
             if (authenticationToken == null) {
                 onAuthenticationFailure(request, response, "Provided OAuth token is invalid.");
             } else {
@@ -91,8 +89,8 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
     }
 
     void onAuthenticationFailure(HttpServletRequest request,
-                                 HttpServletResponse response,
-                                 String errorMessage) throws IOException {
+                                         HttpServletResponse response,
+                                         String errorMessage) throws IOException {
         response.setStatus(401);
         response.getOutputStream().print(errorMessage);
     }

@@ -17,8 +17,6 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,12 +31,11 @@ import java.io.IOException;
 /* API requests should not start long-lived session. */
 @Component
 public class ApiSessionReduceIdleTimeoutFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiSessionReduceIdleTimeoutFilter.class);
-    private final int maxInactiveInterval;
+    private final int idleTimeoutInSeconds;
 
     @Autowired
     public ApiSessionReduceIdleTimeoutFilter(SystemEnvironment systemEnvironment) {
-        maxInactiveInterval = systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS);
+        idleTimeoutInSeconds = systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS);
     }
 
 
@@ -60,8 +57,7 @@ public class ApiSessionReduceIdleTimeoutFilter extends OncePerRequestFilter {
             boolean hasSessionNow = session != null;
 
             if (hadNoSessionBeforeStarting && hasSessionNow) {
-                LOGGER.debug("Setting max inactive interval for request: {} to {}.", request.getRequestURI(), maxInactiveInterval);
-                session.setMaxInactiveInterval(maxInactiveInterval);
+                session.setMaxInactiveInterval(idleTimeoutInSeconds);
             }
         }
     }

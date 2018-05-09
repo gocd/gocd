@@ -51,6 +51,7 @@ public class AuthorityGranter {
         if (securityService.isSecurityEnabled()) {
             return anonymousOnlyAuthority();
         } else {
+
             return ALL_AUTHORITIES;
         }
     }

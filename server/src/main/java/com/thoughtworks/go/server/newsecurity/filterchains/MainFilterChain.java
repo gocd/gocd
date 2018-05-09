@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
+import com.thoughtworks.go.server.newsecurity.filters.AssumeAnonymousUserFilter;
 import com.thoughtworks.go.server.newsecurity.filters.ModeAwareFilter;
 import com.thoughtworks.go.server.newsecurity.filters.ThreadLocalUserFilter;
 import com.thoughtworks.go.server.web.FlashLoadingFilter;
@@ -29,6 +30,7 @@ public class MainFilterChain extends FilterChainProxy {
     @Autowired
     public MainFilterChain(ModeAwareFilter modeAwareFilter,
                            CreateSessionFilterChain createSessionFilterChain,
+                           AssumeAnonymousUserFilter assumeAnonymousUserFilter,
                            RememberLastRequestUrlFilterChain rememberLastRequestUrlFilterChain,
                            AuthenticationFilterChain authenticationFilterChain,
                            ThreadLocalUserFilter threadLocalUserFilter,
@@ -42,6 +44,7 @@ public class MainFilterChain extends FilterChainProxy {
                 .addFilterChain("/**",
                         modeAwareFilter,
                         createSessionFilterChain,
+                        assumeAnonymousUserFilter,
                         rememberLastRequestUrlFilterChain,
                         authenticationFilterChain,
                         threadLocalUserFilter,

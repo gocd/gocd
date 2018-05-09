@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.scheduling;
 
@@ -27,23 +27,22 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TriggerMonitor {
-    ConcurrentSkipListSet<String> triggeredPipelines = new ConcurrentSkipListSet<>();
+    ConcurrentSkipListSet<CaseInsensitiveString> triggeredPipelines = new ConcurrentSkipListSet<>();
 
-    public boolean isAlreadyTriggered(String pipelineName) {
-        return triggeredPipelines.contains(pipelineName.toLowerCase());
+    public boolean isAlreadyTriggered(CaseInsensitiveString pipelineName) {
+        return triggeredPipelines.contains(pipelineName);
     }
 
     public boolean markPipelineAsAlreadyTriggered(PipelineConfig pipelineConfig) {
-        String s = CaseInsensitiveString.str(pipelineConfig.name());
-        return markPipelineAsAlreadyTriggered(s);
+        return markPipelineAsAlreadyTriggered(pipelineConfig.name());
     }
 
-    public boolean markPipelineAsAlreadyTriggered(String pipelineName) {
-        return triggeredPipelines.add(pipelineName.toLowerCase());
+    public boolean markPipelineAsAlreadyTriggered(CaseInsensitiveString pipelineName) {
+        return triggeredPipelines.add(pipelineName);
     }
 
     public void markPipelineAsCanBeTriggered(PipelineConfig pipelineConfig) {
-        triggeredPipelines.remove(pipelineConfig.name().toLower());
+        triggeredPipelines.remove(pipelineConfig.name());
     }
 
     public void clear_for_test() {

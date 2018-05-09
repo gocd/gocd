@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
     @Test
     public void shouldUpdateServerHealthWhenSchedulePipelineFails() throws Exception {
-        pipelineScheduleQueue.schedule("blahPipeline", saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString("blahPipeline"), saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         List<ServerHealthState> stateList = serverHealthService.filterByScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size(), is(1));

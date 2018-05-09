@@ -449,7 +449,7 @@ public class ScheduleServiceIntegrationTest {
         BuildCause buildCause = ModificationsMother.modifySomeFiles(pipelineConfig);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         String pipelineName = pipelineConfig.name().toString();
-        pipelineScheduleQueue.schedule(pipelineName, buildCause);
+        pipelineScheduleQueue.schedule(pipelineConfig.name(), buildCause);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, counter);
         pipeline = pipelineDao.loadAssociations(pipeline, pipelineName);

@@ -63,7 +63,7 @@ public class GoDashboardCurrentStateLoader {
     private TimeStampBasedCounter timeStampBasedCounter;
     private boolean everLoadedCurrentState = false;
     private PipelineInstanceModels historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
-    private Set<CaseInsensitiveString> lastKnownPipelineNames = new HashSet<>();
+    private Set<CaseInsensitiveString> previousPipelineNames = new HashSet<>();
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
@@ -83,20 +83,25 @@ public class GoDashboardCurrentStateLoader {
     public List<GoDashboardPipeline> allPipelines(CruiseConfig config) {
         List<CaseInsensitiveString> allPipelineNames = config.getAllPipelineNames();
 
-        HashSet<CaseInsensitiveString> currentPipelineNames = new HashSet<>(allPipelineNames);
+        HashSet<CaseInsensitiveString> newPipelineNames = new HashSet<>(allPipelineNames);
 
-        Collection<CaseInsensitiveString> pipelinesToRemove = Sets.difference(lastKnownPipelineNames, currentPipelineNames);
-        Collection<CaseInsensitiveString> pipelinesToAdd = Sets.difference(currentPipelineNames, lastKnownPipelineNames);
+        Collection<CaseInsensitiveString> pipelinesToRemove = Sets.difference(previousPipelineNames, newPipelineNames);
+        Collection<CaseInsensitiveString> pipelinesToAdd = Sets.difference(newPipelineNames, previousPipelineNames);
 
         if (!pipelinesToAdd.isEmpty()) {
             historyForDashboard.addAll(loadHistoryForPipelines(new ArrayList<>(CaseInsensitiveString.toStringList(pipelinesToAdd))));
         }
 
         for (CaseInsensitiveString pipelineNameToRemove : pipelinesToRemove) {
-            clearEntryFor(pipelineNameToRemove);
+            historyForDashboard.removeIf(new Predicate<PipelineInstanceModel>() {
+                @Override
+                public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                    return pipelineNameToRemove.equals(new CaseInsensitiveString(pipelineInstanceModel.getName()));
+                }
+            });
         }
 
-        lastKnownPipelineNames = currentPipelineNames;
+        previousPipelineNames = newPipelineNames;
 
         LOGGER.debug("Loading permissions from authority");
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = permissionsAuthority.pipelinesAndTheirPermissions();
@@ -147,9 +152,14 @@ public class GoDashboardCurrentStateLoader {
     }
 
     private void syncHistoryForDashboard(PipelineInstanceModels pipelineHistoryForDashboard, final CaseInsensitiveString pipelineName) {
-        clearEntryFor(pipelineName);
+        List<PipelineInstanceModel> allPipelinesExceptPipelineConfigInContext = historyForDashboard.stream().filter(new Predicate<PipelineInstanceModel>() {
+            @Override
+            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
+                return !pipelineInstanceModel.getName().equalsIgnoreCase(pipelineName.toString());
+            }
+        }).collect(toList());
+        historyForDashboard = createPipelineInstanceModels(allPipelinesExceptPipelineConfigInContext);
         historyForDashboard.addAll(pipelineHistoryForDashboard);
-        lastKnownPipelineNames.add(pipelineName);
     }
 
     private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group) {
@@ -220,16 +230,6 @@ public class GoDashboardCurrentStateLoader {
 
     public void reset() {
         historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
-        lastKnownPipelineNames = new HashSet<>();
-    }
-
-    public void clearEntryFor(CaseInsensitiveString pipeline) {
-        lastKnownPipelineNames.remove(pipeline);
-        historyForDashboard.removeIf(new Predicate<PipelineInstanceModel>() {
-            @Override
-            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
-                return pipeline.equals(new CaseInsensitiveString(pipelineInstanceModel.getName()));
-            }
-        });
+        previousPipelineNames = new HashSet<>();
     }
 }

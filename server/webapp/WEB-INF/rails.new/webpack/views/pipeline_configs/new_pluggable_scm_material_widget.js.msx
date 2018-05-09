@@ -91,7 +91,7 @@ const NewPluggableSCMMaterialWidget = {
       let scm = new SCMs.SCM({
         'plugin_metadata': {
           id:      vnode.attrs.material.pluginInfo().id(),
-          version: vnode.attrs.material.pluginInfo().version()
+          version: vnode.attrs.material.pluginInfo().about().version()
         }
       });
 

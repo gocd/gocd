@@ -15,9 +15,11 @@
  */
 
 describe("New Pluggable SCM Material Widget", () => {
-  const $      = require("jquery");
-  const m      = require("mithril");
-  const Stream = require("mithril/stream");
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const Stream        = require("mithril/stream");
+  const simulateEvent = require('simulate-event');
+  const Modal         = require('views/shared/new_modal');
 
   const Materials                     = require("models/pipeline_configs/materials");
   const SCMs                          = require("models/pipeline_configs/scms");
@@ -80,6 +82,31 @@ describe("New Pluggable SCM Material Widget", () => {
 
     it('should show the available pluggable scm list dropdown', () => {
       expect($root.find('label')).toContainText('No existing SCMs for GitHub Pull Requests Builder');
+    });
+  });
+
+  describe('SCM modal for new plugin configuration', () => {
+    beforeEach(() => {
+      pluggableMaterial = Materials.create({
+        type:         "plugin",
+        scm:          github,
+        pluginInfo:   PluginInfos.fromJSON(pluginInfosJSON).firstPluginInfo(),
+        filter:       new Materials.Filter({ignore: ['*.doc']}),
+        destination:  "dest_folder",
+        invertFilter: true
+      });
+      mount(pluggableMaterial);
+    });
+
+    afterEach(() => {
+      unmount();
+      Modal.destroyAll();
+    });
+
+    it('should show the plugin SCM configuration modal', () => {
+      const createNewButton = $root.find('.add-button.button').get(0);
+      simulateEvent.simulate(createNewButton, 'click');
+      expect($('.modal-title')).toBeInDOM();
     });
   });
 

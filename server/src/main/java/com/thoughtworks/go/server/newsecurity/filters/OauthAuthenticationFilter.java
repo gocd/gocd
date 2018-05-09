@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.newsecurity.models.OAuthCredentials;
 import com.thoughtworks.go.server.newsecurity.providers.OAuthAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,12 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        if (SessionUtils.hasAuthenticationToken(request)) {
+            LOGGER.debug("Already authenticated request.");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             OAuthCredentials oAuthCredentials = extractOAuthToken(request);
 
@@ -88,7 +95,7 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    void onAuthenticationFailure(HttpServletRequest request,
+    private void onAuthenticationFailure(HttpServletRequest request,
                                          HttpServletResponse response,
                                          String errorMessage) throws IOException {
         response.setStatus(401);

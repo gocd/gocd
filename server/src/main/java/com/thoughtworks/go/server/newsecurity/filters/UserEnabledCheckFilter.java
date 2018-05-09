@@ -26,6 +26,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -36,13 +38,18 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 
-public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractUserEnabledCheckFilter.class);
+/**
+ * @understands
+ */
+@Component
+public class UserEnabledCheckFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserEnabledCheckFilter.class);
 
     private final UserService userService;
     private final SecurityService securityService;
 
-    AbstractUserEnabledCheckFilter(UserService userService, SecurityService securityService) {
+    @Autowired
+    public UserEnabledCheckFilter(UserService userService, SecurityService securityService) {
         this.userService = userService;
         this.securityService = securityService;
     }
@@ -63,15 +70,12 @@ public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilte
             SessionUtils.setUserId(request, user.getId());
         }
 
-        if (user.isEnabled()) {
-            filterChain.doFilter(request, response);
-        } else {
-            SessionUtils.recreateSessionWithoutCopyingOverSessionState(request);
-            handleFailure(request, response, "Your account has been disabled by the administrator");
+        if (!user.isEnabled()) {
+            SessionUtils.setAuthenticationTokenAfterRecreatingSession(null, request);
+            SessionUtils.setAuthenticationError("Your account has been disabled by the administrator", request);
         }
+        filterChain.doFilter(request, response);
     }
-
-    abstract void handleFailure(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException;
 
     private boolean notInSession(HttpServletRequest request) {
         return SessionUtils.getUserId(request) == null;

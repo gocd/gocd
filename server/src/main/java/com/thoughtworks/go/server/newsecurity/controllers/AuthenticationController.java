@@ -117,7 +117,7 @@ public class AuthenticationController {
 
     @RequestMapping(value = "/auth/logout", method = RequestMethod.GET)
     public RedirectView logout(HttpServletRequest request) {
-        SessionUtils.recreateSessionWithoutCopyingOverSessionState(request);
+        SessionUtils.recreateSession(request);
         return new RedirectView("/auth/login", true);
     }
 

@@ -20,7 +20,6 @@ import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -32,10 +31,10 @@ import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 
@@ -63,6 +62,7 @@ public class X509AuthenticationFilterTest {
         new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
 
         final AuthenticationToken<X509Credential> authentication = (AuthenticationToken<X509Credential>) SessionUtils.getAuthenticationToken(request);
+        assertThat(authentication).isNotNull();
         assertThat(authentication.getUser().getUsername())
                 .isEqualTo("_go_agent_blah");
         assertThat(authentication.getUser().getAuthorities())
@@ -77,32 +77,10 @@ public class X509AuthenticationFilterTest {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
         new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
 
-        assertThat((AuthenticationToken) SessionUtils.getAuthenticationToken(request)).isNull();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertThat(authentication).isNull();
         verifyZeroInteractions(filterChain);
         assertThat(response.getStatus()).isEqualTo(403);
-    }
-
-    @Test
-    void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
-        final Registration registration = createRegistration("blah");
-        final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                .withX509(registration.getChain())
-                .build();
-
-        com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
-        final HttpSession originalSession = request.getSession(true);
-
-        new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
-
-        final AuthenticationToken<X509Credential> authentication = (AuthenticationToken<X509Credential>) SessionUtils.getAuthenticationToken(request);
-        assertThat(authentication.getUser().getUsername())
-                .isEqualTo("_go_agent_blah");
-        assertThat(authentication.getUser().getAuthorities())
-                .hasSize(1)
-                .contains(GoAuthority.ROLE_AGENT.asAuthority());
-        verify(filterChain).doFilter(request, response);
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(request.getSession(false)).isNotSameAs(originalSession);
     }
 
     private Registration createRegistration(String hostname) throws IOException {

@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -39,31 +38,26 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-class AbstractUserEnabledCheckFilterTest {
+public class UserEnabledCheckFilterTest {
     private MockHttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain filterChain;
 
-    private AbstractUserEnabledCheckFilter filter;
+    private UserEnabledCheckFilter filter;
     private UserService userService;
     private SecurityService securityService;
+    private HttpSession session;
+
 
     @BeforeEach
     void setUp() throws Exception {
         userService = mock(UserService.class);
         securityService = mock(SecurityService.class);
-        filter = spy(new AbstractUserEnabledCheckFilter(userService, securityService) {
-
-            @Override
-            void handleFailure(HttpServletRequest request,
-                               HttpServletResponse response,
-                               String errorMessage) throws IOException {
-
-            }
-        });
+        filter = new UserEnabledCheckFilter(userService, securityService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
+        session = mock(HttpSession.class);
     }
 
     @Nested
@@ -84,10 +78,11 @@ class AbstractUserEnabledCheckFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
+            verify(filterChain).doFilter(request, response);
+
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(SessionUtils.getUserId(request)).isNull();
-            verify(filterChain, never()).doFilter(request, response);
-            verify(filter).handleFailure(request, response, "Your account has been disabled by the administrator");
+            assertThat(SessionUtils.getAuthenticationError(request)).isEqualTo("Your account has been disabled by the administrator");
         }
 
         @Test
@@ -102,11 +97,11 @@ class AbstractUserEnabledCheckFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
+            verify(filterChain).doFilter(request, response);
+
             assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(actualAuthenticationToken);
             assertThat(SessionUtils.getUserId(request)).isEqualTo(1L);
             assertThat(SessionUtils.getAuthenticationError(request)).isNull();
-            verify(filter, never()).handleFailure(any(), any(), anyString());
-            verify(filterChain).doFilter(request, response);
         }
 
         @Test
@@ -122,8 +117,6 @@ class AbstractUserEnabledCheckFilterTest {
 
             verify(session, never()).setAttribute("GOCD_SECURITY_CURRENT_USER_ID", 1L);
             verify(session, never()).removeAttribute("GOCD_SECURITY_CURRENT_USER_ID");
-            verify(filterChain).doFilter(request, response);
-            verify(filter, never()).handleFailure(any(), any(), anyString());
         }
 
         @Test
@@ -136,11 +129,11 @@ class AbstractUserEnabledCheckFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
+            verify(filterChain).doFilter(request, response);
+
             assertThat(SessionUtils.getUserId(request)).isNull();
             assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(actualAuthenticationToken);
             assertThat(SessionUtils.getAuthenticationError(request)).isNull();
-            verify(filterChain).doFilter(request, response);
-            verify(filter, never()).handleFailure(any(), any(), anyString());
         }
 
         @Test
@@ -151,7 +144,6 @@ class AbstractUserEnabledCheckFilterTest {
 
             verify(filterChain).doFilter(request, response);
             verifyZeroInteractions(userService);
-            verify(filter, never()).handleFailure(any(), any(), anyString());
         }
 
         @Test
@@ -162,7 +154,6 @@ class AbstractUserEnabledCheckFilterTest {
 
             verifyZeroInteractions(userService);
             verify(filterChain).doFilter(request, response);
-            verify(filter, never()).handleFailure(any(), any(), anyString());
         }
     }
 
@@ -179,7 +170,6 @@ class AbstractUserEnabledCheckFilterTest {
 
             verifyZeroInteractions(userService);
             verify(filterChain).doFilter(request, response);
-            verify(filter, never()).handleFailure(any(), any(), anyString());
         }
     }
 

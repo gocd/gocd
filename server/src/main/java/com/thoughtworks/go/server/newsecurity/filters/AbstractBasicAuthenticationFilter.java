@@ -57,6 +57,12 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
+        if (SessionUtils.hasAuthenticationToken(request)) {
+            LOGGER.debug("Already authenticated request.");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             final UsernamePassword usernamePassword = extractBasicAuthenticationCredentials(request);
 
@@ -92,10 +98,10 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
                                             HttpServletResponse response,
                                             FilterChain filterChain,
                                             UsernamePassword usernamePassword) throws IOException, ServletException {
-        if (usernamePassword == null) {
-            filterChain.doFilter(request, response);
-        } else {
+        if (usernamePassword != null) {
             onAuthenticationFailure(request, response, "Basic authentication credentials are not required, since security has been disabled on this server.");
+        } else {
+            filterChain.doFilter(request, response);
         }
     }
 

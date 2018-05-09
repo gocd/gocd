@@ -20,13 +20,16 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
+import com.thoughtworks.go.server.dao.StageSqlMapDao;
+import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -44,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,9 +86,16 @@ public class GoDashboardServiceIntegrationTest {
     private GoDashboardCurrentStateLoader currentStateLoader;
     @Autowired
     private PipelineConfigService pipelineConfigService;
+    @Autowired
+    private GoDashboardConfigChangeHandler goDashboardConfigChangeHandler;
+    @Autowired
+    private StageSqlMapDao stageSqlMapDao;
+    @Autowired
+    private GoDashboardStageStatusChangeHandler goDashboardStageStatusChangeHandler;
 
     private GoConfigFileHelper configHelper;
     private ScheduleTestUtil u;
+    private Username user = new Username("user");
 
     @Before
     public void setup() throws Exception {
@@ -171,4 +182,46 @@ public class GoDashboardServiceIntegrationTest {
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, new Username("user"));
         assertThat(pipelineGroupsOnDashboard, hasSize(0));
     }
+
+    @Test
+    public void ensureDashboardReturnsJustOneInstanceOfPipelineAddedViaAPiConsistentlyImmaterialOfDifferentFlowsWhichCauseTheBackendCacheToGetUpdated() {
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
+        String p1Counter1 = u.runAndPass(p1, "g_1");
+
+        goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig());
+
+        List<GoDashboardPipelineGroup> originalDashboard = goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, user);
+        assertThat(originalDashboard, hasSize(1));
+        assertThat(originalDashboard.get(0).allPipelines(), hasSize(1));
+        assertThat(originalDashboard.get(0).allPipelines().iterator().next().model().getActivePipelineInstances(), hasSize(1));
+
+        PipelineConfig newPipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), g1.config());
+        pipelineConfigService.createPipelineConfig(user, newPipeline, new DefaultLocalizedOperationResult(), goConfigService.cruiseConfig().getGroups().first().getGroup());
+        goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig().pipelineConfigByName(newPipeline.name()));
+
+        assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, user));
+
+        String newPipelineCounter1 = u.runAndPass(new ScheduleTestUtil.AddedPipeline(newPipeline, new DependencyMaterial(newPipeline.name(), newPipeline.first().name())), "g_1");
+        goDashboardStageStatusChangeHandler.call(stageSqlMapDao.mostRecentPassed(newPipeline.name().toString(), newPipeline.first().name().toString()));
+
+        assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, user));
+
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("new-environment")));
+        goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig());
+
+        assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, user));
+    }
+
+    private void assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(List<GoDashboardPipelineGroup> dashboardAfterPipelineCreationViaApi) {
+        assertThat(dashboardAfterPipelineCreationViaApi, hasSize(1));//pipeline group
+        assertThat(dashboardAfterPipelineCreationViaApi.get(0).allPipelines(), hasSize(goConfigService.cruiseConfig().getAllPipelineNames().size()));
+        Iterator<GoDashboardPipeline> iterator = dashboardAfterPipelineCreationViaApi.get(0).allPipelines().iterator();
+        while (iterator.hasNext()){
+            GoDashboardPipeline dashboardPipeline = iterator.next();
+            assertThat(dashboardPipeline.model().getName(), dashboardPipeline.model().getActivePipelineInstances(), hasSize(1));
+        }
+    }
+
 }

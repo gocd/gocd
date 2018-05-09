@@ -18,11 +18,16 @@ package com.thoughtworks.go.server.newsecurity.filterchains;
 
 import com.thoughtworks.go.server.newsecurity.filters.AllowAllAccessFilter;
 import com.thoughtworks.go.server.newsecurity.filters.DenyAllAccessFilter;
+import com.thoughtworks.go.server.newsecurity.filters.UserEnabledCheckFilter;
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
 import com.thoughtworks.go.server.newsecurity.handlers.GenericAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.Filter;
+import java.util.List;
 
 import static com.thoughtworks.go.server.security.GoAuthority.*;
 
@@ -30,38 +35,56 @@ import static com.thoughtworks.go.server.security.GoAuthority.*;
 public class AuthorizeFilterChain extends FilterChainProxy {
 
     @Autowired
-    public AuthorizeFilterChain(AllowAllAccessFilter allowAllAccessFilter,
+    public AuthorizeFilterChain(UserEnabledCheckFilter userEnabledCheckFilter,
+                                AllowAllAccessFilter allowAllAccessFilter,
                                 BasicAuthenticationWithChallengeFailureResponseHandler apiAccessDeniedHandler,
                                 GenericAccessDeniedHandler genericAccessDeniedHandler) {
         super(FilterChainBuilder.newInstance()
-                // agent access
-                .addAuthorityFilterChain("/remoting/remoteBuildRepository", apiAccessDeniedHandler, ROLE_AGENT)
-                .addAuthorityFilterChain("/remoting/files/**", apiAccessDeniedHandler, ROLE_AGENT)
-                .addAuthorityFilterChain("/remoting/properties/**", apiAccessDeniedHandler, ROLE_AGENT)
+                .addFilterChain("/remoting/**", addAuthorityFilterChainForAgents(apiAccessDeniedHandler))
+                .addFilterChain("/**", userEnabledCheckFilter, addAuthorityFilterChain(allowAllAccessFilter, apiAccessDeniedHandler, genericAccessDeniedHandler))
+                .build());
+    }
+
+    private static Filter addAuthorityFilterChainForAgents(BasicAuthenticationWithChallengeFailureResponseHandler apiFailureHandler) {
+        final List<SecurityFilterChain> filterChain = FilterChainBuilder.newInstance()
+                // agent remoting
+                .addAuthorityFilterChain("/remoting/remoteBuildRepository", apiFailureHandler, ROLE_AGENT)
+                .addAuthorityFilterChain("/remoting/files/**", apiFailureHandler, ROLE_AGENT)
+                .addAuthorityFilterChain("/remoting/properties/**", apiFailureHandler, ROLE_AGENT)
                 .addFilterChain("/remoting/**", new DenyAllAccessFilter())
-                .addAuthorityFilterChain("/agent-websocket/**", apiAccessDeniedHandler, ROLE_AGENT)
+                .addAuthorityFilterChain("/agent-websocket/**", apiFailureHandler, ROLE_AGENT)
+                .build();
 
-                // authentication urls, allow everyone
-                .addFilterChain("/auth/*", allowAllAccessFilter)
-                .addFilterChain("/plugin/*/login", allowAllAccessFilter)
-                .addFilterChain("/plugin/*/authenticate", allowAllAccessFilter)
+        return new FilterChainProxy(filterChain);
+    }
 
+    private static Filter addAuthorityFilterChain(AllowAllAccessFilter allowAllAccessFilter,
+                                                  BasicAuthenticationWithChallengeFailureResponseHandler apiFailureHandler,
+                                                  GenericAccessDeniedHandler genericAccessDeniedHandler) {
+        final List<SecurityFilterChain> filterChain = FilterChainBuilder.newInstance()
+                // allow all access
+                .addFilterChain("/auth/login", allowAllAccessFilter)
+                .addFilterChain("/auth/logout", allowAllAccessFilter)
+                .addFilterChain("/auth/security_check", allowAllAccessFilter)
+                .addFilterChain("/compressed/*", allowAllAccessFilter)
                 .addFilterChain("/assets/**", allowAllAccessFilter)
-
-                // this is under the `/admin` namespace, but is used by the agent to download various jars
+                .addFilterChain("/api/webhooks/github/notify/**", allowAllAccessFilter)
+                .addFilterChain("/api/webhooks/gitlab/notify/**", allowAllAccessFilter)
+                .addFilterChain("/api/webhooks/bitbucket/notify/**", allowAllAccessFilter)
+                .addFilterChain("/api/v1/health/**", allowAllAccessFilter)
+                .addFilterChain("/images/cruise.ico", allowAllAccessFilter)
+                .addFilterChain("/admin/agent", allowAllAccessFilter)
                 .addFilterChain("/admin/agent/token", allowAllAccessFilter)
                 .addFilterChain("/admin/latest-agent.status", allowAllAccessFilter)
                 .addFilterChain("/admin/agent-launcher.jar", allowAllAccessFilter)
                 .addFilterChain("/admin/tfs-impl.jar", allowAllAccessFilter)
                 .addFilterChain("/admin/agent-plugins.zip", allowAllAccessFilter)
-
-                // some publicly available APIs
                 .addFilterChain("/api/version", allowAllAccessFilter)
                 .addFilterChain("/api/plugin_images/**", allowAllAccessFilter)
-                .addFilterChain("/api/v1/health/**", allowAllAccessFilter)
-                .addFilterChain("/api/webhooks/*/notify/**", allowAllAccessFilter)
+                .addFilterChain("/plugin/*/login", allowAllAccessFilter)
+                .addFilterChain("/plugin/*/authenticate", allowAllAccessFilter)
 
-                // for some kind of admins
+                // rest of the urls
                 .addAuthorityFilterChain("/admin/configuration/file/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/configuration/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/restful/configuration/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
@@ -75,43 +98,59 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/admin/package_repositories/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/package_definitions/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/elastic_profiles/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/admin/agents", genericAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/admin/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
-                .addAuthorityFilterChain("/agents/*/job_run_history/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/security/**", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/material_test", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/pipelines", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/resources", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/environments", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/repository_check_connection", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/internal/package_check_connection", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/pipelines", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/pipelines/*", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/encrypt", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/scms/**", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/repositories/**", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/packages/**", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/plugin_info/**", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/plugin_settings/**", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/agents", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/config_repos", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/elastic/profiles/**", apiFailureHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
+                .addAuthorityFilterChain("/api/admin/templates/**", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/**", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/config-repository.git/**", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/jobs/scheduled.xml", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/feeds/**", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/support", apiFailureHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/api/pipelines.xml", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/*/*.xml", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/pipelines/*/*.xml", apiFailureHandler, ROLE_USER, ROLE_OAUTH_USER)
+                .addAuthorityFilterChain("/api/agents/**", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/users/**", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/version_infos/**", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/cctray.xml", apiFailureHandler, ROLE_USER)
+                .addAuthorityFilterChain("/*/environments/*", genericAccessDeniedHandler, ROLE_SUPERVISOR)
 
-                // all apis
-                .addAuthorityFilterChain("/cctray.xml", apiAccessDeniedHandler, ROLE_USER)
-
-                // new controllers, so we say `ROLE_USER`, and let the controller handle authorization
-                .addAuthorityFilterChain("/api/admin/internal/*", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/pipelines/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/encrypt", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/scms/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/repositories/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/packages/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/plugin_info/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/admin/templates/**", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/api/elastic/profiles/**", apiAccessDeniedHandler, ROLE_USER)
-
-                // blanket role that requires supervisor access, used by old admin apis
-                .addAuthorityFilterChain("/api/admin/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-
-                .addAuthorityFilterChain("/api/config-repository.git/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-                .addAuthorityFilterChain("/api/jobs/scheduled.xml", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-                .addAuthorityFilterChain("/api/support", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-
-                // any other APIs require `ROLE_USER`
-                .addAuthorityFilterChain("/api/**", apiAccessDeniedHandler, ROLE_USER)
-
-                // OAuth, used by business continuity, for now
+                //OAuth
                 .addFilterChain("/oauth/token", allowAllAccessFilter)
                 .addAuthorityFilterChain("/oauth/admin/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/oauth/authorize", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/oauth/user_tokens", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/oauth/user_tokens/revoke/**", genericAccessDeniedHandler, ROLE_USER)
 
-                // addons
+                .addAuthorityFilterChain("/agents", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/dashboard", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/agents/*/job_run_history*", genericAccessDeniedHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/agents/*/job_run_history/*", genericAccessDeniedHandler, ROLE_SUPERVISOR)
+                .addAuthorityFilterChain("/config_view/templates/*", genericAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/add-on/*/admin/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
                 .addAuthorityFilterChain("/add-on/*/api/**", genericAccessDeniedHandler, ROLE_OAUTH_USER)
-
                 .addAuthorityFilterChain("/**", genericAccessDeniedHandler, ROLE_USER)
-                .build());
+                .build();
+
+        return new FilterChainProxy(filterChain);
     }
 
 }

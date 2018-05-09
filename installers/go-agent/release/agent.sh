@@ -112,7 +112,7 @@ fi
 
 STDOUT_LOG_FILE="$GO_AGENT_LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log"
 
-if [ "$1" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
+if [ "$2" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
   PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 else
   PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
@@ -124,7 +124,7 @@ fi
 
 AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $GO_AGENT_SYSTEM_PROPERTIES"
 
-if [ "$1" == "service_mode" ]; then
+if [ "$2" == "service_mode" ]; then
   AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Dgocd.agent.log.dir=$GO_AGENT_LOG_DIR"
 fi
 

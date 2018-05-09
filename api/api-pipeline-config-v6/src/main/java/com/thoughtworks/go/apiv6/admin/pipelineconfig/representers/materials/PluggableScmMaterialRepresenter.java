@@ -28,7 +28,11 @@ public class PluggableScmMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, PluggableSCMMaterialConfig pluggableSCMMaterialConfig) {
         jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId());
-        jsonWriter.addChild("filter", filterWriter -> FilterRepresenter.toJSON(filterWriter, pluggableSCMMaterialConfig.filter()));
+        if (pluggableSCMMaterialConfig.filter().isEmpty()) {
+            jsonWriter.renderNull("filter");
+        } else {
+            jsonWriter.addChild("filter", filterWriter -> FilterRepresenter.toJSON(filterWriter, pluggableSCMMaterialConfig.filter()));
+        }
         jsonWriter.add("destination", pluggableSCMMaterialConfig.getFolder());
     }
 

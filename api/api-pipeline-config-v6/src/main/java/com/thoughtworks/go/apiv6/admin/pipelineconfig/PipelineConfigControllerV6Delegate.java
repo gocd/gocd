@@ -83,6 +83,9 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         options.put("goConfig", goConfigService.getCurrentConfig() );
         options.put("passwordDeserializer", passwordDeserializer );
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        if ("PUT".equalsIgnoreCase(req.requestMethod())) {
+            return PipelineConfigRepresenter.fromJSON(jsonReader, options);
+        }
         return PipelineConfigRepresenter.fromJSON(jsonReader.readJsonObject("pipeline"), options);
     }
 

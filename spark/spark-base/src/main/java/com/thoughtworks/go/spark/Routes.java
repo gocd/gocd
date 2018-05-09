@@ -222,7 +222,7 @@ public class Routes {
     public static class PipelineConfig {
         public static final String BASE = "/api/admin/pipelines";
         public static final String NAME = "/:pipeline_name";
-        public static final String DOC = "https://api.gocd.org/current/#pipeline-config";
+        public static final String DOC = "https://api.gocd.org/#pipeline-config";
 
         public static String find() {
             return BASE + NAME;

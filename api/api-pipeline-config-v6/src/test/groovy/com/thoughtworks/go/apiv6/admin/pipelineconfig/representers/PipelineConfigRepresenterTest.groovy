@@ -46,8 +46,8 @@ class PipelineConfigRepresenterTest {
       def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, getPipelineConfig()) })
 
       assertEquals("http://test.host/go/api/admin/pipelines/wunderbar", actualJson['_links']['self']['href'])
-      assertEquals("http://test.host/go/api/admin/pipelines/:name", actualJson['_links']['find']['href'])
-      assertEquals("https://api.gocd.org/current/#pipeline-config", actualJson['_links']['doc']['href'])
+      assertEquals("http://test.host/go/api/admin/pipelines/:pipeline_name", actualJson['_links']['find']['href'])
+      assertEquals("https://api.gocd.org/#pipeline-config", actualJson['_links']['doc']['href'])
 
       assertThatJson(actualJson).isEqualTo(pipelineHash)
     }
@@ -65,10 +65,10 @@ class PipelineConfigRepresenterTest {
           href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
         doc: [
-          href: 'https://api.gocd.org/current/#pipeline-config'
+          href: 'https://api.gocd.org/#pipeline-config'
         ],
         find: [
-          href: 'http://test.host/go/api/admin/pipelines/:name'
+          href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
         ]
       ],
       label_template: '${COUNT}',
@@ -438,7 +438,7 @@ class PipelineConfigRepresenterTest {
 
     @Test
     void  'should render errors' () {
-      def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '', null, true, null, new ArrayList())
+      def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '', '', true, null, new ArrayList())
       pipelineConfig.setOrigin(new FileConfigOrigin())
       def config = new BasicCruiseConfig(new BasicPipelineConfigs('grp', new Authorization(), pipelineConfig))
 
@@ -462,6 +462,17 @@ class PipelineConfigRepresenterTest {
 
   def expectedHashWithErrors =
   [
+    _links: [
+      self: [
+        href: 'http://test.host/go/api/admin/pipelines/wunderbar'
+      ],
+      doc: [
+        href: 'https://api.gocd.org/#pipeline-config'
+      ],
+      find: [
+        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
+      ]
+    ],
     label_template: '',
     lock_behavior: 'none',
     name: 'wunderbar',
@@ -580,10 +591,10 @@ class PipelineConfigRepresenterTest {
         href: 'http://test.host/go/api/admin/pipelines/wunderbar'
       ],
       doc: [
-        href: 'https://api.gocd.org/current/#pipeline-config'
+        href: 'https://api.gocd.org/#pipeline-config'
       ],
       find: [
-        href: 'http://test.host/go/api/admin/pipelines/:name'
+        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
       ]
     ],
     label_template: 'foo-1.0.${COUNT}-${svn}',

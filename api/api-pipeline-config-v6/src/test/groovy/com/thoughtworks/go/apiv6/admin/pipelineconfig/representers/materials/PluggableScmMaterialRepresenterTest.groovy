@@ -31,6 +31,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class PluggableScmMaterialRepresenterTest {
 
@@ -88,10 +89,10 @@ class PluggableScmMaterialRepresenterTest {
     map.put("goConfig", new BasicCruiseConfig())
     def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, map)
 
-    assertEquals("", pluggableScmMaterialConfig.getName().toString())
+    assertNull(pluggableScmMaterialConfig.getName())
     assertEquals("23a28171-3d5a-4912-9f36-d4e1536281b0", pluggableScmMaterialConfig.getScmId())
     assertNull(pluggableScmMaterialConfig.getFolder())
-    assertNull(pluggableScmMaterialConfig.filter())
+    assertTrue(pluggableScmMaterialConfig.filter().isEmpty())
   }
 
   @Test

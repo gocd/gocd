@@ -49,7 +49,7 @@ class FilterRepresenterTest {
     def filter = new Filter()
     def actualJson = toObjectString({ FilterRepresenter.toJSON(it, filter) })
 
-    assertThatJson(actualJson).isEqualTo([])
+    assertThatJson(actualJson).isEqualTo([:])
   }
 
   @Test

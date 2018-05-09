@@ -99,6 +99,25 @@ public class AuthenticationFilterChainTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/remoting/blah", "/agent-websocket/blah"})
+    void shouldSkipAuthenticationIfRequestIsAlreadyAuthenticated(String url) throws IOException, ServletException {
+        request = HttpRequestBuilder.GET(url)
+                .build();
+
+        final AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+        SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+
+        final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
+        final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null);
+
+        authenticationFilterChain.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(wrap(request), wrap(response));
+        MockHttpServletResponseAssert.assertThat(response).isOk();
+        assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(authenticationToken);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/remoting/blah", "/agent-websocket/blah"})
     void shouldErrorOutWithStatusCode403WhenNoX509CertificateProvidedInRequest(String url) throws IOException, ServletException {
         request = HttpRequestBuilder.GET(url)
                 .build();
@@ -160,8 +179,8 @@ public class AuthenticationFilterChainTest {
         when(pluginAuthenticationProvider.reauthenticate(authenticationToken)).thenReturn(reauthenticatedToken);
 
         new AuthenticationFilterChain(null, new NoOpFilter(),
-                new ReAuthenticationWithRedirectToLoginFilter(securityService, systemEnvironment, clock, pluginAuthenticationProvider, null, null),
-                new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null, null),
+                new ReAuthenticationWithRedirectToLoginFilter(securityService, systemEnvironment, clock, pluginAuthenticationProvider, null),
+                new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null),
                 new NoOpFilter(),
                 new NoOpFilter(),
                 new NoOpFilter())

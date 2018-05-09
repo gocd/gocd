@@ -18,9 +18,10 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.util.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,39 +38,35 @@ import java.io.IOException;
 public class AssumeAnonymousUserFilter extends OncePerRequestFilter {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final SecurityService securityService;
-
-
-    private final AnonymousAuthenticationProvider anonymousAuthenticationProvider;
+    private final Clock clock;
 
     @Autowired
     public AssumeAnonymousUserFilter(SecurityService securityService,
-                                     AnonymousAuthenticationProvider anonymousAuthenticationProvider) {
+                                     Clock clock) {
         this.securityService = securityService;
-        this.anonymousAuthenticationProvider = anonymousAuthenticationProvider;
+        this.clock = clock;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (!securityService.isSecurityEnabled()) {
-            final AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
-            if (authenticationToken != null && !(authenticationToken.getCredentials() instanceof AnonymousCredential)) {
-                authenticateAsAnonymous(request);
-            }
-        }
-
         if (SessionUtils.hasAuthenticationToken(request)) {
             LOGGER.debug("Already authenticated request.");
         } else {
-            authenticateAsAnonymous(request);
+            GoUserPrinciple anonymous;
+            if (securityService.isSecurityEnabled()) {
+                anonymous = GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED;
+            } else {
+                anonymous = GoUserPrinciple.ANONYMOUS_WITH_SECURITY_DISABLED;
+            }
+
+            AuthenticationToken<AnonymousCredential> authenticationToken = new AuthenticationToken<>(anonymous, AnonymousCredential.INSTANCE, null, clock.currentTimeMillis(), null);
+
+            LOGGER.debug("Authenticating as anonymous user with role(s) {}", anonymous.getAuthorities());
+            SessionUtils.setAuthenticationTokenWithoutRecreatingSession(authenticationToken, request);
         }
 
         filterChain.doFilter(request, response);
-
-    }
-
-    private void authenticateAsAnonymous(HttpServletRequest request) {
-        SessionUtils.setAuthenticationTokenWithoutRecreatingSession(anonymousAuthenticationProvider.authenticate(AnonymousCredential.INSTANCE, null), request);
     }
 }

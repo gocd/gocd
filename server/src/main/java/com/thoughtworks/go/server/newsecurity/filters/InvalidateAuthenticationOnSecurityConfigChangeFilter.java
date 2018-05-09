@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -38,7 +37,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 @Component
 public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePerRequestFilter implements ConfigChangedListener, PluginRoleChangeListener {
@@ -78,8 +76,13 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        if (!SessionUtils.hasAuthenticationToken(request)) {
+            LOGGER.debug("Skipping filter, request is not authenticated.");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
-        Assert.notNull(authentication);
         synchronized (request.getSession(false).getId().intern()) {
             long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);
@@ -96,7 +99,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
-        if (!Objects.equals(this.securityConfig, newSecurityConfig)) {
+        if (this.securityConfig != null && !this.securityConfig.equals(newSecurityConfig)) {
             LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
             updateLastChangedTime();
         }

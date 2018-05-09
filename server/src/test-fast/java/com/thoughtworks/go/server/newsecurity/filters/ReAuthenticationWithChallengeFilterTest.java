@@ -31,7 +31,7 @@ class ReAuthenticationWithChallengeFilterTest {
     void shouldInvokeHandler() throws IOException {
         final BasicAuthenticationWithChallengeFailureResponseHandler handler = mock(BasicAuthenticationWithChallengeFailureResponseHandler.class);
 
-        final ReAuthenticationWithChallengeFilter filter = new ReAuthenticationWithChallengeFilter(null, null, null, handler, null, null, null);
+        final ReAuthenticationWithChallengeFilter filter = new ReAuthenticationWithChallengeFilter(null, null, null, handler, null, null);
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
         final HttpServletResponse response = mock(HttpServletResponse.class);

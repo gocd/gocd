@@ -18,11 +18,19 @@ package com.thoughtworks.go.server.security.userdetail;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.security.GoAuthority;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
+/**
+ * @understands a user principle in Go
+ */
 public class GoUserPrinciple {
+
+    public static GoUserPrinciple ANONYMOUS_WITH_SECURITY_ENABLED = new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority());
+    public static GoUserPrinciple ANONYMOUS_WITH_SECURITY_DISABLED = new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_SUPERVISOR.asAuthority());
+
     private final Set<GrantedAuthority> authorities;
 
     private final String displayName;

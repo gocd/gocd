@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReAuthenticationWithRedirectToLoginFilterTest {
     @Test
     void shouldInvokeHandler() throws IOException {
-        final ReAuthenticationWithRedirectToLoginFilter filter = new ReAuthenticationWithRedirectToLoginFilter(null, null, null, null, null, null);
+        final ReAuthenticationWithRedirectToLoginFilter filter = new ReAuthenticationWithRedirectToLoginFilter(null, null, null, null, null);
 
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();

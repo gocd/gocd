@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.models.*;
-import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -40,22 +39,18 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
     protected final SecurityService securityService;
     protected final PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider;
     protected final WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider;
-    protected final AnonymousAuthenticationProvider anonymousAuthenticationProvider;
     protected final SystemEnvironment systemEnvironment;
     protected final Clock clock;
 
     public AbstractReAuthenticationFilter(SecurityService securityService,
-                                          SystemEnvironment systemEnvironment,
-                                          Clock clock,
+                                          SystemEnvironment systemEnvironment, Clock clock,
                                           PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider,
-                                          WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider,
-                                          AnonymousAuthenticationProvider anonymousAuthenticationProvider) {
+                                          WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider) {
         this.securityService = securityService;
         this.passwordBasedPluginAuthenticationProvider = passwordBasedPluginAuthenticationProvider;
         this.webBasedPluginAuthenticationProvider = webBasedPluginAuthenticationProvider;
         this.systemEnvironment = systemEnvironment;
         this.clock = clock;
-        this.anonymousAuthenticationProvider = anonymousAuthenticationProvider;
     }
 
     @Override
@@ -119,7 +114,7 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
         } else if (credentials instanceof AccessToken) {
             return webBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<AccessToken>) authenticationToken);
         } else if (credentials instanceof AnonymousCredential) {
-            return anonymousAuthenticationProvider.reauthenticate((AuthenticationToken<AnonymousCredential>) authenticationToken);
+            return new AuthenticationToken<>(authenticationToken.getUser(), AnonymousCredential.INSTANCE, null, clock.currentTimeMillis(), null);
         } else {
             return null;
         }

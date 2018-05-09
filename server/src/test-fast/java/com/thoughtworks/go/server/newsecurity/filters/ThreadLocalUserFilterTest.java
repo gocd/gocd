@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -64,7 +63,6 @@ class ThreadLocalUserFilterTest {
         new ThreadLocalUserFilter().doFilter(request, response, filterChain);
 
         assertThat(currentUserInFilter[0]).isNotNull();
-        assertThat(SessionUtils.getCurrentUser().getUsername()).isEqualTo("anonymous");
-        assertThat(SessionUtils.getCurrentUser().getAuthorities()).containsExactly(GoAuthority.ROLE_ANONYMOUS.asAuthority());
+        assertThat(SessionUtils.getCurrentUser()).isEqualTo(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED);
     }
 }

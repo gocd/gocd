@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
-import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -40,9 +39,8 @@ public class ReAuthenticationWithChallengeFilter extends AbstractReAuthenticatio
                                                Clock clock,
                                                BasicAuthenticationWithChallengeFailureResponseHandler basicAuthenticationWithChallengeFailureResponseHandler,
                                                PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider,
-                                               WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider,
-                                               AnonymousAuthenticationProvider anonymousAuthenticationProvider) {
-        super(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider, anonymousAuthenticationProvider);
+                                               WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider) {
+        super(securityService, systemEnvironment, clock, passwordBasedPluginAuthenticationProvider, webBasedPluginAuthenticationProvider);
         this.basicAuthenticationWithChallengeFailureResponseHandler = basicAuthenticationWithChallengeFailureResponseHandler;
     }
 

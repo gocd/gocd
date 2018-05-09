@@ -231,6 +231,7 @@ public class GoDashboardServiceTest {
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig);
         verify(cache).remove(pipelineConfig.getName());
+        verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
         verifyZeroInteractions(dashboardCurrentStateLoader);
     }
 

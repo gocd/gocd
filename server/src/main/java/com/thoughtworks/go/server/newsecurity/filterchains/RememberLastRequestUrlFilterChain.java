@@ -34,7 +34,6 @@ public class RememberLastRequestUrlFilterChain extends FilterChainProxy {
                 .addFilterChain("/plugin/*/login")
                 .addFilterChain("/assets/**")
                 .addFilterChain("/server/messages.json")
-                .addFilterChain("/pipelines.json")
                 .addFilterChain("/**", new RememberLastRequestUrlFilter())
                 .build()
         );

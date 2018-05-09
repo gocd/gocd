@@ -49,7 +49,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addFilterChain("/assets/**", allowAllAccessFilter)
 
                 // this is under the `/admin` namespace, but is used by the agent to download various jars
-                .addFilterChain("/admin/agent", allowAllAccessFilter)
                 .addFilterChain("/admin/agent/token", allowAllAccessFilter)
                 .addFilterChain("/admin/latest-agent.status", allowAllAccessFilter)
                 .addFilterChain("/admin/agent-launcher.jar", allowAllAccessFilter)
@@ -81,8 +80,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
 
                 // all apis
                 .addAuthorityFilterChain("/cctray.xml", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/server/messages.json", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/pipelines.json", apiAccessDeniedHandler, ROLE_USER)
 
                 // new controllers, so we say `ROLE_USER`, and let the controller handle authorization
                 .addAuthorityFilterChain("/api/admin/internal/*", apiAccessDeniedHandler, ROLE_USER)

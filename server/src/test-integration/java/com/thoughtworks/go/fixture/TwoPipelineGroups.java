@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,11 +56,11 @@ public class TwoPipelineGroups implements PreCondition {
         }
     }
 
-    public CaseInsensitiveString pipelineInFirstGroup() {
-        return configHelper.currentConfig().getGroups().get(0).get(0).name();
+    public String pipelineInFirstGroup() {
+        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().get(0).get(0).name());
     }
 
-    public CaseInsensitiveString pipelineInSecondGroup() {
-        return configHelper.currentConfig().getGroups().get(1).get(0).name();
+    public String pipelineInSecondGroup() {
+        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().get(1).get(0).name());
     }
 }

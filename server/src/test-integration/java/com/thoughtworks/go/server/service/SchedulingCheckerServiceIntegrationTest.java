@@ -133,7 +133,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldFailCheckingWhenPipelineNotYetScheduledButInScheduleQueue() throws Exception {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createManualForced());
+        pipelineScheduleQueue.schedule(pipelineName, BuildCause.createManualForced());
         HttpOperationResult operationResult = new HttpOperationResult();
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));
         assertThat(operationResult.canContinue(), is(false));
@@ -145,7 +145,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         String pipelineName = "blahPipeline";
         configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
 
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
+        pipelineScheduleQueue.schedule(pipelineName, BuildCause.createWithEmptyModifications());
         assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(new CaseInsensitiveString("blahUser"))), is(true));
     }
 
@@ -153,7 +153,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldFailCheckingWhenPipelineNotYetScheduledButInTriggerMonitor() throws Exception {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
-        triggerMonitor.markPipelineAsAlreadyTriggered(pipelineConfig.name());
+        triggerMonitor.markPipelineAsAlreadyTriggered(pipelineName);
 
         HttpOperationResult operationResult = new HttpOperationResult();
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));

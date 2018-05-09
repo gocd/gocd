@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -100,7 +99,7 @@ public class MultipleMaterialsWithFilterTest {
         fixture.checkInToFirstMaterial("a.doc");
         fixture.checkInToSecondMaterial("b.java");
         buildCauseProducerService.autoSchedulePipeline(fixture.pipelineName, new ServerHealthStateOperationResult(), 12345);
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(fixture.pipelineName));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(fixture.pipelineName);
         assertThat(buildCause, instanceOf(BuildCause.class));
 
         MaterialRevisions actual = buildCause.getMaterialRevisions();
@@ -120,7 +119,7 @@ public class MultipleMaterialsWithFilterTest {
         buildCauseProducerService.autoSchedulePipeline(fixture.pipelineName, new ServerHealthStateOperationResult(), 12345);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(size));
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(fixture.pipelineName)), is(nullValue()));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(fixture.pipelineName), is(nullValue()));
     }
 
     public class PipelineWithMultipleMaterials extends PipelineWithTwoStages {

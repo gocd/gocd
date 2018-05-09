@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,9 +112,9 @@ public class ScheduleHelper {
         return result.getServerHealthState();
     }
 
-    public Map<CaseInsensitiveString, BuildCause> waitForAnyScheduled(int seconds) {
+    public Map<String, BuildCause> waitForAnyScheduled(int seconds) {
         int count = 0;
-        Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<String, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
         while (afterLoad.isEmpty()) {
             try {
                 Thread.sleep(1000);
@@ -130,18 +130,19 @@ public class ScheduleHelper {
     }
     public void waitForNotScheduled(int seconds,String pipelineName) {
         int count = 0;
+        Map<String, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
         while (true) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
+            afterLoad = pipelineScheduleQueue.toBeScheduled();
             if (count++ > seconds) {
                 return ;
             }
 
-            BuildCause cause = afterLoad.get(new CaseInsensitiveString(pipelineName));
+            BuildCause cause = afterLoad.get(pipelineName);
             assertNull(cause);
         }
     }

@@ -1,22 +1,21 @@
-/*
- * Copyright 2018 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.perf;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -80,7 +79,7 @@ public class SchedulingPerformanceLogger {
         performanceLogger.log("SCH-TO-BE-SCHEDULED-QUEUE-PUT {} {}", trackingId, pipelineName);
     }
 
-    public void scheduledPipeline(CaseInsensitiveString pipelineName, int toBeScheduledQueueSize, long schedulePipelineStartTime, long schedulePipelineEndTime) {
+    public void scheduledPipeline(String pipelineName, int toBeScheduledQueueSize, long schedulePipelineStartTime, long schedulePipelineEndTime) {
         performanceLogger.log("SCH-SCHEDULED {} {} {} {}", pipelineName, toBeScheduledQueueSize, schedulePipelineStartTime, schedulePipelineEndTime);
     }
 }

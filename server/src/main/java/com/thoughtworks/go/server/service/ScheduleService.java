@@ -149,8 +149,8 @@ public class ScheduleService {
     public void autoSchedulePipelinesFromRequestBuffer() {
         synchronized (autoScheduleMutex) {
             try {
-                for (Entry<CaseInsensitiveString, BuildCause> entry : pipelineScheduleQueue.toBeScheduled().entrySet()) {
-                    CaseInsensitiveString pipelineName = entry.getKey();
+                for (Entry<String, BuildCause> entry : pipelineScheduleQueue.toBeScheduled().entrySet()) {
+                    String pipelineName = entry.getKey();
                     BuildCause buildCause = entry.getValue();
 
                     LOGGER.info("[Pipeline Schedule] Scheduling pipeline {} with build cause {}", pipelineName, buildCause);
@@ -169,14 +169,14 @@ public class ScheduleService {
         }
     }
 
-    Pipeline schedulePipeline(final CaseInsensitiveString pipelineName, final BuildCause buildCause) {
+    Pipeline schedulePipeline(final String pipelineName, final BuildCause buildCause) {
         try {
-            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
 
             if (canSchedule(pipelineConfig)) {
                 final Pipeline pipelineInstance = pipelineScheduleQueue.createPipeline(buildCause, pipelineConfig, schedulingContext(buildCause.getApprover(), pipelineConfig, pipelineConfig.first()),
                         goConfigService.getCurrentConfig().getMd5(), timeProvider);
-                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName.toString(), CaseInsensitiveString.str(pipelineConfig.get(0).name())));
+                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName, CaseInsensitiveString.str(pipelineConfig.get(0).name())));
                 return pipelineInstance;
             }
         } catch (PipelineNotFoundException e) {
@@ -184,7 +184,7 @@ public class ScheduleService {
             pipelineScheduleQueue.clearPipeline(pipelineName);
         } catch (CannotScheduleException e) {
             pipelineScheduleQueue.clearPipeline(pipelineName);
-            serverHealthService.update(stageSchedulingFailedState(pipelineName.toString(), e));
+            serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
         } catch (Exception e) {
             LOGGER.error("Error while scheduling pipeline {}", pipelineName, e);
             pipelineScheduleQueue.clearPipeline(pipelineName);

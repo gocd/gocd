@@ -203,7 +203,7 @@ public class GoDashboardCurrentStateLoader {
             return pipelinesToShow;
         }
 
-        if (triggerMonitor.isAlreadyTriggered(pipelineConfig.name())) {
+        if (triggerMonitor.isAlreadyTriggered(pipelineName)) {
             return createPipelineInstanceModels(createPreparingToSchedule(pipelineName, new StageInstanceModels()));
         }
 

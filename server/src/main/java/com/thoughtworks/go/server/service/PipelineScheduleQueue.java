@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ public class PipelineScheduleQueue {
 
     private PipelineService pipelineService;
     private TransactionTemplate transactionTemplate;
-    private Map<CaseInsensitiveString, BuildCause> toBeScheduled = new ConcurrentHashMap<>();
-    private Map<CaseInsensitiveString, BuildCause> mostRecentScheduled = new ConcurrentHashMap<>();
+    private Map<String, BuildCause> toBeScheduled = new ConcurrentHashMap<>();
+    private Map<String, BuildCause> mostRecentScheduled = new ConcurrentHashMap<>();
     private InstanceFactory instanceFactory;
 
     @Autowired
@@ -53,7 +53,7 @@ public class PipelineScheduleQueue {
         this.instanceFactory = instanceFactory;
     }
 
-    public BuildCause mostRecentScheduled(CaseInsensitiveString pipelineName) {
+    public BuildCause mostRecentScheduled(String pipelineName) {
         synchronized (mutexForPipelineName(pipelineName)) {
             BuildCause buildCause = mostRecentScheduled.get(pipelineName);
             if (buildCause != null) {
@@ -65,12 +65,12 @@ public class PipelineScheduleQueue {
         }
     }
 
-    private BuildCause mostRecentScheduledBuildCause(CaseInsensitiveString pipelineName) {
-        Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(pipelineName.toString());
+    private BuildCause mostRecentScheduledBuildCause(String pipelineName) {
+        Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(pipelineName);
         return pipeline instanceof NullPipeline ? BuildCause.createNeverRun() : pipeline.getBuildCause();
     }
 
-    public void schedule(CaseInsensitiveString pipelineName, BuildCause buildCause) {
+    public void schedule(String pipelineName, BuildCause buildCause) {
         synchronized (mutexForPipelineName(pipelineName)) {
             BuildCause current = toBeScheduled.get(pipelineName);
             if (current == null || buildCause.trumps(current)) {
@@ -79,17 +79,17 @@ public class PipelineScheduleQueue {
         }
     }
 
-    public void cancelSchedule(CaseInsensitiveString pipelineName) {
+    public void cancelSchedule(String pipelineName) {
         synchronized (mutexForPipelineName(pipelineName)) {
             toBeScheduled.remove(pipelineName);
         }
     }
 
-    public synchronized Map<CaseInsensitiveString, BuildCause> toBeScheduled() {
+    public synchronized Map<String, BuildCause> toBeScheduled() {
         return new HashMap<>(toBeScheduled);
     }
 
-    public void finishSchedule(CaseInsensitiveString pipelineName, BuildCause buildCause, BuildCause newCause) {
+    public void finishSchedule(String pipelineName, BuildCause buildCause, BuildCause newCause) {
         synchronized (mutexForPipelineName(pipelineName)) {
             if (buildCause.equals(toBeScheduled.get(pipelineName))) {
                 toBeScheduled.remove(pipelineName);
@@ -98,7 +98,7 @@ public class PipelineScheduleQueue {
         }
     }
 
-    public void clearPipeline(CaseInsensitiveString pipelineName) {
+    public void clearPipeline(String pipelineName) {
         synchronized (mutexForPipelineName(pipelineName)) {
             toBeScheduled.remove(pipelineName);
             mostRecentScheduled.remove(pipelineName);
@@ -106,12 +106,12 @@ public class PipelineScheduleQueue {
     }
 
     //TODO: #5163 - this is a concurrency issue - talk to Rajesh or JJ
-    public boolean hasBuildCause(CaseInsensitiveString pipelineName) {
+    public boolean hasBuildCause(String pipelineName) {
         BuildCause buildCause = toBeScheduled.get(pipelineName);
         return buildCause != null && buildCause.getMaterialRevisions().totalNumberOfModifications() > 0;
     }
 
-    public boolean hasForcedBuildCause(CaseInsensitiveString pipelineName) {
+    public boolean hasForcedBuildCause(String pipelineName) {
         synchronized (mutexForPipelineName(pipelineName)) {
             BuildCause buildCause = toBeScheduled.get(pipelineName);
             return buildCause != null && buildCause.isForced();
@@ -129,19 +129,20 @@ public class PipelineScheduleQueue {
     public Pipeline createPipeline(final BuildCause buildCause, final PipelineConfig pipelineConfig, final SchedulingContext context, final String md5, final Clock clock) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
+                String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
                 Pipeline pipeline = null;
 
-                if (shouldCancel(buildCause, pipelineConfig.name())) {
+                if (shouldCancel(buildCause, pipelineName)) {
                     LOGGER.debug("[Pipeline Schedule] Cancelling scheduling as build cause {} is the same as the most recent schedule", buildCause);
-                    cancelSchedule(pipelineConfig.name());
+                    cancelSchedule(pipelineName);
                 } else {
                     try {
                         Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
                         pipeline = pipelineService.save(newPipeline);
-                        finishSchedule(pipelineConfig.name(), buildCause, pipeline.getBuildCause());
-                        LOGGER.debug("[Pipeline Schedule] Successfully scheduled pipeline {}, buildCause:{}, configOrigin: {}", pipelineConfig.name(), buildCause, pipelineConfig.getOrigin());
+                        finishSchedule(pipelineName, buildCause, pipeline.getBuildCause());
+                        LOGGER.debug("[Pipeline Schedule] Successfully scheduled pipeline {}, buildCause:{}, configOrigin: {}", pipelineName, buildCause, pipelineConfig.getOrigin());
                     } catch (BuildCauseOutOfDateException e) {
-                        cancelSchedule(pipelineConfig.name());
+                        cancelSchedule(pipelineName);
                         LOGGER.info("[Pipeline Schedule] Build cause {} is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: {}", buildCause, pipelineConfig.getOrigin());
                     }
                 }
@@ -150,12 +151,12 @@ public class PipelineScheduleQueue {
         });
     }
 
-    private boolean shouldCancel(BuildCause buildCause, CaseInsensitiveString pipelineName) {
+    private boolean shouldCancel(BuildCause buildCause, String pipelineName) {
         return !buildCause.isForced() && buildCause.isSameAs(mostRecentScheduled(pipelineName));
     }
 
-    private String mutexForPipelineName(CaseInsensitiveString pipelineName) {
-        return String.format("%s-%s", PipelineScheduleQueue.class.getName(), pipelineName.toLower()).intern();
+    private String mutexForPipelineName(String pipelineName) {
+        return String.format("%s-%s", PipelineScheduleQueue.class.getName(), pipelineName).intern();
     }
 
 }

@@ -105,13 +105,13 @@ public class PipelineHistoryController {
         }
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(pipelineConfig.name());
+        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
         PipelineInstanceModels pipelineHistory = StringUtils.isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
                 pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, SessionUtils.currentUsername(), new HttpLocalizedOperationResult());
 
 
-        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineConfig.name());
+        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);
 
         PipelineHistoryJsonPresentationModel historyJsonPresenter = new PipelineHistoryJsonPresentationModel(
                 pauseInfo,

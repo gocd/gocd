@@ -158,7 +158,7 @@ public class BuildCauseProducerService {
 
         try {
             MaterialRevisions peggedRevisions = specificMaterialRevisionFactory.create(pipelineName, scheduleOptions.getSpecifiedRevisions());
-            BuildCause previousBuild = pipelineScheduleQueue.mostRecentScheduled(pipelineConfig.name());
+            BuildCause previousBuild = pipelineScheduleQueue.mostRecentScheduled(pipelineName);
 
             Materials materials = materialConfigConverter.toMaterials(pipelineConfig.materialConfigs());
             MaterialConfigs expandedMaterialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
@@ -197,7 +197,7 @@ public class BuildCauseProducerService {
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
             }
             if (isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged)) {
-                pipelineScheduleQueue.schedule(pipelineConfig.name(), buildCause);
+                pipelineScheduleQueue.schedule(pipelineName, buildCause);
 
                 schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
                 LOGGER.debug("scheduling pipeline {} with build-cause {}; config origin {}", pipelineName, buildCause, pipelineConfig.getOrigin());

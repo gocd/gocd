@@ -69,6 +69,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml"
 })
 public class BackupServiceH2IntegrationTest {

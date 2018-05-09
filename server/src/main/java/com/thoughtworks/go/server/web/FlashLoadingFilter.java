@@ -16,27 +16,31 @@
 
 package com.thoughtworks.go.server.web;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @understands loading flash object from session
  */
-@Component
-public class FlashLoadingFilter extends OncePerRequestFilter {
+public class FlashLoadingFilter implements Filter {
     public static final String FLASH_SESSION_KEY = "flash_session_key";
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
+
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         try {
-            FlashMessageService.useFlash(loadFlash(request));
-            filterChain.doFilter(request, response);
+            HttpServletRequest req = (HttpServletRequest) servletRequest;
+            FlashMessageService.useFlash(loadFlash(req));
+            filterChain.doFilter(req, servletResponse);
         } finally {
             FlashMessageService.useFlash(null);
         }
@@ -50,5 +54,9 @@ public class FlashLoadingFilter extends OncePerRequestFilter {
             session.setAttribute(FLASH_SESSION_KEY, flash);
         }
         return flash;
+    }
+
+    public void destroy() {
+
     }
 }

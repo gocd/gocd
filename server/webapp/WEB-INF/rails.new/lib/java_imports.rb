@@ -16,7 +16,6 @@
 
 module JavaImports
   java_import com.rits.cloning.Cloner unless defined? Cloner
-  java_import com.thoughtworks.go.server.newsecurity.utils.SessionUtils unless defined? SessionUtils
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.config.AntTask unless defined? AntTask
   java_import com.thoughtworks.go.config.NantTask unless defined? NantTask
@@ -157,6 +156,7 @@ module JavaImports
   java_import com.thoughtworks.go.server.ui.StageSummaryModels unless defined? StageSummaryModels
   java_import com.thoughtworks.go.server.ui.ViewCacheKey unless defined? ViewCacheKey
   java_import com.thoughtworks.go.server.util.Pagination unless defined? Pagination
+  java_import com.thoughtworks.go.server.util.UserHelper unless defined? UserHelper
   java_import com.thoughtworks.go.util.GoConstants unless defined? GoConstants
   java_import com.thoughtworks.go.util.SystemEnvironment unless defined? SystemEnvironment
   java_import com.thoughtworks.go.util.SystemUtil unless defined? SystemUtil

@@ -21,8 +21,6 @@ import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.VersionInfoService;
@@ -42,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class InitialContextProviderTest {
+public class InitialContextProviderTest {
 
     private InitialContextProvider initialContextProvider;
     private RailsAssetsService railsAssetsService;
@@ -52,7 +50,7 @@ class InitialContextProviderTest {
     private DefaultPluginInfoFinder pluginInfoFinder;
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         railsAssetsService = mock(RailsAssetsService.class);
         webpackAssetsService = mock(WebpackAssetsService.class);
         securityService = mock(SecurityService.class);
@@ -60,11 +58,10 @@ class InitialContextProviderTest {
         pluginInfoFinder = mock(DefaultPluginInfoFinder.class);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
                 versionInfoService, pluginInfoFinder);
-        SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"));
     }
 
     @Test
-    void shouldShowAnalyticsDashboard() {
+    public void shouldShowAnalyticsDashboard() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
@@ -74,7 +71,7 @@ class InitialContextProviderTest {
     }
 
     @Test
-    void shouldNotShowAnalyticsDashboardWhenUserIsNotAdmin() {
+    public void shouldNotShowAnalyticsDashboardWhenUserIsNotAdmin() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(false);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
@@ -84,7 +81,7 @@ class InitialContextProviderTest {
     }
 
     @Test
-    void shouldNotShowAnalyticsDashboardPluginIsNotPresent() {
+    public void shouldNotShowAnalyticsDashboardPluginIsNotPresent() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
         when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo()));

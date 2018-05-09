@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +48,7 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml"
 })
 public class ScheduleServiceSecurityTest {
@@ -122,7 +123,7 @@ public class ScheduleServiceSecurityTest {
     @Test
     public void shouldNotThrowExceptionIfUserHasOperatePermission() throws Exception {
         configHelper.enableSecurity();
-        Username user = SessionUtils.currentUsername();
+        Username user = UserHelper.getUserName();
         configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
 
@@ -143,7 +144,7 @@ public class ScheduleServiceSecurityTest {
     @Test
     public void shouldCancelStageGivenValidPipelineAndStageName() throws Exception {
         configHelper.enableSecurity();
-        Username user = SessionUtils.currentUsername();
+        Username user = UserHelper.getUserName();
         configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
 

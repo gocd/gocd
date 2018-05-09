@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import com.thoughtworks.go.server.domain.oauth.OauthClient;
 import com.thoughtworks.go.server.domain.oauth.OauthToken;
 import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TriState;
 import org.hamcrest.CoreMatchers;
@@ -48,6 +48,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -68,6 +70,7 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-rest-servlet.xml"
 })
@@ -129,30 +132,36 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() {
+    public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() throws Exception {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("new_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
         assertThat(userDao.findUser("new_user"), isANullUser());
-        userService.addUserIfDoesNotExist(new User("new_user"));
+        userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
         User loadedUser = userDao.findUser("new_user");
         assertThat(loadedUser, is(new User("new_user", "new_user", "")));
         assertThat(loadedUser, not(isANullUser()));
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldNotAddUserIfExists() {
+    public void addUserIfDoesNotExist_shouldNotAddUserIfExists() throws Exception {
         User user = new User("old_user");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("old_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
         addUser(user);
-        userService.addUserIfDoesNotExist(user);
+        userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldNotAddUserIfAnonymous() {
+    public void addUserIfDoesNotExist_shouldNotAddUserIfAnonymous() throws Exception {
         userService.addUserIfDoesNotExist(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
         assertThat(userDao.findUser(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), isANullUser());
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }
 
+    private org.springframework.security.userdetails.User getAuthUser(String userName) {
+        return new org.springframework.security.userdetails.User(userName, "pass", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
+    }
+
     @Test
-    public void shouldvalidateUser() {
+    public void shouldvalidateUser() throws Exception {
         try {
             userService.validate(new User("username", new String[]{"committer"}, "mail.com", false));
             fail("should have thrown when email is invalid");
@@ -161,7 +170,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotSaveUserWhenValidationFailed() {
+    public void shouldNotSaveUserWhenValidationFailed() throws Exception {
         try {
             userService.saveOrUpdate(new User("username", new String[]{"committer"}, "mail.com", false));
             fail("should have thrown when email is invalid");
@@ -260,7 +269,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateANewUser() {
+    public void shouldCreateANewUser() throws Exception {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
@@ -270,7 +279,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorWhenTryingToAddAnonymousUser() {
+    public void shouldReturnErrorWhenTryingToAddAnonymousUser() throws Exception {
         UserSearchModel anonymous = new UserSearchModel(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()), "Mr. Anonymous", "anon@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(anonymous), result);
@@ -280,7 +289,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorWhenUserAlreadyExists() {
+    public void shouldReturnErrorWhenUserAlreadyExists() throws Exception {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         addUser(foo.getUser());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -291,7 +300,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void create_shouldReturnErrorWhenNoUsersSelected() {
+    public void create_shouldReturnErrorWhenNoUsersSelected() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(new ArrayList<>(), result);
         assertThat(result.isSuccessful(), is(false));
@@ -299,7 +308,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void disableUsers_shouldAlsoExpireOauthTokens() {
+    public void disableUsers_shouldAlsoExpireOauthTokens() throws Exception {
         addUser(new User("user_one"));
         addUser(new User("user_two"));
 
@@ -327,7 +336,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldEnableUsers() {
+    public void shouldEnableUsers() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         User user1 = new User("user_one");
         user1.disable();
@@ -344,7 +353,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldKnowEnabledAndDisbaledUsersCount() {
+    public void shouldKnowEnabledAndDisbaledUsersCount() throws Exception {
         addUser(new User("user_one"));
         addUser(new User("user_three"));
 
@@ -355,7 +364,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorMessageWhenUserValidationsFail() {
+    public void shouldReturnErrorMessageWhenUserValidationsFail() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
@@ -368,7 +377,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteAllUsers() {
+    public void shouldDeleteAllUsers() throws Exception {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
@@ -400,7 +409,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldAddUserToExistingRole() {
+    public void modifyRoles_shouldAddUserToExistingRole() throws Exception {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -411,7 +420,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldNotAddUserToExistingRoleIfAlreadyAMember() {
+    public void modifyRoles_shouldNotAddUserToExistingRoleIfAlreadyAMember() throws Exception {
         addUser(new User("user-1"));
         // first time
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
@@ -422,7 +431,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldCreateRoleAndAddUserIfRoleDoesntExist() {
+    public void modifyRoles_shouldCreateRoleAndAddUserIfRoleDoesntExist() throws Exception {
         addUser(new User("user-1"));
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -430,7 +439,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldNotCreateRoleIfItHasInvalidCharacters() {
+    public void modifyRoles_shouldNotCreateRoleIfItHasInvalidCharacters() throws Exception {
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -441,7 +450,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldRemoveUserFromRole() {
+    public void modifyRoles_shouldRemoveUserFromRole() throws Exception {
         addUser(new User("user-1"));
         // add it first
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
@@ -452,7 +461,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldNotModifyRolesWhenActionIsNoChange() {
+    public void modifyRoles_shouldNotModifyRolesWhenActionIsNoChange() throws Exception {
         addUser(new User("user-1"));
         // add it first
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
@@ -463,7 +472,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void modifyRoles_shouldNotModifyRolesForAUserThatDoesNotExistInDb() {
+    public void modifyRoles_shouldNotModifyRolesForAUserThatDoesNotExistInDb() throws Exception {
         assertThat(userDao.findUser("user-1"), is(instanceOf(NullUser.class)));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -475,7 +484,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldModifyRolesAndAdminPrivilegeAtTheSameTime() {
+    public void shouldModifyRolesAndAdminPrivilegeAtTheSameTime() throws Exception {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -487,7 +496,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAddAdminPrivilegeToMultipleUsers() {
+    public void shouldAddAdminPrivilegeToMultipleUsers() throws Exception {
         addUser(new User("user"));
         addUser(new User("loser"));
         addUser(new User("boozer"));
@@ -502,7 +511,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveUserLevelAdminPrivilegeFromMultipleUsers_withoutModifingRoleLevelPrvileges() {
+    public void shouldRemoveUserLevelAdminPrivilegeFromMultipleUsers_withoutModifingRoleLevelPrvileges() throws Exception {
         configFileHelper.addAdmins("user", "boozer");
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
@@ -534,7 +543,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotModifyAdminPrivilegesWhen_NoChange_requested() {
+    public void shouldNotModifyAdminPrivilegesWhen_NoChange_requested() throws Exception {
         configFileHelper.addAdmins("user", "boozer");
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
@@ -556,7 +565,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void getRoleSelection() {
+    public void getRoleSelection() throws Exception {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("boy")));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("girl")));
@@ -577,7 +586,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void getRoleSelectionOnlyForNonPluginRoles() {
+    public void getRoleSelectionOnlyForNonPluginRoles() throws Exception {
         configFileHelper.addSecurityAuthConfig(new SecurityAuthConfig("auth_id", "plugin_id"));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("core-role")));
         configFileHelper.addRole(new PluginRoleConfig("plugin-role", "auth_id"));
@@ -590,7 +599,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldGetAdminSelectionWithCorrectState() {
+    public void shouldGetAdminSelectionWithCorrectState() throws Exception {
         configFileHelper.addAdmins("foo", "quux");
         assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));
         assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange)));
@@ -599,7 +608,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDisableAdminSelectionWhenUserIsMemberOfAdminRole() {
+    public void shouldDisableAdminSelectionWhenUserIsMemberOfAdminRole() throws Exception {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("foo-grp"), new RoleUser(new CaseInsensitiveString("foo")), new RoleUser(new CaseInsensitiveString("foo-one"))));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("quux-grp"), new RoleUser(new CaseInsensitiveString("quux"))));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("bar-grp"), new RoleUser(new CaseInsensitiveString("bar")), new RoleUser(new CaseInsensitiveString("bar-one"))));
@@ -613,7 +622,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateEnabledStateToFalse() {
+    public void shouldUpdateEnabledStateToFalse() throws Exception {
         User user = new User("user-1");
         user.enable();
         addUser(user);
@@ -625,7 +634,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateEnabledStateToTrue() {
+    public void shouldUpdateEnabledStateToTrue() throws Exception {
         User user = new User("user-1");
         user.disable();
         addUser(user);
@@ -637,7 +646,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotUpdateEnabledStateWhenAskedToBeLeftUnset() {
+    public void shouldNotUpdateEnabledStateWhenAskedToBeLeftUnset() throws Exception {
         User user = new User("user-1");
         user.disable();
         addUser(user);
@@ -648,7 +657,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldUpdateEmailMeStateToTrue() {
+    public void updateShouldUpdateEmailMeStateToTrue() throws Exception {
         User user = new User("user-1");
         user.enable();
         user.setEmailMe(false);
@@ -662,7 +671,7 @@ public class UserServiceIntegrationTest {
 
 
     @Test
-    public void updateShouldUpdateEmailMeStateToFalse() {
+    public void updateShouldUpdateEmailMeStateToFalse() throws Exception {
         User user = new User("user-1");
         user.enable();
         user.setEmailMe(true);
@@ -675,7 +684,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldUpdateEmailMeStateWHenAskedToBeLeftUnset() {
+    public void updateShouldUpdateEmailMeStateWHenAskedToBeLeftUnset() throws Exception {
         User user = new User("user-1");
         user.enable();
         user.setEmailMe(true);
@@ -687,7 +696,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldUpdateEmail() {
+    public void updateShouldUpdateEmail() throws Exception {
         User user = new User("user-1");
         addUser(user);
 
@@ -703,7 +712,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldNotUpdateEmailWhenNull() {
+    public void updateShouldNotUpdateEmailWhenNull() throws Exception {
         User user = new User("user-1");
         user.setEmail("foo@example.com");
         addUser(user);
@@ -715,7 +724,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldUpdateMatcher() {
+    public void updateShouldUpdateMatcher() throws Exception {
         User user = new User("user-1");
         addUser(user);
 
@@ -731,7 +740,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void updateShouldNotUpdateMatcherWhenNull() {
+    public void updateShouldNotUpdateMatcherWhenNull() throws Exception {
         User user = new User("user-1");
         user.setMatcher("foo,bar");
         addUser(user);

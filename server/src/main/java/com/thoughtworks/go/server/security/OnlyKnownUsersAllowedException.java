@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-
-import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.AccountStatusException;
 
 public class OnlyKnownUsersAllowedException extends AccountStatusException {
     public OnlyKnownUsersAllowedException(String msg) {

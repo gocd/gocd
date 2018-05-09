@@ -25,7 +25,6 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import java.nio.charset.Charset;
-import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -173,10 +172,6 @@ public class HttpRequestBuilder {
         return withHeader("Authorization", "basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes(UTF_8)));
     }
 
-    public HttpRequestBuilder withOAuth(String token) {
-        return withHeader("Authorization", "Token token=\"" + token + "\"");
-    }
-
     public HttpRequestBuilder withFormData(String name, String value) {
         final String existingContentType = request.getHeader("content-type");
         if (existingContentType == null) {
@@ -194,26 +189,5 @@ public class HttpRequestBuilder {
     public HttpRequestBuilder withSession(HttpSession session) {
         request.setSession(session);
         return this;
-    }
-
-    public HttpRequestBuilder withX509(X509Certificate[] chain) {
-        return withAttribute("javax.servlet.request.X509Certificate", chain);
-    }
-
-    public HttpRequestBuilder withRequestedSessionId(String requestedSessionId) {
-        request.setRequestedSessionId(requestedSessionId);
-        return this;
-    }
-
-    public HttpRequestBuilder withRequestedSessionIdFromSession() {
-        return withRequestedSessionId(request.getSession(true).getId());
-    }
-
-    public HttpRequestBuilder usingAjax(boolean isAjax) {
-        return !isAjax ? this : usingAjax();
-    }
-
-    public HttpRequestBuilder usingAjax() {
-        return withHeader("X-Requested-With", "XMLHttpRequest");
     }
 }

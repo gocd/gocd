@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2018 ThoughtWorks, Inc.
+# Copyright 2014 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ module ConfigUpdate
 
     def has_permission(cruise_config)
       if looking_at_template?
-        @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), SessionUtils::currentUsername())
+        @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), com.thoughtworks.go.server.util.UserHelper.getUserName())
       else
         @security_service.isUserAdminOfGroup(@user, load_pipeline_group(cruise_config))
       end

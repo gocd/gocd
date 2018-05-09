@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -36,20 +36,16 @@
   </filter>
 
   <filter>
-    <filter-name>mainFilterChain</filter-name>
+    <filter-name>Spring security Filter Chain Proxy</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     <init-param>
       <param-name>targetBeanName</param-name>
-      <param-value>mainFilterChain</param-value>
+      <!-- This bean name 'filterChainProxy' is defined in applicationContext-acegi-security.xml -->
+      <param-value>filterChainProxy</param-value>
     </init-param>
-  </filter>
-
-  <filter>
-    <filter-name>urlRewriteFilter</filter-name>
-    <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
     <init-param>
-      <param-name>logLevel</param-name>
-      <param-value>slf4j</param-value>
+      <param-name>targetFilterLifecycle</param-name>
+      <param-value>true</param-value>
     </init-param>
   </filter>
 
@@ -64,15 +60,8 @@
   </filter-mapping>
 
   <filter-mapping>
-    <filter-name>mainFilterChain</filter-name>
+    <filter-name>Spring security Filter Chain Proxy</filter-name>
     <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>urlRewriteFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-    <!--<dispatcher>FORWARD</dispatcher>-->
-    <!--<dispatcher>REQUEST</dispatcher>-->
   </filter-mapping>
 
   <context-param>
@@ -259,11 +248,6 @@
   <servlet-mapping>
     <servlet-name>spring-pages</servlet-name>
     <url-pattern>/auth/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-pages</servlet-name>
-    <url-pattern>/plugin/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

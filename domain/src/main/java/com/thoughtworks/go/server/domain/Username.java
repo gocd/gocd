@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,8 @@ public class Username implements Serializable {
     public static final Username BLANK = new Username(new CaseInsensitiveString(""));
     public static final Username CRUISE_TIMER = new Username(new CaseInsensitiveString("timer"));
 
-    private final String displayName;
-    private final CaseInsensitiveString username;
+    private String displayName;
+    private CaseInsensitiveString username;
 
     public Username(final CaseInsensitiveString userName) {
         this(userName, CaseInsensitiveString.str(userName));
@@ -47,7 +47,8 @@ public class Username implements Serializable {
     }
 
     public Username(final String userName, String displayName) {
-        this(new CaseInsensitiveString(userName), displayName);
+        this(userName);
+        this.displayName = displayName;
     }
 
     public String getDisplayName() {

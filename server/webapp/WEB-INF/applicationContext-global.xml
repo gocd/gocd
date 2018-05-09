@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -75,8 +75,6 @@
     <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
     <context:component-scan base-package="com.thoughtworks.go.server.dashboard"/>
     <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.newsecurity"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.security"/>
 
     <import resource="velocity-config.xml"/>
     <import resource="applicationContext-shine-server.xml"/>

@@ -31,7 +31,7 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
-import com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter;
+import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
@@ -96,7 +96,7 @@ public class ApplicationInitializerTest {
     @Mock
     private MaterialUpdateService materialUpdateService;
     @Mock
-    private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
+    private RemoveAdminPermissionFilter removeAdminPermissionFilter;
     @Mock
     private PipelineLockService pipelineLockService;
     @Mock

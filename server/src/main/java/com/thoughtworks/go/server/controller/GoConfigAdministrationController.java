@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.controller.actions.RestfulAction;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
 
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -158,7 +158,7 @@ public class GoConfigAdministrationController {
     }
 
     private Username getCurrentUser() {
-        return SessionUtils.currentUsername();
+        return UserHelper.getUserName();
     }
 
 }

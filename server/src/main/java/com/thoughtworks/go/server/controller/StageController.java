@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.StageNotFoundException;
 import com.thoughtworks.go.server.GoUnauthorizedException;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ErrorHandler;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class StageController {
 
         try {
             HttpLocalizedOperationResult cancelResult = new HttpLocalizedOperationResult();
-            scheduleService.cancelAndTriggerRelevantStages(stageId, SessionUtils.currentUsername(), cancelResult);
+            scheduleService.cancelAndTriggerRelevantStages(stageId, UserHelper.getUserName(), cancelResult);
             return handleResult(cancelResult, response);
         } catch (GoUnauthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());

@@ -16,15 +16,16 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.SecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.domain.Username;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AuthorityGranter {
@@ -35,37 +36,41 @@ public class AuthorityGranter {
         this.securityService = securityService;
     }
 
-    public Set<GrantedAuthority> authorities(String username) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
+    public GrantedAuthority[] authorities(String username) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
         checkAndAddSuperAdmin(username, authorities);
         checkAndAddGroupAdmin(username, authorities);
         checkAndAddTemplateAdmin(username, authorities);
         checkAndAddTemplateViewUser(username, authorities);
         authorities.add(GoAuthority.ROLE_USER.asAuthority());
-        return authorities;
+        return authorities.toArray(new GrantedAuthority[authorities.size()]);
     }
 
-    private void checkAndAddTemplateAdmin(String username, Set<GrantedAuthority> authorities) {
-        if (securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(username)))) {
+    private void checkAndAddTemplateAdmin(String username, List<GrantedAuthority> authorities) {
+        if(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(username)))) {
             authorities.add(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
         }
     }
 
-    private void checkAndAddTemplateViewUser(String userName, Set<GrantedAuthority> authorities) {
+    private void checkAndAddTemplateViewUser(String userName, List<GrantedAuthority> authorities) {
         if (securityService.isAuthorizedToViewTemplates(new Username(userName))) {
             authorities.add(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
         }
     }
 
-    private void checkAndAddGroupAdmin(String username, Set<GrantedAuthority> authorities) {
+    private void checkAndAddGroupAdmin(String username, List<GrantedAuthority> authorities) {
         if (securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString(username)))) {
             authorities.add(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
         }
     }
 
-    private void checkAndAddSuperAdmin(String username, Set<GrantedAuthority> authorities) {
+    private void checkAndAddSuperAdmin(String username, List<GrantedAuthority> authorities) {
         if (securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))) {
             authorities.add(GoAuthority.ROLE_SUPERVISOR.asAuthority());
         }
+    }
+
+    private List<GrantedAuthority> originalAsList(GrantedAuthority[] original) {
+        return original == null ? new ArrayList<>() :  Arrays.asList(original);
     }
 }

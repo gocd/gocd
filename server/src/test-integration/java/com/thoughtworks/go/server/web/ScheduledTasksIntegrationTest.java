@@ -38,6 +38,7 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-cruise-remoting-servlet.xml"
 })

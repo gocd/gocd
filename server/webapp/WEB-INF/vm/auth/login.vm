@@ -99,7 +99,7 @@
   <div id="bd">
     <div id="yui-main">
       <div id="main" class="yui-b">
-        #if ($GOCD_SECURITY_AUTHENTICATION_ERROR)
+        #if ($login_error && $SPRING_SECURITY_LAST_EXCEPTION)
           <div id="error-container" style="">
             <div class="ab-bg">
               <span class="ab-corner lvl1"></span>
@@ -108,7 +108,7 @@
               <span class="ab-corner lvl4"></span>
             </div>
             <div id="error-box">
-              $GOCD_SECURITY_AUTHENTICATION_ERROR.replaceAll(";.*", "")
+              $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
               <a target="_blank"
                  href="https://docs.gocd.org/current/configuration/dev_authentication.html#common-errors">Help
                 Topic: Authentication</a>

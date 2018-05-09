@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2018 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ module ConfigUpdate
     include ::ConfigUpdate::LoadConfig
 
     def checkPermission(cruise_config, result)
-      return if @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), SessionUtils::currentUsername())
+      return if @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), com.thoughtworks.go.server.util.UserHelper.getUserName())
 
       message = com.thoughtworks.go.i18n.LocalizedMessage.unauthorizedToEdit()
       result.unauthorized(message, nil)

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2018 ThoughtWorks, Inc.
+# Copyright 2014 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,9 +44,8 @@ class ApplicationController < ActionController::Base
 
   # user
   def set_current_user
-    @user = SessionUtils::currentUsername()
-    # See SessionUtils to get for context
-    @user_id = session["GOCD_SECURITY_CURRENT_USER_ID"]
+    @user = com.thoughtworks.go.server.util.UserHelper.getUserName()
+    @user_id = session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId()]
   end
 
   def current_user

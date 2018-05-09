@@ -31,7 +31,7 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
-import com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter;
+import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
@@ -67,7 +67,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private TimerScheduler timerScheduler;
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private MaterialUpdateService materialUpdateService;
-    @Autowired private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
+    @Autowired private RemoveAdminPermissionFilter removeAdminPermissionFilter;
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private StageResourceImporter stageResourceImporter;
     @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
@@ -126,7 +126,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             materialUpdateService.initialize();
             pipelineLabelCorrector.correctPipelineLabelCountEntries();
             pipelineScheduler.initialize();
-            invalidateAuthenticationOnSecurityConfigChangeFilter.initialize();
+            removeAdminPermissionFilter.initialize();
 
             pipelineTimeline.updateTimelineOnInit();
             pipelineSqlMapDao.initialize();

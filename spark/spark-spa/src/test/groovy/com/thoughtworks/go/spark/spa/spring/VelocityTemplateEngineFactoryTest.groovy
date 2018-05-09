@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.spark.spa.spring
 
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.RailsAssetsService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.server.service.VersionInfoService
@@ -45,7 +43,6 @@ class VelocityTemplateEngineFactoryTest {
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder))
     engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
-    SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"))
   }
 
   @Test

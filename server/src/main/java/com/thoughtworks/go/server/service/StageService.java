@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -48,6 +47,7 @@ import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.StageSummaryModel;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.Logger;
@@ -163,7 +163,7 @@ public class StageService implements StageRunFinder, StageFinder {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
-                stageStatusTopic.post(new StageStatusMessage(stage.getIdentifier(), stage.stageState(), stage.getResult(), SessionUtils.currentUsername()));
+                stageStatusTopic.post(new StageStatusMessage(stage.getIdentifier(), stage.stageState(), stage.getResult(), UserHelper.getUserName()));
             }
         });
     }

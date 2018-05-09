@@ -21,13 +21,13 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
@@ -63,7 +63,7 @@ public class InitialContextProvider {
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
         context.put("securityService", securityService);
-        context.put("currentUser", SessionUtils.currentUsername());
+        context.put("currentUser", UserHelper.getUserName());
         context.put("controllerName", humanizedControllerName(controller));
         context.put("viewName", viewName);
         context.put("currentVersion", CurrentGoCDVersion.getInstance());
@@ -82,7 +82,7 @@ public class InitialContextProvider {
     }
 
     private boolean showAnalyticsDashboard() {
-        return securityService.isUserAdmin(SessionUtils.currentUsername()) && supportsAnalyticsDashboard();
+        return securityService.isUserAdmin(UserHelper.getUserName()) && supportsAnalyticsDashboard();
     }
 
     private boolean supportsAnalyticsDashboard() {

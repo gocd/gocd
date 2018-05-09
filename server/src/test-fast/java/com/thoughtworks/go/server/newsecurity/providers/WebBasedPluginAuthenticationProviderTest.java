@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
@@ -43,10 +42,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static java.util.Arrays.asList;
@@ -56,6 +55,8 @@ import static org.mockito.Mockito.*;
 
 class WebBasedPluginAuthenticationProviderTest {
     private static final String PLUGIN_ID = "github.oauth";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     private static final AccessToken CREDENTIALS = new AccessToken(singletonMap("access_token", "some-token"));
     private AuthorizationExtension authorizationExtension;
     private PluginRoleService pluginRoleService;
@@ -93,11 +94,7 @@ class WebBasedPluginAuthenticationProviderTest {
     }
 
     @Nested
-    @EnableRuleMigrationSupport
     class Authenticate {
-        @Rule
-        public ExpectedException thrown = ExpectedException.none();
-
         @Test
         void shouldAuthenticateUserAgainstTheSpecifiedPlugin() {
             PluginRoleConfig adminRole = new PluginRoleConfig("admin", "github", new ConfigurationProperty());
@@ -212,6 +209,17 @@ class WebBasedPluginAuthenticationProviderTest {
         }
 
         @Test
+        void shouldReturnNullOnFailedAuthentication() {
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(null, null);
+            when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), any(), any(), any())).thenReturn(authenticationResponse);
+
+            thrown.expect(BadCredentialsException.class);
+            thrown.expectMessage("Unable to authenticate user using the external access token.");
+
+            authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
+        }
+
+        @Test
         void shouldAssignRoleBeforeGrantingAnAuthority() {
             final User user = new User("username", null, "email");
             AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
@@ -240,28 +248,10 @@ class WebBasedPluginAuthenticationProviderTest {
             inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), asList(new CaseInsensitiveString("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
-
-        @Test
-        void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
-            final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
-
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
-            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
-
-            thrown.expect(OnlyKnownUsersAllowedException.class);
-            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
-
-            authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
-        }
     }
 
     @Nested
-    @EnableRuleMigrationSupport
     class ReAuthenticate {
-        @Rule
-        public ExpectedException thrown = ExpectedException.none();
-
         @Test
         void shouldReAuthenticateUserUsingAuthenticationToken() {
             final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
@@ -298,24 +288,6 @@ class WebBasedPluginAuthenticationProviderTest {
             verify(authorizationExtension, never()).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList());
             verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubPrivateSecurityConfig), emptyList());
         }
-
-        @Test
-        void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
-            final GoUserPrinciple goUserPrinciple = new GoUserPrinciple("bob", "Bob");
-            final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
-
-            final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
-
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
-            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
-
-            thrown.expect(OnlyKnownUsersAllowedException.class);
-            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
-
-            authenticationProvider.reauthenticate(oldAuthenticationToken);
-        }
-
     }
 
     @Test

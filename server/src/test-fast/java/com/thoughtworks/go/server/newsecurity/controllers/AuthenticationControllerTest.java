@@ -97,7 +97,7 @@ class AuthenticationControllerTest {
                 final RedirectView redirectView = controller.performLogin(null, "  ", request);
 
                 assertThat(redirectView.getUrl()).isEqualTo("/auth/login");
-                assertThat(SessionUtils.getAuthenticationError(request)).isEqualTo("Username cannot be blank!");
+                assertThat(SessionUtils.getAuthenticationError(request)).isEqualTo("Invalid credentials. Either your username and password are incorrect, or there is a problem with your browser cookies. Please check with your administrator.");
                 assertThat(originalSession).isSameAs(request.getSession(false));
             }
 

@@ -61,10 +61,7 @@ public class UserService {
     private final Object enableUserMutex = new Object();
 
     @Autowired
-    public UserService(UserDao userDao,
-                       SecurityService securityService,
-                       GoConfigService goConfigService,
-                       TransactionTemplate transactionTemplate,
+    public UserService(UserDao userDao, SecurityService securityService, GoConfigService goConfigService, TransactionTemplate transactionTemplate,
                        OauthRepository oauthRepository) {
         this.userDao = userDao;
         this.securityService = securityService;
@@ -120,12 +117,7 @@ public class UserService {
         return false;
     }
 
-    public User save(final User user,
-                     TriState enabled,
-                     TriState emailMe,
-                     String email,
-                     String checkinAliases,
-                     LocalizedOperationResult result) {
+    public User save(final User user, TriState enabled, TriState emailMe, String email, String checkinAliases, LocalizedOperationResult result) {
         if (enabled.isTrue()) {
             user.enable();
         }
@@ -179,10 +171,7 @@ public class UserService {
         return allUsersForDisplay().size() - enabledUserCount();
     }
 
-    public void modifyRolesAndUserAdminPrivileges(final List<String> users,
-                                                  final TriStateSelection adminPrivilege,
-                                                  final List<TriStateSelection> roleSelections,
-                                                  LocalizedOperationResult result) {
+    public void modifyRolesAndUserAdminPrivileges(final List<String> users, final TriStateSelection adminPrivilege, final List<TriStateSelection> roleSelections, LocalizedOperationResult result) {
         Users allUsers = userDao.allUsers();
         for (String user : users) {
             if (!allUsers.containsUserNamed(user)) {
@@ -398,7 +387,7 @@ public class UserService {
     public void addUserIfDoesNotExist(User user) {
         synchronized (enableUserMutex) {
             if (!(user.isAnonymous() || userExists(user))) {
-                assertUnknownUsersAreAllowedToLogin(user.getUsername());
+                assertUnknownUsersAreAllowedToLogin();
 
                 userDao.saveOrUpdate(user);
             }
@@ -411,9 +400,9 @@ public class UserService {
         }
     }
 
-    private void assertUnknownUsersAreAllowedToLogin(Username username) {
+    private void assertUnknownUsersAreAllowedToLogin() {
         if (goConfigService.isOnlyKnownUserAllowedToLogin()) {
-            throw new OnlyKnownUsersAllowedException(username.getUsername().toString(), "Please ask the administrator to add you to GoCD.");
+            throw new OnlyKnownUsersAllowedException("Please ask the administrator to add you to Go");
         }
     }
 

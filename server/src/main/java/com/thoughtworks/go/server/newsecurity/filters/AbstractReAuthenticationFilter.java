@@ -113,19 +113,14 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
             return null;
         }
 
-        try {
-            final Credentials credentials = authenticationToken.getCredentials();
-            if (credentials instanceof UsernamePassword) {
-                return passwordBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<UsernamePassword>) authenticationToken);
-            } else if (credentials instanceof AccessToken) {
-                return webBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<AccessToken>) authenticationToken);
-            } else if (authenticationToken.isAnonymousToken()) {
-                return anonymousAuthenticationProvider.reauthenticate((AuthenticationToken<AnonymousCredential>) authenticationToken);
-            } else {
-                return null;
-            }
-        } catch (AuthenticationException e) {
-            LOGGER.debug("Failed to authenticate user.", e);
+        final Credentials credentials = authenticationToken.getCredentials();
+        if (credentials instanceof UsernamePassword) {
+            return passwordBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<UsernamePassword>) authenticationToken);
+        } else if (credentials instanceof AccessToken) {
+            return webBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<AccessToken>) authenticationToken);
+        } else if (authenticationToken.isAnonymousToken()) {
+            return anonymousAuthenticationProvider.reauthenticate((AuthenticationToken<AnonymousCredential>) authenticationToken);
+        } else {
             return null;
         }
     }

@@ -16,19 +16,11 @@
 
 package com.thoughtworks.go.server.newsecurity.providers;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.Credentials;
-import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
-import com.thoughtworks.go.server.service.UserService;
 
 import java.util.List;
 
@@ -36,17 +28,11 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
 
     protected final GoConfigService goConfigService;
     protected final PluginRoleService pluginRoleService;
-    private final UserService userService;
-    private final AuthorityGranter authorityGranter;
 
-    AbstractPluginAuthenticationProvider(GoConfigService goConfigService,
-                                         PluginRoleService pluginRoleService,
-                                         UserService userService,
-                                         AuthorityGranter authorityGranter) {
+    public AbstractPluginAuthenticationProvider(GoConfigService goConfigService,
+                                                PluginRoleService pluginRoleService) {
         this.goConfigService = goConfigService;
         this.pluginRoleService = pluginRoleService;
-        this.userService = userService;
-        this.authorityGranter = authorityGranter;
     }
 
     @Override
@@ -92,52 +78,5 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
 
     protected abstract List<SecurityAuthConfig> getSecurityAuthConfigsToAuthenticateWith(String pluginId);
 
-//    protected abstract AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig);
-
-    protected abstract boolean doesPluginSupportAuthentication(String pluginId);
-
-    protected abstract AuthenticationResponse authenticateWithExtension(String pluginId,
-                                                                        T credentials,
-                                                                        SecurityAuthConfig authConfig,
-                                                                        List<PluginRoleConfig> pluginRoleConfigs);
-
-    protected abstract AuthenticationToken<T> createAuthenticationToken(GoUserPrinciple userPrinciple,
-                                                                        T credentials,
-                                                                        String pluginId,
-                                                                        String authConfigId);
-
-    protected AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig) {
-        String pluginId = authConfig.getPluginId();
-
-        try {
-            if (!doesPluginSupportAuthentication(pluginId)) {
-                return null;
-            }
-
-            final List<PluginRoleConfig> roleConfigs = goConfigService.security().getRoles().pluginRoleConfigsFor(authConfig.getId());
-            LOGGER.debug("Authenticating user using the authorization plugin: `{}`", pluginId);
-            AuthenticationResponse response = authenticateWithExtension(pluginId, credentials, authConfig, roleConfigs);
-
-            com.thoughtworks.go.plugin.access.authorization.models.User user = ensureDisplayNamePresent(response.getUser());
-            if (user != null) {
-                userService.addUserIfDoesNotExist(toDomainUser(user));
-
-                pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", user.getUsername(), pluginId);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(),
-                        authorityGranter.authorities(user.getUsername()));
-
-                return createAuthenticationToken(goUserPrinciple, credentials, pluginId, authConfig.getId());
-
-            }
-        } catch (OnlyKnownUsersAllowedException e) {
-            LOGGER.info("User {} is successfully authenticated. Auto register new user is disabled. Please refer https://docs.gocd.org/{}/configuration/dev_authentication.html#controlling-user-access", e.getUsername(), CurrentGoCDVersion.getInstance().goVersion());
-            throw e;
-        } catch (Exception e) {
-            LOGGER.error("Error while authenticating user using auth_config: {} with the authorization plugin: {} ", authConfig.getId(), pluginId);
-        }
-        LOGGER.debug("Authentication failed using the authorization plugin: `{}`", pluginId);
-        return null;
-    }
+    protected abstract AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig);
 }

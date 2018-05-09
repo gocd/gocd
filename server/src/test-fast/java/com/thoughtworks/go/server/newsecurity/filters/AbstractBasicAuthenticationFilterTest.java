@@ -190,7 +190,7 @@ class AbstractBasicAuthenticationFilterTest {
         }
 
         @Test
-        void shouldAlwaysAuthenticateWhenCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
+        void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/")
                     .withBasicAuth(BOB, PASSWORD)
                     .build();

@@ -42,16 +42,14 @@ public class BasicAuthenticationWithChallengeFailureResponseHandler implements R
     @Override
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
-                       int statusCode,
                        String errorMessage) throws IOException {
-
         if (!isAjaxRequest(request)) {
             if (securityService.isSecurityEnabled()) {
                 response.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
             }
         }
 
-        response.setStatus(statusCode);
+        response.setStatus(401);
         final ContentTypeAwareResponse contentTypeAwareResponse = CONTENT_TYPE_NEGOTIATION_MESSAGE_HANDLER.getResponse(request);
         response.setCharacterEncoding("utf-8");
         response.setContentType(contentTypeAwareResponse.getContentType().toString());

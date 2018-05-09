@@ -23,5 +23,5 @@ import java.io.IOException;
 public interface ResponseHandler {
     void handle(HttpServletRequest request,
                 HttpServletResponse response,
-                int statusCode, String errorMessage) throws IOException;
+                String errorMessage) throws IOException;
 }

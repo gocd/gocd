@@ -30,8 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
-
 @Component
 public class ReAuthenticationWithChallengeFilter extends AbstractReAuthenticationFilter {
     private final BasicAuthenticationWithChallengeFailureResponseHandler basicAuthenticationWithChallengeFailureResponseHandler;
@@ -52,7 +50,7 @@ public class ReAuthenticationWithChallengeFilter extends AbstractReAuthenticatio
     protected void onAuthenticationFailure(HttpServletRequest request,
                                            HttpServletResponse response,
                                            String errorMessage) throws IOException {
-        basicAuthenticationWithChallengeFailureResponseHandler.handle(request, response, SC_UNAUTHORIZED, errorMessage);
+        basicAuthenticationWithChallengeFailureResponseHandler.handle(request, response, errorMessage);
     }
 }
 

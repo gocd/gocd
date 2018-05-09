@@ -37,12 +37,11 @@ public class GenericAccessDeniedHandler implements ResponseHandler {
     @Override
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
-                       int statusCode,
                        String errorMessage) throws IOException {
         if (SessionUtils.isAnonymousAuthenticationToken(request) && securityService.isSecurityEnabled()) {
             response.sendRedirect("/go/auth/login");
         } else {
-            response.sendError(statusCode, "You are not authorized to access this resource!");
+            response.sendError(403, "You are not authorized to access this resource!");
         }
     }
 }

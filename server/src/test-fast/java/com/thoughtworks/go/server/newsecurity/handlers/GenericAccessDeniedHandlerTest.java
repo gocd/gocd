@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,7 @@ class GenericAccessDeniedHandlerTest {
         when(securityService.isSecurityEnabled()).thenReturn(true);
 
         new GenericAccessDeniedHandler(securityService)
-                .handle(request, response, SC_FORBIDDEN, "Some error");
+                .handle(request, response, "Some error");
 
         MockHttpServletResponseAssert.assertThat(response).redirectsTo("/go/auth/login");
     }
@@ -58,7 +57,7 @@ class GenericAccessDeniedHandlerTest {
         when(securityService.isSecurityEnabled()).thenReturn(true);
 
         new GenericAccessDeniedHandler(securityService)
-                .handle(request, response, SC_FORBIDDEN, "Some error");
+                .handle(request, response, "Some error");
 
         MockHttpServletResponseAssert.assertThat(response)
                 .isForbidden();

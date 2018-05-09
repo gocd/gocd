@@ -31,7 +31,6 @@ import javax.servlet.FilterChain;
 
 import static com.thoughtworks.go.server.security.GoAuthority.*;
 import static java.util.Collections.singleton;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -60,7 +59,7 @@ public class VerifyAuthorityFilterTest {
         new VerifyAuthorityFilter(singleton(ROLE_AGENT.asAuthority()), responseHandler)
                 .doFilter(request, response, filterChain);
 
-        verify(responseHandler).handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
+        verify(responseHandler).handle(request, response, "You are not authorized to access this resource!");
         verifyZeroInteractions(filterChain);
     }
 

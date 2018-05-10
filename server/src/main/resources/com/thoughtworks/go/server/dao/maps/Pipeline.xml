@@ -63,13 +63,6 @@
         <result property="stageHistory" resultMap="Stage.stage-with-job-history"/>
     </resultMap>
 
-    <resultMap id="pipeline-with-stage" class="com.thoughtworks.go.domain.Pipeline">
-        <result property="id" column="pipelineId"/>
-        <result property="label" column="label"/>
-        <result property="counter" column="pipelineCounter"/>
-
-        <result property="stages" resultMap="Stage.select-stage-without-builds"/>
-    </resultMap>
 
     <resultMap id="stage-identifier" class="com.thoughtworks.go.domain.StageIdentifier">
         <result property="pipelineName" column="pipelineName"/>
@@ -218,13 +211,6 @@
         INNER JOIN builds ON builds.stageId = stages.id
         WHERE builds.id= #buildId#
     </select>
-
-    <cacheModel id="pipeline-by-stageId" type="MEMORY" readOnly="true">
-        <flushInterval seconds="300"/>
-        <flushOnExecute statement="insertPipeline"/>
-        <flushOnExecute statement="insertPipelineLabelCounter"/>
-        <flushOnExecute statement="updatePipelineLabelCounter"/>
-    </cacheModel>
 
     <sql id="selectLatestStageInPipeline">
         stages.latestRun = true

@@ -49,11 +49,6 @@
         <result property="configVersion" column="configVersion"/>
     </resultMap>
 
-    <resultMap id="select-stage-map" class="com.thoughtworks.go.domain.Stage" groupBy="id"
-               extends="select-stage-without-builds">
-        <result property="jobInstances" resultMap="BuildInstance.join-build-map"/>
-    </resultMap>
-
     <resultMap id="stage-identity" class="com.thoughtworks.go.server.domain.StageIdentity">
         <result property="stageId" column="stageId"/>
         <result property="pipelineName" column="pipelineName"/>
@@ -168,30 +163,6 @@
         SELECT Max(Counter) FROM stages Where pipelineId = #pipelineId# and name = #name#
     </select>
 
-    <sql id="successfulStages">
-        AND stages.id NOT IN (
-        SELECT stageId FROM builds
-        WHERE
-        <include refid="incompleteBuilds"/>
-        OR
-        <include refid="failedBuilds"/>
-        OR builds.result = 'Cancelled'
-        )
-    </sql>
-
-    <sql id="incompleteBuilds">
-        builds.state in ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
-    </sql>
-
-    <sql id="failedBuilds">
-        builds.state = 'Completed' AND builds.result = 'Failed'
-    </sql>
-
-    <cacheModel id="pipelineWithLatestSuccessfulStage" type="MEMORY" readOnly="true">
-        <flushOnExecute statement="insertStage"/>
-        <flushOnExecute statement="updateStageStatus"/>
-    </cacheModel>
-
     <select id="getMostRecentPassedStageId" resultClass="java.lang.Long">
         SELECT id
         FROM _stages
@@ -286,17 +257,6 @@
         <result property="approvedBy" column="approvedBy"/>
     </resultMap>
 
-    <sql id="selectBuildTransitionsForCompletedStage">
-        SELECT stageid, max(b.id) id
-        from stages s
-        inner join buildstatetransitions b on stageid = s.id
-        INNER JOIN pipelines ON s.pipelineId = pipelines.id
-        WHERE s.result in ('Passed', 'Failed', 'Cancelled')
-        AND  b.currentState = 'Completed'  AND pipelines.name IN (
-            <iterate property="pipelineNames" conjunction=",">#pipelineNames[]#</iterate>
-        )
-    </sql>
-
     <sql id="selectForFeed">
         SELECT stages.id as stageId,
             stages.name AS stageName,
@@ -364,11 +324,6 @@
         ORDER BY completedByTransitionId DESC
         LIMIT #pageLimit#
     </select>
-
-    <sql id="innerJoinPipelines">
-        INNER JOIN pipelines ON pipelines.id = stages.pipelineId AND
-        <include refid="selectLatestStageInPipeline"/>
-    </sql>
 
     <select id="getStagesByPipelineId" resultMap="select-stage-with-identifier-jobs" parameterClass="long">
         <include refid="selectStagesWithIdentifier"/>
@@ -587,12 +542,6 @@
         WHERE builds.id = #value#
     </select>
 
-    <cacheModel id="stage-name-from-stageId" type="MEMORY" readOnly="true">
-        <flushInterval seconds="300"/>
-        <property name="cache-size" value="10"/>
-        <flushOnExecute statement="insertStage"/>
-        <flushOnExecute statement="updateStageStatus"/>
-    </cacheModel>
 
     <select id="getLastTransitionedTimeByStageId" parameterClass="long" resultClass="java.sql.Timestamp" >
         SELECT lastTransitionedTime FROM stages WHERE id = #value#

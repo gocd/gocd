@@ -59,10 +59,6 @@
         <result property="rerunOfCounter" column="rerunOfCounter"/>
     </resultMap>
 
-    <resultMap id="build-with-transitions-map" class="com.thoughtworks.go.domain.JobInstance" groupBy="id" extends="select-build-map">
-        <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
-    </resultMap>
-
     <resultMap id="join-build-map" class="com.thoughtworks.go.domain.JobInstance" groupBy="id" extends="select-build-map">
         <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
     </resultMap>

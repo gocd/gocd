@@ -47,7 +47,6 @@ import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyMo
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createEmptyPipelineInstanceModel;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPreparingToSchedule;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
-import static java.util.stream.Collectors.toList;
 
 /* Understands the current state of a pipeline, which is to be shown on the dashboard. */
 @Component
@@ -92,7 +91,7 @@ public class GoDashboardCurrentStateLoader {
             historyForDashboard.addAll(loadHistoryForPipelines(new ArrayList<>(CaseInsensitiveString.toStringList(pipelinesToAdd))));
         }
 
-        for (CaseInsensitiveString pipelineNameToRemove : pipelinesToRemove) {
+        for (CaseInsensitiveString pipelineNameToRemove : new ArrayList<>(pipelinesToRemove)) {
             clearEntryFor(pipelineNameToRemove);
         }
 

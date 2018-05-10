@@ -44,6 +44,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -51,6 +52,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.mockito.Mockito.*;
@@ -447,6 +449,35 @@ public class GoDashboardCurrentStateLoaderTest {
         verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()));
         verify(pipelineSqlMapDao, times(1)).loadHistoryForDashboard(CaseInsensitiveString.toStringList(p2Config.getName()));
         verifyNoMoreInteractions(pipelineSqlMapDao);
+    }
+
+    @Test
+    public void shouldHandlePipelineDeletion(){
+        PipelineConfig pipeline1 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        PipelineConfig pipeline2 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
+        PipelineConfig pipeline3 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline3", "stage1", "job1");
+        when(pipelineSqlMapDao.loadHistoryForDashboard(any(ArrayList.class))).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
+        List<GoDashboardPipeline> goDashboardPipelines = loader.allPipelines(config);
+        assertThat(goDashboardPipelines, hasSize(3));
+
+        for (CaseInsensitiveString pipelineName : Arrays.asList(pipeline1.name(), pipeline2.name(), pipeline3.name())) {
+            long matches = goDashboardPipelines.stream().filter(new Predicate<GoDashboardPipeline>() {
+                @Override
+                public boolean test(GoDashboardPipeline goDashboardPipeline) {
+                    return pipelineName.equals(goDashboardPipeline.name());
+                }
+            }).count();
+            assertThat(matches, is(1L));
+
+        }
+
+        config.deletePipeline(pipeline1);
+        config.deletePipeline(pipeline2);
+        config.getAllPipelineConfigs().remove(pipeline1);
+        config.getAllPipelineConfigs().remove(pipeline2);
+        goDashboardPipelines = loader.allPipelines(config);
+        assertThat(goDashboardPipelines, hasSize(1));
+        assertThat(goDashboardPipelines.get(0).name(), is(pipeline3.name()));
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

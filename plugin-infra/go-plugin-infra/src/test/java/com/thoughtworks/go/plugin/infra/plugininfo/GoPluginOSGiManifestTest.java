@@ -22,7 +22,9 @@ import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,8 +45,11 @@ import static org.junit.Assert.assertThat;
 import static org.osgi.framework.Constants.*;
 
 public class GoPluginOSGiManifestTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
-    private static final File TMP_DIR = new File("./tmp");
+    private File tmpDir;
     private File manifestFile;
     private File bundleLocation;
     private File bundleDependencyDir;
@@ -55,6 +60,7 @@ public class GoPluginOSGiManifestTest {
         if (WINDOWS.satisfy()) {
             return;
         }
+        tmpDir = temporaryFolder.newFolder();
         bundleLocation = createPluginBundle("test-plugin-bundle");
         manifestFile = new File(bundleLocation, "META-INF/MANIFEST.MF");
 
@@ -215,7 +221,6 @@ public class GoPluginOSGiManifestTest {
         if (WINDOWS.satisfy()) {
             return;
         }
-        FileUtils.deleteDirectory(TMP_DIR);
     }
 
     private String valueFor(final String prefix) throws IOException {
@@ -243,7 +248,7 @@ public class GoPluginOSGiManifestTest {
     }
 
     private File createPluginBundle(String bundleName) throws IOException, URISyntaxException {
-        File destinationPluginBundleLocation = new File(TMP_DIR, bundleName);
+        File destinationPluginBundleLocation = new File(tmpDir, bundleName);
         destinationPluginBundleLocation.mkdirs();
 
         URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");

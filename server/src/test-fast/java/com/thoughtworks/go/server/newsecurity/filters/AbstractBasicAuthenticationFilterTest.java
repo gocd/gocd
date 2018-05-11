@@ -46,7 +46,6 @@ class AbstractBasicAuthenticationFilterTest {
 
     private static final String BOB = "bob";
     private static final String PASSWORD = "p@ssw0rd";
-    private SystemEnvironment systemEnvironment;
     private TestingClock clock;
     private SecurityService securityService;
     private PasswordBasedPluginAuthenticationProvider authenticationProvider;
@@ -57,7 +56,6 @@ class AbstractBasicAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        systemEnvironment = new SystemEnvironment();
         clock = new TestingClock();
         securityService = mock(SecurityService.class);
         authenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
@@ -189,6 +187,27 @@ class AbstractBasicAuthenticationFilterTest {
 
             verify(filter, never()).onAuthenticationFailure(any(), any(), any());
 
+        }
+
+        @Test
+        void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
+            request = HttpRequestBuilder.GET("/")
+                    .withBasicAuth(BOB, PASSWORD)
+                    .build();
+
+            com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
+            final HttpSession originalSession = request.getSession(true);
+
+            final AuthenticationToken<UsernamePassword> authenticationToken = createAuthentication(BOB, PASSWORD);
+            when(authenticationProvider.authenticate(new UsernamePassword(BOB, PASSWORD), null)).thenReturn(authenticationToken);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(filterChain).doFilter(request, response);
+            assertThat(request.getSession(false)).isNotSameAs(originalSession);
+            assertThat(SessionUtils.getAuthenticationToken(request)).isEqualTo(authenticationToken);
+
+            verify(filter, never()).onAuthenticationFailure(any(), any(), anyString());
         }
     }
 }

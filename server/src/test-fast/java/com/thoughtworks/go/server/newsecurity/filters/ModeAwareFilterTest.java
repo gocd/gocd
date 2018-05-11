@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import javax.servlet.FilterChain;
@@ -40,7 +40,7 @@ public class ModeAwareFilterTest {
     private FilterChain filterChain;
     private ModeAwareFilter filter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
         when(response.getWriter()).thenReturn(mock(PrintWriter.class));

@@ -64,7 +64,7 @@ public class AssumeAnonymousUserFilter extends OncePerRequestFilter {
             AuthenticationToken<AnonymousCredential> authenticationToken = new AuthenticationToken<>(anonymous, AnonymousCredential.INSTANCE, null, clock.currentTimeMillis(), null);
 
             LOGGER.debug("Authenticating as anonymous user with role(s) {}", anonymous.getAuthorities());
-            SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+            SessionUtils.setAuthenticationTokenWithoutRecreatingSession(authenticationToken, request);
         }
 
         filterChain.doFilter(request, response);

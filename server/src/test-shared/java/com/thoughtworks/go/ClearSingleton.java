@@ -33,7 +33,6 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.newsecurity.x509.CachingSubjectDnX509PrincipalExtractor;
 import org.junit.rules.ExternalResource;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 public class ClearSingleton extends ExternalResource {
 
@@ -61,7 +60,6 @@ public class ClearSingleton extends ExternalResource {
         new CachingSubjectDnX509PrincipalExtractor().getCache().removeAll();
 
         //
-        SecurityContextHolder.getContext().setAuthentication(null);
         SessionUtils.unsetCurrentUser();
 
         //

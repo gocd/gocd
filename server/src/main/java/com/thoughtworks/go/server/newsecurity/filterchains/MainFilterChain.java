@@ -30,10 +30,11 @@ public class MainFilterChain extends FilterChainProxy {
     @Autowired
     public MainFilterChain(ModeAwareFilter modeAwareFilter,
                            CreateSessionFilterChain createSessionFilterChain,
+                           AssumeAnonymousUserFilter assumeAnonymousUserFilter,
                            RememberLastRequestUrlFilterChain rememberLastRequestUrlFilterChain,
                            AuthenticationFilterChain authenticationFilterChain,
-                           AssumeAnonymousUserFilter assumeAnonymousUserFilter,
                            ThreadLocalUserFilter threadLocalUserFilter,
+                           UserEnabledCheckFilterChain userEnabledFilterChain,
                            AuthorizeFilterChain authorizeFilterChain,
                            DenyGoCDAccessForArtifactsFilterChain denyGoCDAccessForArtifactsFilterChain,
                            ArtifactSizeEnforcementFilterChain artifactSizeEnforcementFilterChain,
@@ -43,16 +44,16 @@ public class MainFilterChain extends FilterChainProxy {
                 .addFilterChain("/**",
                         modeAwareFilter,
                         createSessionFilterChain,
+                        assumeAnonymousUserFilter,
                         rememberLastRequestUrlFilterChain,
                         authenticationFilterChain,
-                        assumeAnonymousUserFilter,
                         threadLocalUserFilter,
+                        userEnabledFilterChain,
                         authorizeFilterChain,
                         denyGoCDAccessForArtifactsFilterChain,
                         artifactSizeEnforcementFilterChain,
                         flashLoadingFilter)
                 .build());
     }
-
 
 }

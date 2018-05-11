@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,10 +108,10 @@ public class GoConfigDao {
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
         ConfigSaveState configSaveState = null;
-        LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
+        LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
-                LOGGER.info("Config update request {} by {} is being processed", command, UserHelper.getUserName().getUsername());
+                LOGGER.info("Config update request {} by {} is being processed", command, SessionUtils.currentUsername().getUsername());
                 if (command instanceof CheckedUpdateCommand) {
                     CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
                     if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
@@ -126,7 +126,7 @@ public class GoConfigDao {
                 if (command instanceof ConfigAwareUpdate) {
                     ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
                 }
-                LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
+                LOGGER.info("Config update request by {} is completed", SessionUtils.currentUsername().getUsername());
             }
         }
         return configSaveState;
@@ -134,17 +134,17 @@ public class GoConfigDao {
 
     public ConfigSaveState updateFullConfig(FullConfigUpdateCommand command) {
         ConfigSaveState configSaveState;
-        LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
+        LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
-                LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
+                LOGGER.info("Config update request by {} is being processed", SessionUtils.currentUsername().getUsername());
 
                 configSaveState = cachedConfigService.writeFullConfigWithLock(command);
             } catch (Exception e) {
                 LOGGER.error("Full config update failed", e);
                 throw e;
             } finally {
-                LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
+                LOGGER.info("Config update request by {} is completed", SessionUtils.currentUsername().getUsername());
             }
         }
         return configSaveState;

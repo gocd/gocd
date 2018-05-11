@@ -17,14 +17,17 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.domain.Username;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
+import com.thoughtworks.go.server.service.SecurityService;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,10 +45,10 @@ public class AuthorityGranterTest {
     public void shouldGrantTemplateSupervisorRoleToTemplateAdmins() throws Exception {
         String templateAdmin = "template-admin";
         when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateAdmin)))).thenReturn(true);
-        GrantedAuthority[] authorities = authorityGranter.authorities(templateAdmin);
-        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority()));
-        assertThat(authorities, not(hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+        Set<GrantedAuthority> authorities = authorityGranter.authorities(templateAdmin);
+        assertThat(authorities, hasItem(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority()));
+        assertThat(authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
+        assertThat(authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
     }
 
     @Test
@@ -54,39 +57,39 @@ public class AuthorityGranterTest {
         when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateViewUser)))).thenReturn(false);
         when(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).thenReturn(true);
 
-        GrantedAuthority[] authorities = authorityGranter.authorities(templateViewUser);
-        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority()));
-        assertThat(authorities, not(hasItemInArray(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority())));
-        assertThat(authorities, not(hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+        Set<GrantedAuthority> authorities = authorityGranter.authorities(templateViewUser);
+        assertThat(authorities, hasItem(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority()));
+        assertThat(authorities, not(hasItem(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority())));
+        assertThat(authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
+        assertThat(authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
     }
 
     @Test
     public void shouldGrantGroupSupervisorRoleToPipelineGroupAdmins() {
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("group-admin")))).thenReturn(true);
-        GrantedAuthority[] authorities = authorityGranter.authorities("group-admin");
-        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItemInArray(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
-        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+        Set<GrantedAuthority> authorities = authorityGranter.authorities("group-admin");
+        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
+        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
+        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
     }
 
     @Test
     public void shouldGrantSupervisorRoleToUsersWhoAreAdminsAndGroupAdmins() {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
-        GrantedAuthority[] authorities = authorityGranter.authorities("admin");
-        assertThat("Should have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, hasItemInArray(GoAuthority.ROLE_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+        Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
+        assertThat("Should have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority()));
+        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
+        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
     }
 
     @Test
     public void shouldGrantRoleUserToUsersWhoAreNotSpecial() {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
-        GrantedAuthority[] authorities = authorityGranter.authorities("admin");
-        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItemInArray(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
-        assertThat("Should not have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, not(hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+        Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
+        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
+        assertThat("Should not have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
+        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
     }
 }

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ require 'java'
 describe ApplicationController do
 
   before do
-    allow(UserHelper).to receive(:getUserId).and_return(1)
+    allow(SessionUtils).to receive(:getUserId).and_return(1)
   end
 
   describe "error_handling" do
@@ -236,7 +236,7 @@ describe ApplicationController do
 
     it "should set the current user as @user on set_current_user" do
       username = Username.new(CaseInsensitiveString.new("bob"), "bobby")
-      expect(UserHelper).to receive(:getUserName).and_return(username)
+      expect(SessionUtils).to receive(:currentUsername).and_return(username)
 
       get :test_action
 
@@ -244,8 +244,8 @@ describe ApplicationController do
     end
 
     it "should set the current user entity id as @user_id on set_current_user" do
-      allow(UserHelper).to receive(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
-      session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId] = 123
+      allow(SessionUtils).to receive(:currentUsername).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      session["GOCD_SECURITY_CURRENT_USER_ID"] = 123
 
       get :test_action
 
@@ -253,8 +253,8 @@ describe ApplicationController do
     end
 
     it "should set the current user entity id as nil on set_current_user when authentication is turned off" do
-      allow(UserHelper).to receive(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
-      session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId] = nil
+      allow(SessionUtils).to receive(:currentUsername).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      session["GOCD_SECURITY_CURRENT_USER_ID"] = nil
 
       get :test_action
 
@@ -307,25 +307,27 @@ describe ApplicationController do
 
       it "should cache the url if options is an active-record object" do
         obj = TestObject.new
+
         def controller.test_object_url(*args)
           raise 'should not invoke this, because it is stubbed!'
         end
+
         expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
         expect(controller.url_for(obj)).to eq("some-url")
       end
 
       it "should return full path when requested explicitly" do
         expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
+                                  only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
       end
 
       it "should use ssl base url from server config when requested" do
         expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false, protocol: 'https')).to eq("https://ssl.host:443/rails/java/null?foo=junk")
+                                  only_path: false, protocol: 'https')).to eq("https://ssl.host:443/rails/java/null?foo=junk")
         expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false, protocol: 'http')).to eq("http://test.host/rails/java/null?foo=junk")
+                                  only_path: false, protocol: 'http')).to eq("http://test.host/rails/java/null?foo=junk")
         expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
+                                  only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
       end
     end
 
@@ -346,7 +348,7 @@ describe ApplicationController do
 
           def string_for(map)
             str = []
-            map.keys.sort { |val, other| val.to_s <=> other.to_s }.each do |key|
+            map.keys.sort {|val, other| val.to_s <=> other.to_s}.each do |key|
               str << "#{key}=#{map[key]}"
             end
             str.join("|")
@@ -425,14 +427,14 @@ describe ApplicationController do
 
       it "should not mistake pipeline_counter and stage_counter for caching" do
         allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
-                                            "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
+                                                         "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
         expect(controller.url_for(format: "json")).to eq(
-              "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host")
+                                                        "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host")
 
         allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
-                                            "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
+                                                         "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
         expect(controller.url_for(format: "json")).to eq(
-              "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host")
+                                                        "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host")
       end
 
       it "should sort symbols after string" do
@@ -449,7 +451,7 @@ describe ApplicationController do
           expect(options[:params][:sort]).to eq("b")
           guid = options[:params][:fm]
         end
-        controller.redirect_with_flash("Flash message", action: :index, params: { column: "a", sort: "b" }, class: "warning")
+        controller.redirect_with_flash("Flash message", action: :index, params: {column: "a", sort: "b"}, class: "warning")
         flash = controller.flash_message_service.get(guid)
         expect(flash.to_s).to eq("Flash message")
         expect(flash.flashClass).to eq("warning")

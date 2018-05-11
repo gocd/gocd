@@ -19,9 +19,9 @@ package com.thoughtworks.go.spark.spring;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +145,7 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     private Username currentUsername() {
-        return UserHelper.getUserName();
+        return SessionUtils.currentUsername();
     }
 
     protected CaseInsensitiveString currentUserLoginName() {

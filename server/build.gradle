@@ -167,14 +167,10 @@ dependencies {
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
-  compile(group: 'org.springframework.security', name: 'spring-security-core', version: '2.0.3') {
-    exclude(module: 'spring-core')
-    exclude(module: 'spring-context')
-    exclude(module: 'spring-aop')
-
-    exclude(module: 'commons-codec')
-    exclude(module: 'commons-collections')
+  compile(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
+    exclude(group: 'org.springframework')
   }
+  compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
   compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
   compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
@@ -217,13 +213,17 @@ dependencies {
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: project.versions.jsonUnit
   testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnitMatchers
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testCompile project(':test:http-mocks')
 
   fastUnitTestCompile sourceSets.sharedTest.output
   integrationTestCompile sourceSets.sharedTest.output
 
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+
 }
 
 jar {
@@ -708,7 +708,9 @@ task verifyWar(type: VerifyJarTask) {
         "spring-expression-${project.versions.spring}.jar",
         "spring-jdbc-${project.versions.spring}.jar",
         "spring-orm-${project.versions.spring}.jar",
-        "spring-security-core-2.0.3.jar",
+        "spring-security-config-${project.versions.springSecurity}.jar",
+        "spring-security-core-${project.versions.springSecurity}.jar",
+        "spring-security-web-${project.versions.springSecurity}.jar",
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",

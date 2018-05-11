@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -93,7 +93,7 @@ public class PipelineHistoryController {
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
                              HttpServletResponse response, HttpServletRequest request) throws NamingException {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
+        String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
 
         Pagination pagination;
         try {
@@ -108,7 +108,7 @@ public class PipelineHistoryController {
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
         PipelineInstanceModels pipelineHistory = StringUtils.isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
-                pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, UserHelper.getUserName(), new HttpLocalizedOperationResult());
+                pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, SessionUtils.currentUsername(), new HttpLocalizedOperationResult());
 
 
         boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);

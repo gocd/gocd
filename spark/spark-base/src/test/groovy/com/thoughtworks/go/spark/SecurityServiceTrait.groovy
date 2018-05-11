@@ -19,15 +19,13 @@ package com.thoughtworks.go.spark
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.spark.util.SecureRandom
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.AfterEach
-import org.springframework.security.GrantedAuthority
-import org.springframework.security.context.SecurityContextHolder
-import org.springframework.security.providers.TestingAuthenticationToken
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -37,7 +35,7 @@ import static org.mockito.Mockito.when
 trait SecurityServiceTrait {
   SecurityService securityService = mock(SecurityService.class)
   GoConfigService goConfigService = mock(GoConfigService.class)
-  SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+  SystemEnvironment systemEnvironment = mock(SystemEnvironment.class)
 
   void loginAsAdmin() {
     Username username = loginAsRandomUser()
@@ -64,7 +62,11 @@ trait SecurityServiceTrait {
   }
 
   void loginAsAnonymous() {
-    SecurityContextHolder.getContext().setAuthentication(null)
+    if (securityService.isSecurityEnabled()){
+      SessionUtils.setCurrentUser(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED)
+    } else {
+      SessionUtils.setCurrentUser(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_DISABLED)
+    }
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
     when(securityService.isUserGroupAdmin(Username.ANONYMOUS)).thenReturn(false)
     when(securityService.isAuthorizedToViewAndEditTemplates(Username.ANONYMOUS)).thenReturn(false)
@@ -109,7 +111,7 @@ trait SecurityServiceTrait {
   }
 
   void disableSecurity() {
-    SecurityContextHolder.getContext().setAuthentication(null)
+    SessionUtils.setCurrentUser(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_DISABLED)
     when(securityService.isSecurityEnabled()).thenReturn(false)
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }
@@ -146,11 +148,9 @@ trait SecurityServiceTrait {
     def hex = SecureRandom.hex(20)
     String loginName = "jdoe-${hex}"
     String displayName = "Jon Doe ${hex}"
-    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName, "password", true, true, true, true, new GrantedAuthority[0], null)
-    Username username = new Username(principal.username, principal.displayName)
-    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null)
-    SecurityContextHolder.getContext().setAuthentication(authentication)
-    username
+    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName)
+    SessionUtils.setCurrentUser(principal)
+    principal.asUsernameObject()
   }
 
   private String generateGroupName() {
@@ -159,6 +159,6 @@ trait SecurityServiceTrait {
 
   @AfterEach
   void logout() {
-    SecurityContextHolder.getContext().setAuthentication(null)
+    SessionUtils.unsetCurrentUser()
   }
 }

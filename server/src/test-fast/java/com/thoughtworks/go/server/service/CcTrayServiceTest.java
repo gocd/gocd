@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
 import com.thoughtworks.go.util.DateUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
-import static com.thoughtworks.go.fixture.IntegrationTestsFixture.login;
+import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,7 +57,7 @@ public class CcTrayServiceTest {
     public void shouldGenerateCcTrayXMLForAnyUserWhenSecurityIsDisabled() throws Exception {
         when(goConfigService.isSecurityEnabled()).thenReturn(false);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user1")));
-        login("other_user", "password");
+        loginAs("other_user");
 
         String xml = ccTrayService.getCcTrayXml("some-prefix");
 
@@ -70,11 +69,11 @@ public class CcTrayServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
-        login("USER1", "password");
+        loginAs("USER1");
         String xml = ccTrayService.getCcTrayXml("some-prefix");
         assertCcTrayXmlFor(xml, "some-prefix", "proj1");
 
-        login("uSEr2", "password");
+        loginAs("uSEr2");
         xml = ccTrayService.getCcTrayXml("some-prefix");
         assertCcTrayXmlFor(xml, "some-prefix", "proj2");
     }
@@ -84,7 +83,7 @@ public class CcTrayServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
-        login("some-user-without-permissions", "password");
+        loginAs("some-user-without-permissions");
         String xml = ccTrayService.getCcTrayXml("some-prefix");
         assertCcTrayXmlFor(xml, "some-prefix");
     }
@@ -94,11 +93,11 @@ public class CcTrayServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
-        login("user1", "password");
+        loginAs("user1");
         String xml = ccTrayService.getCcTrayXml("prefix1");
         assertCcTrayXmlFor(xml, "prefix1", "proj1");
 
-        login("user2", "password");
+        loginAs("user2");
         xml = ccTrayService.getCcTrayXml("prefix2");
         assertCcTrayXmlFor(xml, "prefix2", "proj2");
     }
@@ -108,7 +107,7 @@ public class CcTrayServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
-        login("user1", "password");
+        loginAs("user1");
         String xml = ccTrayService.getCcTrayXml("prefix1");
 
         assertThat(xml, is("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 
 import java.io.ByteArrayOutputStream;
 
@@ -54,7 +49,6 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-tabs-servlet.xml",
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml",
         "classpath:testPropertyConfigurer.xml"
 })
 public class GoConfigAdministrationControllerIntegrationTest {
@@ -68,8 +62,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
-    private SecurityContext originalSecurityContext;
-
     @Before public void setup() throws Exception {
         dataSource.reloadEveryTime();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -77,14 +69,10 @@ public class GoConfigAdministrationControllerIntegrationTest {
         response = new MockHttpServletResponse();
         configHelper.enableSecurity();
         configHelper.addAdmins("admin");
-        originalSecurityContext = SecurityContextHolder.getContext();
-        setCurrentUser("admin");
+        SessionUtilsHelper.loginAs("admin");
     }
 
     @After public void teardown() throws Exception {
-        if (originalSecurityContext != null) {
-            SecurityContextHolder.setContext(originalSecurityContext);
-        }
         configHelper.onTearDown();
     }
 
@@ -106,12 +94,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
-    }
-
-    private void setCurrentUser(String username) {
-        SecurityContextImpl context = new SecurityContextImpl();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User(username, "", true, new GrantedAuthority[]{}), null));
-        SecurityContextHolder.setContext(context);
     }
 
     private void assertValidContentAndStatus(int status, String contentType, String content) throws Exception {

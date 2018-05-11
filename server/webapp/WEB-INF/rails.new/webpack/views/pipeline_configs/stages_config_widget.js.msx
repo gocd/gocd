@@ -205,10 +205,14 @@ const StageConfigDefinitionWidget = {
   view (vnode) {
     const stage      = vnode.attrs.stage;
     const stageIndex = vnode.attrs.pipeline().stages().indexOfStage(vnode.attrs.stage);
+    const isLastStageInList = vnode.attrs.pipeline().stages().isLastStage();
 
     return (
       <div class='stage-definition' data-stage-name={stage.name()}>
-        <f.removeButton onclick={vnode.attrs.onRemove} class="remove-stage"/>
+        <f.button type={isLastStageInList ? 'remove-disabled' : 'remove'}
+                  onclick={isLastStageInList ? () => {} : vnode.attrs.onRemove}
+                  class={`remove-stage`}
+                  tooltipText={isLastStageInList ? "Cannot delete the only stage in a pipeline" : null}/>
 
         <SettingsWidget stage={stage}
                         vm={vnode.state.vmState(`settingsWidgetConfig-${stageIndex}`)}/>

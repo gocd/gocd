@@ -100,6 +100,15 @@
     }
   }
 
+  .remove-disabled {
+    @include icon-before($type: trash, $color: $dark-gray);
+    &:hover {
+      &:before {
+        color: $dark-gray;
+      }
+    }
+  }
+
   .reset {
     @include icon-before($type: undo, $color: $dark-gray);
     &:hover {

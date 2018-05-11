@@ -40,7 +40,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     private Date scheduledDate;
     private boolean ignored;
 
-    private BuildOutputMatcher matcher = new BuildOutputMatcher();
     private JobIdentifier identifier;
     private boolean runOnAllAgents;
     private boolean runMultipleInstance;
@@ -145,7 +144,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
                 ", scheduledDate=" + scheduledDate +
                 ", timeProvider=" + timeProvider +
                 ", ignored=" + ignored +
-                ", matcher=" + matcher +
                 ", identifier=" + identifier +
                 ", plan=" + plan +
                 ", runOnAllAgents=" + runOnAllAgents +
@@ -434,7 +432,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         result1 = 31 * result1 + (scheduledDate != null ? scheduledDate.hashCode() : 0);
         result1 = 31 * result1 + (timeProvider != null ? timeProvider.hashCode() : 0);
         result1 = 31 * result1 + (ignored ? 1 : 0);
-        result1 = 31 * result1 + (matcher != null ? matcher.hashCode() : 0);
         result1 = 31 * result1 + (identifier != null ? identifier.hashCode() : 0);
         result1 = 31 * result1 + (plan != null ? plan.hashCode() : 0);
         return result1;

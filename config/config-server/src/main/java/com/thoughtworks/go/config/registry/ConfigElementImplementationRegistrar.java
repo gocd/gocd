@@ -26,8 +26,6 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.BuildOutputMatcher;
-import com.thoughtworks.go.domain.OutputMatcher;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -49,7 +47,6 @@ public class ConfigElementImplementationRegistrar {
         registerBuiltinTasks();
         registerBuiltinMaterials();
         registerBuiltinUserTypes();
-        registerBuiltinConsoleOutputMatchers();
         registerBuiltinArtifactTypes();
         registerRoleTypes();
     }
@@ -71,10 +68,6 @@ public class ConfigElementImplementationRegistrar {
 
     private void registerBuiltinArtifactTypes() {
         registry.registerImplementer(ArtifactConfig.class, TestArtifactConfig.class, BuildArtifactConfig.class, PluggableArtifactConfig.class);
-    }
-
-    private void registerBuiltinConsoleOutputMatchers() {
-        registry.registerImplementer(OutputMatcher.class, BuildOutputMatcher.class);
     }
 
     private void registerBuiltinUserTypes() {

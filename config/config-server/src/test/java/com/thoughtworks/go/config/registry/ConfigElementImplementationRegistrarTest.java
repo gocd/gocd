@@ -26,8 +26,6 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.BuildOutputMatcher;
-import com.thoughtworks.go.domain.OutputMatcher;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -113,14 +111,6 @@ public class ConfigElementImplementationRegistrarTest {
         artifacts.add(PluggableArtifactConfig.class);
 
         assertThat(registry.implementersOf(ArtifactConfig.class), is(artifacts));
-    }
-
-    @Test
-    public void testShouldProvideTheDefaultOutputMatcherConfigMappings() {
-        List<Class<? extends OutputMatcher>> outputMatchers = new ArrayList<>();
-        outputMatchers.add(BuildOutputMatcher.class);
-
-        assertThat(registry.implementersOf(OutputMatcher.class), is(outputMatchers));
     }
 
     @Test

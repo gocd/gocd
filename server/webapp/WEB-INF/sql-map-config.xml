@@ -38,10 +38,8 @@
     <typeHandler
             javaType="com.thoughtworks.go.domain.StageState"
             callback="com.thoughtworks.go.server.dao.handlers.StageStateTypeHandlerCallback"/>
-    <typeHandler
-            javaType="com.thoughtworks.go.domain.BuildOutputMatcher"
-            callback="com.thoughtworks.go.server.dao.handlers.BuildMatcherHandlerCallback"/>
-    <typeHandler
+
+  <typeHandler
             javaType="com.thoughtworks.go.domain.buildcause.BuildCause"
             callback="com.thoughtworks.go.server.dao.handlers.BuildCauseHandlerCallback"/>
 

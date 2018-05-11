@@ -118,7 +118,7 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
             return passwordBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<UsernamePassword>) authenticationToken);
         } else if (credentials instanceof AccessToken) {
             return webBasedPluginAuthenticationProvider.reauthenticate((AuthenticationToken<AccessToken>) authenticationToken);
-        } else if (credentials instanceof AnonymousCredential) {
+        } else if (authenticationToken.isAnonymousToken()) {
             return anonymousAuthenticationProvider.reauthenticate((AuthenticationToken<AnonymousCredential>) authenticationToken);
         } else {
             return null;

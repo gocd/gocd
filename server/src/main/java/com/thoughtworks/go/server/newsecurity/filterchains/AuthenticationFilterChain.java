@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
-import com.thoughtworks.go.server.newsecurity.filters.NoOpFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.web.FilterChainProxy;
@@ -35,22 +34,27 @@ public class AuthenticationFilterChain extends FilterChainProxy {
             @Qualifier("reAuthenticationWithChallengeFilter") Filter reAuthenticationWithChallenge,
             @Qualifier("basicAuthenticationWithChallengeFilter") Filter basicAuthenticationWithChallengeFilter,
             @Qualifier("basicAuthenticationWithRedirectToLoginFilter") Filter basicAuthenticationWithRedirectToLoginFilter,
-            @Qualifier("oauthAuthenticationFilter") Filter oauthAuthenticationFilter) {
+            @Qualifier("oauthAuthenticationFilter") Filter oauthAuthenticationFilter,
+            @Qualifier("assumeAnonymousUserFilter") Filter assumeAnonymousUserFilter) {
         super(FilterChainBuilder.newInstance()
+                // X509 for agent remoting and agent-websocket
                 .addFilterChain("/remoting/**", x509AuthenticationFilter)
                 .addFilterChain("/agent-websocket/**", x509AuthenticationFilter)
 
-                .addFilterChain("/add-on/*/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, oauthAuthenticationFilter)
+                // For addons
+                .addFilterChain("/add-on/*/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithRedirectToLoginPage, oauthAuthenticationFilter)
 
-                .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
-                .addFilterChain("/cctray.xml", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
-                .addFilterChain("/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
+                // For API authentication
+                .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
+                .addFilterChain("/cctray.xml", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter)
+                .addFilterChain("/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter)
 
-                .addFilterChain("/api/version", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, basicAuthenticationWithRedirectToLoginFilter)
-                .addFilterChain("/auth/*", new NoOpFilter())
-                .addFilterChain("/plugin/*/login", new NoOpFilter())
-                .addFilterChain("/plugin/*/authenticate", new NoOpFilter())
-                .addFilterChain("/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, basicAuthenticationWithRedirectToLoginFilter)
+                .addFilterChain("/api/version", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, assumeAnonymousUserFilter, basicAuthenticationWithRedirectToLoginFilter)
+
+                .addFilterChain("/auth/*", assumeAnonymousUserFilter)
+                .addFilterChain("/plugin/*/login", assumeAnonymousUserFilter)
+                .addFilterChain("/plugin/*/authenticate", assumeAnonymousUserFilter)
+                .addFilterChain("/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, assumeAnonymousUserFilter, basicAuthenticationWithRedirectToLoginFilter)
                 .build()
         );
     }

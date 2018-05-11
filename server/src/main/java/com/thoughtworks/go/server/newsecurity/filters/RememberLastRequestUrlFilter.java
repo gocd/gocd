@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -26,12 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class RememberLastRequestUrlFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RememberLastRequestUrlFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
         if (request.getMethod().equals("GET") || request.getMethod().equals("HEAD")) {
+            LOGGER.debug("Saving request {}", request.getRequestURI());
             SessionUtils.saveRequest(request);
         }
         filterChain.doFilter(request, response);

@@ -37,7 +37,7 @@ import java.io.IOException;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 
 public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractUserEnabledCheckFilter.class);
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final UserService userService;
     private final SecurityService securityService;
@@ -52,7 +52,7 @@ public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilte
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         if (!securityService.isSecurityEnabled()) {
-            LOGGER.debug("No checking if user is enabled because security is disabled.");
+            LOGGER.debug("Not checking if user is enabled since security is disabled.");
             filterChain.doFilter(request, response);
             return;
         }

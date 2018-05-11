@@ -162,8 +162,6 @@
     <select id="scheduledPlan" resultMap="select-job-plan">
         SELECT builds.*, builds.id as buildId,
             builds.agentuuid as agentUuid,
-            artifactPlans.id as artifactId, artifactPlans.src as artifactSrc, artifactPlans.dest as artifactDest,
-            artifactPlans.artifactType as artifactType,
             stages.name as stageName,
             stages.counter as stageCounter,
             stages.fetchMaterials as fetchMaterials,
@@ -174,7 +172,6 @@
             pipelines.label as pipelineLabel,
             pipelines.id as pipelineId
         FROM builds
-        LEFT JOIN artifactPlans ON builds.id = artifactPlans.buildId
         INNER JOIN stages ON stages.id = builds.stageId
         INNER JOIN pipelines ON pipelines.id = stages.pipelineId
         WHERE builds.state = 'Scheduled'

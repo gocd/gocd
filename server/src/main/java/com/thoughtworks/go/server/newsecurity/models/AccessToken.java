@@ -16,12 +16,17 @@
 
 package com.thoughtworks.go.server.newsecurity.models;
 
+import org.springframework.security.authentication.BadCredentialsException;
+
 import java.util.Map;
 
 public class AccessToken implements Credentials {
     private final Map<String, String> credentials;
 
     public AccessToken(Map<String, String> credentials) {
+        if (credentials == null || credentials.isEmpty()) {
+            throw new BadCredentialsException("Credentials cannot be empty!");
+        }
         this.credentials = credentials;
     }
 

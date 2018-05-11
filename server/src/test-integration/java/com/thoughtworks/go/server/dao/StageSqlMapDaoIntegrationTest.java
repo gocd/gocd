@@ -1009,18 +1009,6 @@ public class StageSqlMapDaoIntegrationTest {
         jobInstanceDao.ignore(ignored);
     }
 
-    @Test public void shouldGetStageFromBuild() throws Exception {
-        Pipeline mingle = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        final Stage stage = pipelineAndFirstStageOf(mingle).stage;
-        final JobInstance jobInstance = scheduleBuildInstances(stage);
-        final long buildId = jobInstance.getId();
-        final long stageId = stageDao.getStageIdFromBuildId(buildId);
-        final Stage stageByBuild = stageDao.getStageByBuild(buildId);
-        assertThat(stageByBuild.getId(), is(stageId));
-        assertThat(stageByBuild, is(stage));
-        assertThat(stageByBuild.getName(), is(stage.getName()));
-    }
-
     @Test
     public void shouldReturnTrueIfAnyStageIsActive() throws Exception {
         dbHelper.schedulePipeline(mingleConfig, new TimeProvider());

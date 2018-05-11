@@ -530,19 +530,6 @@
         LIMIT 100
     </select>
 
-    <cacheModel id="stageId-from-buildId" type="MEMORY" readOnly="true">
-        <flushInterval seconds="300"/>
-        <flushOnExecute statement="insertStage"/>
-        <flushOnExecute statement="updateStageStatus"/>
-    </cacheModel>
-
-    <select id="getStageIdFromBuildId" parameterClass="long" resultClass="java.lang.Long" cacheModel="stageId-from-buildId">
-        SELECT stages.id FROM stages
-        INNER JOIN builds ON stages.id = builds.stageId
-        WHERE builds.id = #value#
-    </select>
-
-
     <select id="getLastTransitionedTimeByStageId" parameterClass="long" resultClass="java.sql.Timestamp" >
         SELECT lastTransitionedTime FROM stages WHERE id = #value#
     </select>

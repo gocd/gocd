@@ -45,8 +45,6 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage getStageByBuild(long buildInstanceId);
 
-    long getStageIdFromBuildId(long buildId);
-
     Stage mostRecentPassed(String pipelineName, String stageName);
 
     boolean isStageActive(String pipelineName, String stageName);

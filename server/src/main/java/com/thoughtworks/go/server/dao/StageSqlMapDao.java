@@ -637,14 +637,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return stage;
     }
 
-    public long getStageIdFromBuildId(long buildId) {
-        Long stageId = (Long) getSqlMapClientTemplate().queryForObject("getStageIdFromBuildId", buildId);
-        if (stageId == null) {
-            throw new DataRetrievalFailureException("No Stage found containing buildId " + buildId);
-        }
-        return stageId;
-    }
-
     public void setBuildInstanceDao(JobInstanceSqlMapDao buildInstanceDao) {
         this.buildInstanceDao = buildInstanceDao;
     }

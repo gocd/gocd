@@ -33,6 +33,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.security.AuthorityGranter;
+import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
@@ -47,7 +48,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,10 +56,7 @@ import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 class PasswordBasedPluginAuthenticationProviderTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private static final String USERNAME = "bob";
     private static final String PASSWORD = "p@ssw0rd";
     private static final UsernamePassword CREDENTIALS = new UsernamePassword(USERNAME, PASSWORD);
@@ -71,13 +68,14 @@ class PasswordBasedPluginAuthenticationProviderTest {
     private static final AuthenticationResponse NULL_AUTH_RESPONSE = new AuthenticationResponse(null, null);
     private PasswordBasedPluginAuthenticationProvider provider;
     private SecurityConfig securityConfig;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
         SecurityService securityService = mock(SecurityService.class);
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
         GoConfigService goConfigService = mock(GoConfigService.class);
-        UserService userService = mock(UserService.class);
+        userService = mock(UserService.class);
 
         authorizationExtension = mock(AuthorizationExtension.class);
         pluginRoleService = mock(PluginRoleService.class);
@@ -95,7 +93,11 @@ class PasswordBasedPluginAuthenticationProviderTest {
     }
 
     @Nested
+    @EnableRuleMigrationSupport
     class Authenticate {
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
+
         @Test
         void shouldBeAbleToAuthenticateUserUsingAnyOfTheAuthorizationPlugins() {
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
@@ -196,17 +198,6 @@ class PasswordBasedPluginAuthenticationProviderTest {
         }
 
         @Test
-        void shouldThrowUpWhenNoPluginCouldAuthenticateUser() throws Exception {
-            thrown.expect(UsernameNotFoundException.class);
-            thrown.expectMessage("Unable to authenticate user: bob");
-
-            addPluginSupportingPasswordBasedAuthentication("ldap");
-            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(null), null)).thenReturn(NULL_AUTH_RESPONSE);
-
-            provider.authenticate(CREDENTIALS, null);
-        }
-
-        @Test
         void shouldUpdatePluginRolesForAUserPostAuthentication() {
             securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", PLUGIN_ID_1));
             securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
@@ -243,10 +234,32 @@ class PasswordBasedPluginAuthenticationProviderTest {
             assertThat(authenticationToken).isNotNull();
             verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
         }
+
+        @Test
+        void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
+            addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_2);
+
+            securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", PLUGIN_ID_2));
+            securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
+
+            AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
+
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
+
+            thrown.expect(OnlyKnownUsersAllowedException.class);
+            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
+
+            provider.authenticate(CREDENTIALS, null);
+        }
     }
 
     @Nested
+    @EnableRuleMigrationSupport
     class ReAuthenticate {
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
+
         @Test
         void shouldReAuthenticateUserUsingAuthenticationToken() {
             final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
@@ -328,7 +341,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
         }
 
         @Test
-        void reuthenticationUsingAuthorizationPlugins_shouldUseTheLoginNameAvailableInGoUserPrinciple() throws Exception {
+        void shouldUseTheLoginNameAvailableInGoUserPrinciple() {
             final UsernamePassword credentials = new UsernamePassword("foo@bar.com", PASSWORD);
             securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", PLUGIN_ID_1));
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
@@ -349,6 +362,27 @@ class PasswordBasedPluginAuthenticationProviderTest {
             assertThat(newAuthenticationToken.getCredentials().getUsername()).isEqualTo("foo@bar.com");
 
             verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+        }
+
+        @Test
+        void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
+            addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_2);
+
+            securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", PLUGIN_ID_2));
+            securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
+
+            GoUserPrinciple principal = new GoUserPrinciple(USERNAME, "Display");
+            final AuthenticationToken<UsernamePassword> authenticationToken = new AuthenticationToken<>(principal, CREDENTIALS, PLUGIN_ID_1, clock.currentTimeMillis(), "ldap");
+
+            AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
+
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
+
+            thrown.expect(OnlyKnownUsersAllowedException.class);
+            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
+
+            provider.reauthenticate(authenticationToken);
         }
     }
 

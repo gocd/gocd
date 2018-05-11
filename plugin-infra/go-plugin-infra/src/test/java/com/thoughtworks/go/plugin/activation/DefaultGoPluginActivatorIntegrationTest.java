@@ -35,7 +35,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
 import org.ops4j.pax.tinybundles.core.TinyBundle;
 import org.ops4j.pax.tinybundles.core.TinyBundles;
@@ -50,8 +52,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class DefaultGoPluginActivatorIntegrationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private static final File TMP_DIR = new File("./tmp");
+    private File tmpDir;
     private static final String BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR = "DefaultGoPluginActivatorIntegrationTest.bundleDirWhichHasProperActivator";
     private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
     private static final String GO_TEST_DUMMY_SYMBOLIC_NAME = "Go-Test-Dummy-Symbolic-Name";
@@ -60,7 +64,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
     private StubOfDefaultPluginRegistry registry;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        tmpDir = temporaryFolder.newFolder();
         registry = new StubOfDefaultPluginRegistry();
         framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment());
         framework.start();
@@ -306,7 +311,6 @@ public class DefaultGoPluginActivatorIntegrationTest {
     @After
     public void tearDown() throws Exception {
         framework.stop();
-        FileUtils.deleteDirectory(TMP_DIR);
     }
 
     private void assertThatPluginWithThisExtensionClassLoadsSuccessfully(Class<?> extensionClass) throws IOException, InvalidSyntaxException {
@@ -378,7 +382,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     private File explodeBundleIntoDirectory(ZipInputStream src, String destinationDir) throws IOException {
-        File destinationPluginBundleLocation = new File(TMP_DIR, destinationDir);
+        File destinationPluginBundleLocation = new File(tmpDir, destinationDir);
         destinationPluginBundleLocation.mkdirs();
         new ZipUtil().unzip(src, destinationPluginBundleLocation);
         return destinationPluginBundleLocation;

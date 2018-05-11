@@ -231,11 +231,6 @@ public class BuildCause implements Serializable {
             throw new IllegalArgumentException("Username cannot be null");
         }
 
-        String cause = "";
-        if (materialRevisions != null && !materialRevisions.isEmpty()) {
-            cause = materialRevisions.buildCausedBy();
-        }
-
         String message = String.format("Forced by %s", username.getDisplayName());
 
         return new BuildCause(materialRevisions, BuildTrigger.forForced(message), CaseInsensitiveString.str(username.getUsername()));

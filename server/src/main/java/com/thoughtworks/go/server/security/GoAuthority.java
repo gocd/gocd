@@ -20,6 +20,11 @@ package com.thoughtworks.go.server.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 public enum GoAuthority {
     ROLE_SUPERVISOR,
     ROLE_GROUP_SUPERVISOR,
@@ -29,6 +34,13 @@ public enum GoAuthority {
     ROLE_TEMPLATE_SUPERVISOR,
     ROLE_TEMPLATE_VIEW_USER,
     ROLE_AGENT;
+
+    public static Set<GrantedAuthority> ALL_AUTHORITIES = Arrays.stream(values()).map(new Function<GoAuthority, GrantedAuthority>() {
+        @Override
+        public GrantedAuthority apply(GoAuthority goAuthority) {
+            return goAuthority.asAuthority();
+        }
+    }).collect(Collectors.toSet());
 
     private final GrantedAuthority authority;
 

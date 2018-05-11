@@ -50,7 +50,7 @@ class RememberLastRequestUrlFilterChainTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/cctray.xml", "/api/foo", "/remoting/foo", "/agent-websocket/foo", "/auth/foo", "/plugin/foo/login", "/plugin/foo/authenticate", "/assets/images/logo.png", "/server/messages.json"})
+    @ValueSource(strings = {"/cctray.xml", "/api/foo", "/remoting/foo", "/agent-websocket/foo", "/auth/foo", "/plugin/foo/login", "/plugin/foo/authenticate", "/assets/images/logo.png", "/server/messages.json", "/pipelines.json"})
     void shouldNotSaveIncomingRequestFromUrls(String url) throws IOException, ServletException {
         request = HttpRequestBuilder.GET(url)
                 .build();

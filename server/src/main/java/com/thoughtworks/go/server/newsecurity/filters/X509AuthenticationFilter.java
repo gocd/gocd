@@ -54,12 +54,6 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        performAuthentication(request, response, filterChain);
-    }
-
-    private void performAuthentication(HttpServletRequest request,
-                                       HttpServletResponse response,
-                                       FilterChain filterChain) throws IOException, ServletException {
         final X509Certificate x509Certificate = extractClientCertificate(request);
         if (x509Certificate == null) {
             LOGGER.debug("Denying access, certificate is not provided.");

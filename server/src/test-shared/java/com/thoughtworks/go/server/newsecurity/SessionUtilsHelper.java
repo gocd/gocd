@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SessionUtilsHelper {
+    private static GoUserPrinciple ANONYMOUS_WITH_SECURITY_ENABLED = new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority());
 
     public static void setCurrentUser(HttpServletRequest request, String username,
                                       GrantedAuthority... grantedAuthorities) {
@@ -64,13 +66,17 @@ public class SessionUtilsHelper {
     }
 
     public static GoUserPrinciple loginAsAnonymous() {
-        SessionUtils.setCurrentUser(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED);
-        return GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED;
+        SessionUtils.setCurrentUser(ANONYMOUS_WITH_SECURITY_ENABLED);
+        return ANONYMOUS_WITH_SECURITY_ENABLED;
     }
 
     public static GoUserPrinciple loginAsAnonymous(HttpServletRequest request) {
-        SessionUtils.setAuthenticationTokenAfterRecreatingSession(new AuthenticationToken<>(GoUserPrinciple.ANONYMOUS_WITH_SECURITY_ENABLED, AnonymousCredential.INSTANCE, null, 0L, null), request);
+        SessionUtils.setAuthenticationTokenAfterRecreatingSession(createAnonymousAuthentication(0), request);
         return loginAsAnonymous();
+    }
+
+    public static AuthenticationToken<AnonymousCredential> createAnonymousAuthentication(long authenticatedAt) {
+        return new AuthenticationToken<>(ANONYMOUS_WITH_SECURITY_ENABLED, AnonymousCredential.INSTANCE, null, authenticatedAt, null);
     }
 
     public static GoUserPrinciple loginAs(String username, GrantedAuthority... grantedAuthorities) {

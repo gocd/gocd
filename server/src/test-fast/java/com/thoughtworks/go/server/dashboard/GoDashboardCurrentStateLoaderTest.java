@@ -125,7 +125,7 @@ public class GoDashboardCurrentStateLoaderTest {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(config.getAllPipelineNames()))).thenReturn(createPipelineInstanceModels());
-        when(triggerMonitor.isAlreadyTriggered("pipeline1")).thenReturn(true);
+        when(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString("pipeline1"))).thenReturn(true);
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
         assertThat(models.size(), is(1));
@@ -148,7 +148,7 @@ public class GoDashboardCurrentStateLoaderTest {
     public void shouldFallBackToAnEmptyPipelineInstanceModelIfItCannotBeLoadedEvenFromHistory() throws Exception {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
-        when(triggerMonitor.isAlreadyTriggered("pipeline1")).thenReturn(false);
+        when(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
         when(pipelineSqlMapDao.loadHistoryForDashboard(singletonList("pipeline1"))).thenReturn(createPipelineInstanceModels());
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);

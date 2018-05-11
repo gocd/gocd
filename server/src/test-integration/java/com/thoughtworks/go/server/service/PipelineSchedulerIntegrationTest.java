@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public class PipelineSchedulerIntegrationTest {
                 return serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0;
             }
         });
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_MINGLE);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_MINGLE));
 
         EnvironmentVariables overriddenVariables = buildCause.getVariables();
         assertThat(overriddenVariables, is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("KEY", "value")))));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -386,8 +386,8 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldConsumeAllBuildCausesInServerHealth() throws Exception {
-        pipelineScheduleQueue.schedule("mingle", BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
-        pipelineScheduleQueue.schedule("evolve", BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString("mingle"), BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString("evolve"), BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(0));

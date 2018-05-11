@@ -129,7 +129,7 @@ public class GoDashboardServiceIntegrationTest {
                 .getCounter(), Matchers.is(new StageIdentifier(p1_1).getPipelineCounter()));
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
-        Pipeline p1_2 = scheduleService.schedulePipeline(p1.config.name().toString(), buildCauseForThirdRun);
+        Pipeline p1_2 = scheduleService.schedulePipeline(p1.config.name(), buildCauseForThirdRun);
         goDashboardService.updateCacheForPipeline(p1.config);
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, new Username("user"));
@@ -161,7 +161,7 @@ public class GoDashboardServiceIntegrationTest {
                 .getCounter(), Matchers.is(new StageIdentifier(p1_1).getPipelineCounter()));
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
-        Pipeline p1_2 = scheduleService.schedulePipeline(addedPipeline.config.name().toString(), buildCauseForThirdRun);
+        Pipeline p1_2 = scheduleService.schedulePipeline(addedPipeline.config.name(), buildCauseForThirdRun);
         goDashboardService.updateCacheForPipeline(addedPipeline.config);
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(PipelineSelections.ALL, new Username("user"));

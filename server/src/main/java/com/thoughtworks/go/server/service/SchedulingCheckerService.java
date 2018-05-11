@@ -175,7 +175,7 @@ public class SchedulingCheckerService {
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
 
         return new CompositeChecker(
-                new AboutToBeTriggeredChecker(pipelineName, triggerMonitor, pipelineScheduleQueue),
+                new AboutToBeTriggeredChecker(pipelineConfig.name(), triggerMonitor, pipelineScheduleQueue),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
                 new StageActiveChecker(pipelineName, stageName, activityService),
                 new PipelineLockChecker(pipelineName, pipelineLockService),

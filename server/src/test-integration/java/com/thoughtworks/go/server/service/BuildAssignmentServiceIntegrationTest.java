@@ -686,7 +686,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", u.m(hgMaterial));
         BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
-        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name().toString(), buildCause);
+        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
         ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, "pipeline_which_will_eventually_change_case", "NEW_RANDOM_STAGE_NAME" + UUID.randomUUID());
 
         CruiseConfig cruiseConfig = configHelper.load();
@@ -697,7 +697,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
-        Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name().toString(), buildCauseForRenamedPipeline);
+        Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         Stages allStagesForRenamedPipeline = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
         assertThat(allStagesForRenamedPipeline.byName(p1_2.getFirstStage().getName()).getState(), is(StageState.Building));
     }
@@ -710,7 +710,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("ANOTHER_PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE",  u.m(hgMaterial));
         BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
-        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name().toString(), buildCause);
+        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
         ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, p1.config.name().toLower(), p1.config.getStages().first().name().toLower());
         CruiseConfig cruiseConfig = configHelper.load();
         buildAssignmentService.onTimer();   // To Reload Job Plans
@@ -721,7 +721,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
-        Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name().toString(), buildCauseForRenamedPipeline);
+        Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         assertThat(p1_2, is(nullValue()));
     }
 

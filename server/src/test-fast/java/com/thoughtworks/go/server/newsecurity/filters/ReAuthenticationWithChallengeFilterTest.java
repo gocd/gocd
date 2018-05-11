@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -38,6 +39,6 @@ class ReAuthenticationWithChallengeFilterTest {
         final String message = "foo";
 
         filter.onAuthenticationFailure(request, response, message);
-        verify(handler).handle(request, response, message);
+        verify(handler).handle(request, response, SC_UNAUTHORIZED, message);
     }
 }

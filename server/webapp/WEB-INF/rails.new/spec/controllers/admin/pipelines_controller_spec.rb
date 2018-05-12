@@ -152,7 +152,7 @@ describe Admin::PipelinesController do
 
       it "should error out when user is unauthorized" do
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
-          result.forbidden('Unauthorized to edit HelloWorld pipeline.', HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+          result.forbidden('Unauthorized to edit HelloWorld pipeline.', HealthStateType.forbidden_for_pipeline("HelloWorld"))
           nil
         end
 

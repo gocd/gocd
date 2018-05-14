@@ -27,7 +27,7 @@ public class ScmMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, ScmMaterialConfig scmMaterialConfig) {
         if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
-            jsonWriter.addIfNotNull("url", scmMaterialConfig.getUrl());
+            jsonWriter.add("url", scmMaterialConfig.getUrl());
         }
         jsonWriter.add("destination", scmMaterialConfig.getFolder());
 

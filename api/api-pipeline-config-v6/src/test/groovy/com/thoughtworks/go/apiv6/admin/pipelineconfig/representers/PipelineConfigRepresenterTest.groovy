@@ -23,20 +23,33 @@ import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresen
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.StageConfigMother
 import com.thoughtworks.go.security.GoCipher
+import com.thoughtworks.go.server.service.PipelineConfigService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
+import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineConfigRepresenterTest {
+
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
+  @Mock
+  private PasswordDeserializer passwordDeserializer
 
   @Nested
   class Serialize {
@@ -108,7 +121,9 @@ class PipelineConfigRepresenterTest {
     @Test
     void 'should convert from minimal json to PipelineConfig' () {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHashBasic)
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def map = new HashMap()
+      map.put("passwordDeserializer", passwordDeserializer)
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals('wunderbar', pipelineConfig.getName().toString())
       assertTrue(pipelineConfig.getParams().isEmpty())
@@ -158,7 +173,7 @@ class PipelineConfigRepresenterTest {
     ]
 
     @Test
-    void 'should convert pipeline hash with environment variables  to PipelineConfig' () {
+    void 'should convert pipeline hash with environment variables to PipelineConfig' () {
 
       def environmentVariables = [
         [
@@ -183,7 +198,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with empty environment variables  to PipelineConfig' () {
+    void 'should convert pipeline hash with empty environment variables to PipelineConfig' () {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         environment_variables: []
       ])
@@ -263,7 +278,9 @@ class PipelineConfigRepresenterTest {
             ]
           ]
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def map = new HashMap()
+      map.put("passwordDeserializer", passwordDeserializer)
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals('GitMaterial', pipelineConfig.materialConfigs().get(0).type)
       assertEquals('SvnMaterial', pipelineConfig.materialConfigs().get(1).type)
@@ -397,7 +414,9 @@ class PipelineConfigRepresenterTest {
     @Test
     void  'should convert from full blown document to PipelineConfig' () {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHash)
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def map = new HashMap()
+      map.put("passwordDeserializer", passwordDeserializer)
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals(getPipelineConfig(), pipelineConfig)
     }
@@ -456,7 +475,7 @@ class PipelineConfigRepresenterTest {
 
       def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) })
 
-      assertThatJson(actualJson).isEqualTo(expectedHashWithErrors)
+      assertThatJson(actualJson).isEqualTo(expectedHashWithNestedErrors)
     }
   }
 
@@ -503,16 +522,27 @@ class PipelineConfigRepresenterTest {
 
   def expectedHashWithNestedErrors =
   [
+    _links: [
+      self: [
+        href: 'http://test.host/go/api/admin/pipelines/wunderbar'
+      ],
+      doc: [
+        href: 'https://api.gocd.org/#pipeline-config'
+      ],
+      find: [
+        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
+      ]
+    ],
     label_template: 'foo-1.0.${COUNT}-${svn}',
     lock_behavior: 'none',
     name: 'wunderbar',
     origin: [
       _links: [
         self: [
-          href: 'http://test.host/admin/config_xml'
+          href: 'http://test.host/go/admin/config_xml'
         ],
         doc: [
-          href: 'https://api.gocd.org/#get-configuration'
+          href: 'https://api.gocd.org/current/#get-configuration'
         ]
       ],
       type: 'gocd'

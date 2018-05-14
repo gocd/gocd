@@ -384,9 +384,9 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: toObject({
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, toObject({
           PipelineConfigRepresenter.toJSON(it, pipelineConfig)
-        })])
+        }))
 
         assertThatResponse()
           .isOk()
@@ -405,7 +405,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline()])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipeline())
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -422,7 +422,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
         ]
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline()])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipeline())
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -445,7 +445,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline()])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipeline())
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -474,7 +474,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         ]
 
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: invalidPipeline()])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, invalidPipeline())
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -495,7 +495,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         ]
 
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipeline("renamed_pipeline")])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipeline("renamed_pipeline"))
 
         assertThatResponse()
           .hasStatus(422)
@@ -525,7 +525,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [pipeline: pipelineWithPluggableMaterial("pipeline1", "package", "package-name")])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipelineWithPluggableMaterial("pipeline1", "package", "package-name"))
 
         assertThatResponse().isOk()
         assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getPackageDefinition())
@@ -556,7 +556,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
           'content-type': 'application/json'
         ]
 
-        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id"))
 
         assertThatResponse().isOk()
         assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getSCMConfig()))

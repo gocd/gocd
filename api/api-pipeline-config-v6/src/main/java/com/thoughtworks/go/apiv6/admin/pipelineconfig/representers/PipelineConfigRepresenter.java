@@ -46,7 +46,9 @@ public class PipelineConfigRepresenter {
                 .addLink("self", Routes.PipelineConfig.name(pipelineConfig.getName().toString()))
                 .addAbsoluteLink("doc", Routes.PipelineConfig.DOC)
                 .addLink("find", Routes.PipelineConfig.find()));
-        if (!pipelineConfig.getAllErrors().isEmpty()) {
+        // This is needed for the case when there are no materials defined. Refer to pipeline_config_representer.rb#152
+        pipelineConfig.errors().addAll(pipelineConfig.materialConfigs().errors());
+        if (!pipelineConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
                 HashMap<String, String> errorMapping = new HashMap<>();
                 errorMapping.put("labelTemplate", "label_template");
@@ -71,7 +73,7 @@ public class PipelineConfigRepresenter {
         } else {
             jsonWriter.addChildList("stages", getStages(pipelineConfig));
         }
-        if ((pipelineConfig.getTrackingTool() != null && pipelineConfig.getTrackingTool().isDefined()) || pipelineConfig.getMingleConfig().isDefined()) {
+        if (pipelineConfig.getTrackingTool() != null || pipelineConfig.getMingleConfig().isDefined()) {
             jsonWriter.addChild("tracking_tool", trackingToolWriter -> TrackingToolRepresenter.toJSON(trackingToolWriter, pipelineConfig));
         } else {
             jsonWriter.renderNull("tracking_tool");
@@ -146,8 +148,7 @@ public class PipelineConfigRepresenter {
             Object trackingTool = TrackingToolRepresenter.fromJSON(jsonReader.readJsonObject("tracking_tool"));
             if (trackingTool instanceof MingleConfig) {
                 pipelineConfig.setMingleConfig((MingleConfig) trackingTool);
-            }
-            else if (trackingTool instanceof TrackingTool) {
+            } else if (trackingTool instanceof TrackingTool) {
                 pipelineConfig.setTrackingTool((TrackingTool) trackingTool);
             }
         }

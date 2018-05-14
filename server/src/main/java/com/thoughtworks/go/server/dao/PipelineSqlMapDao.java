@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -30,6 +29,7 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.cache.LazyCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -39,7 +39,13 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +62,7 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -65,10 +72,10 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initializer, PipelineDao, StageStatusListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineSqlMapDao.class);
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
+    private final LazyCache pipelineByBuildIdCache;
     private StageDao stageDao;
     private MaterialRepository materialRepository;
     private EnvironmentVariableDao environmentVariableDao;
-    private GoCache goCache;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final SystemEnvironment systemEnvironment;
@@ -81,19 +88,37 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Autowired
     public PipelineSqlMapDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
-                             SqlMapClient sqlMapClient, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
+                             SqlSessionFactory sqlSessionFactory, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
                              GoConfigDao configFileDao, Database database, SessionFactory sessionFactory) {
-        super(goCache, sqlMapClient, systemEnvironment, database);
+        super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
-        this.goCache = goCache;
         this.environmentVariableDao = environmentVariableDao;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.systemEnvironment = systemEnvironment;
         this.configFileDao = configFileDao;
         this.sessionFactory = sessionFactory;
+        this.pipelineByBuildIdCache = new LazyCache(createCacheIfRequired(PipelineSqlMapDao.class.getName()), transactionSynchronizationManager);
     }
+
+    private static Ehcache createCacheIfRequired(String cacheName) {
+        final CacheManager instance = CacheManager.getInstance();
+        synchronized (instance) {
+            if (!instance.cacheExists(cacheName)) {
+                instance.addCache(new Cache(cacheConfiguration(cacheName)));
+            }
+            return instance.getCache(cacheName);
+        }
+    }
+
+    private static CacheConfiguration cacheConfiguration(String cacheName) {
+        return new CacheConfiguration(cacheName, 1024)
+                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+                .overflowToDisk(false)
+                .diskPersistent(false);
+    }
+
 
     @Override
     public void initialize() {
@@ -123,9 +148,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                     }
                 });
 
-                Long pipelineId = (Long) getSqlMapClientTemplate().insert("insertPipeline", pipeline);
-                savePipelineMaterialRevisions(pipeline, pipelineId);
-                environmentVariableDao.save(pipelineId, EnvironmentVariableType.Trigger, pipeline.scheduleTimeVariables());
+                pipelineByBuildIdCache.flushOnCommit();
+                getSqlMapClientTemplate().insert("insertPipeline", pipeline);
+                savePipelineMaterialRevisions(pipeline, pipeline.getId());
+                environmentVariableDao.save(pipeline.getId(), EnvironmentVariableType.Trigger, pipeline.scheduleTimeVariables());
                 return pipeline;
             }
         });
@@ -139,7 +165,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
         List<String> pipelinenames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
-        if(pipelinenames.size() > 0 && StringUtils.isBlank(pipelinenames.get(0)))
+        if (pipelinenames.size() > 0 && StringUtils.isBlank(pipelinenames.get(0)))
             return new ArrayList<>();
         return pipelinenames;
     }
@@ -152,6 +178,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {
         Map<String, Object> args = arguments("pipelineName", pipeline.getName()).and("count", newCount).asMap();
         Integer hasPipelineRow = (Integer) getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
+        pipelineByBuildIdCache.flushOnCommit();
         if (hasPipelineRow == 0) {
             getSqlMapClientTemplate().insert("insertPipelineLabelCounter", args);
         } else if (newCount > lastCount) {
@@ -254,11 +281,17 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     public Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId) {
-        Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
-        if (pipeline == null) {
-            throw new DataRetrievalFailureException("Could not load pipeline from build with id " + buildId);
-        }
-        return loadMaterialRevisions(pipeline);
+        String cacheKey = "getPipelineByBuildId_" + buildId;
+        return pipelineByBuildIdCache.get(cacheKey, new Supplier<Pipeline>() {
+            @Override
+            public Pipeline get() {
+                Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
+                if (pipeline == null) {
+                    throw new DataRetrievalFailureException("Could not load pipeline from build with id " + buildId);
+                }
+                return loadMaterialRevisions(pipeline);
+            }
+        });
     }
 
     public Pipeline pipelineByIdWithMods(long pipelineId) {

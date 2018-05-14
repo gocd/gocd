@@ -16,35 +16,34 @@
 
 package com.thoughtworks.go.server.dao.handlers;
 
-import com.thoughtworks.go.domain.JobState;
-import org.apache.ibatis.type.EnumTypeHandler;
+import org.apache.ibatis.type.LongTypeHandler;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BuildStateTypeHandlerCallback extends EnumTypeHandler<JobState> {
-    public BuildStateTypeHandlerCallback(Class<JobState> type) {
-        super(type);
+public class SetZeroIfNull extends LongTypeHandler {
+
+    @Override
+    public Long getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return valueOf(super.getNullableResult(cs, columnIndex));
     }
 
     @Override
-    public JobState getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return valueOf(super.getNullableResult(rs, columnIndex));
-    }
-
-    @Override
-    public JobState getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    public Long getNullableResult(ResultSet rs, String columnName) throws SQLException {
         return valueOf(super.getNullableResult(rs, columnName));
     }
 
     @Override
-    public JobState getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return valueOf(super.getNullableResult(cs, columnIndex));
+    public Long getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return valueOf(super.getNullableResult(rs, columnIndex));
     }
 
-    private JobState valueOf(JobState nullableResult) {
-        return nullableResult == null ? JobState.Unknown : nullableResult;
+    private Long valueOf(Long l) {
+        if (l == null) {
+            return 0L;
+        } else {
+            return l;
+        }
     }
-
 }

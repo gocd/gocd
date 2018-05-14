@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,20 @@
 
 package com.thoughtworks.go.server.dao.handlers;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.ibatis.type.JdbcType;
+
 import java.io.File;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.ibatis.sqlmap.client.extensions.ParameterSetter;
-import com.ibatis.sqlmap.client.extensions.ResultGetter;
-import com.ibatis.sqlmap.client.extensions.TypeHandlerCallback;
-import org.apache.commons.io.FilenameUtils;
-
-public class FileTypeHandlerCallback implements TypeHandlerCallback {
-
-    public void setParameter(ParameterSetter parameterSetter, Object parameter) throws SQLException {
-        File file = (File) parameter;
-        parameterSetter.setString(FilenameUtils.separatorsToUnix(file.getPath()));
+public class FileTypeHandlerCallback extends StringColumnBasedTypeHandler<File> {
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, File parameter, JdbcType jdbcType) throws SQLException {
+        ps.setString(i, FilenameUtils.separatorsToUnix(parameter.getPath()));
     }
 
-    public Object getResult(ResultGetter resultGetter) throws SQLException {
-        return valueOf(resultGetter.getString());
-    }
-
-    public Object valueOf(String text) {
+    protected File valueOf(String text) {
         if (text == null) {
             return null;
         }

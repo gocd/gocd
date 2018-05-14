@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.transaction;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
-import com.ibatis.sqlmap.client.SqlMapExecutor;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -26,34 +24,29 @@ import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.ibatis.SqlMapClientCallback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.sql.SQLException;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml"
 })
-public class SqlMapClientDaoSupportTest {
+public class GoCDSqlSessionDaoSupportTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private SqlMapClient sqlMapClient;
+    @Autowired private SqlSessionFactory sqlMapClient;
     @Autowired private UserDao userDao;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseStrategy databaseStrategy;
@@ -69,7 +62,9 @@ public class SqlMapClientDaoSupportTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();
-        daoSupport = new SqlMapClientDaoSupport(goCache, sqlMapClient, systemEnvironment, databaseStrategy);
+        daoSupport = new SqlMapClientDaoSupport(goCache, sqlMapClient, systemEnvironment, databaseStrategy) {
+
+        };
     }
 
     @After
@@ -119,31 +114,4 @@ public class SqlMapClientDaoSupportTest {
         assertThat(loadedUser[0].getName(), is("loser"));
     }
 
-    @Test
-    public void shouldNotAllowDirectInvocationOfExecute() {
-        User loser = new User("loser");
-        userDao.saveOrUpdate(loser);
-
-        final User[] loadedUser = new User[1];
-
-        try {
-            assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
-                    public void invoke() {
-                        daoSupport.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
-                            public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
-                                loadedUser[0] = userDao.allUsers().get(0);
-                                return null;
-                            }
-                        });
-                    }
-                });
-            fail("should not have allowed direct execute invocation");
-        } catch (Exception e) {
-            assertThat(e, is(instanceOf(UnsupportedOperationException.class)));
-            assertThat(e.getMessage(),
-                    is("Please call one of the supported methods. Refer " + SqlMapClientDaoSupport.SqlMapClientTemplate.class.getCanonicalName() + " for details. This is to ensure read consistency during transactions."));
-        }
-
-        assertThat(loadedUser[0], is(nullValue()));
-    }
 }

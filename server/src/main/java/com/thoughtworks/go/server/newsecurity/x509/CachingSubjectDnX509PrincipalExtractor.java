@@ -47,7 +47,7 @@ public class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtr
 
     private static Ehcache createCacheIfRequired() {
         final CacheManager instance = CacheManager.getInstance();
-        synchronized (CachingSubjectDnX509PrincipalExtractor.class) {
+        synchronized (instance) {
             if (!instance.cacheExists(CACHE_NAME)) {
                 instance.addCache(new Cache(cacheConfiguration()));
             }

@@ -16,23 +16,29 @@
 
 package com.thoughtworks.go.server.dao.handlers;
 
-import com.thoughtworks.go.config.VariableValueConfig;
-import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.BaseTypeHandler;
 
-import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * @understands converting a {@link com.thoughtworks.go.config.VariableValueConfig } to a string and back
- */
-public class VariableValueConfigTypeHandlerCallback extends StringColumnBasedTypeHandler<VariableValueConfig> {
+public abstract class StringColumnBasedTypeHandler<T> extends BaseTypeHandler<T> {
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, VariableValueConfig parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, parameter.getValue());
+    public T getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        return valueOf(rs.getString(columnName));
     }
 
-    protected VariableValueConfig valueOf(String s) {
-        return new VariableValueConfig(s);
+    @Override
+    public T getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return valueOf(rs.getString(columnIndex));
     }
+
+    @Override
+    public T getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return valueOf(cs.getString(columnIndex));
+    }
+
+    protected abstract T valueOf(String s);
+
 }

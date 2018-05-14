@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -42,6 +41,8 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.AmbiguousTableNameException;
@@ -88,7 +89,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public static final String AGENT_UUID = "123456789-123";
     private DataSource dataSource;
-    private SqlMapClient sqlMapClient;
+    private SqlSessionFactory sqlMapClient;
     private MaterialRepository materialRepository;
     private GoCache goCache;
     private PipelineService pipelineService;
@@ -125,7 +126,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     @Autowired
     public DatabaseAccessHelper(DataSource dataSource,
-                                SqlMapClient sqlMapClient,
+                                SqlSessionFactory sqlMapClient,
                                 StageDao stageDao,
                                 JobInstanceDao jobInstanceDao,
                                 PropertyDao propertyDao,
@@ -197,7 +198,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         databaseTester.onSetup();
         pipelineTimeline.clearWhichIsEvilAndShouldNotBeUsedInRealWorld();
         if (sqlMapClient != null) {
-            sqlMapClient.flushDataCache();
+            for (Cache cache : sqlMapClient.getConfiguration().getCaches()) {
+                cache.clear();
+            }
         }
     }
 

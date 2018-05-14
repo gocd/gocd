@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.opensymphony.oscache.base.CacheEntry;
 import com.opensymphony.oscache.base.NeedsRefreshException;
@@ -41,6 +40,8 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +62,8 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlMapClientDaoSupport.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlSessionDaoSupport.class);
     private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
     private JobInstanceSqlMapDao buildInstanceDao;
     private Cache cache;
     private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -72,13 +71,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     private DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired
-    public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao, Cache cache, TransactionTemplate transactionTemplate, SqlMapClient sqlMapClient, GoCache goCache,
+    public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao, Cache cache, TransactionTemplate transactionTemplate, SqlSessionFactory sqlSessionFactory, GoCache goCache,
                           TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database) {
-        super(goCache, sqlMapClient, systemEnvironment, database);
+        super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.buildInstanceDao = buildInstanceDao;
         this.cache = cache;
         this.transactionTemplate = transactionTemplate;
-        this.goCache = goCache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
@@ -164,7 +162,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
 
-    private String cacheKeyForStageCount(String pipelineName, String stageName) {
+    String cacheKeyForStageCount(String pipelineName, String stageName) {
         return String.format("%s_numberOfStages_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
@@ -466,7 +464,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return String.format("%s_stageHistoryMutex_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
-    private String cacheKeyForStageHistories(String pipelineName, String stageName) {
+    String cacheKeyForStageHistories(String pipelineName, String stageName) {
         return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
@@ -525,7 +523,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return offset;
     }
 
-    private String cacheKeyForStageOffset(Stage stage) {
+    String cacheKeyForStageOffset(Stage stage) {
         return String.format("%s_stageOffsetMap_%s_<>_%s", getClass().getName(), stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
     }
 

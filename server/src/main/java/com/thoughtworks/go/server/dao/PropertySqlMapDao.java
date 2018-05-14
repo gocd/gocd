@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.domain.Property;
@@ -24,6 +23,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,9 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 @Component
 public class PropertySqlMapDao extends SqlMapClientDaoSupport implements PropertyDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertySqlMapDao.class);
-
     @Autowired
-    public PropertySqlMapDao(GoCache goCache, SqlMapClient sqlMapClient, SystemEnvironment systemEnvironment, Database database) {
-        super(goCache, sqlMapClient, systemEnvironment, database);
+    public PropertySqlMapDao(GoCache goCache, SqlSessionFactory sqlSessionFactory, SystemEnvironment systemEnvironment, Database database) {
+        super(goCache, sqlSessionFactory, systemEnvironment, database);
     }
 
     public boolean save(long instanceId, Property property) {

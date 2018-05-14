@@ -20,19 +20,14 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.Date;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -42,7 +37,6 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
@@ -123,7 +117,6 @@ public class PipelineServiceIntegrationTest {
 
         u.runAndPass(pair01, hgRevs);
 
-        ReflectionUtil.invoke(pipelineSqlMapDao, "initDao");
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         assertThat(materialRevisions.getMaterials().size(), is(1));
@@ -148,7 +141,6 @@ public class PipelineServiceIntegrationTest {
 
         u.runAndPass(pair01, hgRevs);
 
-        ReflectionUtil.invoke(pipelineSqlMapDao, "initDao");
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         assertThat(materialRevisions.getMaterials().size(), is(1));
@@ -172,7 +164,6 @@ public class PipelineServiceIntegrationTest {
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1),u.m(hg2));
         u.runAndPass(pair01, hgRevs);
 
-        ReflectionUtil.invoke(pipelineSqlMapDao, "initDao");
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Materials materials = materialRevisions.getMaterials();
@@ -188,9 +179,9 @@ public class PipelineServiceIntegrationTest {
         Material hg = new HgMaterial("url", "Dest");
         u.checkinFiles(hg, "h1", a(file1), ModifiedAction.added);
         ScheduleTestUtil.AddedPipeline addedPipeline = u.saveConfigWith(pipelineName, "stageName", u.m(hg));
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
 
         pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineName);
 

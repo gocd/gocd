@@ -17,10 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -67,9 +65,9 @@ public class PipelineLabelCorrectorIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbAndKeepTheOneMatchingPipelineNameCaseInConfig() throws SQLException {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineSqlMapDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
 

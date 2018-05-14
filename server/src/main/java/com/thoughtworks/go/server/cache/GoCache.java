@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -71,6 +72,14 @@ public class GoCache {
         this.nullObjectClasses = new HashSet<>();
         nullObjectClasses.add(NullUser.class);
         registerAsCacheEvictionListener();
+    }
+
+    public void removeListener(CacheEventListener cacheEventListener) {
+        ehCache.getCacheEventNotificationService().unregisterListener(cacheEventListener);
+    }
+
+    public void addListener(CacheEventListener listener) {
+        ehCache.getCacheEventNotificationService().registerListener(listener);
     }
 
     protected void registerAsCacheEvictionListener() {
@@ -220,7 +229,6 @@ public class GoCache {
             }
         }
     }
-
 
     public boolean isKeyInCache(Object key) {
         return ehCache.isKeyInCache(key);

@@ -90,11 +90,11 @@
 
 
     <!-- SqlMap setup for iBATIS Database Layer -->
-    <bean id="sqlMapClient" class="com.thoughtworks.go.server.database.SqlMapClientFactory">
-        <property name="configLocation" value="WEB-INF/sql-map-config.xml"/>
+    <bean id="sqlMapClient" class="com.thoughtworks.go.server.database.SqlSessionFactoryBean">
+        <!--<property name="configLocation" value="WEB-INF/sql-map-config.xml"/>-->
         <!-- WEB-INF/ -->
-        <property name="dataSource" ref="goDataSource"/>
-        <property name="useTransactionAwareDataSource" value="true"/>
+        <!--<property name="dataSource" ref="goDataSource"/>-->
+        <!--<property name="useTransactionAwareDataSource" value="true"/>-->
     </bean>
 
     <!-- ========================= HIBERNATE ========================= -->

@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.server.util;
 
-import com.ibatis.sqlmap.client.extensions.ParameterSetter;
-import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.handlers.BuildStateTypeHandlerCallback;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.hamcrest.Matchers.is;
@@ -31,26 +31,39 @@ import static org.mockito.Mockito.*;
 
 public class BuildStateTypeHandlerCallbackTest {
 
-    private ResultGetter resultGetter;
-
-    @Before
-    public void setUp() {
-        resultGetter = mock(ResultGetter.class);
-    }
-
     @Test
-    public void shouldReturnScheduledWhenGivenStringScheduled() throws SQLException {
-        when(resultGetter.getString()).thenReturn(JobState.Scheduled.toString());
-        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback();
-        JobState result = (JobState) callback.getResult(resultGetter);
+    public void shouldReturnStateWithStringColumnName() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.getString("foo")).thenReturn(JobState.Scheduled.toString());
+        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback(JobState.class);
+        JobState result = callback.getResult(rs, "foo");
         assertThat(result, is(JobState.Scheduled));
     }
 
     @Test
-    public void shouldReturnScheduledStringWhenGivenScheduled() throws SQLException {
-        final ParameterSetter parameterSetter = mock(ParameterSetter.class);
-        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback();
-        callback.setParameter(parameterSetter, JobState.Scheduled);
-        verify(parameterSetter).setString(JobState.Scheduled.toString());
+    public void shouldReturnStateWithIntegerColumnName() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.getString(42)).thenReturn(JobState.Scheduled.toString());
+        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback(JobState.class);
+        JobState result = callback.getResult(rs, 42);
+        assertThat(result, is(JobState.Scheduled));
+    }
+
+    @Test
+    public void shouldReturnStateWithIntegerColumnNameAndCallableStatement() throws SQLException {
+        CallableStatement rs = mock(CallableStatement.class);
+        when(rs.getString(42)).thenReturn(JobState.Scheduled.toString());
+        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback(JobState.class);
+        JobState result = callback.getResult(rs, 42);
+        assertThat(result, is(JobState.Scheduled));
+    }
+
+    @Test
+    public void shouldSerialize() throws SQLException {
+        PreparedStatement ps = mock(PreparedStatement.class);
+        BuildStateTypeHandlerCallback callback = new BuildStateTypeHandlerCallback(JobState.class);
+        callback.setParameter(ps, 42, JobState.Completed, null);
+        verify(ps).setString(42, "Completed");
+        verifyNoMoreInteractions(ps);
     }
 }

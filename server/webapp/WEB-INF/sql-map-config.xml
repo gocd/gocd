@@ -1,63 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+<?xml version="1.0" encoding="UTF-8"?><!--
+  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
-        "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
-<sqlMapConfig>
+<configuration>
 
-    <settings cacheModelsEnabled="true"/>
+  <settings>
+    <setting name="cacheEnabled" value="false"/>
+  </settings>
 
-    <typeHandler
-            javaType="com.thoughtworks.go.domain.JobState"
-            callback="com.thoughtworks.go.server.dao.handlers.BuildStateTypeHandlerCallback"/>
+  <typeHandlers>
 
     <typeHandler
-            javaType="com.thoughtworks.go.domain.JobResult"
-            callback="com.thoughtworks.go.server.dao.handlers.BuildResultTypeHandlerCallback"/>
-    <typeHandler
-            javaType="com.thoughtworks.go.config.VariableValueConfig"
-            callback="com.thoughtworks.go.server.dao.handlers.VariableValueConfigTypeHandlerCallback"/>
-    <typeHandler
-            javaType="com.thoughtworks.go.domain.StageResult"
-            callback="com.thoughtworks.go.server.dao.handlers.StageResultTypeHandlerCallback"/>
-    <typeHandler
-            javaType="com.thoughtworks.go.domain.StageState"
-            callback="com.thoughtworks.go.server.dao.handlers.StageStateTypeHandlerCallback"/>
-
-  <typeHandler
-            javaType="com.thoughtworks.go.domain.buildcause.BuildCause"
-            callback="com.thoughtworks.go.server.dao.handlers.BuildCauseHandlerCallback"/>
+        javaType="com.thoughtworks.go.domain.JobState"
+        handler="com.thoughtworks.go.server.dao.handlers.BuildStateTypeHandlerCallback"/>
 
     <typeHandler
-            javaType="java.io.File"
-            callback="com.thoughtworks.go.server.dao.handlers.FileTypeHandlerCallback"/>
+        javaType="com.thoughtworks.go.domain.JobResult"
+        handler="org.apache.ibatis.type.EnumTypeHandler"/>
 
     <typeHandler
-            javaType="com.thoughtworks.go.domain.materials.ModifiedAction"
-            callback="com.thoughtworks.go.server.dao.handlers.ModifiedActionTypeHandlerCallback"/>
+        javaType="com.thoughtworks.go.config.VariableValueConfig"
+        handler="com.thoughtworks.go.server.dao.handlers.VariableValueConfigTypeHandlerCallback"/>
 
     <typeHandler
-            javaType="com.thoughtworks.go.domain.StageEvent"
-            callback="com.thoughtworks.go.server.dao.handlers.StageEventTypeHandlerCallback"/>
+        javaType="com.thoughtworks.go.domain.StageResult"
+        handler="org.apache.ibatis.type.EnumTypeHandler"/>
 
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/JobInstance.xml"/>
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/BuildStateTransition.xml"/>
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/Property.xml"/>
-</sqlMapConfig>
+    <typeHandler
+        javaType="com.thoughtworks.go.domain.StageState"
+        handler="org.apache.ibatis.type.EnumTypeHandler"/>
+
+    <typeHandler
+        javaType="com.thoughtworks.go.domain.buildcause.BuildCause"
+        handler="com.thoughtworks.go.server.dao.handlers.BuildCauseHandlerCallback"/>
+
+    <typeHandler
+        javaType="java.io.File"
+        handler="com.thoughtworks.go.server.dao.handlers.FileTypeHandlerCallback"/>
+
+    <typeHandler
+        javaType="com.thoughtworks.go.domain.materials.ModifiedAction"
+        handler="org.apache.ibatis.type.EnumTypeHandler"/>
+
+    <typeHandler
+        javaType="com.thoughtworks.go.domain.StageEvent"
+        handler="org.apache.ibatis.type.EnumTypeHandler"/>
+  </typeHandlers>
+
+  <mappers>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/JobInstance.xml"/>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/BuildStateTransition.xml"/>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/Property.xml"/>
+  </mappers>
+</configuration>

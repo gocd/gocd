@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.StageIdentifier;
@@ -26,17 +25,18 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.service.StubGoCache;
+import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class StageSqlMapDaoTest {
     public void setUp() {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
-        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlMapClient.class), goCache,
+        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache,
                 mock(TransactionSynchronizationManager.class), mock(SystemEnvironment.class), null);
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         cloner = mock(Cloner.class);
@@ -81,7 +81,7 @@ public class StageSqlMapDaoTest {
     @Test
     public void findLatestStageInstancesShouldCacheResults() throws SQLException {
         List<StageIdentity> latestStages = Arrays.asList(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L));
-        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn(latestStages);
+        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn((List) latestStages);
 
         List<StageIdentity> firstStageInstances = stageSqlMapDao.findLatestStageInstances();
 

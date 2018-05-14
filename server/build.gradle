@@ -150,7 +150,8 @@ dependencies {
 
   // optional dependency from hibernate
   compile group: 'javassist', name: 'javassist', version: '3.9.0.GA'
-  compile group: 'org.apache.ibatis', name: 'ibatis-sqlmap', version: '2.3.4.726'
+  compile group: 'org.mybatis', name: 'mybatis', version: project.versions.mybatis
+  compile group: 'org.mybatis', name: 'mybatis-spring', version: project.versions.mybatisSpring
   compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.0.0'
   compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
     exclude(module: 'jms')
@@ -663,7 +664,6 @@ task verifyWar(type: VerifyJarTask) {
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.7.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
-        "ibatis-sqlmap-2.3.4.726.jar",
         "jackson-annotations-2.5.0.jar",
         "jackson-core-2.5.0.jar",
         "jackson-databind-2.5.0.jar",
@@ -685,6 +685,8 @@ task verifyWar(type: VerifyJarTask) {
         "jta-1.1.jar",
         "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
+        "mybatis-${project.versions.mybatis}.jar",
+        "mybatis-spring-${project.versions.mybatisSpring}.jar",
         "objenesis-${project.versions.objenesis}.jar",
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",

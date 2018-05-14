@@ -29,12 +29,12 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,7 +150,7 @@ public class PipelineSqlMapDaoTest {
         String pipelineName = "pipeline-with-no-active-instances";
 
         when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
-        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(new ArrayList<PipelineInstanceModel>());
+        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(new ArrayList<>());
 
         PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(pipelineName));
 

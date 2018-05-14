@@ -1726,9 +1726,9 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() throws SQLException {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineDao.getSqlMapClient().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
 

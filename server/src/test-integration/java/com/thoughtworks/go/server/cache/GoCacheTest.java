@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.cache;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -26,19 +26,20 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
-import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import ch.qos.logback.classic.Level;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
@@ -69,7 +70,7 @@ public class GoCacheTest {
     @Autowired
     private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired
-    private SqlMapClient sqlMapClient;
+    private SqlSessionFactory sqlMapClient;
     @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
@@ -273,7 +274,11 @@ public class GoCacheTest {
 
     @Test
     public void shouldStartServingThingsOutOfCacheOnceTransactionCompletes() {
-        final SqlMapClientDaoSupport daoSupport = new SqlMapClientDaoSupport(goCache, sqlMapClient, systemEnvironment, databaseStrategy);
+        final SqlSessionDaoSupport daoSupport = new SqlSessionDaoSupport() {
+
+        };
+
+        daoSupport.setSqlSessionFactory(sqlMapClient);
         goCache.put("foo", "bar");
         final String[] valueInCleanTxn = new String[1];
         final String[] valueInDirtyTxn = new String[1];

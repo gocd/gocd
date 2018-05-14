@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.database.Database;
@@ -32,12 +31,13 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,7 +58,6 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     private StageDao stageDao;
     private MaterialRepository materialRepository;
     private EnvironmentVariableDao environmentVariableDao;
-    private GoCache goCache;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final SystemEnvironment systemEnvironment;
@@ -72,12 +71,11 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
 
     @Autowired
     public PipelineStateDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
-                            SqlMapClient sqlMapClient, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
+                            SqlSessionFactory sqlSessionFactory, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
                             GoConfigDao configFileDao, Database database, SessionFactory sessionFactory) {
-        super(goCache, sqlMapClient, systemEnvironment, database);
+        super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
-        this.goCache = goCache;
         this.environmentVariableDao = environmentVariableDao;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;

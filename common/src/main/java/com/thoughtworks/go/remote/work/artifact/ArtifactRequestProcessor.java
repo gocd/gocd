@@ -21,12 +21,11 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.work.GoPublisher;
 
 import java.util.List;
 
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
@@ -54,10 +53,10 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
         final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
         switch (consoleLogMessage.getLogLevel()) {
             case INFO:
-                goPublisher.taggedConsumeLine(PUBLISH, message);
+                goPublisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
                 break;
             case ERROR:
-                goPublisher.taggedConsumeLine(PUBLISH_ERR, message);
+                goPublisher.taggedConsumeLine(TaggedStreamConsumer.ERR, message);
                 break;
             default:
                 return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", consoleLogMessage.getLogLevel()));

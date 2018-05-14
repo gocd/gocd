@@ -24,8 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.ERR;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static org.mockito.Mockito.*;
 
 public class ArtifactRequestProcessorTest {
@@ -53,7 +53,7 @@ public class ArtifactRequestProcessorTest {
 
         artifactRequestProcessor.process(descriptor, request);
 
-        verify(goPublisher, times(1)).taggedConsumeLine(PUBLISH_ERR, "[cd.go.artifact.docker] Error while pushing docker image to registry: foo.");
+        verify(goPublisher, times(1)).taggedConsumeLine(ERR, "[cd.go.artifact.docker] Error while pushing docker image to registry: foo.");
     }
 
     @Test
@@ -62,6 +62,6 @@ public class ArtifactRequestProcessorTest {
 
         artifactRequestProcessor.process(descriptor, request);
 
-        verify(goPublisher, times(1)).taggedConsumeLine(PUBLISH, "[cd.go.artifact.docker] Pushing docker image to registry: foo.");
+        verify(goPublisher, times(1)).taggedConsumeLine(OUT, "[cd.go.artifact.docker] Pushing docker image to registry: foo.");
     }
 }

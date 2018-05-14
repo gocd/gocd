@@ -28,6 +28,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
 import org.apache.velocity.VelocityContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +52,7 @@ class InitialContextProviderTest {
     private SecurityService securityService;
     private VersionInfoService versionInfoService;
     private DefaultPluginInfoFinder pluginInfoFinder;
+    private FeatureToggleService featureToggleService;
 
     @BeforeEach
     void setup() {
@@ -58,6 +61,8 @@ class InitialContextProviderTest {
         securityService = mock(SecurityService.class);
         versionInfoService = mock(VersionInfoService.class);
         pluginInfoFinder = mock(DefaultPluginInfoFinder.class);
+        featureToggleService = mock(FeatureToggleService.class);
+        Toggles.initializeWith(featureToggleService);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
                 versionInfoService, pluginInfoFinder);
         SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"));
@@ -90,6 +95,20 @@ class InitialContextProviderTest {
         when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo()));
         VelocityContext velocityContext = initialContextProvider.getVelocityContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(velocityContext.internalGet("showAnalyticsDashboard")).isEqualTo(false);
+    }
+
+    @Test
+    public void shouldShowArtifactStoresWhenToggleIsEnabled() {
+        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(true);
+        VelocityContext velocityContext = initialContextProvider.getVelocityContext(new HashMap<>(), dummySparkController.getClass(), "viewName");
+        assertThat(velocityContext.internalGet("artifactStoresEnabled")).isEqualTo(true);
+    }
+
+    @Test
+    public void shouldNotShowArtifactStoresWhenToggleIsDisabled() {
+        featureToggleService.changeValueOfToggle(Toggles.ARTIFACT_EXTENSION_KEY, false);
+        VelocityContext velocityContext = initialContextProvider.getVelocityContext(new HashMap<>(), dummySparkController.getClass(), "viewName");
+        assertThat(velocityContext.internalGet("artifactStoresEnabled")).isEqualTo(false);
     }
 
     private AnalyticsPluginInfo analyticsPluginInfo() {

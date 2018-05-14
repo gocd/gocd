@@ -26,6 +26,7 @@
 #* @vtlvariable name="viewTitle" type="java.lang.String" *#
 #* @vtlvariable name="webpackAssetsService" type="com.thoughtworks.go.server.service.WebpackAssetsService" *#
 #* @vtlvariable name="showAnalyticsDashboard" type="boolean" *#
+#* @vtlvariable name="artifactStoresEnabled" type="boolean" *#
 #* @vtlvariable name="spaTimeout" type="int" *#
 #* @vtlvariable name="spaRefreshInterval" type="int" *#
 #* @vtlvariable name="serverTimezoneUTCOffset" type="int" *#

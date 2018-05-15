@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
 import com.thoughtworks.go.plugin.api.task.Console;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +34,10 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluggableTaskConsoleTest {
+
     @Mock
-    DefaultGoPublisher publisher;
+    SafeOutputStreamConsumer safeOutputStreamConsumer;
+
     private PluggableTaskConsole console;
     private List<String> keys = Arrays.asList("Social Net 1", "Social Net 2", "Social Net 3");
     private List<String> values = Arrays.asList("Twitter", "Facebook", "Mega Upload");
@@ -42,15 +45,15 @@ public class PluggableTaskConsoleTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        console = new PluggableTaskConsole(publisher, "utf-8");
+        console = new PluggableTaskConsole(safeOutputStreamConsumer, "utf-8");
     }
 
     @Test
     public void shouldPrintLineToPublisher() throws Exception {
         String line = "Test Line";
-        doNothing().when(publisher).consumeLine(line);
+        doNothing().when(safeOutputStreamConsumer).stdOutput(line);
         console.printLine(line);
-        verify(publisher).consumeLine(line);
+        verify(safeOutputStreamConsumer).stdOutput(line);
     }
 
     @Test
@@ -61,17 +64,17 @@ public class PluggableTaskConsoleTest {
             env.put(keys.get(i), values.get(i));
             when(varSpecifier.isSecure(keys.get(i))).thenReturn(i % 2 == 0);
         }
-        doNothing().when(publisher).consumeLine("Environment variables: ");
+        doNothing().when(safeOutputStreamConsumer).stdOutput("Environment variables: ");
         for (int i = 0; i < keys.size(); i++) {
-            doNothing().when(publisher).consumeLine(
+            doNothing().when(safeOutputStreamConsumer).stdOutput(
                     String.format("Name= %s  Value= %s", keys.get(i),
                             i % 2 == 0 ? PluggableTaskConsole.MASK_VALUE : values.get(i)));
         }
         console.printEnvironment(env, varSpecifier);
-        verify(publisher).consumeLine("Environment variables: ");
+        verify(safeOutputStreamConsumer).stdOutput("Environment variables: ");
         for (int i = 0; i < keys.size(); i++) {
             verify(varSpecifier).isSecure(keys.get(i));
-            verify(publisher).consumeLine(String.format("Name= %s  Value= %s", keys.get(i),
+            verify(safeOutputStreamConsumer).stdOutput(String.format("Name= %s  Value= %s", keys.get(i),
                     i % 2 == 0 ? PluggableTaskConsole.MASK_VALUE : values.get(i)));
         }
     }
@@ -86,10 +89,10 @@ public class PluggableTaskConsoleTest {
                 + "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui \n"
                 + "officia deserunt mollit anim id est laborum.");
 
-        doNothing().when(publisher).consumeLine(anyString());
+        doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
         console.readOutputOf(in);
         Thread.sleep(100);// may become flaky!! Fingers crossed
-        verify(publisher, times(7)).consumeLine(anyString());
+        verify(safeOutputStreamConsumer, times(7)).stdOutput(anyString());
     }
 
     @Test
@@ -102,10 +105,10 @@ public class PluggableTaskConsoleTest {
                 + "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui \n"
                 + "officia deserunt mollit anim id est laborum.");
 
-        doNothing().when(publisher).consumeLine(anyString());
+        doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
         console.readErrorOf(in);
         Thread.sleep(100);// may become flaky!! Fingers crossed
-        verify(publisher, times(7)).consumeLine(anyString());
+        verify(safeOutputStreamConsumer, times(7)).stdOutput(anyString());
     }
 
 }

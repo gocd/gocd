@@ -376,9 +376,7 @@ public class CommandLine {
         try {
             streamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(outputStreamConsumer, errorStreamConsumer));
             streamConsumer.addArguments(getArguments());
-            for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : environmentVariableContext.getSecureEnvironmentVariables()) {
-                streamConsumer.addSecret(new PasswordArgument(secureEnvironmentVariable.value()));
-            }
+            streamConsumer.addSecrets(environmentVariableContext.secrets());
             process = startProcess(environmentVariableContext, streamConsumer, processTag);
         } catch (CommandLineException e) {
             String message = String.format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", toStringForDisplay(), getExecutable());

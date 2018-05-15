@@ -20,17 +20,18 @@ import com.thoughtworks.go.plugin.api.task.Console;
 import com.thoughtworks.go.plugin.api.task.EnvironmentVariables;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class PluggableTaskContext implements TaskExecutionContext {
-    private final DefaultGoPublisher publisher;
+    private final SafeOutputStreamConsumer publisher;
     private final EnvironmentVariableContext environmentVariableContext;
     private final String workingDir;
     private final String consoleLogCharset;
 
-    public PluggableTaskContext(DefaultGoPublisher publisher,
+    public PluggableTaskContext(SafeOutputStreamConsumer safeOutputStreamConsumer,
                                 EnvironmentVariableContext environmentVariableContext, String workingDir, String consoleLogCharset) {
-        this.publisher = publisher;
+        this.publisher = safeOutputStreamConsumer;
         this.environmentVariableContext = environmentVariableContext;
         this.workingDir = workingDir;
         this.consoleLogCharset = consoleLogCharset;

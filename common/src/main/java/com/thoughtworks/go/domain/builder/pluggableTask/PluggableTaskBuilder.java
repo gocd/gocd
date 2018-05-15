@@ -32,8 +32,7 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.util.command.CruiseControlException;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.lang.StringUtils;
 
@@ -101,7 +100,12 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
                                                     EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
-        return new PluggableTaskContext(publisher, environmentVariableContext, workingDir, consoleLogCharset);
+
+        CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR,  publisher);
+        CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT,  publisher);
+        SafeOutputStreamConsumer safeOutputStreamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(errorStreamConsumer, outputStreamConsumer));
+        safeOutputStreamConsumer.addSecrets(environmentVariableContext.secrets());
+        return new PluggableTaskContext(safeOutputStreamConsumer, environmentVariableContext, workingDir, consoleLogCharset);
     }
 
     protected TaskConfig buildTaskConfig(TaskConfig config) {

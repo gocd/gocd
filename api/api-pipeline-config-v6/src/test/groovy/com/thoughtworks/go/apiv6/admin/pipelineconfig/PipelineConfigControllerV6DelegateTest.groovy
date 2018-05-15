@@ -115,7 +115,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
         assertThatResponse()
-          .hasStatus(401)
+          .hasStatus(403)
           .hasJsonMessage("You are not authorized to perform this action.")
       }
 
@@ -223,7 +223,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         postWithApiHeader(controller.controllerPath(), [group: 'another_group', pipeline: pipeline()])
 
         assertThatResponse()
-          .hasStatus(401)
+          .hasStatus(403)
           .hasJsonMessage("You are not authorized to perform this action.")
       }
 
@@ -367,7 +367,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         putWithApiHeader(controller.controllerPath("pipeline1"), [pipeline: pipeline()])
 
         assertThatResponse()
-          .hasStatus(401)
+          .hasStatus(403)
           .hasJsonMessage("You are not authorized to perform this action.")
       }
 

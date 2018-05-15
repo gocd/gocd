@@ -30,12 +30,12 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.lang.StringUtils;
 import spark.Request;
@@ -46,7 +46,6 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
-import static spark.Spark.exception;
 
 public class PipelineConfigControllerV6Delegate extends ApiController implements CrudController<PipelineConfig> {
 
@@ -112,8 +111,8 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
             before("/*", mimeType, this::setContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd401);
-            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd401);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
+            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             post("", mimeType, this::create);
 
@@ -130,7 +129,7 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         haltIfPipelineIsDefinedRemotely(existingPipelineConfig);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.deletePipelineConfig(UserHelper.getUserName(), existingPipelineConfig, result);
+        pipelineConfigService.deletePipelineConfig(SessionUtils.currentUsername(), existingPipelineConfig, result);
 
 
         return renderHTTPOperationResult(result, req, res);
@@ -150,7 +149,7 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(UserHelper.getUserName(), pipelineConfigFromRequest,  etagFor(existingPipelineConfig), result);
+        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest,  etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
@@ -161,7 +160,7 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         String group = getOrHaltForGroupName(req);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username userName = UserHelper.getUserName();
+        Username userName = SessionUtils.currentUsername();
         pipelineConfigService.createPipelineConfig(userName, pipelineConfigFromRequest, result, group);
 
         if (result.isSuccessful()) {

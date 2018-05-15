@@ -167,6 +167,7 @@ dependencies {
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
+  compile group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
   compile(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
     exclude(group: 'org.springframework')
   }
@@ -701,7 +702,6 @@ task verifyWar(type: VerifyJarTask) {
         "smtp-${project.versions.mail}.jar",
         "spark-core-${project.versions.spark}.jar",
         "spring-aop-${project.versions.spring}.jar",
-        "spring-asm-${project.versions.spring}.jar",
         "spring-beans-${project.versions.spring}.jar",
         "spring-context-${project.versions.spring}.jar",
         "spring-context-support-${project.versions.spring}.jar",

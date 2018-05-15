@@ -29,7 +29,6 @@ apply plugin: 'com.thoughtworks.go.test-sets'
 
 buildscript {
   repositories {
-    mavenLocal()
     mavenCentral()
   }
 

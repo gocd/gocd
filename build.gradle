@@ -190,7 +190,6 @@ allprojects {
   buildDir = "${projectDir}/target"
 
   repositories {
-    mavenLocal()
     jcenter()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }

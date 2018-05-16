@@ -397,7 +397,7 @@ public class BuildWorkTest {
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry));
 
-        verify(artifactExtension).publishArtifact(anyString(), any(ArtifactPlan.class), any(ArtifactStore.class), anyString());
+        verify(artifactExtension).publishArtifact(anyString(), any(ArtifactPlan.class), any(ArtifactStore.class), anyString(), any(EnvironmentVariableContext.class));
     }
 
     @Test

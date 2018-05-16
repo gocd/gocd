@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -59,8 +60,8 @@ public class ArtifactsPublisher implements Serializable {
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
-    public void publishArtifacts(List<ArtifactPlan> artifactPlans) {
-        final File pluggableArtifactFolder = publishPluggableArtifacts(artifactPlans);
+    public void publishArtifacts(List<ArtifactPlan> artifactPlans, EnvironmentVariableContext environmentVariableContext) {
+        final File pluggableArtifactFolder = publishPluggableArtifacts(artifactPlans, environmentVariableContext);
         try {
             final List<ArtifactPlan> mergedPlans = artifactPlanFilter.getBuiltInMergedArtifactPlans(artifactPlans);
 
@@ -94,7 +95,7 @@ public class ArtifactsPublisher implements Serializable {
         return pluggableArtifactFolder != null && pluggableArtifactFolder.list().length == 0;
     }
 
-    private File publishPluggableArtifacts(List<ArtifactPlan> artifactPlans) {
+    private File publishPluggableArtifacts(List<ArtifactPlan> artifactPlans, EnvironmentVariableContext environmentVariableContext) {
         try {
             pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), new ArtifactRequestProcessor(goPublisher));
             final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
@@ -102,7 +103,7 @@ public class ArtifactsPublisher implements Serializable {
 
             final PluggableArtifactMetadata pluggableArtifactMetadata = new PluggableArtifactMetadata();
             for (Map.Entry<ArtifactPlan, ArtifactStore> artifactPlanAndStore : artifactPlanToStores.entrySet()) {
-                publishPluggableArtifact(pluggableArtifactMetadata, artifactPlanAndStore.getKey(), artifactPlanAndStore.getValue());
+                publishPluggableArtifact(pluggableArtifactMetadata, artifactPlanAndStore.getKey(), artifactPlanAndStore.getValue(), environmentVariableContext);
             }
 
             if (!pluggableArtifactPlans.isEmpty() && pluggableArtifactMetadata.isEmpty()) {
@@ -117,7 +118,7 @@ public class ArtifactsPublisher implements Serializable {
         }
     }
 
-    private void publishPluggableArtifact(PluggableArtifactMetadata pluggableArtifactMetadata, ArtifactPlan artifactPlan, ArtifactStore artifactStore) {
+    private void publishPluggableArtifact(PluggableArtifactMetadata pluggableArtifactMetadata, ArtifactPlan artifactPlan, ArtifactStore artifactStore, EnvironmentVariableContext environmentVariableContext) {
         try {
             final String pluginId = artifactStore.getPluginId();
 
@@ -125,7 +126,7 @@ public class ArtifactsPublisher implements Serializable {
             goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, message);
             LOGGER.info(message);
 
-            final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactPlan, artifactStore, workingDirectory.getAbsolutePath());
+            final PublishArtifactResponse publishArtifactResponse = artifactExtension.publishArtifact(pluginId, artifactPlan, artifactStore, workingDirectory.getAbsolutePath(), environmentVariableContext);
 
             if (!publishArtifactResponse.getMetadata().isEmpty()) {
                 final String artifactId = (String) artifactPlan.getPluggableArtifactConfiguration().get("id");

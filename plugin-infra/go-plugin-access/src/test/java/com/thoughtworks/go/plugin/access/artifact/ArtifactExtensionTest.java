@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Before;
@@ -209,23 +210,29 @@ public class ArtifactExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new ArtifactPlan("{\"id\":\"installer\",\"storeId\":\"docker\"}"), new ArtifactStore("docker", "cd.go.docker"), "/temp");
+        ArtifactPlan artifactPlan = new ArtifactPlan("{\"id\":\"installer\",\"storeId\":\"docker\"}");
+        ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.docker");
+        EnvironmentVariableContext env = new EnvironmentVariableContext("foo", "bar");
+        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, artifactPlan, artifactStore, "/temp", env);
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
 
-        final String expectedJSON = "{\n" +
-                "  \"artifact_plan\": {\n" +
-                "    \"id\": \"installer\",\n" +
-                "    \"storeId\": \"docker\"\n" +
-                "  },\n" +
-                "  \"artifact_store\": {\n" +
-                "    \"configuration\": {},\n" +
-                "    \"id\": \"docker\"\n" +
-                "  },\n" +
-                "  \"agent_working_directory\": \"/temp\"\n" +
+        final String expectedJSON = "{" +
+                "  'artifact_plan': {" +
+                "    'id': 'installer'," +
+                "    'storeId': 'docker'" +
+                "  }," +
+                "  'artifact_store': {" +
+                "    'configuration': {}," +
+                "    'id': 'docker'" +
+                "  }," +
+                "  'environment_variables': {" +
+                "    'foo': 'bar'" +
+                "  }," +
+                "  'agent_working_directory': '/temp'" +
                 "}";
 
         JSONAssert.assertEquals(expectedJSON, request.requestBody(), true);

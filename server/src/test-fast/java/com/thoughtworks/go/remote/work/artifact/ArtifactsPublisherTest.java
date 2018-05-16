@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -64,6 +65,7 @@ public class ArtifactsPublisherTest {
     private ArtifactExtension artifactExtension;
     private StubGoPublisher publisher;
     private PluginRequestProcessorRegistry registry;
+    private final EnvironmentVariableContext env = new EnvironmentVariableContext("foo", "bar");
 
     @Before
     public void setUp() throws IOException {
@@ -95,7 +97,7 @@ public class ArtifactsPublisherTest {
         final File firstTestFolder = prepareTestFolder(workingFolder, "test1");
         final File secondTestFolder = prepareTestFolder(workingFolder, "test2");
 
-        artifactsPublisher.publishArtifacts(artifactPlans);
+        artifactsPublisher.publishArtifacts(artifactPlans, env);
 
         publisher.assertPublished(firstTestFolder.getAbsolutePath(), "test");
         publisher.assertPublished(secondTestFolder.getAbsolutePath(), "test");
@@ -115,7 +117,7 @@ public class ArtifactsPublisherTest {
 
         publisher.setShouldFail(true);
         try {
-            artifactsPublisher.publishArtifacts(artifactPlans);
+            artifactsPublisher.publishArtifacts(artifactPlans, env);
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Failed to upload [test1, test2]"));
         }
@@ -133,7 +135,7 @@ public class ArtifactsPublisherTest {
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src2.getName(), "test"));
         StubGoPublisher publisher = new StubGoPublisher();
 
-        new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans);
+        new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans, env);
 
         Map<File, String> expectedFiles = new HashMap<File, String>() {
             {
@@ -153,7 +155,7 @@ public class ArtifactsPublisherTest {
         final File testFile3 = TestFileUtil.createTestFile(src1, "readme.pdf");
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, src1.getName() + "/*", "dest"));
 
-        artifactsPublisher.publishArtifacts(artifactPlans);
+        artifactsPublisher.publishArtifacts(artifactPlans, env);
 
         Map<File, String> expectedFiles = new HashMap<File, String>() {
             {
@@ -173,13 +175,13 @@ public class ArtifactsPublisherTest {
         final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
         final ArtifactPlan dockerArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("test-reports", "docker", create("junit", false, "junit.xml")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString()))
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist")));
-        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString()))
+        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("image", "alpine")));
 
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan));
+                .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
 
         assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles()), containsInAnyOrder("cd.go.s3.json", "cd.go.docker.json"));
     }
@@ -190,11 +192,11 @@ public class ArtifactsPublisherTest {
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenThrow(new RuntimeException("something"));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env))).thenThrow(new RuntimeException("something"));
 
         try {
             new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                    .publishArtifacts(Arrays.asList(artifactPlan));
+                    .publishArtifacts(Arrays.asList(artifactPlan), env);
             fail("Should throw error for pluggable artifact [installers].");
         } catch (Exception e) {
             assertThat(publisher.publishedFiles().size(), is(0));
@@ -211,7 +213,8 @@ public class ArtifactsPublisherTest {
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env)))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
 
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
@@ -219,7 +222,7 @@ public class ArtifactsPublisherTest {
         workingFolder.setWritable(false);
 
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(artifactPlan));
+                .publishArtifacts(Arrays.asList(artifactPlan), env);
     }
 
     @Test
@@ -230,10 +233,13 @@ public class ArtifactsPublisherTest {
         final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
         final ArtifactPlan dockerArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("test-reports", "docker", create("junit", false, "junit.xml")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString())).thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
-        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0")));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString(), eq(env)))
+                .thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
+        when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString(), eq(env)))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0")));
         try {
-            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder).publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan));
+            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+                    .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
             fail("Should throw error for pluggable artifact [installers].");
         } catch (Exception e) {
             assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles()), containsInAnyOrder("cd.go.docker.json"));
@@ -267,12 +273,13 @@ public class ArtifactsPublisherTest {
                 artifactPlan
         );
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env)))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
 
         final GoPublisher publisher = mock(GoPublisher.class);
 
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(artifactPlans);
+                .publishArtifacts(artifactPlans, env);
 
         InOrder inOrder = inOrder(publisher);
         inOrder.verify(publisher).upload(any(), eq("pluggable-artifact-metadata"));
@@ -295,13 +302,14 @@ public class ArtifactsPublisherTest {
                 artifactPlan
         );
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString())).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env)))
+                .thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
 
         final GoPublisher publisher = mock(GoPublisher.class);
 
         assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(artifactPlans);
+                .publishArtifacts(artifactPlans, env);
         assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
     }
 
@@ -311,15 +319,16 @@ public class ArtifactsPublisherTest {
         final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore);
         final ArtifactPlan s3ArtifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
 
-        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString()))
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(s3ArtifactPlan), eq(s3ArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist")));
 
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(s3ArtifactPlan));
+                .publishArtifacts(Arrays.asList(s3ArtifactPlan), env);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));
-        inOrder.verify(artifactExtension, times(1)).publishArtifact("cd.go.s3", s3ArtifactPlan, s3ArtifactStore, workingFolder.getAbsolutePath());
+        inOrder.verify(artifactExtension, times(1))
+                .publishArtifact("cd.go.s3", s3ArtifactPlan, s3ArtifactStore, workingFolder.getAbsolutePath(), env);
         inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }
 

@@ -39,11 +39,13 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
     @Override
-    public String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory) {
+    public String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory,
+                                         Map<String, String> environmentVariables) {
         final Map<String, Object> messageObject = new HashMap<>();
         messageObject.put("artifact_store", getArtifactStore(artifactStore));
         messageObject.put("artifact_plan", artifactPlan.getPluggableArtifactConfiguration());
         messageObject.put("agent_working_directory", agentWorkingDirectory);
+        messageObject.put("environment_variables", environmentVariables);
         return GSON.toJson(messageObject);
     }
 

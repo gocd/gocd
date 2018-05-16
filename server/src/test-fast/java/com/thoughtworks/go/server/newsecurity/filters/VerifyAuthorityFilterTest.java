@@ -24,14 +24,18 @@ import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.newsecurity.handlers.ResponseHandler;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import java.io.IOException;
 
 import static com.thoughtworks.go.server.security.GoAuthority.*;
 import static java.util.Collections.singleton;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -53,26 +57,42 @@ public class VerifyAuthorityFilterTest {
         responseHandler = mock(ResponseHandler.class);
     }
 
-    @Test
-    void shouldCallResponseHandlerWhenUserDoesNotHaveAuthorityToAccessResource() throws Exception {
-        SessionUtilsHelper.setCurrentUser(request, "foo", ROLE_ANONYMOUS.asAuthority(), ROLE_USER.asAuthority());
+    @Nested
+    class AuthenticatedRequest {
+        @Test
+        void shouldCallResponseHandlerWhenUserDoesNotHaveAuthorityToAccessResource() throws Exception {
+            SessionUtilsHelper.setCurrentUser(request, "foo", ROLE_ANONYMOUS.asAuthority(), ROLE_USER.asAuthority());
 
-        new VerifyAuthorityFilter(singleton(ROLE_AGENT.asAuthority()), responseHandler)
-                .doFilter(request, response, filterChain);
+            new VerifyAuthorityFilter(singleton(ROLE_AGENT.asAuthority()), responseHandler)
+                    .doFilter(request, response, filterChain);
 
-        verify(responseHandler).handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
-        verifyZeroInteractions(filterChain);
+            verify(responseHandler).handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
+            verifyZeroInteractions(filterChain);
+        }
+
+        @Test
+        void shouldContinueIfAnyAuthorityInSessionMatches() throws Exception {
+            SessionUtilsHelper.setCurrentUser(request, "foo", ROLE_GROUP_SUPERVISOR.asAuthority(), ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+
+            new VerifyAuthorityFilter(singleton(ROLE_TEMPLATE_SUPERVISOR.asAuthority()), responseHandler)
+                    .doFilter(request, response, filterChain);
+
+            verifyZeroInteractions(responseHandler);
+            assertThat(response.getStatus()).isEqualTo(200);
+            verify(filterChain).doFilter(request, response);
+        }
     }
 
-    @Test
-    void shouldContinueIfAnyAuthorityInSessionMatches() throws Exception {
-        SessionUtilsHelper.setCurrentUser(request, "foo", ROLE_GROUP_SUPERVISOR.asAuthority(), ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+    @Nested
+    class AnonymouslyAuthenticatedRequest {
+        @Test
+        void shouldSend401WhenRequestIsNotAuthenticated() throws ServletException, IOException {
+            SessionUtilsHelper.setCurrentUser(request, "anonymous", ROLE_ANONYMOUS.asAuthority());
+            new VerifyAuthorityFilter(singleton(ROLE_AGENT.asAuthority()), responseHandler)
+                    .doFilter(request, response, filterChain);
 
-        new VerifyAuthorityFilter(singleton(ROLE_TEMPLATE_SUPERVISOR.asAuthority()), responseHandler)
-                .doFilter(request, response, filterChain);
-
-        verifyZeroInteractions(responseHandler);
-        assertThat(response.getStatus()).isEqualTo(200);
-        verify(filterChain).doFilter(request, response);
+            verify(responseHandler).handle(request, response, SC_UNAUTHORIZED, "You are not authenticated!");
+            verifyZeroInteractions(filterChain);
+        }
     }
 }

@@ -51,7 +51,7 @@ public class ResourceRepository extends HibernateDaoSupport {
     }
 
     public Resources findByBuildId(long buildId) {
-        return new Resources(getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId));
+        return new Resources((List<Resource>) getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId));
     }
 
     public void deleteAll(List<Resource> resources) {

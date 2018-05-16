@@ -176,7 +176,7 @@ public class MaterialRepositoryIntegrationTest {
         when(mockTemplate.find("FROM Modification WHERE materialId = ? AND id BETWEEN ? AND ? ORDER BY id DESC", new Object[]{10L, -1L, -1L})).thenReturn(modifications);
         MaterialInstance materialInstance = material().createMaterialInstance();
         materialInstance.setId(10);
-        when(mockTemplate.findByCriteria(any(DetachedCriteria.class))).thenReturn(asList(materialInstance));
+        when(mockTemplate.findByCriteria(any(DetachedCriteria.class))).thenReturn((List) asList(materialInstance));
 
         PipelineMaterialRevision pmr = pipelineMaterialRevision();
         List<Modification> actual;

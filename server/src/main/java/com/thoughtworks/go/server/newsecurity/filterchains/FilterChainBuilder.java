@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.Filter;
 import java.util.ArrayList;

@@ -105,10 +105,10 @@ public class PluggableTaskConsoleTest {
                 + "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui \n"
                 + "officia deserunt mollit anim id est laborum.");
 
-        doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
+        doNothing().when(safeOutputStreamConsumer).errOutput(anyString());
         console.readErrorOf(in);
         Thread.sleep(100);// may become flaky!! Fingers crossed
-        verify(safeOutputStreamConsumer, times(7)).stdOutput(anyString());
+        verify(safeOutputStreamConsumer, times(7)).errOutput(anyString());
     }
 
 }

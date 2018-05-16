@@ -46,7 +46,7 @@ public class HttpRequestBuilder {
             request.setServerName("test.host");
             request.setContextPath(CONTEXT_PATH);
             request.setParameters(splitQuery(uri));
-            request.setRequestURI(CONTEXT_PATH + path);
+            request.setRequestURI(CONTEXT_PATH + uri.getPath());
             request.setServletPath(uri.getPath());
             if (!uri.getQueryParams().isEmpty()) {
                 request.setQueryString(URLEncodedUtils.format(uri.getQueryParams(), UTF_8));

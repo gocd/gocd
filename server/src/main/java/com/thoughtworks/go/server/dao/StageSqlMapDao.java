@@ -164,8 +164,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
 
-    private String cacheKeyForStageCount(String pipelineName, String stageName) {
-        return String.format("%s_numberOfStages_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+    protected String cacheKeyForStageCount(String pipelineName, String stageName) {
+        return String.format("%s_numberOfStages_%s_<>_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     public Stages getStagesByPipelineId(long pipelineId) {
@@ -209,12 +209,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     private String cacheKeyForListOfStageIdentifiers(StageIdentifier stageIdentifier) {
         return String.format("%s_stageRunIdentifier_%s_%s_%s", getClass().getName(), stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName()).intern();
+                stageIdentifier.getStageName()).toLowerCase().intern();
     }
 
     private String cacheKeyForStageIdentifier(StageIdentifier stageIdentifier) {
         return String.format("%s_stageIdentifier_%s_%s_%s_%s", getClass().getName(), stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName(), stageIdentifier.getStageCounter()).intern();
+                stageIdentifier.getStageName(), stageIdentifier.getStageCounter()).toLowerCase().intern();
     }
 
     public long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job) {
@@ -352,7 +352,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForAllStageOfPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
-        return String.format(getClass().getName() + "_allStageOfPipeline_%s_%s_%s", pipelineName, pipelineCounter, stageName).intern();
+        return String.format(getClass().getName() + "_allStageOfPipeline_%s_%s_%s", pipelineName, pipelineCounter, stageName).toLowerCase().intern();
     }
 
     public List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset) {
@@ -463,15 +463,15 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String mutexForStageHistory(String pipelineName, String stageName) {
-        return String.format("%s_stageHistoryMutex_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+        return String.format("%s_stageHistoryMutex_%s_<>_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     private String cacheKeyForStageHistories(String pipelineName, String stageName) {
-        return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+        return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     private String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
-        return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+        return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     public Long findStageIdByPipelineAndStageNameAndCounter(long pipelineId, String name, String counter) {
@@ -526,7 +526,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForStageOffset(Stage stage) {
-        return String.format("%s_stageOffsetMap_%s_<>_%s", getClass().getName(), stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
+        return String.format("%s_stageOffsetMap_%s_<>_%s", getClass().getName(), stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).toLowerCase().intern();
     }
 
     private List<StageFeedEntry> findForFeed(String baseQuery, FeedModifier modifier, long transitionId, int pageSize) {
@@ -655,7 +655,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForPipelineAndStage(String pipelineName, String stageName) {
-        return String.format("%s_isStageActive_%s_%s", StageSqlMapDao.class.getName(), pipelineName.toLowerCase(), stageName.toLowerCase()).intern();
+        return String.format("%s_isStageActive_%s_%s", StageSqlMapDao.class.getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     public Stages findAllStagesFor(String pipelineName, int counter) {
@@ -683,7 +683,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForPipelineAndCounter(String pipelineName, int counter) {
-        String key = StageSqlMapDao.class.getName() + "_allStagesOfPipelineInstance_" + pipelineName + "_" + counter;
+        String key = StageSqlMapDao.class.getName() + "_allStagesOfPipelineInstance_" + pipelineName.toLowerCase() + "_" + counter;
         return key.intern();
     }
 
@@ -703,7 +703,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     private String cacheKeyForStageCountForGraph(String pipelineName, String stageName) {
-        return String.format("%s_totalStageCountForChart_%s_%s", getClass().getName(), pipelineName, stageName).intern();
+        return String.format("%s_totalStageCountForChart_%s_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     private void removeFromCache(String key) {
@@ -714,7 +714,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
 
     String cacheKeyForMostRecentId(String pipelineName, String stageName) {
-        return String.format("%s_mostRecentId_%s_%s", getClass().getName(), pipelineName, stageName).intern();
+        return String.format("%s_mostRecentId_%s_%s", getClass().getName(), pipelineName, stageName).toLowerCase().intern();
     }
 
     private Stage stageByIdWithBuildsWithNoAssociations(long id) {

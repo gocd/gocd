@@ -64,7 +64,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
 
     public Stage byName(String name) {
         for (Stage stage : this) {
-            if (name.equals(stage.getName())) {
+            if (name.equalsIgnoreCase(stage.getName())) {
                 return stage;
             }
         }

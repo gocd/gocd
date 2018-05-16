@@ -33,27 +33,68 @@ public class HealthStateScopeTest {
     private static final SvnMaterial MATERIAL1 = MaterialsMother.svnMaterial("url1");
     private static final SvnMaterial MATERIAL2 = MaterialsMother.svnMaterial("url2");
 
-    @Test public void shouldHaveAUniqueScopeForEachMaterial() throws Exception {
+    @Test
+    public void shouldHaveAUniqueScopeForEachMaterial() throws Exception {
         HealthStateScope scope1 = HealthStateScope.forMaterial(MATERIAL1);
         HealthStateScope scope2 = HealthStateScope.forMaterial(MATERIAL1);
         assertThat(scope1, is(scope2));
     }
 
-    @Test public void shouldHaveDifferentScopeForDifferentMaterials() throws Exception {
+    @Test
+    public void shouldHaveDifferentScopeForDifferentMaterials() throws Exception {
         HealthStateScope scope1 = HealthStateScope.forMaterial(MATERIAL1);
         HealthStateScope scope2 = HealthStateScope.forMaterial(MATERIAL2);
         assertThat(scope1, not(scope2));
     }
 
-    @Test public void shouldHaveUniqueScopeForStages() throws Exception {
-        HealthStateScope scope1 = HealthStateScope.forStage("blahPipeline","blahStage");
-        HealthStateScope scope2 = HealthStateScope.forStage("blahPipeline","blahStage");
-        HealthStateScope scope25 = HealthStateScope.forStage("blahPipeline","blahOtherStage");
-        HealthStateScope scope3 = HealthStateScope.forStage("blahOtherPipeline","blahOtherStage");
+    @Test
+    public void shouldHaveUniqueScopeForStages() throws Exception {
+        HealthStateScope scope1 = HealthStateScope.forStage("blahPipeline", "blahStage");
+        HealthStateScope scope2 = HealthStateScope.forStage("blahPipeline", "blahStage");
+        HealthStateScope scope25 = HealthStateScope.forStage("blahPipeline", "blahOtherStage");
+        HealthStateScope scope3 = HealthStateScope.forStage("blahOtherPipeline", "blahOtherStage");
+        HealthStateScope scope4 = HealthStateScope.forStage("BLAHPIPELINE", "BLAHSTAGE");
 
         assertThat(scope1, is(scope2));
+        assertThat(scope1, is(scope4));
         assertThat(scope1, not(scope25));
         assertThat(scope1, not(scope3));
+    }
+
+    @Test
+    public void shouldHaveUniqueScopeForPipeline() throws Exception {
+        HealthStateScope scope1 = HealthStateScope.forPipeline("blahPipeline");
+        HealthStateScope scope2 = HealthStateScope.forPipeline("blahpipeline");
+        HealthStateScope scope3 = HealthStateScope.forPipeline("BLAHPIPELINE");
+        HealthStateScope scope4 = HealthStateScope.forPipeline("something-else");
+
+        assertThat(scope1, is(scope2));
+        assertThat(scope1, is(scope3));
+        assertThat(scope1, not(scope4));
+    }
+
+    @Test
+    public void shouldHaveUniqueScopeForFanin() throws Exception {
+        HealthStateScope scope1 = HealthStateScope.forFanin("blahPipeline");
+        HealthStateScope scope2 = HealthStateScope.forFanin("blahpipeline");
+        HealthStateScope scope3 = HealthStateScope.forFanin("BLAHPIPELINE");
+        HealthStateScope scope4 = HealthStateScope.forFanin("something-else");
+
+        assertThat(scope1, is(scope2));
+        assertThat(scope1, is(scope3));
+        assertThat(scope1, not(scope4));
+    }
+
+    @Test
+    public void shouldHaveUniqueScopeForJon() throws Exception {
+        HealthStateScope scope1 = HealthStateScope.forJob("Blah", "Stage", "Job");
+        HealthStateScope scope2 = HealthStateScope.forJob("blah", "stage", "job");
+        HealthStateScope scope3 = HealthStateScope.forJob("BLAH", "STAGE", "JOB");
+        HealthStateScope scope4 = HealthStateScope.forJob("something-else", "something-else", "something-else");
+
+        assertThat(scope1, is(scope2));
+        assertThat(scope1, is(scope3));
+        assertThat(scope1, not(scope4));
     }
 
     @Test
@@ -61,28 +102,27 @@ public class HealthStateScopeTest {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
         config.pipelineConfigByName(new CaseInsensitiveString("blahPipeline")).addMaterialConfig(hgMaterialConfig);
-        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config),is(false));
-        assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config),is(true));
+        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config), is(true));
     }
 
     @Test
     public void shouldRemoveScopeWhenStageIsRemovedFromConfig() throws Exception {
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
-        assertThat(HealthStateScope.forPipeline("fooPipeline").isRemovedFromConfig(config),is(true));
-        assertThat(HealthStateScope.forPipeline("blahPipeline").isRemovedFromConfig(config),is(false));
+        assertThat(HealthStateScope.forPipeline("fooPipeline").isRemovedFromConfig(config), is(true));
+        assertThat(HealthStateScope.forPipeline("blahPipeline").isRemovedFromConfig(config), is(false));
 
-        assertThat(HealthStateScope.forStage("fooPipeline","blahStage").isRemovedFromConfig(config),is(true));
-        assertThat(HealthStateScope.forStage("blahPipeline","blahStageRemoved").isRemovedFromConfig(config),is(true));
-        assertThat(HealthStateScope.forStage("blahPipeline","blahStage").isRemovedFromConfig(config),is(false));
-
+        assertThat(HealthStateScope.forStage("fooPipeline", "blahStage").isRemovedFromConfig(config), is(true));
+        assertThat(HealthStateScope.forStage("blahPipeline", "blahStageRemoved").isRemovedFromConfig(config), is(true));
+        assertThat(HealthStateScope.forStage("blahPipeline", "blahStage").isRemovedFromConfig(config), is(false));
     }
 
     @Test
     public void shouldRemoveScopeWhenJobIsRemovedFromConfig() throws Exception {
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
 
-        assertThat(HealthStateScope.forJob("fooPipeline","blahStage", "barJob").isRemovedFromConfig(config),is(true));
-        assertThat(HealthStateScope.forJob("blahPipeline", "blahStage", "blahJob").isRemovedFromConfig(config),is(false));
+        assertThat(HealthStateScope.forJob("fooPipeline", "blahStage", "barJob").isRemovedFromConfig(config), is(true));
+        assertThat(HealthStateScope.forJob("blahPipeline", "blahStage", "blahJob").isRemovedFromConfig(config), is(false));
     }
 
     @Test

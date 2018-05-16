@@ -939,8 +939,8 @@ public class MaterialRepository extends HibernateDaoSupport {
         });
     }
 
-    private String cacheKeyForHasPipelineEverRunWithModification(Object pipelineName, long materialId, long modificationId) {
-        return String.format("%s_hasPipelineEverRunWithModification_%s_%s_%s", getClass().getName(), pipelineName, materialId, modificationId).intern();
+    protected String cacheKeyForHasPipelineEverRunWithModification(String pipelineName, long materialId, long modificationId) {
+        return String.format("%s_hasPipelineEverRunWithModification_%s_%s_%s", getClass().getName(), pipelineName.toLowerCase(), materialId, modificationId).intern();
     }
 
     @SuppressWarnings("unchecked")
@@ -1074,11 +1074,6 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     private String cacheKeyForLatestPmrForPipelineKey(long materialId, final String lowerCasePipelineName) {
         return String.format("%s_latestPmrForPipeline_%s_andMaterial_%s", getClass().getName(), lowerCasePipelineName, materialId).intern();
-    }
-
-    String cacheKeyForNthLatestModification(int n, DependencyMaterial dependencyMaterial, PipelineIdentifier pipelineIdentifier) {
-        return String.format("%s_nthLatestModificationFor_%s_forMaterial_%s_withIdentifier_%s", getClass().getName(), n, dependencyMaterial.getFingerprint(),
-                pipelineIdentifier.pipelineLocator()).intern();
     }
 
     String cacheKeyForModificationWithRevision(long materialId, String revision) {

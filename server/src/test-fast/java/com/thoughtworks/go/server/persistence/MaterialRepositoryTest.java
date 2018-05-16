@@ -17,27 +17,38 @@
 package com.thoughtworks.go.server.persistence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class MaterialRepositoryTest {
@@ -119,4 +130,26 @@ public class MaterialRepositoryTest {
         verifyZeroInteractions(goCache);
     }
 
+    @Test
+    public void ensureHasPipelineEverRunWithCacheIsCaseInsensitive(){
+        Session session = mock(Session.class);
+        SQLQuery query = mock(SQLQuery.class);
+        when(session.createSQLQuery(anyString())).thenReturn(query);
+        when(query.list()).thenReturn(Arrays.asList("result"));
+
+        when(mockHibernateTemplate.execute(any(HibernateCallback.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                HibernateCallback callback = (HibernateCallback) invocation.getArguments()[0];
+                callback.doInHibernate(session);
+                return true;
+            }
+        });
+
+        assertTrue(materialRepository.hasPipelineEverRunWith("Pipeline-Name", ModificationsMother.multipleModifications()));
+        assertTrue(materialRepository.hasPipelineEverRunWith("PIPELINE-NAME", ModificationsMother.multipleModifications()));
+        assertTrue(materialRepository.hasPipelineEverRunWith("pipeline-name", ModificationsMother.multipleModifications()));
+
+        verify(query, times(1)).list();
+    }
 }

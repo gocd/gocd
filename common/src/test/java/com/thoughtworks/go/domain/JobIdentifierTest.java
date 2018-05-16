@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -53,7 +53,7 @@ public class JobIdentifierTest {
         assertThat(id.artifactLocator("consoleoutput/log.xml"),
                 is("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml"));
     }
-    
+
     @Test
     public void shouldFixFilePathWithPrecedingSlash() {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
@@ -102,4 +102,12 @@ public class JobIdentifierTest {
 
         assertThat(context.hasProperty("GO_RERUN_OF_STAGE_COUNTER"), is(true));
     }
+
+    @Test
+    public void equalsShouldBeCaseInsensitive() {
+        JobIdentifier jobIdentifier1 = new JobIdentifier("pipeline-name", 10, "label-10", "stage-name", "2", "build-name");
+        JobIdentifier jobIdentifier2 = new JobIdentifier("PIPELINE-NAME", 10, "label-10", "STAGE-NAME", "2", "BUILD-NAME");
+        assertThat(jobIdentifier1, is(jobIdentifier2));
+    }
+
 }

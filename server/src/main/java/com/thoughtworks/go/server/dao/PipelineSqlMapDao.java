@@ -205,7 +205,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String latestSuccessfulStageCacheKey(String pipelineName, String stageName) {
-        return (PipelineSqlMapDao.class.getName() + "_latestSuccessfulStage_" + pipelineName + "-" + stageName).intern();
+        return (PipelineSqlMapDao.class.getName() + "_latestSuccessfulStage_" + pipelineName + "-" + stageName).toLowerCase().intern();
     }
 
     private void savePipelineMaterialRevisions(Pipeline pipeline, final Long pipelineId) {

@@ -33,10 +33,13 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
+import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -89,6 +92,7 @@ public class StageSqlMapDaoIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private StageService stageService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String STAGE_DEV = "dev";
@@ -913,6 +917,7 @@ public class StageSqlMapDaoIntegrationTest {
         Pipeline completed = pipelines[0];
 
         assertThat(stageDao.getCount(completed.getName(), STAGE_DEV), is(2));
+        assertThat(stageDao.getCount(completed.getName().toUpperCase(), STAGE_DEV.toUpperCase()), is(2));
     }
 
     @Test
@@ -1777,6 +1782,200 @@ public class StageSqlMapDaoIntegrationTest {
         pagination = Pagination.pageStartingAt(1, 7, 4);
         stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
         assertStageModels(stageInstanceModels, run6, run5, run4, run3);
+    }
+
+    @Test
+    public void ensureCachingForGetAllRunsOfStageForPipelineInstanceIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+
+        Stage stageCounter2 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        Stages allRunsOfStageForPipelineInstanceAfterCounter2 = stageDao.getAllRunsOfStageForPipelineInstance(pipelineName.toUpperCase(), pipeline.getCounter(), stageName.toUpperCase());
+        assertThat(allRunsOfStageForPipelineInstanceAfterCounter2.size(), is(2));
+        assertNotNull(allRunsOfStageForPipelineInstanceAfterCounter2.byId(pipeline.getFirstStage().getId()));
+        assertNotNull(allRunsOfStageForPipelineInstanceAfterCounter2.byId(stageCounter2.getId()));
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter2);
+            }
+        });
+
+        Stage stageCounter3 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        Stages allRunsOfStageForPipelineInstanceAfterCounter3 = stageDao.getAllRunsOfStageForPipelineInstance(pipelineName.toUpperCase(), pipeline.getCounter(), stageName.toUpperCase());
+        assertThat(allRunsOfStageForPipelineInstanceAfterCounter3.size(), is(3));
+        assertNotNull(allRunsOfStageForPipelineInstanceAfterCounter3.byId(pipeline.getFirstStage().getId()));
+        assertNotNull(allRunsOfStageForPipelineInstanceAfterCounter3.byId(stageCounter2.getId()));
+        assertNotNull(allRunsOfStageForPipelineInstanceAfterCounter3.byId(stageCounter3.getId()));
+    }
+
+    @Test
+    public void ensureCachingForFindAllStagesForPipelineIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+
+        Stage stageCounter2 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        Stages allRunsOfStageForPipelineCounter1AfterStageCounter2 = stageDao.findAllStagesFor(pipelineName.toUpperCase(), pipeline.getCounter());
+        assertThat(allRunsOfStageForPipelineCounter1AfterStageCounter2.size(), is(2));
+        assertNotNull(allRunsOfStageForPipelineCounter1AfterStageCounter2.byId(pipeline.getFirstStage().getId()));
+        assertNotNull(allRunsOfStageForPipelineCounter1AfterStageCounter2.byId(stageCounter2.getId()));
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter2);
+            }
+        });
+
+        Stage stageCounter3 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        Stages allRunsOfStageForPipelineCounter1AfterStageCounter3 = stageDao.findAllStagesFor(pipelineName.toUpperCase(), pipeline.getCounter());
+        assertThat(allRunsOfStageForPipelineCounter1AfterStageCounter3.size(), is(3));
+        assertNotNull(allRunsOfStageForPipelineCounter1AfterStageCounter3.byId(pipeline.getFirstStage().getId()));
+        assertNotNull(allRunsOfStageForPipelineCounter1AfterStageCounter3.byId(stageCounter2.getId()));
+        assertNotNull(allRunsOfStageForPipelineCounter1AfterStageCounter3.byId(stageCounter3.getId()));
+    }
+
+    @Test
+    public void ensureCachingForMostRecentWithBuildsIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+
+        Stage stageCounter2 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        List<JobInstance> jobInstances = stageDao.mostRecentJobsForStage(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(jobInstances, hasSize(2));
+        assertThat(jobInstances.get(0).getStageId(), is(stageCounter2.getId()));
+        assertThat(jobInstances.get(1).getStageId(), is(stageCounter2.getId()));
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter2);
+            }
+        });
+
+        Stage stageCounter3 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        List<JobInstance> jobInstancesForCounter3 = stageDao.mostRecentJobsForStage(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(jobInstancesForCounter3, hasSize(2));
+        assertThat(jobInstancesForCounter3.get(0).getStageId(), is(stageCounter3.getId()));
+        assertThat(jobInstancesForCounter3.get(1).getStageId(), is(stageCounter3.getId()));
+    }
+
+    @Test
+    public void ensureCachingForStageHistoryPageIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+
+        Stage stageCounter2 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        StageHistoryPage stageHistoryPageAfterCounter2 = stageDao.findStageHistoryPage(pipelineName.toUpperCase(), stageName.toUpperCase(), paginationSupplier());
+        assertThat(stageHistoryPageAfterCounter2.getStages(), hasSize(2));
+        assertThat(stageHistoryPageAfterCounter2.getStages().get(0).getId(), is(stageCounter2.getId()));
+        assertThat(stageHistoryPageAfterCounter2.getStages().get(1).getId(), is(pipeline.getFirstStage().getId()));
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter2);
+            }
+        });
+
+        Stage stageCounter3 = scheduleService.rerunStage(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()), stageName.toUpperCase());
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter3);
+            }
+        });
+        Stage stageCounter4 = scheduleService.rerunStage(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()), stageName.toUpperCase());
+
+        StageHistoryPage stageHistoryPageAfterCounter4 = stageDao.findStageHistoryPage(pipelineName.toUpperCase(), stageName.toUpperCase(), paginationSupplier());
+        assertThat(stageHistoryPageAfterCounter4.getStages(), hasSize(4));
+        assertThat(stageHistoryPageAfterCounter4.getStages().get(0).getId(), is(stageCounter4.getId()));
+        assertThat(stageHistoryPageAfterCounter4.getStages().get(1).getId(), is(stageCounter3.getId()));
+        assertThat(stageHistoryPageAfterCounter4.getStages().get(2).getId(), is(stageCounter2.getId()));
+        assertThat(stageHistoryPageAfterCounter4.getStages().get(3).getId(), is(pipeline.getFirstStage().getId()));
+    }
+
+    private Supplier<Pagination> paginationSupplier() {
+        return new Supplier<Pagination>() {
+            @Override
+            public Pagination get() {
+                return Pagination.pageStartingAt(0, 10, 10);
+            }
+        };
+    }
+
+    @Test
+    public void ensureCachingForFindDetailedStageHistoryByOffsetIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+        Stage stageCounter2 = scheduleService.rerunStage(pipelineName, Integer.toString(pipeline.getCounter()), stageName);
+
+        StageInstanceModels historyAfterCounter2 = stageDao.findDetailedStageHistoryByOffset(pipelineName.toUpperCase(), stageName.toUpperCase(), Pagination.pageStartingAt(0, 10, 10));
+        assertThat(historyAfterCounter2, hasSize(2));
+        assertThat(historyAfterCounter2.get(0).getId(), is(stageCounter2.getId()));
+        assertThat(historyAfterCounter2.get(1).getId(), is(pipeline.getFirstStage().getId()));
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stageCounter2);
+            }
+        });
+        Stage stageCounter3 = scheduleService.rerunStage(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()), stageName.toUpperCase());
+
+        StageInstanceModels historyAfterCounter3 = stageDao.findDetailedStageHistoryByOffset(pipelineName.toUpperCase(), stageName.toUpperCase(), Pagination.pageStartingAt(0, 10, 10));
+        assertThat(historyAfterCounter3, hasSize(3));
+        assertThat(historyAfterCounter3.get(0).getId(), is(stageCounter3.getId()));
+        assertThat(historyAfterCounter3.get(1).getId(), is(stageCounter2.getId()));
+        assertThat(historyAfterCounter3.get(2).getId(), is(pipeline.getFirstStage().getId()));
+    }
+
+    @Test
+    public void ensureCachingForStageCountForGraphIgnoresCaseChangesWhileAccessing() throws Exception {
+        String stageName = "stage-1";
+        String pipelineName = "pipeline-1";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName);
+        configHelper.turnOffSecurity();
+        Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipeline);
+
+        Pipeline pipelineCounter2 = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(pipelineCounter2);
+
+        int totalStageCountUntilCounter2 = stageDao.getTotalStageCountForChart(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(totalStageCountUntilCounter2, is(2));
+
+        scheduleService.rerunStage(pipelineName, Integer.toString(pipelineCounter2.getCounter()), stageName);
+
+        int totalStageCountUntil = stageDao.getTotalStageCountForChart(pipelineName.toUpperCase(), stageName.toUpperCase());
+        assertThat(totalStageCountUntil, is(3));
     }
 
     private void assertStageModels(StageInstanceModels stageInstanceModels, String... runIdentifiers) {

@@ -39,10 +39,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -158,5 +155,15 @@ public class StageSqlMapDaoTest {
         verify(topOfThisPage).getId();
         verify(topOfThisPage).getIdentifier();
         verify(sqlMapClientTemplate).queryForObject("findStageHistoryEntryBefore", args);
+    }
+
+    @Test
+    public void ensureCacheKeyForStageHistoryCountOfAPipelineIsCaseInsensitive(){
+        when(sqlMapClientTemplate.queryForObject(eq("getStageHistoryCount"), any(Map.class))).thenReturn(10);
+        assertThat(stageSqlMapDao.getCount("Pipeline-Name", "Stage-Name"), is(10));
+        assertThat(stageSqlMapDao.getCount("pipeline-name", "stage-name"), is(10));
+        assertThat(stageSqlMapDao.getCount("PIPELINE-NAME", "STAGE-NAME"), is(10));
+
+        verify(sqlMapClientTemplate, times(1)).queryForObject(eq("getStageHistoryCount"), any(Map.class));
     }
 }

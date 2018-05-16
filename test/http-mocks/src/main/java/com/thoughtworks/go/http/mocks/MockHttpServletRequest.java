@@ -834,8 +834,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public StringBuffer getRequestURL() {
         StringBuffer url = new StringBuffer(this.scheme);
-        url.append("://").append(this.serverName).append(':').append(this.serverPort);
-        url.append(servletContext.getContextPath()).append(getRequestURI());
+        url.append("://")
+                .append(this.serverName)
+                .append(':')
+                .append(this.serverPort)
+                .append(getRequestURI());
         return url;
     }
 

@@ -41,6 +41,9 @@ class RememberLastRequestUrlFilterChainTest {
     private Filter filter;
     private FilterChain filterChain;
 
+    private static Stream<String> rememberedUrls() {
+        return Stream.of("/", "/home", "/dashboard", "/foobar");
+    }
 
     @BeforeEach
     void setUp() {
@@ -50,8 +53,26 @@ class RememberLastRequestUrlFilterChainTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/cctray.xml", "/api/foo", "/remoting/foo", "/agent-websocket/foo", "/auth/foo", "/plugin/foo/login", "/plugin/foo/authenticate", "/assets/images/logo.png", "/server/messages.json", "/pipelines.json"})
+    @ValueSource(strings = {"/cctray.xml", "/api/foo", "/remoting/foo", "/agent-websocket/foo", "/auth/foo", "/plugin/foo/login", "/plugin/foo/authenticate", "/assets/images/logo.png"})
     void shouldNotSaveIncomingRequestFromUrls(String url) throws IOException, ServletException {
+        request = HttpRequestBuilder.GET(url)
+                .build();
+
+        Assertions.assertThat(SessionUtils.savedRequest(request))
+                .isNull();
+        filter.doFilter(request, response, filterChain);
+        Assertions.assertThat(SessionUtils.savedRequest(request))
+                .isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/pipelines/installer-tests/663/install-tests/2.json?stage-history-page=1",
+            "/pipelines/installer-tests/2.json?stage-history-page=1",
+            "/pipelines/2.json?stage-history-page=1",
+            "/server/messages.json",
+            "/pipelines.json"})
+    void shouldNotSaveIncomingRequestForJSONUrls(String url) throws IOException, ServletException {
         request = HttpRequestBuilder.GET(url)
                 .build();
 
@@ -89,9 +110,5 @@ class RememberLastRequestUrlFilterChainTest {
 
         Assertions.assertThat(SessionUtils.savedRequest(request))
                 .isNull();
-    }
-
-    private static Stream<String> rememberedUrls() {
-        return Stream.of("/", "/home", "/dashboard", "/foobar");
     }
 }

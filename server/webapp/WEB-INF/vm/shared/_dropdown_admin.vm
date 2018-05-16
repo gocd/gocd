@@ -23,6 +23,11 @@
 <li role="presentation">
     <a href="$req.getContextPath()/admin/elastic_profiles">Elastic Agent Profiles</a>
 </li>
+#if($artifactStoresEnabled)
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/artifact_stores">Artifact Stores</a>
+</li>
+#end
 <li role="presentation">
     <a href="$req.getContextPath()/admin/config_xml">Config XML</a>
 </li>

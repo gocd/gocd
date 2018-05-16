@@ -17,9 +17,9 @@
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
 import com.thoughtworks.go.plugin.api.task.Console;
-import com.thoughtworks.go.util.command.SafeOutputConsumer;
+import com.thoughtworks.go.util.command.ErrorConsumer;
+import com.thoughtworks.go.util.command.OutputConsumer;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
 
 import java.io.InputStream;
@@ -42,12 +42,12 @@ public class PluggableTaskConsole implements Console {
 
     @Override
     public void readErrorOf(InputStream in) {
-        StreamPumper.pump(in, new SafeOutputConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
+        StreamPumper.pump(in, new ErrorConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
     }
 
     @Override
     public void readOutputOf(InputStream in) {
-        StreamPumper.pump(in, new SafeOutputConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
+        StreamPumper.pump(in, new OutputConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
     }
 
     @Override

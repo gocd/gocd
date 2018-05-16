@@ -46,8 +46,8 @@ public class ProcessWrapper {
         this.command = command;
         this.consumer = consumer;
         this.startTime = System.currentTimeMillis();
-        this.processOutputStream = StreamPumper.pump(process.getInputStream(), new SafeOutputConsumer(consumer), "", encoding);
-        this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new SafeErrorConsumer(consumer), errorPrefix, encoding);
+        this.processOutputStream = StreamPumper.pump(process.getInputStream(), new OutputConsumer(consumer), "", encoding);
+        this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new ErrorConsumer(consumer), errorPrefix, encoding);
         this.processInputStream = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 

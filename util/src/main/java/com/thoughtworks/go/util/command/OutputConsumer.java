@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.util.command;
 
-public class SafeErrorConsumer implements StreamConsumer{
+public class OutputConsumer implements StreamConsumer {
     private ConsoleOutputStreamConsumer consoleOutputStreamConsumer;
 
-    public SafeErrorConsumer(ConsoleOutputStreamConsumer consoleOutputStreamConsumer) {
+    public OutputConsumer(ConsoleOutputStreamConsumer consoleOutputStreamConsumer) {
         this.consoleOutputStreamConsumer = consoleOutputStreamConsumer;
     }
 
     @Override
     public void consumeLine(String line) {
-        consoleOutputStreamConsumer.errOutput(line);
+        consoleOutputStreamConsumer.stdOutput(line);
     }
 }

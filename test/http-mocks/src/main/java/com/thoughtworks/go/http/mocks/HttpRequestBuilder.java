@@ -42,12 +42,12 @@ public class HttpRequestBuilder {
 
     public HttpRequestBuilder withPath(String path) {
         try {
-            URIBuilder uri = new URIBuilder(CONTEXT_PATH + path);
+            URIBuilder uri = new URIBuilder(path);
             request.setServerName("test.host");
             request.setContextPath(CONTEXT_PATH);
             request.setParameters(splitQuery(uri));
-            request.setRequestURI(uri.getPath());
-            request.setServletPath(path);
+            request.setRequestURI(CONTEXT_PATH + path);
+            request.setServletPath(uri.getPath());
             if (!uri.getQueryParams().isEmpty()) {
                 request.setQueryString(URLEncodedUtils.format(uri.getQueryParams(), UTF_8));
             }
@@ -215,5 +215,10 @@ public class HttpRequestBuilder {
 
     public HttpRequestBuilder usingAjax() {
         return withHeader("X-Requested-With", "XMLHttpRequest");
+    }
+
+    public HttpRequestBuilder withQueryString(String queryString) {
+        request.setQueryString(queryString);
+        return this;
     }
 }

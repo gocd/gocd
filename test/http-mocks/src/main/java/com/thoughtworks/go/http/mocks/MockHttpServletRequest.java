@@ -30,7 +30,7 @@ import java.util.*;
 
 /**
  * Mock implementation of the {@link HttpServletRequest} interface.
- *
+ * <p>
  * <p>Compatible with Servlet 2.5 and partially with Servlet 3.0 (notable exceptions:
  * the <code>getPart(s)</code> and <code>startAsync</code> families of methods).
  *
@@ -106,7 +106,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private String remoteHost = DEFAULT_REMOTE_HOST;
 
-    /** List of locales in descending order */
+    /**
+     * List of locales in descending order
+     */
     private final List<Locale> locales = new LinkedList<Locale>();
 
     private boolean secure = false;
@@ -135,8 +137,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String method;
 
     private String pathInfo;
-
-    private String contextPath = "";
 
     private String queryString;
 
@@ -169,6 +169,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Create a new MockHttpServletRequest with a default
      * {@link MockServletContext}.
+     *
      * @see MockServletContext
      */
     public MockHttpServletRequest() {
@@ -178,7 +179,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Create a new MockHttpServletRequest with a default
      * {@link MockServletContext}.
-     * @param method the request method (may be <code>null</code>)
+     *
+     * @param method     the request method (may be <code>null</code>)
      * @param requestURI the request URI (may be <code>null</code>)
      * @see #setMethod
      * @see #setRequestURI
@@ -190,8 +192,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Create a new MockHttpServletRequest.
+     *
      * @param servletContext the ServletContext that the request runs in (may be
-     * <code>null</code> to use a default MockServletContext)
+     *                       <code>null</code> to use a default MockServletContext)
      * @see MockServletContext
      */
     public MockHttpServletRequest(ServletContext servletContext) {
@@ -200,10 +203,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Create a new MockHttpServletRequest.
+     *
      * @param servletContext the ServletContext that the request runs in (may be
-     * <code>null</code> to use a default MockServletContext)
-     * @param method the request method (may be <code>null</code>)
-     * @param requestURI the request URI (may be <code>null</code>)
+     *                       <code>null</code> to use a default MockServletContext)
+     * @param method         the request method (may be <code>null</code>)
+     * @param requestURI     the request URI (may be <code>null</code>)
      * @see #setMethod
      * @see #setRequestURI
      * @see MockServletContext
@@ -234,7 +238,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+    public AsyncContext startAsync(ServletRequest servletRequest,
+                                   ServletResponse servletResponse) throws IllegalStateException {
         return null;
     }
 
@@ -362,10 +367,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public ServletInputStream getInputStream() {
         if (this.content != null) {
             return new DelegatingServletInputStream(new ByteArrayInputStream(this.content));
-        } else if (this.chunkedContent != null){
+        } else if (this.chunkedContent != null) {
             return new DelegatingServletInputStream(new ByteArrayInputStream(this.chunkedContent));
-        }
-        else {
+        } else {
             return new DelegatingServletInputStream(new ByteArrayInputStream(new byte[0]));
         }
     }
@@ -377,7 +381,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * parameter name, they will be replaced.
      */
     public void setParameter(String name, String value) {
-        setParameter(name, new String[] { value });
+        setParameter(name, new String[]{value});
     }
 
     /**
@@ -404,14 +408,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
             Object value = params.get(key);
             if (value instanceof String) {
                 this.setParameter((String) key, (String) value);
-            }
-            else if (value instanceof String[]) {
+            } else if (value instanceof String[]) {
                 this.setParameter((String) key, (String[]) value);
             } else if (value instanceof Collection) {
                 String[] objects = (String[]) ((Collection) value).toArray(new String[0]);
                 this.setParameter((String) key, objects);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Parameter map value must be single value " + " or array of type ["
                         + String.class.getName() + "]");
             }
@@ -425,7 +427,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * parameter name, the given value will be added to the end of the list.
      */
     public void addParameter(String name, String value) {
-        addParameter(name, new String[] { value });
+        addParameter(name, new String[]{value});
     }
 
     /**
@@ -442,8 +444,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
             System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
             System.arraycopy(values, 0, newArr, oldArr.length, values.length);
             this.parameters.put(name, newArr);
-        }
-        else {
+        } else {
             this.parameters.put(name, values);
         }
     }
@@ -461,11 +462,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
             Object value = params.get(key);
             if (value instanceof String) {
                 this.addParameter((String) key, (String) value);
-            }
-            else if (value instanceof String[]) {
+            } else if (value instanceof String[]) {
                 this.addParameter((String) key, (String[]) value);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Parameter map value must be single value " + " or array of type ["
                         + String.class.getName() + "]");
             }
@@ -545,8 +544,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
             Reader sourceReader = (this.characterEncoding != null) ? new InputStreamReader(sourceStream,
                     this.characterEncoding) : new InputStreamReader(sourceStream);
             return new BufferedReader(sourceReader);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -572,8 +570,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         Assert.notNull(name, "Attribute name must not be null");
         if (value != null) {
             this.attributes.put(name, value);
-        }
-        else {
+        } else {
             this.attributes.remove(name);
         }
     }
@@ -687,6 +684,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * repeated <code>addHeader</code> calls for individual elements, you can
      * use a single call with an entire array or Collection of values as
      * parameter.
+     *
      * @see #getHeaderNames
      * @see #getHeader
      * @see #getHeaders
@@ -711,11 +709,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
         }
         if (value instanceof Collection) {
             header.addValues((Collection) value);
-        }
-        else if (value.getClass().isArray()) {
+        } else if (value.getClass().isArray()) {
             header.addValueArray(value);
-        }
-        else {
+        } else {
             header.addValue(value);
         }
     }
@@ -725,15 +721,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         Object value = (header != null ? header.getValue() : null);
         if (value instanceof Date) {
             return ((Date) value).getTime();
-        }
-        else if (value instanceof Number) {
+        } else if (value instanceof Number) {
             return ((Number) value).longValue();
-        }
-        else if (value != null) {
+        } else if (value != null) {
             throw new IllegalArgumentException("Value for header '" + name + "' is neither a Date nor a Number: "
                     + value);
-        }
-        else {
+        } else {
             return -1L;
         }
     }
@@ -743,14 +736,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
         Object value = (header != null ? header.getValue() : null);
         if (value instanceof Number) {
             return ((Number) value).intValue();
-        }
-        else if (value instanceof String) {
+        } else if (value instanceof String) {
             return Integer.parseInt((String) value);
-        }
-        else if (value != null) {
+        } else if (value != null) {
             throw new NumberFormatException("Value for header '" + name + "' is not a Number: " + value);
-        }
-        else {
+        } else {
             return -1;
         }
     }
@@ -789,12 +779,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return (this.pathInfo != null ? getRealPath(this.pathInfo) : null);
     }
 
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
     public String getContextPath() {
-        return this.contextPath;
+        return this.servletContext.getContextPath();
     }
 
     public void setQueryString(String queryString) {
@@ -849,7 +835,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public StringBuffer getRequestURL() {
         StringBuffer url = new StringBuffer(this.scheme);
         url.append("://").append(this.serverName).append(':').append(this.serverPort);
-        url.append(getRequestURI());
+        url.append(servletContext.getContextPath()).append(getRequestURI());
         return url;
     }
 
@@ -948,4 +934,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
+    public void setContextPath(String contextPath) {
+        ((MockServletContext) this.servletContext).setContextPath(contextPath);
+    }
 }

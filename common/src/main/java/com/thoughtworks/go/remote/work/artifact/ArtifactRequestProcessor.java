@@ -21,21 +21,46 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.remote.work.artifact.ConsoleLogMessage.LogLevel;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.work.GoPublisher;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     private static final List<String> goSupportedVersions = asList("1.0");
     private final GoPublisher goPublisher;
+    private final ProcessType processType;
 
-    public ArtifactRequestProcessor(GoPublisher goPublisher) {
+    private enum ProcessType {
+        FETCH, PUBLISH
+    }
+    private static final Map<LogLevel, String> FETCH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<LogLevel, String>() {{
+        put(LogLevel.INFO, TaggedStreamConsumer.OUT);
+        put(LogLevel.ERROR, TaggedStreamConsumer.ERR);
+    }};
+    private static final Map<LogLevel, String> PUBLISH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<LogLevel, String>() {{
+        put(LogLevel.INFO, TaggedStreamConsumer.PUBLISH);
+        put(LogLevel.ERROR, TaggedStreamConsumer.PUBLISH_ERR);
+    }};
+
+    private ArtifactRequestProcessor(GoPublisher goPublisher, ProcessType processType) {
         this.goPublisher = goPublisher;
+        this.processType = processType;
+    }
+
+    public static ArtifactRequestProcessor forFetchArtifact(GoPublisher goPublisher) {
+        return new ArtifactRequestProcessor(goPublisher, ProcessType.FETCH);
+    }
+
+    public static ArtifactRequestProcessor forPublishArtifact(GoPublisher goPublisher) {
+        return new ArtifactRequestProcessor(goPublisher, ProcessType.PUBLISH);
     }
 
     @Override
@@ -52,17 +77,22 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     private GoApiResponse processConsoleLogRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
         final ConsoleLogMessage consoleLogMessage = ConsoleLogMessage.fromJSON(request.requestBody());
         final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
-        switch (consoleLogMessage.getLogLevel()) {
-            case INFO:
-                goPublisher.taggedConsumeLine(PUBLISH, message);
-                break;
-            case ERROR:
-                goPublisher.taggedConsumeLine(PUBLISH_ERR, message);
-                break;
-            default:
-                return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", consoleLogMessage.getLogLevel()));
+        Optional<String> parsedTag = parseTag(processType, consoleLogMessage.getLogLevel());
+        if (parsedTag.isPresent()) {
+            goPublisher.taggedConsumeLine(parsedTag.get(), message);
+            return DefaultGoApiResponse.success(null);
         }
-        return DefaultGoApiResponse.success(null);
+        return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", consoleLogMessage.getLogLevel()));
+    }
+
+    private Optional<String> parseTag(ProcessType requestType, LogLevel logLevel) {
+        switch (requestType) {
+            case FETCH:
+                return Optional.ofNullable(FETCH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
+            case PUBLISH:
+                return Optional.ofNullable(PUBLISH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
+        }
+        return Optional.empty();
     }
 
     private void validatePluginRequest(GoApiRequest goPluginApiRequest) {

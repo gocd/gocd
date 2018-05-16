@@ -24,15 +24,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
 import static org.mockito.Mockito.*;
 
 public class ArtifactRequestProcessorTest {
     private GoApiRequest request;
     private GoPluginDescriptor descriptor;
     private DefaultGoPublisher goPublisher;
-    private ArtifactRequestProcessor artifactRequestProcessor;
+    private ArtifactRequestProcessor artifactRequestProcessorForPublish;
+    private ArtifactRequestProcessor artifactRequestProcessorForFetch;
 
     @Before
     public void setUp() throws Exception {
@@ -40,7 +40,8 @@ public class ArtifactRequestProcessorTest {
         descriptor = mock(GoPluginDescriptor.class);
         goPublisher = mock(DefaultGoPublisher.class);
 
-        artifactRequestProcessor = new ArtifactRequestProcessor(goPublisher);
+        artifactRequestProcessorForPublish = ArtifactRequestProcessor.forPublishArtifact(goPublisher);
+        artifactRequestProcessorForFetch = ArtifactRequestProcessor.forFetchArtifact(goPublisher);
 
         when(request.apiVersion()).thenReturn("1.0");
         when(descriptor.id()).thenReturn("cd.go.artifact.docker");
@@ -48,20 +49,38 @@ public class ArtifactRequestProcessorTest {
     }
 
     @Test
-    public void shouldPublishErrorLogToConsoleLog() {
+    public void shouldSendErrorLogToConsoleLogForPublish() {
         when(request.requestBody()).thenReturn("{\"logLevel\":\"ERROR\",\"message\":\"Error while pushing docker image to registry: foo.\"}");
 
-        artifactRequestProcessor.process(descriptor, request);
+        artifactRequestProcessorForPublish.process(descriptor, request);
 
         verify(goPublisher, times(1)).taggedConsumeLine(PUBLISH_ERR, "[cd.go.artifact.docker] Error while pushing docker image to registry: foo.");
     }
 
     @Test
-    public void shouldPublishInfoLogToConsoleLog() {
+    public void shouldSendInfoLogToConsoleLogForPublish() {
         when(request.requestBody()).thenReturn("{\"logLevel\":\"INFO\",\"message\":\"Pushing docker image to registry: foo.\"}");
 
-        artifactRequestProcessor.process(descriptor, request);
+        artifactRequestProcessorForPublish.process(descriptor, request);
 
         verify(goPublisher, times(1)).taggedConsumeLine(PUBLISH, "[cd.go.artifact.docker] Pushing docker image to registry: foo.");
+    }
+
+    @Test
+    public void shouldSendErrorLogToConsoleLogForFetch() {
+        when(request.requestBody()).thenReturn("{\"logLevel\":\"ERROR\",\"message\":\"Error while pushing docker image to registry: foo.\"}");
+
+        artifactRequestProcessorForFetch.process(descriptor, request);
+
+        verify(goPublisher, times(1)).taggedConsumeLine(ERR, "[cd.go.artifact.docker] Error while pushing docker image to registry: foo.");
+    }
+
+    @Test
+    public void shouldSendInfoLogToConsoleLogForFetch() {
+        when(request.requestBody()).thenReturn("{\"logLevel\":\"INFO\",\"message\":\"Pushing docker image to registry: foo.\"}");
+
+        artifactRequestProcessorForFetch.process(descriptor, request);
+
+        verify(goPublisher, times(1)).taggedConsumeLine(OUT, "[cd.go.artifact.docker] Pushing docker image to registry: foo.");
     }
 }

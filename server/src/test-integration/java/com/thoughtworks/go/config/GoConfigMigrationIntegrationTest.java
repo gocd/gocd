@@ -52,7 +52,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -403,14 +402,14 @@ public class GoConfigMigrationIntegrationTest {
         ArtifactConfigs artifactConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
                 new CaseInsensitiveString("bluemonkeybutt")).artifactConfigs();
 
-        assertEquals("from1", artifactConfigs.getArtifactConfigs().get(0).getSource());
-        assertEquals(artifactConfigs.getArtifactConfigs().get(0).getDestination(), "");
-        assertEquals("from2", artifactConfigs.getArtifactConfigs().get(1).getSource());
-        assertEquals("to2", artifactConfigs.getArtifactConfigs().get(1).getDestination());
-        assertEquals("from3", artifactConfigs.getArtifactConfigs().get(2).getSource());
-        assertEquals(artifactConfigs.getArtifactConfigs().get(2).getDestination(), "");
-        assertEquals("from4", artifactConfigs.getArtifactConfigs().get(3).getSource());
-        assertEquals("to4", artifactConfigs.getArtifactConfigs().get(3).getDestination());
+        assertEquals("from1", artifactConfigs.getBuiltInArtifactConfigs().get(0).getSource());
+        assertEquals(artifactConfigs.getBuiltInArtifactConfigs().get(0).getDestination(), "");
+        assertEquals("from2", artifactConfigs.getBuiltInArtifactConfigs().get(1).getSource());
+        assertEquals("to2", artifactConfigs.getBuiltInArtifactConfigs().get(1).getDestination());
+        assertEquals("from3", artifactConfigs.getBuiltInArtifactConfigs().get(2).getSource());
+        assertEquals(artifactConfigs.getBuiltInArtifactConfigs().get(2).getDestination(), "");
+        assertEquals("from4", artifactConfigs.getBuiltInArtifactConfigs().get(3).getSource());
+        assertEquals("to4", artifactConfigs.getBuiltInArtifactConfigs().get(3).getDestination());
     }
 
 

@@ -154,7 +154,7 @@ public class ArtifactConfigsTest {
         allConfigs.add(new PluggableArtifactConfig("s3", "cd.go.s3"));
         allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
 
-        final List<BuildArtifactConfig> artifactConfigs = allConfigs.getArtifactConfigs();
+        final List<BuiltinArtifactConfig> artifactConfigs = allConfigs.getBuiltInArtifactConfigs();
 
         assertThat(artifactConfigs, hasSize(2));
         assertThat(artifactConfigs, containsInAnyOrder(

@@ -102,7 +102,7 @@ module ApiV3
         end
 
         def artifacts
-          job.artifactConfigs
+          job.artifactConfigs.getBuiltInArtifactConfigs()
         end
 
         def artifacts=(value)

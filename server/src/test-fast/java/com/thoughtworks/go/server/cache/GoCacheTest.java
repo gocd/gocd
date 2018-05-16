@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,19 @@
 package com.thoughtworks.go.server.cache;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.UserSqlMapDao;
-import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.SystemEnvironment;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mybatis.spring.support.SqlSessionDaoSupport;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.junit.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,57 +40,34 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
-})
 public class GoCacheTest {
-    @Autowired
-    private GoCache goCache;
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-    @Autowired
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired
-    private SqlSessionFactory sqlMapClient;
-    @Autowired
-    private GoConfigDao goConfigDao;
-    @Autowired
-    private DatabaseAccessHelper dbHelper;
-    @Autowired
-    private UserSqlMapDao userSqlMapDao;
-    @Autowired
-    private SystemEnvironment systemEnvironment;
-    @Autowired
-    private DatabaseStrategy databaseStrategy;
 
-    private static String largeObject;
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private int originalMaxElementsInMemory;
-    private long originalTimeToLiveSeconds;
+    private static CacheManager cacheManager;
+    private GoCache goCache;
+    private String largeObject;
+
+    @BeforeClass
+    public static void beforeClass() {
+        cacheManager = CacheManager.newInstance(new Configuration().name(GoCacheTest.class.getName()));
+    }
 
     @Before
     public void setUp() throws Exception {
-        if (originalMaxElementsInMemory == 0) {
-            originalMaxElementsInMemory = goCache.configuration().getMaxElementsInMemory();
-            originalTimeToLiveSeconds = goCache.configuration().getTimeToLiveSeconds();
-        }
-        configHelper.usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-        dbHelper.onSetUp();
-        goCache.clear();
+        Cache cache = new Cache(new CacheConfiguration(getClass().getName(), 100).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU));
+        cacheManager.addCache(cache);
+        this.goCache = new GoCache(cache, mock(TransactionSynchronizationManager.class));
     }
 
     @After
-    public void tearDown() throws Exception {
-        goCache.clear();
-        goCache.configuration().setTimeToLiveSeconds(originalTimeToLiveSeconds);
-        goCache.configuration().setMaxElementsInMemory(originalMaxElementsInMemory);
-        dbHelper.onTearDown();
-        configHelper.onTearDown();
+    public void tearDown() {
+        cacheManager.removeAllCaches();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        cacheManager.shutdown();
     }
 
     @Test
@@ -132,18 +94,6 @@ public class GoCacheTest {
     }
 
     @Test
-    public void put_shouldNotUpdateCacheWhenInTransaction() {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Object o = new Object();
-                goCache.put("someKey", o);
-            }
-        });
-        assertNull(goCache.get("someKey"));
-    }
-
-    @Test
     public void shouldBeAbleToRemoveAnObjectThatIsPutIntoIt() {
         Object o = new Object();
         goCache.put("someKey", o);
@@ -153,7 +103,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void get_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception {
+    public void get_shouldBombWhenValueIsAPersistentObjectWithoutId() {
         HgMaterial material = MaterialsMother.hgMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         materialInstance.setId(10);
@@ -169,7 +119,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void put_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception {
+    public void put_shouldBombWhenValueIsAPersistentObjectWithoutId() {
         HgMaterial material = MaterialsMother.hgMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         try {
@@ -188,8 +138,9 @@ public class GoCacheTest {
         assertNull(goCache.get("someKey"));
     }
 
+
     @Test
-    public void shouldNotRunOutOfMemoryOnSubKeyPuts() throws IOException {
+    public void shouldNotRunOutOfMemoryOnSubKeyPuts() {
         for (Long n = 0L; n < 1; n++) {
             String key = "key" + (n % 10);
             String subKey = n.toString();
@@ -208,7 +159,7 @@ public class GoCacheTest {
         }
     }
 
-    private Object largeObject() throws IOException {
+    private Object largeObject() {
         if (largeObject == null) {
             StringBuilder s = new StringBuilder();
             for (int i = 0; i < 16000; i++) {
@@ -272,44 +223,6 @@ public class GoCacheTest {
         }
     }
 
-    @Test
-    public void shouldStartServingThingsOutOfCacheOnceTransactionCompletes() {
-        final SqlSessionDaoSupport daoSupport = new SqlSessionDaoSupport() {
-
-        };
-
-        daoSupport.setSqlSessionFactory(sqlMapClient);
-        goCache.put("foo", "bar");
-        final String[] valueInCleanTxn = new String[1];
-        final String[] valueInDirtyTxn = new String[1];
-        final String[] valueInAfterCommit = new String[1];
-        final String[] valueInAfterCompletion = new String[1];
-
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                valueInCleanTxn[0] = (String) goCache.get("foo");
-                User user = new User("loser", "Massive Loser", "boozer@loser.com");
-                userSqlMapDao.saveOrUpdate(user);
-                valueInDirtyTxn[0] = (String) goCache.get("foo");
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        valueInAfterCommit[0] = (String) goCache.get("foo");
-                    }
-
-                    @Override
-                    public void afterCompletion(int status) {
-                        valueInAfterCompletion[0] = (String) goCache.get("foo");
-                    }
-                });
-            }
-        });
-        assertThat(valueInCleanTxn[0], is("bar"));
-        assertThat(valueInDirtyTxn[0], is(nullValue()));
-        assertThat(valueInAfterCommit[0], is("bar"));
-        assertThat(valueInAfterCompletion[0], is("bar"));
-    }
 
     @Test
     public void shouldRemoveSpecifiedKeysFromCache() {
@@ -324,7 +237,7 @@ public class GoCacheTest {
 
     @Test
     public void shouldEvictSubkeyFromParentCacheWhenTheSubkeyEntryGetsEvicted() throws InterruptedException {
-        goCache.configuration().setMaxElementsInMemory(2);
+        goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, "child1", "value");
         assertThat(goCache.get(parentKey), is(not(nullValue())));
@@ -361,12 +274,14 @@ public class GoCacheTest {
 
     @Test
     public void shouldEvictAllSubkeyCacheEntriesWhenTheParentEntryGetsEvicted() throws InterruptedException {
-        goCache.configuration().setMaxElementsInMemory(2);
+        goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, new GoCache.KeyList());
-        Thread.sleep(1);//so that the timestamps on the cache entries are different
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         goCache.put(parentKey, "child1", "value");
+        Thread.sleep(1); //so that the timestamps on the cache entries are different
+        goCache.get(parentKey, "child1");  //so that the parent is least recently used
+        Thread.sleep(1); //so that the timestamps on the cache entries are different
         goCache.put("unrelatedkey", "value");
         waitForCacheElementsToExpire();
         assertThat(goCache.getKeys().size(), is(1));
@@ -375,7 +290,7 @@ public class GoCacheTest {
 
     @Test
     public void shouldHandleNonSerializableValuesDuringEviction() throws InterruptedException {
-        goCache.configuration().setMaxElementsInMemory(1);
+        goCache.configuration().setMaxEntriesLocalHeap(1);
         NonSerializableClass value = new NonSerializableClass();
         String key = "key";
         goCache.put(key, value);
@@ -383,6 +298,7 @@ public class GoCacheTest {
         goCache.put("another_entry", "value");
         assertThat(goCache.get(key), is(nullValue()));
     }
+
 
     private class NonSerializableClass {
     }

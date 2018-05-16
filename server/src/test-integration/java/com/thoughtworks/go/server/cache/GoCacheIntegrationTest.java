@@ -1,0 +1,148 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.server.cache;
+
+import ch.qos.logback.classic.Level;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.NullUser;
+import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.UserSqlMapDao;
+import com.thoughtworks.go.server.database.DatabaseStrategy;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:WEB-INF/applicationContext-global.xml",
+        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:testPropertyConfigurer.xml"
+})
+public class GoCacheIntegrationTest {
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private SqlSessionFactory sqlMapClient;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private UserSqlMapDao userSqlMapDao;
+
+    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+
+    @Before
+    public void setUp() throws Exception {
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
+        dbHelper.onSetUp();
+        goCache.clear();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        goCache.clear();
+        dbHelper.onTearDown();
+        configHelper.onTearDown();
+    }
+
+    @Test
+    public void put_shouldNotUpdateCacheWhenInTransaction() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Object o = new Object();
+                goCache.put("someKey", o);
+            }
+        });
+        assertNull(goCache.get("someKey"));
+    }
+
+    @Test
+    public void shouldStartServingThingsOutOfCacheOnceTransactionCompletes() {
+        final SqlSessionDaoSupport daoSupport = new SqlSessionDaoSupport() {
+
+        };
+
+        daoSupport.setSqlSessionFactory(sqlMapClient);
+        goCache.put("foo", "bar");
+        final String[] valueInCleanTxn = new String[1];
+        final String[] valueInDirtyTxn = new String[1];
+        final String[] valueInAfterCommit = new String[1];
+        final String[] valueInAfterCompletion = new String[1];
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                valueInCleanTxn[0] = (String) goCache.get("foo");
+                User user = new User("loser", "Massive Loser", "boozer@loser.com");
+                userSqlMapDao.saveOrUpdate(user);
+                valueInDirtyTxn[0] = (String) goCache.get("foo");
+                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        valueInAfterCommit[0] = (String) goCache.get("foo");
+                    }
+
+                    @Override
+                    public void afterCompletion(int status) {
+                        valueInAfterCompletion[0] = (String) goCache.get("foo");
+                    }
+                });
+            }
+        });
+        assertThat(valueInCleanTxn[0], is("bar"));
+        assertThat(valueInDirtyTxn[0], is(nullValue()));
+        assertThat(valueInAfterCommit[0], is("bar"));
+        assertThat(valueInAfterCompletion[0], is("bar"));
+    }
+
+}

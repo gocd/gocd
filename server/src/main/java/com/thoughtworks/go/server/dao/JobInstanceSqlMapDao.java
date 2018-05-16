@@ -37,6 +37,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private static Ehcache createCacheIfRequired(String cacheName) {
-        final CacheManager instance = CacheManager.getInstance();
+        final CacheManager instance = CacheManager.newInstance(new Configuration().name(cacheName));
         synchronized (instance) {
             if (!instance.cacheExists(cacheName)) {
                 instance.addCache(new net.sf.ehcache.Cache(cacheConfiguration(cacheName)));

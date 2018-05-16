@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
@@ -31,11 +25,7 @@ import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +38,12 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
@@ -57,7 +53,10 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY".intern();
 
     @Autowired
-    public UserSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, GoCache goCache, TransactionSynchronizationManager transactionSynchronizationManager) {
+    public UserSqlMapDao(SessionFactory sessionFactory,
+                         TransactionTemplate transactionTemplate,
+                         GoCache goCache,
+                         TransactionSynchronizationManager transactionSynchronizationManager) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         this.goCache = goCache;
@@ -117,19 +116,19 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         }));
     }
 
-    public Integer enabledUserCount() {
-        Integer value = (Integer) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
+    public long enabledUserCount() {
+        Long value = (Long) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
         if (value != null) {
             return value;
         }
 
         synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
-            value = (Integer) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
+            value = (Long) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
             if (value == null) {
-                value = (Integer) hibernateTemplate().execute(new HibernateCallback<Object>() {
+                value = hibernateTemplate().execute(new HibernateCallback<Long>() {
                     @Override
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                        return session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
+                    public Long doInHibernate(Session session) throws HibernateException, SQLException {
+                        return (Long) session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
                     }
                 });
 

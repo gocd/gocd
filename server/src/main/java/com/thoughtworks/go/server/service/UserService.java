@@ -171,11 +171,11 @@ public class UserService {
         }
     }
 
-    public int enabledUserCount() {
+    public long enabledUserCount() {
         return userDao.enabledUserCount();
     }
 
-    public int disabledUserCount() {
+    public long disabledUserCount() {
         return allUsersForDisplay().size() - enabledUserCount();
     }
 

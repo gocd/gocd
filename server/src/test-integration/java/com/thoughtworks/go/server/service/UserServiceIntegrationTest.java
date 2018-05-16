@@ -350,8 +350,8 @@ public class UserServiceIntegrationTest {
 
         createDisabledUser("user_two");
 
-        assertThat(userService.enabledUserCount(), is(2));
-        assertThat(userService.disabledUserCount(), is(1));
+        assertThat(userService.enabledUserCount(), is(2L));
+        assertThat(userService.disabledUserCount(), is(1L));
     }
 
     @Test

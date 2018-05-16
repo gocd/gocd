@@ -39,6 +39,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -46,10 +47,14 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class UserSqlMapDaoCachingTest {
-    @Autowired private UserSqlMapDao userDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private SessionFactory sessionFactory;
+    @Autowired
+    private UserSqlMapDao userDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     @Before
     public void setup() throws Exception {
@@ -230,7 +235,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     private void makeSureThatCacheIsInitialized() {
-        Integer getCountSoThatCacheIsInitialized = userDao.enabledUserCount();
+        userDao.enabledUserCount();
         assertThatEnabledUserCacheExists();
     }
 }

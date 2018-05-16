@@ -43,6 +43,7 @@ import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -259,7 +260,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void loadPMRByPipelineIds(List<Long> pipelineIds) {
-        List<PipelineMaterialRevision> pmrs = getHibernateTemplate().findByCriteria(buildPMRDetachedQuery(pipelineIds));
+        List<PipelineMaterialRevision> pmrs = (List<PipelineMaterialRevision>) getHibernateTemplate().findByCriteria(buildPMRDetachedQuery(pipelineIds));
         sortPersistentObjectsById(pmrs, true);
         final Set<PipelineMaterialRevision> uniquePmrs = new HashSet<>();
         for (PipelineMaterialRevision pmr : pmrs) {
@@ -325,7 +326,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             final SimpleExpression idClause = Restrictions.eq("materialInstance", pmr.getMaterialInstance());
             criterions.add(Restrictions.and(idClause, modificationClause));
         }
-        List<Modification> modifications = getHibernateTemplate().findByCriteria(buildModificationDetachedQuery(criterions));
+        List<Modification> modifications = (List<Modification>) getHibernateTemplate().findByCriteria(buildModificationDetachedQuery(criterions));
         sortPersistentObjectsById(modifications, false);
         for (Modification modification : modifications) {
             List<String> cacheKeys = pmrModificationsKey(modification, pmrs);
@@ -357,7 +358,7 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     @SuppressWarnings("unchecked")
     List<Modification> findMaterialRevisionsForMaterial(long id) {
-        return getHibernateTemplate().find("FROM Modification WHERE materialId = ?", new Object[]{id});
+        return (List<Modification>) getHibernateTemplate().find("FROM Modification WHERE materialId = ?", new Object[]{id});
     }
 
     @SuppressWarnings("unchecked")
@@ -368,7 +369,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (cacheKey) {
                 modifications = (List<Modification>) goCache.get(cacheKey);
                 if (modifications == null) {
-                    modifications = getHibernateTemplate().find(
+                    modifications = (List<Modification>) getHibernateTemplate().find(
                             "FROM Modification WHERE materialId = ? AND id BETWEEN ? AND ? ORDER BY id DESC",
                             new Object[]{findMaterialInstance(pmr.getMaterial()).getId(), pmr.getFromModification().getId(), pmr.getToModification().getId()});
                     goCache.put(cacheKey, modifications);
@@ -811,7 +812,9 @@ public class MaterialRepository extends HibernateDaoSupport {
 
         try {
             checkAndRemoveDuplicates(materialInstance, newChanges, list);
-            getHibernateTemplate().saveOrUpdateAll(list);
+            for (Modification modification : list) {
+                getHibernateTemplate().saveOrUpdate(modification);
+            }
         } catch (Exception e) {
             String message = "Cannot save modification: ";
             LOGGER.error(message, e);
@@ -836,7 +839,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             revisions.add(modification.getRevision());
         }
         criteria.add(Restrictions.in("revision", revisions));
-        List<String> matchingRevisionsFromDb = getHibernateTemplate().findByCriteria(criteria);
+        List<String> matchingRevisionsFromDb = (List<String>) getHibernateTemplate().findByCriteria(criteria);
         if (!matchingRevisionsFromDb.isEmpty()) {
             for (final String revision : matchingRevisionsFromDb) {
                 Modification modification = list.stream().filter(new java.util.function.Predicate<Modification>() {
@@ -978,7 +981,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modifications = (List<Modification>) goCache.get(key);
                 if (modifications == null) {
-                    modifications = getHibernateTemplate().executeFind(new HibernateCallback() {
+                    modifications = (List<Modification>) getHibernateTemplate().execute(new HibernateCallback() {
                         public Object doInHibernate(Session session) throws HibernateException, SQLException {
                             Query q = session.createQuery("FROM Modification WHERE revision = :revision ORDER BY id DESC");
                             q.setParameter("revision", stageIdentifier.getStageLocator());
@@ -1023,7 +1026,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modifications = (Modifications) goCache.get(key, subKey);
                 if (modifications == null) {
-                    List<Modification> modificationsList = getHibernateTemplate().executeFind(new HibernateCallback() {
+                    List<Modification> modificationsList = (List<Modification>) getHibernateTemplate().execute(new HibernateCallback() {
                         public Object doInHibernate(Session session) throws HibernateException, SQLException {
                             Query q = session.createQuery("FROM Modification WHERE materialId = ? ORDER BY id DESC");
                             q.setFirstResult(pagination.getOffset());

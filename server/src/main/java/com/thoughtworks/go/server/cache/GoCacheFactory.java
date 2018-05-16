@@ -16,106 +16,43 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.springframework.cache.ehcache.EhCacheFactoryBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GoCacheFactory {
+
+    private final CacheConfiguration cacheConfiguration;
     private TransactionSynchronizationManager transactionSynchronizationManager;
-    private String diskStorePath;
-    private EhCacheFactoryBean factoryBean;
-    private Boolean clearOnFlush = true;
 
     static {
         System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
     }
 
-    public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager) {
+    public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,
+                          @Value("${cruise.cache.elements.limit}") int maxElementsInMemory,
+                          @Value("${cruise.cache.is.eternal}") boolean eternal) {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        factoryBean = new EhCacheFactoryBean();
+        cacheConfiguration = new CacheConfiguration("goCache", maxElementsInMemory)
+                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                .eternal(eternal)
+                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
     }
 
-    public GoCache createCache() throws IOException {
-        factoryBean.setCacheManager(createCacheManager());
-        factoryBean.afterPropertiesSet();
-        factoryBean.getObject().getCacheConfiguration().setClearOnFlush(clearOnFlush);
-        return new GoCache(factoryBean, transactionSynchronizationManager);
+    @Bean(name = "goCache")
+    public GoCache createCache() {
+        CacheManager cacheManager = CacheManager.newInstance(new Configuration().name(getClass().getName()));
+        Cache cache = new Cache(cacheConfiguration);
+        cacheManager.addCache(cache);
+        return new GoCache(cache, transactionSynchronizationManager);
     }
 
-    public void setCacheManager(CacheManager cacheManager) {
-        factoryBean.setCacheManager(cacheManager);
-    }
-
-    public void setCacheName(String cacheName) {
-        factoryBean.setCacheName(cacheName);
-    }
-
-    public void setMaxElementsInMemory(int maxElementsInMemory) {
-        factoryBean.setMaxElementsInMemory(maxElementsInMemory);
-    }
-
-    public void setMaxElementsOnDisk(int maxElementsOnDisk) {
-        factoryBean.setMaxElementsOnDisk(maxElementsOnDisk);
-    }
-
-    public void setMemoryStoreEvictionPolicy(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
-        factoryBean.setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
-    }
-
-    public void setOverflowToDisk(boolean overflowToDisk) {
-        factoryBean.setOverflowToDisk(overflowToDisk);
-    }
-
-    public void setEternal(boolean eternal) {
-        factoryBean.setEternal(eternal);
-    }
-
-    public void setTimeToLive(int timeToLive) {
-        factoryBean.setTimeToLive(timeToLive);
-    }
-
-    public void setTimeToIdle(int timeToIdle) {
-        factoryBean.setTimeToIdle(timeToIdle);
-    }
-
-    public void setDiskPersistent(boolean diskPersistent) {
-        factoryBean.setDiskPersistent(diskPersistent);
-    }
-
-    public void setDiskExpiryThreadIntervalSeconds(int diskExpiryThreadIntervalSeconds) {
-        factoryBean.setDiskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds);
-    }
-
-    public void setBlocking(boolean blocking) {
-        factoryBean.setBlocking(blocking);
-    }
-
-    public void setDiskStorePath(String diskStorePath) {
-        this.diskStorePath = diskStorePath;
-    }
-
-    private CacheManager createCacheManager() throws UnsupportedEncodingException {
-        Configuration configuration = new Configuration();
-        configuration.setUpdateCheck(false);
-        configuration.addDiskStore(diskStore());
-        configuration.setDefaultCacheConfiguration(new CacheConfiguration("cache", 10000));
-        return new CacheManager(configuration);
-    }
-
-    private DiskStoreConfiguration diskStore() {
-        DiskStoreConfiguration diskStore = new DiskStoreConfiguration();
-        diskStore.setPath(diskStorePath);
-        return diskStore;
-    }
-
-    public void setClearOnFlush(Boolean clearOnFlush) {
-        this.clearOnFlush = clearOnFlush;
-    }
 }

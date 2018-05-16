@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.newsecurity.x509;
 
 import net.sf.ehcache.*;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
@@ -46,7 +48,7 @@ public class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtr
     }
 
     private static Ehcache createCacheIfRequired() {
-        final CacheManager instance = CacheManager.getInstance();
+        final CacheManager instance = CacheManager.newInstance(new Configuration().name(CachingSubjectDnX509PrincipalExtractor.class.getName()));
         synchronized (instance) {
             if (!instance.cacheExists(CACHE_NAME)) {
                 instance.addCache(new Cache(cacheConfiguration()));
@@ -57,12 +59,11 @@ public class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtr
 
     private static CacheConfiguration cacheConfiguration() {
         return new CacheConfiguration(CACHE_NAME, 2048)
+                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
                 .timeToIdleSeconds(120)
                 .timeToLiveSeconds(0)
                 .eternal(false)
-                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
-                .overflowToDisk(false)
-                .diskPersistent(false);
+                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
     }
 
     public Ehcache getCache() {
@@ -74,7 +75,7 @@ public class CachingSubjectDnX509PrincipalExtractor implements X509PrincipalExtr
         try {
             Element element = cache.get(cert);
             if (element != null) {
-                return element.getValue();
+                return element.getObjectValue();
             }
         } catch (CacheException cacheException) {
             throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());

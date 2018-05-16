@@ -223,7 +223,7 @@ public class UserServiceTest {
 
         doNothing().when(userDao).saveOrUpdate(foo.getUser());
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(10);
+        when(userDao.enabledUserCount()).thenReturn(10L);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
@@ -250,7 +250,7 @@ public class UserServiceTest {
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
         UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(1);
+        when(userDao.enabledUserCount()).thenReturn(1L);
 
         userService.create(Arrays.asList(searchModel), result);
 

@@ -137,7 +137,7 @@ public class FileViewTest {
 
         view.render(model, mockRequest, mockResponse);
         assertEquals("text/plain;charset=utf-8", mockResponse.getContentType());
-        assertEquals("utf-8", mockResponse.getCharacterEncoding());
+        assertEquals("UTF-8", mockResponse.getCharacterEncoding());
     }
 
     private long getContentLength(MockHttpServletResponse mockResponse) {

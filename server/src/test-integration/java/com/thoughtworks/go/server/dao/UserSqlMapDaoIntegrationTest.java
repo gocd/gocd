@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -260,40 +259,40 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(boozer);
-        assertThat(userDao.enabledUserCount(), is(3));
+        assertThat(userDao.enabledUserCount(), is(3L));
         userDao.disableUsers(Arrays.asList("loser"));
-        assertThat(userDao.enabledUserCount(), is(2));
+        assertThat(userDao.enabledUserCount(), is(2L));
         userDao.enableUsers(Arrays.asList("loser"));
-        assertThat(userDao.enabledUserCount(), is(3));
+        assertThat(userDao.enabledUserCount(), is(3L));
     }
 
     @Test
     public void shouldClearCountCacheOnSaveOrStatusChange() {
         User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(1));
+        assertThat(userDao.enabledUserCount(), is(1L));
         User loser = new User("loser", "Loser", "loser@mail.com");
         loser.disable();
         User foo = new User("foo", "Foo", "foo@mail.com");
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(foo);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(2));
+        assertThat(userDao.enabledUserCount(), is(2L));
         userDao.enableUsers(Arrays.asList(loser.getName()));
-        assertThat(userDao.enabledUserCount(), is(3));
+        assertThat(userDao.enabledUserCount(), is(3L));
         userDao.disableUsers(Arrays.asList(user.getName()));
-        assertThat(userDao.enabledUserCount(), is(2));
+        assertThat(userDao.enabledUserCount(), is(2L));
         userDao.saveOrUpdate(new User("bozer", "Bozer", "bozer@emai.com"));
-        assertThat(userDao.enabledUserCount(), is(3));
+        assertThat(userDao.enabledUserCount(), is(3L));
     }
 
     @Test
     public void shouldFetchEnabledUsersCount() {
         User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(1));
+        assertThat(userDao.enabledUserCount(), is(1L));
         userDao.saveOrUpdate(new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true));
-        assertThat(userDao.enabledUserCount(), is(2));
+        assertThat(userDao.enabledUserCount(), is(2L));
     }
 
     private User saveUser(final String user) {
@@ -395,15 +394,13 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(users, is(empty()));
     }
 
-    @Test
-    @ExpectedException(UserNotFoundException.class)
+    @Test(expected = UserNotFoundException.class)
     public void shouldThrowExceptionWhenUserIsNotFound() {
         String userName = "invaliduser";
         userDao.deleteUser(userName);
     }
 
-    @Test
-    @ExpectedException(UserEnabledException.class)
+    @Test(expected = UserEnabledException.class)
     public void shouldThrowExceptionWhenUserIsNotDisabled() {
         String userName = "enabledUser";
         User user = new User(userName);

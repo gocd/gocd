@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,16 @@ package com.thoughtworks.go.server.cache;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,18 +43,14 @@ public class GoCache {
 
     static final String SUB_KEY_DELIMITER = "!_#$#_!";
 
-    private Cache ehCache;
+    private Ehcache ehCache;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
     private TransactionSynchronizationManager transactionSynchronizationManager;
 
     private final Set<Class<? extends PersistentObject>> nullObjectClasses;
 
-    static class KeyList extends ArrayList<String> {
-    }
-
-    public GoCache(EhCacheFactoryBean ehCacheFactoryBean, TransactionSynchronizationManager transactionSynchronizationManager) {
-        this((Cache) ehCacheFactoryBean.getObject(), transactionSynchronizationManager);
+    static class KeyList extends HashSet<String> {
     }
 
     /**
@@ -66,7 +60,7 @@ public class GoCache {
         this(goCache.ehCache, goCache.transactionSynchronizationManager);
     }
 
-    private GoCache(Cache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
+    public GoCache(Ehcache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.nullObjectClasses = new HashSet<>();
@@ -257,8 +251,8 @@ public class GoCache {
         }
     }
 
-    public LiveCacheStatistics statistics() {
-        return ehCache.getLiveCacheStatistics();
+    public StatisticsGateway statistics() {
+        return ehCache.getStatistics();
     }
 
     public CacheConfiguration configuration() {

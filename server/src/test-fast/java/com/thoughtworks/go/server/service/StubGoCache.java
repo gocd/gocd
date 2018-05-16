@@ -18,9 +18,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
-import org.springframework.cache.ehcache.EhCacheFactoryBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @understands: StubGoCache
@@ -30,7 +32,7 @@ public class StubGoCache extends GoCache {
     private Map<String, Object> map;
 
     public StubGoCache(final TestTransactionSynchronizationManager transactionSynchronizationManager) {
-        super(new EhCacheFactoryBean(), transactionSynchronizationManager);
+        super(null, transactionSynchronizationManager);
         map = new HashMap<>();
     }
 

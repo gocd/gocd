@@ -43,6 +43,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -103,7 +104,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private static Ehcache createCacheIfRequired(String cacheName) {
-        final CacheManager instance = CacheManager.getInstance();
+        final CacheManager instance = CacheManager.newInstance(new Configuration().name(cacheName));
         synchronized (instance) {
             if (!instance.cacheExists(cacheName)) {
                 instance.addCache(new Cache(cacheConfiguration(cacheName)));

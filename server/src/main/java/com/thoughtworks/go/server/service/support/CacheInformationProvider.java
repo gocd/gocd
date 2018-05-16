@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import com.thoughtworks.go.server.cache.GoCache;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,11 +29,9 @@ import java.util.Map;
 
 @Component
 public class CacheInformationProvider implements ServerInfoProvider {
-    private GoCache goCache;
 
     @Autowired
-    public CacheInformationProvider(GoCache goCache) {
-        this.goCache = goCache;
+    public CacheInformationProvider() {
     }
 
     @Override
@@ -42,8 +42,21 @@ public class CacheInformationProvider implements ServerInfoProvider {
     @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Cache configuration information", getCacheConfigurationInformationAsJson());
-        json.put("Cache runtime information", getCacheRuntimeInformationAsJson());
+
+        for (CacheManager cacheManager : CacheManager.ALL_CACHE_MANAGERS) {
+            LinkedHashMap<String, Object> jsonForManager = new LinkedHashMap<>();
+            json.put(cacheManager.getName(), jsonForManager);
+
+            for (String cacheName : cacheManager.getCacheNames()) {
+                Cache cache = cacheManager.getCache(cacheName);
+                LinkedHashMap<String, Object> cacheJson = new LinkedHashMap<>();
+                jsonForManager.put(cacheName, cacheJson);
+
+                cacheJson.put("Cache configuration information", getCacheConfigurationInformationAsJson(cache));
+                cacheJson.put("Cache runtime information", getCacheRuntimeInformationAsJson(cache));
+            }
+        }
+
         return json;
     }
 
@@ -52,66 +65,63 @@ public class CacheInformationProvider implements ServerInfoProvider {
         return "Cache Information";
     }
 
-    public Map<String, Object> getCacheRuntimeInformationAsJson() {
+    public Map<String, Object> getCacheRuntimeInformationAsJson(Cache cache) {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        LiveCacheStatistics statistics = goCache.statistics();
+        StatisticsGateway statistics = cache.getStatistics();
 
-        json.put("Statistics enabled", statistics.isStatisticsEnabled());
-
-        LinkedHashMap<String, Object> time = new LinkedHashMap<>();
-        time.put("Average", statistics.getAverageGetTimeMillis());
-        time.put("Minimum", statistics.getMinGetTimeMillis());
-        time.put("Maximum", statistics.getMinGetTimeMillis());
-        json.put("Get Time in milliseconds", time);
+        json.put("Get Time in milliseconds", getStatisticsFrom(statistics.cacheGetOperation()));
+        json.put("Put Time in milliseconds", getStatisticsFrom(statistics.cachePutOperation()));
+        json.put("Remove Time in milliseconds", getStatisticsFrom(statistics.cacheRemoveOperation()));
 
         json.put("Cache Size", statistics.getSize());
-        json.put("Accuracy", statistics.getStatisticsAccuracyDescription());
 
-        LinkedHashMap<String, Object> cacheCount = new LinkedHashMap<>();
-        cacheCount.put("Hits", statistics.getCacheHitCount());
-        cacheCount.put("Miss", statistics.getCacheMissCount());
-        cacheCount.put("Expired", statistics.getExpiredCount());
-        cacheCount.put("Eviction", statistics.getEvictedCount());
-        cacheCount.put("Put", statistics.getPutCount());
-        cacheCount.put("Remove", statistics.getRemovedCount());
+        LinkedHashMap<String, Long> cacheCount = new LinkedHashMap<>();
+        cacheCount.put("Hits", statistics.cacheHitCount());
+        cacheCount.put("Miss", statistics.cacheMissCount());
+        cacheCount.put("Expired", statistics.cacheExpiredCount());
+        cacheCount.put("Eviction", statistics.cacheEvictedCount());
+        cacheCount.put("Put", statistics.cachePutCount());
+        cacheCount.put("Remove", statistics.cacheRemoveCount());
         json.put("Cache Counts", cacheCount);
 
-        json.put("Cache Size (Disk)", statistics.getOnDiskSize());
-        json.put("Cache Count (Disk)", statistics.getOnDiskHitCount());
+        json.put("Cache Size (Disk)", statistics.getLocalDiskSize());
+        json.put("Cache Count (Disk)", statistics.localDiskHitCount());
 
         return json;
     }
 
-    public Map<String, Object> getCacheConfigurationInformationAsJson() {
-        CacheConfiguration config = goCache.configuration();
+    private LinkedHashMap<String, Object> getStatisticsFrom(ExtendedStatistics.Result result) {
+        LinkedHashMap<String, Object> time = new LinkedHashMap<>();
+        time.put("Average", String.valueOf(result.latency().average().value()));
+        time.put("Minimum", String.valueOf(result.latency().minimum().value()));
+        time.put("Maximum", String.valueOf(result.latency().maximum().value()));
+        return time;
+    }
+
+    public Map<String, Object> getCacheConfigurationInformationAsJson(Cache cache) {
+        CacheConfiguration config = cache.getCacheConfiguration();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
 
-        json.put("name", config.getName());
-        json.put("Maximum Elements in Memory", config.getMaxElementsInMemory());
-        json.put("Maximum Elements on Disk", config.getMaxElementsOnDisk());
-        json.put("Memory Store Eviction Policy", config.getMemoryStoreEvictionPolicy());
+        json.put("Name", config.getName());
+        json.put("Maximum Elements in Memory", config.getMaxEntriesLocalHeap());
+        json.put("Maximum Elements on Disk", config.getMaxBytesLocalDisk());
+        json.put("Memory Store Eviction Policy", config.getMemoryStoreEvictionPolicy().toString());
         json.put("Clean or Flush", config.isClearOnFlush());
         json.put("Eternal", config.isEternal());
         json.put("Time To Idle Seconds", config.getTimeToIdleSeconds());
         json.put("time To Live Seconds", config.getTimeToLiveSeconds());
-        json.put("Overflow To Disk", config.isOverflowToDisk());
-        json.put("Disk Persistent", config.isDiskPersistent());
-        json.put("Disk Store Path", config.getDiskStorePath());
+        json.put("Persistence Configuration Strategy", config.getPersistenceConfiguration().getStrategy());
+        json.put("Persistence Configuration Synchronous writes", config.getPersistenceConfiguration().getSynchronousWrites());
         json.put("Disk Spool Buffer Size in MB", config.getDiskSpoolBufferSizeMB());
         json.put("Disk Access Stripes", config.getDiskAccessStripes());
         json.put("Disk Expiry Thread Interval Seconds", config.getDiskExpiryThreadIntervalSeconds());
-        json.put("Logging Enabled", config.isLoggingEnabled());
-        json.put("Cache Event Listener Configurations", config.getCacheEventListenerConfigurations());
-        json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());
-        json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());
-        json.put("Bootstrap Cache Loader Factory Configuration", config.getBootstrapCacheLoaderFactoryConfiguration());
-        json.put("Cache Exception Handler Factory Configuration", config.getCacheExceptionHandlerFactoryConfiguration());
+        json.put("Logging Enabled", config.getLogging());
         json.put("Terracotta Configuration", config.getTerracottaConfiguration());
         json.put("Cache Writer Configuration", config.getCacheWriterConfiguration());
         json.put("Cache Loader Configurations", config.getCacheLoaderConfigurations());
         json.put("Frozen", config.isFrozen());
         json.put("Transactional Mode", config.getTransactionalMode());
-        json.put("Statistics", config.getStatistics());
+        json.put("Statistics Enabled", config.getStatistics());
 
         return json;
     }

@@ -31,7 +31,7 @@ public interface UserDao {
 
     Users allUsers();
 
-    Integer enabledUserCount();
+    long enabledUserCount();
 
     void deleteAll();
 

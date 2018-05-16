@@ -126,7 +126,7 @@ module ApiV3
         end
 
         def tasks
-          job.getTasks
+          job.getTasks.select {|task| !task.instance_of? FetchPluggableArtifactTask}
         end
 
         def tasks=(value)

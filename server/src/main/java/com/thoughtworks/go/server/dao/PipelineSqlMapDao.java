@@ -178,13 +178,20 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {
         Map<String, Object> args = arguments("pipelineName", pipeline.getName()).and("count", newCount).asMap();
         Integer hasPipelineRow = (Integer) getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
-        pipelineByBuildIdCache.flushOnCommit();
-        if (hasPipelineRow == 0) {
-            getSqlMapClientTemplate().insert("insertPipelineLabelCounter", args);
-        } else if (newCount > lastCount) {
-            // Counter will not be updated when using other types of labels such as Date or Revision.
-            getSqlMapClientTemplate().update("updatePipelineLabelCounter", args, 1);
-        }
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                pipelineByBuildIdCache.flushOnCommit();
+                if (hasPipelineRow == 0) {
+                    getSqlMapClientTemplate().insert("insertPipelineLabelCounter", args);
+                } else if (newCount > lastCount) {
+                    // Counter will not be updated when using other types of labels such as Date or Revision.
+                    getSqlMapClientTemplate().update("updatePipelineLabelCounter", args, 1);
+                }
+
+                return null;
+            }
+        });
     }
 
     public Pipeline findPipelineByNameAndCounter(String name, int counter) {

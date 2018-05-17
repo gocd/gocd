@@ -197,8 +197,15 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     public JobInstance save(long stageId, JobInstance jobInstance) {
         jobInstance.setStageId(stageId);
-        latestCompletedCache.flushOnCommit();
-        getSqlMapClientTemplate().insert("insertBuild", jobInstance);
+        transactionTemplate.execute(new TransactionCallback<JobInstance>() {
+            @Override
+            public JobInstance doInTransaction(TransactionStatus status) {
+                latestCompletedCache.flushOnCommit();
+                getSqlMapClientTemplate().insert("insertBuild", jobInstance);
+                return null;
+            }
+        });
+
         updateStateAndResult(jobInstance);
 
         JobPlan plan = jobInstance.getPlan();
@@ -206,6 +213,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             save(jobInstance.getId(), plan);
         }
         return jobInstance;
+
     }
 
     public void save(long jobId, JobPlan jobPlan) {
@@ -392,8 +400,14 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void updateStatus(JobInstance jobInstance) {
-        latestCompletedCache.flushOnCommit();
-        getSqlMapClientTemplate().update("updateStatus", jobInstance);
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                latestCompletedCache.flushOnCommit();
+                getSqlMapClientTemplate().update("updateStatus", jobInstance);
+                return null;
+            }
+        });
         saveTransitions(jobInstance);
 
         if (jobInstance.isCompleted()) {
@@ -402,13 +416,25 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void updateResult(JobInstance job) {
-        latestCompletedCache.flushOnCommit();
-        getSqlMapClientTemplate().update("updateResult", job);
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                latestCompletedCache.flushOnCommit();
+                getSqlMapClientTemplate().update("updateResult", job);
+                return null;
+            }
+        });
     }
 
     public void ignore(JobInstance job) {
-        latestCompletedCache.flushOnCommit();
-        getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                latestCompletedCache.flushOnCommit();
+                getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
+                return null;
+            }
+        });
         deleteJobPlanAssociatedEntities(job);
     }
 

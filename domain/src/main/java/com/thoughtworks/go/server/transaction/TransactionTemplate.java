@@ -31,9 +31,9 @@ public class TransactionTemplate {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public Object execute(final org.springframework.transaction.support.TransactionCallback action) {
-        return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
+    public <T> T execute(final org.springframework.transaction.support.TransactionCallback<T> action) {
+        return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback<T>() {
+            public T doInTransaction(TransactionStatus status) {
                 txnCtx().transactionPushed();
                 try {
                     return action.doInTransaction(status);

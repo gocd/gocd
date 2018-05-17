@@ -29,9 +29,13 @@ public class PluggableTaskConsole implements Console {
     public static final String MASK_VALUE = "********";
     private final SafeOutputStreamConsumer safeOutputStreamConsumer;
     private final String consoleLogCharset;
+    private ErrorConsumer errorConsumer;
+    private OutputConsumer outputConsumer;
 
     public PluggableTaskConsole(SafeOutputStreamConsumer safeOutputStreamConsumer, String consoleLogCharset) {
         this.safeOutputStreamConsumer = safeOutputStreamConsumer;
+        outputConsumer = new OutputConsumer(safeOutputStreamConsumer);
+        errorConsumer = new ErrorConsumer(safeOutputStreamConsumer);
         this.consoleLogCharset = consoleLogCharset;
     }
 
@@ -42,12 +46,12 @@ public class PluggableTaskConsole implements Console {
 
     @Override
     public void readErrorOf(InputStream in) {
-        StreamPumper.pump(in, new ErrorConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
+        StreamPumper.pump(in, errorConsumer, "", consoleLogCharset);
     }
 
     @Override
     public void readOutputOf(InputStream in) {
-        StreamPumper.pump(in, new OutputConsumer(safeOutputStreamConsumer), "", consoleLogCharset);
+        StreamPumper.pump(in, outputConsumer, "", consoleLogCharset);
     }
 
     @Override

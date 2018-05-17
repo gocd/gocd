@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
@@ -63,14 +62,12 @@ public class ArtifactsPublisherTest {
     private ArtifactsPublisher artifactsPublisher;
     private ArtifactExtension artifactExtension;
     private StubGoPublisher publisher;
-    private PluginRequestProcessorRegistry registry;
     private final EnvironmentVariableContext env = new EnvironmentVariableContext("foo", "bar");
 
     @Before
     public void setUp() throws IOException {
         workingFolder = temporaryFolder.newFolder("temporaryFolder");
         artifactExtension = mock(ArtifactExtension.class);
-        registry = mock(PluginRequestProcessorRegistry.class);
         publisher = new StubGoPublisher();
 
         artifactsPublisher = new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), workingFolder);

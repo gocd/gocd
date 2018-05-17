@@ -70,7 +70,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
     public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
         downloadMetadataFile(publisher);
         try {
-            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), new ArtifactRequestProcessor(publisher));
+            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forFetchArtifact(publisher));
             final String message = format("[%s] Fetching pluggable artifact using plugin %s.", GoConstants.PRODUCT_NAME, artifactStore.getPluginId());
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);

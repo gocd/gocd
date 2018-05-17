@@ -102,7 +102,7 @@ module ApiV4
         end
 
         def artifacts
-          job.artifactConfigs
+          job.artifactConfigs.getBuiltInArtifactConfigs()
         end
 
         def artifacts=(value)
@@ -126,7 +126,7 @@ module ApiV4
         end
 
         def tasks
-          job.getTasks
+          job.getTasks.select {|task| !task.instance_of? FetchPluggableArtifactTask}
         end
 
         def tasks=(value)

@@ -365,7 +365,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getArtifactConfigs().get(0).getSource(), is("*"));
+        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("*"));
     }
 
     @Test
@@ -373,7 +373,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs(" \t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getArtifactConfigs().get(0).getSource(), is("*"));
+        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("*"));
     }
 
     @Test
@@ -381,7 +381,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getArtifactConfigs().get(0).getSource(), is("t "));
+        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("t "));
     }
 
     @Test

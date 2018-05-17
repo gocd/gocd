@@ -105,11 +105,11 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         }
     }
 
-    public List<BuildArtifactConfig> getArtifactConfigs() {
-        final List<BuildArtifactConfig> artifactConfigs = new ArrayList<>();
+    public List<BuiltinArtifactConfig> getBuiltInArtifactConfigs() {
+        final List<BuiltinArtifactConfig> artifactConfigs = new ArrayList<>();
         for (ArtifactConfig artifactConfig : this) {
-            if (artifactConfig instanceof BuildArtifactConfig) {
-                artifactConfigs.add((BuildArtifactConfig) artifactConfig);
+            if (artifactConfig instanceof BuiltinArtifactConfig) {
+                artifactConfigs.add((BuiltinArtifactConfig) artifactConfig);
             }
         }
         return artifactConfigs;

@@ -21,14 +21,16 @@ const COMPARATOR = require("string-plus").caseInsensitiveCompare;
 
 function PipelineStagesVM (stagesByPipeline) {
   const pipelines = Stream(Object.keys(stagesByPipeline).sort(COMPARATOR));
-  const currentPipeline = Stream(pipelines()[0]);
+  const currentPipeline = Stream(_.get(pipelines(), "[0]"));
 
   const stages = currentPipeline.map((pipeline) => {
-    const s = stagesByPipeline[pipeline];
-    s.unshift(null);
-    return s;
+    if (pipeline) {
+      const s = stagesByPipeline[pipeline];
+      s.unshift(null);
+      return s;
+    }
   });
-  const currentStage = Stream(stages()[0]);
+  const currentStage = Stream(_.get(stages(), "[0]"));
 
   _.assign(this, {
     pipelines,

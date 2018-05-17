@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.IsNot.not;
 
-public class SafeOutputConsumerTest {
+public class SafeOutputStreamConsumerTest {
 
     @Test
     public void shouldReplaceSecretsOnTheOutput() {

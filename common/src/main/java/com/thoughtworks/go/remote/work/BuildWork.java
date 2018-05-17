@@ -149,9 +149,7 @@ public class BuildWork implements Work {
 
     private SafeOutputStreamConsumer safeOutputStreamConsumer(EnvironmentVariableContext environmentVariableContext) {
         SafeOutputStreamConsumer consumer = new SafeOutputStreamConsumer(processOutputStreamConsumer());
-        for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : environmentVariableContext.getSecureEnvironmentVariables()) {
-            consumer.addSecret(new PasswordArgument(secureEnvironmentVariable.value()));
-        }
+        consumer.addSecrets(environmentVariableContext.secrets());
         return consumer;
     }
 

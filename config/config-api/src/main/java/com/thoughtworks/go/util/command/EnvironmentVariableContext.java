@@ -29,6 +29,15 @@ import static java.lang.String.format;
 public class EnvironmentVariableContext implements Serializable {
 
 
+    public List<SecretString> secrets() {
+        List<SecretString> passwordArguments = new ArrayList<>();
+
+        for (EnvironmentVariable secureEnvironmentVariable : getSecureEnvironmentVariables()) {
+            passwordArguments.add(new PasswordArgument(secureEnvironmentVariable.value()));
+        }
+        return passwordArguments;
+    }
+
     public static class EnvironmentVariable implements Serializable {
         private String name;
         private String value;

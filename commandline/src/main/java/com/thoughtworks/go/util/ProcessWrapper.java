@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import com.thoughtworks.go.util.command.StreamConsumer;
-import com.thoughtworks.go.util.command.StreamPumper;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +46,8 @@ public class ProcessWrapper {
         this.command = command;
         this.consumer = consumer;
         this.startTime = System.currentTimeMillis();
-        this.processOutputStream = StreamPumper.pump(process.getInputStream(), new OutputConsumer(), "", encoding);
-        this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new ErrorConsumer(), errorPrefix, encoding);
+        this.processOutputStream = StreamPumper.pump(process.getInputStream(), new OutputConsumer(consumer), "", encoding);
+        this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new ErrorConsumer(consumer), errorPrefix, encoding);
         this.processInputStream = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 
@@ -106,18 +104,6 @@ public class ProcessWrapper {
             return true;
         }
         return false;
-    }
-
-    private class OutputConsumer implements StreamConsumer {
-        public void consumeLine(String line) {
-            consumer.stdOutput(line);
-        }
-    }
-
-    private class ErrorConsumer implements StreamConsumer {
-        public void consumeLine(String line) {
-            consumer.errOutput(line);
-        }
     }
 
     public String getStartTimeForDisplay() {

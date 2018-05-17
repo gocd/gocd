@@ -17,43 +17,49 @@
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
 import com.thoughtworks.go.plugin.api.task.Console;
+import com.thoughtworks.go.util.command.ErrorConsumer;
+import com.thoughtworks.go.util.command.OutputConsumer;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import java.io.InputStream;
 import java.util.Map;
 
 public class PluggableTaskConsole implements Console {
     public static final String MASK_VALUE = "********";
-    private final DefaultGoPublisher publisher;
+    private final SafeOutputStreamConsumer safeOutputStreamConsumer;
     private final String consoleLogCharset;
+    private ErrorConsumer errorConsumer;
+    private OutputConsumer outputConsumer;
 
-    public PluggableTaskConsole(DefaultGoPublisher publisher, String consoleLogCharset) {
-        this.publisher = publisher;
+    public PluggableTaskConsole(SafeOutputStreamConsumer safeOutputStreamConsumer, String consoleLogCharset) {
+        this.safeOutputStreamConsumer = safeOutputStreamConsumer;
+        outputConsumer = new OutputConsumer(safeOutputStreamConsumer);
+        errorConsumer = new ErrorConsumer(safeOutputStreamConsumer);
         this.consoleLogCharset = consoleLogCharset;
     }
 
     @Override
     public void printLine(String line) {
-        publisher.consumeLine(line);
+        safeOutputStreamConsumer.stdOutput(line);
     }
 
     @Override
     public void readErrorOf(InputStream in) {
-        StreamPumper.pump(in, publisher, "", consoleLogCharset);
+        StreamPumper.pump(in, errorConsumer, "", consoleLogCharset);
     }
 
     @Override
     public void readOutputOf(InputStream in) {
-        StreamPumper.pump(in, publisher, "", consoleLogCharset);
+        StreamPumper.pump(in, outputConsumer, "", consoleLogCharset);
     }
 
     @Override
     public void printEnvironment(Map<String, String> environment, SecureEnvVarSpecifier secureEnvVarSpecifier) {
-        publisher.consumeLine("Environment variables: ");
+        safeOutputStreamConsumer.stdOutput("Environment variables: ");
         for (String key : environment.keySet()) {
             boolean secure = secureEnvVarSpecifier.isSecure(key);
-            publisher.consumeLine(String.format("Name= %s  Value= %s", key, secure ? MASK_VALUE : environment.get(key)));
+            safeOutputStreamConsumer.stdOutput(String.format("Name= %s  Value= %s", key, secure ? MASK_VALUE : environment.get(key)));
         }
     }
 }

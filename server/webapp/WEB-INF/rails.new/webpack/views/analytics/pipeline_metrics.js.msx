@@ -44,6 +44,7 @@
         return <option value={stage || ""} selected={stage === vm.currentStage()}>{null === stage ? "Select a stage" : stage}</option>;
       });
       return <label>Stage: {m("select", {
+        class: "stage-selector",
         onchange() {
           vm.currentStage($(this).val());
           $.each(StageModels.all(), (uid, m) => {
@@ -62,6 +63,7 @@
       });
 
       return <label>Pipeline: {m("select", {
+        class: "pipeline-selector",
         onchange() {
           vm.currentPipeline($(this).val());
           vm.currentStage(vm.stages()[0]);

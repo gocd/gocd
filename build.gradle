@@ -173,7 +173,6 @@ rootProject.ext.versions = [
   objenesis           : '2.6',
   oro                 : '2.0.8',
   rack                : '1.1.21',
-  rhino               : '1.7.7.2',
   servletApi          : '3.1.0',
   slf4j               : '1.7.25',
   spark               : '2.7.1',

@@ -203,7 +203,6 @@ dependencies {
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
   testCompile group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit
-  testCompile group: 'org.mozilla', name: 'rhino', version: project.versions.rhino
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config:config-server', configuration: 'testOutput')
   testCompile project(path: ':config:config-api', configuration: 'testOutput')

@@ -57,7 +57,7 @@ import static org.springframework.http.HttpStatus.*;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-pages-servlet.xml"
+        "classpath:WEB-INF/spring-all-servlet.xml"
 })
 public class AgentRegistrationControllerIntegrationTest {
     @Autowired

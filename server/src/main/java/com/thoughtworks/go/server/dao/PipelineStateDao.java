@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -67,12 +68,21 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
+    private CacheKeyGenerator cacheKeyGenerator;
 
 
     @Autowired
-    public PipelineStateDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
-                            SqlSessionFactory sqlSessionFactory, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
-                            GoConfigDao configFileDao, Database database, SessionFactory sessionFactory) {
+    public PipelineStateDao(StageDao stageDao,
+                            MaterialRepository materialRepository,
+                            GoCache goCache,
+                            EnvironmentVariableDao environmentVariableDao,
+                            TransactionTemplate transactionTemplate,
+                            SqlSessionFactory sqlSessionFactory,
+                            TransactionSynchronizationManager transactionSynchronizationManager,
+                            SystemEnvironment systemEnvironment,
+                            GoConfigDao configFileDao,
+                            Database database,
+                            SessionFactory sessionFactory) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
@@ -82,6 +92,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         this.systemEnvironment = systemEnvironment;
         this.configFileDao = configFileDao;
         this.sessionFactory = sessionFactory;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
     public void stageStatusChanged(Stage stage) {
@@ -102,7 +113,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override
                         public void afterCompletion(int status) {
-                            for(AfterCompletionCallback callback : callbacks) {
+                            for (AfterCompletionCallback callback : callbacks) {
                                 callback.execute(status);
                             }
                         }
@@ -143,7 +154,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override
                         public void afterCompletion(int status) {
-                            for(AfterCompletionCallback callback : afterCompletionCallbacks) {
+                            for (AfterCompletionCallback callback : afterCompletionCallbacks) {
                                 callback.execute(status);
                             }
                         }
@@ -196,8 +207,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     }
 
     String pipelineLockStateCacheKey(String pipelineName) {
-        // we intern() it because we synchronize on the returned String
-        return (PipelineStateDao.class.getName() + "_lockedPipeline_" + pipelineName.toLowerCase()).intern();
+        return cacheKeyGenerator.generate("lockedPipeline", pipelineName.toLowerCase());
     }
 
     public List<String> lockedPipelines() {

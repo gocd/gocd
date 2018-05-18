@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -48,7 +49,8 @@ public class MaterialExpansionServiceCachingTest {
 
     @Autowired
     GoCache goCache;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
     private static SvnTestRepoWithExternal svnRepo;
     private static MaterialExpansionService materialExpansionService;
 
@@ -83,7 +85,7 @@ public class MaterialExpansionServiceCachingTest {
     public void shouldCacheSvnMaterialCheckExternalCommand() {
         SvnMaterialConfig svnMaterialConfig = svnMaterialConfig(svnRepo.projectRepositoryUrl(), "mainRepo");
         MaterialConfigs materialConfigs = new MaterialConfigs();
-        String cacheKey = (MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svnMaterialConfig.getFingerprint()).intern();
+        String cacheKey = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
 
         Subversion svn = (SvnCommand) goCache.get(cacheKey);
         assertNull(svn);

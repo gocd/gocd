@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,12 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import org.assertj.core.api.Assertions;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
@@ -41,7 +43,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-public class PipelineStateDaoTest {
+class PipelineStateDaoTest {
 
     private GoCache goCache;
     private PipelineStateDao pipelineStateDao;
@@ -49,8 +51,8 @@ public class PipelineStateDaoTest {
     private org.hibernate.SessionFactory mockSessionFactory;
     private Session session;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         goCache.clear();
         mockSessionFactory = mock(SessionFactory.class);
@@ -62,7 +64,7 @@ public class PipelineStateDaoTest {
     }
 
     @Test
-    public void shouldNotCorruptCacheIfSaveFailsWhileLocking() {
+    void shouldNotCorruptCacheIfSaveFailsWhileLocking() {
         String pipelineName = UUID.randomUUID().toString();
         Pipeline pipeline = PipelineMother.pipeline(pipelineName, new Stage());
         PipelineState pipelineState = new PipelineState(pipelineName);
@@ -70,7 +72,7 @@ public class PipelineStateDaoTest {
 
         when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
             @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
+            public Object answer(InvocationOnMock invocation) {
                 org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
                 callback.doInTransaction(new SimpleTransactionStatus());
                 return null;
@@ -90,7 +92,7 @@ public class PipelineStateDaoTest {
     }
 
     @Test
-    public void shouldNotCorruptCacheIfSaveFailsWhileUnLocking() {
+    void shouldNotCorruptCacheIfSaveFailsWhileUnLocking() {
         String pipelineName = UUID.randomUUID().toString();
         PipelineState pipelineState = new PipelineState(pipelineName);
         long lockedByPipelineId = 1;
@@ -99,7 +101,7 @@ public class PipelineStateDaoTest {
 
         when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
             @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
+            public Object answer(InvocationOnMock invocation) {
                 org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
                 callback.doInTransaction(new SimpleTransactionStatus());
                 return null;
@@ -114,6 +116,15 @@ public class PipelineStateDaoTest {
             PipelineState stateFromCache = (PipelineState) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
             assertThat(stateFromCache.isLocked(), is(true));
             assertThat(stateFromCache.getLockedByPipelineId(), is(lockedByPipelineId));
+        }
+    }
+
+    @Nested
+    class PipelineLockStateCacheKey {
+        @Test
+        void shouldGenerateCacheKey() {
+            Assertions.assertThat(pipelineStateDao.pipelineLockStateCacheKey("foo"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.PipelineStateDao.$lockedPipeline.$foo");
         }
     }
 }

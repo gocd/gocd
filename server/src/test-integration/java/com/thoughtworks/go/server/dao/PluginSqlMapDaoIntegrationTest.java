@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.server.cache.GoCache;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSavePlugin() throws Exception {
+    public void shouldSavePlugin() {
         assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
 
         Plugin plugin = savePlugin("plugin-id");
@@ -75,7 +76,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdatePlugin() throws Exception {
+    public void shouldUpdatePlugin() {
         assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
 
         Plugin plugin = savePlugin("plugin-id");
@@ -88,7 +89,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnCorrectPluginIfPluginIdExists() throws Exception {
+    public void shouldReturnCorrectPluginIfPluginIdExists() {
         Plugin plugin = savePlugin("plugin-id");
 
         assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id")), is(nullValue()));
@@ -98,13 +99,13 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullPluginIfPluginIdDoesNotExist() throws Exception {
+    public void shouldReturnNullPluginIfPluginIdDoesNotExist() {
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("non-existing-plugin-id");
         assertThat(pluginInDB, is(new NullPlugin()));
     }
 
     @Test
-    public void shouldReturnAllPlugins() throws Exception {
+    public void shouldReturnAllPlugins() {
         Plugin plugin1 = savePlugin("plugin-id-1");
 
         List<Plugin> plugins = pluginSqlMapDao.getAllPlugins();
@@ -119,7 +120,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteAllPlugins() throws Exception {
+    public void shouldDeleteAllPlugins() {
         savePlugin("plugin-id-1");
         savePlugin("plugin-id-2");
 

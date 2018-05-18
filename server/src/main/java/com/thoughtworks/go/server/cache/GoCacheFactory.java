@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class GoCacheFactory {
     private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -65,7 +64,7 @@ public class GoCacheFactory {
         factoryBean.setMaxElementsOnDisk(maxElementsOnDisk);
     }
 
-    public void setMemoryStoreEvictionPolicy(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+    public void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
         factoryBean.setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
     }
 

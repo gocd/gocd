@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -395,15 +394,13 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(users, is(empty()));
     }
 
-    @Test
-    @ExpectedException(UserNotFoundException.class)
+    @Test(expected = UserNotFoundException.class)
     public void shouldThrowExceptionWhenUserIsNotFound() {
         String userName = "invaliduser";
         userDao.deleteUser(userName);
     }
 
-    @Test
-    @ExpectedException(UserEnabledException.class)
+    @Test(expected = UserEnabledException.class)
     public void shouldThrowExceptionWhenUserIsNotDisabled() {
         String userName = "enabledUser";
         User user = new User(userName);

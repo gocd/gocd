@@ -93,7 +93,6 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
-      "aopalliance-1.0.jar",
       "base-${project.version}.jar",
       "bcprov-jdk15on-1.47.jar",
       "cloning-1.7.3.jar",

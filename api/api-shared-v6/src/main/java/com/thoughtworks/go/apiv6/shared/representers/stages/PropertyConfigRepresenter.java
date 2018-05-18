@@ -16,14 +16,23 @@
 
 package com.thoughtworks.go.apiv6.shared.representers.stages;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.config.ArtifactPropertiesConfig;
 import com.thoughtworks.go.config.ArtifactPropertyConfig;
 
 import java.util.HashMap;
 
 public class PropertyConfigRepresenter {
+
+    public static void toJSONArray(OutputListWriter propertiesWriter, ArtifactPropertiesConfig properties) {
+        properties.forEach(artifactPropertyConfig -> {
+            propertiesWriter.addChild(artifactPropertyWriter -> toJSON(artifactPropertyWriter, artifactPropertyConfig));
+        });
+    }
+
     public static void toJSON(OutputWriter jsonWriter, ArtifactPropertyConfig artifactPropertyConfig) {
         if (!artifactPropertyConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
@@ -38,11 +47,18 @@ public class PropertyConfigRepresenter {
         jsonWriter.add("xpath", artifactPropertyConfig.getXpath());
     }
 
+    public static ArtifactPropertiesConfig fromJSONArray(JsonReader jsonReader) {
+        ArtifactPropertiesConfig artifactPropertyConfigs = new ArtifactPropertiesConfig();
+        jsonReader.readArrayIfPresent("properties", properties -> {
+            properties.forEach(property -> {
+                artifactPropertyConfigs.add(PropertyConfigRepresenter.fromJSON(new JsonReader(property.getAsJsonObject())));
+            });
+        });
+        return artifactPropertyConfigs;
+    }
+
     public static ArtifactPropertyConfig fromJSON(JsonReader jsonReader) {
         ArtifactPropertyConfig artifactPropertyConfig = new ArtifactPropertyConfig();
-        if (jsonReader == null) {
-            return artifactPropertyConfig;
-        }
         jsonReader.readStringIfPresent("name", artifactPropertyConfig::setName);
         jsonReader.readStringIfPresent("source", artifactPropertyConfig::setSrc);
         jsonReader.readStringIfPresent("xpath", artifactPropertyConfig::setXpath);

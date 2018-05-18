@@ -57,10 +57,6 @@ public class TrackingToolRepresenter {
   }
 
   public static Object fromJSON(JsonReader jsonReader) {
-    if (jsonReader == null) {
-      return null;
-    }
-
     String type = jsonReader.getString("type");
     JsonReader attributes = jsonReader.readJsonObject("attributes");
     switch (type) {

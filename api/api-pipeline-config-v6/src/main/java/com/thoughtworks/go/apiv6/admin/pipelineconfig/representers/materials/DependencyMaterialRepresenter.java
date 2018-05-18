@@ -30,9 +30,6 @@ public class DependencyMaterialRepresenter {
     }
 
     public static DependencyMaterialConfig fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig();
         jsonReader.readCaseInsensitiveStringIfPresent("pipeline", dependencyMaterialConfig::setPipelineName);
         jsonReader.readCaseInsensitiveStringIfPresent("stage", dependencyMaterialConfig::setStageName);

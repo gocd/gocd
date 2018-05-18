@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 
@@ -32,10 +33,7 @@ public class SvnMaterialRepresenter {
         jsonWriter.addIfNotNull("encrypted_password", svnMaterialConfig.getEncryptedPassword());
     }
 
-    public static SvnMaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
+    public static SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, svnMaterialConfig);
         jsonReader.optBoolean("check_externals").ifPresent(svnMaterialConfig::setCheckExternals);
@@ -47,7 +45,7 @@ public class SvnMaterialRepresenter {
         if (jsonReader.hasJsonObject("encrypted_password")) {
             encryptedPassword = jsonReader.getString("encrypted_password");
         }
-        PasswordDeserializer passwordDeserializer = (PasswordDeserializer) options.get("passwordDeserializer");
+        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
         String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, svnMaterialConfig);
         svnMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return svnMaterialConfig;

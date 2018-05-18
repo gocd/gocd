@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers;
 
-import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -26,18 +25,16 @@ import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresen
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigRepoOriginRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigXmlOriginRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter;
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.MingleConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.TimerConfig;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.spark.Routes;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class PipelineConfigRepresenter {
 
@@ -65,48 +62,37 @@ public class PipelineConfigRepresenter {
         jsonWriter.add("name", pipelineConfig.name());
         jsonWriter.add("template", pipelineConfig.getTemplateName());
         writeOrigin(jsonWriter, pipelineConfig.getOrigin());
-        jsonWriter.addChildList("parameters", getParams(pipelineConfig.getParams()));
+        jsonWriter.addChildList("parameters", paramsWriter -> ParamRepresenter.toJSONArray(paramsWriter, pipelineConfig.getParams()));
         jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, pipelineConfig.getVariables()));
-        jsonWriter.addChildList("materials", getMaterials(pipelineConfig.materialConfigs()));
-        if (pipelineConfig.getStages().isEmpty()) {
-            jsonWriter.renderNull("stages");
-        } else {
-            jsonWriter.addChildList("stages", getStages(pipelineConfig));
-        }
+        jsonWriter.addChildList("materials", materialsWriter -> MaterialRepresenter.toJSONArray(materialsWriter, pipelineConfig.materialConfigs()));
+        writeStages(jsonWriter, pipelineConfig);
+        writeTrackingTool(jsonWriter, pipelineConfig);
+        writeTimer(jsonWriter, pipelineConfig.getTimer());
+
+    }
+
+    private static void writeTrackingTool(OutputWriter jsonWriter, PipelineConfig pipelineConfig) {
         if (pipelineConfig.getTrackingTool() != null || pipelineConfig.getMingleConfig().isDefined()) {
             jsonWriter.addChild("tracking_tool", trackingToolWriter -> TrackingToolRepresenter.toJSON(trackingToolWriter, pipelineConfig));
         } else {
             jsonWriter.renderNull("tracking_tool");
         }
-        if (pipelineConfig.getTimer() == null) {
+    }
+
+    private static void writeTimer(OutputWriter jsonWriter, TimerConfig timer) {
+        if (timer == null) {
             jsonWriter.renderNull("timer");
         } else {
-            jsonWriter.addChild("timer", timerWriter -> TimerRepresenter.toJSON(timerWriter, pipelineConfig.getTimer()));
+            jsonWriter.addChild("timer", timerWriter -> TimerRepresenter.toJSON(timerWriter, timer));
         }
     }
 
-    private static Consumer<OutputListWriter> getMaterials(MaterialConfigs materialConfigs) {
-        return materialsWriter -> {
-            materialConfigs.forEach(materialConfig -> {
-                materialsWriter.addChild(materialWriter -> MaterialRepresenter.toJSON(materialWriter, materialConfig));
-            });
-        };
-    }
-
-    private static Consumer<OutputListWriter> getParams(ParamsConfig params) {
-        return paramsWriter -> {
-            params.forEach(param -> {
-                paramsWriter.addChild(paramWriter -> ParamRepresenter.toJSON(paramWriter, param));
-            });
-        };
-    }
-
-    private static Consumer<OutputListWriter> getStages(PipelineConfig pipelineConfig) {
-        return stagesWriter -> {
-            pipelineConfig.getStages().forEach(stage -> {
-                stagesWriter.addChild(stageWriter -> StageRepresenter.toJSON(stageWriter, stage));
-            });
-        };
+    private static void writeStages(OutputWriter jsonWriter, PipelineConfig pipelineConfig) {
+        if (pipelineConfig.getStages().isEmpty()) {
+            jsonWriter.renderNull("stages");
+        } else {
+            jsonWriter.addChildList("stages", stagesWriter -> StageRepresenter.toJSONArray(stagesWriter, pipelineConfig));
+        }
     }
 
     private static void writeOrigin(OutputWriter jsonWriter, ConfigOrigin origin) {
@@ -117,30 +103,22 @@ public class PipelineConfigRepresenter {
         }
     }
 
-    public static PipelineConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
+    public static PipelineConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PipelineConfig pipelineConfig = new PipelineConfig();
         jsonReader.readStringIfPresent("label_template", pipelineConfig::setLabelTemplate);
         jsonReader.readStringIfPresent("lock_behavior", pipelineConfig::setLockBehaviorIfNecessary);
         jsonReader.readStringIfPresent("name", pipelineConfig::setName);
         jsonReader.readCaseInsensitiveStringIfPresent("template", pipelineConfig::setTemplateName);
         pipelineConfig.setOrigin(new FileConfigOrigin());
-        setParameters(jsonReader, pipelineConfig);
-        setEnvironmentVariables(jsonReader, pipelineConfig);
-        setMaterials(jsonReader, pipelineConfig, options);
+        pipelineConfig.setParams(ParamRepresenter.fromJSONArray(jsonReader));
+        pipelineConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
+        pipelineConfig.setMaterialConfigs(MaterialRepresenter.fromJSONArray(jsonReader, options));
         setStages(jsonReader, pipelineConfig);
         setTrackingTool(jsonReader, pipelineConfig);
-        setTimer(jsonReader, pipelineConfig);
+        jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> {
+            pipelineConfig.setTimer(TimerRepresenter.fromJSON(timerJsonReader));
+        });
         return pipelineConfig;
-    }
-
-    private static void setTimer(JsonReader jsonReader, PipelineConfig pipelineConfig) {
-        if (jsonReader.hasJsonObject("timer")) {
-            TimerConfig timer = TimerRepresenter.fromJSON(jsonReader.readJsonObject("timer"));
-            pipelineConfig.setTimer(timer);
-        }
     }
 
     private static void setTrackingTool(JsonReader jsonReader, PipelineConfig pipelineConfig) {
@@ -161,39 +139,5 @@ public class PipelineConfigRepresenter {
                 pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
             });
         });
-    }
-
-    private static void setMaterials(JsonReader jsonReader, PipelineConfig pipelineConfig, Map<String, Object> options) {
-        MaterialConfigs materialConfigs = new MaterialConfigs();
-        jsonReader.readArrayIfPresent("materials", materials -> {
-            materials.forEach(material -> {
-                materialConfigs.add(MaterialRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options));
-            });
-        });
-        pipelineConfig.setMaterialConfigs(materialConfigs);
-    }
-
-    private static void setParameters(JsonReader jsonReader, PipelineConfig pipelineConfig) {
-        ParamsConfig paramConfigs = new ParamsConfig();
-        jsonReader.readArrayIfPresent("parameters", params -> {
-            params.forEach(param -> {
-                paramConfigs.add(ParamRepresenter.fromJSON(new JsonReader(param.getAsJsonObject())));
-            });
-        });
-        pipelineConfig.setParams(paramConfigs);
-    }
-
-    private static void setEnvironmentVariables(JsonReader jsonReader, PipelineConfig pipelineConfig) {
-        EnvironmentVariablesConfig environmentVariableConfigs = new EnvironmentVariablesConfig();
-        jsonReader.readArrayIfPresent("environment_variables", variables -> {
-            variables.forEach(variable -> {
-                try {
-                    environmentVariableConfigs.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject())));
-                } catch (InvalidCipherTextException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
-        pipelineConfig.setVariables(environmentVariableConfigs);
     }
 }

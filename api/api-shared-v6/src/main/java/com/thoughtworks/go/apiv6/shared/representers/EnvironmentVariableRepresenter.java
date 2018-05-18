@@ -20,7 +20,9 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.exceptions.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.HashMap;
@@ -54,21 +56,27 @@ public class EnvironmentVariableRepresenter {
         }
     }
 
-    public static EnvironmentVariableConfig fromJSON(JsonReader jsonReader) throws InvalidCipherTextException {
-        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
-        String name = jsonReader.getString("name");
-        String value = null, encryptedValue = null;
-        Boolean secure = false;
-        if (jsonReader.hasJsonObject("value")) {
-            value = jsonReader.getString("value");
-        }
-        if (jsonReader.hasJsonObject("encrypted_value")) {
-            encryptedValue = jsonReader.getString("encrypted_value");
-        }
-        if (jsonReader.hasJsonObject("secure")) {
-            secure = jsonReader.optBoolean("secure").get();
-        }
-        environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
-        return environmentVariableConfig;
+
+    public static EnvironmentVariablesConfig fromJSONArray(JsonReader jsonReader) {
+        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        jsonReader.readArrayIfPresent("environment_variables", environmentVariables -> {
+            environmentVariables.forEach(variable -> variables.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject()))));
+        });
+        return variables;
     }
+
+    public static EnvironmentVariableConfig fromJSON(JsonReader jsonReader) {
+        String name = jsonReader.getString("name");
+        Boolean secure = jsonReader.optBoolean("secure").orElse(false);
+        String value = secure ? jsonReader.optString("value").orElse(null) : jsonReader.getString("value");
+        String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
+        try {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
+            environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
+            return environmentVariableConfig;
+        } catch (InvalidCipherTextException e) {
+            throw new InvalidGoCipherTextRuntimeException(e.getMessage(), e);
+        }
+    }
+
 }

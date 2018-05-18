@@ -29,9 +29,6 @@ public class MingleTrackingToolRepresenter {
   }
 
   public static MingleConfig fromJSON(JsonReader jsonReader) {
-    if (jsonReader == null) {
-      return null;
-    }
     MingleConfig mingleConfig = new MingleConfig();
     jsonReader.readStringIfPresent("base_url", mingleConfig::setBaseUrl);
     jsonReader.readStringIfPresent("project_identifier", mingleConfig::setProjectIdentifier);

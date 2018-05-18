@@ -23,7 +23,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.tasks.TaskRepresenter;
 import com.thoughtworks.go.config.*;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,44 +48,20 @@ public class JobRepresenter {
         jsonWriter.addIfNotNull("elastic_profile_id", jobConfig.getElasticProfileId());
         jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, jobConfig.getVariables()));
         jsonWriter.addChildList("resources", getResourceNames(jobConfig));
-        jsonWriter.addChildList("tasks", getTasks(jobConfig));
-        jsonWriter.addChildList("tabs", getTabs(jobConfig));
+        jsonWriter.addChildList("tasks", tasksWriter -> TaskRepresenter.toJSONArray(tasksWriter, jobConfig.getTasks()));
+        jsonWriter.addChildList("tabs", tabsWriter -> TabConfigRepresenter.toJSONArray(tabsWriter, jobConfig.getTabs()));
         jsonWriter.addChildList("artifacts", getArtifacts(jobConfig));
         if (jobConfig.getProperties().isEmpty()) {
             jsonWriter.renderNull("properties");
         } else {
-            jsonWriter.addChildList("properties", getArtifactProperties(jobConfig));
+            jsonWriter.addChildList("properties", propertiesWriter -> PropertyConfigRepresenter.toJSONArray(propertiesWriter, jobConfig.getProperties()));
         }
-    }
-
-    private static Consumer<OutputListWriter> getArtifactProperties(JobConfig jobConfig) {
-        return jobPropertiesWriter -> {
-            jobConfig.getProperties().forEach(artifactPropertyConfig -> {
-                jobPropertiesWriter.addChild(artifactPropertyWriter -> PropertyConfigRepresenter.toJSON(artifactPropertyWriter, artifactPropertyConfig));
-            });
-        };
     }
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {
         return artifactsWriter -> {
             jobConfig.artifactConfigs().forEach(artifactConfig -> {
                 artifactsWriter.addChild(artifactWriter -> ArtifactRepresenter.toJSON(artifactWriter, artifactConfig));
-            });
-        };
-    }
-
-    private static Consumer<OutputListWriter> getTabs(JobConfig jobConfig) {
-        return tabsWriter -> {
-            jobConfig.getTabs().forEach(tab -> {
-                tabsWriter.addChild(tabWriter -> TabConfigRepresenter.toJSON(tabWriter, tab));
-            });
-        };
-    }
-
-    private static Consumer<OutputListWriter> getTasks(JobConfig jobConfig) {
-        return tasksWriter -> {
-            jobConfig.getTasks().forEach(task -> {
-                tasksWriter.addChild(taskWriter -> TaskRepresenter.toJSON(taskWriter, task));
             });
         };
     }
@@ -118,53 +93,18 @@ public class JobRepresenter {
     public static JobConfig fromJSON(JsonReader jsonReader) {
         JobRepresenter.jsonReader = jsonReader;
         JobConfig jobConfig = new JobConfig();
-        if (jsonReader == null) {
-            return jobConfig;
-        }
         jsonReader.readCaseInsensitiveStringIfPresent("name", jobConfig::setName);
         setRunInstanceCount(jobConfig);
         setTimeout(jobConfig);
         jsonReader.readStringIfPresent("elastic_profile_id", jobConfig::setElasticProfileId);
         setArtifacts(jobConfig);
-        setEnvironmentVariables(jobConfig);
+        jobConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setResources(jobConfig);
-        setTabs(jobConfig);
-        setProperties(jobConfig);
-        setTasks(jobConfig);
+        jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
+        jobConfig.setProperties(PropertyConfigRepresenter.fromJSONArray(jsonReader));
+        jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader));
 
         return jobConfig;
-    }
-
-    private static void setTasks(JobConfig jobConfig) {
-        Tasks allTasks = new Tasks();
-        jsonReader.readArrayIfPresent("tasks", tasks -> {
-            tasks.forEach(task -> {
-                allTasks.add(TaskRepresenter.fromJSON(new JsonReader(task.getAsJsonObject())));
-            });
-        });
-
-        jobConfig.setTasks(allTasks);
-    }
-
-    private static void setProperties(JobConfig jobConfig) {
-        ArtifactPropertiesConfig artifactPropertyConfigs = new ArtifactPropertiesConfig();
-        jsonReader.readArrayIfPresent("properties", properties -> {
-            properties.forEach(property -> {
-                artifactPropertyConfigs.add(PropertyConfigRepresenter.fromJSON(new JsonReader(property.getAsJsonObject())));
-            });
-        });
-
-        jobConfig.setProperties(artifactPropertyConfigs);
-    }
-
-    private static void setTabs(JobConfig jobConfig) {
-        Tabs tabsConfig = new Tabs();
-        jsonReader.readArrayIfPresent("tabs", tabs -> {
-            tabs.forEach(tab -> {
-                tabsConfig.add(TabConfigRepresenter.fromJSON(new JsonReader(tab.getAsJsonObject())));
-            });
-        });
-        jobConfig.setTabs(tabsConfig);
     }
 
     private static void setResources(JobConfig jobConfig) {
@@ -176,20 +116,6 @@ public class JobRepresenter {
         });
 
         jobConfig.setResourceConfigs(resourceConfigs);
-    }
-
-    private static void setEnvironmentVariables(JobConfig jobConfig) {
-        EnvironmentVariablesConfig environmentVariableConfigs = new EnvironmentVariablesConfig();
-        jsonReader.readArrayIfPresent("environment_variables", variables -> {
-            variables.forEach(variable -> {
-                try {
-                    environmentVariableConfigs.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject())));
-                } catch (InvalidCipherTextException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
-        jobConfig.setVariables(environmentVariableConfigs);
     }
 
     private static void setArtifacts(JobConfig jobConfig) {

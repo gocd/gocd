@@ -39,10 +39,6 @@ public class ApprovalRepresenter {
 
   public static Approval fromJSON(JsonReader jsonReader) {
     Approval approval = new Approval();
-    if (jsonReader == null) {
-      return approval;
-    }
-
     jsonReader.readStringIfPresent("type", approval::setType);
     AuthConfig authConfig = StageAuthorizationRepresenter.fromJSON(jsonReader.readJsonObject("authorization"));
     approval.setAuthConfig(authConfig);

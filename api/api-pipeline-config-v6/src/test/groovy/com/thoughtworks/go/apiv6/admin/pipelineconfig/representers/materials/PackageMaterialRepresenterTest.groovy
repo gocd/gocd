@@ -17,12 +17,14 @@
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
@@ -31,11 +33,12 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
+import static org.mockito.Mockito.mock
 
 class PackageMaterialRepresenterTest {
 
   def getOptions() {
-    return  new HashMap()
+    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
   }
 
   @Test
@@ -51,11 +54,9 @@ class PackageMaterialRepresenterTest {
     def repo = PackageRepositoryMother.create("repoid")
     goConfig.getPackageRepositories().add(repo)
 
-    def map = new HashMap<>()
-    map.put("goConfig", goConfig)
-
+    def options = new ConfigHelperOptions(goConfig, mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(packageMaterialHash('package-name'))
-    def packageMaterialConfig = (PackageMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, map)
+    def packageMaterialConfig = (PackageMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, options)
 
     assertEquals('package-name', packageMaterialConfig.getPackageId())
     assertEquals(repo.findPackage('package-name'), packageMaterialConfig.getPackageDefinition())
@@ -63,10 +64,9 @@ class PackageMaterialRepresenterTest {
 
   @Test
   void "should set packageId during deserialisation if matching package definition is not present in config"() {
-    def map = new HashMap<String, Object>()
-    map.put("goConfig", new BasicCruiseConfig())
+    def options = new ConfigHelperOptions(new BasicCruiseConfig(), mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(packageMaterialHash('package-name'))
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, map)
+    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, options)
 
     assertEquals("package-name", ((PackageMaterialConfig) deserializedObject).getPackageId())
     assertNull(((PackageMaterialConfig)deserializedObject).getPackageDefinition())

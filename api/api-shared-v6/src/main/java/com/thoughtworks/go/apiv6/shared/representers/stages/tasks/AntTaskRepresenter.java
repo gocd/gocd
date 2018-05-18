@@ -33,9 +33,6 @@ public class AntTaskRepresenter {
 
     public static AntTask fromJSON(JsonReader jsonReader) {
         AntTask antTask = new AntTask();
-        if (jsonReader == null) {
-            return antTask;
-        }
         BaseTaskRepresenter.fromJSON(jsonReader, antTask);
         jsonReader.readStringIfPresent("working_directory", antTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", antTask::setBuildFile);

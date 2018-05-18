@@ -22,12 +22,17 @@ import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.*;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class StageRepresenter {
+
+  public static void toJSONArray(OutputListWriter stagesWriter, PipelineConfig pipelineConfig) {
+    pipelineConfig.getStages().forEach(stage -> {
+      stagesWriter.addChild(stageWriter -> toJSON(stageWriter, stage));
+    });
+  }
 
   public static void toJSON(OutputWriter jsonWriter, StageConfig stageConfig) {
     if (!stageConfig.errors().isEmpty()) {
@@ -56,35 +61,16 @@ public class StageRepresenter {
 
   public static StageConfig fromJSON(JsonReader jsonReader) {
     StageConfig stageConfig = new StageConfig();
-    if (jsonReader == null) {
-      return stageConfig;
-    }
     jsonReader.readCaseInsensitiveStringIfPresent("name", stageConfig::setName);
     jsonReader.optBoolean("fetch_materials").ifPresent(stageConfig::setFetchMaterials);
     jsonReader.optBoolean("clean_working_directory").ifPresent(stageConfig::setCleanWorkingDir);
     jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
-
-    setEnvironmentVariables(jsonReader, stageConfig);
+    stageConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
     setJobs(jsonReader, stageConfig);
-    if (jsonReader.hasJsonObject("approval")) {
-      Approval approval = ApprovalRepresenter.fromJSON(jsonReader.readJsonObject("approval"));
-      stageConfig.setApproval(approval);
-    }
-    return stageConfig;
-  }
-
-  private static void setEnvironmentVariables(JsonReader jsonReader, StageConfig stageConfig) {
-    EnvironmentVariablesConfig environmentVariableConfigs = new EnvironmentVariablesConfig();
-    jsonReader.readArrayIfPresent("environment_variables", variables -> {
-      variables.forEach(variable -> {
-        try {
-          environmentVariableConfigs.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject())));
-        } catch (InvalidCipherTextException e) {
-          e.printStackTrace();
-        }
-      });
+    jsonReader.optJsonObject("approval").ifPresent(approvalReader -> {
+      stageConfig.setApproval(ApprovalRepresenter.fromJSON(approvalReader));
     });
-    stageConfig.setVariables(environmentVariableConfigs);
+    return stageConfig;
   }
 
   private static void setJobs(JsonReader jsonReader, StageConfig stageConfig) {

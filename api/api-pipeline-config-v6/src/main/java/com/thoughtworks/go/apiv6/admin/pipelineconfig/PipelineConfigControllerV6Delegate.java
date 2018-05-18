@@ -24,6 +24,7 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -78,9 +79,7 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
 
     @Override
     public PipelineConfig getEntityFromRequestBody(Request req) {
-        HashMap<String, Object> options = new HashMap<>();
-        options.put("goConfig", goConfigService.getCurrentConfig() );
-        options.put("passwordDeserializer", passwordDeserializer );
+        ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         if ("PUT".equalsIgnoreCase(req.requestMethod())) {
             return PipelineConfigRepresenter.fromJSON(jsonReader, options);

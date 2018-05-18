@@ -31,17 +31,15 @@ public class GitMaterialRepresenter {
     }
 
     public static GitMaterialConfig fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, gitMaterialConfig);
-        if (jsonReader.hasJsonObject("branch") && StringUtils.isNotBlank(jsonReader.getString("branch"))) {
-            jsonReader.readStringIfPresent("branch", gitMaterialConfig::setBranch);
-        }
-        else {
-            gitMaterialConfig.setBranch("master");
-        }
+        jsonReader.optString("branch").ifPresent(branch -> {
+            if (StringUtils.isNotBlank(branch)) {
+                gitMaterialConfig.setBranch(branch);
+            } else {
+                gitMaterialConfig.setBranch("master");
+            }
+        });
         jsonReader.readStringIfPresent("submodule_folder", gitMaterialConfig::setSubmoduleFolder);
         jsonReader.optBoolean("shallow_clone").ifPresent(gitMaterialConfig::setShallowClone);
 

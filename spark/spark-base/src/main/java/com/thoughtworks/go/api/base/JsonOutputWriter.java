@@ -184,7 +184,6 @@ public class JsonOutputWriter {
 
         @Override
         public OutputWriter addChild(String key, Consumer<OutputWriter> consumer) {
-
             return new JsonOutputChildWriter(key, this).body(consumer);
         }
 

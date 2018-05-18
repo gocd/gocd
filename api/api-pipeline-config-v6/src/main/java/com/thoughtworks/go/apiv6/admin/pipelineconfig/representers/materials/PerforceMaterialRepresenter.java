@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 
@@ -35,10 +36,7 @@ public class PerforceMaterialRepresenter {
         jsonWriter.add("view", p4MaterialConfig.getView());
     }
 
-    public static P4MaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
+    public static P4MaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, p4MaterialConfig);
         jsonReader.readStringIfPresent("port", p4MaterialConfig::setServerAndPort);
@@ -53,7 +51,7 @@ public class PerforceMaterialRepresenter {
             encryptedPassword = jsonReader.getString("encrypted_password");
         }
 
-        PasswordDeserializer passwordDeserializer = (PasswordDeserializer) options.get("passwordDeserializer");
+        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
         String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, p4MaterialConfig);
         p4MaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return p4MaterialConfig;

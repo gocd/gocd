@@ -33,9 +33,6 @@ public class RakeTaskRepresenter {
 
     public static RakeTask fromJSON(JsonReader jsonReader) {
         RakeTask rakeTask = new RakeTask();
-        if (jsonReader == null) {
-            return rakeTask;
-        }
         BaseTaskRepresenter.fromJSON(jsonReader, rakeTask);
         jsonReader.readStringIfPresent("working_directory", rakeTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", rakeTask::setBuildFile);

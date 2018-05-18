@@ -16,10 +16,13 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -44,6 +47,12 @@ public class MaterialRepresenter {
         put(PackageMaterialConfig.class, "package");
         put(PluggableSCMMaterialConfig.class, "plugin");
     }};
+
+    public static void toJSONArray(OutputListWriter materialsWriter, MaterialConfigs materialConfigs) {
+        materialConfigs.forEach(materialConfig -> {
+            materialsWriter.addChild(materialWriter -> toJSON(materialWriter, materialConfig));
+        });
+    }
 
     public static void toJSON(OutputWriter jsonWriter, MaterialConfig materialConfig) {
         if (!materialConfig.errors().isEmpty()) {
@@ -98,7 +107,17 @@ public class MaterialRepresenter {
 
     }
 
-    public static MaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
+    public static MaterialConfigs fromJSONArray(JsonReader jsonReader, ConfigHelperOptions options) {
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        jsonReader.readArrayIfPresent("materials", materials -> {
+            materials.forEach(material -> {
+                materialConfigs.add(MaterialRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options));
+            });
+        });
+        return materialConfigs;
+    }
+
+    public static MaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         String type = jsonReader.getString("type");
         JsonReader attributes = jsonReader.readJsonObject("attributes");
         switch (type) {

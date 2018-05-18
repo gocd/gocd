@@ -42,9 +42,6 @@ public class FetchTaskRepresenter {
 
     public static FetchTask fromJSON(JsonReader jsonReader) {
         FetchTask fetchTask = new FetchTask();
-        if (jsonReader == null) {
-            return fetchTask;
-        }
         BaseTaskRepresenter.fromJSON(jsonReader, fetchTask);
         jsonReader.readCaseInsensitiveStringIfPresent("pipeline", fetchTask::setPipelineName);
         jsonReader.readCaseInsensitiveStringIfPresent("stage", fetchTask::setStage);

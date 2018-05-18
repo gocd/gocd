@@ -16,14 +16,23 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.ParamConfig;
+import com.thoughtworks.go.config.ParamsConfig;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class ParamRepresenter {
+
+    public static void toJSONArray(OutputListWriter jsonWriter, ParamsConfig paramConfigs) {
+        paramConfigs.forEach(param -> {
+            jsonWriter.addChild(paramWriter -> toJSON(paramWriter, param));
+        });
+    }
 
     public static void toJSON(OutputWriter jsonWriter, ParamConfig paramConfig) {
         if (!paramConfig.errors().isEmpty()) {
@@ -35,13 +44,21 @@ public class ParamRepresenter {
         jsonWriter.add("value", paramConfig.getValue());
     }
 
-    public static ParamConfig fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
+    public static ParamsConfig fromJSONArray(JsonReader jsonReader) {
+        ParamsConfig paramConfigs = new ParamsConfig();
+        jsonReader.readArrayIfPresent("parameters", params -> {
+            params.forEach(param -> {
+                paramConfigs.add(ParamRepresenter.fromJSON(new JsonReader(param.getAsJsonObject())));
+            });
+        });
+        return paramConfigs;
+    }
+
+    private static ParamConfig fromJSON(JsonReader jsonReader) {
         ParamConfig paramConfig = new ParamConfig();
         jsonReader.readStringIfPresent("name", paramConfig::setName);
         jsonReader.readStringIfPresent("value", paramConfig::setValue);
         return paramConfig;
     }
+
 }

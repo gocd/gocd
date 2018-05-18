@@ -46,9 +46,6 @@ public class ArtifactRepresenter {
     }
 
     public static ArtifactConfig fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
         String type = jsonReader.getString("type");
         BuiltinArtifactConfig artifactConfig;
         switch (type) {

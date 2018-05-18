@@ -42,10 +42,6 @@ public class StageAuthorizationRepresenter {
 
   public static AuthConfig fromJSON(JsonReader jsonReader) {
     AuthConfig authConfig = new AuthConfig();
-    if (jsonReader == null) {
-      return authConfig;
-    }
-
     jsonReader.readArrayIfPresent("roles", roles -> {
       roles.forEach(role -> {
         authConfig.add(new AdminRole(new CaseInsensitiveString(role.getAsString())));

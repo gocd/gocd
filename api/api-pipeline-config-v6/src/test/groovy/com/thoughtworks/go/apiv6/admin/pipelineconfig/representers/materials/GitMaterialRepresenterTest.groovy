@@ -17,13 +17,14 @@
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
-import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
@@ -32,7 +33,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
-
+import static org.mockito.Mockito.mock
 
 class GitMaterialRepresenterTest implements MaterialRepresenterTest {
 
@@ -41,7 +42,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
   }
 
   def getOptions() {
-    return  new HashMap()
+    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
+
   }
 
   def existingMaterialWithErrors() {
@@ -81,7 +83,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
       ]
     ])
 
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, new HashMap<String, Object>())
+    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
 
     assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
@@ -102,7 +104,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         invert_filter: null
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, new HashMap<String, Object>())
+    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
@@ -122,7 +124,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         invert_filter: true
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, new HashMap<String, Object>())
+    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
     expected.setInvertFilter(true)
 
@@ -142,7 +144,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         name: null
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, new HashMap<String, Object>())
+    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
     assertEquals("master", ((GitMaterialConfig) deserializedObject).getBranch().toString())
   }
 

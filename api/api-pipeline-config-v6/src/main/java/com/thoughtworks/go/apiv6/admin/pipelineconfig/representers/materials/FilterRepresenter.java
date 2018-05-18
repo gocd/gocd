@@ -31,9 +31,6 @@ public class FilterRepresenter {
     }
 
     public static Filter fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
         Filter filter = new Filter();
         filter.clear();
         jsonReader.readArrayIfPresent("ignore", ignoredFiles -> {

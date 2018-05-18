@@ -42,16 +42,12 @@ public class ScmMaterialRepresenter {
     }
 
     public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        if (jsonReader == null) {
-            return;
-        }
         jsonReader.readStringIfPresent("url", scmMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
-        if (jsonReader.hasJsonObject("filter")) {
-            Filter filter = FilterRepresenter.fromJSON(jsonReader.readJsonObject("filter"));
-            scmMaterialConfig.setFilter(filter);
-        }
+        jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
+            scmMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader));
+        });
         jsonReader.readCaseInsensitiveStringIfPresent("name", scmMaterialConfig::setName);
         jsonReader.optBoolean("auto_update").ifPresent(scmMaterialConfig::setAutoUpdate);
     }

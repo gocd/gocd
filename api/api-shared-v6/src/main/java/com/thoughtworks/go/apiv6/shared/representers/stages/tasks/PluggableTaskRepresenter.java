@@ -36,9 +36,6 @@ public class PluggableTaskRepresenter {
 
     public static PluggableTask fromJSON(JsonReader jsonReader) {
         PluggableTask pluggableTask = new PluggableTask();
-        if (jsonReader == null) {
-            return pluggableTask;
-        }
         BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask);
         PluginConfiguration pluginConfiguration = PluginConfigurationRepresenter.fromJSON(jsonReader.readJsonObject("plugin_configuration"));
         pluggableTask.setPluginConfiguration(pluginConfiguration);

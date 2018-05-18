@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference
 import com.thoughtworks.go.plugin.api.config.Property
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty
+import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.BeforeEach
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
@@ -64,7 +65,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTest {
           ],
           [
             key:             'secure_key',
-            encrypted_value: 'mJxU96GFuVY='
+            encrypted_value: new GoCipher().encrypt('value')
           ]
         ],
         run_if           : []
@@ -86,7 +87,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTest {
           ],
           [
             key:             'secure_key',
-            encrypted_value: 'mJxU96GFuVY='
+            encrypted_value: new GoCipher().encrypt('value')
           ]
         ],
         run_if           : ['passed', 'failed', 'any']
@@ -108,7 +109,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTest {
           ],
           [
             key:             'secure_key',
-            encrypted_value: 'mJxU96GFuVY='
+            encrypted_value: new GoCipher().encrypt('value')
           ]
         ],
         run_if           : [],

@@ -126,10 +126,6 @@ public class ExecTask extends AbstractTask implements CommandTask {
             argList.add(new Argument(arg));
         }
     }
-    public void setArgsList(List<Argument> arguments) {
-        clearCurrentArgsAndArgList();
-        argList.addAll(arguments);
-    }
 
     public void setArgs(String val) {
         clearCurrentArgsAndArgList();

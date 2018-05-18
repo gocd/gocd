@@ -39,6 +39,7 @@ import org.mockito.Mock
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
+import static org.mockito.Mockito.mock
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineConfigRepresenterTest {
@@ -121,8 +122,7 @@ class PipelineConfigRepresenterTest {
     @Test
     void 'should convert from minimal json to PipelineConfig' () {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHashBasic)
-      def map = new HashMap()
-      map.put("passwordDeserializer", passwordDeserializer)
+      def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals('wunderbar', pipelineConfig.getName().toString())
@@ -192,7 +192,7 @@ class PipelineConfigRepresenterTest {
         environment_variables: environmentVariables
       ])
 
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       assertEquals('plain', pipelineConfig.getVariables().get(0).name)
       assertEquals('secure', pipelineConfig.getVariables().get(1).name)
     }
@@ -203,7 +203,7 @@ class PipelineConfigRepresenterTest {
         environment_variables: []
       ])
 
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       assertEquals(0, pipelineConfig.getVariables().size())
     }
 
@@ -220,7 +220,7 @@ class PipelineConfigRepresenterTest {
            ]]
       ])
 
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       assertEquals('command', pipelineConfig.getParams().get(0).name)
       assertEquals('command', pipelineConfig.getParams().get(1).name)
     }
@@ -230,7 +230,7 @@ class PipelineConfigRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         parameters: null
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertEquals(0, pipelineConfig.getParams().size())
     }
@@ -278,8 +278,7 @@ class PipelineConfigRepresenterTest {
             ]
           ]
       ])
-      def map = new HashMap()
-      map.put("passwordDeserializer", passwordDeserializer)
+      def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals('GitMaterial', pipelineConfig.materialConfigs().get(0).type)
@@ -291,7 +290,7 @@ class PipelineConfigRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         materials: null
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertEquals(0, pipelineConfig.materialConfigs().size())
     }
@@ -310,7 +309,7 @@ class PipelineConfigRepresenterTest {
 
 
       def unprocessableEntityException = assertThrows(UnprocessableEntityException.class, {
-        PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap<String, Object>())
+        PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       })
       assertEquals("Invalid material type bad-material-type. It has to be one of 'git, svn, hg, p4, tfs, dependency, package, plugin'.", unprocessableEntityException.getMessage())
     }
@@ -358,7 +357,7 @@ class PipelineConfigRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         stages: stages
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertEquals('stage1', pipelineConfig.getStages().get(0).name().toString())
       assertEquals('some-job', pipelineConfig.getStages().first().getJobs().get(0).name().toString())
@@ -371,7 +370,7 @@ class PipelineConfigRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         stages: null
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertEquals(0, pipelineConfig.getStages().size())
     }
@@ -389,7 +388,7 @@ class PipelineConfigRepresenterTest {
               ]
           ]
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       assertEquals('link', pipelineConfig.getTrackingTool().getLink())
       assertEquals('regex', pipelineConfig.getTrackingTool().getRegex())
     }
@@ -407,15 +406,14 @@ class PipelineConfigRepresenterTest {
           ]
         ]
       ])
-      def exception = assertThrows(UnprocessableEntityException.class,{ PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap()) })
+      def exception = assertThrows(UnprocessableEntityException.class,{ PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)) })
       assertEquals("Invalid Tracking tool type 'bad-tracking-tool'. It has to be one of 'generic, mingle'." , exception.getMessage())
     }
 
     @Test
     void  'should convert from full blown document to PipelineConfig' () {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHash)
-      def map = new HashMap()
-      map.put("passwordDeserializer", passwordDeserializer)
+      def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
       assertEquals(getPipelineConfig(), pipelineConfig)
@@ -430,7 +428,7 @@ class PipelineConfigRepresenterTest {
             only_on_changes: true
           ]
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertTrue(pipelineConfig.getTimer().getOnlyOnChanges())
     }
@@ -440,7 +438,7 @@ class PipelineConfigRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         lock_behavior: PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE
       ])
-      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new HashMap())
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       assertTrue(pipelineConfig.isLockableOnFailure())
     }
 

@@ -16,14 +16,18 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.MaterialConfigsMother
+
+import static org.mockito.Mockito.mock
 
 class DependencyMaterialRepresenterTest implements MaterialRepresenterTest {
 
@@ -33,7 +37,8 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTest {
   }
 
   def getOptions() {
-    return  new HashMap()
+    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
+
   }
 
   def existingMaterialWithErrors() {

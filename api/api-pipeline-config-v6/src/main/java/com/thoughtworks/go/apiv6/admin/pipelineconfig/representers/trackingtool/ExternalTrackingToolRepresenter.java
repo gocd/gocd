@@ -29,9 +29,6 @@ public class ExternalTrackingToolRepresenter {
   }
 
   public static TrackingTool fromJSON(JsonReader jsonReader) {
-    if (jsonReader == null) {
-      return null;
-    }
     TrackingTool trackingTool = new TrackingTool();
     jsonReader.readStringIfPresent("url_pattern", trackingTool::setLink);
     jsonReader.readStringIfPresent("regex", trackingTool::setRegex);

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
@@ -26,8 +27,6 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -40,9 +39,8 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTest {
 
   def getOptions() {
     def deserializer = mock(PasswordDeserializer.class)
+    def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), deserializer)
     when(deserializer.deserialize(any(), any(), any())).thenReturn(new GoCipher().encrypt("password"))
-    def map = new HashMap()
-    map.put("passwordDeserializer", deserializer)
     return map
   }
 

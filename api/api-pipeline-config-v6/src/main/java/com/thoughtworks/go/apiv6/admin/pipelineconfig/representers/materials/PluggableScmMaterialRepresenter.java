@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -36,25 +37,19 @@ public class PluggableScmMaterialRepresenter {
         jsonWriter.add("destination", pluggableSCMMaterialConfig.getFolder());
     }
 
-    public static PluggableSCMMaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
+    public static PluggableSCMMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
-        // Pass along options or the cruise config object.
-        CruiseConfig goConfig = (CruiseConfig) options.get("goConfig");
-        if (goConfig != null) {
+        CruiseConfig cruiseConfig = options.getCruiseConfig();
+        if (cruiseConfig != null) {
             String ref = jsonReader.getString("ref");
-            pluggableSCMMaterialConfig.setSCMConfig(goConfig.getSCMs().find(ref));
+            pluggableSCMMaterialConfig.setSCMConfig(cruiseConfig.getSCMs().find(ref));
             pluggableSCMMaterialConfig.setScmId(ref);
 
         }
-
         jsonReader.readStringIfPresent("destination", pluggableSCMMaterialConfig::setFolder);
-        if (jsonReader.hasJsonObject("filter")) {
-            Filter filter = FilterRepresenter.fromJSON(jsonReader.readJsonObject("filter"));
-            pluggableSCMMaterialConfig.setFilter(filter);
-        }
+        jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
+            pluggableSCMMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader));
+        });
         return pluggableSCMMaterialConfig;
     }
 }

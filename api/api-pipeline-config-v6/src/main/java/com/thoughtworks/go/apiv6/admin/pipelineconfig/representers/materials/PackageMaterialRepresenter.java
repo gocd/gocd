@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 
@@ -29,19 +30,13 @@ public class PackageMaterialRepresenter {
         jsonWriter.add("ref", packageMaterialConfig.getPackageId());
     }
 
-    public static PackageMaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
-
+    public static PackageMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         // Pass along options or the cruise config object.
-        CruiseConfig goConfig = (CruiseConfig) options.get("goConfig");
-        if (goConfig != null) {
+        CruiseConfig cruiseConfig = options.getCruiseConfig();
             String ref = jsonReader.getString("ref");
-            packageMaterialConfig.setPackageDefinition(goConfig.getPackageRepositories().findPackageDefinitionWith(ref));
+            packageMaterialConfig.setPackageDefinition(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(ref));
             packageMaterialConfig.setPackageId(ref);
-        }
         return packageMaterialConfig;
     }
 }

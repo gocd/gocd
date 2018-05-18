@@ -21,8 +21,10 @@ import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class EnvironmentVariableRepresenterTest {
 
@@ -65,17 +67,21 @@ class EnvironmentVariableRepresenterTest {
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
 
+    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("value"), Arrays.asList('You may only specify `value` or `encrypted_value`, not both!'))
+    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("encryptedValue"), Arrays.asList('You may only specify `value` or `encrypted_value`, not both!'))
   }
 
   @Test
   void 'should deserialize an unambiguous encrypted variable (with either value or encrypted_value) to a variable without errors'() {
-
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
       name: 'PASSWORD',
       secure: true,
       encrypted_value: 'c!ph3rt3xt'
     ])
-    def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
+
+    def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSONArray(jsonReader)
+
+    assertTrue(actualEnvironmentVariableConfig.errors().isEmpty())
   }
 
   def getSecureVariable()

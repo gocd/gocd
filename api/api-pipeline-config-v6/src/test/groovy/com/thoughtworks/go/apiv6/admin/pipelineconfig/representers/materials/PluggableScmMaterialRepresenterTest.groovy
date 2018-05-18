@@ -17,11 +17,13 @@
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
@@ -29,14 +31,13 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.junit.jupiter.api.Assertions.assertNull
-import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.*
+import static org.mockito.Mockito.mock
 
 class PluggableScmMaterialRepresenterTest {
 
   def getOptions() {
-    return  new HashMap()
+    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
   }
 
   void "should represent a pluggable scm material" () {
@@ -52,10 +53,9 @@ class PluggableScmMaterialRepresenterTest {
     def cruiseConfig = new BasicCruiseConfig()
     cruiseConfig.getSCMs().add(scm)
 
-    def map = new HashMap<>()
-    map.put("goConfig", cruiseConfig)
+    def options = new ConfigHelperOptions(cruiseConfig, mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(pluggableScmMaterialHash)
-    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, map)
+    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, options)
 
     assertEquals("scm-id", pluggableScmMaterialConfig.getScmId())
     assertEquals(scm, pluggableScmMaterialConfig.getSCMConfig())
@@ -65,10 +65,9 @@ class PluggableScmMaterialRepresenterTest {
 
   @Test
   void "should set scmId during deserialisation if matching package definition is not present in config" () {
-    def map = new HashMap<>()
-    map.put("goConfig", new BasicCruiseConfig())
+    def options = new ConfigHelperOptions(new BasicCruiseConfig(), mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(pluggableScmMaterialHash)
-    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, map)
+    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, options)
 
     assertEquals("scm-id", pluggableScmMaterialConfig.getScmId())
     assertNull(pluggableScmMaterialConfig.getSCMConfig())
@@ -85,9 +84,9 @@ class PluggableScmMaterialRepresenterTest {
           destination: null
         ]
     ])
-    def map = new HashMap<>()
-    map.put("goConfig", new BasicCruiseConfig())
-    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, map)
+
+    def options = new ConfigHelperOptions(new BasicCruiseConfig(), mock(PasswordDeserializer.class))
+    def pluggableScmMaterialConfig = (PluggableSCMMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, options)
 
     assertNull(pluggableScmMaterialConfig.getName())
     assertEquals("23a28171-3d5a-4912-9f36-d4e1536281b0", pluggableScmMaterialConfig.getScmId())

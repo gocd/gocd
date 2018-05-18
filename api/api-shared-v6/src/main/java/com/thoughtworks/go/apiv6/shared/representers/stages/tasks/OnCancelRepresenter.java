@@ -29,9 +29,6 @@ public class OnCancelRepresenter {
     }
 
     public static OnCancelConfig fromJSON(JsonReader reader) {
-        if (reader == null) {
-            return null;
-        }
         Task task = TaskRepresenter.fromJSON(reader);
         return new OnCancelConfig(task);
     }

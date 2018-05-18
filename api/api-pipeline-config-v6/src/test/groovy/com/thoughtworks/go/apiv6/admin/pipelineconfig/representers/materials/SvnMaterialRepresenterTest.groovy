@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials
 
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
@@ -40,9 +41,8 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTest {
 
   def getOptions() {
     def deserializer = mock(PasswordDeserializer.class)
+    def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), deserializer)
     when(deserializer.deserialize(any(), any(), any())).thenReturn(new GoCipher().encrypt("pass"))
-    def map = new HashMap()
-    map.put("passwordDeserializer", deserializer)
     return map
   }
 

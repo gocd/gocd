@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 
@@ -33,11 +34,7 @@ public class TfsMaterialRepresenter {
         jsonWriter.add("project_path", tfsMaterialConfig.getProjectPath());
     }
 
-    public static TfsMaterialConfig fromJSON(JsonReader jsonReader, Map<String, Object> options) {
-        if (jsonReader == null) {
-            return null;
-        }
-
+    public static TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, tfsMaterialConfig);
         jsonReader.readStringIfPresent("domain", tfsMaterialConfig::setDomain);
@@ -50,7 +47,7 @@ public class TfsMaterialRepresenter {
         if (jsonReader.hasJsonObject("encrypted_password")) {
             encryptedPassword = jsonReader.getString("encrypted_password");
         }
-        PasswordDeserializer passwordDeserializer = (PasswordDeserializer) options.get("passwordDeserializer");
+        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
         String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, tfsMaterialConfig);
         tfsMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return tfsMaterialConfig;

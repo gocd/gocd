@@ -42,9 +42,6 @@ public class TimerRepresenter {
     }
 
     public static TimerConfig fromJSON(JsonReader jsonReader) {
-        if (jsonReader == null) {
-            return null;
-        }
         TimerConfig timerConfig = new TimerConfig();
         jsonReader.readStringIfPresent("spec", timerConfig::setTimerSpec);
         jsonReader.optBoolean("only_on_changes").ifPresent(timerConfig::setOnlyOnChanges);

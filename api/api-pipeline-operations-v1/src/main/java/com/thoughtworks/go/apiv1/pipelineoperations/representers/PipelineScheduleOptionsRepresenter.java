@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.server.domain.MaterialForScheduling;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
 
@@ -33,11 +33,7 @@ public class PipelineScheduleOptionsRepresenter {
             materials.forEach(material -> materialsForScheduling.add(MaterialRevisionRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()))));
             model.setMaterials(materialsForScheduling);
         });
-        jsonReader.readArrayIfPresent("environment_variables", environmentVariables -> {
-            EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
-            environmentVariables.forEach(variable -> variables.add(EnvrionmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject()))));
-            model.setEnvironmentVariables(variables);
-        });
+        model.setEnvironmentVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         return model;
     }
 }

@@ -110,16 +110,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
       }
 
       @Test
-      void "should not show pipeline config for Non Admin users"() {
-        loginAsPipelineViewUser()
-
-        getWithApiHeader(controller.controllerPath("/pipeline1"))
-        assertThatResponse()
-          .hasStatus(403)
-          .hasJsonMessage("You are not authorized to perform this action.")
-      }
-
-      @Test
       void 'should show pipeline config for an admin'() {
         def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
@@ -212,19 +202,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
-      }
-
-      @Test
-      void "should not allow admin users of one pipeline group to create a new pipeline config in another group"() {
-        loginAsGroupAdmin()
-        when(securityService.isUserAdminOfGroup(any(Username.class) as Username, any(String.class))).thenReturn(false)
-        when(securityService.isUserAdmin(any())).thenReturn(false)
-
-        postWithApiHeader(controller.controllerPath(), [group: 'another_group', pipeline: pipeline()])
-
-        assertThatResponse()
-          .hasStatus(403)
-          .hasJsonMessage("You are not authorized to perform this action.")
       }
 
       @Test
@@ -358,17 +335,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
       void setup() {
         enableSecurity()
         loginAsAdmin()
-      }
-
-      @Test
-      void "should not update pipeline config if the user is not admin or pipeline group admin"() {
-        loginAsPipelineViewUser()
-
-        putWithApiHeader(controller.controllerPath("pipeline1"), [pipeline: pipeline()])
-
-        assertThatResponse()
-          .hasStatus(403)
-          .hasJsonMessage("You are not authorized to perform this action.")
       }
 
       @Test

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -27,6 +28,12 @@ import com.thoughtworks.go.domain.Task;
 import java.util.HashMap;
 
 public class TaskRepresenter {
+
+    public static void toJSONArray(OutputListWriter tasksWriter, Tasks tasks) {
+        tasks.forEach(task -> {
+            tasksWriter.addChild(taskWriter -> toJSON(taskWriter, task));
+        });
+    }
 
     public static void toJSON(OutputWriter jsonWriter, Task task) {
         if (!task.errors().isEmpty()) {
@@ -65,6 +72,17 @@ public class TaskRepresenter {
                 jsonWriter.addChild("attributes", attributeWriter -> FetchTaskRepresenter.toJSON(attributeWriter, (FetchTask) task));
                 break;
         }
+    }
+
+    public static Tasks fromJSONArray(JsonReader jsonReader) {
+        Tasks allTasks = new Tasks();
+        jsonReader.readArrayIfPresent("tasks", tasks -> {
+            tasks.forEach(task -> {
+                allTasks.add(fromJSON(new JsonReader(task.getAsJsonObject())));
+            });
+        });
+
+        return allTasks;
     }
 
     public static Task fromJSON(JsonReader jsonReader) {

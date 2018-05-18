@@ -173,39 +173,8 @@
     <async-supported>true</async-supported>
   </servlet>
 
-
   <servlet>
-    <servlet-name>spring-repository</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>spring-pages</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>spring-rest</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>spring-add-on</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>spring-plugin</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>spring-tabs</servlet-name>
+    <servlet-name>spring-all</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -225,61 +194,11 @@
     <url-pattern>/rails/*</url-pattern>
   </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>spring-rest</servlet-name>
-    <url-pattern>/properties/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-tabs</servlet-name>
-    <url-pattern>/tab/*</url-pattern>
-  </servlet-mapping>
-
-  <filter-mapping>
-    <filter-name>ConfigGitRepositoryFilter</filter-name>
-    <url-pattern>/api/config-repository.git/*</url-pattern>
-  </filter-mapping>
-
   <filter-mapping>
     <filter-name>SparkPreFilter</filter-name>
     <url-pattern>/spark/*</url-pattern>
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-tabs</servlet-name>
-    <url-pattern>/api/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-pages</servlet-name>
-    <url-pattern>/admin/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-pages</servlet-name>
-    <url-pattern>/auth/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-pages</servlet-name>
-    <url-pattern>/plugin/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-rest</servlet-name>
-    <url-pattern>*.json</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-rest</servlet-name>
-    <url-pattern>/files/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-rest</servlet-name>
-    <url-pattern>/run/*</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>spring-cruise-remoting</servlet-name>
@@ -296,19 +215,14 @@
     <url-pattern>/console-websocket/*</url-pattern>
   </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>spring-repository</servlet-name>
-    <url-pattern>/repository/*</url-pattern>
-  </servlet-mapping>
+  <filter-mapping>
+    <filter-name>ConfigGitRepositoryFilter</filter-name>
+    <url-pattern>/api/config-repository.git/*</url-pattern>
+  </filter-mapping>
 
   <servlet-mapping>
-    <servlet-name>spring-add-on</servlet-name>
-    <url-pattern>/add-on/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>spring-plugin</servlet-name>
-    <url-pattern>/plugin/interact/*</url-pattern>
+    <servlet-name>spring-all</servlet-name>
+    <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

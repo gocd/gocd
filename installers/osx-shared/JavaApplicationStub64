@@ -68,7 +68,7 @@ function find_root_directory_resolving_symlinks() {
 }
 # ------------------------------------------------------------------------------
 
-# Finds some JVM newer than 1.7. Prints the path to such a "java" executable or empty.
+# Finds JVM 1.8. Prints the path to such a "java" executable or empty.
 # Expects: Nothing.
 # Arguments: None.
 function find_best_available_java() {
@@ -77,9 +77,9 @@ function find_best_available_java() {
     JAVACMD="$GO_JAVA_HOME/bin/java"
 
   # otherwise check "/usr/libexec/java_home" symlinks
-  elif [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "1.7+" >/dev/null 2>&1; echo $?)" = "0" ] \
-    && [ -d "$(/usr/libexec/java_home -v "1.7+" 2>/dev/null)" ]; then
-    JAVACMD="$(/usr/libexec/java_home -v "1.7+")/bin/java"
+  elif [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "1.8" >/dev/null 2>&1; echo $?)" = "0" ] \
+    && [ -d "$(/usr/libexec/java_home -v "1.8" 2>/dev/null)" ]; then
+    JAVACMD="$(/usr/libexec/java_home -v "1.8")/bin/java"
   fi
 
   echo "$JAVACMD"

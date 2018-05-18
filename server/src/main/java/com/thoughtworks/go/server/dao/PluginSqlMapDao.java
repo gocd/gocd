@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Query;
@@ -34,6 +35,7 @@ import java.util.List;
 
 @Component
 public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
+    private final CacheKeyGenerator cacheKeyGenerator;
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -43,6 +45,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         this.goCache = goCache;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         setSessionFactory(sessionFactory);
     }
 
@@ -93,7 +96,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
     }
 
     String cacheKeyForPluginSettings(String pluginId) {
-        return (getClass().getName() + "_plugin_settings_" + pluginId).intern();
+        return cacheKeyGenerator.generate("plugin_settings", pluginId);
     }
 
     // used in tests

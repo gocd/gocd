@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,9 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import org.assertj.core.api.Assertions;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.IOException;
-import java.util.Collections;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -65,7 +63,7 @@ public class MaterialExpansionServiceTest {
     }
 
     @AfterClass
-    public static void deleteRepository() throws IOException {
+    public static void deleteRepository() {
         TestRepo.internalTearDown();
     }
 
@@ -100,8 +98,8 @@ public class MaterialExpansionServiceTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(svn);
 
-        String cacheKeyForSvn = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svn.getFingerprint();
-        String cacheKeyForSvnExt = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svnExt.getFingerprint();
+        String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
+        String cacheKeyForSvnExt = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnExt.getFingerprint());
         when(goCache.get(cacheKeyForSvn)).thenReturn(null);
         when(goCache.get(cacheKeyForSvnExt)).thenReturn(null);
 
@@ -119,8 +117,8 @@ public class MaterialExpansionServiceTest {
         svnExt.setName(null);
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(svn);
-        String cacheKeyForSvn = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svn.getFingerprint();
-        String cacheKeyForSvnExt = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svnExt.getFingerprint();
+        String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
+        String cacheKeyForSvnExt = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnExt.getFingerprint());
         when(goCache.get(cacheKeyForSvn)).thenReturn(null);
         when(goCache.get(cacheKeyForSvnExt)).thenReturn(null);
 
@@ -133,14 +131,14 @@ public class MaterialExpansionServiceTest {
     }
 
     @Test
-    public void shouldNotExapandSVNExternalsIfCheckExternalsIsFalse() {
+    public void shouldNotExpandSVNExternalsIfCheckExternalsIsFalse() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
         SvnMaterialConfig svn = svnMaterialConfig(svnRepo.projectRepositoryUrl(), null);
         svn.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(false)));
         pipelineConfig.addMaterialConfig(svn);
 
-        String cacheKeyForSvn = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svn.getFingerprint();
+        String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
         when(goCache.get(cacheKeyForSvn)).thenReturn(null);
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
@@ -179,4 +177,10 @@ public class MaterialExpansionServiceTest {
         assertThat(((SvnMaterial) materials.get(1)).getUrl(), endsWith("end2end/"));
     }
 
+    @Test
+    public void shouldGenerateCacheKeyForMaterialFingerprint() {
+        Assertions.assertThat(materialExpansionService.cacheKeyForSubversionMaterialCommand("1223423423"))
+                .isEqualTo("com.thoughtworks.go.server.service.MaterialExpansionService.$cacheKeyForSvnMaterialCheckExternalCommand.$1223423423");
+
+    }
 }

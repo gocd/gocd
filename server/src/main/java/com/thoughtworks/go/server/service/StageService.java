@@ -17,7 +17,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.MingleConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -27,6 +30,7 @@ import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -64,6 +68,7 @@ import java.util.*;
 public class StageService implements StageRunFinder, StageFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageService.class);
     private static final int FEED_PAGE_SIZE = 25;
+    private final CacheKeyGenerator cacheKeyGenerator;
 
     private StageDao stageDao;
     private JobInstanceService jobInstanceService;
@@ -104,6 +109,7 @@ public class StageService implements StageRunFinder, StageFinder {
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.goCache = goCache;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         this.stageStatusListeners = new ArrayList<>(Arrays.asList(stageStatusListeners));
     }
 
@@ -320,7 +326,7 @@ public class StageService implements StageRunFinder, StageFinder {
     }
 
     private String cacheKeyForLatestStageFeedForPipeline(String pipelineName) {
-        return String.format("%s_latestStageFeedForPipeline_%s", getClass().getName(), pipelineName).intern();
+        return cacheKeyGenerator.generate( "latestStageFeedForPipeline", pipelineName);
     }
 
     private void clearCachedCompletedStageFeeds(String pipelineName) {

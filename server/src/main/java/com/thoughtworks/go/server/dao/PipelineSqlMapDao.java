@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.LazyCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -74,6 +75,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineSqlMapDao.class);
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final LazyCache pipelineByBuildIdCache;
+    private final CacheKeyGenerator cacheKeyGenerator;
     private StageDao stageDao;
     private MaterialRepository materialRepository;
     private EnvironmentVariableDao environmentVariableDao;
@@ -88,9 +90,17 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
 
     @Autowired
-    public PipelineSqlMapDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
-                             SqlSessionFactory sqlSessionFactory, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
-                             GoConfigDao configFileDao, Database database, SessionFactory sessionFactory) {
+    public PipelineSqlMapDao(StageDao stageDao,
+                             MaterialRepository materialRepository,
+                             GoCache goCache,
+                             EnvironmentVariableDao environmentVariableDao,
+                             TransactionTemplate transactionTemplate,
+                             SqlSessionFactory sqlSessionFactory,
+                             TransactionSynchronizationManager transactionSynchronizationManager,
+                             SystemEnvironment systemEnvironment,
+                             GoConfigDao configFileDao,
+                             Database database,
+                             SessionFactory sessionFactory) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
@@ -100,6 +110,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         this.systemEnvironment = systemEnvironment;
         this.configFileDao = configFileDao;
         this.sessionFactory = sessionFactory;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         this.pipelineByBuildIdCache = new LazyCache(createCacheIfRequired(PipelineSqlMapDao.class.getName()), transactionSynchronizationManager);
     }
 
@@ -220,8 +231,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return buildCause;
     }
 
-    private String cacheKeyForBuildCauseByNameAndCounter(String name, int counter) {
-        return (PipelineSqlMapDao.class + "_buildCauseByNameAndCounter_" + name.toLowerCase() + "_and_" + counter).intern();
+    String cacheKeyForBuildCauseByNameAndCounter(String name, int counter) {
+        return cacheKeyGenerator.generate("buildCauseByNameAndCounter", name.toLowerCase(), counter);
     }
 
     public Pipeline findPipelineByNameAndLabel(String name, String label) {
@@ -239,8 +250,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private String latestSuccessfulStageCacheKey(String pipelineName, String stageName) {
-        return (PipelineSqlMapDao.class.getName() + "_latestSuccessfulStage_" + pipelineName + "-" + stageName).intern();
+    String latestSuccessfulStageCacheKey(String pipelineName, String stageName) {
+        return cacheKeyGenerator.generate("latestSuccessfulStage", pipelineName, stageName);
     }
 
     private void savePipelineMaterialRevisions(Pipeline pipeline, final Long pipelineId) {
@@ -289,7 +300,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     public Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId) {
-        String cacheKey = "getPipelineByBuildId_" + buildId;
+        String cacheKey = this.cacheKeyGenerator.generate("getPipelineByBuildId", buildId);
         return pipelineByBuildIdCache.get(cacheKey, new Supplier<Pipeline>() {
             @Override
             public Pipeline get() {
@@ -352,8 +363,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return instanceModel;
     }
 
-    private String cacheKeyForPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineHistoryByName_" + pipelineName.toLowerCase() + "_AndCounter_" + pipelineCounter).intern();
+    String cacheKeyForPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter) {
+        return cacheKeyGenerator.generate("cacheKeyForPipelineHistoryByName", pipelineName.toLowerCase(), "AndCounter", pipelineCounter);
     }
 
     public PipelineDependencyGraphOld pipelineGraphByNameAndCounter(String pipelineName, int pipelineCounter) {
@@ -379,7 +390,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());
     }
 
-    private PipelineInstanceModels dependentPipelines(PipelineInstanceModel upstreamPipeline, List<PipelineInstanceModel> instanceModels) {
+    private PipelineInstanceModels dependentPipelines(PipelineInstanceModel upstreamPipeline,
+                                                      List<PipelineInstanceModel> instanceModels) {
         instanceModels.remove(upstreamPipeline);
         return PipelineInstanceModels.createPipelineInstanceModels(instanceModels);
     }
@@ -532,7 +544,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     String activePipelinesCacheKey() {
-        return (PipelineSqlMapDao.class.getName() + "_activePipelines").intern();
+        return cacheKeyGenerator.generate("activePipelines");
     }
 
     public PipelineInstanceModel loadHistory(long id) {
@@ -582,7 +594,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private void addActiveAsLatest(Stage stage, Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds, CaseInsensitiveString pipelineName) {
+    private void addActiveAsLatest(Stage stage,
+                                   Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds,
+                                   CaseInsensitiveString pipelineName) {
         if (stage.getState().isActive()) {
             TreeSet<Long> ids = initializePipelineInstances(activePipelinesToIds, pipelineName);
             removeCurrentLatestIfNoLongerActive(stage, ids);
@@ -590,7 +604,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private void removeCompletedIfNotLatest(Stage stage, Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds, CaseInsensitiveString pipelineName) {
+    private void removeCompletedIfNotLatest(Stage stage,
+                                            Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds,
+                                            CaseInsensitiveString pipelineName) {
         if (stage.getState().completed()) {
             if (activePipelinesToIds.containsKey(pipelineName)) {
                 TreeSet<Long> ids = activePipelinesToIds.get(pipelineName);
@@ -617,7 +633,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return !loadHistory(ids.last()).isAnyStageActive();
     }
 
-    private TreeSet<Long> initializePipelineInstances(Map<CaseInsensitiveString, TreeSet<Long>> pipelineToIds, CaseInsensitiveString pipelineName) {
+    private TreeSet<Long> initializePipelineInstances(Map<CaseInsensitiveString, TreeSet<Long>> pipelineToIds,
+                                                      CaseInsensitiveString pipelineName) {
         if (!pipelineToIds.containsKey(pipelineName)) {
             pipelineToIds.put(pipelineName, new TreeSet<Long>());
         }
@@ -626,11 +643,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private void removeStageSpecificCache(Stage stage) {
         goCache.remove(pipelineHistoryCacheKey(stage.getPipelineId()));
-        goCache.remove(cacheKeyForlatestPassedStage(stage.getPipelineId(), stage.getName()));
+        goCache.remove(cacheKeyForLatestPassedStage(stage.getPipelineId(), stage.getName()));
     }
 
     String pipelineHistoryCacheKey(Long id) {
-        return (PipelineSqlMapDao.class.getName() + "_pipelineHistory_" + id).intern();
+        return cacheKeyGenerator.generate("pipelineHistory", id);
     }
 
     public PipelineInstanceModels loadHistory(String pipelineName, int limit, int offset) {
@@ -693,8 +710,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return ids;
     }
 
-    private String cacheKeyForLatestPipelineIdByPipelineName(String pipelineName) {
-        return (PipelineSqlMapDao.class + "_latestPipelineIdByPipelineName_" + pipelineName.toLowerCase()).intern();
+    String cacheKeyForLatestPipelineIdByPipelineName(String pipelineName) {
+        return cacheKeyGenerator.generate("latestPipelineIdByPipelineName", pipelineName.toLowerCase());
     }
 
     private PipelineInstanceModels loadHistory(String pipelineName, List<Long> ids) {
@@ -831,16 +848,16 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return result;
     }
 
-    private String cacheKeyForPauseState(String pipelineName) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPauseState_" + pipelineName.toLowerCase()).intern();
+    String cacheKeyForPauseState(String pipelineName) {
+        return cacheKeyGenerator.generate("cacheKeyForPauseState", pipelineName.toLowerCase());
     }
 
-    String cacheKeyForlatestPassedStage(long pipelineId, String stage) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForlatestPassedStage_" + pipelineId + "_and_" + stage.toLowerCase()).intern();
+    String cacheKeyForLatestPassedStage(long pipelineId, String stage) {
+        return cacheKeyGenerator.generate("cacheKeyForlatestPassedStage", pipelineId, stage.toLowerCase());
     }
 
     public StageIdentifier latestPassedStageIdentifier(long pipelineId, String stage) {
-        String cacheKey = cacheKeyForlatestPassedStage(pipelineId, stage);
+        String cacheKey = cacheKeyForLatestPassedStage(pipelineId, stage);
         StageIdentifier result = (StageIdentifier) goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
@@ -856,7 +873,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, PipelineIdentifier dependencyPipelineIdentifier) {
+    public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
+                                                                                        PipelineIdentifier dependencyPipelineIdentifier) {
         String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, dependencyPipelineIdentifier.getName(), dependencyPipelineIdentifier.getCounter());
         List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
         if (pipelineIdentifiers == null) {
@@ -875,7 +893,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision) {
+    public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
+                                                                                        MaterialInstance materialInstance,
+                                                                                        String revision) {
         String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, materialInstance.getFingerprint(), revision);
         List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
         if (pipelineIdentifiers == null) {
@@ -918,12 +938,16 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
     }
 
-    private String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String dependencyPipelineName, Integer dependencyPipelineCounter) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + dependencyPipelineName.toLowerCase() + "_" + dependencyPipelineCounter).intern();
+    String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
+                                                                       String dependencyPipelineName,
+                                                                       Integer dependencyPipelineCounter) {
+        return cacheKeyGenerator.generate("cacheKeyForPipelineInstancesWithDependencyMaterial", pipelineName.toLowerCase(), dependencyPipelineName.toLowerCase(), dependencyPipelineCounter);
     }
 
-    String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String fingerPrint, String revision) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + fingerPrint + "_" + revision).intern();
+    String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
+                                                                       String fingerPrint,
+                                                                       String revision) {
+        return cacheKeyGenerator.generate("cacheKeyForPipelineInstancesWithDependencyMaterial", pipelineName.toLowerCase(), fingerPrint, revision);
     }
 
     private void invalidateCacheConditionallyForPipelineInstancesTriggeredWithDependencyMaterial(Pipeline pipeline) {

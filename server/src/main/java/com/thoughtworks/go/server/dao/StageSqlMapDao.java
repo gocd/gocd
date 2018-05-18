@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageIdentity;
@@ -63,6 +64,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlSessionDaoSupport.class);
+    private final CacheKeyGenerator cacheKeyGenerator;
     private TransactionTemplate transactionTemplate;
     private JobInstanceSqlMapDao buildInstanceDao;
     private Cache cache;
@@ -71,13 +73,20 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     private DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired
-    public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao, Cache cache, TransactionTemplate transactionTemplate, SqlSessionFactory sqlSessionFactory, GoCache goCache,
-                          TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database) {
+    public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao,
+                          Cache cache,
+                          TransactionTemplate transactionTemplate,
+                          SqlSessionFactory sqlSessionFactory,
+                          GoCache goCache,
+                          TransactionSynchronizationManager transactionSynchronizationManager,
+                          SystemEnvironment systemEnvironment,
+                          Database database) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.buildInstanceDao = buildInstanceDao;
         this.cache = cache;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
     public Stage save(final Pipeline pipeline, final Stage stage) {
@@ -163,7 +172,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
 
     String cacheKeyForStageCount(String pipelineName, String stageName) {
-        return String.format("%s_numberOfStages_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+        return cacheKeyGenerator.generate("numberOfStages", pipelineName, stageName);
     }
 
     public Stages getStagesByPipelineId(long pipelineId) {
@@ -205,14 +214,14 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
-    private String cacheKeyForListOfStageIdentifiers(StageIdentifier stageIdentifier) {
-        return String.format("%s_stageRunIdentifier_%s_%s_%s", getClass().getName(), stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName()).intern();
+    String cacheKeyForListOfStageIdentifiers(StageIdentifier stageIdentifier) {
+        return cacheKeyGenerator.generate("stageRunIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
+                stageIdentifier.getStageName());
     }
 
-    private String cacheKeyForStageIdentifier(StageIdentifier stageIdentifier) {
-        return String.format("%s_stageIdentifier_%s_%s_%s_%s", getClass().getName(), stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName(), stageIdentifier.getStageCounter()).intern();
+    String cacheKeyForStageIdentifier(StageIdentifier stageIdentifier) {
+        return cacheKeyGenerator.generate("stageIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
+                stageIdentifier.getStageName(), stageIdentifier.getStageCounter());
     }
 
     public long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job) {
@@ -349,8 +358,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
-    private String cacheKeyForAllStageOfPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
-        return String.format(getClass().getName() + "_allStageOfPipeline_%s_%s_%s", pipelineName, pipelineCounter, stageName).intern();
+    String cacheKeyForAllStageOfPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
+        return cacheKeyGenerator.generate("allStageOfPipeline", pipelineName, pipelineCounter, stageName);
     }
 
     public List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset) {
@@ -394,7 +403,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
 
-    public StageHistoryPage findStageHistoryPageByNumber(final String pipelineName, final String stageName, final int pageNumber, final int pageSize) {
+    public StageHistoryPage findStageHistoryPageByNumber(final String pipelineName,
+                                                         final String stageName,
+                                                         final int pageNumber,
+                                                         final int pageSize) {
         return findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
             public Pagination get() {
                 int total = getCount(pipelineName, stageName);
@@ -403,7 +415,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, final Pagination pagination) {
+    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
+                                                                String stageName,
+                                                                final Pagination pagination) {
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);
         try {
@@ -431,7 +445,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
-    public StageHistoryPage findStageHistoryPage(String pipelineName, String stageName, Supplier<com.thoughtworks.go.server.util.Pagination> function) {
+    public StageHistoryPage findStageHistoryPage(String pipelineName,
+                                                 String stageName,
+                                                 Supplier<com.thoughtworks.go.server.util.Pagination> function) {
         //IMPORTANT: wire cache clearing on job-state-change for me, the day StageHistoryEntry gets jobs - Sachin & JJ
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);
@@ -460,16 +476,16 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (StageHistoryEntry) getSqlMapClientTemplate().queryForObject("findStageHistoryEntryBefore", args);
     }
 
-    private String mutexForStageHistory(String pipelineName, String stageName) {
+    String mutexForStageHistory(String pipelineName, String stageName) {
         return String.format("%s_stageHistoryMutex_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
     String cacheKeyForStageHistories(String pipelineName, String stageName) {
-        return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+        return cacheKeyGenerator.generate("stageHistories", pipelineName, stageName);
     }
 
-    private String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
-        return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+    String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
+        return cacheKeyGenerator.generate("detailedStageHistories", pipelineName, stageName);
     }
 
     public Long findStageIdByPipelineAndStageNameAndCounter(long pipelineId, String name, String counter) {
@@ -480,7 +496,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (Long) getSqlMapClientTemplate().queryForObject("findStageIdByPipelineAndStageNameAndCounter", toGet);
     }
 
-    public List<StageIdentifier> findFailedStagesBetween(String pipelineName, String stageName, double fromNaturalOrder, double toNaturalOrder) {
+    public List<StageIdentifier> findFailedStagesBetween(String pipelineName,
+                                                         String stageName,
+                                                         double fromNaturalOrder,
+                                                         double toNaturalOrder) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
                 and("stageName", stageName).
                 and("fromNaturalOrder", fromNaturalOrder).
@@ -524,7 +543,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     String cacheKeyForStageOffset(Stage stage) {
-        return String.format("%s_stageOffsetMap_%s_<>_%s", getClass().getName(), stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
+        return cacheKeyGenerator.generate("stageOffsetMap", stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
     }
 
     private List<StageFeedEntry> findForFeed(String baseQuery, FeedModifier modifier, long transitionId, int pageSize) {
@@ -538,11 +557,17 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return findForFeed("allCompletedStages", modifier, id, pageSize);
     }
 
-    public List<StageFeedEntry> findCompletedStagesFor(String pipelineName, FeedModifier feedModifier, long transitionId, long pageSize) {
+    public List<StageFeedEntry> findCompletedStagesFor(String pipelineName,
+                                                       FeedModifier feedModifier,
+                                                       long transitionId,
+                                                       long pageSize) {
         return _findCompletedStagesFor(pipelineName, feedModifier, transitionId, pageSize);
     }
 
-    private List<StageFeedEntry> _findCompletedStagesFor(String pipelineName, FeedModifier feedModifier, long transitionId, long pageSize) {
+    private List<StageFeedEntry> _findCompletedStagesFor(String pipelineName,
+                                                         FeedModifier feedModifier,
+                                                         long transitionId,
+                                                         long pageSize) {
         //IMPORTANT: wire cache clearing on job-state-change for me, the day FeedEntry gets jobs - Sachin & JJ
         Map parameters = new HashMap();
         parameters.put("value", transitionId);
@@ -604,8 +629,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cloner.deepClone(stage);
     }
 
-    private String cacheKeyForStageById(long id) {
-        return String.format("%s_stageById_%s", getClass().getName(), id).intern();
+    String cacheKeyForStageById(long id) {
+        return cacheKeyGenerator.generate("stageById", id);
     }
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {
@@ -652,8 +677,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         removeFromCache(cacheForAllStagesOfPipeline);
     }
 
-    private String cacheKeyForPipelineAndStage(String pipelineName, String stageName) {
-        return String.format("%s_isStageActive_%s_%s", StageSqlMapDao.class.getName(), pipelineName.toLowerCase(), stageName.toLowerCase()).intern();
+    String cacheKeyForPipelineAndStage(String pipelineName, String stageName) {
+        return cacheKeyGenerator.generate("isStageActive", pipelineName.toLowerCase(), stageName.toLowerCase());
     }
 
     public Stages findAllStagesFor(String pipelineName, int counter) {
@@ -680,9 +705,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         getSqlMapClientTemplate().update("markStageArtifactDeleted", arguments("stageId", stage.getId()).asMap());
     }
 
-    private String cacheKeyForPipelineAndCounter(String pipelineName, int counter) {
-        String key = StageSqlMapDao.class.getName() + "_allStagesOfPipelineInstance_" + pipelineName + "_" + counter;
-        return key.intern();
+    String cacheKeyForPipelineAndCounter(String pipelineName, int counter) {
+        return cacheKeyGenerator.generate("allStagesOfPipelineInstance", pipelineName, counter);
     }
 
     public void jobStatusChanged(JobInstance job) {
@@ -697,11 +721,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
 
     String cacheKeyForLatestStageInstances() {
-        return String.format("%s_latestStageInstances", getClass().getName());
+        return cacheKeyGenerator.generate("latestStageInstances");
     }
 
-    private String cacheKeyForStageCountForGraph(String pipelineName, String stageName) {
-        return String.format("%s_totalStageCountForChart_%s_%s", getClass().getName(), pipelineName, stageName).intern();
+    String cacheKeyForStageCountForGraph(String pipelineName, String stageName) {
+        return cacheKeyGenerator.generate("totalStageCountForChart", pipelineName, stageName);
     }
 
     private void removeFromCache(String key) {
@@ -712,7 +736,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
 
     String cacheKeyForMostRecentId(String pipelineName, String stageName) {
-        return String.format("%s_mostRecentId_%s_%s", getClass().getName(), pipelineName, stageName).intern();
+        return cacheKeyGenerator.generate("mostRecentId", pipelineName, stageName);
     }
 
     private Stage stageByIdWithBuildsWithNoAssociations(long id) {

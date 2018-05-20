@@ -9,7 +9,7 @@
       {
          "key": "pipeline_config_single_page_app_key",
          "description": "Enables the pipeline config single page application. Default: enabled.",
-         "value": true
+         "value": false
       },
       {
          "key": "quick_edit_page_toggle_key",

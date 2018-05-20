@@ -95,6 +95,7 @@ describe Admin::PipelineConfigsController do
       allow(@user_service).to receive(:allUsernames)
       allow(@user_service).to receive(:allRoleNames)
       allow(controller).to receive(:populate_config_validity)
+      allow(controller).to receive(:check_feature_toggle)
       allow(controller).to receive(:check_pipeline_group_admin_user_and_403)
       allow(@go_config_service).to receive(:getAllResources).and_return([])
     end

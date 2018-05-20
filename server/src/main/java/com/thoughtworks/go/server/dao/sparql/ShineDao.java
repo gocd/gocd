@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.testinfo.TestSuite;
 import com.thoughtworks.go.server.service.PipelineInstanceLoader;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.cruise.stage.StagesQuery;
 import com.thoughtworks.studios.shine.semweb.BoundVariables;
@@ -44,10 +45,12 @@ public class ShineDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShineDao.class);
     private StagesQuery stagesQuery;
     private final StageService stageService;
+    private SystemEnvironment systemEnvironment;
 
-    public ShineDao(StagesQuery stagesQuery, StageService stageService, PipelineInstanceLoader pipelineInstanceLoader) {
+    public ShineDao(StagesQuery stagesQuery, StageService stageService, SystemEnvironment systemEnvironment) {
         this.stagesQuery = stagesQuery;
         this.stageService = stageService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public List<TestSuite> failedTestsFor(final StageIdentifier stageId) {
@@ -59,18 +62,20 @@ public class ShineDao {
     }
 
     public StageTestRuns failedBuildHistoryForStage(StageIdentifier stageId, LocalizedOperationResult result) {
-        try {
-            StageTestRuns stageTestRuns = getTestCount(stageId);
-            List<StageIdentifier> failedStageIds = stageService.findRunForStage(stageId);
-            populateFailingTests(stageTestRuns, getFailedTests(failedStageIds));
-            populateUsers(stageTestRuns, getCommitters(failedStageIds));
-            stageTestRuns.removeDuplicateTestEntries();
-            return stageTestRuns;
-        } catch (RuntimeException e) {
-            LOGGER.error("can not retrieve shine test history!", e);
-            result.connectionError("Unable to retrieve failure results.");
-            return new StageTestRuns(0, 0, 0);
+        if (systemEnvironment.isShineEnabled()) {
+            try {
+                StageTestRuns stageTestRuns = getTestCount(stageId);
+                List<StageIdentifier> failedStageIds = stageService.findRunForStage(stageId);
+                populateFailingTests(stageTestRuns, getFailedTests(failedStageIds));
+                populateUsers(stageTestRuns, getCommitters(failedStageIds));
+                stageTestRuns.removeDuplicateTestEntries();
+                return stageTestRuns;
+            } catch (RuntimeException e) {
+                LOGGER.error("can not retrieve shine test history!", e);
+                result.connectionError("Unable to retrieve failure results.");
+            }
         }
+        return new StageTestRuns(0, 0, 0);
     }
 
     public FailureDetails failureDetailsForTest(JobIdentifier jobId, String suiteName, String testCaseName, LocalizedOperationResult result) {

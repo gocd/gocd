@@ -22,7 +22,7 @@ class StagesController < ApplicationController
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
   before_filter :load_stage_details, :only => STAGE_DETAIL_ACTIONS
-  before_filter :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline]
+  before_filter :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats]
   before_filter :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_filter :set_format, :only => :tests
   before_filter :load_pipeline_instance, :only => :redirect_to_first_stage

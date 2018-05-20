@@ -18,7 +18,9 @@ package com.thoughtworks.go.api.representers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +45,7 @@ public class JsonReader {
     }
 
     public Optional<String> optString(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsString());
             } catch (Exception e) {
@@ -53,8 +55,19 @@ public class JsonReader {
         return Optional.empty();
     }
 
+    public Optional<CaseInsensitiveString> optCaseInsensitiveString(String property) {
+        if (hasJsonObject(property)) {
+            try {
+                return Optional.of(new CaseInsensitiveString(jsonObject.get(property).getAsString()));
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonString(property);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<JsonArray> optJsonArray(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.ofNullable(jsonObject.getAsJsonArray(property));
             } catch (Exception e) {
@@ -76,7 +89,7 @@ public class JsonReader {
     }
 
     public Optional<JsonReader> optJsonObject(String property) {
-        if (jsonObject.has(property)) {
+        if (hasJsonObject(property)) {
             try {
                 return Optional.of(new JsonReader(jsonObject.getAsJsonObject(property)));
             } catch (Exception e) {
@@ -91,8 +104,16 @@ public class JsonReader {
             .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
+    public boolean hasJsonObject(String property) {
+        return jsonObject.has(property) && !(jsonObject.get(property) instanceof JsonNull);
+    }
+
     public void readStringIfPresent(String key, Consumer<String> setterMethod) {
         optString(key).ifPresent(setterMethod);
+    }
+
+    public void readCaseInsensitiveStringIfPresent(String key, Consumer<CaseInsensitiveString> setterMethod) {
+        optCaseInsensitiveString(key).ifPresent(setterMethod);
     }
 
     public void readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {

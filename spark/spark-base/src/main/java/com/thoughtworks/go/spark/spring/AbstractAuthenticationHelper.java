@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.spark.spring;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -81,6 +84,23 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkPipelineCreationAuthorizationAnd403(Request request, Response response) {
+        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
+            return;
+        }
+
+        JsonElement group = new JsonParser().parse(request.body()).getAsJsonObject().get("group");
+        if (group == null) {
+            throw new UnprocessableEntityException("Pipeline group must be specified for creating a pipeline.");
+        }
+        else {
+            String groupName = group.getAsString();
+            if (StringUtils.isNotBlank(groupName) && !securityService.isUserAdminOfGroup(currentUsername(), groupName)) {
+                throw renderForbiddenResponse();
+            }
+        }
+    }
+
     public void checkAdminUserOrGroupAdminUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
@@ -120,7 +140,7 @@ public abstract class AbstractAuthenticationHelper {
             throw new RecordNotFoundException();
         }
 
-        if (securityService.isUserAdmin(username)){
+        if (securityService.isUserAdmin(username)) {
             return true;
         }
 

@@ -31,7 +31,7 @@ public abstract class HaltApiMessages {
     }
 
     public static String entityAlreadyExistsMessage(String entityType, Object existingName) {
-        return String.format("Failed to add %s `%s'. Another %s with the same name already exists.", entityType, existingName, entityType);
+        return String.format("Failed to add %s '%s'. Another %s with the same name already exists.", entityType, existingName, entityType);
     }
 
     public static String renameOfEntityIsNotSupportedMessage(String entityType) {
@@ -43,7 +43,7 @@ public abstract class HaltApiMessages {
     }
 
     public static String etagDoesNotMatch(String entityType, String name) {
-        return String.format("Someone has modified the configuration for %s `%s'. Please update your copy of the config with the changes and try again.", entityType, name);
+        return String.format("Someone has modified the configuration for %s '%s'. Please update your copy of the config with the changes and try again.", entityType, name);
     }
 
     public static String rateLimitExceeded() {

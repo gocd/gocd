@@ -23,10 +23,10 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiMessages;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.apiv1.pipelineoperations.exceptions.InvalidGoCipherTextException;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineScheduleOptionsRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
+import com.thoughtworks.go.apiv6.shared.exceptions.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
@@ -88,7 +88,7 @@ public class PipelineOperationsControllerV1Delegate extends ApiController {
             post(Routes.Pipeline.SCHEDULE_PATH, mimeType, this::schedule);
 
             exception(RecordNotFoundException.class, this::notFound);
-            exception(InvalidGoCipherTextException.class, (InvalidGoCipherTextException exception, Request request, Response response) -> {
+            exception(InvalidGoCipherTextRuntimeException.class, (InvalidGoCipherTextRuntimeException exception, Request request, Response response) -> {
                 response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));
             });

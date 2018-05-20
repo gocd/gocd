@@ -275,7 +275,11 @@ subprojects {
     delete 'logs'
   }
 
-  clean.dependsOn cleanLogs
+  task cleanApiOut(type: Delete) {
+    delete 'out'
+  }
+
+  clean.dependsOn cleanLogs, cleanApiOut
   check.dependsOn 'license'
 
   tasks.withType(Jar) { jarTask ->

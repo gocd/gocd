@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.exceptions;
+package com.thoughtworks.go.apiv6.shared.exceptions;
 
-public class InvalidGoCipherTextException extends RuntimeException {
-    public InvalidGoCipherTextException(String message, Throwable throwable) {
+public class InvalidGoCipherTextRuntimeException extends RuntimeException {
+
+    public InvalidGoCipherTextRuntimeException(String message, Throwable throwable) {
         super(message, throwable);
     }
+
 }

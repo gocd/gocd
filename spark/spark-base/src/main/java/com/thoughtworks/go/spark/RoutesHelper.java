@@ -19,6 +19,7 @@ package com.thoughtworks.go.spark;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.http.HttpStatus;
 import spark.Request;
@@ -57,8 +58,14 @@ public class RoutesHelper {
         sparkControllers.forEach(SparkController::setupRoutes);
 
         exception(JsonParseException.class, this::invalidJsonPayload);
+        exception(UnprocessableEntityException.class, this::unprocessableEntity);
 
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
+    }
+
+    private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
+        response.body(new Gson().toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
+        response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {

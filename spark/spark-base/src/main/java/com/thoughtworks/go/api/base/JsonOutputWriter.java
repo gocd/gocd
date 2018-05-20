@@ -21,7 +21,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.RequestContext;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -102,10 +104,43 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public JsonOutputWriterUsingJackson add(String key, CaseInsensitiveString value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value == null) {
+                   renderNull(key);
+                }
+                else {
+                    jacksonWriter.writeStringField(key, value.toString());
+                }
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson addIfNotNull(String key, String value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value != null) {
                     add(key, value);
+                }
+            });
+        }
+
+        @Override
+        public JsonOutputWriterUsingJackson addIfNotNull(String key, CaseInsensitiveString value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    add(key, value);
+                }
+            });
+        }
+
+        @Override
+        public JsonOutputWriterUsingJackson addWithDefaultIfBlank(String key, String value, String defaultValue) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null && StringUtils.isNotBlank(value)) {
+                    add(key, value);
+                }
+                else {
+                    add(key, defaultValue);
                 }
             });
         }
@@ -177,6 +212,15 @@ public class JsonOutputWriter {
                     jacksonWriter.writeFieldName(key);
                     jacksonWriter.writeTree(jsonNode);
                 }
+            );
+        }
+
+        @Override
+        public void renderNull(String key) {
+            withExceptionHandling((jacksonWriter) -> {
+                        jacksonWriter.writeFieldName(key);
+                        jacksonWriter.writeTree(null);
+                    }
             );
         }
 

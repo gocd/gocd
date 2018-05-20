@@ -857,7 +857,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
-        return group.isUserAnAdmin(userName, rolesForUser(userName));
+        return group != null && group.isUserAnAdmin(userName, rolesForUser(userName));
     }
 
     public boolean isUserAdmin(Username username) {

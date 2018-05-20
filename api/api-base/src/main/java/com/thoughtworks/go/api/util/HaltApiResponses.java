@@ -85,4 +85,8 @@ public abstract class HaltApiResponses {
     public static HaltException haltBecauseMissingJsonProperty(String property) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property)));
     }
+
+    public static HaltException haltBecauseOfReason(String message) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(message));
+    }
 }

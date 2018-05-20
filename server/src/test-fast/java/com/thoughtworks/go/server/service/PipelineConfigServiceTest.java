@@ -50,6 +50,7 @@ public class PipelineConfigServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private PluggableTaskService pluggableTaskService;
+    private ExternalArtifactsService externalArtifactsService;
 
     @Before
     public void setUp() throws Exception {
@@ -64,12 +65,13 @@ public class PipelineConfigServiceTest {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
+        externalArtifactsService = mock(ExternalArtifactsService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
-        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
+        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null, externalArtifactsService);
     }
 
     @Test
@@ -166,6 +168,27 @@ public class PipelineConfigServiceTest {
     }
 
     @Test
+    public void updatePipelineConfigShouldValidateAllExternalArtifacts() {
+        PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
+        PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
+        when(goConfigService.artifactStores()).thenReturn(mock(ArtifactStores.class));
+
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        job1.artifactConfigs().add(s3);
+        job2.artifactConfigs().add(docker);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.updatePipelineConfig(null, pipeline, null, null);
+
+        verify(externalArtifactsService).validate(eq(s3), any(), any());
+        verify(externalArtifactsService).validate(eq(docker), any(), any());
+    }
+
+    @Test
     public void createPipelineConfigShouldValidateAllPluggableTasks() {
         PluggableTask xUnit = mock(PluggableTask.class);
         PluggableTask docker = mock(PluggableTask.class);
@@ -183,6 +206,27 @@ public class PipelineConfigServiceTest {
 
         verify(pluggableTaskService).isValid(xUnit);
         verify(pluggableTaskService).isValid(docker);
+    }
+
+    @Test
+    public void createPipelineConfigShouldValidateAllExternalArtifacts() {
+        PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
+        PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
+        when(goConfigService.artifactStores()).thenReturn(mock(ArtifactStores.class));
+
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        job1.artifactConfigs().add(s3);
+        job2.artifactConfigs().add(docker);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
+
+        verify(externalArtifactsService).validate(eq(s3), any(), any());
+        verify(externalArtifactsService).validate(eq(docker), any(), any());
     }
 
     @Test

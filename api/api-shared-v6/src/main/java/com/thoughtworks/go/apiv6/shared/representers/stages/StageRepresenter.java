@@ -59,25 +59,25 @@ public class StageRepresenter {
     };
   }
 
-  public static StageConfig fromJSON(JsonReader jsonReader) {
+  public static StageConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
     StageConfig stageConfig = new StageConfig();
     jsonReader.readCaseInsensitiveStringIfPresent("name", stageConfig::setName);
     jsonReader.optBoolean("fetch_materials").ifPresent(stageConfig::setFetchMaterials);
     jsonReader.optBoolean("clean_working_directory").ifPresent(stageConfig::setCleanWorkingDir);
     jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
     stageConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
-    setJobs(jsonReader, stageConfig);
+    setJobs(jsonReader, stageConfig, options);
     jsonReader.optJsonObject("approval").ifPresent(approvalReader -> {
       stageConfig.setApproval(ApprovalRepresenter.fromJSON(approvalReader));
     });
     return stageConfig;
   }
 
-  private static void setJobs(JsonReader jsonReader, StageConfig stageConfig) {
+  private static void setJobs(JsonReader jsonReader, StageConfig stageConfig, ConfigHelperOptions options) {
     JobConfigs allJobs = new JobConfigs();
     jsonReader.readArrayIfPresent("jobs", jobs -> {
       jobs.forEach(job -> {
-        allJobs.add(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())));
+        allJobs.add(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject()), options));
       });
     });
 

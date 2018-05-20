@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers;
+package com.thoughtworks.go.apiv6.shared.representers.stages;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;

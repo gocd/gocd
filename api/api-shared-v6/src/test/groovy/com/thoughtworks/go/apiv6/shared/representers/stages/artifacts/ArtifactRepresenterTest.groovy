@@ -14,17 +14,43 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv6.shared.representers.stages
+package com.thoughtworks.go.apiv6.shared.representers.stages.artifacts
 
+import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.validation.FilePathTypeValidator
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.helper.GoConfigMother
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo
+import com.thoughtworks.go.plugin.domain.common.Metadata
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
+import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 class ArtifactRepresenterTest {
+
+  def externalArtifactHash =
+    [
+      type           : "external",
+      artifact_id    : "docker-image-stable",
+      store_id       : "dockerhub",
+      "configuration": [
+        [
+          key  : "image",
+          value: "alpine"
+        ]
+      ]
+    ]
 
   def testArtifactWithErrors =
   [source: null, destination: '../foo', type: 'test',
@@ -90,15 +116,37 @@ class ArtifactRepresenterTest {
   }
 
   @Test
+  void 'should serialize external artifact'() {
+    def config = new PluggableArtifactConfig("docker-image-stable", "dockerhub", ConfigurationPropertyMother.create("image", false, "alpine"))
+
+    def actualJson = toObjectString({ ArtifactRepresenter.toJSON(it, config) })
+
+    assertThatJson(actualJson).isEqualTo(externalArtifactHash)
+  }
+
+  @Test
   void 'should deserialize test artifact'() {
     def expected = new TestArtifactConfig()
     expected.setSource('target/reports/**/*Test.xml')
     expected.setDestination('reports')
 
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(testArtifactHash)
-    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader)
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
 
     assertThatJson(actualArtifactConfig).isEqualTo(expected)
+  }
+
+  @Test
+  void 'should deserialize external artifact'() {
+    def config = new PluggableArtifactConfig("docker-image-stable", "dockerhub", ConfigurationPropertyMother.create("image", false, "alpine"))
+
+    def cruiseConfig = GoConfigMother.defaultCruiseConfig()
+    cruiseConfig.getArtifactStores().add(new ArtifactStore("dockerhub", "cd.go.artifact.docker.plugin"))
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(externalArtifactHash)
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(cruiseConfig, mock(PasswordDeserializer.class)))
+
+    assertThatJson(actualArtifactConfig).isEqualTo(config)
+
   }
 
   @Test

@@ -31,6 +31,9 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,13 +47,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluggableArtifactConfigTest {
+
+    private ArtifactPluginInfo artifactPluginInfo;
+
+    @Before
+    public void setup() {
+        artifactPluginInfo = mock(ArtifactPluginInfo.class);
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
+        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+    }
+    @After
+    public void clear() {
+        ArtifactMetadataStore.instance().setPluginInfo(null);
+    }
+
     @Test
     public void shouldCreatePluggableArtifact() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID", create("Foo", false, "Bar"));
 
         assertThat(artifactConfig.getId(), is("Artifact-ID"));
         assertThat(artifactConfig.getStoreId(), is("Store-ID"));
-        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.plugin));
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
         assertThat(artifactConfig.getArtifactTypeValue(), is("Pluggable Artifact"));
         assertThat(artifactConfig.getConfiguration().get(0), is(create("Foo", false, "Bar")));
     }
@@ -190,12 +209,6 @@ public class PluggableArtifactConfigTest {
     public void postConstruct_shouldHandleEncryptionOfConfigProperties() throws CryptoException {
         GoCipher goCipher = new GoCipher();
 
-        ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);
-        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
-        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
-        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
-        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
-
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
@@ -214,5 +227,34 @@ public class PluggableArtifactConfigTest {
 
         assertThat(nonSecureProperty.isSecure(), is(false));
         assertThat(nonSecureProperty.getValue(), is("value2"));
+
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnFalseIfStoreDoesNotExist() {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
+
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnFalseIfPluginDoesNotExist() {
+        ArtifactMetadataStore.instance().remove("cd.go.s3");
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnTrueIfPluginAndStoreExist() {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+
+        assertTrue(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
     }
 }

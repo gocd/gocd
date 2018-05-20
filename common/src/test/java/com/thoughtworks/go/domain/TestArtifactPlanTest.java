@@ -58,7 +58,7 @@ public class TestArtifactPlanTest {
         final MergedTestArtifactPlan compositeTestArtifact = new MergedTestArtifactPlan(
                 new ArtifactPlan(ArtifactPlanType.unit, "some_random_path_that_does_not_exist", "testoutput")
         );
-        compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
+        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
         verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR,
                 "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
     }
@@ -71,7 +71,7 @@ public class TestArtifactPlanTest {
                 new ArtifactPlan(ArtifactPlanType.unit, nonFolderFileThatExists.getPath(), "testoutput")
         );
 
-        compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
+        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
         doNothing().when(mockArtifactPublisher).upload(any(File.class), any(String.class));
     }
 
@@ -86,7 +86,7 @@ public class TestArtifactPlanTest {
         first.mkdirs();
         second.mkdirs();
 
-        testArtifactPlan.publish(mockArtifactPublisher, rootPath);
+        testArtifactPlan.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
 
         verify(mockArtifactPublisher).upload(first, "logs/report");
         verify(mockArtifactPublisher).upload(second, "logs/test/a/b");

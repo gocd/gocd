@@ -24,6 +24,7 @@ import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.trackingtool.
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigRepoOriginRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigXmlOriginRepresenter;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -113,7 +114,7 @@ public class PipelineConfigRepresenter {
         pipelineConfig.setParams(ParamRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setMaterialConfigs(MaterialRepresenter.fromJSONArray(jsonReader, options));
-        setStages(jsonReader, pipelineConfig);
+        setStages(jsonReader, pipelineConfig, options);
         setTrackingTool(jsonReader, pipelineConfig);
         jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> {
             pipelineConfig.setTimer(TimerRepresenter.fromJSON(timerJsonReader));
@@ -132,11 +133,11 @@ public class PipelineConfigRepresenter {
         }
     }
 
-    private static void setStages(JsonReader jsonReader, PipelineConfig pipelineConfig) {
+    private static void setStages(JsonReader jsonReader, PipelineConfig pipelineConfig, ConfigHelperOptions options) {
         pipelineConfig.getStages().clear();
         jsonReader.readArrayIfPresent("stages", stages -> {
             stages.forEach(stage -> {
-                pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
+                pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject()), options));
             });
         });
     }

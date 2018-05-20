@@ -76,7 +76,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public ArtifactPlan(String pluggableArtifactConfigJson) {
-        artifactPlanType = ArtifactPlanType.plugin;
+        artifactPlanType = ArtifactPlanType.external;
         this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 
@@ -120,7 +120,7 @@ public class ArtifactPlan extends PersistentObject {
         }
     }
 
-    public void publish(GoPublisher publisher, final File rootPath) {
+    public void publishBuiltInArtifacts(GoPublisher publisher, final File rootPath) {
         switch (artifactPlanType) {
             case unit:
                 publishTestArtifact(publisher, rootPath);

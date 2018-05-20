@@ -59,7 +59,7 @@ public class ArtifactPlanTest {
         final DefaultGoPublisher publisher = mock(DefaultGoPublisher.class);
         final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
 
-        artifactPlan.publish(publisher, testFolder);
+        artifactPlan.publishBuiltInArtifacts(publisher, testFolder);
         verify(publisher).upload(new File(testFolder, "src"), "dest");
     }
 
@@ -148,7 +148,7 @@ public class ArtifactPlanTest {
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(artifactConfig);
 
-        assertThat(artifactPlan.getArtifactPlanType(), is(ArtifactPlanType.plugin));
+        assertThat(artifactPlan.getArtifactPlanType(), is(ArtifactPlanType.external));
         assertThat(artifactPlan.getPluggableArtifactConfiguration().size(), is(3));
         assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("id", "ID"));
         assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("storeId", "StoreID"));

@@ -21,7 +21,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public enum ArtifactPlanType {
     unit,
     file,
-    plugin;
+    external;
 
     public boolean isTest() {
         return this.equals(unit);
@@ -33,8 +33,8 @@ public enum ArtifactPlanType {
                 return ArtifactPlanType.unit;
             case build:
                 return ArtifactPlanType.file;
-            case plugin:
-                return ArtifactPlanType.plugin;
+            case external:
+                return ArtifactPlanType.external;
             default:
                 throw bomb("Illegal name in for the artifact type.[" + artifactType + "].");
         }

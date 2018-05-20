@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -82,7 +83,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
 
     @Override
     public ArtifactType getArtifactType() {
-        return ArtifactType.plugin;
+        return ArtifactType.external;
     }
 
     @Override
@@ -123,6 +124,15 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         if (StringUtils.isBlank(this.storeId)) {
             errors.add("storeId", "\"Store id\" is required for PluggableArtifact");
         }
+    }
+
+    public boolean hasValidPluginAndStore(ValidationContext validationContext) {
+        ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
+        if (artifactStore == null) {
+            return false;
+        }
+        ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
+        return pluginInfo != null;
     }
 
     @Override
@@ -226,4 +236,16 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     private ArtifactPluginInfo getPluginInfo() {
         return ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
     }
+
+    public void addConfigurations(List<ConfigurationProperty> configurationProperties, ArtifactStore artifactStore) {
+        setArtifactStore(artifactStore);
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurationProperties) {
+            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
+                    property.getConfigValue(),
+                    property.getEncryptedValue(),
+                    isSecure(property.getConfigKeyName())));
+        }
+    }
+
 }

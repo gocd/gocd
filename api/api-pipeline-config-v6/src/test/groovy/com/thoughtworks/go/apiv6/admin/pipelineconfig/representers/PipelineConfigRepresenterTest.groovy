@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials.MaterialRepresenter
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
@@ -30,7 +31,6 @@ import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.StageConfigMother
 import com.thoughtworks.go.security.GoCipher
-import com.thoughtworks.go.server.service.PipelineConfigService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

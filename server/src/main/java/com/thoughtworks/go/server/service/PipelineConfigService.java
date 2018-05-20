@@ -53,14 +53,16 @@ public class PipelineConfigService {
     private final SecurityService securityService;
     private final PluggableTaskService pluggableTaskService;
     private final EntityHashingService entityHashingService;
+    private ExternalArtifactsService externalArtifactsService;
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService) {
+    public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService, ExternalArtifactsService externalArtifactsService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.pluggableTaskService = pluggableTaskService;
         this.entityHashingService = entityHashingService;
+        this.externalArtifactsService = externalArtifactsService;
     }
 
     public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
@@ -136,6 +138,7 @@ public class PipelineConfigService {
 
     public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final String md5, final LocalizedOperationResult result) {
         validatePluggableTasks(pipelineConfig);
+        validateExternalArtifacts(pipelineConfig, PipelineConfigSaveValidationContext.forChain(false, goConfigService.findGroupNameByPipeline(pipelineConfig.name()), goConfigService.getCurrentConfig(), pipelineConfig));
         UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, currentUser, md5, result);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
@@ -162,6 +165,7 @@ public class PipelineConfigService {
 
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         validatePluggableTasks(pipelineConfig);
+        validateExternalArtifacts(pipelineConfig, PipelineConfigSaveValidationContext.forChain(true, groupName, goConfigService.getCurrentConfig(), pipelineConfig));
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
     }
@@ -183,6 +187,22 @@ public class PipelineConfigService {
         for (PluggableTask task : pluggableTask(config)) {
             pluggableTaskService.isValid(task);
         }
+    }
+
+    private void validateExternalArtifacts(PipelineConfig pipelineConfig, ValidationContext validationContext) {
+        for (PluggableArtifactConfig pluggableArtifactConfig : getExternalArtifactConfigs(pipelineConfig)) {
+            externalArtifactsService.validate(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), validationContext);
+        }
+    }
+
+    private List<PluggableArtifactConfig> getExternalArtifactConfigs(PipelineConfig pipelineConfig) {
+        List<PluggableArtifactConfig> externalArtifactConfigs = new ArrayList<>();
+        for (StageConfig stageConfig : pipelineConfig.getStages()) {
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+            }
+        }
+        return externalArtifactConfigs;
     }
 
     private List<PluggableTask> pluggableTask(PipelineConfig config) {

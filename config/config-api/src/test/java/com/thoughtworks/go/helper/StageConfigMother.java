@@ -119,7 +119,7 @@ public class StageConfigMother {
     }
 
     private static ArtifactConfig createArtifactConfig(ArtifactType artifactType) {
-        if (artifactType == ArtifactType.plugin) {
+        if (artifactType == ArtifactType.external) {
             return createPluggableArtifactConfig();
         } else {
             return createBuiltInArtifactConfig(artifactType, "src", "dest");

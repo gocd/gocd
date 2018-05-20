@@ -18,11 +18,9 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-
-import java.util.Map;
 
 public class PackageMaterialRepresenter {
 

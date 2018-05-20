@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 public class ArtifactPlanTypeTest {
     @Test
     public void shouldConvertArtifactTypeToArtifactPlanType() {
-        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.plugin), is(ArtifactPlanType.plugin));
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.external), is(ArtifactPlanType.external));
         assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.test), is(ArtifactPlanType.unit));
         assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.build), is(ArtifactPlanType.file));
     }

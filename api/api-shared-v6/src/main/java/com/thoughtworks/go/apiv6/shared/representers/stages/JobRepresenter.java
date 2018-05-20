@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
+import com.thoughtworks.go.apiv6.shared.representers.stages.artifacts.ArtifactRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.tasks.TaskRepresenter;
 import com.thoughtworks.go.config.*;
 
@@ -90,14 +91,14 @@ public class JobRepresenter {
         }
     }
 
-    public static JobConfig fromJSON(JsonReader jsonReader) {
+    public static JobConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         JobRepresenter.jsonReader = jsonReader;
         JobConfig jobConfig = new JobConfig();
         jsonReader.readCaseInsensitiveStringIfPresent("name", jobConfig::setName);
         setRunInstanceCount(jobConfig);
         setTimeout(jobConfig);
         jsonReader.readStringIfPresent("elastic_profile_id", jobConfig::setElasticProfileId);
-        setArtifacts(jobConfig);
+        setArtifacts(jobConfig, options);
         jobConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setResources(jobConfig);
         jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
@@ -118,11 +119,11 @@ public class JobRepresenter {
         jobConfig.setResourceConfigs(resourceConfigs);
     }
 
-    private static void setArtifacts(JobConfig jobConfig) {
+    private static void setArtifacts(JobConfig jobConfig, ConfigHelperOptions options) {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         jsonReader.readArrayIfPresent("artifacts", artifacts -> {
             artifacts.forEach(artifact -> {
-                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
+                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject()), options));
             });
         });
         jobConfig.setArtifactConfigs(artifactConfigs);

@@ -29,10 +29,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
 
 import javax.annotation.PostConstruct;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @understands the configuration for cruise
@@ -161,6 +158,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean isMailHostConfigured();
 
     List<PipelineConfig> getAllPipelineConfigs();
+
+    Map<CaseInsensitiveString, PipelineConfig> pipelineConfigsAsMap();
 
     List<CaseInsensitiveString> getAllPipelineNames();
 

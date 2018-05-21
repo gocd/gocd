@@ -100,11 +100,21 @@
         SELECT caseInsensitivePipelineName FROM PIPELINELABELCOUNTS GROUP BY caseInsensitivePipelineName HAVING COUNT(*) &gt; 1;
     </select>
 
-    <delete id="deleteOldPipelineLabelCountForPipeline">
+    <delete id="deleteOldPipelineLabelCountForPipelineInConfig">
         DELETE FROM PIPELINELABELCOUNTS
         WHERE
         caseInsensitivePipelineName = #{pipelineName}
         AND pipelinename != #{pipelineName}
+    </delete>
+
+    <delete id="deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig">
+        DELETE from PIPELINELABELCOUNTS
+        where caseInsensitivePipelineName = #{pipelineName}
+              and (
+                  (select count(*) from pipelines where name = #{pipelineName}) = 0
+                  or
+                  pipelinename != CAST((select name from pipelines where id = (select max(id) from pipelines where name = #{pipelineName})) as VARCHAR)
+              )
     </delete>
 
     <update id="updatePipelineComment">

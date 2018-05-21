@@ -93,6 +93,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.GLOBAL, "global");
     }
 
+    public static HealthStateScope forDuplicatePipelineLabel() {
+        return new HealthStateScope(ScopeType.GLOBAL, "PipelineLabelCorrector");
+    }
+
     public static HealthStateScope aboutPlugin(String symbolicName) {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName);
     }

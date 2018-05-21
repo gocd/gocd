@@ -36,7 +36,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.DFSCycleDetector;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.Node;
+import com.thoughtworks.go.util.PipelineDependencyState;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -44,9 +47,11 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @understands the configuration for cruise
@@ -993,6 +998,10 @@ public class BasicCruiseConfig implements CruiseConfig {
             allPipelineConfigs = configs;
         }
         return allPipelineConfigs;
+    }
+
+    public Map<CaseInsensitiveString, PipelineConfig> pipelineConfigsAsMap() {
+        return getAllPipelineConfigs().stream().collect(toMap(PipelineConfig::name, Function.identity()));
     }
 
     @Override

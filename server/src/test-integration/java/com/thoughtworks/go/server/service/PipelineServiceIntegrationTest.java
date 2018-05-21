@@ -183,7 +183,7 @@ public class PipelineServiceIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
 
-        pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineName);
+        pipelineSqlMapDao.deleteOldPipelineLabelCountForPipelineInConfig(pipelineName);
 
         MaterialRevisions materialRevisions = u.mrs(u.mr(u.m(hg).material, true, "h1"));
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user");

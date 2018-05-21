@@ -1732,7 +1732,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
 
-        pipelineDao.deleteOldPipelineLabelCountForPipeline(pipelineName);
+        pipelineDao.deleteOldPipelineLabelCountForPipelineInConfig(pipelineName);
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty(), is(true));
         assertThat(pipelineDao.getCounterForPipeline(pipelineName), is(30));
         assertThat(pipelineDao.getCounterForPipeline(pipelineName.toLowerCase()), is(30));

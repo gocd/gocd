@@ -182,9 +182,14 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pipelinenames;
     }
 
-    public void deleteOldPipelineLabelCountForPipeline(String pipelineName) {
+    public void deleteOldPipelineLabelCountForPipelineInConfig(String pipelineName) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
-        getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipeline", args);
+        getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipelineInConfig", args);
+    }
+
+    public void deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig(String pipelineName) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig", args);
     }
 
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {

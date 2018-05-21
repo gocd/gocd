@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
+import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
@@ -82,7 +83,11 @@ public class GoConfigFieldLoader<T> {
             setValue(val);
         } else if (isAnnotationPresent(field, ConfigReferenceElement.class)) {
             ConfigReferenceElement referenceField = field.getAnnotation(ConfigReferenceElement.class);
-            String refId = e.getAttribute(referenceField.referenceAttribute()).getValue();
+            Attribute attribute = e.getAttribute(referenceField.referenceAttribute());
+            if (attribute == null) {
+                bomb(String.format("Expected attribute `%s` to be present for %s.", referenceField.referenceAttribute(), e.getName()));
+            }
+            String refId = attribute.getValue();
             Object referredObject = configReferenceElements.get(referenceField.referenceCollection(), refId);
             setValue(referredObject);
         }

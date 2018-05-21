@@ -222,11 +222,6 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return isWithinTemplates();
     }
 
-    @Override
-    public ArtifactStores artifactStores() {
-        return this.getCruiseConfig().getArtifactStores();
-    }
-
     public static ConfigSaveValidationContext forChain(Validatable... validatables) {
         ConfigSaveValidationContext tail = new ConfigSaveValidationContext(null);
         for (Validatable validatable : validatables) {

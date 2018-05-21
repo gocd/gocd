@@ -16,17 +16,29 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.GoCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,7 +62,6 @@ public class PluggableArtifactConfigTest {
         final ArtifactStores artifactStores = mock(ArtifactStores.class);
         assertFalse(artifactConfig.hasErrors());
 
-        when(validationContext.artifactStores()).thenReturn(artifactStores);
         when(artifactStores.find("Store-ID")).thenReturn(null);
 
         artifactConfig.validate(validationContext);
@@ -68,7 +79,6 @@ public class PluggableArtifactConfigTest {
         final ArtifactStores artifactStores = mock(ArtifactStores.class);
         assertFalse(artifactConfig.hasErrors());
 
-        when(validationContext.artifactStores()).thenReturn(artifactStores);
         when(artifactStores.find("Store-ID")).thenReturn(new ArtifactStore("Store-ID", "pluginId"));
 
         artifactConfig.validate(validationContext);
@@ -137,7 +147,7 @@ public class PluggableArtifactConfigTest {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("", "s3");
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
 
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+        final boolean result = artifactConfig.validateTree(null);
 
         assertFalse(result);
     }
@@ -146,9 +156,7 @@ public class PluggableArtifactConfigTest {
     public void validateTree_shouldValidateNullId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig(null, "s3");
 
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
-
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+        final boolean result = artifactConfig.validateTree(null);
 
         assertFalse(result);
     }
@@ -157,9 +165,7 @@ public class PluggableArtifactConfigTest {
     public void validateTree_presenceStoreId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
 
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
-
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+        final boolean result = artifactConfig.validateTree(null);
 
         assertFalse(result);
     }
@@ -168,10 +174,38 @@ public class PluggableArtifactConfigTest {
     public void validateTree_presenceOfStoreIdInArtifactStores() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "s3");
 
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
-
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+        final boolean result = artifactConfig.validateTree(null);
 
         assertFalse(result);
+    }
+
+    @Test
+    public void postConstruct_shouldHandleEncryptionOfConfigProperties() throws InvalidCipherTextException {
+        GoCipher goCipher = new GoCipher();
+
+        ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
+        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "store-id", secureProperty, nonSecureProperty);
+        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig.encryptSecureConfigurations();
+
+        assertThat(secureProperty.isSecure(), is(true));
+        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
+        assertThat(secureProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
+
+        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(nonSecureProperty.getValue(), is("value2"));
     }
 }

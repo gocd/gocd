@@ -22,8 +22,11 @@ import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +43,10 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     private String storeId;
     @ConfigSubtag
     private Configuration configuration = new Configuration();
+
+    @IgnoreTraversal
+    @ConfigReferenceElement(referenceAttribute = "storeId", referenceCollection = "artifactStores")
+    private ArtifactStore artifactStore;
 
     public PluggableArtifactConfig() {
     }
@@ -102,13 +109,10 @@ public class PluggableArtifactConfig implements ArtifactConfig {
             errors.add("storeId", NameTypeValidator.errorMessage("pluggable artifact storeId", storeId));
         }
 
-        if (isNotBlank(storeId)) {
-            final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
-
-            if (artifactStore == null) {
-                addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
-            }
+        if (artifactStore == null) {
+            addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
         }
+
 
         if (!new NameTypeValidator().isNameValid(id)) {
             errors.add("id", NameTypeValidator.errorMessage("pluggable artifact id", id));
@@ -169,6 +173,19 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         errors.add(fieldName, message);
     }
 
+    @PostConstruct
+    public void encryptSecureConfigurations() {
+        if (artifactStore != null && hasPluginInfo()) {
+            for (ConfigurationProperty configuration : getConfiguration()) {
+                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName()));
+            }
+        }
+    }
+
+    public  void setArtifactStore(ArtifactStore artifactStore) {
+        this.artifactStore = artifactStore;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -195,5 +212,22 @@ public class PluggableArtifactConfig implements ArtifactConfig {
                 "id='" + id + '\'' +
                 ", storeId='" + storeId + '\'' +
                 '}';
+    }
+
+    private boolean isSecure(String configKeyName) {
+        ArtifactPluginInfo pluginInfo = getPluginInfo();
+        return pluginInfo != null
+                && pluginInfo.getArtifactConfigSettings() != null
+                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
+                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName).isSecure();
+
+    }
+
+    private boolean hasPluginInfo() {
+        return getPluginInfo() != null;
+    }
+
+    private ArtifactPluginInfo getPluginInfo() {
+        return ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
     }
 }

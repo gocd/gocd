@@ -66,7 +66,5 @@ public interface ValidationContext {
     default SystemEnvironment systemEnvironment() {
         return new SystemEnvironment();
     }
-
-    ArtifactStores artifactStores();
 }
 

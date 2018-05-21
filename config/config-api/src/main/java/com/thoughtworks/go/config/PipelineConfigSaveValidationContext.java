@@ -261,9 +261,4 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     public boolean shouldNotCheckRole() {
         return isWithinTemplates();
     }
-
-    @Override
-    public ArtifactStores artifactStores() {
-        return this.cruiseConfig.getArtifactStores();
-    }
 }

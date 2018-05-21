@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 
 @ConfigTag("artifactStore")
+@ConfigReferenceCollection(collectionName = "artifactStores", idFieldName = "id")
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ArtifactStore extends PluginProfile {
     public ArtifactStore() {

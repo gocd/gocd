@@ -41,6 +41,8 @@ class AnalyticsController < ApplicationController
   def check_permissions
     if is_request_for_pipeline_analytics?
       is_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_can_see_pipeline
+    elsif is_request_for_agent_analytics?
+      is_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_and_403
     else
       check_admin_user_and_403
     end
@@ -71,5 +73,9 @@ class AnalyticsController < ApplicationController
 
   def is_request_for_pipeline_analytics?
     params[:type] == 'pipeline'
+  end
+
+  def is_request_for_agent_analytics?
+    params[:type] == 'agent'
   end
 end

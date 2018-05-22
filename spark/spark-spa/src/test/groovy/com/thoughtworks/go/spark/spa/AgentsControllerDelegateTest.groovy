@@ -28,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks
 class AgentsControllerDelegateTest implements ControllerTrait<AgentsControllerDelegate>, SecurityServiceTrait {
   @Override
   AgentsControllerDelegate createControllerInstance() {
-    return new AgentsControllerDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService)
+    return new AgentsControllerDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment)
   }
 
   @Nested

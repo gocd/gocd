@@ -33,7 +33,6 @@ const SortHeaderWidget = {
 const AgentsTableHeader = {
 
   oninit (vnode) {
-
     this.sortClass = function (attrName) {
       return vnode.attrs.sortOrder().isSortedOn(attrName) ? vnode.attrs.sortOrder().orderBy() : '';
     };
@@ -49,6 +48,12 @@ const AgentsTableHeader = {
                onclick={m.withAttr('checked', vnode.attrs.onCheckboxClick)}/>
       );
     }
+
+    let analyticsTh;
+    if(vnode.attrs.shouldShowAnalyticsIcon) {
+      analyticsTh = (<th></th>);
+    }
+
     return (
       <thead>
       <tr>
@@ -104,7 +109,7 @@ const AgentsTableHeader = {
                             sortOrder={vnode.attrs.sortOrder}
                             sortClass={vnode.state.sortClass}/>
         </th>
-        <th></th>
+        {analyticsTh}
       </tr>
       </thead>
     );

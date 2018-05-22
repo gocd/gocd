@@ -225,6 +225,7 @@ const AgentsWidget = {
           <div class="container">
             <table class="agents-table stack">
               <AgentTableHeader
+                shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
                 sortOrder={args.sortOrder}
                 onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
                 checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
@@ -243,6 +244,7 @@ const AgentsWidget = {
                                     show={agent.matches(filterText)}
                                     dropdown={args.vm.dropdown}
                                     isUserAdmin={args.isUserAdmin}
+                                    shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
                     />
                   );
 

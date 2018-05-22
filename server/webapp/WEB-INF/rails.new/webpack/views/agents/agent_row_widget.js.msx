@@ -146,8 +146,12 @@ const AgentRowWidget = {
 
     let analyticsIcon;
     const agentAnalytics = vnode.state.getPluginSupportingAgentAnalytics(pluginInfos);
-    if (!_.isEmpty(agentAnalytics)) {
-      analyticsIcon = (<AgentAnalyticsWidget agent={agent} supportedAnalytics={agentAnalytics}/>);
+    if (vnode.attrs.shouldShowAnalyticsIcon && !_.isEmpty(agentAnalytics)) {
+      analyticsIcon = (<td key="analyticsIcon">
+        <span class="show-for-large">
+          <AgentAnalyticsWidget agent={agent} supportedAnalytics={agentAnalytics}/>
+        </span>
+      </td>);
     }
 
     return (
@@ -194,11 +198,10 @@ const AgentRowWidget = {
           <label class="hide-for-large">Environments</label>
           <span class="content">{environments}</span>
         </td>
-        <td key="analyticsIcon">
-          <span class="show-for-large">{analyticsIcon}</span>
-        </td>
+        {analyticsIcon}
       </tr>
     );
   }
 };
-module.exports       = AgentRowWidget;
+
+module.exports = AgentRowWidget;

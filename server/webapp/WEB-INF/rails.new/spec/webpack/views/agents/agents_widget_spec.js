@@ -45,6 +45,8 @@ describe("Agents Widget", () => {
   let agents;
   let routeHandler;
 
+  let shouldShowAnalyticsIcon = false;
+
   beforeEach(() => {
     routeHandler           = Stream(new RouteHandler());
     routeHandler().perform = _.noop;
@@ -60,6 +62,7 @@ describe("Agents Widget", () => {
             isUserAdmin,
             showSpinner,
             permanentMessage,
+            shouldShowAnalyticsIcon,
             sortOrder:            routeHandler,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
@@ -74,6 +77,7 @@ describe("Agents Widget", () => {
             isUserAdmin,
             showSpinner,
             permanentMessage,
+            shouldShowAnalyticsIcon,
             sortOrder:            routeHandler,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
@@ -111,7 +115,7 @@ describe("Agents Widget", () => {
   it('should contain the agent row information', () => {
     const agentInfo      = $root.find('table tbody tr')[0];
     const firstAgentInfo = $(agentInfo).find('td');
-    expect(firstAgentInfo).toHaveLength(11);
+    expect(firstAgentInfo).toHaveLength(10);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
     expect($(firstAgentInfo[2]).find('.content')).toHaveText('host-1');
     expect($(firstAgentInfo[3]).find('.content')).toHaveText('usr/local/foo');
@@ -121,6 +125,13 @@ describe("Agents Widget", () => {
     expect($(firstAgentInfo[7]).find('.content')).toHaveText('Unknown');
     expect($(firstAgentInfo[8]).find('.content')).toHaveText('Firefox');
     expect($(firstAgentInfo[9]).find('.content')).toHaveText('Dev, Test');
+  });
+
+  it('should contain the analytics icon row when analytics icon should be shown', () => {
+    shouldShowAnalyticsIcon = true;
+    m.redraw();
+
+    expect($root.find('th')).toHaveLength(11);
   });
 
   it('should select all the agents when selectAll checkbox is checked', () => {

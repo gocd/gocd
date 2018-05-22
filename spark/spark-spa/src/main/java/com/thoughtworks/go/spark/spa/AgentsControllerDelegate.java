@@ -20,6 +20,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -34,11 +35,13 @@ public class AgentsControllerDelegate implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private final SecurityService securityService;
+    private SystemEnvironment systemEnvironment;
 
-    public AgentsControllerDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
+    public AgentsControllerDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService, SystemEnvironment systemEnvironment) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.securityService = securityService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
@@ -58,7 +61,12 @@ public class AgentsControllerDelegate implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Agents");
             put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
+            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
         return new ModelAndView(object, "agents/index.vm");
+    }
+
+    private boolean showAnalyticsIcon() {
+        return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
     }
 }

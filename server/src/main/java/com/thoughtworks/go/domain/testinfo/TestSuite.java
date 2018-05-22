@@ -16,14 +16,9 @@
 
 package com.thoughtworks.go.domain.testinfo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import com.thoughtworks.go.domain.JobIdentifier;
+
+import java.util.*;
 
 /**
  * @understands grouped information regarding tests that have run within a test suite
@@ -34,11 +29,7 @@ public class TestSuite {
 
     public TestSuite(String name) {
         this.name = name;
-        this.tests = new TreeSet<>(new Comparator<TestInformation>() {
-            public int compare(TestInformation testInformation1, TestInformation testInformation2) {
-                return testInformation1.getName().compareTo(testInformation2.getName());
-            }
-        });
+        this.tests = new TreeSet<>(Comparator.comparing(TestInformation::getName));
     }
 
     public List<TestInformation> tests() {

@@ -21,7 +21,7 @@ import java.io.File;
 import com.thoughtworks.go.domain.LocatableEntity;
 
 public interface ArtifactLocator {
-    File findArtifact(LocatableEntity locatableEntity, String artifactPath) throws Exception;
+    File findArtifact(LocatableEntity locatableEntity, String artifactPath);
 
     boolean directoryExists(LocatableEntity locatableEntity);
 

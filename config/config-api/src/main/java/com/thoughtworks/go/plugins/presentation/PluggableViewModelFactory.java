@@ -22,9 +22,7 @@ package com.thoughtworks.go.plugins.presentation;
 public interface PluggableViewModelFactory<T> {
     PluggableViewModel viewModelFor(T renderable, String actionName);
 
-    PluggableViewModelFactory DOES_NOT_APPLY = new PluggableViewModelFactory() {
-        public PluggableViewModel viewModelFor(Object renderable, String actionName) {
-            throw new UnsupportedOperationException(String.format("This component does not support rendering '%s' for action '%s'", renderable, actionName));
-        }
+    PluggableViewModelFactory DOES_NOT_APPLY = (renderable, actionName) -> {
+        throw new UnsupportedOperationException(String.format("This component does not support rendering '%s' for action '%s'", renderable, actionName));
     };
 }

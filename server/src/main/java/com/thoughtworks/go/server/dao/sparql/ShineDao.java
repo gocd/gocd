@@ -22,13 +22,11 @@ import com.thoughtworks.go.domain.testinfo.FailureDetails;
 import com.thoughtworks.go.domain.testinfo.StageTestRuns;
 import com.thoughtworks.go.domain.testinfo.TestStatus;
 import com.thoughtworks.go.domain.testinfo.TestSuite;
-import com.thoughtworks.go.server.service.PipelineInstanceLoader;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.cruise.stage.StagesQuery;
-import com.thoughtworks.studios.shine.semweb.BoundVariables;
 import com.thoughtworks.studios.shine.xunit.XUnitOntology;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -98,11 +96,7 @@ public class ShineDao {
                 + "}";
 
         try {
-            return stagesQuery.select(selectTestCase, Arrays.asList(jobId.getStageIdentifier()), new RdfResultMapper<FailureDetails>() {
-                public FailureDetails map(BoundVariables aRow) {
-                    return new FailureDetails(aRow.getAsString("failureMessage"), aRow.getAsString("stackTrace"));
-                }
-            }).get(0);
+            return stagesQuery.select(selectTestCase, Arrays.asList(jobId.getStageIdentifier()), aRow -> new FailureDetails(aRow.getAsString("failureMessage"), aRow.getAsString("stackTrace"))).get(0);
         } catch (RuntimeException e) {
             LOGGER.error("can not retrieve shine test history!", e);
             result.connectionError("Unable to retrieve failure results.");
@@ -122,11 +116,9 @@ public class ShineDao {
                         + "  }"
                         + "}";
 
-        List<TestCaseResultModel> testCounts = stagesQuery.select(selectTestCase, Arrays.asList(stageId), new RdfResultMapper<TestCaseResultModel>() {
-            public TestCaseResultModel map(BoundVariables aRow) {
-                boolean error = Boolean.TRUE.equals(aRow.getBoolean("error"));
-                return new TestCaseResultModel(aRow.getAsString("failure") != null, error);
-            }
+        List<TestCaseResultModel> testCounts = stagesQuery.select(selectTestCase, Arrays.asList(stageId), aRow -> {
+            boolean error = Boolean.TRUE.equals(aRow.getBoolean("error"));
+            return new TestCaseResultModel(aRow.getAsString("failure") != null, error);
         });
         int totalCount = testCounts.size();
         int failuresCount = computeFailureCounts(testCounts);
@@ -168,14 +160,11 @@ public class ShineDao {
                         + "         ?pipelineTrigger cruise:user ?user .\n"
                         + "       }"
                         + "} ORDER BY ?failedPipelineCounter ?user";
-        return stagesQuery.select(committersForStage, failedStageIds, new RdfResultMapper<PipelineCommiter>() {
-
-            public PipelineCommiter map(BoundVariables aRow) {
-                String userName = aRow.getString("user");
-                Integer failedPipelineCounter = aRow.getInt("failedPipelineCounter");
-                String failedPipelineLabel = aRow.getString("failedPipelineLabel");
-                return new PipelineCommiter(userName, failedPipelineCounter, failedPipelineLabel);
-            }
+        return stagesQuery.select(committersForStage, failedStageIds, aRow -> {
+            String userName = aRow.getString("user");
+            Integer failedPipelineCounter = aRow.getInt("failedPipelineCounter");
+            String failedPipelineLabel = aRow.getString("failedPipelineLabel");
+            return new PipelineCommiter(userName, failedPipelineCounter, failedPipelineLabel);
         });
 
     }
@@ -212,18 +201,15 @@ public class ShineDao {
                         + "       }\n"
                         + "} ORDER BY ?jobName ?testSuiteName ?testCaseName";
 
-        return stagesQuery.select(selectFailingTests, failedStageIds, new RdfResultMapper<TestCaseModel>() {
-
-            public TestCaseModel map(BoundVariables aRow) {
-                String failedPipelineName = aRow.getString("failedPipelineName");
-                int failedPipelineCounter = aRow.getInt("failedPipelineCounter");
-                String failedPipelineLabel = aRow.getString("failedPipelineLabel");
-                String failedStageName = aRow.getString("failedStageName");
-                String failedStageCounter = aRow.getString("failedStageCounter");
-                String jobName = aRow.getString("jobName");
-                return new TestCaseModel(new JobIdentifier(failedPipelineName, failedPipelineCounter, failedPipelineLabel, failedStageName, failedStageCounter, jobName),
-                        aRow.getString("testSuiteName"), aRow.getString("testCaseName"), aRow.getBoolean("isError"));
-            }
+        return stagesQuery.select(selectFailingTests, failedStageIds, aRow -> {
+            String failedPipelineName = aRow.getString("failedPipelineName");
+            int failedPipelineCounter = aRow.getInt("failedPipelineCounter");
+            String failedPipelineLabel = aRow.getString("failedPipelineLabel");
+            String failedStageName = aRow.getString("failedStageName");
+            String failedStageCounter = aRow.getString("failedStageCounter");
+            String jobName = aRow.getString("jobName");
+            return new TestCaseModel(new JobIdentifier(failedPipelineName, failedPipelineCounter, failedPipelineLabel, failedStageName, failedStageCounter, jobName),
+                    aRow.getString("testSuiteName"), aRow.getString("testCaseName"), aRow.getBoolean("isError"));
         });
     }
 

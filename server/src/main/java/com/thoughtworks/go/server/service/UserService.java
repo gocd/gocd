@@ -42,7 +42,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
@@ -320,41 +319,25 @@ public class UserService {
         ROLES {
             @Override
             public Comparator<UserModel> sorter() {
-                return new Comparator<UserModel>() {
-                    public int compare(UserModel one, UserModel other) {
-                        return STRING_COMPARATOR.compare(one.getRoles(), other.getRoles());
-                    }
-                };
+                return (one, other) -> STRING_COMPARATOR.compare(one.getRoles(), other.getRoles());
             }
         },
         MATCHERS {
             @Override
             public Comparator<UserModel> sorter() {
-                return new Comparator<UserModel>() {
-                    public int compare(UserModel one, UserModel other) {
-                        return STRING_COMPARATOR.compare(one.getUser().getMatchers(), other.getUser().getMatchers());
-                    }
-                };
+                return (one, other) -> STRING_COMPARATOR.compare(one.getUser().getMatchers(), other.getUser().getMatchers());
             }
         },
         IS_ADMIN {
             @Override
             public Comparator<UserModel> sorter() {
-                return new Comparator<UserModel>() {
-                    public int compare(UserModel one, UserModel other) {
-                        return ((Boolean) one.isAdmin()).compareTo(other.isAdmin());
-                    }
-                };
+                return (one, other) -> Boolean.compare(one.isAdmin(), other.isAdmin());
             }
         },
         ENABLED {
             @Override
             public Comparator<UserModel> sorter() {
-                return new Comparator<UserModel>() {
-                    public int compare(UserModel one, UserModel other) {
-                        return ((Boolean) one.isEnabled()).compareTo(other.isEnabled());
-                    }
-                };
+                return (one, other) -> Boolean.compare(one.isEnabled(), other.isEnabled());
             }
         };
 
@@ -362,11 +345,7 @@ public class UserService {
 
 
         public Comparator<UserModel> sorter() {
-            return new Comparator<UserModel>() {
-                public int compare(UserModel one, UserModel other) {
-                    return get(one).compareTo(get(other));
-                }
-            };
+            return Comparator.comparing(this::get);
         }
 
         protected String get(UserModel model) {
@@ -384,11 +363,7 @@ public class UserService {
         DESC {
             @Override
             public Comparator<UserModel> forColumn(final SortableColumn column) {
-                return new Comparator<UserModel>() {
-                    public int compare(UserModel one, UserModel other) {
-                        return column.sorter().compare(other, one);
-                    }
-                };
+                return (one, other) -> column.sorter().compare(other, one);
             }
         };
 
@@ -460,12 +435,8 @@ public class UserService {
 
     public Users findValidSubscribers(final StageConfigIdentifier identifier) {
         Users users = userDao.findNotificationSubscribingUsers();
-        return users.filter(new Predicate<User>() {
-            public boolean test(User user) {
-                return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
-                        securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName());
-            }
-        });
+        return users.filter(user -> user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
+                securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName()));
     }
 
     public void validate(User user) throws ValidationException {
@@ -478,7 +449,7 @@ public class UserService {
         List<UserModel> userModels = allUsersForDisplay();
         Comparator<UserModel> userModelComparator = direction.forColumn(column);
 
-        Collections.sort(userModels, userModelComparator);
+        userModels.sort(userModelComparator);
         return userModels;
     }
 

@@ -23,5 +23,5 @@ import org.jdom2.JDOMException;
  * @understands steps required to make a cruise config capable of being written
  */
 public interface GoConfigXmlPreProcessor {
-    void preProcess(Document cruiseConfig) throws JDOMException;
+    void preProcess(Document cruiseConfig);
 }

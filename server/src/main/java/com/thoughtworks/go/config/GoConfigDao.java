@@ -63,11 +63,9 @@ public class GoConfigDao {
     }
 
     public void addEnvironment(final EnvironmentConfig environmentConfig) {
-        updateConfig(new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.getEnvironments().add(environmentConfig);
-                return cruiseConfig;
-            }
+        updateConfig(cruiseConfig -> {
+            cruiseConfig.getEnvironments().add(environmentConfig);
+            return cruiseConfig;
         });
     }
 
@@ -244,20 +242,16 @@ public class GoConfigDao {
 
 
     private UpdateConfigCommand pipelineAdder(final PipelineConfig pipelineConfig, final String groupName) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.addPipeline(groupName, pipelineConfig);
-                return cruiseConfig;
-            }
+        return cruiseConfig -> {
+            cruiseConfig.addPipeline(groupName, pipelineConfig);
+            return cruiseConfig;
         };
     }
 
     public UpdateConfigCommand mailHostUpdater(final MailHost mailHost) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.server().updateMailHost(mailHost);
-                return cruiseConfig;
-            }
+        return cruiseConfig -> {
+            cruiseConfig.server().updateMailHost(mailHost);
+            return cruiseConfig;
         };
     }
 
@@ -302,18 +296,14 @@ public class GoConfigDao {
         private String user;
         private TriStateSelection adminPrivilegeSelection;
 
-        public static final UserRoleMatcher ALWAYS_FALSE_MATCHER = new UserRoleMatcher() {
-            public boolean match(CaseInsensitiveString userName, CaseInsensitiveString roleName) {
-                return false;
-            }
-        };
+        public static final UserRoleMatcher ALWAYS_FALSE_MATCHER = (userName, roleName) -> false;
 
         public ModifyAdminPrivilegeCommand(String user, TriStateSelection adminPrivilege) {
             this.user = user;
             this.adminPrivilegeSelection = adminPrivilege;
         }
 
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             final AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
             switch (adminPrivilegeSelection.getAction()) {
                 case add:

@@ -20,15 +20,14 @@ import com.thoughtworks.studios.shine.ShineRuntimeException;
 import com.thoughtworks.studios.shine.XSLTTransformerExecutor;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
-import org.slf4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -47,13 +46,10 @@ public class GRDDLTransformer {
     public Graph transform(final Document inputDoc, TempGraphFactory graphFactory) throws GrddlTransformException {
         final DocumentResult result = new DocumentResult();
         try {
-            xsltTransformerRegistry.transformWithCorrectClassLoader(key, new XSLTTransformerExecutor<Void>() {
-                @Override
-                public Void execute(Transformer transformer) throws TransformerException {
-                    DocumentSource source = new DocumentSource(inputDoc);
-                    transformer.transform(source, result);
-                    return null;
-                }
+            xsltTransformerRegistry.transformWithCorrectClassLoader(key, (XSLTTransformerExecutor<Void>) transformer -> {
+                DocumentSource source = new DocumentSource(inputDoc);
+                transformer.transform(source, result);
+                return null;
             });
 
             // TODO: likely need to optimize with some sort of streaming document reader here

@@ -41,7 +41,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         preprocessedTemplateConfig = findAddedTemplate(modifiedConfig);
         TemplatesConfig templatesConfig = modifiedConfig.getTemplates();
         templatesConfig.removeTemplateNamed(preprocessedTemplateConfig.name());

@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class FilenameUtil {
-    public static boolean isNormalizedDirectoryPathInsideNormalizedParentDirectory(String parent, String subdirectory) throws IOException {
+    public static boolean isNormalizedDirectoryPathInsideNormalizedParentDirectory(String parent, String subdirectory) {
         final String normalizedParentPath = FilenameUtils.normalize(parent + File.separator);
         final String normalizedSubDirPath = FilenameUtils.normalize(subdirectory + File.separator);
         return StringUtils.isNotBlank(normalizedParentPath) && StringUtils.isNotBlank(normalizedSubDirPath) && normalizedSubDirPath.startsWith(normalizedParentPath);

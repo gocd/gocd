@@ -35,7 +35,7 @@ public class JMSMessageListenerAdapter implements Runnable {
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     public Thread thread;
 
-    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector) throws JMSException {
+    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector) {
         this.consumer = consumer;
         this.listener = listener;
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;

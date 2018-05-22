@@ -71,12 +71,9 @@ public class DefaultPluginRegistry implements PluginRegistry {
             }
         }
 
-        return (GoPluginDescriptor) CollectionUtils.find(idToDescriptorMap.values(), new Predicate() {
-            @Override
-            public boolean evaluate(Object object) {
-                GoPluginDescriptor descriptor = (GoPluginDescriptor) object;
-                return descriptor.fileName().equals(fileName);
-            }
+        return (GoPluginDescriptor) CollectionUtils.find(idToDescriptorMap.values(), object -> {
+            GoPluginDescriptor descriptor = (GoPluginDescriptor) object;
+            return descriptor.fileName().equals(fileName);
         });
     }
 

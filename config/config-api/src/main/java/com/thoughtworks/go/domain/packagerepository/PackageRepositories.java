@@ -42,12 +42,7 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
     }
 
     public PackageRepository find(final String repoId) {
-        return stream().filter(new Predicate<PackageRepository>() {
-            @Override
-            public boolean test(PackageRepository repository) {
-                return repository.getId().equals(repoId);
-            }
-        }).findFirst().orElse(null);
+        return stream().filter(repository -> repository.getId().equals(repoId)).findFirst().orElse(null);
     }
 
     public PackageRepository findPackageRepositoryWithPackageIdOrBomb(String packageId) {

@@ -44,7 +44,7 @@ public class DbDeployMigration implements Migration {
         this.env = env;
     }
 
-    public void migrate() throws SQLException {
+    public void migrate() {
         upgradeWithDbDeploy();
     }
 

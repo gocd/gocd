@@ -182,23 +182,14 @@ public class H2Database implements Database {
     }
 
     public void backup(File file) {
-        Connection connection = null;
-        try {
-            connection = createDataSource().getConnection();
+        try (Connection connection = createDataSource().getConnection()) {
             Statement statement = connection.createStatement();
             File dbBackupFile = new File(file, "db.zip");
             statement.execute(String.format("BACKUP TO '%s'", dbBackupFile));
         } catch (SQLException e) {
             bomb(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    // Ignore
-                }
-            }
         }
+        // Ignore
     }
 
     @Override

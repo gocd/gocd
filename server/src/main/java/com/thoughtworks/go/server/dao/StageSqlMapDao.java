@@ -90,30 +90,28 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     public Stage save(final Pipeline pipeline, final Stage stage) {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        String pipelineName = pipeline.getName();
-                        String stageName = stage.getName();
+        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+            transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    String pipelineName = pipeline.getName();
+                    String stageName = stage.getName();
 
-                        clearStageHistoryPageCaches(stage, pipelineName, false);
-                        clearCachedStage(stage.getIdentifier());
-                        clearCachedAllStages(pipelineName, pipeline.getCounter(), stageName);
-                        removeFromCache(cacheKeyForStageCountForGraph(pipelineName, stageName));
-                    }
-                });
-                stage.setPipelineId(pipeline.getId());
-                int maxStageCounter = getMaxStageCounter(pipeline.getId(), stage.getName());
-                stage.setCounter(maxStageCounter + 1);
+                    clearStageHistoryPageCaches(stage, pipelineName, false);
+                    clearCachedStage(stage.getIdentifier());
+                    clearCachedAllStages(pipelineName, pipeline.getCounter(), stageName);
+                    removeFromCache(cacheKeyForStageCountForGraph(pipelineName, stageName));
+                }
+            });
+            stage.setPipelineId(pipeline.getId());
+            int maxStageCounter = getMaxStageCounter(pipeline.getId(), stage.getName());
+            stage.setCounter(maxStageCounter + 1);
 
-                getSqlMapClientTemplate().update("markPreviousStageRunsAsNotLatest", arguments("stageName", stage.getName()).and("pipelineId", pipeline.getId()).asMap());
-                getSqlMapClientTemplate().insert("insertStage", stage);
+            getSqlMapClientTemplate().update("markPreviousStageRunsAsNotLatest", arguments("stageName", stage.getName()).and("pipelineId", pipeline.getId()).asMap());
+            getSqlMapClientTemplate().insert("insertStage", stage);
 
-                stage.setIdentifier(new StageIdentifier(pipeline, stage));
-                return stage;
-            }
+            stage.setIdentifier(new StageIdentifier(pipeline, stage));
+            return stage;
         });
     }
 
@@ -407,11 +405,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                                                          final String stageName,
                                                          final int pageNumber,
                                                          final int pageSize) {
-        return findStageHistoryPage(pipelineName, stageName, new Supplier<Pagination>() {
-            public Pagination get() {
-                int total = getCount(pipelineName, stageName);
-                return Pagination.pageByNumber(pageNumber, total, pageSize);
-            }
+        return findStageHistoryPage(pipelineName, stageName, () -> {
+            int total = getCount(pipelineName, stageName);
+            return Pagination.pageByNumber(pageNumber, total, pageSize);
         });
     }
 
@@ -436,12 +432,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public StageHistoryPage findStageHistoryPage(final Stage stage, final int pageSize) {
         final StageIdentifier id = stage.getIdentifier();
-        return findStageHistoryPage(id.getPipelineName(), id.getStageName(), new Supplier<Pagination>() {
-            public Pagination get() {
-                int total = getCount(id.getPipelineName(), id.getStageName());
-                int offset = findOffsetForStage(stage);
-                return Pagination.pageFor(offset, total, pageSize);
-            }
+        return findStageHistoryPage(id.getPipelineName(), id.getStageName(), () -> {
+            int total = getCount(id.getPipelineName(), id.getStageName());
+            int offset = findOffsetForStage(stage);
+            return Pagination.pageFor(offset, total, pageSize);
         });
     }
 

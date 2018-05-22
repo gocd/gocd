@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
-import java.util.Collections;
-import java.util.Map;
-
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.plugin.api.task.Console;
 import com.thoughtworks.go.plugin.api.task.EnvironmentVariables;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class PluggableTaskEnvVars implements EnvironmentVariables {
     private final Console.SecureEnvVarSpecifier secureEnvVarSpecifier;
@@ -29,12 +29,7 @@ public class PluggableTaskEnvVars implements EnvironmentVariables {
 
     public PluggableTaskEnvVars(final EnvironmentVariableContext variableContext) {
         envVarMap = Collections.unmodifiableMap(variableContext.getProperties());
-        secureEnvVarSpecifier = new Console.SecureEnvVarSpecifier() {
-            @Override
-            public boolean isSecure(String variableName) {
-                return variableContext.isPropertySecure(variableName);
-            }
-        };
+        secureEnvVarSpecifier = variableContext::isPropertySecure;
     }
 
     @Override

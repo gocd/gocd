@@ -38,12 +38,7 @@ public class Packages extends BaseCollection<PackageDefinition> implements Valid
     }
 
     public PackageDefinition find(final String id) {
-        return stream().filter(new Predicate<PackageDefinition>() {
-            @Override
-            public boolean test(PackageDefinition packageDefinition) {
-                return packageDefinition.getId().equals(id);
-            }
-        }).findFirst().orElse(null);
+        return stream().filter(packageDefinition -> packageDefinition.getId().equals(id)).findFirst().orElse(null);
     }
 
     @Override

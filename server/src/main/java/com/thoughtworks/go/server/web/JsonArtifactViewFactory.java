@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import org.springframework.web.servlet.ModelAndView;
 
 class JsonArtifactViewFactory implements ArtifactFolderViewFactory {
-    public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception {
+    public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
         return jsonFound(artifactFolder).createView();
     }
 }

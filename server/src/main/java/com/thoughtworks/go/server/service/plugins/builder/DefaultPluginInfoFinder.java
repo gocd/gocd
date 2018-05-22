@@ -35,8 +35,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,17 +64,7 @@ public class DefaultPluginInfoFinder {
         CombinedPluginInfo result = new CombinedPluginInfo();
 
         List<PluginInfo> allPluginInfosForPluginID = builders.values().stream()
-                .map(new Function<MetadataStore, PluginInfo>() {
-                    @Override
-                    public PluginInfo apply(MetadataStore metadataStore) {
-                        return metadataStore.getPluginInfo(pluginId);
-                    }
-                }).filter(new Predicate<PluginInfo>() {
-                    @Override
-                    public boolean test(PluginInfo obj) {
-                        return Objects.nonNull(obj);
-                    }
-                }).collect(toList());
+                .map(metadataStore -> metadataStore.getPluginInfo(pluginId)).filter(Objects::nonNull).collect(toList());
 
         if (allPluginInfosForPluginID.isEmpty()) {
             return null;
@@ -88,45 +76,20 @@ public class DefaultPluginInfoFinder {
     public Collection<CombinedPluginInfo> allPluginInfos(String type) {
         if (isBlank(type)) {
             return builders.values().stream()
-                    .map(new Function<MetadataStore, Collection<? extends PluginInfo>>() {
-                        @Override
-                        public Collection<? extends PluginInfo> apply(MetadataStore metadataStore) {
-                            return metadataStore.allPluginInfos();
-                        }
-                    })
-                    .flatMap(new Function<Collection<? extends PluginInfo>, Stream<? extends PluginInfo>>() {
-                        @Override
-                        public Stream<? extends PluginInfo> apply(Collection<? extends PluginInfo> pluginInfos) {
-                            return pluginInfos.stream();
-                        }
-                    })
-                    .collect(Collectors.groupingBy(pluginID(), toCollection(new Supplier<CombinedPluginInfo>() {
-                        @Override
-                        public CombinedPluginInfo get() {
-                            return new CombinedPluginInfo();
-                        }
-                    })))
+                    .map((Function<MetadataStore, Collection<? extends PluginInfo>>) MetadataStore::allPluginInfos)
+                    .flatMap((Function<Collection<? extends PluginInfo>, Stream<? extends PluginInfo>>) Collection::stream)
+                    .collect(Collectors.groupingBy(pluginID(), toCollection(CombinedPluginInfo::new)))
                     .values();
         } else if (builders.containsKey(type)) {
             Collection<PluginInfo> pluginInfosForType = builders.get(type).allPluginInfos();
             return pluginInfosForType.stream()
-                    .map(new Function<PluginInfo, CombinedPluginInfo>() {
-                        @Override
-                        public CombinedPluginInfo apply(PluginInfo pluginInfo) {
-                            return new CombinedPluginInfo(pluginInfo);
-                        }
-                    }).collect(toList());
+                    .map(CombinedPluginInfo::new).collect(toList());
         } else {
             throw new InvalidPluginTypeException();
         }
     }
 
     private Function<PluginInfo, String> pluginID() {
-        return new Function<PluginInfo, String>() {
-            @Override
-            public String apply(PluginInfo pluginInfo) {
-                return pluginInfo.getDescriptor().id();
-            }
-        };
+        return pluginInfo -> pluginInfo.getDescriptor().id();
     }
 }

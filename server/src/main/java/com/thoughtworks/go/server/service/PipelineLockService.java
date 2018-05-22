@@ -77,12 +77,9 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
-            pipelineStateDao.lockPipeline(pipeline, new AfterCompletionCallback() {
-                @Override
-                public void execute(int status) {
-                    if(status == TransactionSynchronization.STATUS_COMMITTED) {
-                        notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
-                    }
+            pipelineStateDao.lockPipeline(pipeline, (AfterCompletionCallback) status -> {
+                if(status == TransactionSynchronization.STATUS_COMMITTED) {
+                    notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
                 }
             });
         }
@@ -102,14 +99,11 @@ public class PipelineLockService implements ConfigChangedListener {
     }
 
     public void unlock(String pipelineName) {
-        pipelineStateDao.unlockPipeline(pipelineName, new AfterCompletionCallback() {
-            @Override
-            public void execute(int status) {
-                if (status != TransactionSynchronization.STATUS_COMMITTED) {
-                    return;
-                }
-                notifyListeners(PipelineLockStatusChangeListener.Event.unLock(pipelineName));
+        pipelineStateDao.unlockPipeline(pipelineName, (AfterCompletionCallback) status -> {
+            if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                return;
             }
+            notifyListeners(PipelineLockStatusChangeListener.Event.unLock(pipelineName));
         });
     }
 

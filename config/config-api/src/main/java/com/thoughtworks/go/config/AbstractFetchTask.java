@@ -21,11 +21,9 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.TaskProperty;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public abstract class AbstractFetchTask extends AbstractTask implements FetchArtifactConfig {
     public static final String PIPELINE_NAME = "pipelineName";
@@ -200,12 +198,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     }
 
     private DependencyMaterialConfig findMatchingDependencyMaterial(PipelineConfig pipeline, final CaseInsensitiveString ancestorName) {
-        return pipeline.dependencyMaterialConfigs().stream().filter(new Predicate<DependencyMaterialConfig>() {
-            @Override
-            public boolean test(DependencyMaterialConfig dependencyMaterialConfig) {
-                return dependencyMaterialConfig.getPipelineName().equals(ancestorName);
-            }
-        }).findFirst().orElse(null);
+        return pipeline.dependencyMaterialConfigs().stream().filter(dependencyMaterialConfig -> dependencyMaterialConfig.getPipelineName().equals(ancestorName)).findFirst().orElse(null);
     }
 
     private void addStageMayNotCompleteBeforeDownstreamError(PipelineConfig currentPipeline, ValidationContext validationContext) {
@@ -215,12 +208,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
     private void validateStagesOfSamePipeline(ValidationContext validationContext, PipelineConfig currentPipeline) {
         List<StageConfig> validStages = currentPipeline.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());
-        StageConfig matchingStage = validStages.stream().filter(new Predicate<StageConfig>() {
-            @Override
-            public boolean test(StageConfig stageConfig) {
-                return stageConfig.name().equals(stage);
-            }
-        }).findFirst().orElse(null);
+        StageConfig matchingStage = validStages.stream().filter(stageConfig -> stageConfig.name().equals(stage)).findFirst().orElse(null);
         if (matchingStage == null) {
             addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from its stage \"%s\" which does not complete before the current stage \"%s\"."
                     , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), stage, validationContext.getStage().name()));

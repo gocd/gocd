@@ -30,7 +30,7 @@ public class SecurityAuthConfigCreateCommand extends SecurityAuthConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         getPluginProfiles(preprocessedConfig).add(profile);
     }
 

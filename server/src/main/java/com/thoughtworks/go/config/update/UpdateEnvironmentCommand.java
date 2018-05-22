@@ -41,7 +41,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         EnvironmentsConfig environments = preprocessedConfig.getEnvironments();
         EnvironmentConfig envToRemove = environments.find(new CaseInsensitiveString(oldEnvironmentConfigName));
         int index = environments.indexOf(envToRemove);

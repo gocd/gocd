@@ -62,7 +62,7 @@ public abstract class TFSJarDetector {
         }
 
         @Override
-        public URL getJarURL() throws IOException {
+        public URL getJarURL() {
             return TFSJarDetector.class.getClassLoader().getResource("defaultFiles/tfs-impl-14.jar");
         }
     }

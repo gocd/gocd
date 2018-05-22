@@ -58,7 +58,7 @@ public class ConsoleTransmission implements Serializable, Transmission {
         this.buildId = buildId;
     }
 
-    public InputStream getLineAsStream() throws IOException {
+    public InputStream getLineAsStream() {
         return new ByteArrayInputStream(getLine().getBytes());
     }
 

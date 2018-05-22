@@ -36,7 +36,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedRole = findExistingRole(preprocessedConfig);
         if (preprocessedRole == null) {
             throw new RoleNotFoundException();

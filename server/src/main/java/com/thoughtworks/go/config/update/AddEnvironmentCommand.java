@@ -35,7 +35,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand  {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.addEnvironment((BasicEnvironmentConfig) environmentConfig);
     }
 

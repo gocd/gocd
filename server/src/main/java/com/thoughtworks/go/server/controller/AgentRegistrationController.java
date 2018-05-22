@@ -100,7 +100,7 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
-    public void checkAgentStatus(HttpServletResponse response) throws IOException {
+    public void checkAgentStatus(HttpServletResponse response) {
         response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
@@ -109,19 +109,19 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
-    public void checkAgentVersion(HttpServletResponse response) throws IOException {
+    public void checkAgentVersion(HttpServletResponse response) {
         response.setHeader("Content-MD5", agentChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
-    public void checkAgentLauncherVersion(HttpServletResponse response) throws IOException {
+    public void checkAgentLauncherVersion(HttpServletResponse response) {
         response.setHeader("Content-MD5", agentLauncherChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.HEAD)
-    public void checkTfsImplVersion(HttpServletResponse response) throws IOException {
+    public void checkTfsImplVersion(HttpServletResponse response) {
         response.setHeader("Content-MD5", tfsSdkChecksum);
         setOtherHeaders(response);
     }
@@ -133,7 +133,7 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
-    public void checkAgentPluginsZipStatus(HttpServletResponse response) throws IOException {
+    public void checkAgentPluginsZipStatus(HttpServletResponse response) {
         response.setHeader("Content-MD5", pluginsZip.md5());
         setOtherHeaders(response);
     }
@@ -207,7 +207,7 @@ public class AgentRegistrationController {
                                        @RequestParam("elasticAgentId") String elasticAgentId,
                                        @RequestParam("elasticPluginId") String elasticPluginId,
                                        @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
-                                       @RequestParam("token") String token, HttpServletRequest request) throws IOException {
+                                       @RequestParam("token") String token, HttpServletRequest request) {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         Registration keyEntry;

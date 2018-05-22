@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class AbstractPluginRegistry<Extension extends AbstractExtension> implements PluginChangeListener {
     protected final Extension extension;
@@ -57,11 +56,6 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
     }
 
     public PluginDescriptor findPlugin(final String pluginId) {
-        return plugins.stream().filter(new Predicate<PluginDescriptor>() {
-            @Override
-            public boolean test(PluginDescriptor descriptor) {
-                return descriptor.id().equals(pluginId);
-            }
-        }).findFirst().orElse(null);
+        return plugins.stream().filter(descriptor -> descriptor.id().equals(pluginId)).findFirst().orElse(null);
     }
 }

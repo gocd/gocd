@@ -43,12 +43,7 @@ public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<P
             }
 
             public ListenerFactory listener() {
-                return new ListenerFactory() {
-                    @Override
-                    public GoMessageListener create() {
-                        return new PluginNotificationMessageListener(notificationExtension, serverHealthService);
-                    }
-                };
+                return () -> new PluginNotificationMessageListener(notificationExtension, serverHealthService);
             }
         });
     }

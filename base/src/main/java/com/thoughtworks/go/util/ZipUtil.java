@@ -92,19 +92,13 @@ public class ZipUtil {
             addFolderToZip(path, srcFile, zip, excludeRootDir);
         } else {
             byte[] buff = new byte[4096];
-            BufferedInputStream inputStream = null;
-            try {
-                inputStream = new BufferedInputStream(new FileInputStream(srcFile));
+            try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(srcFile))) {
                 ZipEntry zipEntry = path.with(srcFile).asZipEntry();
                 zipEntry.setTime(srcFile.lastModified());
                 zip.putNextEntry(zipEntry);
                 int len;
                 while ((len = inputStream.read(buff)) > 0) {
                     zip.write(buff, 0, len);
-                }
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
                 }
             }
         }

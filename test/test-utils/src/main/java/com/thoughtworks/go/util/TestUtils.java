@@ -30,30 +30,18 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class TestUtils {
     public static void extractZipToDir(File repoZip, File repoDir) throws IOException {
-        ZipInputStream is = null;
-        try {
-            is = new ZipInputStream(new FileInputStream(repoZip));
+        try (ZipInputStream is = new ZipInputStream(new FileInputStream(repoZip))) {
             ZipEntry entry = null;
-            while((entry = is.getNextEntry()) != null) {
+            while ((entry = is.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     FileUtils.forceMkdir(new File(repoDir, entry.getName()));
                 } else {
                     File file = new File(repoDir, entry.getName());
                     FileUtils.forceMkdir(file.getParentFile());
-                    FileOutputStream entryOs = null;
-                    try {
-                        entryOs = new FileOutputStream(file);
+                    try (FileOutputStream entryOs = new FileOutputStream(file)) {
                         IOUtils.copy(is, entryOs);
-                    } finally {
-                        if (entryOs != null) {
-                            entryOs.close();
-                        }
                     }
                 }
-            }
-        } finally {
-            if (is != null) {
-                is.close();
             }
         }
     }

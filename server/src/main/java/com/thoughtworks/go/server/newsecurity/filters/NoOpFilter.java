@@ -23,7 +23,7 @@ import java.io.IOException;
 @Deprecated
 public class NoOpFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
 
     }
 

@@ -69,7 +69,7 @@ public class HgModificationSplitter {
         return modifications;
     }
 
-    private Modification parseChangeset(Element changeset) throws ParseException {
+    private Modification parseChangeset(Element changeset) {
         Date modifiedTime = DateUtils.parseRFC822(changeset.getChildText("date"));
         String author = org.apache.commons.lang.StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
         String comment = org.apache.commons.lang.StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));

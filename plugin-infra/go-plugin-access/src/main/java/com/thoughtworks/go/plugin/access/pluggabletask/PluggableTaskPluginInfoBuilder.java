@@ -17,13 +17,11 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
-import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
-import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,12 +40,7 @@ public class PluggableTaskPluginInfoBuilder implements PluginInfoBuilder<Pluggab
 
     public PluggableTaskPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         final TaskPreference[] tp = {null};
-        extension.doOnTask(descriptor.id(), new Action<Task>() {
-            @Override
-            public void execute(Task task, GoPluginDescriptor pluginDescriptor) {
-                tp[0] = new TaskPreference(task);
-            }
-        });
+        extension.doOnTask(descriptor.id(), (task, pluginDescriptor) -> tp[0] = new TaskPreference(task));
 
         TaskConfig config = tp[0].getConfig();
         TaskView view = tp[0].getView();

@@ -16,14 +16,9 @@
 
 package com.thoughtworks.go.domain.testinfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Comparator;
-
 import com.thoughtworks.go.domain.JobIdentifier;
+
+import java.util.*;
 
 /**
  * @understands information about a test run
@@ -72,11 +67,7 @@ public class TestInformation {
     }
 
     private void sortJobIdentifiers(List<JobIdentifier> ids) {
-        Collections.sort(ids, new Comparator<JobIdentifier>() {
-            public int compare(JobIdentifier first, JobIdentifier second) {
-                return first.getBuildName().compareTo(second.getBuildName());
-            }
-        });
+        ids.sort(Comparator.comparing(JobIdentifier::getBuildName));
     }
 
 

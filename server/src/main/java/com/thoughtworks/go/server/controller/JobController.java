@@ -118,7 +118,7 @@ public class JobController {
         return getModelAndView(instance);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail) throws Exception {
+    private ModelAndView getModelAndView(JobInstance jobDetail) {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);
@@ -156,7 +156,7 @@ public class JobController {
     }
 
     @ErrorHandler
-    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) throws Exception {
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
         LOGGER.error("Job detail page error: ", e);
         Map model = new HashMap();
         model.put(ERROR_FOR_PAGE, e.getMessage());

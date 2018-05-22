@@ -33,7 +33,7 @@ public class CreatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();
         repositories.add(this.repository);
         modifiedConfig.setPackageRepositories(repositories);

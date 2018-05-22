@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.BaseCollection;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import static java.lang.String.format;
 
@@ -86,12 +85,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public ConfigurationProperty getProperty(final String key) {
-        return stream().filter(new Predicate<ConfigurationProperty>() {
-            @Override
-            public boolean test(ConfigurationProperty item) {
-                return item.getConfigurationKey().getName().equals(key);
-            }
-        }).findFirst().orElse(null);
+        return stream().filter(item -> item.getConfigurationKey().getName().equals(key)).findFirst().orElse(null);
     }
 
     public void addErrorFor(String key, String message) {

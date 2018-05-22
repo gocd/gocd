@@ -53,7 +53,7 @@ public class PipelineXmlViewModel implements XmlRepresentable {
         this.pipeline = pipeline;
     }
 
-    public Document toXml(XmlWriterContext writerContext) throws DocumentException, IOException {
+    public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("pipeline");
         root.addAttribute("name", pipeline.getName()).addAttribute("counter", String.valueOf(pipeline.getCounter())).addAttribute("label", pipeline.getLabel());
         Document document = new DOMDocument(root);

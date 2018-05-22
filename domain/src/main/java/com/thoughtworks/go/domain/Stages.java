@@ -18,18 +18,13 @@ package com.thoughtworks.go.domain;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 
 
 public class Stages extends BaseCollection<Stage> implements StageContainer {
 
-    public static final Comparator<Stage> STAGE_COMPARATOR = new Comparator<Stage>() {
-        public int compare(Stage stage1, Stage stage2) {
-            return stage1.getOrderId() - stage2.getOrderId();
-        }
-    };
-    
+    public static final Comparator<Stage> STAGE_COMPARATOR = Comparator.comparingInt(Stage::getOrderId);
+
     public Stages() {
         super();
     }
@@ -54,7 +49,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
     }
 
     public String nextStageName(String stageName) {
-        Collections.sort(this, STAGE_COMPARATOR);
+        this.sort(STAGE_COMPARATOR);
         int index = indexOf(byName(stageName));
         if (index > -1 && index < size() - 1) {
             return get(index + 1).getName();
@@ -108,12 +103,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
                 latestRunStages.add(stage);
             }
         }
-        Collections.sort(latestRunStages, new Comparator<Stage>() {
-            @Override
-            public int compare(Stage s1, Stage s2) {
-                return new Integer(s1.getOrderId()).compareTo(s2.getOrderId());
-            }
-        });
+        latestRunStages.sort(Comparator.comparingInt(Stage::getOrderId));
         return latestRunStages;
     }
 }

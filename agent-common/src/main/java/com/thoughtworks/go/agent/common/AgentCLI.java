@@ -30,12 +30,7 @@ public class AgentCLI {
     }
 
     public AgentCLI() {
-        this(System.err, new SystemExitter() {
-            @Override
-            public void exit(int status) {
-                System.exit(status);
-            }
-        });
+        this(System.err, System::exit);
     }
 
     public AgentCLI(PrintStream stderr, SystemExitter exitter) {

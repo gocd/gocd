@@ -346,7 +346,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     /**
      * @deprecated Remove this when we do not need to serialize these to the db and agent
      */
-    private void readObjectNoData() throws ObjectStreamException {
+    private void readObjectNoData() {
     }
 
     public boolean isSameRevision(Modification that) {

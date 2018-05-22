@@ -44,7 +44,7 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.server().security().getRoles().replace(findExistingRole(preprocessedConfig), role);
     }
 

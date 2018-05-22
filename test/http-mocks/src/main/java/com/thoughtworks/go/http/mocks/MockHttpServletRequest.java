@@ -84,7 +84,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     // ServletRequest properties
     // ---------------------------------------------------------------------
 
-    private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     private String characterEncoding;
 
@@ -92,7 +92,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private String contentType;
 
-    private final Map<String, String[]> parameters = new LinkedHashMap<String, String[]>(16);
+    private final Map<String, String[]> parameters = new LinkedHashMap<>(16);
 
     private String protocol = DEFAULT_PROTOCOL;
 
@@ -109,7 +109,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * List of locales in descending order
      */
-    private final List<Locale> locales = new LinkedList<Locale>();
+    private final List<Locale> locales = new LinkedList<>();
 
     private boolean secure = false;
 
@@ -132,7 +132,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private Cookie[] cookies;
 
-    private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<HeaderValueHolder>();
+    private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
     private String method;
 
@@ -142,7 +142,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private String remoteUser;
 
-    private final Set<String> userRoles = new HashSet<String>();
+    private final Set<String> userRoles = new HashSet<>();
 
     private Principal userPrincipal;
 
@@ -307,7 +307,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public Enumeration<String> getAttributeNames() {
         checkActive();
-        return new Vector<String>(this.attributes.keySet()).elements();
+        return new Vector<>(this.attributes.keySet()).elements();
     }
 
     public String getCharacterEncoding() {
@@ -752,7 +752,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public Enumeration<String> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return Collections.enumeration(header != null ? header.getStringValues() : new LinkedList<String>());
+        return Collections.enumeration(header != null ? header.getStringValues() : new LinkedList<>());
     }
 
     public Enumeration<String> getHeaderNames() {

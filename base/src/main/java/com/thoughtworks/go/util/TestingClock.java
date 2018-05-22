@@ -52,7 +52,7 @@ public class TestingClock implements Clock {
         sleepForMillis(seconds * 1000);
     }
 
-    public void sleepForMillis(long millis) throws InterruptedException {
+    public void sleepForMillis(long millis) {
         sleeps.add(millis);
     }
 

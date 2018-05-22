@@ -88,7 +88,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         return new Properties();
     }
 
-    private Properties extractProperties(File fileSendToServer) throws XPathExpressionException, FileNotFoundException {
+    private Properties extractProperties(File fileSendToServer) {
         final Properties properties = new Properties();
         addProperty(fileSendToServer, "tests_total_count", TOTAL_TEST_COUNT);
         addProperty(fileSendToServer, "tests_failed_count", FAILED_TEST_COUNT);

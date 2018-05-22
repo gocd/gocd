@@ -35,12 +35,6 @@ import java.util.*;
 public class Modifications extends BaseCollection<Modification> {
     private static final Logger LOG = LoggerFactory.getLogger(Modifications.class);
 
-    public static final Comparator<Modification> LATEST_MODIFICATION_FIRST = new Comparator<Modification>() {
-        public int compare(Modification me, Modification other) {
-            return new Long(other.getId()).compareTo(me.getId());
-        }
-    };
-
     public Modifications() {
     }
 

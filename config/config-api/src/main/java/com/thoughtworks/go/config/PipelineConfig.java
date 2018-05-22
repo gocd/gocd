@@ -246,11 +246,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private Predicate withNameSameAs(final String templateVariable) {
-        return new Predicate() {
-            public boolean evaluate(Object materialName) {
-                return StringUtils.equalsIgnoreCase(materialName.toString(), templateVariable);
-            }
-        };
+        return materialName -> StringUtils.equalsIgnoreCase(materialName.toString(), templateVariable);
     }
 
     public void addError(String fieldName, String msg) {
@@ -956,21 +952,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PackageMaterialConfig> packageMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), new Predicate() {
-            @Override
-            public boolean evaluate(Object materialConfig) {
-                return materialConfig instanceof PackageMaterialConfig;
-            }
-        }));
+        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PackageMaterialConfig));
     }
 
     public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), new Predicate() {
-            @Override
-            public boolean evaluate(Object materialConfig) {
-                return materialConfig instanceof PluggableSCMMaterialConfig;
-            }
-        }));
+        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PluggableSCMMaterialConfig));
     }
 
     public ConfigOrigin getOrigin() {

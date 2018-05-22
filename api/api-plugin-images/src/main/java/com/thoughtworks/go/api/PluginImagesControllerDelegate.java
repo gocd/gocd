@@ -48,7 +48,7 @@ public class PluginImagesControllerDelegate implements SparkController, Controll
         });
     }
 
-    public byte[] show(Request request, Response response) throws IOException {
+    public byte[] show(Request request, Response response) {
         String pluginId = request.params("plugin_id");
         String hash = request.params("hash");
 

@@ -20,32 +20,19 @@ import com.thoughtworks.go.agent.ServerUrlGenerator;
 
 public class ServerUrlGeneratorMother {
     public static ServerUrlGenerator generatorFor(final String host, final int port) {
-        return new ServerUrlGenerator() {
-            @Override
-            public String serverUrlFor(String subPath) {
-                return "http://" + host + ":" + port + "/go/" + subPath;
-            }
-        };
+        return subPath -> "http://" + host + ":" + port + "/go/" + subPath;
     }
 
     public static ServerUrlGenerator generatorFor(final String serverUrl) {
-        return new ServerUrlGenerator() {
-            @Override
-            public String serverUrlFor(String subPath) {
-                if (subPath == null || subPath.trim().length() == 0) {
-                    return serverUrl;
-                }
-                return serverUrl + "/" + subPath;
+        return subPath -> {
+            if (subPath == null || subPath.trim().length() == 0) {
+                return serverUrl;
             }
+            return serverUrl + "/" + subPath;
         };
     }
 
     public static ServerUrlGenerator generatorWithoutSubPathFor(final String serverUrl) {
-        return new ServerUrlGenerator() {
-            @Override
-            public String serverUrlFor(String subPath) {
-                return serverUrl;
-            }
-        };
+        return subPath -> serverUrl;
     }
 }

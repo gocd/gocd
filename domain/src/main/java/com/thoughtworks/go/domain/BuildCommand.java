@@ -150,7 +150,7 @@ public class BuildCommand {
     @Expose
     private String[] execInput = new String[0];
     @Expose
-    private Map<String, String> commandEnvVars = new HashMap<String, String>();
+    private Map<String, String> commandEnvVars = new HashMap<>();
 
     public BuildCommand(String name) {
         this.name = name;

@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 import com.thoughtworks.go.util.json.JsonAware;
 import com.thoughtworks.go.util.json.JsonFakeMap;
 import com.thoughtworks.go.util.json.JsonUrl;
@@ -24,7 +27,6 @@ import org.springframework.context.MessageSourceResolvable;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Type;
 
 public class JsonRenderer {
 
@@ -49,25 +51,19 @@ public class JsonRenderer {
 
     private static Gson gsonBuilder(final GoRequestContext requestContext) {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(JsonUrl.class, new JsonSerializer<JsonUrl>() {
-            @Override
-            public JsonElement serialize(JsonUrl src, Type typeOfSrc, JsonSerializationContext context) {
-                if (requestContext == null) {
-                    return new JsonPrimitive(src.getUrl());
-                } else {
-                    return new JsonPrimitive(requestContext.getFullRequestPath() + src.getUrl());
-                }
+        builder.registerTypeAdapter(JsonUrl.class, (JsonSerializer<JsonUrl>) (src, typeOfSrc, context) -> {
+            if (requestContext == null) {
+                return new JsonPrimitive(src.getUrl());
+            } else {
+                return new JsonPrimitive(requestContext.getFullRequestPath() + src.getUrl());
             }
         });
 
-        builder.registerTypeHierarchyAdapter(MessageSourceResolvable.class, new JsonSerializer<MessageSourceResolvable>() {
-            @Override
-            public JsonElement serialize(MessageSourceResolvable src, Type typeOfSrc, JsonSerializationContext context) {
-                if (requestContext == null) {
-                    return new JsonPrimitive(src.getDefaultMessage());
-                } else {
-                    return new JsonPrimitive(requestContext.getMessage(src));
-                }
+        builder.registerTypeHierarchyAdapter(MessageSourceResolvable.class, (JsonSerializer<MessageSourceResolvable>) (src, typeOfSrc, context) -> {
+            if (requestContext == null) {
+                return new JsonPrimitive(src.getDefaultMessage());
+            } else {
+                return new JsonPrimitive(requestContext.getMessage(src));
             }
         });
 

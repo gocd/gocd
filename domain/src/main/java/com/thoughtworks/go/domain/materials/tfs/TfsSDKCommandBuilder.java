@@ -69,7 +69,7 @@ class TfsSDKCommandBuilder {
         }
     }
 
-    private TfsCommand instantitateAdapter(String materialFingerPrint, UrlArgument url, String domain, String userName, String password, String computedWorkspaceName, String projectPath) throws ReflectiveOperationException, IOException {
+    private TfsCommand instantitateAdapter(String materialFingerPrint, UrlArgument url, String domain, String userName, String password, String computedWorkspaceName, String projectPath) throws ReflectiveOperationException {
         Class<?> adapterClass = Class.forName(tfsSdkCommandTCLAdapterClassName(), true, sdkLoader);
         Constructor<?> constructor = adapterClass.getConstructor(String.class, CommandArgument.class, String.class, String.class, String.class, String.class, String.class);
         return (TfsCommand) constructor.newInstance(materialFingerPrint, url, domain, userName, password, computedWorkspaceName, projectPath);
@@ -90,16 +90,11 @@ class TfsSDKCommandBuilder {
         return ME;
     }
 
-    private ClassLoader initSdkLoader() throws URISyntaxException, IOException {
+    private ClassLoader initSdkLoader() throws IOException {
         FileUtils.deleteQuietly(tempFolder);
         tempFolder.mkdirs();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                FileUtils.deleteQuietly(tempFolder);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempFolder)));
 
         explodeNatives();
         setNativePath(tempFolder);

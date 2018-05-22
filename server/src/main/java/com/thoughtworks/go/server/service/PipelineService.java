@@ -32,8 +32,6 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.dd.DependencyFanInNode;
-import com.thoughtworks.go.server.service.dd.FanInEventListener;
 import com.thoughtworks.go.server.service.dd.FanInGraph;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -41,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
@@ -87,22 +84,20 @@ public class PipelineService implements UpstreamPipelineResolver {
     public Pipeline save(final Pipeline pipeline) {
         String mutexPipelineName = PipelinePauseService.mutexForPausePipeline(pipeline.getName());
         synchronized (mutexPipelineName) {
-            return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    if (pipeline instanceof NullPipeline) {
-                        return pipeline;
-                    }
-                    updateCounter(pipeline);
-
-                    Pipeline pipelineWithId = pipelineDao.save(pipeline);
-                    pipelineLockService.lockIfNeeded(pipelineWithId);
-                    for (Stage stage : pipeline.getStages()) {
-                        stageService.save(pipelineWithId, stage);
-                    }
-
-                    pipelineTimeline.update();
-                    return pipelineWithId;
+            return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+                if (pipeline instanceof NullPipeline) {
+                    return pipeline;
                 }
+                updateCounter(pipeline);
+
+                Pipeline pipelineWithId = pipelineDao.save(pipeline);
+                pipelineLockService.lockIfNeeded(pipelineWithId);
+                for (Stage stage : pipeline.getStages()) {
+                    stageService.save(pipelineWithId, stage);
+                }
+
+                pipelineTimeline.update();
+                return pipelineWithId;
             });
         }
     }
@@ -231,12 +226,9 @@ public class PipelineService implements UpstreamPipelineResolver {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
         FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
         final String[] iterationData = {null};
-        fanInGraph.setFanInEventListener(new FanInEventListener() {
-            @Override
-            public void iterationComplete(int iterationCount, List<DependencyFanInNode> dependencyFanInNodes) {
-                if (iterationCount == targetIterationCount) {
-                    iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
-                }
+        fanInGraph.setFanInEventListener((iterationCount, dependencyFanInNodes) -> {
+            if (iterationCount == targetIterationCount) {
+                iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
             }
         });
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);

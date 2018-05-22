@@ -58,7 +58,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     private boolean skipUpdate = false;
 
     private volatile Map<String, Material> dependencyMaterials;
-    private Set<Material> retryQueue = Collections.synchronizedSet(new HashSet<Material>());
+    private Set<Material> retryQueue = Collections.synchronizedSet(new HashSet<>());
 
     @Autowired
     public DependencyMaterialUpdateNotifier(GoConfigService goConfigService, MaterialConfigConverter materialConfigConverter,

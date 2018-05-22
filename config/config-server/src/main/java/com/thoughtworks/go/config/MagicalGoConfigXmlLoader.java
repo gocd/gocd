@@ -41,7 +41,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
@@ -176,11 +175,6 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {
-        return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(new Predicate<GoConfigPreprocessor>() {
-            @Override
-            public boolean test(GoConfigPreprocessor item) {
-                return item.getClass().isAssignableFrom(clazz);
-            }
-        }).findFirst().orElse(null);
+        return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(item -> item.getClass().isAssignableFrom(clazz)).findFirst().orElse(null);
     }
 }

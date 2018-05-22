@@ -30,7 +30,7 @@ public class ChecksumValidator {
         this.artifactMd5Checksums = artifactMd5Checksums;
     }
 
-    public void validate(String effectivePath, String artifactMD5, ChecksumValidationPublisher checksumValidationPublisher) throws IOException {
+    public void validate(String effectivePath, String artifactMD5, ChecksumValidationPublisher checksumValidationPublisher) {
         if (artifactMd5Checksums == null) {
             checksumValidationPublisher.md5ChecksumFileNotFound();
             return;

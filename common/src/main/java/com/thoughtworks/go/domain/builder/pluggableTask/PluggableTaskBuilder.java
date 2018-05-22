@@ -29,9 +29,7 @@ import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.lang.StringUtils;
@@ -69,12 +67,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
                       final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
-            executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
-                @Override
-                public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
-                    return executeTask(task, publisher, environmentVariableContext, consoleLogCharset);
-                }
-            });
+            executionResult = taskExtension.execute(pluginId, (task, pluginDescriptor) -> executeTask(task, publisher, environmentVariableContext, consoleLogCharset));
         } catch (Exception e) {
             logException(publisher, e);
         } finally {

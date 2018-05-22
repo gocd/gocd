@@ -82,7 +82,7 @@ public class PipelineRepository extends HibernateDaoSupport {
             private static final int MOD_ID = 8;
             private static final int PMR_ID = 9;
 
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 LOGGER.info("Start updating pipeline timeline");
                 List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);
                 List<PipelineTimelineEntry> newPipelines = populateFrom(matches);
@@ -121,16 +121,13 @@ public class PipelineRepository extends HibernateDaoSupport {
             }
 
             private void sortTimeLineByPidAndPmrId(List<Object[]> matches) {
-                Collections.sort(matches, new Comparator<Object[]>() {
-                    @Override
-                    public int compare(Object[] m1, Object[] m2) {
-                        long id1 = id(m1);
-                        long id2 = id(m2);
-                        if (id1 == id2) {
-                            return (int) (pmrId(m1) - pmrId(m2));
-                        }
-                        return (int) (id1 - id2);
+                matches.sort((m1, m2) -> {
+                    long id1 = id(m1);
+                    long id2 = id(m2);
+                    if (id1 == id2) {
+                        return (int) (pmrId(m1) - pmrId(m2));
                     }
+                    return (int) (id1 - id2);
                 });
             }
 

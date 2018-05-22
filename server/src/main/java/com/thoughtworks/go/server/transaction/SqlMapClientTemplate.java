@@ -25,7 +25,6 @@ import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class SqlMapClientTemplate {
     private GoCache goCache;
@@ -43,21 +42,18 @@ public class SqlMapClientTemplate {
     }
 
     private String translateStatementName(String statementName) {
-        return translatedStatementNames.computeIfAbsent(statementName, new Function<String, String>() {
-            @Override
-            public String apply(String statementName) {
-                if (systemEnvironment.isDefaultDbProvider()) {
-                    return statementName;
-                }
-                String forExternalDb = String.format("%s-%s", statementName, database.getType());
-                MappedStatement statement;
-                try {
-                    statement = delegate.getConfiguration().getMappedStatement(forExternalDb);
-                } catch (Exception e) {
-                    statement = null;
-                }
-                return statement != null ? forExternalDb : statementName;
+        return translatedStatementNames.computeIfAbsent(statementName, statementName1 -> {
+            if (systemEnvironment.isDefaultDbProvider()) {
+                return statementName1;
             }
+            String forExternalDb = String.format("%s-%s", statementName1, database.getType());
+            MappedStatement statement;
+            try {
+                statement = delegate.getConfiguration().getMappedStatement(forExternalDb);
+            } catch (Exception e) {
+                statement = null;
+            }
+            return statement != null ? forExternalDb : statementName1;
         });
     }
 

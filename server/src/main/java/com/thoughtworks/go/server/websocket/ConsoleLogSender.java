@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.zip.GZIPOutputStream;
 
 @Component
@@ -120,34 +118,25 @@ public class ConsoleLogSender {
     }
 
     private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {
-        Retryable.retry(new Predicate<Integer>() {
-            @Override
-            public boolean test(Integer integer) {
-                return !websocket.isOpen() || doesLogExists(jobIdentifier);
-            }
-        }, String.format("waiting for console log to exist for %s", jobIdentifier), 20);
+        Retryable.retry(integer -> !websocket.isOpen() || doesLogExists(jobIdentifier), String.format("waiting for console log to exist for %s", jobIdentifier), 20);
     }
 
-    private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
+    private boolean detectCompleted(JobIdentifier jobIdentifier) {
         return jobInstanceDao.isJobCompleted(jobIdentifier);
     }
 
-    private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
+    private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUF_SIZE);
         final OutputStream proxyOutputStream = new AutoFlushingStream(buffer, webSocket, BUF_SIZE);
-        long linesProcessed = console.stream(new Consumer<String>() {
-
-            @Override
-            public void accept(String line) {
-                try {
-                    byte[] bytes = line.getBytes(charset);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bytes.length);
-                    byteArrayOutputStream.write(bytes);
-                    byteArrayOutputStream.write('\n');
-                    proxyOutputStream.write(byteArrayOutputStream.toByteArray());
-                } catch (IOException e) {
-                    LOGGER.error("Failed to send log line {} for {}", console.totalLinesConsumed(), jobIdentifier, e);
-                }
+        long linesProcessed = console.stream(line -> {
+            try {
+                byte[] bytes = line.getBytes(charset);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bytes.length);
+                byteArrayOutputStream.write(bytes);
+                byteArrayOutputStream.write('\n');
+                proxyOutputStream.write(byteArrayOutputStream.toByteArray());
+            } catch (IOException e) {
+                LOGGER.error("Failed to send log line {} for {}", console.totalLinesConsumed(), jobIdentifier, e);
             }
         });
 

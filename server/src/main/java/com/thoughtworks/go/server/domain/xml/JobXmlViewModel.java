@@ -35,7 +35,7 @@ public class JobXmlViewModel implements XmlRepresentable {
         this.jobInstance = jobInstance;
     }
 
-    public Document toXml(XmlWriterContext writerContext) throws DocumentException, IOException {
+    public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("job");
         root.addAttribute("name", jobInstance.getName());
         Document document = new DOMDocument(root);

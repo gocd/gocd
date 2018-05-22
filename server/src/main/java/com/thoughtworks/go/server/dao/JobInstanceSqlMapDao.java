@@ -208,13 +208,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     public JobInstance save(long stageId, JobInstance jobInstance) {
         jobInstance.setStageId(stageId);
-        transactionTemplate.execute(new TransactionCallback<JobInstance>() {
-            @Override
-            public JobInstance doInTransaction(TransactionStatus status) {
-                latestCompletedCache.flushOnCommit();
-                getSqlMapClientTemplate().insert("insertBuild", jobInstance);
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback<JobInstance>) status -> {
+            latestCompletedCache.flushOnCommit();
+            getSqlMapClientTemplate().insert("insertBuild", jobInstance);
+            return null;
         });
 
         updateStateAndResult(jobInstance);
@@ -344,40 +341,36 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
-                updateStateAndResult(jobInstance);
-                return jobInstance;
-            }
+        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+            getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
+            updateStateAndResult(jobInstance);
+            return jobInstance;
         });
     }
 
     public JobInstance updateStateAndResult(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        // Methods not extracted in order to make synchronization visible.
-                        synchronized (cacheKeyForJobPlan(jobInstance.getId())) {
-                            removeCachedJobPlan(jobInstance);
-                        }
-                        synchronized (cacheKeyForActiveJobIds()) {
-                            goCache.remove(cacheKeyForActiveJobIds());
-                        }
-                        String activeJobKey = cacheKeyForActiveJob(jobInstance.getId());
-                        synchronized (activeJobKey) {
-                            goCache.remove(activeJobKey);
-                        }
-                        removeCachedJobInstance(jobInstance);
+        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+            transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    // Methods not extracted in order to make synchronization visible.
+                    synchronized (cacheKeyForJobPlan(jobInstance.getId())) {
+                        removeCachedJobPlan(jobInstance);
                     }
-                });
-                logIfJobIsCompleted(jobInstance);
-                updateStatus(jobInstance);
-                updateResult(jobInstance);
-                return jobInstance;
-            }
+                    synchronized (cacheKeyForActiveJobIds()) {
+                        goCache.remove(cacheKeyForActiveJobIds());
+                    }
+                    String activeJobKey = cacheKeyForActiveJob(jobInstance.getId());
+                    synchronized (activeJobKey) {
+                        goCache.remove(activeJobKey);
+                    }
+                    removeCachedJobInstance(jobInstance);
+                }
+            });
+            logIfJobIsCompleted(jobInstance);
+            updateStatus(jobInstance);
+            updateResult(jobInstance);
+            return jobInstance;
         });
 
     }
@@ -413,13 +406,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void updateStatus(JobInstance jobInstance) {
-        transactionTemplate.execute(new TransactionCallback<Object>() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                latestCompletedCache.flushOnCommit();
-                getSqlMapClientTemplate().update("updateStatus", jobInstance);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            latestCompletedCache.flushOnCommit();
+            getSqlMapClientTemplate().update("updateStatus", jobInstance);
+            return null;
         });
         saveTransitions(jobInstance);
 
@@ -429,24 +419,18 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void updateResult(JobInstance job) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                latestCompletedCache.flushOnCommit();
-                getSqlMapClientTemplate().update("updateResult", job);
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) status -> {
+            latestCompletedCache.flushOnCommit();
+            getSqlMapClientTemplate().update("updateResult", job);
+            return null;
         });
     }
 
     public void ignore(JobInstance job) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                latestCompletedCache.flushOnCommit();
-                getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) status -> {
+            latestCompletedCache.flushOnCommit();
+            getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
+            return null;
         });
         deleteJobPlanAssociatedEntities(job);
     }
@@ -454,19 +438,16 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count) {
         String cacheKey = cacheKeyForLatestCompletedJobs(pipelineName, stageName, jobConfigName, count);
-        return latestCompletedCache.get(cacheKey, new Supplier<JobInstances>() {
-            @Override
-            public JobInstances get() {
-                Map params = new HashMap();
-                params.put("pipelineName", pipelineName);
-                params.put("stageName", stageName);
-                params.put("jobConfigName", jobConfigName);
-                params.put("count", count);
-                List<JobInstance> results =
-                        (List<JobInstance>) getSqlMapClientTemplate().queryForList("latestCompletedJobs", params);
+        return latestCompletedCache.get(cacheKey, () -> {
+            Map params = new HashMap();
+            params.put("pipelineName", pipelineName);
+            params.put("stageName", stageName);
+            params.put("jobConfigName", jobConfigName);
+            params.put("count", count);
+            List<JobInstance> results =
+                    (List<JobInstance>) getSqlMapClientTemplate().queryForList("latestCompletedJobs", params);
 
-                return new JobInstances(results);
-            }
+            return new JobInstances(results);
         });
     }
 
@@ -479,12 +460,9 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     public int getJobHistoryCount(String pipelineName, String stageName, String jobName) {
         String cacheKey = cacheKeyForGetJobHistoryCount(pipelineName, stageName, jobName);
-        return latestCompletedCache.get(cacheKey, new Supplier<Integer>() {
-            @Override
-            public Integer get() {
-                Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).and("jobConfigName", jobName).asMap();
-                return (Integer) getSqlMapClientTemplate().queryForObject("getJobHistoryCount", toGet);
-            }
+        return latestCompletedCache.get(cacheKey, () -> {
+            Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).and("jobConfigName", jobName).asMap();
+            return (Integer) getSqlMapClientTemplate().queryForObject("getJobHistoryCount", toGet);
         });
     }
 
@@ -498,20 +476,17 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                            int count,
                                            int offset) {
         String cacheKey = cacheKeyForFindJobHistoryPage(pipelineName, stageName, jobConfigName, count, offset);
-        return latestCompletedCache.get(cacheKey, new Supplier<JobInstances>() {
-            @Override
-            public JobInstances get() {
-                Map params = new HashMap();
-                params.put("pipelineName", pipelineName);
-                params.put("stageName", stageName);
-                params.put("jobConfigName", jobConfigName);
-                params.put("count", count);
-                params.put("offset", offset);
+        return latestCompletedCache.get(cacheKey, () -> {
+            Map params = new HashMap();
+            params.put("pipelineName", pipelineName);
+            params.put("stageName", stageName);
+            params.put("jobConfigName", jobConfigName);
+            params.put("count", count);
+            params.put("offset", offset);
 
-                List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
+            List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
 
-                return new JobInstances(results);
-            }
+            return new JobInstances(results);
         });
     }
 

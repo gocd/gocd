@@ -183,9 +183,9 @@ public class Migration_86 implements Trigger {
         }
     }
 
-    public void close() throws SQLException {
+    public void close() {
     }
 
-    public void remove() throws SQLException {
+    public void remove() {
     }
 }

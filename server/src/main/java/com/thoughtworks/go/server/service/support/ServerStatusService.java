@@ -37,16 +37,11 @@ public class ServerStatusService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerStatusService.class);
 
     @Autowired
-    public ServerStatusService(SecurityService securityService, ServerInfoProvider... providerArray) throws IOException {
+    public ServerStatusService(SecurityService securityService, ServerInfoProvider... providerArray) {
         this.securityService = securityService;
 
         providers.addAll(Arrays.asList(providerArray));
-        Collections.sort(providers, new Comparator<ServerInfoProvider>() {
-            @Override
-            public int compare(ServerInfoProvider oneProvider, ServerInfoProvider anotherProvider) {
-                return Double.compare(oneProvider.priority(), anotherProvider.priority());
-            }
-        });
+        providers.sort(Comparator.comparingDouble(ServerInfoProvider::priority));
     }
 
     public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {

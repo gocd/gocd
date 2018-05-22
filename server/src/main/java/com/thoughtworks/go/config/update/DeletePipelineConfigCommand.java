@@ -43,7 +43,7 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
 
     @Override
-    public void update(CruiseConfig cruiseConfig) throws Exception {
+    public void update(CruiseConfig cruiseConfig) {
         preprocessedPipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineConfig.name());
         cruiseConfig.deletePipeline(pipelineConfig);
     }

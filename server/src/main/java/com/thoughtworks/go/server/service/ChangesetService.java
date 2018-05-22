@@ -107,11 +107,7 @@ public class ChangesetService {
         }
 
         List<MaterialRevision> allMaterialRevisions = modificationsPerMaterialBetween(pipelineName, fromCounter, toCounter);
-        return filterReachableFingerprintHolders(allMaterialRevisions, new FingerprintLoader<MaterialRevision>() {
-            public String getFingerprint(MaterialRevision materialRevision) {
-                return materialRevision.getMaterial().getFingerprint();
-            }
-        }, pipelineName, username, skipCheckForMingle, false);
+        return filterReachableFingerprintHolders(allMaterialRevisions, materialRevision -> materialRevision.getMaterial().getFingerprint(), pipelineName, username, skipCheckForMingle, false);
     }
 
     private <T> List<T> filterReachableFingerprintHolders(List<T> allFingerprintHolders, final FingerprintLoader<T> fingerprintLoader, String pipelineName, Username username,
@@ -247,11 +243,7 @@ public class ChangesetService {
         PipelineConfigDependencyGraph graph = goConfigService.upstreamDependencyGraphOf(pipelineName);
         Set<String> allMaterialFingerprints = graph.allMaterialFingerprints();
         Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username, true, true);
-        FingerprintLoader<ModificationForPipeline> loader = new FingerprintLoader<ModificationForPipeline>() {
-            public String getFingerprint(ModificationForPipeline modificationForPipeline) {
-                return modificationForPipeline.getMaterialFingerprint();
-            }
-        };
+        FingerprintLoader<ModificationForPipeline> loader = ModificationForPipeline::getMaterialFingerprint;
 
         for (Map.Entry<Long, List<ModificationForPipeline>> pipelineIdAndModifications : modificationsForPipelineIds.entrySet()) {
             List<ModificationForPipeline> visibleModifications = filterFingerprintHolders(pipelineIdAndModifications.getValue(), reachableMaterialfingerprints, allMaterialFingerprints, loader);

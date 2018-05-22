@@ -430,7 +430,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    private void contextualize(Query query) throws Exception {
+    private void contextualize(Query query) {
         if (contextVar == null) {
             return;
         }
@@ -438,7 +438,7 @@ public class SesameGraph implements Graph {
         TupleExpr tupleExpr = ((SailQuery) query).getParsedQuery().getTupleExpr();
         tupleExpr.visit(new QueryModelVisitorBase() {
 
-            public void meet(StatementPattern node) throws Exception {
+            public void meet(StatementPattern node) {
                 if (node.getContextVar() != null) {
                     throw new UnsupportedSPARQLStatementException("Attempted to execute a SPARQL statement with a GRAPH clause against a context aware graph.");
                 }

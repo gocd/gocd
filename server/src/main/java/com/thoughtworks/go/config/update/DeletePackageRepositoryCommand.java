@@ -51,7 +51,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         existingPackageRepository = modifiedConfig.getPackageRepositories().find(repository.getRepoId());
         PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
         packageRepositories.removePackageRepository(this.repository.getId());

@@ -33,7 +33,7 @@ public class ModifyEnvironmentCommand implements UpdateConfigCommand {
         this.action = action;
     }
 
-    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig cruiseConfig) {
         AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
         bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
         EnvironmentConfig environmentConfig = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(environmentName));

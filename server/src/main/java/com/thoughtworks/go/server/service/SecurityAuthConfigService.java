@@ -38,7 +38,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
 @Component
 public class SecurityAuthConfigService extends PluginProfilesService<SecurityAuthConfig> {
@@ -120,12 +119,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         Set<AuthorizationPluginInfo> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
         SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
         for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
-            AuthorizationPluginInfo authorizationPluginInfo = loadedWebBasedAuthPlugins.stream().filter(new Predicate<AuthorizationPluginInfo>() {
-                @Override
-                public boolean test(AuthorizationPluginInfo authorizationPluginInfo1) {
-                    return authorizationPluginInfo1.getDescriptor().id().equals(authConfig.getPluginId());
-                }
-            }).findFirst().orElse(null);
+            AuthorizationPluginInfo authorizationPluginInfo = loadedWebBasedAuthPlugins.stream().filter(authorizationPluginInfo1 -> authorizationPluginInfo1.getDescriptor().id().equals(authConfig.getPluginId())).findFirst().orElse(null);
             if (authorizationPluginInfo != null) {
                 result.add(new AuthPluginInfoViewModel(authorizationPluginInfo));
             }

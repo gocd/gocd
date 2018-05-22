@@ -34,7 +34,7 @@ public class FullConfigUpdateCommand implements NoOverwriteUpdateConfigCommand{
     }
 
     @Override
-    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig cruiseConfig) {
         return configForEdit;
     }
 

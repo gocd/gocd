@@ -16,17 +16,6 @@
 
 package com.thoughtworks.go.server.service.dd.reporting;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
@@ -36,7 +25,9 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ReportingDependencyFanInNode extends ReportingFanInNode {
@@ -120,16 +111,13 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
 
         final List<ReportingFaninScmMaterial> setOfRevisions = new ArrayList<>();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterials) {
-            ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, new Predicate() {
-                @Override
-                public boolean evaluate(Object obj) {
-                    if (obj == null) {
-                        return false;
-                    }
-                    ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) obj;
-                    return scmMaterial.fingerprint.equals(mat.fingerprint)
-                            && scmMaterial.revision.equals(mat.revision);
+            ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, obj -> {
+                if (obj == null) {
+                    return false;
                 }
+                ReportingFaninScmMaterial mat1 = (ReportingFaninScmMaterial) obj;
+                return scmMaterial.fingerprint.equals(mat1.fingerprint)
+                        && scmMaterial.revision.equals(mat1.revision);
             });
             if (mat == null) {
                 setOfRevisions.add(scmMaterial);
@@ -169,12 +157,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
         }
         List<ReportingFaninScmMaterial> scmMaterialList = pIdScmPair.last();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterialList) {
-            Collection<ReportingFaninScmMaterial> scmMaterialOfSameFingerprint = CollectionUtils.select(scmMaterialList, new Predicate() {
-                @Override
-                public boolean evaluate(Object o) {
-                    return scmMaterial.equals(o);
-                }
-            });
+            Collection<ReportingFaninScmMaterial> scmMaterialOfSameFingerprint = CollectionUtils.select(scmMaterialList, scmMaterial::equals);
 
             for (ReportingFaninScmMaterial faninScmMaterial : scmMaterialOfSameFingerprint) {
                 if (!faninScmMaterial.revision.equals(scmMaterial.revision)) {

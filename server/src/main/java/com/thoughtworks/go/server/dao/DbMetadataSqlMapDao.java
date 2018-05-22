@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -35,10 +34,6 @@ public class DbMetadataSqlMapDao extends HibernateDaoSupport implements DbMetada
 
     public int getSchemaVersion() throws DataAccessException {
 
-        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) {
-                return session.createSQLQuery("select max(change_number) from changelog").uniqueResult();
-            }
-        });
+        return (Integer) getHibernateTemplate().execute((HibernateCallback) session -> session.createSQLQuery("select max(change_number) from changelog").uniqueResult());
     }
 }

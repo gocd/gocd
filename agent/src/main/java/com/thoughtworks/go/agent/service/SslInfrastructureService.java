@@ -176,7 +176,7 @@ public class SslInfrastructureService {
             this.agentRegistry = agentRegistry;
         }
 
-        protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
+        protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException {
             LOGGER.debug("[Agent Registration] Using URL {} to register.", serverUrl);
 
             HttpRequestBase postMethod = (HttpRequestBase) RequestBuilder.post(serverUrl)

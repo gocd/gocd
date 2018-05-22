@@ -24,8 +24,10 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @ConfigTag("scms")
 @ConfigCollection(value = SCM.class)
@@ -39,12 +41,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     public SCM find(final String scmId) {
-        return stream().filter(new Predicate<SCM>() {
-            @Override
-            public boolean test(SCM scm) {
-                return scm.getId().equals(scmId);
-            }
-        }).findFirst().orElse(null);
+        return stream().filter(scm -> scm.getId().equals(scmId)).findFirst().orElse(null);
     }
 
     @Override

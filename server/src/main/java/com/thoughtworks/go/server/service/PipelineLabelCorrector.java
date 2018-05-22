@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Service
 public class PipelineLabelCorrector {
@@ -42,22 +40,9 @@ public class PipelineLabelCorrector {
 
         List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigs();
 
-        pipelinesWithMultipleEntriesForLabelCount.stream().forEach(new Consumer<String>() {
-            @Override
-            public void accept(String pipelineWithIssue) {
-                allPipelineConfigs.stream().filter(new Predicate<PipelineConfig>() {
-                    @Override
-                    public boolean test(PipelineConfig pipelineConfig) {
-                        return pipelineConfig.name().toString().equalsIgnoreCase(pipelineWithIssue);
-                    }
-                }).forEach(new Consumer<PipelineConfig>() {
-                    @Override
-                    public void accept(PipelineConfig pipelineConfig) {
-                        String pipelineNameAsSavedInConfig = pipelineConfig.name().toString();
-                        pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineNameAsSavedInConfig);
-                    }
-                });
-            }
-        });
+        pipelinesWithMultipleEntriesForLabelCount.forEach(pipelineWithIssue -> allPipelineConfigs.stream().filter(pipelineConfig -> pipelineConfig.name().toString().equalsIgnoreCase(pipelineWithIssue)).forEach(pipelineConfig -> {
+            String pipelineNameAsSavedInConfig = pipelineConfig.name().toString();
+            pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineNameAsSavedInConfig);
+        }));
     }
 }

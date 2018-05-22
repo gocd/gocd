@@ -99,7 +99,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         }
 
         @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             if (newPart != null && fingerprint != null) {
                 cruiseConfig.getPartials().remove(findMatchingPartial(cruiseConfig, fingerprint));
                 cruiseConfig.getPartials().add(new Cloner().deepClone(newPart));

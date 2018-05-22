@@ -32,8 +32,7 @@ public class AgentBinariesServlet extends HttpServlet {
         this.fakeGoServer = fakeGoServer;
     }
 
-    protected void doHead(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doHead(HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setHeader("Content-MD5", resource.getMd5());
             response.setHeader("Cruise-Server-Ssl-Port", String.valueOf(fakeGoServer.getSecurePort()));

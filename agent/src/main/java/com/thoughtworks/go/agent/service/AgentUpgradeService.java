@@ -57,7 +57,7 @@ public class AgentUpgradeService {
         this(urlService, httpClient, systemEnvironment, new DefaultJvmExitter());
     }
 
-    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment, JvmExitter jvmExitter) throws Exception {
+    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment, JvmExitter jvmExitter) {
         this.httpClient = httpClient;
         this.systemEnvironment = systemEnvironment;
         this.urlService = urlService;

@@ -44,7 +44,7 @@ public class TokenRequester {
         this.httpClient = httpClient;
     }
 
-    public String getToken() throws IOException, InterruptedException {
+    public String getToken() throws IOException {
         LOGGER.debug("[Agent Registration] Using URL {} to get a token.", tokenURL);
 
         HttpRequestBase getTokenRequest = (HttpRequestBase) RequestBuilder.get(tokenURL)

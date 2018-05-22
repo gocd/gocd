@@ -29,11 +29,7 @@ public enum SortOrder {
     },
     DESC {
         public <T> Comparator<T> comparator(final Comparator<T> comparator) {
-            return new Comparator<T>() {
-                public int compare(T one, T other) {
-                    return comparator.compare(one, other) * -1;
-                }
-            };
+            return (one, other) -> comparator.compare(one, other) * -1;
         }
     };
 

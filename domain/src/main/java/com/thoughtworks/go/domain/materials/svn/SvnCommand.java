@@ -309,7 +309,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             }
         }
 
-        private void parseDOMTree(Document document) throws ParseException, UnsupportedEncodingException {
+        private void parseDOMTree(Document document) throws UnsupportedEncodingException {
             Element infoElement = document.getRootElement();
             Element entryElement = infoElement.getChild("entry");
             String encodedUrl = entryElement.getChildTextTrim("url");

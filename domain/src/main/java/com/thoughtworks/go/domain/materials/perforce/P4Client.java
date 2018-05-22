@@ -76,7 +76,7 @@ public class P4Client extends SCMCommand {
         return execute(p4);
     }
 
-    public int client(String clientSpec, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+    public int client(String clientSpec, ConsoleOutputStreamConsumer consumer, boolean failOnError) {
         return execute(p4("client", "-i"), clientSpec, consumer, failOnError);
     }
 

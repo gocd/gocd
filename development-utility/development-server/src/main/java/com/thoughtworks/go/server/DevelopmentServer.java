@@ -78,7 +78,7 @@ public class DevelopmentServer {
         }
     }
 
-    private static void assertPluginsZipExists() throws IOException, InterruptedException {
+    private static void assertPluginsZipExists() {
         if (DevelopmentServer.class.getResource("/plugins.zip") == null) {
             throw new IllegalArgumentException("Could not find plugins.zip. Hint: Did you run `./gradlew prepare`?");
         }
@@ -104,7 +104,7 @@ public class DevelopmentServer {
         FileUtils.copyFile(new File("webapp/WEB-INF/rails.new/webpack/rails-shared/plugin-endpoint.js"), new File(classPathRoot, "plugin-endpoint.js"));
     }
 
-    private static void assertActivationJarPresent() throws IOException {
+    private static void assertActivationJarPresent() {
         if (DevelopmentServer.class.getResource("/go-plugin-activator.jar") == null) {
             System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded. Hint: Did you run `./gradlew prepare`?");
         }

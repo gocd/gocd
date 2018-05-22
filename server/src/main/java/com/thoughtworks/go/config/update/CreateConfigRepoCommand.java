@@ -32,7 +32,7 @@ public class CreateConfigRepoCommand extends ConfigRepoCommand implements Entity
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.getConfigRepos().add(configRepo);
     }
 }

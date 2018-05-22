@@ -35,7 +35,7 @@ public class ServerVersion implements InitializingBean {
         return CurrentGoCDVersion.getInstance().formatted();
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         LOG.info("[Startup] Go Version: {}", version());
         LOG.info("[Startup] PID: {}", new JavaSysMon().currentPid());
         LOG.info("[Startup] JVM properties: {}", System.getProperties());

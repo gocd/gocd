@@ -22,7 +22,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DefaultJobPlan implements JobPlan {
@@ -222,12 +221,7 @@ public class DefaultJobPlan implements JobPlan {
 
     @Override
     public List<ArtifactPlan> getArtifactPlansOfType(final ArtifactPlanType artifactPlanType) {
-        return getArtifactPlans().stream().filter(new Predicate<ArtifactPlan>() {
-            @Override
-            public boolean test(ArtifactPlan artifactPlan) {
-                return artifactPlan.getArtifactPlanType() == artifactPlanType;
-            }
-        }).collect(Collectors.toList());
+        return getArtifactPlans().stream().filter(artifactPlan -> artifactPlan.getArtifactPlanType() == artifactPlanType).collect(Collectors.toList());
     }
 
     @Override

@@ -26,8 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION;
@@ -42,12 +40,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
 
     @Autowired
     public PluginSettingsMetadataLoader(List<GoPluginExtension> extensions, PluginManager pluginManager) {
-        this.extensions = extensions.stream().filter(new Predicate<GoPluginExtension>() {
-            @Override
-            public boolean test(GoPluginExtension goPluginExtension) {
-                return !PLUGGABLE_TASK_EXTENSION.equals(goPluginExtension.extensionName());
-            }
-        }).collect(Collectors.toList());
+        this.extensions = extensions.stream().filter(goPluginExtension -> !PLUGGABLE_TASK_EXTENSION.equals(goPluginExtension.extensionName())).collect(Collectors.toList());
 
         pluginManager.addPluginChangeListener(this);
     }
@@ -85,20 +78,12 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
     private List<ExtensionSettingsInfo> findSettingsAndViewOfAllExtensionsIn(String pluginId) {
         try {
             return extensions.stream()
-                    .filter(new Predicate<GoPluginExtension>() {
-                        @Override
-                        public boolean test(GoPluginExtension extension) {
-                            return extension.canHandlePlugin(pluginId);
-                        }
-                    })
-                    .map(new Function<GoPluginExtension, ExtensionSettingsInfo>() {
-                        @Override
-                        public ExtensionSettingsInfo apply(GoPluginExtension extension) {
-                            try {
-                                return new ExtensionSettingsInfo(extension.extensionName(), null, extension.getPluginSettingsConfiguration(pluginId), extension.getPluginSettingsView(pluginId));
-                            } catch (Exception e) {
-                                return new ExtensionSettingsInfo(extension.extensionName(), e.getMessage(), null, null);
-                            }
+                    .filter(extension -> extension.canHandlePlugin(pluginId))
+                    .map(extension -> {
+                        try {
+                            return new ExtensionSettingsInfo(extension.extensionName(), null, extension.getPluginSettingsConfiguration(pluginId), extension.getPluginSettingsView(pluginId));
+                        } catch (Exception e) {
+                            return new ExtensionSettingsInfo(extension.extensionName(), e.getMessage(), null, null);
                         }
                     })
                     .collect(Collectors.toList());
@@ -108,12 +93,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
     }
 
     private List<ExtensionSettingsInfo> allSettingsAndViewPairsWhichAreValid(List<ExtensionSettingsInfo> allMetadata) {
-        return allMetadata.stream().filter(new Predicate<ExtensionSettingsInfo>() {
-            @Override
-            public boolean test(ExtensionSettingsInfo extensionSettingsInfo) {
-                return extensionSettingsInfo.settingsAndViewAreValid();
-            }
-        }).collect(Collectors.toList());
+        return allMetadata.stream().filter(ExtensionSettingsInfo::settingsAndViewAreValid).collect(Collectors.toList());
     }
 
     private class ExtensionSettingsInfo {

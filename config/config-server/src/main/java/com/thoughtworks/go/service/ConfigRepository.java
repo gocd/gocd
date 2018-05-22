@@ -142,11 +142,7 @@ public class ConfigRepository {
     }
 
     private GoConfigRevision findRevisionByMd5(final String md5) throws GitAPIException {
-        return doLocked(new ThrowingFn<GoConfigRevision, GitAPIException>() {
-            public GoConfigRevision call() throws GitAPIException {
-                return getGoConfigRevision(getRevCommitForMd5(md5));
-            }
-        });
+        return doLocked(() -> getGoConfigRevision(getRevCommitForMd5(md5)));
     }
 
     public RevCommit getRevCommitForMd5(String md5) throws GitAPIException {
@@ -173,19 +169,17 @@ public class ConfigRepository {
     }
 
     public GoConfigRevision getCurrentRevision() {
-        return doLocked(new ThrowingFn<GoConfigRevision, RuntimeException>() {
-            public GoConfigRevision call() {
-                RevCommit revision;
-                try {
-                    revision = getCurrentRevCommit();
-                } catch (NoHeadException e) {
-                    return null;
-                } catch (GitAPIException e) {
-                    LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
-                    return null;
-                }
-                return getGoConfigRevision(revision);
+        return doLocked(() -> {
+            RevCommit revision;
+            try {
+                revision = getCurrentRevCommit();
+            } catch (NoHeadException e) {
+                return null;
+            } catch (GitAPIException e) {
+                LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
+                return null;
             }
+            return getGoConfigRevision(revision);
         });
 
     }
@@ -203,23 +197,21 @@ public class ConfigRepository {
         }
     }
 
-    public GoConfigRevisions getCommits(final int pageSize, final int offset) throws Exception {
-        return doLocked(new ThrowingFn<GoConfigRevisions, RuntimeException>() {
-            public GoConfigRevisions call() {
-                GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
-                try {
-                    LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
-                    Iterable<RevCommit> revisions = command.call();
-                    for (RevCommit revision : revisions) {
-                        GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
-                        goConfigRevision.setCommitSHA(revision.name());
-                        goConfigRevisions.add(goConfigRevision);
-                    }
-                } catch (Exception e) {
-                    // ignore
+    public GoConfigRevisions getCommits(final int pageSize, final int offset) {
+        return doLocked(() -> {
+            GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
+            try {
+                LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
+                Iterable<RevCommit> revisions = command.call();
+                for (RevCommit revision : revisions) {
+                    GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
+                    goConfigRevision.setCommitSHA(revision.name());
+                    goConfigRevisions.add(goConfigRevision);
                 }
-                return goConfigRevisions;
+            } catch (Exception e) {
+                // ignore
             }
+            return goConfigRevisions;
         });
     }
 
@@ -257,43 +249,38 @@ public class ConfigRepository {
     }
 
     public String configChangesFor(final String laterMD5, final String earlierMD5) throws GitAPIException {
-        return doLocked(new ThrowingFn<String, GitAPIException>() {
-            public String call() throws GitAPIException {
-                RevCommit laterCommit = null;
-                RevCommit earlierCommit = null;
-                if (!StringUtils.isBlank(laterMD5)) {
-                    laterCommit = getRevCommitForMd5(laterMD5);
-                }
-                if (!StringUtils.isBlank(earlierMD5))
-                    earlierCommit = getRevCommitForMd5(earlierMD5);
-                return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+        return doLocked(() -> {
+            RevCommit laterCommit = null;
+            RevCommit earlierCommit = null;
+            if (!StringUtils.isBlank(laterMD5)) {
+                laterCommit = getRevCommitForMd5(laterMD5);
             }
+            if (!StringUtils.isBlank(earlierMD5))
+                earlierCommit = getRevCommitForMd5(earlierMD5);
+            return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }
 
     public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
-        return doLocked(new ThrowingFn<String, GitAPIException>() {
-            public String call() throws GitAPIException {
-                RevCommit laterCommit = null;
-                RevCommit earlierCommit = null;
-                if (!StringUtils.isBlank(fromRevision)) {
-                    laterCommit = getRevCommitForCommitSHA(fromRevision);
-                }
-                if (!StringUtils.isBlank(toRevision)) {
-                    earlierCommit = getRevCommitForCommitSHA(toRevision);
-                }
-                return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+        return doLocked(() -> {
+            RevCommit laterCommit = null;
+            RevCommit earlierCommit = null;
+            if (!StringUtils.isBlank(fromRevision)) {
+                laterCommit = getRevCommitForCommitSHA(fromRevision);
             }
+            if (!StringUtils.isBlank(toRevision)) {
+                earlierCommit = getRevCommitForCommitSHA(toRevision);
+            }
+            return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }
 
-    String findDiffBetweenTwoRevisions(RevCommit laterCommit, RevCommit earlierCommit) throws GitAPIException {
+    String findDiffBetweenTwoRevisions(RevCommit laterCommit, RevCommit earlierCommit) {
         if (laterCommit == null || earlierCommit == null) {
             return null;
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
         String output = null;
-        try {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             DiffFormatter diffFormatter = new DiffFormatter(out);
             diffFormatter.setRepository(gitRepo);
             diffFormatter.format(earlierCommit.getId(), laterCommit.getId());
@@ -301,11 +288,6 @@ public class ConfigRepository {
             output = StringUtil.stripTillLastOccurrenceOf(output, "+++ b/cruise-config.xml");
         } catch (IOException e) {
             throw new RuntimeException("Error occurred during diff computation. Message: " + e.getMessage());
-        } finally {
-            try {
-                out.close();
-            } catch (Exception e) {
-            }
         }
         return output;
     }
@@ -423,11 +405,7 @@ public class ConfigRepository {
     }
 
     public long getLooseObjectCount() throws Exception {
-        return doLocked(new ThrowingFn<Long, GitAPIException>() {
-            public Long call() throws GitAPIException {
-                return (Long) getStatistics().get("numberOfLooseObjects");
-            }
-        });
+        return doLocked(() -> (Long) getStatistics().get("numberOfLooseObjects"));
     }
 
     public Properties getStatistics() throws GitAPIException {

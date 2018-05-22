@@ -30,7 +30,7 @@ public class CreateArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         getPluginProfiles(modifiedConfig).add(profile);
     }
 

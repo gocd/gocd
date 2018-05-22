@@ -25,7 +25,7 @@ import org.dom4j.DocumentException;
  * @understands interface to get xml representation of an object
  */
 public interface XmlRepresentable {
-    Document toXml(XmlWriterContext writerContext) throws DocumentException, IOException;
+    Document toXml(XmlWriterContext writerContext);
 
     String httpUrl(String baseUrl);
 }

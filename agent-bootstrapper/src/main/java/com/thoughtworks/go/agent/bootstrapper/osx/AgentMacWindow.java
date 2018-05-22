@@ -42,7 +42,7 @@ public class AgentMacWindow extends JFrame {
     private final MacBootstrapperApplicationAdapter macBootstrapperAppAdapter;
     private MacBootstrapperThread bootstrapLauncher;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
         new AgentMacWindow().go();

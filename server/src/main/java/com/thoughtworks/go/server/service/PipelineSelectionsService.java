@@ -73,7 +73,7 @@ public class PipelineSelectionsService {
     private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
         PipelineSelections pipelineSelections = goConfigService.isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
         if (pipelineSelections == null) {
-            pipelineSelections = new PipelineSelections(new ArrayList<String>(), clock.currentTime(), userId, true);
+            pipelineSelections = new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
         }
         return pipelineSelections;
     }

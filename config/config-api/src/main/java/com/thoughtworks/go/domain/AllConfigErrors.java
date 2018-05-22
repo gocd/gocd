@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AllConfigErrors extends ArrayList<ConfigErrors> {
@@ -32,11 +29,6 @@ public class AllConfigErrors extends ArrayList<ConfigErrors> {
     }
 
     public String asString() {
-        return StringUtils.join(this.stream().map(new Function<ConfigErrors, String>() {
-            @Override
-            public String apply(ConfigErrors errors) {
-                return errors.asString();
-            }
-        }).collect(Collectors.toList()), ", ");
+        return String.join(", ", this.stream().map(ConfigErrors::asString).collect(Collectors.toList()));
     }
 }

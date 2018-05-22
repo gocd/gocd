@@ -42,7 +42,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         SCM scm = findSCM(modifiedConfig);
         scm.setAutoUpdate(globalScmConfig.isAutoUpdate());
         scm.setConfiguration(globalScmConfig.getConfiguration());

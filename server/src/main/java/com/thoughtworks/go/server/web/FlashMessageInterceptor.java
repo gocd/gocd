@@ -28,21 +28,21 @@ public class FlashMessageInterceptor implements HandlerInterceptor {
     }
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                             Object object) throws Exception {
+                             Object object) {
         return true;
     }
 
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                           Object object, ModelAndView modelAndView) throws Exception {
+                           Object object, ModelAndView modelAndView) {
         if (modelAndView == null) { return; }
-        
+
         if (isNotEmpty(httpServletRequest.getParameter("flash_message"))) {
             modelAndView.addObject("flash_message", httpServletRequest.getParameter("flash_message"));
         }
     }
 
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                                Object object, Exception exception) throws Exception {
+                                Object object, Exception exception) {
     }
 
 }

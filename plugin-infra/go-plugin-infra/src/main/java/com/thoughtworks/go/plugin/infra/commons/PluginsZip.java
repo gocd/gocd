@@ -45,18 +45,8 @@ import java.util.zip.ZipOutputStream;
 @Component
 public class PluginsZip implements PluginChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(PluginsZip.class);
-    private static final Function<GoPluginDescriptor, String> PLUGIN_ID_COMPARATOR = new Function<GoPluginDescriptor, String>() {
-        @Override
-        public String apply(GoPluginDescriptor goPluginDescriptor) {
-            return goPluginDescriptor.id();
-        }
-    };
-    private static final Function<GoPluginDescriptor, Boolean> IS_BUNDLED_PLUGIN_COMPARATOR = new Function<GoPluginDescriptor, Boolean>() {
-        @Override
-        public Boolean apply(GoPluginDescriptor goPluginDescriptor) {
-            return goPluginDescriptor.isBundledPlugin();
-        }
-    };
+    private static final Function<GoPluginDescriptor, String> PLUGIN_ID_COMPARATOR = GoPluginDescriptor::id;
+    private static final Function<GoPluginDescriptor, Boolean> IS_BUNDLED_PLUGIN_COMPARATOR = GoPluginDescriptor::isBundledPlugin;
     private final Comparator<GoPluginDescriptor> PLUGIN_COMPARATOR = Comparator.comparing(IS_BUNDLED_PLUGIN_COMPARATOR).thenComparing(PLUGIN_ID_COMPARATOR);
 
     private final Predicate<GoPluginDescriptor> predicate;
@@ -74,15 +64,10 @@ public class PluginsZip implements PluginChangeListener {
         externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
         this.pluginManager = pluginManager;
         this.pluginManager.addPluginChangeListener(this);
-        predicate = new Predicate<GoPluginDescriptor>() {
-            @Override
-            public boolean test(GoPluginDescriptor goPluginDescriptor) {
-                return PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("artifact", goPluginDescriptor.id());
-            }
-        };
+        predicate = goPluginDescriptor -> PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
+                PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
+                PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id()) ||
+                PluginsZip.this.pluginManager.isPluginOfType("artifact", goPluginDescriptor.id());
     }
 
     public void create() {

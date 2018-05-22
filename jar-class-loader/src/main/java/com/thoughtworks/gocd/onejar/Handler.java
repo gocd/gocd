@@ -53,16 +53,16 @@ public class Handler extends URLStreamHandler {
     }
 
     @Override
-    protected URLConnection openConnection(URL u) throws IOException {
+    protected URLConnection openConnection(URL u) {
         URLConnection urlConnection = new URLConnection(u) {
 
             @Override
-            public void connect() throws IOException {
+            public void connect() {
 
             }
 
             @Override
-            public InputStream getInputStream() throws IOException {
+            public InputStream getInputStream() {
                 String file = u.getFile();
                 return Boot.class.getResourceAsStream("/" + file);
             }

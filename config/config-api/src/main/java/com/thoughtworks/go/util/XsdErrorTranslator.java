@@ -140,21 +140,21 @@ public class XsdErrorTranslator extends DefaultHandler {
         }
     }
 
-    public void error(SAXParseException exception) throws SAXException {
+    public void error(SAXParseException exception) {
         if (!validationError) {
             validationError = true;
             saxParseException = exception;
         }
     }
 
-    public void fatalError(SAXParseException exception) throws SAXException {
+    public void fatalError(SAXParseException exception) {
         if (!validationError) {
             validationError = true;
             saxParseException = exception;
         }
     }
 
-    public void warning(SAXParseException exception) throws SAXException {
+    public void warning(SAXParseException exception) {
 
     }
 

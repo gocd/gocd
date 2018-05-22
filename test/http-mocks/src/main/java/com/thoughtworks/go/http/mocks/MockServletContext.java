@@ -605,7 +605,7 @@ public class MockServletContext implements ServletContext {
 	}
 
 	@Override
-	public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
+	public <T extends Servlet> T createServlet(Class<T> c) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -643,7 +643,7 @@ public class MockServletContext implements ServletContext {
 	}
 
 	@Override
-	public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
+	public <T extends Filter> T createFilter(Class<T> c) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -681,7 +681,7 @@ public class MockServletContext implements ServletContext {
 	}
 
 	@Override
-	public <T extends EventListener> T createListener(Class<T> c) throws ServletException {
+	public <T extends EventListener> T createListener(Class<T> c) {
 		throw new UnsupportedOperationException();
 	}
 

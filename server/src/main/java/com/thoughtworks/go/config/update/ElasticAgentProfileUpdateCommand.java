@@ -39,7 +39,7 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         ElasticProfile existingProfile = findExistingProfile(preprocessedConfig);
         ElasticProfiles profiles = getPluginProfiles(preprocessedConfig);
         profiles.set(profiles.indexOf(existingProfile), profile);

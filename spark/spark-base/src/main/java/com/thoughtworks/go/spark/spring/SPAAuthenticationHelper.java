@@ -32,7 +32,7 @@ public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
 
 
     @Autowired
-    public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) throws IOException {
+    public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) {
         super(securityService, goConfigService);
     }
 

@@ -63,12 +63,7 @@ public class PackageMaterialPluginInfoBuilder implements PluginInfoBuilder<Packa
     private List<PluginConfiguration> packageRepoConfigurations(Configuration repositoryConfiguration) {
         List<? extends Property> list = repositoryConfiguration.list();
 
-        return list.stream().map(new Function<Property, PluginConfiguration>() {
-            @Override
-            public PluginConfiguration apply(Property property) {
-                return new PluginConfiguration(property.getKey(), toMetadata(property));
-            }
-        }).collect(Collectors.toList());
+        return list.stream().map((Function<Property, PluginConfiguration>) property -> new PluginConfiguration(property.getKey(), toMetadata(property))).collect(Collectors.toList());
     }
 
     private Metadata toMetadata(Property configuration) {

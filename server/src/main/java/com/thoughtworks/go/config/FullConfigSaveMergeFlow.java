@@ -78,14 +78,9 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
         return goConfigHolder;
     }
 
-    private GoConfigHolder reloadConfig(String configXml, final List<PartialConfig> partials) throws Exception {
+    private GoConfigHolder reloadConfig(String configXml, final List<PartialConfig> partials) {
         try {
-            return loader.loadConfigHolder(configXml, new MagicalGoConfigXmlLoader.Callback() {
-                @Override
-                public void call(CruiseConfig cruiseConfig) {
-                    cruiseConfig.setPartials(partials);
-                }
-            });
+            return loader.loadConfigHolder(configXml, cruiseConfig -> cruiseConfig.setPartials(partials));
         } catch (Exception e) {
             LOGGER.debug("[CONFIG_MERGE] Post merge validation failed");
             throw new ConfigMergePostValidationException(e.getMessage(), e);

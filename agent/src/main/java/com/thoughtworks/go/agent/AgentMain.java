@@ -28,7 +28,7 @@ import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
 public final class AgentMain {
     private static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "agent-logback.xml";
 
-    public static void main(String... argv) throws Exception {
+    public static void main(String... argv) {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);

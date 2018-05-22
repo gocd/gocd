@@ -25,10 +25,7 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
  * @understands a source control repository and its configuration
@@ -263,12 +260,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (myDirPath == null || otherSCMMaterialFolder == null) {
             return;
         }
-        try {
-            if (FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory(myDirPath, otherSCMMaterialFolder)) {
-                addError(FOLDER, "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
-            }
-        } catch (IOException e) {
-            throw bomb("Dest folder specification is not valid. " + e.getMessage());
+        if (FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory(myDirPath, otherSCMMaterialFolder)) {
+            addError(FOLDER, "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
         }
     }
 

@@ -25,7 +25,7 @@ public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
         this.md5 = md5;
     }
 
-    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig cruiseConfig) {
         cruiseConfig.getTemplates().removeTemplateNamed(new CaseInsensitiveString(templateName));
         return cruiseConfig;
     }

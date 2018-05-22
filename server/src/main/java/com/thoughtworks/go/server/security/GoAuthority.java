@@ -22,7 +22,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum GoAuthority {
@@ -35,12 +34,7 @@ public enum GoAuthority {
     ROLE_TEMPLATE_VIEW_USER,
     ROLE_AGENT;
 
-    public static Set<GrantedAuthority> ALL_AUTHORITIES = Arrays.stream(values()).map(new Function<GoAuthority, GrantedAuthority>() {
-        @Override
-        public GrantedAuthority apply(GoAuthority goAuthority) {
-            return goAuthority.asAuthority();
-        }
-    }).collect(Collectors.toSet());
+    public static Set<GrantedAuthority> ALL_AUTHORITIES = Arrays.stream(values()).map(GoAuthority::asAuthority).collect(Collectors.toSet());
 
     private final GrantedAuthority authority;
 

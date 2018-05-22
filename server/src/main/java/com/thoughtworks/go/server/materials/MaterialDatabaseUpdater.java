@@ -84,7 +84,7 @@ public class MaterialDatabaseUpdater {
                     if (materialRepository.findMaterialInstance(material) == null) {
                         transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
                             @Override
-                            public Object doInTransaction(TransactionStatus status) throws Exception {
+                            public Object doInTransaction(TransactionStatus status) {
                                 initializeMaterialWithLatestRevision(material);
                                 return null;
                             }
@@ -97,7 +97,7 @@ public class MaterialDatabaseUpdater {
                 synchronized (materialMutex) {
                     transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
                         @Override
-                        public Object doInTransaction(TransactionStatus status) throws Exception {
+                        public Object doInTransaction(TransactionStatus status) {
                             updateMaterialWithNewRevisions(material);
                             return null;
                         }

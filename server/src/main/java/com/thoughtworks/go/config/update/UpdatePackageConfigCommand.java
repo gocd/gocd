@@ -48,7 +48,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
         PackageRepository repository = packageRepositories.findPackageRepositoryHaving(oldPackageId);
         int index = packageRepositories.indexOf(repository);

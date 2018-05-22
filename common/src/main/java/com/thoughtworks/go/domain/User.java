@@ -24,8 +24,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -277,12 +279,7 @@ public class User extends PersistentObject {
     }
 
     public void removeNotificationFilter(final long filterId) {
-        List<NotificationFilter> toBeDeleted = notificationFilters.stream().filter(new Predicate<NotificationFilter>() {
-            @Override
-            public boolean test(NotificationFilter filter1) {
-                return filter1.getId() == filterId;
-            }
-        }).collect(Collectors.toList());
+        List<NotificationFilter> toBeDeleted = notificationFilters.stream().filter(filter1 -> filter1.getId() == filterId).collect(Collectors.toList());
         notificationFilters.removeAll(toBeDeleted);
     }
 

@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTask implements Task  {
@@ -54,12 +53,7 @@ public abstract class AbstractTask implements Task  {
         if (runIfConfigs.isEmpty()) {
             return StringUtils.capitalize(RunIfConfig.PASSED.toString());
         }
-        List<String> capitalized = runIfConfigs.stream().map(new Function<RunIfConfig, String>() {
-            @Override
-            public String apply(RunIfConfig f) {
-                return StringUtils.capitalize(f.toString());
-            }
-        }).collect(Collectors.toList());
+        List<String> capitalized = runIfConfigs.stream().map(f -> StringUtils.capitalize(f.toString())).collect(Collectors.toList());
 
         return StringUtils.join(capitalized, ", ");
     }

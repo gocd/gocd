@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,7 +74,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         return new CaseInsensitiveString(name);
     }
 
@@ -100,12 +99,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     public static List<CaseInsensitiveString> caseInsensitiveStrings(List<String> roles) {
-        return roles.stream().map(new Function<String, CaseInsensitiveString>() {
-            @Override
-            public CaseInsensitiveString apply(String obj) {
-                return new CaseInsensitiveString(obj);
-            }
-        }).collect(Collectors.toList());
+        return roles.stream().map(CaseInsensitiveString::new).collect(Collectors.toList());
     }
 
     public static List<CaseInsensitiveString> caseInsensitiveStrings(String... roles) {
@@ -121,11 +115,6 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     private static List<String> toStringList(Stream<CaseInsensitiveString> stream) {
-        return stream.map(new Function<CaseInsensitiveString, String>() {
-            @Override
-            public String apply(CaseInsensitiveString caseInsensitiveString) {
-                return caseInsensitiveString.toString();
-            }
-        }).collect(Collectors.toList());
+        return stream.map(CaseInsensitiveString::toString).collect(Collectors.toList());
     }
 }

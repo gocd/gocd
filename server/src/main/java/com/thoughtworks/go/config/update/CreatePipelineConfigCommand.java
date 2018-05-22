@@ -47,7 +47,7 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     }
 
     @Override
-    public void update(CruiseConfig cruiseConfig) throws Exception {
+    public void update(CruiseConfig cruiseConfig) {
         cruiseConfig.addPipelineWithoutValidation(groupName, pipelineConfig);
     }
 

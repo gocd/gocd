@@ -112,15 +112,12 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     }
 
     private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                MaterialInstance materialInstance = materialRepository.find(materialId);
-                String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonString(materialData);
-                materialInstance.setAdditionalData(additionalData);
-                materialRepository.saveOrUpdate(materialInstance);
-                return materialInstance;
-            }
+        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            MaterialInstance materialInstance = materialRepository.find(materialId);
+            String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonString(materialData);
+            materialInstance.setAdditionalData(additionalData);
+            materialRepository.saveOrUpdate(materialInstance);
+            return materialInstance;
         });
     }
 

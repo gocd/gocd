@@ -48,8 +48,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -432,19 +430,8 @@ public class GoFileConfigDataSource {
         if (lastKnownPartials.size() != lastValidPartials.size()) {
             return false;
         }
-        final List<ConfigOrigin> validConfigOrigins = lastValidPartials.stream().map(new Function<PartialConfig, ConfigOrigin>() {
-            @Override
-            public ConfigOrigin apply(PartialConfig partialConfig) {
-                return partialConfig.getOrigin();
-            }
-        }).collect(Collectors.toList());
-        return !lastKnownPartials.stream().filter(new Predicate<PartialConfig>() {
-            @Override
-            public boolean test(PartialConfig item) {
-                return !validConfigOrigins.contains(item.getOrigin());
-
-            }
-        }).findFirst().isPresent();
+        final List<ConfigOrigin> validConfigOrigins = lastValidPartials.stream().map(PartialConfig::getOrigin).collect(Collectors.toList());
+        return !lastKnownPartials.stream().filter(item -> !validConfigOrigins.contains(item.getOrigin())).findFirst().isPresent();
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {
@@ -538,7 +525,7 @@ public class GoFileConfigDataSource {
         return mergedConfigXml;
     }
 
-    private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) throws Exception {
+    private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) {
         try {
             return configAsXml(modifiedConfig, false);
         } catch (Exception e) {
@@ -557,12 +544,7 @@ public class GoFileConfigDataSource {
     }
 
     private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws Exception {
-        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, new MagicalGoConfigXmlLoader.Callback() {
-            @Override
-            public void call(CruiseConfig cruiseConfig) {
-                cruiseConfig.setPartials(partials);
-            }
-        });
+        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, cruiseConfig -> cruiseConfig.setPartials(partials));
         CruiseConfig config = configHolder.config;
         checkinConfigToGitRepo(partials, config, content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName());
         return configHolder;

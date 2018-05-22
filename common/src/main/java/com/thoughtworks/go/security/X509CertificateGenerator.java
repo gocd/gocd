@@ -287,7 +287,7 @@ public class X509CertificateGenerator {
             this.v3CertGen = gen;
         }
 
-        public void addSubjectKeyIdExtension(PublicKey key) throws CertificateParsingException, InvalidKeyException {
+        public void addSubjectKeyIdExtension(PublicKey key) throws InvalidKeyException {
             v3CertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
                     new SubjectKeyIdentifierStructure(key));
         }

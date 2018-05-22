@@ -50,46 +50,39 @@ public class MacPreferencesPane extends JFrame {
         createView();
 
 
-        sslModeComponent.noneModeRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileBrowser.setEnabled(!sslModeComponent.noneModeRadioButton.isSelected());
-            }
-        });
+        sslModeComponent.noneModeRadioButton.addActionListener(e -> fileBrowser.setEnabled(!sslModeComponent.noneModeRadioButton.isSelected()));
 
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent newEvent) {
+        okButton.addActionListener(newEvent -> {
+            try {
+                AgentBootstrapperArgs newArgs = new AgentBootstrapperArgs(
+                        new URL(serverTextField.getText()),
+                        fileBrowser.getFile(), sslModeComponent.getSslMode());
+
                 try {
-                    AgentBootstrapperArgs newArgs = new AgentBootstrapperArgs(
-                            new URL(serverTextField.getText()),
-                            fileBrowser.getFile(), sslModeComponent.getSslMode());
+                    new ServerUrlValidator().validate("The server url", newArgs.getServerUrl().toExternalForm());
+                } catch (ParameterException e) {
+                    JOptionPane.showMessageDialog(getContentPane(), e.getMessage(), "Invalid server url", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
+                if (newArgs.getRootCertFile() != null) {
                     try {
-                        new ServerUrlValidator().validate("The server url", newArgs.getServerUrl().toExternalForm());
+                        new CertificateFileValidator().validate("The server root certificate", newArgs.getRootCertFile().getPath());
                     } catch (ParameterException e) {
-                        JOptionPane.showMessageDialog(getContentPane(), e.getMessage(), "Invalid server url", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(getContentPane(), e.getMessage(), "Invalid server root certificate", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
-                    if (newArgs.getRootCertFile() != null) {
-                        try {
-                            new CertificateFileValidator().validate("The server root certificate", newArgs.getRootCertFile().getPath());
-                        } catch (ParameterException e) {
-                            JOptionPane.showMessageDialog(getContentPane(), e.getMessage(), "Invalid server root certificate", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                    }
-
-                    if (!newArgs.equals(agentMacWindow.getBootstrapperArgs())) {
-                        agentMacWindow.setBootstrapperArgs(newArgs);
-                        LOG.info("Updating preferences to {}", newArgs);
-                    } else {
-                        LOG.info("Preferences are unchanged {}", newArgs);
-                    }
-                    setVisible(false);
-                } catch (MalformedURLException e) {
-                    JOptionPane.showMessageDialog(getContentPane(), "The server url must be an HTTPS url and must begin with https://", "Invalid server url", JOptionPane.ERROR_MESSAGE);
                 }
+
+                if (!newArgs.equals(agentMacWindow.getBootstrapperArgs())) {
+                    agentMacWindow.setBootstrapperArgs(newArgs);
+                    LOG.info("Updating preferences to {}", newArgs);
+                } else {
+                    LOG.info("Preferences are unchanged {}", newArgs);
+                }
+                setVisible(false);
+            } catch (MalformedURLException e) {
+                JOptionPane.showMessageDialog(getContentPane(), "The server url must be an HTTPS url and must begin with https://", "Invalid server url", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -155,15 +148,12 @@ public class MacPreferencesPane extends JFrame {
             browse = new JButton("Browse");
             add(browse);
 
-            browse.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser jFileChooser = new JFileChooser(file != null ? file.getParentFile() : null);
-                    int returnVal = jFileChooser.showOpenDialog(FileBrowser.this);
+            browse.addActionListener(e -> {
+                JFileChooser jFileChooser = new JFileChooser(file != null ? file.getParentFile() : null);
+                int returnVal = jFileChooser.showOpenDialog(FileBrowser.this);
 
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        setFile(jFileChooser.getSelectedFile());
-                    }
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    setFile(jFileChooser.getSelectedFile());
                 }
             });
         }
@@ -211,13 +201,10 @@ public class MacPreferencesPane extends JFrame {
 
             ButtonGroup sslModeButtonGroup = new ButtonGroup();
 
-            ActionListener actionListener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JRadioButton b = (JRadioButton) e.getSource();
-                    setSslMode((AgentBootstrapperArgs.SslMode) b.getClientProperty("SSL_MODE"));
+            ActionListener actionListener = e -> {
+                JRadioButton b = (JRadioButton) e.getSource();
+                setSslMode((AgentBootstrapperArgs.SslMode) b.getClientProperty("SSL_MODE"));
 
-                }
             };
 
             for (JRadioButton button : Arrays.asList(fullModeRadioButton, noneModeRadioButton, noHostVerifyModeRadioButton)) {

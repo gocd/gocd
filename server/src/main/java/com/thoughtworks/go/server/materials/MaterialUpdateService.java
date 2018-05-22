@@ -49,7 +49,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -155,12 +154,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         Predicate<Material> predicate = new MaterialPredicate(branchName, possibleUrls);
         Set<Material> allGitMaterials = allUniquePostCommitSchedulableMaterials.stream().filter(predicate).collect(Collectors.toSet());
 
-        allGitMaterials.forEach(new Consumer<Material>() {
-            @Override
-            public void accept(Material material) {
-                MaterialUpdateService.this.updateMaterial(material);
-            }
-        });
+        allGitMaterials.forEach(MaterialUpdateService.this::updateMaterial);
 
         return !allGitMaterials.isEmpty();
     }

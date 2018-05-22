@@ -115,7 +115,7 @@ public class BuildWork implements Work {
     }
 
     private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
-                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) throws Exception {
+                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
             return null;

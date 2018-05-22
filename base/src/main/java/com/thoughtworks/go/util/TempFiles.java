@@ -29,11 +29,7 @@ public class TempFiles {
     private List<File> createdFiles = new ArrayList<>();
     private Clock clock;
 
-    private Runnable cleanupHook = new Runnable() {
-        public void run() {
-            cleanUp();
-        }
-    };
+    private Runnable cleanupHook = this::cleanUp;
 
     public TempFiles() {
         this.clock = new SystemTimeClock();

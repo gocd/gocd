@@ -103,7 +103,7 @@ public class AgentHTTPClientController extends AgentController {
     }
 
     @Override
-    public void work() throws Exception {
+    public void work() {
         LOG.debug("[Agent Loop] Trying to retrieve work.");
         retrieveCookieIfNecessary();
         retrieveWork();

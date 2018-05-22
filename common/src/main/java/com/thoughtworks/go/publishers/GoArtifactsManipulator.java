@@ -128,15 +128,9 @@ public class GoArtifactsManipulator {
             return computeChecksumForContentsOfDirectory(source, destPath);
         }
 
-        FileInputStream inputStream = null;
         Properties properties = null;
-        try {
-            inputStream = new FileInputStream(source);
+        try (FileInputStream inputStream = new FileInputStream(source)) {
             properties = computeChecksumForFile(source.getName(), md5Hex(inputStream), destPath);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
         return properties;
     }
@@ -146,20 +140,14 @@ public class GoArtifactsManipulator {
         Properties checksumProperties = new Properties();
         for (File file : fileStructure) {
             String filePath = removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
-            FileInputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(file);
+            try (FileInputStream inputStream = new FileInputStream(file)) {
                 checksumProperties.setProperty(getEffectiveFileName(destPath, FilenameUtils.separatorsToUnix(filePath)), md5Hex(inputStream));
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
             }
         }
         return checksumProperties;
     }
 
-    private Properties computeChecksumForFile(String sourceName, String md5, String destPath) throws IOException {
+    private Properties computeChecksumForFile(String sourceName, String md5, String destPath) {
         String effectiveFileName = getEffectiveFileName(destPath, sourceName);
         Properties properties = new Properties();
         properties.setProperty(effectiveFileName, md5);

@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.config.Admin;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
@@ -198,12 +197,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
             throw new InvalidPluginTypeException("Bad role type `" + pluginType + "`. Valid values are " + StringUtils.join(ROLE_FILTER_MAP.keySet(), ", "));
         }
 
-        return new RolesConfig(this.stream().filter(new Predicate<Role>() {
-            @Override
-            public boolean test(Role role) {
-                return role.getClass().isAssignableFrom(roleClass);
-            }
-        }).collect(Collectors.toList()));
+        return this.stream().filter(role -> role.getClass().isAssignableFrom(roleClass)).collect(Collectors.toCollection(RolesConfig::new));
 
     }
 }

@@ -171,7 +171,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
         return checksumProperties;
     }
 
-    private Properties computeChecksumForFile(String sourceName, String md5, String destPath) throws IOException {
+    private Properties computeChecksumForFile(String sourceName, String md5, String destPath) {
         String effectiveFileName = getEffectiveFileName(destPath, sourceName);
         Properties properties = new Properties();
         properties.setProperty(effectiveFileName, md5);

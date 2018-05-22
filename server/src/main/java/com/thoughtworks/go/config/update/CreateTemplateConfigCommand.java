@@ -35,7 +35,7 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         if (securityService.isUserGroupAdmin(currentUser)) {
             templateConfig.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));
         }

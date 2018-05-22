@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class JobAgentMetadata extends PersistentObject {
@@ -50,12 +49,7 @@ public class JobAgentMetadata extends PersistentObject {
         String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");
 
-        Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(new Function<Map.Entry<String, String>, ConfigurationProperty>() {
-            @Override
-            public ConfigurationProperty apply(Map.Entry<String, String> entry) {
-                return new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()));
-            }
-        }).collect(Collectors.toList());
+        Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
 
         return new ElasticProfile(id, pluginId, configProperties);
     }

@@ -105,7 +105,7 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         if (registry.containsKey(configInterface)) {
             set = registry.get(configInterface);
         } else {//TODO: concurrency issue -jj (someone sets set before putIfAbsent)
-            List<Class> newSet = Collections.synchronizedList(new ArrayList<Class>());
+            List<Class> newSet = Collections.synchronizedList(new ArrayList<>());
             set = registry.putIfAbsent(configInterface, newSet);
             if (set == null) {
                 set = newSet;

@@ -20,16 +20,14 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
-import org.slf4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.LinkedList;
@@ -83,11 +81,6 @@ public class XMLArtifactImporter {
 
     private EntityResolver getCustomEntityResolver() {
 
-        return new EntityResolver() {
-            @Override
-            public InputSource resolveEntity(String s, String s2) throws SAXException, IOException {
-                return new InputSource(new StringReader(""));
-            }
-        };
+        return (s, s2) -> new InputSource(new StringReader(""));
     }
 }

@@ -21,13 +21,8 @@ import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.MailHost;
 
 public interface GoMailSenderProvider {
-    
+
     GoMailSender createSender(MailHost mailHost);
 
-    GoMailSenderProvider DEFAULT_PROVIDER = new GoMailSenderProvider() {
-
-        public GoMailSender createSender(MailHost mailHost) {
-            return GoSmtpMailSender.createSender(mailHost);
-        }
-    };
+    GoMailSenderProvider DEFAULT_PROVIDER = GoSmtpMailSender::createSender;
 }

@@ -75,7 +75,7 @@ public class ModeAwareThreadPoolTaskScheduler implements TaskScheduler, Initiali
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         scheduler.afterPropertiesSet();
     }
 }

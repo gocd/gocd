@@ -56,7 +56,7 @@ public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuil
 
     private class TrustAllSSLContextFactory extends SslContextFactory {
         @Override
-        protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
+        protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) {
             return TRUST_ALL_CERTS;
         }
     }

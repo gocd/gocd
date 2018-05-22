@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.domain.common;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 
@@ -56,12 +55,7 @@ public class CombinedPluginInfo extends HashSet<PluginInfo> {
     }
 
     public PluginInfo extensionFor(String extensionName) {
-        return stream().filter(new Predicate<PluginInfo>() {
-            @Override
-            public boolean test(PluginInfo pluginInfo) {
-                return extensionName.equals(pluginInfo.getExtensionName());
-            }
-        }).findFirst().orElse(null);
+        return stream().filter(pluginInfo -> extensionName.equals(pluginInfo.getExtensionName())).findFirst().orElse(null);
     }
 
     public Image getImage() {

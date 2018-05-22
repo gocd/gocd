@@ -40,7 +40,7 @@ public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         SecurityAuthConfig existingProfile = findExistingProfile(preprocessedConfig);
         SecurityAuthConfigs profiles = getPluginProfiles(preprocessedConfig);
         profiles.set(profiles.indexOf(existingProfile), profile);

@@ -58,8 +58,7 @@ public class FileModelAndView {
     }
 
 
-    public static ModelAndView createFileView(File file, String sha)
-            throws Exception {
+    public static ModelAndView createFileView(File file, String sha) {
         boolean hasChanged = isFileChanged(file, sha);
         if (!hasChanged) {
             return new ModelAndView(new AbstractView() {
@@ -87,19 +86,19 @@ public class FileModelAndView {
         return new HtmlArtifactFolderViewFactory();
     }
 
-    public static ModelAndView forbiddenUrl(String filePath) throws IOException {
+    public static ModelAndView forbiddenUrl(String filePath) {
         return ResponseCodeView.create(SC_FORBIDDEN, "Url " + filePath + " contains forbidden characters.");
     }
 
-    public static ModelAndView fileCreated(String filePath) throws IOException {
+    public static ModelAndView fileCreated(String filePath) {
         return ResponseCodeView.create(SC_CREATED, "File " + filePath + " was created successfully");
     }
 
-    public static ModelAndView fileAppended(String filePath) throws IOException {
+    public static ModelAndView fileAppended(String filePath) {
         return ResponseCodeView.create(SC_OK, "File " + filePath + " was appended successfully");
     }
 
-    public static ModelAndView errorSavingFile(String filePath) throws IOException {
+    public static ModelAndView errorSavingFile(String filePath) {
         return ResponseCodeView.create(SC_INTERNAL_SERVER_ERROR, "Error saving file " + filePath);
     }
 
@@ -107,25 +106,25 @@ public class FileModelAndView {
         return ResponseCodeView.create(SC_INTERNAL_SERVER_ERROR, String.format("Error saving checksum file for the artifact at path '%s'", filePath));
     }
 
-    public static ModelAndView invalidUploadRequest() throws IOException {
+    public static ModelAndView invalidUploadRequest() {
         String content = "Invalid request. MultipartFile must have name '" + GoConstants.REGULAR_MULTIPART_FILENAME + "'"
                 + " or '" + GoConstants.ZIP_MULTIPART_FILENAME + "' (to automatically unzip stream)";
         return ResponseCodeView.create(SC_BAD_REQUEST, content);
     }
 
-    public static ModelAndView fileNotFound(String filePath) throws Exception {
+    public static ModelAndView fileNotFound(String filePath) {
         if ((ArtifactLogUtil.getConsoleOutputFolderAndFileName()).equals(filePath)) {
             return ResponseCodeView.create(SC_NOT_FOUND, "Console log for this job is unavailable as it may have been purged by Go or deleted externally.");
         }
         return ResponseCodeView.create(SC_NOT_FOUND, "Artifact '" + filePath + "' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
-    public static ModelAndView fileAlreadyExists(String filePath) throws Exception {
+    public static ModelAndView fileAlreadyExists(String filePath) {
         return ResponseCodeView.create(SC_FORBIDDEN, "File " + filePath + " already directoryExists.");
     }
 
     private static class HtmlArtifactFolderViewFactory implements ArtifactFolderViewFactory {
-        public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception {
+        public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
             Map mav = new HashMap();
             mav.put("jobIdentifier", identifier);
             mav.put("presenter", artifactFolder);

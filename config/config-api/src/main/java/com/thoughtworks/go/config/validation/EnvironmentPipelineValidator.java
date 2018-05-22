@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.CruiseConfig;
  * @understands guarding against unknown pipeline under environments
  */
 public class EnvironmentPipelineValidator implements GoConfigValidator {
-    public void validate(CruiseConfig cruiseConfig) throws Exception {
+    public void validate(CruiseConfig cruiseConfig) {
         EnvironmentsConfig environments = cruiseConfig.getEnvironments();
         environments.validateContainOnlyPiplines(cruiseConfig.getAllPipelineNames());
     }

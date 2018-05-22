@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
  * @understands ensuring environment-agents refer to existing, enabled agents
  */
 public class EnvironmentAgentValidator implements GoConfigValidator {
-    public void validate(CruiseConfig cruiseConfig) throws Exception {
+    public void validate(CruiseConfig cruiseConfig) {
         List<ConfigErrors> errors = validateConfig(cruiseConfig);
         List<String> errorMessages = new ArrayList<>();
         for (ConfigErrors error : errors) {

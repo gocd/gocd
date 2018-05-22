@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 
 /**
  * @understands agent information for the UI
@@ -111,53 +111,21 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         return !agentInstance.isDisabled();
     }
 
-    public static Comparator<AgentViewModel> STATUS_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return agentInstance1.getStatus().compareTo(agentInstance2.getStatus());
-        }
-    };
+    public static Comparator<AgentViewModel> STATUS_COMPARATOR = Comparator.comparing(AgentViewModel::getStatus);
 
-    public static Comparator<AgentViewModel> HOSTNAME_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return new AlphaAsciiComparator().compare(agentInstance1.getHostname(), agentInstance2.getHostname());
-        }
-    };
+    public static Comparator<AgentViewModel> HOSTNAME_COMPARATOR = (agentInstance1, agentInstance2) -> new AlphaAsciiComparator().compare(agentInstance1.getHostname(), agentInstance2.getHostname());
 
-    public static Comparator<AgentViewModel> IP_ADDRESS_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return IpAddress.create(agentInstance1.getIpAddress()).compareTo(IpAddress.create(agentInstance2.getIpAddress()));
-        }
-    };
+    public static Comparator<AgentViewModel> IP_ADDRESS_COMPARATOR = Comparator.comparing(agentInstance1 -> IpAddress.create(agentInstance1.getIpAddress()));
 
-    public static Comparator<AgentViewModel> LOCATION_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return agentInstance1.getLocation().compareTo(agentInstance2.getLocation());
-        }
-    };
+    public static Comparator<AgentViewModel> LOCATION_COMPARATOR = Comparator.comparing(AgentViewModel::getLocation);
 
-    public static Comparator<AgentViewModel> USABLE_SPACE_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return agentInstance1.freeDiskSpace().compareTo(agentInstance2.freeDiskSpace());
-        }
-    };
+    public static Comparator<AgentViewModel> USABLE_SPACE_COMPARATOR = Comparator.comparing(AgentViewModel::freeDiskSpace);
 
-    public static Comparator<AgentViewModel> RESOURCES_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return agentInstance1.resources().compareTo(agentInstance2.resources());
-        }
-    };
+    public static Comparator<AgentViewModel> RESOURCES_COMPARATOR = Comparator.comparing(AgentViewModel::resources);
 
-    public static Comparator<AgentViewModel> ENVIRONMENTS_COMPARATOR = new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return new AlphaAsciiComparator().compare(StringUtils.join(agentInstance1.getEnvironments().toArray()), StringUtils.join(agentInstance2.getEnvironments().toArray()));
-        }
-    };
+    public static Comparator<AgentViewModel> ENVIRONMENTS_COMPARATOR = (agentInstance1, agentInstance2) -> new AlphaAsciiComparator().compare(StringUtils.join(agentInstance1.getEnvironments().toArray()), StringUtils.join(agentInstance2.getEnvironments().toArray()));
 
-    public static Comparator<AgentViewModel> OS_COMPARATOR=new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return new AlphaAsciiComparator().compare(agentInstance1.getOperatingSystem(), agentInstance2.getOperatingSystem());
-        }
-    };
+    public static Comparator<AgentViewModel> OS_COMPARATOR= (agentInstance1, agentInstance2) -> new AlphaAsciiComparator().compare(agentInstance1.getOperatingSystem(), agentInstance2.getOperatingSystem());
 
     public int compareTo(AgentViewModel other) {
         return this.agentInstance.compareTo(other.agentInstance);

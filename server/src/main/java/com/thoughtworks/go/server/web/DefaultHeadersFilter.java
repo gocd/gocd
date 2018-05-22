@@ -26,7 +26,7 @@ public class DefaultHeadersFilter implements Filter {
     public void destroy() {
     }
 
-    public void init(FilterConfig config) throws ServletException {
+    public void init(FilterConfig config) {
         // No default config
     }
 

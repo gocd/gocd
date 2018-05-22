@@ -541,11 +541,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
         final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<>();
-        this.accept(new PiplineConfigVisitor() {
-            public void visit(PipelineConfig pipelineConfig) {
-                hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode());
-            }
-        });
+        this.accept((PiplineConfigVisitor) pipelineConfig -> hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
         return hashtable;
     }
 
@@ -826,11 +822,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void accept(final PiplineConfigVisitor visitor) {
-        accept(new PipelineGroupVisitor() {
-            public void visit(PipelineConfigs group) {
-                group.accept(visitor);
-            }
-        });
+        accept((PipelineGroupVisitor) group -> group.accept(visitor));
     }
 
     @Override
@@ -1135,11 +1127,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Set<ResourceConfig> getAllResources() {
         final HashSet<ResourceConfig> resourceConfigs = new HashSet<>();
-        accept(new JobConfigVisitor() {
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
-                resourceConfigs.addAll(jobConfig.resourceConfigs());
-            }
-        });
+        accept((pipelineConfig, stageConfig, jobConfig) -> resourceConfigs.addAll(jobConfig.resourceConfigs()));
         for (AgentConfig agent : agents) {
             resourceConfigs.addAll(agent.getResourceConfigs());
         }
@@ -1260,21 +1248,12 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     public static <T> void copyErrors(T from, T to) {
         GoConfigParallelGraphWalker walker = new GoConfigParallelGraphWalker(from, to);
-        walker.walk(new GoConfigParallelGraphWalker.Handler() {
-            public void handle(Validatable rawObject, Validatable objectWithErrors) {
-                rawObject.errors().addAll(objectWithErrors.errors());
-            }
-        });
+        walker.walk((rawObject, objectWithErrors) -> rawObject.errors().addAll(objectWithErrors.errors()));
     }
 
     public static void clearErrors(Validatable obj) {
         GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
-        walker.walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.errors().clear();
-            }
-        });
+        walker.walk((validatable, ctx) -> validatable.errors().clear());
     }
 
     @Override

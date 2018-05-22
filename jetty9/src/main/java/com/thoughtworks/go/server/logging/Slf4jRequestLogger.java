@@ -33,7 +33,7 @@ public class Slf4jRequestLogger extends AbstractNCSARequestLog implements Reques
     }
 
     @Override
-    public void write(String requestEntry) throws IOException {
+    public void write(String requestEntry) {
         LOG.info(requestEntry);
     }
 

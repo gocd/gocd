@@ -87,7 +87,7 @@ public class ConsoleService {
         updateConsoleLog(consoleLogFile(jobIdentifier), new ByteArrayInputStream(text.getBytes()));
     }
 
-    public boolean updateConsoleLog(File dest, InputStream in) throws IOException {
+    public boolean updateConsoleLog(File dest, InputStream in) {
         File parentFile = dest.getParentFile();
         parentFile.mkdirs();
 

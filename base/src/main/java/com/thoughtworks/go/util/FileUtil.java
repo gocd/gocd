@@ -286,7 +286,7 @@ public class FileUtil {
         }
     }
 
-    public static void deleteDirectoryNoisily(File defaultDirectory) throws IOException {
+    public static void deleteDirectoryNoisily(File defaultDirectory) {
         if (!defaultDirectory.exists()) {
             return;
         }

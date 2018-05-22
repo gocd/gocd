@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
@@ -40,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
@@ -103,22 +101,14 @@ public class GoDashboardCurrentStateLoader {
         final List<GoDashboardPipeline> pipelines = new ArrayList<>(1024);
 
         LOGGER.debug("Populating dashboard pipelines");
-        config.accept(new PipelineGroupVisitor() {
-            @Override
-            public void visit(final PipelineConfigs group) {
-                group.accept(new PiplineConfigVisitor() {
-                    @Override
-                    public void visit(PipelineConfig pipelineConfig) {
-                        long start = System.currentTimeMillis();
-                        Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+        config.accept((PipelineGroupVisitor) group -> group.accept(pipelineConfig -> {
+            long start = System.currentTimeMillis();
+            Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
 
-                        pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
+            pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
 
-                        LOGGER.debug("It took {}ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
-                    }
-                });
-            }
-        });
+            LOGGER.debug("It took {}ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
+        }));
         LOGGER.debug("Done populating dashboard pipelines");
         this.everLoadedCurrentState = true;
         return pipelines;
@@ -224,11 +214,6 @@ public class GoDashboardCurrentStateLoader {
 
     public void clearEntryFor(CaseInsensitiveString pipeline) {
         lastKnownPipelineNames.remove(pipeline);
-        historyForDashboard.removeIf(new Predicate<PipelineInstanceModel>() {
-            @Override
-            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
-                return pipeline.equals(new CaseInsensitiveString(pipelineInstanceModel.getName()));
-            }
-        });
+        historyForDashboard.removeIf(pipelineInstanceModel -> pipeline.equals(new CaseInsensitiveString(pipelineInstanceModel.getName())));
     }
 }

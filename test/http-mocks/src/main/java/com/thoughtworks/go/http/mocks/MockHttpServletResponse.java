@@ -79,9 +79,9 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	// HttpServletResponse properties
 	//---------------------------------------------------------------------
 
-	private final List<Cookie> cookies = new ArrayList<Cookie>();
+	private final List<Cookie> cookies = new ArrayList<>();
 
-	private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<HeaderValueHolder>();
+	private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
 	private int status = SC_OK;
 
@@ -91,7 +91,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	private String forwardedUrl;
 
-	private final List<String> includedUrls = new ArrayList<String>();
+	private final List<String> includedUrls = new ArrayList<>();
 
 
 	//---------------------------------------------------------------------
@@ -386,7 +386,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		return encodeRedirectURL(url);
 	}
 
-	public void sendError(int status, String errorMessage) throws IOException {
+	public void sendError(int status, String errorMessage) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot set error status - response is already committed");
 		}
@@ -395,7 +395,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		setCommitted(true);
 	}
 
-	public void sendError(int status) throws IOException {
+	public void sendError(int status) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot set error status - response is already committed");
 		}
@@ -403,7 +403,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		setCommitted(true);
 	}
 
-	public void sendRedirect(String url) throws IOException {
+	public void sendRedirect(String url) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot send redirect - response is already committed");
 		}

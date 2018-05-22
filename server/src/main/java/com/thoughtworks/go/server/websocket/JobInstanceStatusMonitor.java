@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,12 +26,9 @@ public class JobInstanceStatusMonitor {
 
     @Autowired
     public JobInstanceStatusMonitor(final AgentRemoteHandler agentRemoteHandler, JobInstanceService jobInstanceService) {
-        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job) {
-                if (job.isRescheduled() || JobResult.Cancelled.equals(job.getResult())) {
-                    agentRemoteHandler.sendCancelMessage(job.getAgentUuid());
-                }
+        jobInstanceService.registerJobStateChangeListener(job -> {
+            if (job.isRescheduled() || JobResult.Cancelled.equals(job.getResult())) {
+                agentRemoteHandler.sendCancelMessage(job.getAgentUuid());
             }
         });
     }

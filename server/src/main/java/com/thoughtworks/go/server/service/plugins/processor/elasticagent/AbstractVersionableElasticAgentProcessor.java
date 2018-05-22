@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
 import static java.lang.String.format;
 
 public abstract class AbstractVersionableElasticAgentProcessor implements VersionableElasticAgentProcessor {
@@ -53,12 +52,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = elasticAgents.stream().map(new Function<ElasticAgentMetadata, AgentMetadata>() {
-                @Override
-                public AgentMetadata apply(ElasticAgentMetadata obj) {
-                    return toAgentMetadata(obj);
-                }
-            }).collect(Collectors.toList());
+            metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(Collectors.toList());
         }
         return metadata;
     }
@@ -72,12 +66,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
             return Collections.emptyList();
         }
 
-        return agentMetadataListFromRequest.stream().map(new Function<AgentMetadata, AgentInstance>() {
-            @Override
-            public AgentInstance apply(AgentMetadata input) {
-                return agentService.findElasticAgent(input.elasticAgentId(), pluginId);
-            }
-        }).collect(Collectors.toList());
+        return agentMetadataListFromRequest.stream().map(input -> agentService.findElasticAgent(input.elasticAgentId(), pluginId)).collect(Collectors.toList());
     }
 
     protected void deleteAgents(String pluginId, Collection<AgentMetadata> agentsToDelete) {

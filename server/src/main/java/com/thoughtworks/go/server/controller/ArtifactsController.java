@@ -252,7 +252,7 @@ public class ArtifactsController {
                                    @RequestParam("buildName") String buildName,
                                    @RequestParam(value = "stageCounter", required = false) String stageCounter,
                                    @RequestParam(value = "startLineNumber", required = false) Long start
-    ) throws Exception {
+    ) {
         start = start == null ? 0L : start;
 
         try {
@@ -302,7 +302,7 @@ public class ArtifactsController {
         return multipartFile.getName().equals(ZIP_MULTIPART_FILENAME);
     }
 
-    private MultipartFile multipartFile(MultipartHttpServletRequest request) throws IOException {
+    private MultipartFile multipartFile(MultipartHttpServletRequest request) {
         MultipartFile multipartFile = request.getFile(REGULAR_MULTIPART_FILENAME);
         if (multipartFile == null) {
             multipartFile = request.getFile(ZIP_MULTIPART_FILENAME);
@@ -310,7 +310,7 @@ public class ArtifactsController {
         return multipartFile;
     }
 
-    private MultipartFile getChecksumFile(MultipartHttpServletRequest request) throws IOException {
+    private MultipartFile getChecksumFile(MultipartHttpServletRequest request) {
         return request.getFile(CHECKSUM_MULTIPART_FILENAME);
     }
 

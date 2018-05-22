@@ -64,7 +64,7 @@ public class DownloadAction {
         }
     }
 
-    private void publishDownloadError(String url, String cause, long backout) throws InterruptedException {
+    private void publishDownloadError(String url, String cause, long backout) {
         String message = String.format("Could not fetch artifact %s. Pausing %s seconds to retry. Error was : %s", url, backout, cause);
         goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, message);
         LOG.warn(message);

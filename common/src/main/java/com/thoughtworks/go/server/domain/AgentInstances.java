@@ -31,8 +31,6 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AgentInstances implements Iterable<AgentInstance> {
@@ -256,16 +254,14 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = agentInstances.values().stream().filter(new Predicate<AgentInstance>() {
-            public boolean test(AgentInstance agentInstance) {
-                if (!agentInstance.isElastic()) {
-                    return false;
-                }
-
-                ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
-                return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
-
+        Collection<AgentInstance> values = agentInstances.values().stream().filter(agentInstance -> {
+            if (!agentInstance.isElastic()) {
+                return false;
             }
+
+            ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
+            return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+
         }).collect(Collectors.toList());
 
 
@@ -273,12 +269,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             return null;
         }
         if (values.size() > 1) {
-            Collection<String> uuids = values.stream().map(new Function<AgentInstance, String>() {
-                @Override
-                public String apply(AgentInstance input) {
-                    return input.getUuid();
-                }
-            }).collect(Collectors.toList());
+            Collection<String> uuids = values.stream().map(AgentInstance::getUuid).collect(Collectors.toList());
             throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", StringUtils.join(uuids, ", ")));
         }
 

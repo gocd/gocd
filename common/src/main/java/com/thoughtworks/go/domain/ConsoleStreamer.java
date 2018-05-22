@@ -67,7 +67,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (null != stream) {
             stream.close();
         }

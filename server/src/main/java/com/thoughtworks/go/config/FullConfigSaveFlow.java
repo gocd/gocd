@@ -99,7 +99,7 @@ public abstract class FullConfigSaveFlow {
         LOGGER.debug("[Config Save] Writing config xml to file: Done.");
     }
 
-    protected CruiseConfig configForEditWithPartials(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials) throws Exception {
+    protected CruiseConfig configForEditWithPartials(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials) {
         CruiseConfig config = updatingCommand.configForEdit();
         config.setPartials(partials);
 

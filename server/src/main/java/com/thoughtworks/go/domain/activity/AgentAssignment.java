@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -29,9 +25,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class AgentAssignment implements JobStatusListener {
-    private Map<String, JobInstance> map = Collections.synchronizedMap(new HashMap<String, JobInstance>());
+    private Map<String, JobInstance> map = Collections.synchronizedMap(new HashMap<>());
     private final JobInstanceDao jobInstanceDao;
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentAssignment.class);
 

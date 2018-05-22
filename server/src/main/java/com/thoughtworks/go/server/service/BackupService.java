@@ -161,7 +161,7 @@ public class BackupService implements BackupStatusProvider {
         }
     }
 
-    private void backupDb(File backupDir) throws SQLException {
+    private void backupDb(File backupDir) {
         databaseStrategy.backup(backupDir);
     }
 

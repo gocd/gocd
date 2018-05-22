@@ -37,7 +37,7 @@ public class ChecksumFileHandler implements FetchHandler {
         checksumFile = destination;
     }
 
-    public String url(String remoteHost, String workingUrl) throws IOException {
+    public String url(String remoteHost, String workingUrl) {
         return String.format("%s/remoting/files/%s/%s/%s", remoteHost, workingUrl, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
     }
 

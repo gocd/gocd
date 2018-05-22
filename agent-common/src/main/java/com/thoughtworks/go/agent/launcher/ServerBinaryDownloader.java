@@ -48,7 +48,7 @@ public class ServerBinaryDownloader implements Downloader {
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
     private GoAgentServerHttpClientBuilder httpClientBuilder;
 
-    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
+    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) {
         this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode), urlGenerator);
     }
 

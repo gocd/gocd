@@ -26,7 +26,6 @@ import spark.Request;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public interface SparkController {
@@ -42,12 +41,7 @@ public interface SparkController {
         if (params == null || params.isEmpty()) {
             return controllerBasePath();
         } else {
-            List<BasicNameValuePair> queryParams = params.entrySet().stream().map(new Function<Map.Entry<String, String>, BasicNameValuePair>() {
-                @Override
-                public BasicNameValuePair apply(Map.Entry<String, String> entry) {
-                    return new BasicNameValuePair(entry.getKey(), entry.getValue());
-                }
-            }).collect(Collectors.toList());
+            List<BasicNameValuePair> queryParams = params.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
             return controllerBasePath() + '?' + URLEncodedUtils.format(queryParams, "utf-8");
         }
     }

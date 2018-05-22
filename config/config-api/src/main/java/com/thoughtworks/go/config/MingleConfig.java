@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.http.client.utils.URIBuilder;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -96,7 +95,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         configErrors.add(fieldName, message);
     }
 
-    public String urlFor(String path) throws MalformedURLException, URISyntaxException {
+    public String urlFor(String path) throws URISyntaxException {
         URIBuilder baseUri = new URIBuilder(baseUrl);
         String originalPath = baseUri.getPath();
         if (originalPath == null) {
@@ -221,7 +220,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         try {
             String urlPart = urlFor(String.format(MINGLE_CARDS_PATH, projectIdentifier));
             return new DefaultCommentRenderer(urlPart + "${ID}", "#(\\d+)").render(text);
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException("Could not construct the URL to generate the link.", e);
         }
     }
@@ -230,7 +229,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         try {
             String urlPart = urlFor(String.format(MINGLE_CARDS_PATH, projectIdentifier));
             return new TrackingTool(urlPart + "${ID}", "#(\\d+)");
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException("Could not construct the URL to generate the link.", e);
         }
     }

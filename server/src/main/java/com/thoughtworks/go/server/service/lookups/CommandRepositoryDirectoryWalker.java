@@ -56,7 +56,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     }
 
     @Override
-    protected void handleFile(File file, int depth, Collection results) throws IOException {
+    protected void handleFile(File file, int depth, Collection results) {
         String fileName = file.getName();
         if (!FilenameUtils.getExtension(fileName).equalsIgnoreCase(XML_EXTENSION)) {
             return;
@@ -88,7 +88,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     }
 
     @Override
-    protected boolean handleDirectory(File directory, int depth, Collection results) throws IOException {
+    protected boolean handleDirectory(File directory, int depth, Collection results) {
         if (FileUtil.isHidden(directory)) {
             return false;
         }

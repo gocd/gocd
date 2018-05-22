@@ -42,7 +42,7 @@ public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<Config
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         ConfigReposConfig configRepos = preprocessedConfig.getConfigRepos();
         preprocessedConfigRepo = configRepos.getConfigRepo(repoId);
         configRepos.remove(preprocessedConfigRepo);

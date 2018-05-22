@@ -46,7 +46,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         PackageRepository oldRepo = modifiedConfig.getPackageRepositories().find(newRepo.getRepoId());
         this.newRepo.setPackages(oldRepo.getPackages());
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();

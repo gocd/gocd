@@ -70,7 +70,7 @@ public class GoAgentServerHttpClient implements Closeable {
         }
     }
 
-    public void reset() throws IOException {
+    public void reset() {
         close();
     }
 

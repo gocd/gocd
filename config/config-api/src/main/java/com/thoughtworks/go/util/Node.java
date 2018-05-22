@@ -19,7 +19,6 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 
@@ -64,12 +63,7 @@ public class Node {
     }
 
     public boolean hasDependency(final CaseInsensitiveString pipelineName) {
-        return dependencies.stream().filter(new Predicate<DependencyNode>() {
-            @Override
-            public boolean test(DependencyNode item) {
-                return item.getPipelineName().equals(pipelineName);
-            }
-        }).findFirst().isPresent();
+        return dependencies.stream().filter(item -> item.getPipelineName().equals(pipelineName)).findFirst().isPresent();
     }
 
     public static class DependencyNode {

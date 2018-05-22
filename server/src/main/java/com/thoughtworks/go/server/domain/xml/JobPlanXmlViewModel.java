@@ -33,7 +33,7 @@ public class JobPlanXmlViewModel implements XmlRepresentable {
         this.jobPlans = jobPlans;
     }
 
-    public Document toXml(XmlWriterContext writerContext) throws DocumentException, IOException {
+    public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("scheduledJobs");
         for (WaitingJobPlan jobPlan : jobPlans) {
             DOMElement jobElement = getXmlForJobPlan(writerContext, jobPlan);

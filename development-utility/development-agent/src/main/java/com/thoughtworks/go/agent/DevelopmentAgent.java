@@ -38,7 +38,7 @@ public class DevelopmentAgent {
         AgentMain.main("-serverUrl", "https://localhost:8154/go");
     }
 
-    private static void assertActivationJarPresent() throws IOException {
+    private static void assertActivationJarPresent() {
         if (DevelopmentAgent.class.getResource("/go-plugin-activator.jar") == null) {
             System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded. Hint: Did you run `./gradlew prepare`?");
         }

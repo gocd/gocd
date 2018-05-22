@@ -47,7 +47,7 @@ public class DirHandler implements FetchHandler {
         checksumValidationPublisher = new ChecksumValidationPublisher();
     }
 
-    public String url(String remoteHost, String workingUrl) throws IOException {
+    public String url(String remoteHost, String workingUrl) {
         return format("%s/%s/%s/%s.zip", remoteHost, "remoting", "files", workingUrl);
     }
 
@@ -56,11 +56,9 @@ public class DirHandler implements FetchHandler {
         LOG.info("[Agent Fetch Artifact] Downloading from '{}' to '{}'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath());
 
         long before = System.currentTimeMillis();
-        new ZipUtil(new ZipUtil.ZipEntryHandler() {
-            public void handleEntry(ZipEntry entry, InputStream stream) throws IOException {
-                LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
-                new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream), checksumValidationPublisher);
-            }
+        new ZipUtil((entry, stream1) -> {
+            LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
+            new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream1), checksumValidationPublisher);
         }).unzip(zipInputStream, destOnAgent);
         LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {}ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
     }

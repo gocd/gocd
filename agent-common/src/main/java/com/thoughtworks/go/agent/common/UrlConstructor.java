@@ -24,7 +24,7 @@ public class UrlConstructor implements ServerUrlGenerator {
 
     private final String serverUrl;
 
-    public UrlConstructor(String serverUrl) throws MalformedURLException {
+    public UrlConstructor(String serverUrl) {
         if (serverUrl.endsWith("/")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }

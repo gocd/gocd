@@ -183,7 +183,7 @@ public class Jetty9Server extends AppServer {
         }
 
         private class Handler extends AbstractHandler {
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
                 if ("/go".equals(request.getPathInfo()) || request.getPathInfo().startsWith("/go/")) {
                     return;
@@ -256,7 +256,7 @@ public class Jetty9Server extends AppServer {
         return systemEnvironment.getCruiseWar();
     }
 
-    WebAppContext createWebAppContext() throws IOException, SAXException, ClassNotFoundException, UnavailableException {
+    WebAppContext createWebAppContext() throws IOException, SAXException {
         webAppContext = new WebAppContext();
         webAppContext.setDefaultsDescriptor(GoWebXmlConfiguration.configuration(getWarFile()));
 

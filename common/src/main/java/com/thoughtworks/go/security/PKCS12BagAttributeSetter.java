@@ -50,7 +50,7 @@ class PKCS12BagAttributeSetter {
         return this;
     }
 
-    public PKCS12BagAttributeSetter setLocalKeyId(PublicKey key) throws CertificateParsingException, InvalidKeyException {
+    public PKCS12BagAttributeSetter setLocalKeyId(PublicKey key) throws InvalidKeyException {
         carrier.setBagAttribute(PKCSObjectIdentifiers.pkcs_9_at_localKeyId, new SubjectKeyIdentifierStructure(key));
         return this;
     }

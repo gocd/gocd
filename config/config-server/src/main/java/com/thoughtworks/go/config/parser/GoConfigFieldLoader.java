@@ -121,9 +121,7 @@ public class GoConfigFieldLoader<T> {
             throw bomb(message, e);
         } catch (NoSuchMethodException e) {
             throw bomb("Error setting configField: " + field.getName() + " as " + field.getType(), e);
-        } catch (InstantiationException e) {
-            throw bomb("Error creating configAttribute: " + field.getName() + " as " + field.getType(), e);
-        } catch (InvocationTargetException e) {
+        } catch (InstantiationException | InvocationTargetException e) {
             throw bomb("Error creating configAttribute: " + field.getName() + " as " + field.getType(), e);
         }
     }

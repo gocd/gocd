@@ -146,7 +146,7 @@ public class HttpRequestBuilder {
 
         for (NameValuePair nameValuePair : builder.getQueryParams()) {
             if (!params.containsKey(nameValuePair.getName())) {
-                params.put(nameValuePair.getName(), new ArrayList<String>());
+                params.put(nameValuePair.getName(), new ArrayList<>());
             }
             params.get(nameValuePair.getName()).add(nameValuePair.getValue());
         }

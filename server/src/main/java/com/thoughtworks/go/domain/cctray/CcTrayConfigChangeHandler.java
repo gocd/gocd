@@ -60,13 +60,10 @@ public class CcTrayConfigChangeHandler {
         final List<ProjectStatus> projectStatuses = new ArrayList<>();
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = pipelinePermissionsAuthority.pipelinesAndTheirPermissions();
 
-        config.accept(new PipelineGroupVisitor() {
-            @Override
-            public void visit(PipelineConfigs group) {
-                for (PipelineConfig pipelineConfig : group) {
-                    Users usersWithViewPermissionsForPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
-                    updateProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
-                }
+        config.accept((PipelineGroupVisitor) group -> {
+            for (PipelineConfig pipelineConfig : group) {
+                Users usersWithViewPermissionsForPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+                updateProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
             }
         });
 

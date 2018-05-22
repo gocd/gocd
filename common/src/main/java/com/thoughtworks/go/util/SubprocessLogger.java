@@ -17,8 +17,6 @@
 package com.thoughtworks.go.util;
 
 import com.jezhumble.javasysmon.JavaSysMon;
-import com.jezhumble.javasysmon.ProcessVisitor;
-import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,14 +51,12 @@ public class SubprocessLogger implements Runnable {
 
     private void logSubprocess() {
         final StringBuffer processDetails = new StringBuffer();
-        sysMon.visitProcessTree(sysMon.currentPid(), new ProcessVisitor() {
-            public boolean visit(OsProcess process, int level) {
-                if (level == 1) {
-                    ProcessInfo processInfo = process.processInfo();
-                    processDetails.append(String.format("\n\tPID: %s\tname: %s\towner: %s\tcommand: %s", processInfo.getPid(), processInfo.getName(), processInfo.getOwner(), processInfo.getCommand()));
-                }
-                return false;
+        sysMon.visitProcessTree(sysMon.currentPid(), (process, level) -> {
+            if (level == 1) {
+                ProcessInfo processInfo = process.processInfo();
+                processDetails.append(String.format("\n\tPID: %s\tname: %s\towner: %s\tcommand: %s", processInfo.getPid(), processInfo.getName(), processInfo.getOwner(), processInfo.getCommand()));
             }
+            return false;
         });
         if (!processDetails.toString().isEmpty()) {
             LOGGER.warn("{}{}", warnMessage, processDetails);

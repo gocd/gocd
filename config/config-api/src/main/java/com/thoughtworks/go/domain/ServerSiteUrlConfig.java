@@ -76,23 +76,7 @@ public class ServerSiteUrlConfig {
         URI baseUri = new URI(url);
         URI givenUri = new URI(givenUrl);
 
-        return new URI(baseUri.getScheme(), getOrDefault(givenUri, baseUri, new Getter() {
-            public String get(URI uri) {
-                return uri.getUserInfo();
-            }
-        }), honorGivenHostName ? givenUri.getHost() : baseUri.getHost(), baseUri.getPort(), getOrDefault(givenUri, baseUri, new Getter() {
-            public String get(URI uri) {
-                return uri.getPath();
-            }
-        }), getOrDefault(givenUri, baseUri, new Getter() {
-            public String get(URI uri) {
-                return uri.getQuery();
-            }
-        }), getOrDefault(givenUri, baseUri, new Getter() {
-            public String get(URI uri) {
-                return uri.getFragment();
-            }
-        })).toString();
+        return new URI(baseUri.getScheme(), getOrDefault(givenUri, baseUri, URI::getUserInfo), honorGivenHostName ? givenUri.getHost() : baseUri.getHost(), baseUri.getPort(), getOrDefault(givenUri, baseUri, URI::getPath), getOrDefault(givenUri, baseUri, URI::getQuery), getOrDefault(givenUri, baseUri, URI::getFragment)).toString();
     }
 
     private boolean isPath(String givenUrl) {

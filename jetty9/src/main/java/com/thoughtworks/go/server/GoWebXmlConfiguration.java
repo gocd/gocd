@@ -25,7 +25,7 @@ public class GoWebXmlConfiguration {
 
     private static String webdefaultXml = "WEB-INF/webdefault.xml";
 
-    public static String configuration(String warFile) throws IOException, SAXException {
+    public static String configuration(String warFile) {
         if (new File(warFile).isDirectory()) {
             return new File(warFile, webdefaultXml).getPath();
         }

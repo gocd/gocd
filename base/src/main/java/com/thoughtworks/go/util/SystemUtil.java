@@ -101,7 +101,7 @@ public class SystemUtil {
         return isLocalhost(ipAddress, ipAddress);
     }
 
-    private static boolean isLocalhostWithNonLoopbackIpAddress(String ipAddress) throws SocketException {
+    private static boolean isLocalhostWithNonLoopbackIpAddress(String ipAddress) {
         for (NetworkInterface networkInterface : localInterfaces) {
             Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
             while (inetAddressEnumeration.hasMoreElements()) {
@@ -114,7 +114,7 @@ public class SystemUtil {
         return false;
     }
 
-    private static boolean isLocalhostWithLoopbackIpAddress(String forAddress, final String ipAddress) throws Exception {
+    private static boolean isLocalhostWithLoopbackIpAddress(String forAddress, final String ipAddress) {
         InetAddress[] allMatchingAddresses;
         try {
             allMatchingAddresses = InetAddress.getAllByName(forAddress);

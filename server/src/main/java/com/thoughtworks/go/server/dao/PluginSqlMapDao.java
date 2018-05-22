@@ -76,15 +76,10 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
                 return plugin;
             }
 
-            plugin = (Plugin) transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    return sessionFactory.getCurrentSession()
-                            .createCriteria(Plugin.class)
-                            .add(Restrictions.eq("pluginId", pluginId))
-                            .setCacheable(true).uniqueResult();
-                }
-            });
+            plugin = (Plugin) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession()
+                    .createCriteria(Plugin.class)
+                    .add(Restrictions.eq("pluginId", pluginId))
+                    .setCacheable(true).uniqueResult());
 
             if (plugin != null) {
                 goCache.put(cacheKey, plugin);
@@ -102,13 +97,10 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
     // used in tests
     @Override
     public List<Plugin> getAllPlugins() {
-        return (List<Plugin>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Query query = sessionFactory.getCurrentSession().createQuery("FROM " + Plugin.class.getSimpleName());
-                query.setCacheable(true);
-                return query.list();
-            }
+        return (List<Plugin>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM " + Plugin.class.getSimpleName());
+            query.setCacheable(true);
+            return query.list();
         });
     }
 

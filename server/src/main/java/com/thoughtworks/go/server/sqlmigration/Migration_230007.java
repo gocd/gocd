@@ -48,9 +48,9 @@ public class Migration_230007 implements Trigger {
         statement.execute();
     }
 
-    public void close() throws SQLException {
+    public void close() {
     }
 
-    public void remove() throws SQLException {
+    public void remove() {
     }
 }

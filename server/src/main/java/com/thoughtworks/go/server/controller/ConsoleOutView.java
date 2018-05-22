@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class ConsoleOutView implements View {
     private ConsoleConsumer consumer;
@@ -46,12 +45,7 @@ public class ConsoleOutView implements View {
         response.setCharacterEncoding(charset.name());
         try (final PrintWriter writer = response.getWriter()) {
             try {
-                consumer.stream(new Consumer<String>() {
-                    @Override
-                    public void accept(String line) {
-                        writer.write(line + "\n");
-                    }
-                });
+                consumer.stream(line -> writer.write(line + "\n"));
             } catch (IOException e) {
                 if (e instanceof FileNotFoundException) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);

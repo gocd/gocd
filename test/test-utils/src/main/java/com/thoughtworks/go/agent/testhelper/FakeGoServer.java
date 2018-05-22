@@ -53,7 +53,7 @@ public class FakeGoServer extends ExternalResource {
             this.source = source;
         }
 
-        public String getMd5() throws IOException {
+        public String getMd5() {
             try (InputStream input = source.getInputStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
@@ -130,7 +130,7 @@ public class FakeGoServer extends ExternalResource {
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new HttpServlet() {
             @Override
-            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
                 resp.getOutputStream().println("Hello");
             }
         });
@@ -154,7 +154,7 @@ public class FakeGoServer extends ExternalResource {
         public static Properties pluginProps = new Properties();
 
         @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
             resp.setHeader("Plugins-Status", status);
             pluginProps.setProperty("Active Mock Bundle 1", "1.1.1");
             pluginProps.setProperty("Active Mock Bundle 2", "2.2.2");
@@ -170,7 +170,7 @@ public class FakeGoServer extends ExternalResource {
     }
 
     public static final class BreakpointFriendlyFilter implements Filter {
-        public void init(FilterConfig filterConfig) throws ServletException {
+        public void init(FilterConfig filterConfig) {
 
         }
 

@@ -138,7 +138,7 @@ public class GoVelocityView extends VelocityToolboxView {
         return false;
     }
 
-    private void setPrincipal(Context velocityContext, AuthenticationToken<?> authentication) throws NamingException {
+    private void setPrincipal(Context velocityContext, AuthenticationToken<?> authentication) {
         velocityContext.put(PRINCIPAL, authentication.getUser().getDisplayName());
     }
 

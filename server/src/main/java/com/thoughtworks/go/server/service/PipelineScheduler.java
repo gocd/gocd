@@ -199,11 +199,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         synchronized (pipelines) {
-            newCruiseConfig.accept(new PiplineConfigVisitor() {
-                public void visit(PipelineConfig pipelineConfig) {
-                    addPipelineIfNotPresent(pipelineConfig, pipelines);
-                }
-            });
+            newCruiseConfig.accept((PiplineConfigVisitor) pipelineConfig -> addPipelineIfNotPresent(pipelineConfig, pipelines));
 
             List<String> deletedPipeline = new ArrayList<>();
             for (String pipelineName : pipelines.keySet()) {

@@ -30,7 +30,6 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.function.Supplier;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
@@ -43,12 +42,7 @@ public class SessionUtils {
     private static final String SAVED_REQUEST = "GOCD_SECURITY_SAVED_REQUEST";
     private static final PortResolver PORT_RESOLVER = new PortResolverImpl();
 
-    private static final ThreadLocal<GoUserPrinciple> USERS = ThreadLocal.withInitial(new Supplier<GoUserPrinciple>() {
-        @Override
-        public GoUserPrinciple get() {
-            return new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority());
-        }
-    });
+    private static final ThreadLocal<GoUserPrinciple> USERS = ThreadLocal.withInitial(() -> new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
 
     public static void setAuthenticationTokenWithoutRecreatingSession(AuthenticationToken<?> authenticationToken,
                                                                       HttpServletRequest request) {

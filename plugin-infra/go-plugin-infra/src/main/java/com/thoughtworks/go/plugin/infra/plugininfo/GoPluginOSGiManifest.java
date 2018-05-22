@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
+import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,13 +29,7 @@ import java.util.Collection;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
-import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Component;
-
-import static org.osgi.framework.Constants.BUNDLE_ACTIVATOR;
-import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
-import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
+import static org.osgi.framework.Constants.*;
 
 public class GoPluginOSGiManifest {
     private static final String BUNDLE_ROOT_DIR = ".";
@@ -63,11 +61,7 @@ public class GoPluginOSGiManifest {
     }
 
     private void updateManifest(String symbolicName, String classPath, String bundleActivator) throws IOException {
-        FileOutputStream manifestOutputStream = null;
-        FileInputStream manifestInputStream = null;
-
-        try {
-            manifestInputStream = new FileInputStream(manifestLocation);
+        try (FileInputStream manifestInputStream = new FileInputStream(manifestLocation)) {
             Manifest manifest = new Manifest(manifestInputStream);
             Attributes mainAttributes = manifest.getMainAttributes();
 
@@ -81,14 +75,8 @@ public class GoPluginOSGiManifest {
 
             descriptor.updateBundleInformation(symbolicName, classPath, bundleActivator);
 
-            manifestOutputStream = new FileOutputStream(manifestLocation);
-            manifest.write(manifestOutputStream);
-        } finally {
-            if (manifestInputStream != null) {
-                manifestInputStream.close();
-            }
-            if (manifestOutputStream != null) {
-                manifestOutputStream.close();
+            try (FileOutputStream manifestOutputStream = new FileOutputStream(manifestLocation)) {
+                manifest.write(manifestOutputStream);
             }
         }
     }

@@ -96,13 +96,10 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     private FeatureToggleListener quickDashboardFeatureToggleListener() {
-        return new FeatureToggleListener() {
-            @Override
-            public void toggleChanged(boolean newValue) {
-                if (newValue) {
-                    // pretend like the config changed
-                    onConfigChange(goConfigService.currentCruiseConfig());
-                }
+        return newValue -> {
+            if (newValue) {
+                // pretend like the config changed
+                onConfigChange(goConfigService.currentCruiseConfig());
             }
         };
     }
@@ -166,22 +163,17 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     private StageStatusListener stageStatusChangedListener() {
-        return new StageStatusListener() {
+        return stage -> processor.add(new Action() {
             @Override
-            public void stageStatusChanged(final Stage stage) {
-                processor.add(new Action() {
-                    @Override
-                    public void call() {
-                        stageStatusChangeHandler.call(stage);
-                    }
-
-                    @Override
-                    public String description() {
-                        return "stage: " + stage;
-                    }
-                });
+            public void call() {
+                stageStatusChangeHandler.call(stage);
             }
-        };
+
+            @Override
+            public String description() {
+                return "stage: " + stage;
+            }
+        });
     }
 
     protected SecurityConfigChangeListener securityConfigChangeListener() {

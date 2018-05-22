@@ -65,7 +65,7 @@ public class EnvironmentService {
         }
     }
 
-    private List<PipelineModel> getPipelinesInstanceForEnvironment(List<CaseInsensitiveString> pipelines, Username username) throws NoSuchEnvironmentException {
+    private List<PipelineModel> getPipelinesInstanceForEnvironment(List<CaseInsensitiveString> pipelines, Username username) {
         List<PipelineModel> pipelineList = new ArrayList<>();
         for (CaseInsensitiveString pipelineName : pipelines) {
             PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipelineName));

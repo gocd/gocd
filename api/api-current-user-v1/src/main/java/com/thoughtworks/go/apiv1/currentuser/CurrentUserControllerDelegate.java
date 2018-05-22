@@ -70,7 +70,7 @@ public class CurrentUserControllerDelegate extends ApiController {
         });
     }
 
-    public String show(Request req, Response res) throws IOException {
+    public String show(Request req, Response res) {
         User user = userService.findUserByName(currentUserLoginName().toString());
         String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, user));
         String etag = etagFor(json);
@@ -83,7 +83,7 @@ public class CurrentUserControllerDelegate extends ApiController {
         return json;
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         User user = userService.findUserByName(currentUserLoginName().toString());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

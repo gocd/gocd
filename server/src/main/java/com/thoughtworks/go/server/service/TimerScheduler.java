@@ -163,7 +163,7 @@ public class TimerScheduler implements ConfigChangedListener {
     }
 
     public static class SchedulePipelineQuartzJob implements Job {
-        public void execute(JobExecutionContext context) throws JobExecutionException {
+        public void execute(JobExecutionContext context) {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             BuildCauseProducerService buildCauseProducerService = (BuildCauseProducerService) jobDataMap.get(BUILD_CAUSE_PRODUCER_SERVICE);
             PipelineConfig pipelineConfig = (PipelineConfig) jobDataMap.get(PIPELINE_CONFIG);

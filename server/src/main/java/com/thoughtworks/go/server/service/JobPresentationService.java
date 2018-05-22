@@ -30,8 +30,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Collections.sort;
-
 @Service
 public class JobPresentationService {
 
@@ -61,7 +59,7 @@ public class JobPresentationService {
             }
             models.add(model);
         }
-        sort(models, JobInstanceModel.JOB_MODEL_COMPARATOR);
+        models.sort(JobInstanceModel.JOB_MODEL_COMPARATOR);
         return models;
     }
 }

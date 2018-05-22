@@ -85,12 +85,7 @@ public class WebSocketSessionHandler {
 
     boolean sendAndWaitForAcknowledgement(Message message) {
         final CountDownLatch wait = new CountDownLatch(1);
-        sendWithCallback(message, new MessageCallback() {
-            @Override
-            public void call() {
-                wait.countDown();
-            }
-        });
+        sendWithCallback(message, wait::countDown);
         try {
             return wait.await(systemEnvironment.getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

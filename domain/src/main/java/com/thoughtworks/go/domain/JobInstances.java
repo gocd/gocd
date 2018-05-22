@@ -21,11 +21,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class JobInstances extends BaseCollection<JobInstance> {
-    private static final Comparator<JobInstance> JOB_INSTANCE_NAME_COMPARATOR = new Comparator<JobInstance>() {
-        public int compare(JobInstance o1, JobInstance o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    };
+    private static final Comparator<JobInstance> JOB_INSTANCE_NAME_COMPARATOR = Comparator.comparing(JobInstance::getName);
 
     public JobInstances() {
         super();
@@ -108,7 +104,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstances sortByName() {
-        Collections.sort(this, JOB_INSTANCE_NAME_COMPARATOR);
+        this.sort(JOB_INSTANCE_NAME_COMPARATOR);
         return this;
     }
 

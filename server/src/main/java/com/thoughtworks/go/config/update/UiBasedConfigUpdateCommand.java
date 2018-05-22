@@ -39,7 +39,7 @@ public class UiBasedConfigUpdateCommand implements NoOverwriteUpdateConfigComman
         return md5;
     }
 
-    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig cruiseConfig) {
         this.cruiseConfig = cruiseConfig;
         Validatable node = command.node(this.cruiseConfig);
         command.update(node);

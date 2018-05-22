@@ -17,11 +17,8 @@
 package com.thoughtworks.go.server.service.lookups;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.apache.commons.collections.Predicate;
 
 import static org.apache.commons.collections.CollectionUtils.find;
 
@@ -72,12 +69,9 @@ public class CommandSnippets {
     }
 
     public CommandSnippet findByRelativePath(final String snippetRelativePath) {
-        return (CommandSnippet) find(snippets, new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                CommandSnippet commandSnippet = (CommandSnippet) o;
-                return commandSnippet.getRelativePath().equals(snippetRelativePath);
-            }
+        return (CommandSnippet) find(snippets, o -> {
+            CommandSnippet commandSnippet = (CommandSnippet) o;
+            return commandSnippet.getRelativePath().equals(snippetRelativePath);
         });
     }
 
@@ -106,12 +100,7 @@ public class CommandSnippets {
 
     private List<CommandSnippet> sortByName(List<CommandSnippet> snippets) {
         List<CommandSnippet> snippetsSortedByName = new ArrayList<>(snippets);
-        Collections.sort(snippetsSortedByName, new Comparator<CommandSnippet>() {
-            @Override
-            public int compare(CommandSnippet snippet1, CommandSnippet snippet2) {
-                return snippet1.getName().compareTo(snippet2.getName());
-            }
-        });
+        snippetsSortedByName.sort(Comparator.comparing(CommandSnippet::getName));
         return snippetsSortedByName;
     }
 

@@ -32,7 +32,7 @@ public class ConfigRepositoryValidatorService implements InitializingBean {
         this.configRepository = configRepository;
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (configRepository.isRepositoryCorrupted()) {
             LOG.error("[FAILURE] Go Server failed to start as its configuration history store is corrupt. Please contact support@thoughtworks.com");
             shutDownServer();
@@ -40,14 +40,10 @@ public class ConfigRepositoryValidatorService implements InitializingBean {
     }
 
     void shutDownServer() {
-        new Thread(new Runnable() {
-            public void run() {
-                System.exit(1);
-            }
-        }).start();
+        new Thread(() -> System.exit(1)).start();
     }
 
-    public void destroy() throws Exception {
+    public void destroy() {
 
     }
 }

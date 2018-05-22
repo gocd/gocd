@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modifications;
@@ -26,8 +24,9 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.io.File;
 
 @Component
 public class PackageMaterialUpdater implements MaterialUpdater {
@@ -48,14 +47,11 @@ public class PackageMaterialUpdater implements MaterialUpdater {
         final PackageMaterialInstance packageMaterialInstance = (PackageMaterialInstance) materialInstance;
 
         if(packageMaterialInstance.shouldUpgradeTo((PackageMaterialInstance) material.createMaterialInstance())) {
-            transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    PackageMaterialInstance materialInstance = (PackageMaterialInstance) materialRepository.find(packageMaterialInstance.getId());
-                    materialInstance.upgradeTo((PackageMaterialInstance) material.createMaterialInstance());
-                    materialRepository.saveOrUpdate(materialInstance);
-                    return materialInstance;
-                }
+            transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                PackageMaterialInstance materialInstance1 = (PackageMaterialInstance) materialRepository.find(packageMaterialInstance.getId());
+                materialInstance1.upgradeTo((PackageMaterialInstance) material.createMaterialInstance());
+                materialRepository.saveOrUpdate(materialInstance1);
+                return materialInstance1;
             });
         }
         scmMaterialUpdater.insertLatestOrNewModifications(material,packageMaterialInstance,folder,list);

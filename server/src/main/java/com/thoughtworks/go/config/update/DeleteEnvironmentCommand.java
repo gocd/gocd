@@ -28,7 +28,7 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.getEnvironments().remove(environmentConfig);
     }
 

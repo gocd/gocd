@@ -211,10 +211,7 @@ public class MagicalGoConfigXmlWriter {
                     Field field = getField(value.getClass(), attributeValue);
                     field.setAccessible(true);
                     valueString = field.get(value).toString();
-                } catch (NoSuchFieldException e) {
-                    //noinspection ThrowableResultOfMethodCallIgnored
-                    bomb(e);
-                } catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException | IllegalAccessException e) {
                     //noinspection ThrowableResultOfMethodCallIgnored
                     bomb(e);
                 }

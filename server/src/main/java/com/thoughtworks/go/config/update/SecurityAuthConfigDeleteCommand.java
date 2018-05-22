@@ -35,7 +35,7 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
         if (preprocessedProfile == null) {
             throw new PluginProfileNotFoundException();

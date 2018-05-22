@@ -47,11 +47,7 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
     }
 
     public void flushConfigState() {
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return flushArtifactCleanupProhibitions();
-            }
-        });
+        transactionTemplate.execute((TransactionCallback) status -> flushArtifactCleanupProhibitions());
     }
 
     private Object flushArtifactCleanupProhibitions() {

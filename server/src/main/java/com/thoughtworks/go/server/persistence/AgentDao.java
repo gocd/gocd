@@ -91,7 +91,7 @@ public class AgentDao extends HibernateDaoSupport {
                     getHibernateTemplate().saveOrUpdate(agent);
                     synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override public void afterCommit() {
-                            cache.remove(key);                            
+                            cache.remove(key);
                         }
                     });
                 }
@@ -104,12 +104,10 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     private Agent fetchAgentByUuid(final String uuid) {
-        return (Agent) getHibernateTemplate().execute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query query = session.createQuery("from Agent where uuid = :uuid");
-                query.setString("uuid", uuid);
-                return query.uniqueResult();
-            }
+        return (Agent) getHibernateTemplate().execute(session -> {
+            Query query = session.createQuery("from Agent where uuid = :uuid");
+            query.setString("uuid", uuid);
+            return query.uniqueResult();
         });
     }
 }

@@ -38,8 +38,6 @@ import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMate
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
 
 import java.util.*;
 
@@ -316,12 +314,7 @@ public class FanInGraph {
     }
 
     private void assertAllDirectDependenciesArePresentInInput(MaterialRevisions actualRevisions, CaseInsensitiveString pipelineName) {
-        Collection<String> actualRevFingerprints = CollectionUtils.collect(actualRevisions.iterator(), new Transformer() {
-            @Override
-            public Object transform(Object actualRevision) {
-                return ((MaterialRevision) actualRevision).getMaterial().getFingerprint();
-            }
-        });
+        Collection<String> actualRevFingerprints = CollectionUtils.collect(actualRevisions.iterator(), actualRevision -> ((MaterialRevision) actualRevision).getMaterial().getFingerprint());
 
         for (FanInNode child : root.children) {
             //The dependency material that is not in 'passed' state will not be found in actual revisions
@@ -345,12 +338,7 @@ public class FanInGraph {
 
     private Collection<StageIdFaninScmMaterialPair> findScmRevisionsThatDiffer(List<StageIdFaninScmMaterialPair> pIdScmMaterialList) {
         for (final StageIdFaninScmMaterialPair pIdScmPair : pIdScmMaterialList) {
-            final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, new Predicate() {
-                @Override
-                public boolean evaluate(Object o) {
-                    return pIdScmPair.equals(o);
-                }
-            });
+            final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, pIdScmPair::equals);
 
             boolean diffRevFound = false;
             for (StageIdFaninScmMaterialPair pair : matWithSameFingerprint) {
@@ -374,13 +362,10 @@ public class FanInGraph {
 
     private StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {
         ArrayList<StageIdFaninScmMaterialPair> materialPairList = new ArrayList<>(scmWithDiffVersions);
-        Collections.sort(materialPairList, new Comparator<StageIdFaninScmMaterialPair>() {
-            @Override
-            public int compare(StageIdFaninScmMaterialPair pair1, StageIdFaninScmMaterialPair pair2) {
-                final PipelineTimelineEntry.Revision rev1 = pair1.faninScmMaterial.revision;
-                final PipelineTimelineEntry.Revision rev2 = pair2.faninScmMaterial.revision;
-                return rev1.date.compareTo(rev2.date);
-            }
+        materialPairList.sort((pair1, pair2) -> {
+            final PipelineTimelineEntry.Revision rev1 = pair1.faninScmMaterial.revision;
+            final PipelineTimelineEntry.Revision rev2 = pair2.faninScmMaterial.revision;
+            return rev1.date.compareTo(rev2.date);
         });
         return materialPairList.get(0);
     }

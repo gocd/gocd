@@ -43,11 +43,7 @@ public class BackgroundMailSender implements GoMailSender {
     }
 
     public ValidationBean send(final String subject, final String body, final String to) {
-        return execute(new Runnable() {
-            public void run() {
-                validation = mailSender.send(subject, body, to);
-            }
-        });
+        return execute(() -> validation = mailSender.send(subject, body, to));
     }
 
     public ValidationBean send(SendEmailMessage message) {

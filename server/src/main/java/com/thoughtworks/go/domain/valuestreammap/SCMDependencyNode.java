@@ -53,12 +53,7 @@ public class SCMDependencyNode extends Node {
                 revisions.add(new SCMRevision(modification));
             }
         }
-        Collections.sort(revisions, new Comparator<Revision>() {
-            @Override
-            public int compare(Revision o1, Revision o2) {
-                return ((SCMRevision) o1).compareTo((SCMRevision) o2);
-            }
-        });
+        revisions.sort(Comparator.comparing(o -> ((SCMRevision) o)));
         return revisions;
     }
 

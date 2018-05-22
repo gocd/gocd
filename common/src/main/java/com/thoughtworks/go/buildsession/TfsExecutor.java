@@ -57,22 +57,22 @@ public class TfsExecutor implements BuildCommandExecutor {
     /* There's no cipher on the agent side. In this case, the plain-text is used only in memory. */
     private class GoCipherWhichDoesNothingForAgent extends GoCipher {
         @Override
-        public String encrypt(String plainText) throws InvalidCipherTextException {
+        public String encrypt(String plainText) {
             return plainText;
         }
 
         @Override
-        public String decrypt(String cipherTextWhichIsActuallyPlainText) throws InvalidCipherTextException {
+        public String decrypt(String cipherTextWhichIsActuallyPlainText) {
             return cipherTextWhichIsActuallyPlainText;
         }
 
         @Override
-        public String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
+        public String cipher(byte[] key, String plainText) {
             throw new RuntimeException("Unexpected call to cipher");
         }
 
         @Override
-        public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
+        public String decipher(byte[] key, String cipherText) {
             throw new RuntimeException("Unexpected call to decipher");
         }
     }

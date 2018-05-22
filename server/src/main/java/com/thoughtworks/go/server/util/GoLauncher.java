@@ -33,7 +33,7 @@ public final class GoLauncher {
     private GoLauncher() {
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         assertVMVersion();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));

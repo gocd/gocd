@@ -32,7 +32,7 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
         existingTemplateConfig.setAuthorization(authorization);
     }

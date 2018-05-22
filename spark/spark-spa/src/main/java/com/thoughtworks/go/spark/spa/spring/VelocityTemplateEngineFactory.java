@@ -66,7 +66,7 @@ public class VelocityTemplateEngineFactory implements ServletContextAware, Initi
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         Properties properties = new Properties();
 
         // this is setup so that file takes preference over classpath, so that we can reload stuff in dev environment

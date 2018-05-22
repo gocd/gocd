@@ -40,7 +40,7 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         preprocessedProfile = findExistingProfile(modifiedConfig);
         if (preprocessedProfile == null) {
             throw new PluginProfileNotFoundException();

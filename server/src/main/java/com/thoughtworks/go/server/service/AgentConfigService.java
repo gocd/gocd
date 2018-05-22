@@ -217,7 +217,7 @@ public class AgentConfigService {
             this.userName = userName.getUsername().toString();
         }
 
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
             agentConfig.setIpAddress(ipAddress);
@@ -319,7 +319,7 @@ public class AgentConfigService {
             this.agentConfig = agentConfig;
         }
 
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             cruiseConfig.agents().add(agentConfig);
             return cruiseConfig;
         }
@@ -497,7 +497,7 @@ public class AgentConfigService {
             this.userName = userName;
         }
 
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent hostname; Agent [" + uuid + "] not found.");
             agentConfig.setHostName(hostname);

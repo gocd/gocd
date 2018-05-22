@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -51,13 +49,10 @@ public class GoDashboardService {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
 
-        goConfigService.groups().accept(new PipelineGroupVisitor() {
-            @Override
-            public void visit(PipelineConfigs group) {
-                GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user, allPipelines);
-                if (dashboardPipelineGroup.hasPipelines()) {
-                    pipelineGroups.add(dashboardPipelineGroup);
-                }
+        goConfigService.groups().accept(group -> {
+            GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user, allPipelines);
+            if (dashboardPipelineGroup.hasPipelines()) {
+                pipelineGroups.add(dashboardPipelineGroup);
             }
         });
 
@@ -100,12 +95,9 @@ public class GoDashboardService {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
-            pipelineGroup.accept(new PiplineConfigVisitor() {
-                @Override
-                public void visit(PipelineConfig pipelineConfig) {
-                    if (pipelineSelections.includesPipeline(pipelineConfig)) {
-                        goDashboardPipelineGroup.addPipeline(allPipelines.find(pipelineConfig.getName()));
-                    }
+            pipelineGroup.accept(pipelineConfig -> {
+                if (pipelineSelections.includesPipeline(pipelineConfig)) {
+                    goDashboardPipelineGroup.addPipeline(allPipelines.find(pipelineConfig.getName()));
                 }
             });
         }

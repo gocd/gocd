@@ -59,7 +59,7 @@ public class ReflectionUtil {
         }
     }
 
-    private static Method method(String name, Class klass) throws NoSuchFieldException {
+    private static Method method(String name, Class klass) {
         if (klass == null) {
             return null;
         }
@@ -89,7 +89,7 @@ public class ReflectionUtil {
         return field(name, o.getClass());
     }
 
-    private static Field field(String name, Class klass) throws NoSuchFieldException {
+    private static Field field(String name, Class klass) {
         if (klass == null) {
             return null;
         }

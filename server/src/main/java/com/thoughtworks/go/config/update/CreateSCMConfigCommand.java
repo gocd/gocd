@@ -31,7 +31,7 @@ public class CreateSCMConfigCommand extends SCMConfigCommand {
     }
 
     @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) {
         SCMs scms = modifiedConfig.getSCMs();
         scms.add(globalScmConfig);
         modifiedConfig.setSCMs(scms);

@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.HashMap;
@@ -127,26 +126,24 @@ public class PipelineScheduleQueue {
     }
 
     public Pipeline createPipeline(final BuildCause buildCause, final PipelineConfig pipelineConfig, final SchedulingContext context, final String md5, final Clock clock) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Pipeline pipeline = null;
+        return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+            Pipeline pipeline = null;
 
-                if (shouldCancel(buildCause, pipelineConfig.name())) {
-                    LOGGER.debug("[Pipeline Schedule] Cancelling scheduling as build cause {} is the same as the most recent schedule", buildCause);
+            if (shouldCancel(buildCause, pipelineConfig.name())) {
+                LOGGER.debug("[Pipeline Schedule] Cancelling scheduling as build cause {} is the same as the most recent schedule", buildCause);
+                cancelSchedule(pipelineConfig.name());
+            } else {
+                try {
+                    Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
+                    pipeline = pipelineService.save(newPipeline);
+                    finishSchedule(pipelineConfig.name(), buildCause, pipeline.getBuildCause());
+                    LOGGER.debug("[Pipeline Schedule] Successfully scheduled pipeline {}, buildCause:{}, configOrigin: {}", pipelineConfig.name(), buildCause, pipelineConfig.getOrigin());
+                } catch (BuildCauseOutOfDateException e) {
                     cancelSchedule(pipelineConfig.name());
-                } else {
-                    try {
-                        Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
-                        pipeline = pipelineService.save(newPipeline);
-                        finishSchedule(pipelineConfig.name(), buildCause, pipeline.getBuildCause());
-                        LOGGER.debug("[Pipeline Schedule] Successfully scheduled pipeline {}, buildCause:{}, configOrigin: {}", pipelineConfig.name(), buildCause, pipelineConfig.getOrigin());
-                    } catch (BuildCauseOutOfDateException e) {
-                        cancelSchedule(pipelineConfig.name());
-                        LOGGER.info("[Pipeline Schedule] Build cause {} is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: {}", buildCause, pipelineConfig.getOrigin());
-                    }
+                    LOGGER.info("[Pipeline Schedule] Build cause {} is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: {}", buildCause, pipelineConfig.getOrigin());
                 }
-                return pipeline;
             }
+            return pipeline;
         });
     }
 

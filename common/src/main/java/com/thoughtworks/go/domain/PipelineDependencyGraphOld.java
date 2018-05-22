@@ -86,11 +86,7 @@ public class PipelineDependencyGraphOld {
         Map<String, TreeSet<PipelineInstanceModel>> pipelineInstanceModelses = new LinkedHashMap<>();
         for (PipelineInstanceModel dependency : dependencies) {
             if (!pipelineInstanceModelses.containsKey(dependency.getName())) {
-                pipelineInstanceModelses.put(dependency.getName(), new TreeSet<>(new Comparator<PipelineInstanceModel>() {
-                    public int compare(PipelineInstanceModel me, PipelineInstanceModel her) {
-                        return her.getCounter().compareTo(me.getCounter());
-                    }
-                }));
+                pipelineInstanceModelses.put(dependency.getName(), new TreeSet<>((me, her) -> her.getCounter().compareTo(me.getCounter())));
             }
             pipelineInstanceModelses.get(dependency.getName()).add(dependency);
         }

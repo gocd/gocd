@@ -127,17 +127,12 @@ public class AgentLauncherImpl implements AgentLauncher {
     }
 
     private Thread registerShutdownHook() {
-        Thread shutdownHook = new Thread() {
-            @Override
-            public void run() {
-                lockFile.delete();
-            }
-        };
+        Thread shutdownHook = new Thread(() -> lockFile.delete());
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         return shutdownHook;
     }
 
-    private String getLauncherVersion() throws IOException {
+    private String getLauncherVersion() {
         return CurrentGoCDVersion.getInstance().fullVersion();
     }
 

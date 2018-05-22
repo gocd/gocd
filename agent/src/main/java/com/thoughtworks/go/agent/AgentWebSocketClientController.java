@@ -259,19 +259,16 @@ public class AgentWebSocketClientController extends AgentController {
     public void onMessage(InputStream raw) {
         final Message msg = MessageEncoding.decodeMessage(raw);
         LOG.debug("{} message: {}", webSocketSessionHandler.getSessionName(), msg);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LOG.debug("Processing message[{}].", msg);
-                    process(msg);
-                } catch (InterruptedException e) {
-                    LOG.error("Process message[{}] is interruptted.", msg, e);
-                } catch (RuntimeException e) {
-                    LOG.error("Unexpected error while processing message[{}]: {}", msg, e.getMessage(), e);
-                } finally {
-                    LOG.debug("Finished trying to process message[{}].", msg);
-                }
+        executor.execute(() -> {
+            try {
+                LOG.debug("Processing message[{}].", msg);
+                process(msg);
+            } catch (InterruptedException e) {
+                LOG.error("Process message[{}] is interruptted.", msg, e);
+            } catch (RuntimeException e) {
+                LOG.error("Unexpected error while processing message[{}]: {}", msg, e.getMessage(), e);
+            } finally {
+                LOG.debug("Finished trying to process message[{}].", msg);
             }
         });
     }

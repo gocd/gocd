@@ -73,7 +73,7 @@ public class PipelineHistoryController {
     }
 
     @RequestMapping(value = "/tab/pipeline/history", method = RequestMethod.GET)
-    public ModelAndView list(@RequestParam("pipelineName") String pipelineName) throws Exception {
+    public ModelAndView list(@RequestParam("pipelineName") String pipelineName) {
         Map model = new HashMap();
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
@@ -91,7 +91,7 @@ public class PipelineHistoryController {
                              @RequestParam(value = "perPage", required = false) Integer perPageParam,
                              @RequestParam(value = "start", required = false) Integer startParam,
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
-                             HttpServletResponse response, HttpServletRequest request) throws NamingException {
+                             HttpServletResponse response, HttpServletRequest request) {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
 

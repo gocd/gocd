@@ -77,7 +77,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) {
         for (UnloadMethodInvoker unloadMethodInvoker : unloadMethodInvokers) {
             try {
                 unloadMethodInvoker.invokeUnloadMethod();
@@ -173,10 +173,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         } catch (InvocationTargetException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
-        } catch (IllegalAccessException e) {
-            errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.toString()));
-        } catch (RuntimeException e) {
+        } catch (IllegalAccessException | RuntimeException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.toString()));
         } catch (Throwable e) {
@@ -282,7 +279,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return candidateClasses;
     }
 
-    Class<?> loadClass(Bundle bundle, String classFilePath) throws ClassNotFoundException {
+    Class<?> loadClass(Bundle bundle, String classFilePath) {
         String className = classFilePath.replaceFirst("^/", "").replace('/', '.').replaceFirst(".class$", "");
         try {
             return bundle.loadClass(className);

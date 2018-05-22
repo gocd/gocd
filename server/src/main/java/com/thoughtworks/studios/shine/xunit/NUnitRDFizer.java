@@ -18,7 +18,6 @@ package com.thoughtworks.studios.shine.xunit;
 
 
 import com.thoughtworks.studios.shine.ShineRuntimeException;
-import com.thoughtworks.studios.shine.XSLTTransformerExecutor;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
 import com.thoughtworks.studios.shine.semweb.grddl.GrddlTransformException;
@@ -27,7 +26,6 @@ import org.dom4j.Document;
 import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 
 public class NUnitRDFizer implements XMLRDFizer {
@@ -49,12 +47,9 @@ public class NUnitRDFizer implements XMLRDFizer {
         final DocumentResult result = new DocumentResult();
         final DocumentSource source = new DocumentSource(document);
         try {
-            return xsltTransformerRegistry.transformWithCorrectClassLoader(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL, new XSLTTransformerExecutor<Graph>() {
-                @Override
-                public Graph execute(Transformer transformer) throws TransformerException, GrddlTransformException {
-                    transformer.transform(source, result);
-                    return jUnitRDFizer.importFile(parentURI, result.getDocument());
-                }
+            return xsltTransformerRegistry.transformWithCorrectClassLoader(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL, transformer -> {
+                transformer.transform(source, result);
+                return jUnitRDFizer.importFile(parentURI, result.getDocument());
             });
         } catch (TransformerException e) {
             throw new ShineRuntimeException(e);

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
@@ -27,6 +25,8 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsDiskCleaner.class);
@@ -42,19 +42,17 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         this.artifactService = artifactService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
-        cleaner = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    while (true) {
-                        synchronized (triggerCleanup) {
-                            triggerCleanup.wait();
-                        }
-                        deleteOldArtifacts();
+        cleaner = new Thread(() -> {
+            try {
+                while (true) {
+                    synchronized (triggerCleanup) {
+                        triggerCleanup.wait();
                     }
-                } catch (Exception e) {
-                    LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
-                    throw new RuntimeException(e);
+                    deleteOldArtifacts();
                 }
+            } catch (Exception e) {
+                LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
+                throw new RuntimeException(e);
             }
         });
         cleaner.start();

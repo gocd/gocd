@@ -54,7 +54,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
@@ -217,28 +216,26 @@ public class ScheduleService {
     }
 
     public Stage scheduleStage(final Pipeline pipeline, final String stageName, final String username, final StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                String pipelineName = pipeline.getName();
-                PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-                StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-                if (stageConfig == null) {
-                    throw new StageNotFoundException(pipelineName, stageName);
-                }
-                SchedulingContext context = schedulingContext(username, pipelineConfig, stageConfig);
-                pipelineLockService.lockIfNeeded(pipeline);
-                Stage instance = null;
-                try {
-                    instance = creator.create(pipelineName, stageName, context);
-                    LOGGER.info("[Stage Schedule] Scheduling stage {} for pipeline {}", stageName, pipeline.getName());
-                } catch (CannotScheduleException e) {
-                    serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
-                    errorHandler.cantSchedule(e, pipelineName);
-                }
-                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName, stageName));
-                stageService.save(pipeline, instance);
-                return instance;
+        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+            String pipelineName = pipeline.getName();
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+            if (stageConfig == null) {
+                throw new StageNotFoundException(pipelineName, stageName);
             }
+            SchedulingContext context = schedulingContext(username, pipelineConfig, stageConfig);
+            pipelineLockService.lockIfNeeded(pipeline);
+            Stage instance = null;
+            try {
+                instance = creator.create(pipelineName, stageName, context);
+                LOGGER.info("[Stage Schedule] Scheduling stage {} for pipeline {}", stageName, pipeline.getName());
+            } catch (CannotScheduleException e) {
+                serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
+                errorHandler.cantSchedule(e, pipelineName);
+            }
+            serverHealthService.update(stageSchedulingSuccessfulState(pipelineName, stageName));
+            stageService.save(pipeline, instance);
+            return instance;
         });
     }
 
@@ -254,7 +251,7 @@ public class ScheduleService {
         return schedulingChecker.canAutoTriggerConsumer(pipelineConfig);
     }
 
-    public Stage rerunStage(String pipelineName, String counterOrLabel, String stageName) throws Exception {
+    public Stage rerunStage(String pipelineName, String counterOrLabel, String stageName) {
         return lockAndRerunStage(pipelineName, counterOrLabel, stageName, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
     }
 
@@ -301,16 +298,14 @@ public class ScheduleService {
             return null;
         }
         try {
-            return lockAndRerunStage(identifier.getPipelineName(), String.valueOf(identifier.getPipelineCounter()), identifier.getStageName(), new StageInstanceCreator() {
-                public Stage create(String pipelineName, String stageName, SchedulingContext context) {
-                    StageConfig stageConfig = goConfigService.stageConfigNamed(identifier.getPipelineName(), identifier.getStageName());
-                    String latestMd5 = goConfigService.getCurrentConfig().getMd5();
-                    try {
-                        return instanceFactory.createStageForRerunOfJobs(stage, jobNames, context, stageConfig, timeProvider, latestMd5);
-                    } catch (CannotRerunJobException e) {
-                        result.notFound(e.getMessage(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
-                        throw e;
-                    }
+            return lockAndRerunStage(identifier.getPipelineName(), String.valueOf(identifier.getPipelineCounter()), identifier.getStageName(), (pipelineName, stageName, context) -> {
+                StageConfig stageConfig = goConfigService.stageConfigNamed(identifier.getPipelineName(), identifier.getStageName());
+                String latestMd5 = goConfigService.getCurrentConfig().getMd5();
+                try {
+                    return instanceFactory.createStageForRerunOfJobs(stage, jobNames, context, stageConfig, timeProvider, latestMd5);
+                } catch (CannotRerunJobException e) {
+                    result.notFound(e.getMessage(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+                    throw e;
                 }
             }, new ResultUpdatingErrorHandler(result));
         } catch (RuntimeException e) {
@@ -331,12 +326,7 @@ public class ScheduleService {
     public Stage rerunFailedJobs(final Stage stage, final OperationResult result) {
         final StageIdentifier identifier = stage.getIdentifier();
         JobInstances jobInstances = stage.jobsWithResult(JobResult.Cancelled, JobResult.Failed);
-        List<String> jobNames = jobInstances.stream().map(new Function<JobInstance, String>() {
-            @Override
-            public String apply(JobInstance jobInstance) {
-                return jobInstance.getName();
-            }
-        }).collect(Collectors.toList());
+        List<String> jobNames = jobInstances.stream().map(JobInstance::getName).collect(Collectors.toList());
 
         if (jobNames.isEmpty()) {
             String message = "There are no failed jobs in the stage that could be re-run";
@@ -370,7 +360,7 @@ public class ScheduleService {
         return stageDao.isStageActive(pipeline.getName(), CaseInsensitiveString.str(nextStage.name()));
     }
 
-    public void automaticallyTriggerRelevantStagesFollowingCompletionOf(Stage stage) throws Exception {
+    public void automaticallyTriggerRelevantStagesFollowingCompletionOf(Stage stage) {
         if (!stage.isCompleted()) {
             return;
         }
@@ -478,7 +468,7 @@ public class ScheduleService {
             LOGGER.info("[Stage Cancellation] Cancelling stage {}", stage.getIdentifier());
             transactionTemplate.executeWithExceptionHandling(new com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult() {
                 @Override
-                public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
+                public void doInTransactionWithoutResult(TransactionStatus status) {
                     stageService.cancelStage(stage);
                 }
             });
@@ -516,7 +506,7 @@ public class ScheduleService {
                 final JobInstance job = jobInstanceService.buildByIdWithTransitions(jobIdentifier.getBuildId());
 
                 transactionTemplate.executeWithExceptionHandling(new com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult() {
-                    public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
+                    public void doInTransactionWithoutResult(TransactionStatus status) {
                         if (job.isNull() || job.getState() == JobState.Rescheduled || job.getResult() == JobResult.Cancelled) {
                             return;
                         }

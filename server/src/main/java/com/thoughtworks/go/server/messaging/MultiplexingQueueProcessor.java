@@ -51,25 +51,22 @@ public class MultiplexingQueueProcessor {
             throw new RuntimeException(format("Cannot start queue processor for {0} multiple times.", queueName));
         }
 
-        processorThread = new Thread() {
-            @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        Action action = queue.take();
-                        LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
+        processorThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Action action = queue.take();
+                    LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
 
-                        long startTime = System.currentTimeMillis();
-                        action.call();
-                        long endTime = System.currentTimeMillis();
+                    long startTime = System.currentTimeMillis();
+                    action.call();
+                    long endTime = System.currentTimeMillis();
 
-                        LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (endTime - startTime));
-                    } catch (Exception e) {
-                        LOGGER.warn(format("Failed to handle action in {0} queue", queueName), e);
-                    }
+                    LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (endTime - startTime));
+                } catch (Exception e) {
+                    LOGGER.warn(format("Failed to handle action in {0} queue", queueName), e);
                 }
             }
-        };
+        });
         processorThread.setName(format("{0}-Queue-Processor", queueName));
         processorThread.setDaemon(true);
         processorThread.start();

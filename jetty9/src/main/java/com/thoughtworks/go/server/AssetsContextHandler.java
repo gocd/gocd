@@ -33,7 +33,7 @@ public class AssetsContextHandler extends ContextHandler {
     private final AssetsHandler handler;
     private SystemEnvironment systemEnvironment;
 
-    public AssetsContextHandler(SystemEnvironment systemEnvironment) throws IOException {
+    public AssetsContextHandler(SystemEnvironment systemEnvironment) {
         super(systemEnvironment.getWebappContextPath() + "/assets");
         this.systemEnvironment = systemEnvironment;
         handler = new AssetsHandler();

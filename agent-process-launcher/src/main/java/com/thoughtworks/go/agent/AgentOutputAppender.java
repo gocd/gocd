@@ -79,7 +79,7 @@ class AgentOutputAppender {
         appenders.forEach(OutputStreamAppender::stop);
     }
 
-    private RollingFileAppender<ILoggingEvent> rollingAppender(String file) throws IOException {
+    private RollingFileAppender<ILoggingEvent> rollingAppender(String file) {
         RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
         rollingFileAppender.setEncoder(LogHelper.encoder("%date{ISO8601} - %msg%n"));
         rollingFileAppender.setContext(LogHelper.LOGGER_CONTEXT);

@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.server.service.support.toggle.Toggles.ARTIFACT_EXTENSION_KEY;
 
@@ -60,12 +59,7 @@ public class TaskViewService implements TaskFactory {
     }
 
     public PluggableViewModel getModelOfType(List<PluggableViewModel> taskViewModels, final String givenTaskType) {
-        return taskViewModels.stream().filter(new Predicate<PluggableViewModel>() {
-            @Override
-            public boolean test(PluggableViewModel item) {
-                return item.getTaskType().equals(givenTaskType);
-            }
-        }).findFirst().orElse(null);
+        return taskViewModels.stream().filter(item -> item.getTaskType().equals(givenTaskType)).findFirst().orElse(null);
     }
 
     public List<PluggableViewModel> getTaskViewModelsWith(Task given) {

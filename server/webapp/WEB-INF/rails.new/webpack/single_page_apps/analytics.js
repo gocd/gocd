@@ -16,6 +16,7 @@
 
 const $                 = require("jquery");
 const m                 = require("mithril");
+const COMPARATOR        = require("string-plus").caseInsensitiveCompare;
 const Stream            = require("mithril/stream");
 const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
 const AnalyticsWidget   = require("views/analytics/analytics_widget");
@@ -40,7 +41,7 @@ $(() => {
   new VersionUpdater().update();
 
   const analyticsElem = $('.analytics-container');
-  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list'));
+  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list')).sort(COMPARATOR);
 
   function onSuccess(pluginInfos) {
     const pipelineMetrics = metricsInfo(pluginInfos, "supportedPipelineAnalytics");

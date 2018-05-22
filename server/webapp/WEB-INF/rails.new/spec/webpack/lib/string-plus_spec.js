@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const s = require("string-plus");
+
+describe("caseInsensitiveCompare()", () => {
+  it("allows case insensitive sorting", () => {
+    expect(["B", "c", "a"].sort(s.caseInsensitiveCompare)).toEqual(["a", "B", "c"]);
+  });
+});
 
 describe("Should sanitize JSON", () => {
-  const s = require("string-plus");
-
   it("should change the keys of JSON to snake case", () => {
     const input = {
       toSnakeCase: "value",

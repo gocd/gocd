@@ -119,7 +119,6 @@ public class GoConfigFileHelper {
             FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
-            dataSource.upgradeIfNecessary();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
@@ -141,7 +140,6 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
                     serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
-            dataSource.upgradeIfNecessary();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null);
             cachedConfigService.loadConfigIfNull();

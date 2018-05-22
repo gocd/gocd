@@ -43,7 +43,7 @@
     <bean id="shineDao" class="com.thoughtworks.go.server.dao.sparql.ShineDao" lazy-init="false">
         <constructor-arg ref="stagesQuery" index="0"/>
         <constructor-arg ref="stageService" index="1"/>
-        <constructor-arg ref="pipelineHistoryService" index="2"/>
+        <constructor-arg ref="systemEnvironment" index="2"/>
     </bean>
 
 

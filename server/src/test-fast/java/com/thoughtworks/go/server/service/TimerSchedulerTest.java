@@ -41,6 +41,9 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerKey.triggerKey;
 
 public class TimerSchedulerTest {
     private SchedulerFactory schedulerFactory;
@@ -68,8 +71,14 @@ public class TimerSchedulerTest {
         TimerScheduler timerScheduler = new TimerScheduler(schedulerFactory, goConfigService, null, null);
         timerScheduler.initialize();
 
-        JobDetail expectedJob = new JobDetail("uat", "CruiseTimers", TimerScheduler.SchedulePipelineQuartzJob.class);
-        Trigger expectedTrigger = new CronTrigger("uat", "CruiseTimers", "0 15 10 ? * MON-FRI");
+        JobDetail expectedJob = JobBuilder.newJob()
+                .ofType(TimerScheduler.SchedulePipelineQuartzJob.class)
+                .withIdentity(jobKey("uat", "CruiseTimers"))
+                .build();
+        Trigger expectedTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerKey("uat", "CruiseTimers"))
+                .withSchedule(cronSchedule("0 15 10 ? * MON-FRI"))
+                .build();
         verify(scheduler).scheduleJob(expectedJob, expectedTrigger);
         verify(schedulerFactory).getScheduler();
         verify(scheduler).start();
@@ -124,8 +133,15 @@ public class TimerSchedulerTest {
         TimerScheduler timerScheduler = new TimerScheduler(schedulerFactory, goConfigService, null, mock(ServerHealthService.class));
         timerScheduler.initialize();
 
-        JobDetail expectedJob = new JobDetail("dist", "CruiseTimers", TimerScheduler.SchedulePipelineQuartzJob.class);
-        Trigger expectedTrigger = new CronTrigger("dist", "CruiseTimers", "0 15 10 ? * MON-FRI");
+        JobDetail expectedJob =JobBuilder.newJob()
+                .ofType(TimerScheduler.SchedulePipelineQuartzJob.class)
+                .withIdentity(jobKey("dist", "CruiseTimers"))
+                .build();
+
+        Trigger expectedTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerKey("dist", "CruiseTimers"))
+                .withSchedule(cronSchedule("0 15 10 ? * MON-FRI"))
+                .build();
         verify(scheduler).scheduleJob(expectedJob, expectedTrigger);
         verify(schedulerFactory).getScheduler();
         verify(scheduler).start();
@@ -175,7 +191,7 @@ public class TimerSchedulerTest {
 
         when(schedulerFactory.getScheduler()).thenReturn(scheduler);
         String pipelineName = "timer-based-pipeline";
-        when(scheduler.getJobDetail(pipelineName, TimerScheduler.QUARTZ_GROUP)).thenReturn(mock(JobDetail.class));
+        when(scheduler.getJobDetail(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP))).thenReturn(mock(JobDetail.class));
         TimerScheduler timerScheduler = new TimerScheduler(schedulerFactory, goConfigService, null, null);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
@@ -192,15 +208,15 @@ public class TimerSchedulerTest {
         when(scheduler.scheduleJob(jobDetailArgumentCaptor.capture(), triggerArgumentCaptor.capture())).thenReturn(new Date());
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
 
-        assertThat(jobDetailArgumentCaptor.getValue().getName(), is(pipelineName));
+        assertThat(jobDetailArgumentCaptor.getValue().getKey().getName(), is(pipelineName));
         assertThat(triggerArgumentCaptor.getValue().getCronExpression(), is("* * * * * ?"));
 
         verify(schedulerFactory).getScheduler();
         verify(scheduler).start();
-        verify(scheduler).getJobDetail(pipelineName, TimerScheduler.QUARTZ_GROUP);
+        verify(scheduler).getJobDetail(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
 
-        verify(scheduler).unscheduleJob(pipelineName, TimerScheduler.QUARTZ_GROUP);
-        verify(scheduler).deleteJob(pipelineName, TimerScheduler.QUARTZ_GROUP);
+        verify(scheduler).unscheduleJob(triggerKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
+        verify(scheduler).deleteJob(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
         verify(scheduler).scheduleJob(jobDetailArgumentCaptor.getValue(), triggerArgumentCaptor.getValue());
     }
 

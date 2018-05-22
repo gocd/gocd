@@ -141,7 +141,7 @@ task verifyJar(type: VerifyJarTask) {
       "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "plugin-metadata-store-${project.version}.jar",
-      "quartz-1.6.5.jar",
+      "quartz-${project.versions.quartz}.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-beans-${project.versions.spring}.jar",

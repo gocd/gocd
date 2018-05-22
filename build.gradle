@@ -175,6 +175,7 @@ rootProject.ext.versions = [
   nanohttpd           : '2.3.1',
   objenesis           : '2.6',
   oro                 : '2.0.8',
+  quartz              : '2.3.0',
   rack                : '1.1.21',
   rdf4j               : '2.3.2',
   servletApi          : '3.1.0',

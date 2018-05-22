@@ -28,6 +28,8 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import org.quartz.impl.JobDetailImpl;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.quartz.*;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,12 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.List;
+
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.TriggerKey.triggerKey;
 
 /**
  * @understands scheduling pipelines based on a timer
@@ -94,10 +102,17 @@ public class TimerScheduler implements ConfigChangedListener {
         TimerConfig timer = pipelineConfig.getTimer();
         if (timer != null) {
             try {
-                Trigger trigger = new CronTrigger(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP, timer.getTimerSpec());
+                CronTrigger trigger = newTrigger()
+                        .withIdentity(triggerKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .withSchedule(cronSchedule(new CronExpression(timer.getTimerSpec())))
+                        .build();
 
-                JobDetail jobDetail = new JobDetail(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP, SchedulePipelineQuartzJob.class);
-                jobDetail.setJobDataMap(jobDataMapFor(pipelineConfig));
+
+                JobDetail jobDetail = newJob()
+                        .withIdentity(jobKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .ofType(SchedulePipelineQuartzJob.class)
+                        .usingJobData(jobDataMapFor(pipelineConfig))
+                        .build();
 
                 scheduler.scheduleJob(jobDetail, trigger);
                 LOG.info("Initialized timer for pipeline {} with {}", pipelineConfig.name(), timer.getTimerSpec());
@@ -142,20 +157,18 @@ public class TimerScheduler implements ConfigChangedListener {
 
     private void unscheduleAllJobs() {
         try {
-            String[] jobNames = quartzScheduler.getJobNames(QUARTZ_GROUP);
-            for (String jobName : jobNames) {
-                unscheduleJob(jobName);
-            }
+            quartzScheduler.clear();
         } catch (SchedulerException e) {
             LOG.error("Could not unschedule quartz jobs", e);
         }
     }
 
-    private void unscheduleJob(String jobName) {
+    private void unscheduleJob(String pipelineName) {
         try {
-            if (quartzScheduler.getJobDetail(jobName, QUARTZ_GROUP) != null) {
-                quartzScheduler.unscheduleJob(jobName, QUARTZ_GROUP);
-                quartzScheduler.deleteJob(jobName, QUARTZ_GROUP);
+            JobKey jobKey = jobKey(pipelineName, QUARTZ_GROUP);
+            if (quartzScheduler.getJobDetail(jobKey) != null) {
+                quartzScheduler.unscheduleJob(triggerKey(pipelineName, QUARTZ_GROUP));
+                quartzScheduler.deleteJob(jobKey);
             }
         } catch (SchedulerException e) {
             LOG.error("Could not unschedule quartz jobs", e);

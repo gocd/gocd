@@ -22,7 +22,9 @@ dependencies {
   compile project(':db')
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
-  compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
+  compile(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {
+    transitive = false
+  }
   compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'
   compile group: 'org.jdom', name: 'jdom', version: '2.0.2'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j

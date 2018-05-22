@@ -698,7 +698,7 @@ task verifyWar(type: VerifyJarTask) {
         "oro-${project.versions.oro}.jar",
         "oscache-2.4.1.jar",
         "plugin-metadata-store-${project.version}.jar",
-        "quartz-1.6.5.jar",
+        "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
         "rdf4j-http-client-${project.versions.rdf4j}.jar",
         "rdf4j-http-protocol-${project.versions.rdf4j}.jar",

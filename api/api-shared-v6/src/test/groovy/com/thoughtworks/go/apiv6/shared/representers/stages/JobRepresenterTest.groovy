@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.helper.JobConfigMother
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.quartz.Job
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString

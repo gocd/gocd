@@ -45,14 +45,16 @@ public class Routes {
     }
 
     public static class ConfigView {
-        public static final  String SELF = "/admin/config_xml";
+        public static final String SELF = "/admin/config_xml";
     }
 
     public static class ConfigRepos {
         public static final String BASE = "/api/admin/config_repos";
         public static final String DOC = "https://api.gocd.org/#config-repos";
 
-        public static String find() { return BASE + "/:id"; }
+        public static String find() {
+            return BASE + "/:id";
+        }
 
         public static String id(String id) {
             return find().replaceAll(":id", id);
@@ -180,31 +182,6 @@ public class Routes {
         }
     }
 
-    public class ServerHealthMessages {
-        public static final String BASE = "/api/server_health_messages";
-    }
-
-    public class MaterialSearch {
-        public static final String BASE = "/api/internal/material_search";
-    }
-
-    public class RolesSPA {
-        public static final String BASE = "/admin/security/roles";
-    }
-
-    public class ArtifactStoresSPA {
-        public static final String BASE = "/admin/artifact_stores";
-    }
-
-    public class PipelineSelection {
-        public static final String BASE = "/api/internal/pipeline_selection";
-    }
-
-    public class BuildCause {
-        public static final String BASE = "/api/internal/build_cause";
-        public static final String PATH = "/:pipeline_name/:pipeline_counter";
-    }
-
     public static class ArtifactStoreConfig {
         public static final String BASE = "/api/admin/artifact_stores";
         public static final String ID = "/:id";
@@ -233,8 +210,38 @@ public class Routes {
         }
     }
 
+    public class ServerHealthMessages {
+        public static final String BASE = "/api/server_health_messages";
+    }
+
+    public class MaterialSearch {
+        public static final String BASE = "/api/internal/material_search";
+    }
+
+    public class RolesSPA {
+        public static final String BASE = "/admin/security/roles";
+    }
+
+    public class ArtifactStoresSPA {
+        public static final String BASE = "/admin/artifact_stores";
+    }
+
+    public class PipelineSelection {
+        public static final String BASE = "/api/internal/pipeline_selection";
+    }
+
+    public class BuildCause {
+        public static final String BASE = "/api/internal/build_cause";
+        public static final String PATH = "/:pipeline_name/:pipeline_counter";
+    }
+
     public class AgentsSPA {
         public static final String BASE = "/agents";
+    }
+
+    public class AnalyticsSPA {
+        public static final String BASE = "/analytics";
+        public static final String SHOW_PATH = ":plugin_id/:type/:id";
     }
 
     public class ElasticProfilesSPA {

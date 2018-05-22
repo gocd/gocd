@@ -52,7 +52,7 @@ trait SecurityTestTrait {
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasStatus(99999)
       .hasContentType("text/html")
-      .hasBody("rendered - foo/bar.vm with message ${reachedControllerMessage}")
+      .hasBody("rendered - foo/bar.vm with locals {\"message\":\"${reachedControllerMessage}\"}")
   }
 
   def assertRequestForbidden() {

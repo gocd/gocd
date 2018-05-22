@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -46,16 +45,6 @@ public class ServerStatusService {
             @Override
             public int compare(ServerInfoProvider oneProvider, ServerInfoProvider anotherProvider) {
                 return Double.compare(oneProvider.priority(), anotherProvider.priority());
-            }
-        });
-        Runtime.getRuntime().addShutdownHook(logServerInfo());
-    }
-
-    private Thread logServerInfo() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfoAsJson()));
             }
         });
     }

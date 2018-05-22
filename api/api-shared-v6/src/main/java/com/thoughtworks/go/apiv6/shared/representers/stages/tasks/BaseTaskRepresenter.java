@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AbstractTask;
 import com.thoughtworks.go.config.OnCancelConfig;
 import com.thoughtworks.go.config.RunIfConfig;
@@ -35,7 +36,7 @@ public class BaseTaskRepresenter {
         }
     }
 
-    public static AbstractTask fromJSON(JsonReader jsonReader, AbstractTask task) {
+    public static AbstractTask fromJSON(JsonReader jsonReader, AbstractTask task, ConfigHelperOptions options) {
         RunIfConfigs runIfConfigs = new RunIfConfigs();
         jsonReader.readArrayIfPresent("run_if", configs -> {
             configs.forEach(runIfConfig -> {
@@ -44,7 +45,7 @@ public class BaseTaskRepresenter {
         });
         task.setConditions(runIfConfigs);
         jsonReader.optJsonObject("on_cancel").ifPresent(onCancelReader -> {
-            OnCancelConfig onCancelConfig = OnCancelRepresenter.fromJSON(jsonReader.readJsonObject("on_cancel"));
+            OnCancelConfig onCancelConfig = OnCancelRepresenter.fromJSON(jsonReader.readJsonObject("on_cancel"), options);
             task.setOnCancelConfig(onCancelConfig);
         });
         return task;

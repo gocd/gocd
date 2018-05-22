@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.PluginConfigurationRepresenter;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -34,12 +35,12 @@ public class PluggableTaskRepresenter {
         jsonWriter.addChildList("configuration", configurationWriter -> ConfigurationPropertyRepresenter.toJSON(configurationWriter, pluggableTask.getConfiguration()));
     }
 
-    public static PluggableTask fromJSON(JsonReader jsonReader) {
+    public static PluggableTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PluggableTask pluggableTask = new PluggableTask();
         if (jsonReader == null) {
             return pluggableTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask);
+        BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask, options);
         PluginConfiguration pluginConfiguration = PluginConfigurationRepresenter.fromJSON(jsonReader.readJsonObject("plugin_configuration"));
         pluggableTask.setPluginConfiguration(pluginConfiguration);
         jsonReader.readArrayIfPresent("configuration", properties -> {

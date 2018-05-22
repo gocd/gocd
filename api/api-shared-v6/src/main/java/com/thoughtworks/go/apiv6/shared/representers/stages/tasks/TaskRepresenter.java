@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -70,23 +71,23 @@ public class TaskRepresenter {
                 jsonWriter.addChild("attributes", attributeWriter -> ExecTaskRepresenter.toJSON(attributeWriter, (ExecTask) task));
                 break;
             case FetchTask.TYPE:
-                jsonWriter.addChild("attributes", attributeWriter -> FetchTaskRepresenter.toJSON(attributeWriter, (FetchTask) task));
+                jsonWriter.addChild("attributes", attributeWriter -> FetchTaskRepresenter.toJSON(attributeWriter, (AbstractFetchTask) task));
                 break;
         }
     }
 
-    public static Tasks fromJSONArray(JsonReader jsonReader) {
+    public static Tasks fromJSONArray(JsonReader jsonReader, ConfigHelperOptions options) {
         Tasks allTasks = new Tasks();
         jsonReader.readArrayIfPresent("tasks", tasks -> {
             tasks.forEach(task -> {
-                allTasks.add(fromJSON(new JsonReader(task.getAsJsonObject())));
+                allTasks.add(fromJSON(new JsonReader(task.getAsJsonObject()), options));
             });
         });
 
         return allTasks;
     }
 
-    public static Task fromJSON(JsonReader jsonReader) {
+    public static Task fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         JsonReader attributes = null;
         String type = jsonReader.getString("type");
         Optional<JsonReader> attributesObject = jsonReader.optJsonObject("attributes");
@@ -95,17 +96,17 @@ public class TaskRepresenter {
         }
         switch (type) {
             case AntTask.TYPE:
-                return AntTaskRepresenter.fromJSON(attributes);
+                return AntTaskRepresenter.fromJSON(attributes, options);
             case NantTask.TYPE:
-                return NantTaskRepresenter.fromJSON(attributes);
+                return NantTaskRepresenter.fromJSON(attributes, options);
             case RakeTask.TYPE:
-                return RakeTaskRepresenter.fromJSON(attributes);
+                return RakeTaskRepresenter.fromJSON(attributes, options);
             case ExecTask.TYPE:
-                return ExecTaskRepresenter.fromJSON(attributes);
+                return ExecTaskRepresenter.fromJSON(attributes, options);
             case FetchTask.TYPE:
-                return FetchTaskRepresenter.fromJSON(attributes);
+                return FetchTaskRepresenter.fromJSON(attributes, options);
             case PluggableTask.TYPE:
-                return PluggableTaskRepresenter.fromJSON(attributes);
+                return PluggableTaskRepresenter.fromJSON(attributes, options);
             default:
                 throw new UnprocessableEntityException(String.format("Invalid task type %s. It has to be one of '%s'.", type, String.join(",", ExecTask.TYPE, AntTask.TYPE, NantTask.TYPE, RakeTask.TYPE, FetchTask.TYPE, PluggableTask.TYPE)));
 

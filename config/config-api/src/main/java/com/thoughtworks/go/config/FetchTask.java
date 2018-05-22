@@ -94,11 +94,6 @@ public class FetchTask extends AbstractFetchTask {
         this.srcdir = srcdir;
     }
 
-    @Override
-    public String getTaskType() {
-        return "fetch";
-    }
-
     public String getTypeForDisplay() {
         return FETCH_ARTIFACT;
     }
@@ -124,6 +119,11 @@ public class FetchTask extends AbstractFetchTask {
 
     public File destOnAgent(String pipelineName) {
         return new File("pipelines" + '/' + pipelineName + '/' + getDest());
+    }
+
+    @Override
+    public String getOrigin() {
+        return "gocd";
     }
 
     @Override

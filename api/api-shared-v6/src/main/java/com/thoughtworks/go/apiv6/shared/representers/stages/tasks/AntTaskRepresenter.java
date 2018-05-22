@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AntTask;
 
 import java.util.HashMap;
@@ -32,12 +33,12 @@ public class AntTaskRepresenter {
         jsonWriter.add("target", antTask.getTarget());
     }
 
-    public static AntTask fromJSON(JsonReader jsonReader) {
+    public static AntTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         AntTask antTask = new AntTask();
         if (jsonReader == null) {
             return antTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, antTask);
+        BaseTaskRepresenter.fromJSON(jsonReader, antTask, options);
         jsonReader.readStringIfPresent("working_directory", antTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", antTask::setBuildFile);
         jsonReader.readStringIfPresent("target", antTask::setTarget);

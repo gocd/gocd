@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.NantTask;
 
 import java.util.HashMap;
@@ -32,12 +33,12 @@ public class NantTaskRepresenter extends BaseTaskRepresenter {
         jsonWriter.addIfNotNull("nant_path", nantTask.getNantPath());
     }
 
-    public static NantTask fromJSON(JsonReader jsonReader) {
+    public static NantTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         NantTask nantTask = new NantTask();
         if (jsonReader == null) {
             return nantTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, nantTask);
+        BaseTaskRepresenter.fromJSON(jsonReader, nantTask, options);
         jsonReader.readStringIfPresent("working_directory", nantTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", nantTask::setBuildFile);
         jsonReader.readStringIfPresent("target", nantTask::setTarget);

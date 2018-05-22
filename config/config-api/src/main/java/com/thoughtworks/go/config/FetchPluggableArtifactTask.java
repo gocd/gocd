@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -23,6 +24,7 @@ import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -30,7 +32,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
-    public static final String FETCH_PLUGGABLE_ARTIFACT = "Fetch Pluggable Artifact";
+    public static final String FETCH_EXTERNAL_ARTIFACT = "Fetch External Artifact";
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
     @ConfigSubtag
@@ -54,6 +56,14 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, Configuration configuration) {
         super(pipelineName, stage, job);
         this.artifactId = artifactId;
+        this.configuration = configuration;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -97,13 +107,8 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     }
 
     @Override
-    public String getTaskType() {
-        return "fetch_pluggable_artifact";
-    }
-
-    @Override
     public String getTypeForDisplay() {
-        return FETCH_PLUGGABLE_ARTIFACT;
+        return FETCH_EXTERNAL_ARTIFACT;
     }
 
     @Override
@@ -112,7 +117,24 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     }
 
     @Override
+    public String getOrigin() {
+        return "external";
+    }
+
+    @Override
     public String describe() {
         return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getArtifactId(), getPipelineName(), getStage(), getJob());
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configurationProperties, CruiseConfig cruiseConfig) {
+        //TODO: based on https://github.com/gocd/gocd/pull/4763
+
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurationProperties) {
+            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
+                    property.getConfigValue(),
+                    property.getEncryptedValue(),
+                    false));
+        }
     }
 }

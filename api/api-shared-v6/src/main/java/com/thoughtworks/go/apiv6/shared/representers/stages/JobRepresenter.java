@@ -103,7 +103,7 @@ public class JobRepresenter {
         setResources(jobConfig);
         jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
         jobConfig.setProperties(PropertyConfigRepresenter.fromJSONArray(jsonReader));
-        jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader));
+        jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader, options));
 
         return jobConfig;
     }

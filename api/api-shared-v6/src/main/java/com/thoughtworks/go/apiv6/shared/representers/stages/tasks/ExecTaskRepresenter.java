@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.Argument;
 import com.thoughtworks.go.config.ExecTask;
 
@@ -41,12 +42,12 @@ public class ExecTaskRepresenter {
         jsonWriter.addIfNotNull("working_directory", execTask.workingDirectory());
     }
 
-    public static ExecTask fromJSON(JsonReader jsonReader) {
+    public static ExecTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         ExecTask execTask = new ExecTask();
         if (jsonReader == null) {
             return execTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, execTask);
+        BaseTaskRepresenter.fromJSON(jsonReader, execTask, options);
         jsonReader.readStringIfPresent("command", execTask::setCommand);
         jsonReader.readArrayIfPresent("arguments", arguments -> {
             ArrayList<String> argList = new ArrayList<>();

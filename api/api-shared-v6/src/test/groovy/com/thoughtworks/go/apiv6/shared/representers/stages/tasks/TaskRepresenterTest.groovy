@@ -17,13 +17,17 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.AntTask
+import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.RunIfConfig
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.domain.RunIfConfigs
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.Mockito.mock
 
 trait TaskRepresenterTest {
 
@@ -56,7 +60,7 @@ trait TaskRepresenterTest {
   @Test
     void 'should convert json to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHash)
-    def task = TaskRepresenter.fromJSON(jsonReader)
+    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
 
     assertThatJson(task).isEqualTo(existingTask())
   }
@@ -64,7 +68,7 @@ trait TaskRepresenterTest {
   @Test
   void 'should convert json with run if config to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHashWithRunIf)
-    def task = TaskRepresenter.fromJSON(jsonReader)
+    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
 
     def taskWithRunIf = existingTask()
     taskWithRunIf.setConditions(new RunIfConfigs(RunIfConfig.PASSED, RunIfConfig.FAILED, RunIfConfig.ANY))

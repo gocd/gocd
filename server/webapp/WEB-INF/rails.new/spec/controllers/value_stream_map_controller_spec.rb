@@ -339,7 +339,7 @@ describe ValueStreamMapController do
         vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1"))
         vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), vsm.current_material.getId())
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(material.getFingerprint()), 'revision', @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
 
         get :show_material, material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json"
 

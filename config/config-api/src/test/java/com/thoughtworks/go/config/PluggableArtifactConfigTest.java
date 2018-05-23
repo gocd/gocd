@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -62,6 +64,9 @@ public class PluggableArtifactConfigTest {
         final ArtifactStores artifactStores = mock(ArtifactStores.class);
         assertFalse(artifactConfig.hasErrors());
 
+        when(validationContext.artifactStores()).thenReturn(artifactStores);
+        when(validationContext.isWithinPipelines()).thenReturn(true);
+        when(validationContext.getPipeline()).thenReturn(PipelineConfigMother.pipelineConfig("pipe"));
         when(artifactStores.find("Store-ID")).thenReturn(null);
 
         artifactConfig.validate(validationContext);
@@ -69,7 +74,7 @@ public class PluggableArtifactConfigTest {
         assertTrue(artifactConfig.hasErrors());
         assertThat(artifactConfig.errors().getAll(), hasSize(1));
         assertThat(artifactConfig.errors().getAllOn("storeId"), hasSize(1));
-        assertThat(artifactConfig.errors().on("storeId"), is("Artifact store with id `Store-ID` does not exist."));
+        assertThat(artifactConfig.errors().on("storeId"), is("Artifact store with id `Store-ID` does not exist. Please correct the `storeId` attribute on pipeline `pipe`."));
     }
 
     @Test
@@ -79,6 +84,7 @@ public class PluggableArtifactConfigTest {
         final ArtifactStores artifactStores = mock(ArtifactStores.class);
         assertFalse(artifactConfig.hasErrors());
 
+        when(validationContext.artifactStores()).thenReturn(artifactStores);
         when(artifactStores.find("Store-ID")).thenReturn(new ArtifactStore("Store-ID", "pluginId"));
 
         artifactConfig.validate(validationContext);
@@ -147,7 +153,7 @@ public class PluggableArtifactConfigTest {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("", "s3");
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
 
-        final boolean result = artifactConfig.validateTree(null);
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
     }
@@ -156,7 +162,8 @@ public class PluggableArtifactConfigTest {
     public void validateTree_shouldValidateNullId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig(null, "s3");
 
-        final boolean result = artifactConfig.validateTree(null);
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
     }
@@ -165,16 +172,18 @@ public class PluggableArtifactConfigTest {
     public void validateTree_presenceStoreId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
 
-        final boolean result = artifactConfig.validateTree(null);
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
     }
 
     @Test
     public void validateTree_presenceOfStoreIdInArtifactStores() {
-        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "s3");
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
 
-        final boolean result = artifactConfig.validateTree(null);
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
     }

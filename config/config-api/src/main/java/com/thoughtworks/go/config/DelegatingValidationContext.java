@@ -109,4 +109,9 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     public boolean shouldNotCheckRole() {
         return validationContext.isWithinTemplates();
     }
+
+    @Override
+    public ArtifactStores artifactStores() {
+        return validationContext.artifactStores();
+    }
 }

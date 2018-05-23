@@ -105,17 +105,14 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         }
 
         configuration.validateUniqueness(getArtifactTypeValue());
-        if (!new NameTypeValidator().isNameValid(storeId)) {
-            errors.add("storeId", NameTypeValidator.errorMessage("pluggable artifact storeId", storeId));
-        }
+        if (validationContext.isWithinPipelines()) {
+            if (isNotBlank(storeId)) {
+                final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
 
-        if (artifactStore == null) {
-            addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
-        }
-
-
-        if (!new NameTypeValidator().isNameValid(id)) {
-            errors.add("id", NameTypeValidator.errorMessage("pluggable artifact id", id));
+                if (artifactStore == null) {
+                    addError("storeId", String.format("Artifact store with id `%s` does not exist. Please correct the `storeId` attribute on pipeline `%s`.", storeId, validationContext.getPipeline().name()));
+                }
+            }
         }
     }
 

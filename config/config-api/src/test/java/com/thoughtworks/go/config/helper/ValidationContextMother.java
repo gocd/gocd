@@ -28,13 +28,21 @@ public class ValidationContextMother {
         return new DefaultValidationContext(securityConfig);
     }
 
+    public static ValidationContext validationContext(ArtifactStores artifactStores) {
+        return new DefaultValidationContext(artifactStores);
+    }
+
     static class DefaultValidationContext implements ValidationContext {
         private SecurityConfig securityConfig;
+        private ArtifactStores artifactStores;
 
         public DefaultValidationContext(SecurityConfig securityConfig) {
             this.securityConfig = securityConfig;
         }
 
+        public DefaultValidationContext(ArtifactStores artifactStores) {
+            this.artifactStores = artifactStores;
+        }
         @Override
         public ConfigReposConfig getConfigRepos() {
             return null;
@@ -133,6 +141,11 @@ public class ValidationContextMother {
         @Override
         public boolean shouldNotCheckRole() {
             return false;
+        }
+
+        @Override
+        public ArtifactStores artifactStores() {
+            return artifactStores;
         }
     }
 }

@@ -219,7 +219,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static GoSystemProperty<Integer> GO_SPA_TIMEOUT = new GoIntSystemProperty("go.spa.timeout", 60000);
     private static GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL = new GoIntSystemProperty("go.spa.refresh.interval", 10000);
 
-    private static GoSystemProperty<Boolean> ENABLE_PIPELINE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.pipeline.analytics.only.for.admins", false);
+    private static GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
     private static final GoSystemProperty<Boolean> DISPLAY_PIPELINE_INSTANCES_ON_ENVIRONMENTS_PAGE = new GoBooleanSystemProperty("gocd.environments.show.pipelines", false);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
@@ -881,8 +881,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(DISPLAY_PIPELINE_INSTANCES_ON_ENVIRONMENTS_PAGE);
     }
 
-    public boolean enablePipelineAnalyticsOnlyForAdmins() {
-        return ENABLE_PIPELINE_ANALYTICS_ONLY_FOR_ADMINS.getValue();
+    public boolean enableAnalyticsOnlyForAdmins() {
+        return ENABLE_ANALYTICS_ONLY_FOR_ADMINS.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

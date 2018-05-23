@@ -14,6 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div id="agents" data-is-current-user-an-admin="${isUserAnAdmin}">
+<div id="agents" data-is-current-user-an-admin="${isUserAnAdmin}" data-should-show-analytics-icon="${shouldShowAnalyticsIcon}">
   <span class="page-spinner"></span>
 </div>

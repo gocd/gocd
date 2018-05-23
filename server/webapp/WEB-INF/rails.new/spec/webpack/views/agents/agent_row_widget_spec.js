@@ -35,6 +35,7 @@ describe("Agent Row Widget", () => {
   let allAgents;
   const agentsVM = new AgentsVM();
 
+  let shouldShowAnalyticsIcon = true;
   beforeEach(() => {
     allAgents = Agents.fromJSON(json());
   });
@@ -197,6 +198,13 @@ describe("Agent Row Widget", () => {
     expect($root.find('.agent-analytics')).toBeInDOM();
   });
 
+  it('should not render analytics plugin icon if analytics icon should not be shown', () => {
+    elasticAgentPluginInfo.extensions.push(analyticsExtension);
+    shouldShowAnalyticsIcon = false;
+    mount(agents(), model, true);
+    expect($root.find('.agent-analytics')).not.toBeInDOM();
+  });
+
   const mount = (agent, model, isUserAdmin, supportsAgentStatusReportPage = false) => {
     elasticAgentPluginInfo.extensions[0]['capabilities']['supports_agent_status_report'] = supportsAgentStatusReportPage;
 
@@ -208,6 +216,7 @@ describe("Agent Row Widget", () => {
           'checkBoxModel': model,
           'dropdown':      agentsVM.dropdown,
           isUserAdmin,
+          shouldShowAnalyticsIcon,
           'pluginInfos':   () => pluginInfos
         });
       }

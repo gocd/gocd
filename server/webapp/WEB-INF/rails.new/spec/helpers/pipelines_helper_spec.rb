@@ -176,7 +176,7 @@ describe PipelinesHelper do
     it "should find the first plugin where pipeline analytics are supported" do
       def default_plugin_info_finder; @default_plugin_info_finder; end
       def is_user_an_admin?; true; end
-      def show_pipeline_analytics_only_for_admins?; false; end
+      def show_analytics_only_for_admins?; false; end
 
       allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
@@ -191,7 +191,7 @@ describe PipelinesHelper do
     it "should not find any plugin ids for analytics if user is non admin and if only admin users can view pipeline analytics" do
       def default_plugin_info_finder; @default_plugin_info_finder; end
       def is_user_an_admin?; false; end
-      def show_pipeline_analytics_only_for_admins?; true; end
+      def show_analytics_only_for_admins?; true; end
 
       allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 

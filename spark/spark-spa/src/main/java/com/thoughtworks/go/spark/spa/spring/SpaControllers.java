@@ -37,7 +37,7 @@ public class SpaControllers implements SparkSpringController {
     public SpaControllers(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory, SecurityService securityService, PipelineConfigService pipelineConfigService, SystemEnvironment systemEnvironment) {
         sparkControllers.add(new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AuthConfigsDelegate(authenticationHelper, templateEngineFactory.create(AuthConfigsDelegate.class, "layouts/single_page_app.vm")));
-        sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, "layouts/single_page_app.vm"), securityService));
+        sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, "layouts/single_page_app.vm"), securityService, systemEnvironment));
         sparkControllers.add(new PluginsDelegate(authenticationHelper, templateEngineFactory.create(PluginsDelegate.class, "layouts/single_page_app.vm"), securityService));
         sparkControllers.add(new ElasticProfilesDelegate(authenticationHelper, templateEngineFactory.create(ElasticProfilesDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new NewDashboardDelegate(authenticationHelper, templateEngineFactory.create(NewDashboardDelegate.class, "layouts/single_page_app.vm"), securityService, systemEnvironment, pipelineConfigService));

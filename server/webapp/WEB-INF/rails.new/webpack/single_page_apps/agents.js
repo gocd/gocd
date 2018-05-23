@@ -31,7 +31,8 @@ $(() => {
   new VersionUpdater().update();
   const $agentElem = $('#agents');
 
-  const isUserAdmin = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
+  const isUserAdmin             = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
+  const shouldShowAnalyticsIcon = JSON.parse($agentElem.attr('data-should-show-analytics-icon'));
 
   $(document).foundation();
 
@@ -74,6 +75,7 @@ $(() => {
           permanentMessage,
           showSpinner,
           sortOrder,
+          shouldShowAnalyticsIcon,
           pluginInfos:          typeof pluginInfos === "string" ? Stream() : Stream(allPluginInfos),
           doCancelPolling:      () => currentRepeater().stop(),
           doRefreshImmediately: () => {

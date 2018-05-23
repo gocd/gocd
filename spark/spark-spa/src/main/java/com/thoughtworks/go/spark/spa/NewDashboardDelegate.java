@@ -78,8 +78,6 @@ public class NewDashboardDelegate implements SparkController {
     }
 
     private boolean showAnalyticsIcon() {
-        return systemEnvironment.enablePipelineAnalyticsOnlyForAdmins()
-                ? securityService.isUserAdmin(currentUsername())
-                : true;
+        return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
     }
 }

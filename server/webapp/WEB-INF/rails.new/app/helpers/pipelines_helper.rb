@@ -100,7 +100,7 @@ module PipelinesHelper
   def with_pipeline_analytics_support(&block)
     return unless block_given?
 
-    return if show_pipeline_analytics_only_for_admins? && !is_user_an_admin?
+    return if show_analytics_only_for_admins? && !is_user_an_admin?
 
     default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |combined_plugin_info|
       extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
@@ -112,7 +112,7 @@ module PipelinesHelper
     end
   end
 
-  def show_pipeline_analytics_only_for_admins?
-    system_environment.enablePipelineAnalyticsOnlyForAdmins
+  def show_analytics_only_for_admins?
+    system_environment.enableAnalyticsOnlyForAdmins
   end
 end

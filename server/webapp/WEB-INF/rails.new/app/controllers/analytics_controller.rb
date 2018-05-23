@@ -40,7 +40,9 @@ class AnalyticsController < ApplicationController
 
   def check_permissions
     if is_request_for_pipeline_analytics?
-      is_pipeline_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_can_see_pipeline
+      is_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_can_see_pipeline
+    elsif is_request_for_agent_analytics?
+      is_analytics_enabled_only_for_admins? ? check_admin_user_and_403 : check_user_and_403
     else
       check_admin_user_and_403
     end
@@ -65,11 +67,15 @@ class AnalyticsController < ApplicationController
     render_message "Cannot generate analytics. Pipeline with name:'#{params[:pipeline_name]}' not found.", 404 if pipeline_config.nil?
   end
 
-  def is_pipeline_analytics_enabled_only_for_admins?
-    system_environment.enablePipelineAnalyticsOnlyForAdmins
+  def is_analytics_enabled_only_for_admins?
+    system_environment.enableAnalyticsOnlyForAdmins
   end
 
   def is_request_for_pipeline_analytics?
     params[:type] == 'pipeline'
+  end
+
+  def is_request_for_agent_analytics?
+    params[:type] == 'agent'
   end
 end

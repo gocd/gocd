@@ -4088,9 +4088,6 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotDeserializePluggableArtifactConfigWhenStoreWithIdNotFound() {
         String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>" +
-                    "<artifactStore id=\"s3\" pluginId=\"cd.go.s3\" />" +
-                "</artifactStores>" +
                 "<pipelines group=\"first\">\n" +
                 "    <pipeline name=\"up42\">\n" +
                 "      <materials>\n" +

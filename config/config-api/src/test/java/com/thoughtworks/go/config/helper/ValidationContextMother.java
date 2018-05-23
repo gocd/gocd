@@ -43,7 +43,6 @@ public class ValidationContextMother {
         public DefaultValidationContext(ArtifactStores artifactStores) {
             this.artifactStores = artifactStores;
         }
-
         @Override
         public ConfigReposConfig getConfigRepos() {
             return null;

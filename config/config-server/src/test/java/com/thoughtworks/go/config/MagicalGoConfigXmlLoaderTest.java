@@ -4081,13 +4081,16 @@ public class MagicalGoConfigXmlLoaderTest {
         try {
             ConfigMigrator.loadWithMigration(configXml);
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("\"Store id\" is required for PluggableArtifact:"));
+            assertThat(e.getMessage(), containsString("Expected attribute `storeId` to be present for artifact."));
         }
     }
 
     @Test
     public void shouldNotDeserializePluggableArtifactConfigWhenStoreWithIdNotFound() {
         String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
+                "<artifactStores>" +
+                    "<artifactStore id=\"s3\" pluginId=\"cd.go.s3\" />" +
+                "</artifactStores>" +
                 "<pipelines group=\"first\">\n" +
                 "    <pipeline name=\"up42\">\n" +
                 "      <materials>\n" +

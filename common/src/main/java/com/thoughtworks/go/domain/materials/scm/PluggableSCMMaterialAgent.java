@@ -28,6 +28,8 @@ import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
@@ -35,24 +37,37 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
     private SCMExtension scmExtension;
     private MaterialRevision revision;
     private File workingDirectory;
+    private final ConsoleOutputStreamConsumer consumer;
 
-    public PluggableSCMMaterialAgent(SCMExtension scmExtension, MaterialRevision revision, File workingDirectory) {
+    public PluggableSCMMaterialAgent(SCMExtension scmExtension, MaterialRevision revision, File workingDirectory, ConsoleOutputStreamConsumer consumer) {
         this.scmExtension = scmExtension;
         this.revision = revision;
         this.workingDirectory = workingDirectory;
+        this.consumer = consumer;
     }
 
     @Override
     public void prepare() {
-        PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
-        Modification latestModification = revision.getLatestModification();
-        SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
-        File destinationFolder = material.workingDirectory(workingDirectory);
-        Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
-        if (!result.isSuccessful()) {
-            // handle
+        try {
+            PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
+            Modification latestModification = revision.getLatestModification();
+            SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
+            File destinationFolder = material.workingDirectory(workingDirectory);
+            Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
+            handleCheckoutResult(material, result);
+        } catch (Exception e) {
+            consumer.errOutput(String.format("Material %s checkout failed: %s", revision.getMaterial().getDisplayName(), e.getMessage()));
         }
-        // handle messages
+    }
+
+    private void handleCheckoutResult(PluggableSCMMaterial material, Result result) {
+        if (result.isSuccessful()) {
+            if (StringUtils.isNotBlank(result.getMessagesForDisplay())) {
+                consumer.stdOutput(result.getMessagesForDisplay());
+            }
+        } else {
+            consumer.errOutput(String.format("Material %s checkout failed: %s", material.getDisplayName(), result.getMessagesForDisplay()));
+        }
     }
 
     private SCMPropertyConfiguration buildSCMPropertyConfigurations(SCM scmConfig) {

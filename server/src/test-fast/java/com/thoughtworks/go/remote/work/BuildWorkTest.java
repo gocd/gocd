@@ -18,6 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogRequestProcessor;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -46,6 +47,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import javax.servlet.http.HttpServletResponse;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogRequest.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobState.*;
@@ -718,5 +721,20 @@ public class BuildWorkTest {
         Work original = getWork(WILL_FAIL, PIPELINE_NAME);
         Work clone = MessageEncoding.decodeWork(MessageEncoding.encodeWork(original));
         assertThat(clone, is(original));
+    }
+
+    @Test
+    public void shouldRegisterAndDeRegisterArtifactRequestProcessBeforeAndAfterPublishingPluggableArtifact() throws Exception {
+        buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
+
+        buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
+
+        InOrder inOrder = inOrder(pluginRequestProcessorRegistry);
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).registerProcessorFor(eq(ARTIFACT_PLUGIN_CONSOLE_LOG.requestName()), any(ConsoleLogRequestProcessor.class));
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).registerProcessorFor(eq(SCM_PLUGIN_CONSOLE_LOG.requestName()), any(ConsoleLogRequestProcessor.class));
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).registerProcessorFor(eq(TASK_PLUGIN_CONSOLE_LOG.requestName()), any(ConsoleLogRequestProcessor.class));
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).removeProcessorFor(ARTIFACT_PLUGIN_CONSOLE_LOG.requestName());
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).removeProcessorFor(SCM_PLUGIN_CONSOLE_LOG.requestName());
+        inOrder.verify(pluginRequestProcessorRegistry, times(1)).removeProcessorFor(TASK_PLUGIN_CONSOLE_LOG.requestName());
     }
 }

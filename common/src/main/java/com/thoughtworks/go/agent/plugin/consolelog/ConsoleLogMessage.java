@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.remote.work.artifact;
-
-import com.google.gson.Gson;
+package com.thoughtworks.go.agent.plugin.consolelog;
 
 public class ConsoleLogMessage {
     private String message;
     private LogLevel logLevel;
+
+    public ConsoleLogMessage(String message, LogLevel logLevel) {
+        this.message = message;
+        this.logLevel = logLevel;
+    }
 
     public String getMessage() {
         return message;
@@ -28,13 +31,5 @@ public class ConsoleLogMessage {
 
     public LogLevel getLogLevel() {
         return logLevel;
-    }
-
-    public static ConsoleLogMessage fromJSON(String json) {
-        return new Gson().fromJson(json, ConsoleLogMessage.class);
-    }
-
-    enum LogLevel {
-        INFO, ERROR
     }
 }

@@ -27,7 +27,6 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -60,14 +59,22 @@ public class BuilderFactoryTest {
     private static NullTaskBuilder nullTaskBuilder = mock(NullTaskBuilder.class);
     private static PluggableTaskBuilderCreator pluggableTaskBuilderCreator = mock(PluggableTaskBuilderCreator.class);
 
-    @DataPoint public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<>(new AntTask(), antTaskBuilder);
-    @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<>(new ExecTask(), execTaskBuilder);
-    @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<>(new NantTask(), nantTaskBuilder);
-    @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<>(new RakeTask(), rakeTaskBuilder);
-    @DataPoint public static TaskDataPoint<AbstractFetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
-    @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<>(new NullTask(), nullTaskBuilder);
-    @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<>(new PluggableTask(), pluggableTaskBuilderCreator);
-    @DataPoint public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<>(new AntTask(), antTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<>(new ExecTask(), execTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<>(new NantTask(), nantTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<>(new RakeTask(), rakeTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<AbstractFetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<>(new NullTask(), nullTaskBuilder);
+    @DataPoint
+    public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<>(new PluggableTask(), pluggableTaskBuilderCreator);
+    @DataPoint
+    public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
 
     @Before
     public void setUp() throws Exception {
@@ -76,12 +83,12 @@ public class BuilderFactoryTest {
     }
 
     @Theory
-    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(TaskDataPoint taskDataPoint)  {
+    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(TaskDataPoint taskDataPoint) {
         assertBuilderForTask(taskDataPoint.task, taskDataPoint.taskBuilder);
     }
 
     @Test
-    public void shouldFailIfCalledWithSomeRandomTypeOfTask()  {
+    public void shouldFailIfCalledWithSomeRandomTypeOfTask() {
         Task task = someRandomNonStandardTask();
 
         try {
@@ -93,7 +100,7 @@ public class BuilderFactoryTest {
     }
 
     @Test
-    public void shouldCreateABuilderForEachTypeOfTaskWhichExists()  {
+    public void shouldCreateABuilderForEachTypeOfTaskWhichExists() {
         Pipeline pipeline = PipelineMother.pipeline("pipeline1", StageMother.custom("stage1"));
         AntTask antTask = new AntTask();
         NantTask nantTask = new NantTask();
@@ -110,7 +117,7 @@ public class BuilderFactoryTest {
         when(rakeTaskBuilder.createBuilder(builderFactory, rakeTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForRakeTask);
         when(pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForPluggableTask);
 
-        List<Builder> builders = builderFactory.buildersForTasks(pipeline, listOf(antTask, nantTask, rakeTask,pluggableTask), pipelineResolver);
+        List<Builder> builders = builderFactory.buildersForTasks(pipeline, listOf(antTask, nantTask, rakeTask, pluggableTask), pipelineResolver);
 
         assertThat(builders.size(), is(4));
         assertThat(builders.get(0), is(expectedBuilderForAntTask));
@@ -133,7 +140,7 @@ public class BuilderFactoryTest {
     private Builder myFakeBuilder() {
         return new Builder(null, null, null) {
             @Override
-            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
+            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) throws CruiseControlException {
             }
 
             public String toString() {

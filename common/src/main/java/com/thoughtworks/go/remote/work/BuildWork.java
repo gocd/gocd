@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogRequestProcessor;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogRequest.*;
 import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -48,16 +49,17 @@ import static java.lang.String.format;
 
 public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
-
     private final BuildAssignment assignment;
     private final String consoleLogCharset;
 
-    private transient DefaultGoPublisher goPublisher;
-    private transient TimeProvider timeProvider;
-    private transient File workingDirectory;
-    private transient MaterialRevisions materialRevisions;
     private transient Builders builders;
-    private ArtifactsPublisher artifactsPublisher;
+    private transient File workingDirectory;
+    private transient TimeProvider timeProvider;
+    private transient DefaultGoPublisher goPublisher;
+    private transient MaterialRevisions materialRevisions;
+    private transient ArtifactsPublisher artifactsPublisher;
+    private transient MaterialAgentFactory materialAgentFactory;
+    private transient PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
     public BuildWork(BuildAssignment assignment, String consoleLogCharset) {
         this.assignment = assignment;
@@ -65,29 +67,51 @@ public class BuildWork implements Work {
     }
 
     private void initialize(AgentWorkContext agentWorkContext) {
-        JobIdentifier jobIdentifier = assignment.getJobIdentifier();
+        final JobIdentifier jobIdentifier = assignment.getJobIdentifier();
+        final AgentIdentifier agentIdentifier = agentWorkContext.getAgentIdentifier();
+        final AgentRuntimeInfo agentRuntimeInfo = agentWorkContext.getAgentRuntimeInfo();
+        pluginRequestProcessorRegistry = agentWorkContext.getPluginRequestProcessorRegistry();
 
+        agentRuntimeInfo.busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.timeProvider = new TimeProvider();
-        agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset);
-        this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
-        this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentRuntimeInfo, consoleLogCharset);
+        this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), workingDirectory);
+        this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension());
+
+        this.materialAgentFactory = new MaterialAgentFactory(workingDirectory, agentIdentifier, agentWorkContext.getPackageRepositoryExtension(), agentWorkContext.getScmExtension());
     }
 
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         initialize(agentWorkContext);
         try {
-            JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getPackageRepositoryExtension(), agentWorkContext.getScmExtension());
+            registerConsoleLogProcessors();
+            JobResult result = build(environmentVariableContext);
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
         } catch (Exception e) {
             reportFailure(e);
         } finally {
+            removeConsoleLogProcessors();
             goPublisher.stop();
         }
+    }
+
+    private void registerConsoleLogProcessors() {
+        LOGGER.debug("Adding console log processors.");
+        final ConsoleLogRequestProcessor consoleLogRequestProcessor = new ConsoleLogRequestProcessor(goPublisher);
+        pluginRequestProcessorRegistry.registerProcessorFor(ARTIFACT_PLUGIN_CONSOLE_LOG.requestName(), consoleLogRequestProcessor);
+        pluginRequestProcessorRegistry.registerProcessorFor(SCM_PLUGIN_CONSOLE_LOG.requestName(), consoleLogRequestProcessor);
+        pluginRequestProcessorRegistry.registerProcessorFor(TASK_PLUGIN_CONSOLE_LOG.requestName(), consoleLogRequestProcessor);
+    }
+
+    private void removeConsoleLogProcessors() {
+        LOGGER.debug("Removing console log processors.");
+        pluginRequestProcessorRegistry.removeProcessorFor(ARTIFACT_PLUGIN_CONSOLE_LOG.requestName());
+        pluginRequestProcessorRegistry.removeProcessorFor(SCM_PLUGIN_CONSOLE_LOG.requestName());
+        pluginRequestProcessorRegistry.removeProcessorFor(TASK_PLUGIN_CONSOLE_LOG.requestName());
     }
 
     private void reportFailure(Exception e) {
@@ -114,8 +138,7 @@ public class BuildWork implements Work {
         }
     }
 
-    private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
-                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) throws Exception {
+    private JobResult build(EnvironmentVariableContext environmentVariableContext) {
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
             return null;
@@ -123,9 +146,9 @@ public class BuildWork implements Work {
 
         goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
 
-        prepareJob(agentIdentifier, packageRepositoryExtension, scmExtension);
+        prepareJob();
 
-        setupEnvrionmentContext(environmentVariableContext);
+        setupEnvironmentContext(environmentVariableContext);
 
         dumpEnvironmentVariables(environmentVariableContext);
 
@@ -153,7 +176,7 @@ public class BuildWork implements Work {
         return consumer;
     }
 
-    private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
+    private void prepareJob() {
         goPublisher.reportAction(DefaultGoPublisher.PREP, "Start to prepare");
         goPublisher.reportCurrentStatus(Preparing);
 
@@ -164,14 +187,13 @@ public class BuildWork implements Work {
         }
 
         ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, processOutputStreamConsumer());
-        MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 
         goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
-            materialAgentFactory.createAgent(revision).prepare();
+            materialAgentFactory.createAgent(revision, consumer).prepare();
         }
     }
 
@@ -179,7 +201,7 @@ public class BuildWork implements Work {
         return new ProcessOutputStreamConsumer<>(goPublisher, goPublisher);
     }
 
-    private void setupEnvrionmentContext(EnvironmentVariableContext context) {
+    private void setupEnvironmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
         context.addAll(assignment.initialEnvironmentVariableContext());
         materialRevisions.populateAgentSideEnvironmentVariables(context, workingDirectory);

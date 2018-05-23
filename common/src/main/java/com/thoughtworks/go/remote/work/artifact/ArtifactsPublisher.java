@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -36,14 +35,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.GoConstants.PRODUCT_NAME;
 import static java.lang.String.format;
 
 public class ArtifactsPublisher implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsPublisher.class);
     public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
-    private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final File workingDirectory;
     private final GoPublisher goPublisher;
     private final ArtifactPlanFilter artifactPlanFilter;
@@ -51,13 +48,12 @@ public class ArtifactsPublisher implements Serializable {
     private ArtifactStores artifactStores;
     private final List<ArtifactPlan> failedArtifact = new ArrayList<>();
 
-    public ArtifactsPublisher(GoPublisher goPublisher, ArtifactExtension artifactExtension, ArtifactStores artifactStores, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, File workingDirectory) {
+    public ArtifactsPublisher(GoPublisher goPublisher, ArtifactExtension artifactExtension, ArtifactStores artifactStores, File workingDirectory) {
         this.goPublisher = goPublisher;
         this.artifactStores = artifactStores;
         this.workingDirectory = workingDirectory;
         this.artifactExtension = artifactExtension;
         this.artifactPlanFilter = new ArtifactPlanFilter();
-        this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
     public void publishArtifacts(List<ArtifactPlan> artifactPlans, EnvironmentVariableContext environmentVariableContext) {
@@ -96,26 +92,21 @@ public class ArtifactsPublisher implements Serializable {
     }
 
     private File publishPluggableArtifacts(List<ArtifactPlan> artifactPlans, EnvironmentVariableContext environmentVariableContext) {
-        try {
-            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forPublishArtifact(goPublisher));
-            final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
-            final Map<ArtifactPlan, ArtifactStore> artifactPlanToStores = artifactStoresToPlugin(pluggableArtifactPlans);
+        final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
+        final Map<ArtifactPlan, ArtifactStore> artifactPlanToStores = artifactStoresToPlugin(pluggableArtifactPlans);
 
-            final PluggableArtifactMetadata pluggableArtifactMetadata = new PluggableArtifactMetadata();
-            for (Map.Entry<ArtifactPlan, ArtifactStore> artifactPlanAndStore : artifactPlanToStores.entrySet()) {
-                publishPluggableArtifact(pluggableArtifactMetadata, artifactPlanAndStore.getKey(), artifactPlanAndStore.getValue(), environmentVariableContext);
-            }
-
-            if (!pluggableArtifactPlans.isEmpty() && pluggableArtifactMetadata.isEmpty()) {
-                LOGGER.info(format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
-                goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
-                return null;
-            }
-
-            return pluggableArtifactMetadata.write(workingDirectory);
-        } finally {
-            pluginRequestProcessorRegistry.removeProcessorFor(CONSOLE_LOG.requestName());
+        final PluggableArtifactMetadata pluggableArtifactMetadata = new PluggableArtifactMetadata();
+        for (Map.Entry<ArtifactPlan, ArtifactStore> artifactPlanAndStore : artifactPlanToStores.entrySet()) {
+            publishPluggableArtifact(pluggableArtifactMetadata, artifactPlanAndStore.getKey(), artifactPlanAndStore.getValue(), environmentVariableContext);
         }
+
+        if (!pluggableArtifactPlans.isEmpty() && pluggableArtifactMetadata.isEmpty()) {
+            LOGGER.info(format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
+            goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
+            return null;
+        }
+
+        return pluggableArtifactMetadata.write(workingDirectory);
     }
 
     private void publishPluggableArtifact(PluggableArtifactMetadata pluggableArtifactMetadata, ArtifactPlan artifactPlan, ArtifactStore artifactStore, EnvironmentVariableContext environmentVariableContext) {

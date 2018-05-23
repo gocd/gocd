@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -53,7 +52,7 @@ public abstract class Builder implements Serializable {
         return conditions.match(previousStatus);
     }
 
-    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException;
+    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) throws CruiseControlException;
 
     public String getDescription() {
         return description;
@@ -101,7 +100,8 @@ public abstract class Builder implements Serializable {
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) {
         publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
-            cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension, null, consoleLogCharset);
+            cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension, consoleLogCharset);
+
             // As this message will output before the running task outputs its task status, do not use the same
             // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
             publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");

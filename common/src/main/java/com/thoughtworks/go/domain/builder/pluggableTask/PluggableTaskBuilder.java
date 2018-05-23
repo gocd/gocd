@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -66,7 +65,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
@@ -101,8 +100,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
                                                     EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
 
-        CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR,  publisher);
-        CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT,  publisher);
+        CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR, publisher);
+        CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT, publisher);
         SafeOutputStreamConsumer safeOutputStreamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(errorStreamConsumer, outputStreamConsumer));
         safeOutputStreamConsumer.addSecrets(environmentVariableContext.secrets());
         return new PluggableTaskContext(safeOutputStreamConsumer, environmentVariableContext, workingDir, consoleLogCharset);

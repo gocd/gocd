@@ -14,32 +14,38 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.remote.work.artifact;
+package com.thoughtworks.go.agent.plugin.consolelog.v1;
 
+import com.thoughtworks.go.agent.plugin.consolelog.ConsoleLogMessage;
+import com.thoughtworks.go.agent.plugin.consolelog.LogLevel;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
-public class ConsoleLogMessageTest {
-
+public class JsonMessageHandlerV1Test {
     @Test
     public void shouldDeserializeJsonWithInfoLogLevel() {
-        final ConsoleLogMessage consoleLogMessage = ConsoleLogMessage.fromJSON("{\"logLevel\":\"INFO\",\"message\":\"This is info message.\"}");
+        final ConsoleLogMessage consoleLogMessage = new JsonMessageHandlerV1()
+                .getConsoleLogMessage("{\"logLevel\":\"info\",\"message\":\"This is info message.\"}");
 
         assertNotNull(consoleLogMessage);
-        assertThat(consoleLogMessage.getLogLevel(), is(ConsoleLogMessage.LogLevel.INFO));
+        assertThat(consoleLogMessage.getLogLevel(), is(LogLevel.INFO));
         assertThat(consoleLogMessage.getMessage(), is("This is info message."));
     }
 
-
     @Test
     public void shouldDeserializeJsonWithErrorLogLevel() {
-        final ConsoleLogMessage consoleLogMessage = ConsoleLogMessage.fromJSON("{\"logLevel\":\"ERROR\",\"message\":\"This is error.\"}");
+        final ConsoleLogMessage consoleLogMessage = new JsonMessageHandlerV1()
+                .getConsoleLogMessage("{\"logLevel\":\"ERROR\",\"message\":\"This is error.\"}");
 
         assertNotNull(consoleLogMessage);
-        assertThat(consoleLogMessage.getLogLevel(), is(ConsoleLogMessage.LogLevel.ERROR));
+        assertThat(consoleLogMessage.getLogLevel(), is(LogLevel.ERROR));
         assertThat(consoleLogMessage.getMessage(), is("This is error."));
+    }
+
+    @Test
+    public void shouldGetConsoleLogMessageConverter() {
+        assertTrue(new JsonMessageHandlerV1().getConverter() instanceof ConsoleLogMessageConverterV1);
     }
 }

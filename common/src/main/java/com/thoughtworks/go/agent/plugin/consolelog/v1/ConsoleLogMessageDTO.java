@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.thoughtworks.go.plugin.api.task.JobConsoleLogger;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
+package com.thoughtworks.go.agent.plugin.consolelog.v1;
 
-@Deprecated
-public class JobConsoleLoggerInternal extends JobConsoleLogger {
-    private JobConsoleLoggerInternal() {
-        super();
+import com.google.gson.annotations.SerializedName;
+
+public class ConsoleLogMessageDTO {
+    @SerializedName("message")
+    private String message;
+
+    @SerializedName("logLevel")
+    private String logLevel;
+
+    public String getMessage() {
+        return message;
     }
 
-    public static void setContext(TaskExecutionContext taskExecutionContext) {
-        JobConsoleLogger.context = taskExecutionContext;
-    }
-
-    public static void unsetContext() {
-        JobConsoleLogger.context = null;
+    public String getLogLevel() {
+        return logLevel;
     }
 }

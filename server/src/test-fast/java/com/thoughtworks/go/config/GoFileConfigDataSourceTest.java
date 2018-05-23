@@ -99,6 +99,8 @@ public class GoFileConfigDataSourceTest {
         timeProvider = mock(TimeProvider.class);
         fullConfigSaveMergeFlow = mock(FullConfigSaveMergeFlow.class);
         fullConfigSaveNormalFlow = mock(FullConfigSaveNormalFlow.class);
+        when(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         when(timeProvider.currentTime()).thenReturn(new Date());
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         ServerHealthService serverHealthService = new ServerHealthService();

@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
+import com.thoughtworks.go.plugin.access.notification.v4.JsonMessageHandler4_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import static java.util.Arrays.asList;
 
 @Component
 public class NotificationExtension extends AbstractExtension {
-    static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0");
+    static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0", "4.0");
 
     static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
@@ -60,6 +61,9 @@ public class NotificationExtension extends AbstractExtension {
                 new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
 
         registerHandlers("3.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler3_0(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
+
+        registerHandlers("4.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler4_0(),
                 new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
     }
 

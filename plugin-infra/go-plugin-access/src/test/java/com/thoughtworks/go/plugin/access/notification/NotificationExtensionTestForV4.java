@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
-import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
+import com.thoughtworks.go.plugin.access.notification.v4.JsonMessageHandler4_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import org.hamcrest.core.Is;
@@ -36,23 +36,23 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-public class NotificationExtensionTestForV3 extends NotificationExtensionTestBase {
+public class NotificationExtensionTestForV4 extends NotificationExtensionTestBase {
     @Mock
     private PluginSettingsJsonMessageHandler2_0 pluginSettingsJSONMessageHandlerv2;
 
     @Mock
-    private JsonMessageHandler3_0 jsonMessageHandlerv3;
+    private JsonMessageHandler4_0 jsonMessageHandlerv4;
 
     @Override
     protected String apiVersion() {
-        return "3.0";
+        return "4.0";
     }
 
     @Override
@@ -62,12 +62,12 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
 
     @Override
     protected JsonMessageHandler jsonMessageHandler() {
-        return jsonMessageHandlerv3;
+        return jsonMessageHandlerv4;
     }
 
     @Test
     public void shouldNotifyPluginSettingsChange() throws Exception {
-        String supportedVersion = "3.0";
+        String supportedVersion = "4.0";
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 

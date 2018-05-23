@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.notification.v3;
+package com.thoughtworks.go.plugin.access.notification.v4;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
@@ -31,7 +31,7 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class JsonMessageHandler3_0 implements JsonMessageHandler {
+public class JsonMessageHandler4_0 implements JsonMessageHandler {
     @Override
     public List<String> responseMessageForNotificationsInterestedIn(String responseBody) {
         try {

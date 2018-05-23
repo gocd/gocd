@@ -3,7 +3,7 @@
         <span class="error"><%= @failing_tests_error_message %></span>
     <% elsif @failing_tests.numberOfTests() == 0 %>
         <h3>
-            <span class="message">There are tests configured in this stage but could not compute results.</span>
+            <span class="message">There are tests configured in this stage but could not compute results. Check if Shine is enabled.</span>
         </h3>
     <% elsif @stage.getState().equals(com.thoughtworks.go.domain.StageState::Passed) %>
         <h3>

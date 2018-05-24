@@ -88,9 +88,6 @@ public class ShineDaoIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
     private StubGoURLRepository goURLRepository;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -108,12 +105,11 @@ public class ShineDaoIntegrationTest {
 
         String artifactsRoot = tempFolder.getAbsolutePath();
         stageStorage.clear();
-        environmentVariables.set("SHINE_ENABLED", "Y");
         StageResourceImporter importer = new StageResourceImporter(artifactsRoot, xmlApiService, stageService, pipelineHistoryService,systemEnvironment);
 
         LazyStageGraphLoader graphLoader = new LazyStageGraphLoader(importer, stageStorage);
         StagesQuery stagesQuery = new StagesQuery(graphLoader, stagesQueryCache);
-        shineDao = new ShineDao(stagesQuery, stageService, systemEnvironment);
+        shineDao = new ShineDao(stagesQuery, stageService);
         goURLRepository = new StubGoURLRepository(artifactsRoot);
 
         failureSetup = new TestFailureSetup(materialRepository, dbHelper, pipelineTimeline, configHelper, transactionTemplate);
@@ -124,7 +120,6 @@ public class ShineDaoIntegrationTest {
     }
 
     @After public void tearDown() throws Exception {
-        environmentVariables.set("SHINE_ENABLED", null);
         stagesQueryCache.clear();
         dbHelper.onTearDown();
     }

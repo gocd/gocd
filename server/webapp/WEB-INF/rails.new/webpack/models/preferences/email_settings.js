@@ -60,7 +60,7 @@
     };
 
     this.config = (attrs, updateCallback) => {
-      return _.assign(attrs, {action: resourceUrl, method: "PATCH", onsubmit: (e) => {
+      return _.assign(attrs, {action: resourceUrl, method: "POST", onsubmit: (e) => {
         e.preventDefault();
         errors(null);
 

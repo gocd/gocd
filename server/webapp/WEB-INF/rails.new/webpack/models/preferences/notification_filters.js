@@ -28,18 +28,19 @@
   }
 
   function serialize(form) {
-    const data = new FormData(form), result = {}, iter = data.entries();
-    let current;
-
-    while (!(current = iter.next()).done) {
-      const entry = current.value;
-      result[entry[0]] = entry[1];
-    }
-
-    result.match_commits = !!result.myCheckin; // eslint-disable-line camelcase
-    delete result.myCheckin;
-
-    return JSON.stringify(result);
+    const formData = $(form).serializeArray();
+    const jsonData = {};
+    $.each(formData, function () {
+      if (jsonData[this.name]) {
+        if (!jsonData[this.name].push) {
+          jsonData[this.name] = [o[this.name]];
+        }
+        jsonData[this.name].push(this.value || '');
+      } else {
+        jsonData[this.name] = this.value || '';
+      }
+    });
+    return JSON.stringify(jsonData);
   }
 
   function NotificationFilters(apiUrl, errors) {

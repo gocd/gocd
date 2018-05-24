@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import com.thoughtworks.studios.shine.semweb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import java.io.StringReader;
 import java.util.List;
@@ -1029,9 +1029,9 @@ public class SesameGraphTest {
     public void checkWhenAddStatementWithResourceObjectExplodesItThrowsAShineRuntimeException() throws RepositoryException {
         RDFProperty property = new RDFProperty("http://www.example.com/ontology#foo");
         RepositoryConnection badConnection = mock(RepositoryConnection.class);
-        doThrow(new RepositoryException("")).when(badConnection).add((org.openrdf.model.Resource) any(), (org.openrdf.model.URI) any(), (org.openrdf.model.Value) any());
+        doThrow(new RepositoryException("")).when(badConnection).add((org.eclipse.rdf4j.model.Resource) any(), (org.eclipse.rdf4j.model.URI) any(), (org.eclipse.rdf4j.model.Value) any());
 
-        org.openrdf.model.ValueFactory stubValueFactory = mock(org.openrdf.model.ValueFactory.class);
+        org.eclipse.rdf4j.model.ValueFactory stubValueFactory = mock(org.eclipse.rdf4j.model.ValueFactory.class);
         when(badConnection.getValueFactory()).thenReturn(stubValueFactory);
 
         SesameURIReference stubSubject = mock(SesameURIReference.class);
@@ -1048,9 +1048,9 @@ public class SesameGraphTest {
     public void checkWhenAddStatementWithStringObjectExplodesItThrowsAShineRuntimeException() throws RepositoryException {
         RDFProperty property = new RDFProperty("http://www.example.com/ontology#foo");
         RepositoryConnection badConnection = mock(RepositoryConnection.class);
-        doThrow(new RepositoryException("")).when(badConnection).add((org.openrdf.model.Resource) any(), (org.openrdf.model.URI) any(), (org.openrdf.model.Literal) any());
+        doThrow(new RepositoryException("")).when(badConnection).add((org.eclipse.rdf4j.model.Resource) any(), (org.eclipse.rdf4j.model.URI) any(), (org.eclipse.rdf4j.model.Literal) any());
 
-        org.openrdf.model.ValueFactory stubValueFactory = mock(org.openrdf.model.ValueFactory.class);
+        org.eclipse.rdf4j.model.ValueFactory stubValueFactory = mock(org.eclipse.rdf4j.model.ValueFactory.class);
         when(badConnection.getValueFactory()).thenReturn(stubValueFactory);
 
         SesameURIReference stubSubject = mock(SesameURIReference.class);
@@ -1068,9 +1068,9 @@ public class SesameGraphTest {
         RDFProperty property = new RDFProperty("http://www.example.com/ontology#foo");
         RepositoryConnection badConnection = mock(RepositoryConnection.class);
 
-        doThrow(new RepositoryException("")).when(badConnection).add((org.openrdf.model.Resource) any(), (org.openrdf.model.URI) any(), (org.openrdf.model.Literal) any());
+        doThrow(new RepositoryException("")).when(badConnection).add((org.eclipse.rdf4j.model.Resource) any(), (org.eclipse.rdf4j.model.URI) any(), (org.eclipse.rdf4j.model.Literal) any());
 
-        org.openrdf.model.ValueFactory stubValueFactory = mock(org.openrdf.model.ValueFactory.class);
+        org.eclipse.rdf4j.model.ValueFactory stubValueFactory = mock(org.eclipse.rdf4j.model.ValueFactory.class);
         when(badConnection.getValueFactory()).thenReturn(stubValueFactory);
 
         SesameURIReference stubSubject = mock(SesameURIReference.class);
@@ -1087,9 +1087,9 @@ public class SesameGraphTest {
     public void checkWhenAddStatementWithBooleanObjectExplodesItThrowsAShineRuntimeException() throws RepositoryException {
         RDFProperty property = new RDFProperty("http://www.example.com/ontology#foo");
         RepositoryConnection badConnection = mock(RepositoryConnection.class);
-        doThrow(new RepositoryException("")).when(badConnection).add((org.openrdf.model.Resource) any(), (org.openrdf.model.URI) any(), (org.openrdf.model.Literal) any());
+        doThrow(new RepositoryException("")).when(badConnection).add((org.eclipse.rdf4j.model.Resource) any(), (org.eclipse.rdf4j.model.URI) any(), (org.eclipse.rdf4j.model.Literal) any());
 
-        org.openrdf.model.ValueFactory stubValueFactory = mock(org.openrdf.model.ValueFactory.class);
+        org.eclipse.rdf4j.model.ValueFactory stubValueFactory = mock(org.eclipse.rdf4j.model.ValueFactory.class);
         when(badConnection.getValueFactory()).thenReturn(stubValueFactory);
 
         SesameURIReference stubSubject = mock(SesameURIReference.class);
@@ -1105,8 +1105,8 @@ public class SesameGraphTest {
     @Test(expected = ShineRuntimeException.class)
     public void checkWhenAddTriplesFromGraphExplodesItThrowsShineRuntimeException() throws RepositoryException {
         RepositoryConnection badConnection = mock(RepositoryConnection.class);
-        doThrow(new RepositoryException("")).when(badConnection).getStatements((org.openrdf.model.Resource) any(),
-                (org.openrdf.model.URI) any(), (org.openrdf.model.Value) any(), anyBoolean());
+        doThrow(new RepositoryException("")).when(badConnection).getStatements((org.eclipse.rdf4j.model.Resource) any(),
+                (org.eclipse.rdf4j.model.IRI) any(), (org.eclipse.rdf4j.model.Value) any(), anyBoolean());
 
         SesameGraph otherGraph = new SesameGraph(badConnection, null);
         SesameGraph badGraph = new SesameGraph(badConnection, null);

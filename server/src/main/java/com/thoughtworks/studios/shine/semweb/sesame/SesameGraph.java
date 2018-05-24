@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,42 +45,42 @@ import com.thoughtworks.studios.shine.semweb.UUIDURIGenerator;
 import com.thoughtworks.studios.shine.semweb.UnsupportedSPARQLStatementException;
 import com.thoughtworks.studios.shine.util.ArgumentUtil;
 import org.slf4j.Logger;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.algebra.StatementPattern;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLBooleanXMLWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailQuery;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.n3.N3Writer;
-import org.openrdf.rio.rdfxml.RDFXMLWriter;
+import org.eclipse.rdf4j.OpenRDFException;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.Query;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultWriter;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriter;
+import org.eclipse.rdf4j.query.resultio.sparqlxml.SPARQLBooleanXMLWriter;
+import org.eclipse.rdf4j.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailQuery;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.n3.N3Writer;
+import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
 import org.slf4j.LoggerFactory;
 
 public class SesameGraph implements Graph {
     private final RepositoryConnection conn;
-    private org.openrdf.model.Resource[] contextResource;
+    private org.eclipse.rdf4j.model.Resource[] contextResource;
     private Var contextVar;
     private List<Graph> tempGraphs = new ArrayList<>();
     private final static Logger LOGGER = LoggerFactory.getLogger(SesameGraph.class);
@@ -94,12 +94,12 @@ public class SesameGraph implements Graph {
     public SesameGraph(RepositoryConnection conn, String contextURI) {
         this.conn = conn;
         if (contextURI != null) {
-            org.openrdf.model.Resource contextResource = ((SesameURIReference) getURIReference(contextURI)).getSesameNativeResource();
-            this.contextResource = new org.openrdf.model.Resource[]{contextResource};
+            org.eclipse.rdf4j.model.Resource contextResource = ((SesameURIReference) getURIReference(contextURI)).getSesameNativeResource();
+            this.contextResource = new org.eclipse.rdf4j.model.Resource[]{contextResource};
             contextVar = new Var("magic-context", conn.getValueFactory().createURI(contextResource.stringValue()));
             contextVar.setAnonymous(true);
         } else {
-            this.contextResource = new org.openrdf.model.Resource[0];
+            this.contextResource = new org.eclipse.rdf4j.model.Resource[0];
         }
     }
 
@@ -313,7 +313,7 @@ public class SesameGraph implements Graph {
         return new SesameURIReference(conn.getValueFactory().createURI(uri));
     }
 
-    Value getPropertyValue(org.openrdf.model.Resource resource, RDFProperty rdfProperty) {
+    Value getPropertyValue(org.eclipse.rdf4j.model.Resource resource, RDFProperty rdfProperty) {
         try {
             return conn.getStatements(resource, getSesameNativeProperty(rdfProperty), null, false).next().getObject();
         } catch (RepositoryException e) {
@@ -497,9 +497,9 @@ public class SesameGraph implements Graph {
     public void dump(Writer writer) {
         try {
             if (contextResource.length == 0) {
-                RepositoryResult<org.openrdf.model.Resource> results = conn.getContextIDs();
+                RepositoryResult<org.eclipse.rdf4j.model.Resource> results = conn.getContextIDs();
                 while (results.hasNext()) {
-                    org.openrdf.model.Resource context = results.next();
+                    org.eclipse.rdf4j.model.Resource context = results.next();
                     writer.append("Dumping context:" + context + "\n");
                     conn.export(new RDFXMLWriter(writer), context);
                 }

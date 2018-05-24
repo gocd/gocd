@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.semweb.sesame;
 
@@ -25,10 +25,10 @@ import java.util.Map;
 import com.thoughtworks.studios.shine.semweb.BoundVariables;
 import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.util.ArgumentUtil;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.query.BindingSet;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
 
 public class SesameBoundVariables implements BoundVariables, Serializable {
 
@@ -42,17 +42,17 @@ public class SesameBoundVariables implements BoundVariables, Serializable {
     }
 
     public String getString(String boundName) {
-        org.openrdf.model.Value value = getValue(boundName);
+        org.eclipse.rdf4j.model.Value value = getValue(boundName);
         return value == null ? null : value.stringValue();
     }
 
     public Integer getInt(String boundName) {
-        org.openrdf.model.Value value = getValue(boundName);
+        org.eclipse.rdf4j.model.Value value = getValue(boundName);
         return value == null ? null : ((Literal) value).intValue();
     }
 
     public Boolean getBoolean(String boundName) {
-        org.openrdf.model.Value value = getValue(boundName);
+        org.eclipse.rdf4j.model.Value value = getValue(boundName);
         return value == null ? null : ((Literal) value).booleanValue();
     }
 
@@ -61,11 +61,11 @@ public class SesameBoundVariables implements BoundVariables, Serializable {
     }
 
     public URIReference getURIReference(String boundName) {
-        org.openrdf.model.Value value = getValue(boundName);
+        org.eclipse.rdf4j.model.Value value = getValue(boundName);
         return value == null ? null : new SesameURIReference((URI) value);
     }
 
-    private org.openrdf.model.Value getValue(String boundName) {
+    private org.eclipse.rdf4j.model.Value getValue(String boundName) {
         ArgumentUtil.guaranteeInList(boundName, bindings.keySet(), "boundName");
         return bindings.get(boundName);
     }

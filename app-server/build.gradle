@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ dependencies {
   compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   testCompile project(':common')
   testCompile project(':config:config-server')
   testCompile project(':config:config-api')

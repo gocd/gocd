@@ -53,7 +53,7 @@ class ValueStreamMapController < ApplicationController
 
   def generate_material_vsm_json
     result = HttpLocalizedOperationResult.new
-    vsm = value_stream_map_service.getValueStreamMap(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:material_fingerprint]), params[:revision], current_user, result)
+    vsm = value_stream_map_service.getValueStreamMap(params[:material_fingerprint], params[:revision], current_user, result)
     render_vsm_json(vsm, result)
   end
 

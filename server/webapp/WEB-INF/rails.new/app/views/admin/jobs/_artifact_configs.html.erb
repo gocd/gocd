@@ -1,85 +1,95 @@
 <div class="form_content">
-    <div class="artifacts_plan_section popup_form">
-        <textarea id="artifact_template" class="template">
-            <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
-                <td class="name_value_cell">
-                    <%= var_form.text_field "source", :class => "form_input artifact_source", :id => nil -%>
-                </td>
-                <td class="name_value_cell">
-                    <%= var_form.text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
-                </td>
-                <td class="name_value_cell">
-                    <%= var_form.select "artifactTypeValue",  ["Build Artifact", "Test Artifact"], {}, :class => "small" -%>
-                </td>
-                <td class="name_value_cell">
-                    <span class="icon_remove delete_parent"></span>
-                </td>
-            <% end %>
-        </textarea>
+  <div class="artifacts_plan_section popup_form">
+    <textarea id="artifact_template_build" class="template">
+      <%= render :partial => 'built_in_artifact_table_headers' %>
+      <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
+      <td class="name_value_cell">
+        <label>Build Artifact</label>
+        <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'Build Artifact' -%>
+      </td>
+      <%= render :partial => 'builtin_artifact_form', :locals => {:scope => {:var_form => var_form}} %>
+      <% end %>
+    </textarea>
+    <textarea id="artifact_template_test" class="template">
+      <%= render :partial => 'built_in_artifact_table_headers' %>
+      <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
+      <td class="name_value_cell">
+        <label>Test Artifact</label>
+        <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'Test Artifact' -%>
+      </td>
+      <%= render :partial => 'builtin_artifact_form', :locals => {:scope => {:var_form => var_form}} %>
+      <% end %>
+    </textarea>
 
-        <table class="artifact">
-            <thead>
-            <tr >
-                <th><h4 class="src">Source</h4>
-                    <span class="contextual_help has_go_tip_right" title="The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name)."></span>
-                </th>
-                <th><h4 class="dest">Destination</h4>
-                    <span class="contextual_help has_go_tip_right" title="The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory"></span>
-                </th>
-                <th><h4 class="type" >Type</h4>
-                    <span class="contextual_help has_go_tip_right" title="When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs."></span>
-                </th>
-                <th>&nbsp;</th>
-            </tr>
-            </thead>
+    <div class="artifact">
+      <% scope[:built_in_collection].each do |variable| -%>
+        <%= scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_CONFIGS, variable, :index => "" do |var_form| %>
+          <table class="artifact">
+            <%= render :partial => 'built_in_artifact_table_headers' %>
             <tbody class="artifact">
-            <% scope[:collection].each do |variable| -%>
-                <%= scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_CONFIGS, variable, :index => "" do |var_form| %>
-                    <tr>
-                        <td class="name_value_cell">
-                            <%= var_form.text_field "source", :class => "form_input artifact_source", :id => nil-%>
-                            <%= error_message_on(variable, "source", :css_class => "form_error") %>
-                          </td>
-                        <td class="name_value_cell">
-                            <%= var_form.text_field "destination", :class => "form_input artifact_destination", :id => nil-%>
-                            <%= error_message_on(variable, "destination", :css_class => "form_error") %>
-                        </td>
-                        <td class="name_value_cell">
-                            <%= var_form.select "artifactTypeValue",  ["Build Artifact", "Test Artifact"], {}, :class => "small"  %>
-                        </td>
-                        <td class="name_value_cell">
-                            <span class="icon_remove delete_parent"></span>
-                        </td>
-                    </tr>
-                <% end %>
-            <%- end -%>
-            </tbody>
-        </table>
-		<%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
+            <tr>
+              <td class="name_value_cell">
+                <%= var_form.label variable.getArtifactTypeValue() -%>
+                <%= var_form.hidden_field "artifactTypeValue", :class => "form_input artifact_source", :id => nil -%>
+              </td>
+              <td class="name_value_cell">
+                <%= var_form.text_field "source", :class => "form_input artifact_source", :id => nil -%>
+                <%= error_message_on(variable, "source", :css_class => "form_error") %>
+              </td>
+              <td class="name_value_cell">
+                <%= var_form.text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
+                <%= error_message_on(variable, "destination", :css_class => "form_error") %>
+              </td>
+              <td class="name_value_cell">
+                <span class="icon_remove delete_parent"></span>
+              </td>
+            </tr>
+        <% end %>
+      <%- end -%>
+      </tbody>
+      </table>
     </div>
-    <div class="clear"></div>
+    <td class="name_value_cell">
+      <select class="small" id="select_artifact_type">
+        <option value="Build Artifact">Build Artifact</option>
+        <option value="Test Artifact">Test Artifact</option>
+      </select>
+    </td>
+    <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
+  </div>
+  <div class="clear"></div>
 </div>
+
 <script type="text/javascript">
-    Util.on_load(function() {
-        function setupVarForm(finish_button) {
-            var rowCreator = new EnvironmentVariables.RowCreator(jQuery('#artifact_template'), 'tr', '.delete_parent');
-            var variables = new EnvironmentVariables(
-                    jQuery('tbody.artifact'),
-                    rowCreator,
-                    null,
-                    function(inputs) {
-                        inputs.dirty_form();
-                    },
-                    function(row) {
-                        row.parents("form.dirtyform").data("dirty", true);
-                    });
-
-            variables.registerAddButton(jQuery("#add_artifact"))
-            variables.addDefaultRow();
-            variables.registerFinishButton(finish_button);
-        }
-
-        var finish_button = jQuery(".finish");
-        setupVarForm(finish_button);
+  Util.on_load(function () {
+    jQuery('#add_artifact').click(function (event) {
+      determineAppropriateFormToShow(jQuery('#select_artifact_type').val());
     });
+
+    function determineAppropriateFormToShow(artifactTypeValue) {
+      switch (artifactTypeValue) {
+        case 'Build Artifact':
+          addBuiltInFormRowFor('#artifact_template_build');
+          break;
+        case 'Test Artifact':
+          addBuiltInFormRowFor('#artifact_template_test');
+          break;
+      }
+    }
+
+    function addBuiltInFormRowFor(selector) {
+      var rowCreator = new EnvironmentVariables.RowCreator(jQuery(selector), 'tr', '.delete_parent');
+      var variables  = new EnvironmentVariables(
+        jQuery('div.artifact'),
+        rowCreator,
+        null,
+        function (inputs) {
+          inputs.dirty_form();
+        },
+        function (row) {
+          row.parents("form.dirtyform").data("dirty", true);
+        });
+      variables.addDefaultRow();
+    }
+  });
 </script>

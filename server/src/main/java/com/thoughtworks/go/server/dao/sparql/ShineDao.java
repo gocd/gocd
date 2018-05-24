@@ -45,12 +45,10 @@ public class ShineDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShineDao.class);
     private StagesQuery stagesQuery;
     private final StageService stageService;
-    private SystemEnvironment systemEnvironment;
 
-    public ShineDao(StagesQuery stagesQuery, StageService stageService, SystemEnvironment systemEnvironment) {
+    public ShineDao(StagesQuery stagesQuery, StageService stageService) {
         this.stagesQuery = stagesQuery;
         this.stageService = stageService;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public List<TestSuite> failedTestsFor(final StageIdentifier stageId) {
@@ -62,20 +60,18 @@ public class ShineDao {
     }
 
     public StageTestRuns failedBuildHistoryForStage(StageIdentifier stageId, LocalizedOperationResult result) {
-        if (systemEnvironment.isShineEnabled()) {
-            try {
-                StageTestRuns stageTestRuns = getTestCount(stageId);
-                List<StageIdentifier> failedStageIds = stageService.findRunForStage(stageId);
-                populateFailingTests(stageTestRuns, getFailedTests(failedStageIds));
-                populateUsers(stageTestRuns, getCommitters(failedStageIds));
-                stageTestRuns.removeDuplicateTestEntries();
-                return stageTestRuns;
-            } catch (RuntimeException e) {
-                LOGGER.error("can not retrieve shine test history!", e);
-                result.connectionError("Unable to retrieve failure results.");
-            }
+        try {
+            StageTestRuns stageTestRuns = getTestCount(stageId);
+            List<StageIdentifier> failedStageIds = stageService.findRunForStage(stageId);
+            populateFailingTests(stageTestRuns, getFailedTests(failedStageIds));
+            populateUsers(stageTestRuns, getCommitters(failedStageIds));
+            stageTestRuns.removeDuplicateTestEntries();
+            return stageTestRuns;
+        } catch (RuntimeException e) {
+            LOGGER.error("can not retrieve shine test history!", e);
+            result.connectionError("Unable to retrieve failure results.");
+            return new StageTestRuns(0, 0, 0);
         }
-        return new StageTestRuns(0, 0, 0);
     }
 
     public FailureDetails failureDetailsForTest(JobIdentifier jobId, String suiteName, String testCaseName, LocalizedOperationResult result) {

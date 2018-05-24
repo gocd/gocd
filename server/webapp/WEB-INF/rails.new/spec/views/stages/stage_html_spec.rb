@@ -553,7 +553,7 @@ describe 'stages/stage.html.erb' do
         render
 
         Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-          expect(f).to have_selector "h3 .message", :text => "There are tests configured in this stage but could not compute results. Check if Shine is enabled."
+          expect(f).to have_selector "h3 .message", :text => "There are tests configured in this stage but could not compute results."
         end
 
         expect(response).to_not have_selector(".non_passing_tests .failing_pipeline")

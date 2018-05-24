@@ -31,7 +31,7 @@ import java.util.Collection;
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
-    static final int CURRENT_CONTRACT_VERSION = 2;
+    static final int CURRENT_CONTRACT_VERSION = 3;
 
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
@@ -72,6 +72,11 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
             if (responseMap.target_version == null) {
                 errors.addError("Plugin response message", "missing 'target_version' field");
+                return new CRParseResult(errors);
+            } else if (responseMap.target_version > CURRENT_CONTRACT_VERSION) {
+                String message = String.format("'target_version' is %s but the GoCD Server supports %s",
+                        responseMap.target_version, CURRENT_CONTRACT_VERSION);
+                errors.addError("Plugin response message", message);
                 return new CRParseResult(errors);
             } else {
                 int version = responseMap.target_version;

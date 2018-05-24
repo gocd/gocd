@@ -52,4 +52,12 @@ public class ConfigRepoDocumentMother {
     public String versionTwoComprehensive() {
         return JsonUtils.toJsonString(getJSONFor("/v2_comprehensive.json"));
     }
+
+    public String v3FromV2Comprehensive() {
+        return JsonUtils.toJsonString(getJSONFor("/v3_from_v2_comprehensive.json"));
+    }
+
+    public String v3Comprehensive() {
+        return JsonUtils.toJsonString(getJSONFor("/v3_comprehensive.json"));
+    }
 }

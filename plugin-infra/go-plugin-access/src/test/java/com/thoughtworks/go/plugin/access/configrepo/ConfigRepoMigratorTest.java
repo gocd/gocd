@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -82,6 +83,27 @@ public class ConfigRepoMigratorTest {
 
         String oldJSON = documentMother.versionTwoComprehensive();
         String transformedJSON = migrator.migrate(oldJSON, 2);
+
+        JSONAssert.assertEquals(oldJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
+    }
+
+    @Test
+    public void shouldMigrateToV3_ByChangingOnlyTargetVersion() throws JSONException {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+        String oldJSON = documentMother.versionTwoComprehensive();
+        String newJson = documentMother.v3FromV2Comprehensive();
+
+        String transformedJSON = migrator.migrate(oldJSON, 3);
+
+        JSONAssert.assertEquals(newJson, transformedJSON, JSONCompareMode.STRICT_ORDER);
+    }
+
+    @Test
+    public void shouldDoNothingIfMigratingFromV3ToV3() throws JSONException {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+        String oldJSON = documentMother.v3Comprehensive();
+        String transformedJSON = migrator.migrate(oldJSON, 3);
 
         JSONAssert.assertEquals(oldJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
     }

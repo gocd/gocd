@@ -89,6 +89,20 @@ public class JsonMessageHandler1_0Test {
         verify(configRepoMigrator, times(JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION)).migrate(nullable(String.class), anyInt());
     }
 
+    @Test
+    public void shouldErrorWhenTargetVersionOfPluginIsHigher() {
+        int targetVersion = JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION + 1;
+        String json = "{\n" +
+                "  \"target_version\" : " + targetVersion + ",\n" +
+                "  \"pipelines\" : [],\n" +
+                "  \"errors\" : []\n" +
+                "}";
+
+        CRParseResult result = handler.responseMessageForParseDirectory(json);
+        String errorMessage = String.format("'target_version' is %s but the GoCD Server supports %s", targetVersion, JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION);
+        assertThat(result.getErrors().getErrorsAsText(), contains(errorMessage));
+    }
+
     private void makeMigratorReturnSameJSON() {
         when(configRepoMigrator.migrate(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
             @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function() { // eslint-disable-line no-extra-semi
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
-  const m      = require("mithril"),
-    Stream     = require("mithril/stream"),
-    _          = require("lodash"),
-    CrudMixins = require("models/mixins/crud_mixins"),
-    Errors     = require("models/mixins/errors");
+  const m          = require("mithril"),
+        Stream     = require("mithril/stream"),
+        _          = require("lodash"),
+        CrudMixins = require("models/mixins/crud_mixins"),
+        Errors     = require("models/mixins/errors");
 
   function splitter(string) {
     return _.compact(_.map(string.split(","), _.trim));
@@ -40,7 +40,9 @@
       checkinAliases: this.checkinAliases.map(splitter)
     };
 
-    this.toJSON = function serialize() { return payload; };
+    this.toJSON   = function serialize() {
+      return payload;
+    };
     this.fromJSON = (data) => {
       savedEmail               = this.email(data.email);
       savedEnableNotifications = this.enableNotifications(data.email_me);
@@ -60,23 +62,29 @@
     };
 
     this.config = (attrs, updateCallback) => {
-      return _.assign(attrs, {action: resourceUrl, method: "POST", onsubmit: (e) => {
-        e.preventDefault();
-        errors(null);
+      return _.assign(attrs, {
+        action: resourceUrl, method: "POST", onsubmit: (e) => {
+          e.preventDefault();
+          errors(null);
 
-        this.update().then((data) => {
-          updateCallback(e, data);
-        }, (message) => {
-          errors(message.replace(/^Failed to add user\. Validations failed\. /, "")); // Strip the localized message orefix
-        }).always(() => m.redraw());
-      }});
+          this.update().then((data) => {
+            updateCallback(e, data);
+          }, (message) => {
+            errors(message.replace(/^Failed to add user\. Validations failed\. /, "")); // Strip the localized message orefix
+          }).always(() => m.redraw());
+        }
+      });
     };
 
     // just stub this out; the only thing that needs validation is email, and we rely on the default
     // input[type="email"] pattern for client-side validation
     this.validate = () => new Errors();
 
-    CrudMixins.AllOperations.call(this, ["refresh", "update"], {type: this, resourceUrl, version: "v1"}, {update: {method: "PATCH"}});
+    CrudMixins.AllOperations.call(this, ["refresh", "update"], {
+      type:    this,
+      resourceUrl,
+      version: "v1"
+    }, {update: {method: "PATCH"}});
   }
 
   module.exports = EmailSettings;

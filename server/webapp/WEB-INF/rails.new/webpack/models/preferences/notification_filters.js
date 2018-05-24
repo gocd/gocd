@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@
   const $      = require("jquery");
 
   function req(method, url, data) {
-    const headers = { "Accept": mr.versionHeader("v1") }, timeout = mr.timeout, contentType = "application/json", dataType = "json";
-    return $.ajax(_.omitBy({ method, url, timeout, headers, data, contentType, dataType }, _.isEmpty));
+    const headers = {"Accept": mr.versionHeader("v1")}, timeout = mr.timeout, contentType = "application/json",
+          dataType = "json";
+    return $.ajax(_.omitBy({method, url, timeout, headers, data, contentType, dataType}, _.isEmpty));
   }
 
   function serialize(form) {
@@ -33,7 +34,7 @@
     $.each(formData, function () {
       if (jsonData[this.name]) {
         if (!jsonData[this.name].push) {
-          jsonData[this.name] = [o[this.name]];
+          jsonData[this.name] = [jsonData[this.name]];
         }
         jsonData[this.name].push(this.value || '');
       } else {
@@ -77,11 +78,11 @@
       this.myCommits(true);
     }
 
-    this.load    = fetchFilters;
-    this.save    = createFilter;
-    this.delete  = deleteFilter;
-    this.reset   = reset;
-    this.errors  = errors;
+    this.load   = fetchFilters;
+    this.save   = createFilter;
+    this.delete = deleteFilter;
+    this.reset  = reset;
+    this.errors = errors;
   }
 
   module.exports = NotificationFilters;

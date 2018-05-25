@@ -117,7 +117,7 @@ class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, Secur
       @BeforeEach
       void setUp() {
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
-        when(pipelineConfigService.getPipelineConfig(getPipelineName())).thenReturn(mock(PipelineConfig.class))
+        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
         enableSecurity()
         loginAsAdmin()
       }
@@ -180,7 +180,7 @@ class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, Secur
 
       @Test
       void "should return 404 when pipeline does not exist"() {
-        when(pipelineConfigService.getPipelineConfig(getPipelineName())).thenReturn(null)
+        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
         enableSecurity()
         loginAsPipelineViewUser(pipelineName)
 
@@ -238,7 +238,7 @@ class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, Secur
       void setUp() {
         stubControllerAction()
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
-        when(pipelineConfigService.getPipelineConfig(getPipelineName())).thenReturn(mock(PipelineConfig.class))
+        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
       }
     }
   }

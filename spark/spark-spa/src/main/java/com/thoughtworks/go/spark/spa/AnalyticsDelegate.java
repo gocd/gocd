@@ -110,7 +110,7 @@ public class AnalyticsDelegate implements SparkController {
 
     private void checkPipelineExists(Request request, Response response) {
         if (isPipelineRequest(request)) {
-            if (null == pipelineConfigService.getPipelineConfig(request.queryParams("pipeline_name"))) {
+            if (null == pipelineConfigService.pipelineConfigNamed(request.queryParams("pipeline_name"))) {
                 throw halt(404, format("Cannot generate analytics. Pipeline with name: '%s' not found.", request.queryParams("pipeline_name")));
             }
         }

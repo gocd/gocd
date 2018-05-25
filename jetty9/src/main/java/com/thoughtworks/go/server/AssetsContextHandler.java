@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.ServletException;
@@ -38,7 +39,9 @@ public class AssetsContextHandler extends ContextHandler {
         this.systemEnvironment = systemEnvironment;
         handler = new AssetsHandler();
 
-        setHandler(Jetty9Server.gzipHandler(handler));
+        GzipHandler gzipHandler = Jetty9Server.gzipHandler();
+        gzipHandler.setHandler(this.handler);
+        setHandler(gzipHandler);
     }
 
     public void init(WebAppContext webAppContext) throws IOException {

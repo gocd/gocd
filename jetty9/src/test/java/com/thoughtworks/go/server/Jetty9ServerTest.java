@@ -19,10 +19,11 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.deploy.App;
+import org.eclipse.jetty.deploy.DeploymentManager;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -36,20 +37,17 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.servlet.DispatcherType;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.instanceOf;
@@ -61,31 +59,34 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class Jetty9ServerTest {
-
-    private Jetty9Server jetty9Server;
     @Mock
     private Server server;
     @Mock
     private SystemEnvironment systemEnvironment;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private File configDir;
     @Mock
     private SSLSocketFactory sslSocketFactory;
+    @Mock
+    private DeploymentManager deploymentManager;
+
+    private Jetty9Server jetty9Server;
+    private File configDir;
+    private ArgumentCaptor<App> appCaptor;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
-        Answer<Void> setHandlerMock = new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Handler handler = (Handler) invocation.getArguments()[0];
-                handler.setServer((Server) invocation.getMock());
-                return null;
-            }
+        Answer<Void> setHandlerMock = invocation -> {
+            Handler handler = (Handler) invocation.getArguments()[0];
+            handler.setServer((Server) invocation.getMock());
+            return null;
         };
         Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
+
+        appCaptor = ArgumentCaptor.forClass(App.class);
+        Mockito.doNothing().when(deploymentManager).addApp(appCaptor.capture());
 
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(temporaryFolder.newFolder());
@@ -106,7 +107,7 @@ public class Jetty9ServerTest {
 
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
-        jetty9Server = new Jetty9Server(systemEnvironment, "pwd", sslSocketFactory, server);
+        jetty9Server = new Jetty9Server(systemEnvironment, "pwd", sslSocketFactory, server, deploymentManager);
         ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
     }
 
@@ -163,35 +164,30 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldAddWelcomeRequestHandler() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
+        jetty9Server.startHandlers();
 
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(3));
-        Handler handler = handlerCollection.getHandlers()[0];
-        assertThat(handler instanceof GoServerWelcomeFileHandler, is(true));
-
-        GoServerWelcomeFileHandler welcomeFileHandler = (GoServerWelcomeFileHandler) handler;
+        ContextHandler welcomeFileHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
         assertThat(welcomeFileHandler.getContextPath(), is("/"));
     }
 
     @Test
     public void shouldAddDefaultHeadersForRootContext() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
-
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
-        Handler rootPathHandler = handler.getHandler();
+        jetty9Server.startHandlers();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(mock(PrintWriter.class));
 
         HttpServletRequest request = mock(HttpServletRequest.class);
 
-        rootPathHandler.handle("/foo", mock(Request.class), request, response);
+        Request baseRequest = mock(Request.class);
+        when(baseRequest.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+
+        ContextHandler rootPathHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
+        rootPathHandler.setServer(server);
+        rootPathHandler.start();
+        rootPathHandler.handle("/foo", baseRequest, request, response);
 
         verify(response).setHeader("X-XSS-Protection", "1; mode=block");
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
@@ -201,13 +197,8 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldSkipDefaultHeadersIfContextPathIsAnyOtherUrlWithinGo() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
-
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
-        Handler rootPathHandler = handler.getHandler();
+        jetty9Server.startHandlers();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(mock(PrintWriter.class));
@@ -215,7 +206,13 @@ public class Jetty9ServerTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getPathInfo()).thenReturn("/go/pipelines");
 
-        rootPathHandler.handle("/go/pipelines", mock(Request.class), request, response);
+        Request baseRequest = mock(Request.class);
+        when(baseRequest.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+
+        ContextHandler rootPathHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
+        rootPathHandler.setServer(server);
+        rootPathHandler.start();
+        rootPathHandler.handle("/go/pipelines", baseRequest, request, response);
 
         verify(response, never()).setHeader("X-XSS-Protection", "1; mode=block");
         verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
@@ -225,31 +222,20 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldAddResourceHandlerForAssets() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
+        jetty9Server.startHandlers();
 
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(3));
-
-        Handler handler = handlerCollection.getHandlers()[1];
-        assertThat(handler instanceof AssetsContextHandler, is(true));
-        AssetsContextHandler assetsContextHandler = (AssetsContextHandler) handler;
+        ContextHandler assetsContextHandler = getLoadedHandlers().get(AssetsContextHandler.class);
         assertThat(assetsContextHandler.getContextPath(), is("context/assets"));
     }
 
     @Test
     public void shouldAddWebAppContextHandler() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
+        jetty9Server.startHandlers();
 
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(3));
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
 
-        Handler handler = handlerCollection.getHandlers()[2];
-        assertThat(handler, instanceOf(GzipHandler.class));
-        WebAppContext webAppContext = (WebAppContext) ((GzipHandler) handler).getHandler();
         assertThat(webAppContext, instanceOf(WebAppContext.class));
         List<String> configClasses = new ArrayList<>(Arrays.asList(webAppContext.getConfigurationClasses()));
         assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
@@ -271,8 +257,9 @@ public class Jetty9ServerTest {
     public void shouldSetSessionMaxInactiveInterval() throws Exception {
         jetty9Server.configure();
         jetty9Server.setSessionConfig();
+        jetty9Server.startHandlers();
 
-        WebAppContext webAppContext = getWebAppContext(jetty9Server);
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
         assertThat(webAppContext.getSessionHandler().getMaxInactiveInterval(), is(1234));
     }
 
@@ -281,8 +268,9 @@ public class Jetty9ServerTest {
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true);
         jetty9Server.configure();
         jetty9Server.setSessionConfig();
+        jetty9Server.startHandlers();
 
-        WebAppContext webAppContext = getWebAppContext(jetty9Server);
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
         SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionCookieConfig();
         assertThat(sessionCookieConfig.isHttpOnly(), is(true));
         assertThat(sessionCookieConfig.isSecure(), is(true));
@@ -297,15 +285,20 @@ public class Jetty9ServerTest {
     public void shouldAddExtraJarsIntoClassPath() throws Exception {
         jetty9Server.configure();
         jetty9Server.addExtraJarsToClasspath("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar");
-        assertThat(getWebAppContext(jetty9Server).getExtraClasspath(), is("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar," + configDir));
+        jetty9Server.startHandlers();
+
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
+        assertThat(webAppContext.getExtraClasspath(), is("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar," + configDir));
     }
 
     @Test
     public void shouldSetInitParams() throws Exception {
         jetty9Server.configure();
         jetty9Server.setInitParameter("name", "value");
+        jetty9Server.startHandlers();
 
-        assertThat(getWebAppContext(jetty9Server).getInitParameter("name"), CoreMatchers.is("value"));
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
+        assertThat(webAppContext.getInitParameter("name"), CoreMatchers.is("value"));
     }
 
     @Test
@@ -338,22 +331,27 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldSetErrorHandlerForWebAppContext() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
+        jetty9Server.startHandlers();
 
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(3));
-
-        Handler handler = handlerCollection.getHandlers()[2];
-        assertThat(handler, instanceOf(GzipHandler.class));
-        WebAppContext webAppContext = (WebAppContext) ((GzipHandler) handler).getHandler();
-        assertThat(webAppContext, instanceOf(WebAppContext.class));
-
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
         assertThat(webAppContext.getErrorHandler() instanceof JettyCustomErrorPageHandler, is(true));
     }
 
-    private WebAppContext getWebAppContext(Jetty9Server server) {
-        return (WebAppContext) ReflectionUtil.getField(server, "webAppContext");
+    @Test
+    public void shouldAddGzipHandlerAtWebAppContextLevel() throws Exception {
+        jetty9Server.configure();
+        jetty9Server.startHandlers();
+
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
+        assertThat(webAppContext.getGzipHandler(), is(not(nullValue())));
+    }
+
+    private Map<Class<? extends ContextHandler>, ContextHandler> getLoadedHandlers() throws Exception {
+        Map<Class<? extends ContextHandler>, ContextHandler> handlerTypeToHandler = new HashMap<>();
+        for (App app : appCaptor.getAllValues()) {
+            handlerTypeToHandler.put(app.getContextHandler().getClass(), app.getContextHandler());
+        }
+        return handlerTypeToHandler;
     }
 }

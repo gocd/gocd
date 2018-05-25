@@ -271,6 +271,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-plus-${versions.jetty}.jar",
       "jetty-security-${versions.jetty}.jar",
       "jetty-server-${versions.jetty}.jar",
+      "jetty-deploy-${versions.jetty}.jar",
       "jetty-servlet-${versions.jetty}.jar",
       "jetty-servlets-${versions.jetty}.jar",
       "jetty-util-${versions.jetty}.jar",

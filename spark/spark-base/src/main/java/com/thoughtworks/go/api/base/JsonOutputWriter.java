@@ -269,8 +269,10 @@ public class JsonOutputWriter {
 
         private void makeOutputAnInvalidJSON() {
             try {
-                this.jacksonWriter.writeStartObject();
-                this.jacksonWriter.writeString("Failed due to an exception. Please check the logs.");
+                // we perform a writeRaw because the writer does not allow emitting things that will
+                // otherwise generate bad json
+                this.jacksonWriter.writeRaw("{");
+                this.jacksonWriter.writeRaw("\"Failed due to an exception. Please check the logs.\"");
             } catch (IOException ignored) {
             }
         }

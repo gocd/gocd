@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ dependencies {
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+  compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
   compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
     exclude module: 'jetty-xml'
   }
@@ -101,10 +101,10 @@ task verifyJar(type: VerifyJarTask) {
       "commons-beanutils-1.7.0.jar",
       "commons-codec-${project.versions.commonsCodec}.jar",
       "commons-collections-3.2.2.jar",
-      "commons-configuration-1.10.jar",
+      "commons-configuration2-${project.versions.commonsConfiguration}.jar",
       "commons-digester-1.8.jar",
       "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang-${project.versions.commonsLang}.jar",
+      "commons-lang3-${project.versions.commonsLang3}.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
       "dom4j-1.6.1.jar",

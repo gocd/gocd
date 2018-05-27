@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public abstract class AbstractAuthenticationProvider<T extends Credentials> {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Properties;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistrationProperties {
     private static final Logger LOG = LoggerFactory.getLogger(AgentAutoRegistrationPropertiesImpl.class);
@@ -97,11 +99,11 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         try {
             PropertiesConfiguration config = new PropertiesConfiguration();
             config.setIOFactory(new FilteringOutputWriterFactory());
-            PropertiesConfigurationLayout layout = new PropertiesConfigurationLayout(config);
+            PropertiesConfigurationLayout layout = new PropertiesConfigurationLayout();
             layout.setLineSeparator("\n");
-            layout.load(reader());
+            layout.load(config, reader());
             try (FileWriter out = new FileWriter(this.configFile)) {
-                layout.save(out);
+                layout.save(config, out);
             }
             loadProperties();
         } catch (ConfigurationException | IOException e) {
@@ -130,13 +132,13 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
     }
 
     private StringReader reader() throws IOException {
-        return new StringReader(FileUtils.readFileToString(configFile));
+        return new StringReader(FileUtils.readFileToString(configFile, UTF_8));
     }
 
     private class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {
         class FilteringPropertiesWriter extends PropertiesConfiguration.PropertiesWriter {
-            FilteringPropertiesWriter(Writer out, char delimiter) {
-                super(out, delimiter);
+            FilteringPropertiesWriter(Writer writer, ListDelimiterHandler delHandler) {
+                super(writer, delHandler);
             }
 
             @Override
@@ -159,8 +161,9 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         }
 
         @Override
-        public PropertiesConfiguration.PropertiesWriter createPropertiesWriter(Writer out, char delimiter) {
-            return new FilteringPropertiesWriter(out, delimiter);
+        public PropertiesConfiguration.PropertiesWriter createPropertiesWriter(Writer out, ListDelimiterHandler handler) {
+            return new FilteringPropertiesWriter(out, handler);
         }
+
     }
 }

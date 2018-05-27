@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import com.thoughtworks.go.GoConfigRevisions;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ThrowingFn;
+import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.NullArgumentException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
@@ -39,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -146,8 +149,7 @@ public class ConfigRepository {
     }
 
     public RevCommit getRevCommitForMd5(String md5) throws GitAPIException {
-        if (md5 == null)
-            throw new NullArgumentException("md5");
+        Assert.notNull(md5, "md5 is required");
 
         final String expectedPart = GoConfigRevision.Fragment.md5.represent(GoConfigRevision.esc(md5));
         for (RevCommit revision : revisions()) {

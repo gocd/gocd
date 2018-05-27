@@ -638,7 +638,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-digester-1.8.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
-        "commons-lang-${project.versions.commonsLang}.jar",
+        "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-net-2.0.jar",
         "commons-pool-1.5.6.jar",
         "config-api-${project.version}.jar",

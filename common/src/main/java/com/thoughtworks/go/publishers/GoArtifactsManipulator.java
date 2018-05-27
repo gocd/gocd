@@ -28,7 +28,7 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 
 @Component
 public class GoArtifactsManipulator {

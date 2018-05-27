@@ -27,7 +27,7 @@ import com.thoughtworks.go.util.ProcessWrapper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;

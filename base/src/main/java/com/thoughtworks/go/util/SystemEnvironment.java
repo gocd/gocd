@@ -18,7 +18,7 @@ package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class ConfigurationDisplayUtil {
     public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore metadataStore, String pluginId, final Configuration configuration) {

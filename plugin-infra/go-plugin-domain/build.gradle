@@ -18,7 +18,7 @@ description = 'GoCD Plugins Domain'
 
 dependencies {
   compile project(':plugin-infra:go-plugin-api')
-  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
   testCompile project(':test:test-utils')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit

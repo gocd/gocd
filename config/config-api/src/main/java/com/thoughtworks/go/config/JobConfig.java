@@ -23,12 +23,12 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @understands configuratin for a job

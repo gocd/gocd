@@ -18,7 +18,7 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.server.service.lookups.CommandSnippet;
 import com.thoughtworks.go.server.service.lookups.CommandSnippetXmlParser;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class CommandSnippetMother {
 

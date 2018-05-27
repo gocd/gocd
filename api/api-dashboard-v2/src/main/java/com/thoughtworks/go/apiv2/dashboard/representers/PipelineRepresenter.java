@@ -25,7 +25,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceMod
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Consumer;
 

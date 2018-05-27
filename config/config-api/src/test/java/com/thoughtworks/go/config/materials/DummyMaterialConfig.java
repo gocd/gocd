@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public void setUrl(String url) {
-        throw new NotImplementedException();
+        throw new NotImplementedException("Operation not supported");
     }
 
     @Override

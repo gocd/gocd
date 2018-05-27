@@ -27,7 +27,7 @@ import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -56,12 +56,12 @@ class ElasticAgentExtensionConverterV3 {
         return GSON.toJson(jsonObject);
     }
 
-    
+
     List<PluginConfiguration> getElasticProfileMetadataResponseFromBody(String responseBody) {
         return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
-    
+
     String getProfileViewResponseFromBody(String responseBody) {
         String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
@@ -70,7 +70,7 @@ class ElasticAgentExtensionConverterV3 {
         return template;
     }
 
-    
+
     com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
     }
@@ -84,18 +84,18 @@ class ElasticAgentExtensionConverterV3 {
         return GSON.toJson(jsonObject);
     }
 
-    
+
     ValidationResult getElasticProfileValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
     }
 
-    
+
     String validateElasticProfileRequestBody(Map<String, String> configuration) {
         JsonObject properties = mapToJsonObject(configuration);
         return new GsonBuilder().serializeNulls().create().toJson(properties);
     }
 
-    
+
     Boolean shouldAssignWorkResponseFromBody(String responseBody) {
         return new Gson().fromJson(responseBody, Boolean.class);
     }

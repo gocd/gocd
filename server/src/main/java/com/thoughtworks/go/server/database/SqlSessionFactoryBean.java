@@ -36,7 +36,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, InitializingBean {

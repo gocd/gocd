@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.LogFixture;
 import ch.qos.logback.classic.Level;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

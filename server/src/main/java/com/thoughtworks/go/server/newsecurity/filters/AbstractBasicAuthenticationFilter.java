@@ -38,7 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.server.newsecurity.controllers.AuthenticationController.BAD_CREDENTIALS_MSG;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFilter {
     private static final Pattern BASIC_AUTH_EXTRACTOR_PATTERN = Pattern.compile("basic (.*)", Pattern.CASE_INSENSITIVE);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import com.thoughtworks.go.security.GoCipher;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.LinkedHashMap;
@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @ConfigTag("mailhost")
 public class MailHost implements Validatable, PasswordEncrypter {

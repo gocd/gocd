@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ConfigurationPropertyRepresenter {
     public static void toJSON(OutputListWriter propertiesWriter, List<ConfigurationProperty> configurationProperties) {

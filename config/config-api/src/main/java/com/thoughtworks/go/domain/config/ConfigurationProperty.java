@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.*;
 
 @ConfigTag("property")
 public class ConfigurationProperty implements Serializable, Validatable {

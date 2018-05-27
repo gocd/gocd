@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.RequestContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

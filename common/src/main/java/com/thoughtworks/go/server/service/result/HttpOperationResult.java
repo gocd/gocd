@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service.result;
 
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 

@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import spark.Request;
 import spark.Response;
 import spark.Spark;

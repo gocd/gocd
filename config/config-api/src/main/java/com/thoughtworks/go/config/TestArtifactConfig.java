@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ArtifactType;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "test")
 public class TestArtifactConfig extends BuiltinArtifactConfig {

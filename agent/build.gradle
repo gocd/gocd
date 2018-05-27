@@ -95,7 +95,7 @@ task verifyJar(type: VerifyJarTask) {
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
       "bcprov-jdk15on-1.47.jar",
-      "cloning-1.7.3.jar",
+      "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",
       "commons-beanutils-1.7.0.jar",

@@ -167,7 +167,7 @@ rootProject.ext.versions = [
   jgit                : '4.9.0.201710071750-r',
   jolt                : '0.1.1',
   jsonAssert          : '1.5.0',
-  jsonUnit            : '1.28.1',
+  jsonUnit            : '1.29.0',
   jsoup               : '1.11.3',
   junit               : '4.12',
   junit5              : '5.2.0',

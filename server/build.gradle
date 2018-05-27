@@ -184,7 +184,9 @@ dependencies {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
   }
-  compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
+  compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
+  // this is needed by velocity tools view
+  compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
   compile group: 'com.google.guava', name: 'guava', version: '20.0'
   compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
   compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
@@ -638,6 +640,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-digester-1.8.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
+        "commons-lang-${project.versions.commonsLang}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-net-2.0.jar",
         "commons-pool-1.5.6.jar",
@@ -749,7 +752,7 @@ task verifyWar(type: VerifyJarTask) {
         "urlrewritefilter-3.2.0.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",
-        "velocity-tools-view-1.2.jar",
+        "velocity-tools-view-${project.versions.velocityToolsView}.jar",
         "xml-apis-1.3.04.jar",
       ])
   ]

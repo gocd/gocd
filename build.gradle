@@ -168,7 +168,7 @@ rootProject.ext.versions = [
   jolt                : '0.1.1',
   jsonAssert          : '1.5.0',
   jsonUnit            : '1.28.1',
-  jsoup               : '1.11.2',
+  jsoup               : '1.11.3',
   junit               : '4.12',
   junit5              : '5.1.0',
   logback             : '1.2.3',

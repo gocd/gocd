@@ -190,7 +190,7 @@ rootProject.ext.versions = [
   tinybundles         : '3.0.0',
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
-  xmlUnitMatchers     : '2.5.1',
+  xmlUnitMatchers     : '2.6.0',
 ]
 
 allprojects {

@@ -53,11 +53,11 @@
       var self            = this;
       this.consoleScrollToggle.addClass('tailing');
       this.scrollToBottom(0);
-      $(window).on('scroll.autoScroll resize.autoScroll', $.throttle(200, function () {
+      $(window).on('scroll.autoScroll resize.autoScroll', _.throttle(function () {
         if (self.previousScrollPosition - $(window).scrollTop() > 5) {
           self.stopScroll();
         }
-      }));
+      }, 200));
     },
     stopScroll:      function stopScroll() {
       this.tailingEnabled = false;

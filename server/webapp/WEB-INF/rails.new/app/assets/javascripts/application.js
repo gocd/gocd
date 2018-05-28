@@ -38,7 +38,6 @@
 //= require "lib/highcharts-2.3.3.min.js"
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
 //= require "lib/jquery.autocomplete-1.1.js"
-//= require "lib/jquery.ba-throttle-debounce-1.1.min.js"
 //= require "lib/jquery.dirtyform.js"
 //= require "lib/jquery.highlight-3.0.js"
 //= require "lib/jquery.tipTip-1.3.js"

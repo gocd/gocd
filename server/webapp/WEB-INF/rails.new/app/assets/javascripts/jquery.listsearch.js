@@ -16,7 +16,7 @@
 
 var deBounceHandler = {
     deBounceSearch: function (callback) {
-        return jQuery.debounce(250, callback)
+        return _.debounce(callback, 250)
     }
 };
 

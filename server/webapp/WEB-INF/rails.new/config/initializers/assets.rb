@@ -19,4 +19,3 @@ Rails.application.config.assets.precompile += %w(*.svg *.eot *.woff *.ttf *.gif 
 Rails.application.config.assets.precompile += %w( new-theme.css )
 
 Rails.application.config.assets.paths << Rails.root.join("webpack", "rails-shared")
-Rails.application.config.assets.paths << Rails.root.join("node_modules")

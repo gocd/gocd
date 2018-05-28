@@ -47,8 +47,6 @@
 //= require "lib/jquery.validate-1.5.5.js"
 //= require "lib/modalbox-1.6.1.js"
 //= require "lib/trimpath-template-1.0.38.js"
-//= require "lib/ui.core-1.7.3.js"
-//= require "lib/ui.dialog-1.7.3.js"
 //= require "lib/lodash.js"
 //= require "lib/moment-2.18.1.js"
 //= require "lib/moment-duration-format-1.3.0.js"

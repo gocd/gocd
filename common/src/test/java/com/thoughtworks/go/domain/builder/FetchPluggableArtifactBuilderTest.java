@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -64,6 +65,7 @@ public class FetchPluggableArtifactBuilderTest {
     private ChecksumFileHandler checksumFileHandler;
     private FetchPluggableArtifactTask fetchPluggableArtifactTask;
     private PluginRequestProcessorRegistry registry;
+    private EnvironmentVariableContext environmentVariableContext;
 
     @Before
     public void setUp() throws Exception {
@@ -71,6 +73,7 @@ public class FetchPluggableArtifactBuilderTest {
         artifactExtension = mock(ArtifactExtension.class);
         checksumFileHandler = mock(ChecksumFileHandler.class);
         registry = mock(PluginRequestProcessorRegistry.class);
+        environmentVariableContext = mock(EnvironmentVariableContext.class);
 
         metadataDest = new File(temporaryFolder.newFolder("dest"), "cd.go.s3.json");
         FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", StandardCharsets.UTF_8);
@@ -92,7 +95,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallPublisherToFetchMetadataFile() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, "utf-8");
 
         final ArgumentCaptor<FetchArtifactBuilder> argumentCaptor = ArgumentCaptor.forClass(FetchArtifactBuilder.class);
 
@@ -108,7 +111,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallArtifactExtension() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, "utf-8");
 
         verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -122,7 +125,7 @@ public class FetchPluggableArtifactBuilderTest {
         fileWriter.write(new Gson().toJson(metadata));
         fileWriter.close();
 
-        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, "utf-8");
 
         verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -136,7 +139,7 @@ public class FetchPluggableArtifactBuilderTest {
         fileWriter.write(new Gson().toJson(metadata));
         fileWriter.close();
 
-        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, "utf-8");
 
 
         InOrder inOrder = inOrder(registry, artifactExtension);

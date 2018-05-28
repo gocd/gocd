@@ -187,6 +187,7 @@ rootProject.ext.versions = [
   spark               : '2.7.1',
   spring              : '4.3.17.RELEASE',
   springSecurity      : '4.2.6.RELEASE',
+  systemRules         : '1.18.0',
   tinybundles         : '3.0.0',
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',

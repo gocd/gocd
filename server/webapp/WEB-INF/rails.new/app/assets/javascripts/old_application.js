@@ -44,10 +44,6 @@ function context_path(path_info) {
     return contextPath + "/" + path_info
 };
 
-function gotoPage(url) {
-    window.location= window.location.protocol + '//' + window.location.host + context_path(url);
-}
-
 /* Only one popup is available in same time */
 var ExclusivePopup = new (Class.create({
     create: function(id){

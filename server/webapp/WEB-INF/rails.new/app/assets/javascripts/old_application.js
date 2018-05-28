@@ -247,31 +247,6 @@ var PopupPositionAwareModule = {
 
 Object.extend(ExclusivePopup, PopupPositionAwareModule);
 
-var FirebugDetector = {
-    check: function(){
-        var dont_show_warn = getCookie('hideFirebugWarnning');
-        if(!dont_show_warn || dont_show_warn != 'true'){
-            if(this.isFirebugEnabled()){
-                this.showWarning();
-            }
-        }
-    },
-    isFirebugEnabled: function(){
-        if(('console' in window) && ('firebug' in window.console)){
-            return true;
-        }
-        return false;
-    },
-    showWarning: function(){
-        FlashMessageLauncher.info('Go has detected that you are using Firebug (' + (console.firebug ? console.firebug : 'unknown version') + '), which makes Go slow. We suggest you disable it. <a href="javascript:void(0)" onclick="FirebugDetector.hideWarnning()" title="Hide this warning, It will no longer warn you on this computer.">Hide this warning</a>');
-    },
-    hideWarnning: function(){
-        setCookie('hideFirebugWarnning', 'true');
-        FlashMessageLauncher.hide('info');
-    },
-    notify: this.check
-};
-
 var CruiseBasicService = {
     nullStringRepresentation : function() {
         return 'not-set';

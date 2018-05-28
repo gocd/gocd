@@ -34,13 +34,6 @@
     <script type="text/javascript">
         restoreSidebarStatus();
 
-        if(FirebugDetector){
-            FirebugDetector.check();
-            if(window.dashboard_periodical_executor){
-                dashboard_periodical_executor.register(FirebugDetector);
-            }
-        }
-
         new AjaxRefresher("$req.getContextPath()/server/messages.json", "$req.getContextPath()/auth/login", {executeImmediately: true});
 
         #if($global_error_message && $global_error_message != "")

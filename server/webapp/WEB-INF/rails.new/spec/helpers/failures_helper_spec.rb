@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ describe FailuresHelper do
 
     it "should render anchor and js for failed_test details" do
       job_id = JobIdentifier.new("pipeline1", 1234, "pip-label-1", "defaultStage", "5678", "defaultJob")
-      expect(failure_details_link(job_id, "cruise.testing.JUnit", "a")).to eq(%Q{<a href='/failures/pipeline1/1234/defaultStage/5678/defaultJob/Y3J1aXNlLnRlc3RpbmcuSlVuaXQ%253D%250A/YQ%253D%253D%250A' id="for_fbh_failure_details_pipeline1/1234/defaultStage/5678/defaultJob_cruise.testing.JUnit_a" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>\n})
+      expect(failure_details_link(job_id, "cruise.testing.JUnit", "a")).to eq(%Q{<a href='/failures/pipeline1/1234/defaultStage/5678/defaultJob?suite_name=cruise.testing.JUnit&test_name=a' id="for_fbh_failure_details_pipeline1/1234/defaultStage/5678/defaultJob_cruise.testing.JUnit_a" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>\n})
     end
   end
 end

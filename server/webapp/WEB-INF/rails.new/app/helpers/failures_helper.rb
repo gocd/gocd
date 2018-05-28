@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,6 @@ LINK
   def failure_details_path job_id, suite_name, test_name
     failure_details_internal_path(:pipeline_name => job_id.getPipelineName(), :pipeline_counter => job_id.getPipelineCounter(), :stage_name => job_id.getStageName(),
                                   :stage_counter => job_id.getStageCounter(), :job_name => job_id.getBuildName(),
-                                  :suite_name => CGI.escape(enc(suite_name)), :test_name => CGI.escape(enc(test_name)))
+                                  :suite_name => suite_name, :test_name => test_name)
   end
 end

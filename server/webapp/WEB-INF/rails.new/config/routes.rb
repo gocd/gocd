@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -183,7 +183,7 @@ Go::Application.routes.draw do
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
 
-  get 'failures/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name/:suite_name/:test_name' => 'failures#show', constraints: STAGE_LOCATOR_CONSTRAINTS, :no_layout => true, as: :failure_details_internal
+  get 'failures/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name' => 'failures#show', constraints: STAGE_LOCATOR_CONSTRAINTS, :no_layout => true, as: :failure_details_internal
 
   get 'server/messages.json' => 'server#messages', :format => "json", as: :global_message
 

@@ -145,8 +145,8 @@ rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 rootProject.ext.versions = [
-  apacheHttpComponents: '4.5.4',
-  apacheHttpMime      : '4.5.4',
+  apacheHttpComponents: '4.5.5',
+  apacheHttpMime      : '4.5.5',
   assertJ             : '3.8.0',
   cloning             : '1.9.10',
   commonsCodec        : '1.10',

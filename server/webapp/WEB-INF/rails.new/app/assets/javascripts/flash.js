@@ -34,11 +34,11 @@ FlashMessage.prototype = {
         try {
             if (!message_box) {
                 var main_container = $$('#yui-main .yui-b')[0];
-                container = Builder.node('div', {id: type + '-container', style: 'display: none;'});
+                container = new Element('div', {id: type + '-container', style: 'display: none;'});
                 var innerHTMLText = '<div class="ab-bg"><span class="ab-corner lvl1"></span><span class="ab-corner lvl2"></span><span class="ab-corner lvl3"></span><span class="ab-corner lvl4"></span></div><div id="'
                         + type + '-box"></div><div class="ab-bg"><span class="ab-corner lvl4"></span><span class="ab-corner lvl3"></span><span class="ab-corner lvl2"></span><span class="ab-corner lvl1"></span></div>';
                 container.innerHTML = innerHTMLText;
-                this[type + '-container'] = container; 
+                this[type + '-container'] = container;
                 main_container.insertBefore(container, main_container.firstChild);
             }
         } catch(e) {

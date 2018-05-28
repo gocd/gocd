@@ -23,7 +23,7 @@
             <th class="build-properties-value-column" scope="col">Property value</th>
             <th class="build-properties-operations-column last" scope="col"></th>
         </tr>
-        
+
         #foreach ($property in $presenter.getProperties())
         <tr id="property-of-$property.key" class="#if ($velocityCount % 2 == 0) even #else odd #end">
             <td class="first">$esc.html($property.key)</td>
@@ -31,23 +31,5 @@
             <td></td>
         </tr>
         #end
-
-        <tr id="new-property" style="display: none;">
-            <td class="first">
-                <input id="property-key" class="width-full" value="" maxlength="255"/>
-            </td>
-            <td>
-                <input id="property-value" class="width-large" value="" maxlength="255"/>
-            </td>
-            <td>
-                <img id="new-property-submit-indicator" src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="Submitting..." style="display: none;"/>
-
-                <button id="new-property-save-button" class="submit" onclick="buildDetailProperties.saveProperties()"><span>Save</span></button>
-                <button class="submit" onclick="buildDetailProperties.cancelAddPane()"><span>Cancel</span></button>
-            </td>
-        </tr>
     </table>
-    <script type="text/javascript">
-    var buildDetailProperties = new BuildDetailProperties("$presenter.pipelineName", "$presenter.pipelineLabel", "$presenter.stageName", "$presenter.buildName", "${presenter.buildLocator}");
-    </script>
 </div>

@@ -46,7 +46,6 @@
 //= require "lib/jquery.treeview-1.5pre.js"
 //= require "lib/jquery.validate-1.5.5.js"
 //= require "lib/modalbox-1.6.1.js"
-//= require "lib/slider-1.8.0.js"
 //= require "lib/trimpath-template-1.0.38.js"
 //= require "lib/ui.core-1.7.3.js"
 //= require "lib/ui.dialog-1.7.3.js"

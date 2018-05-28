@@ -272,70 +272,6 @@ var FirebugDetector = {
     notify: this.check
 };
 
-var PageIntro = {
-    initPage: function(){
-        return;
-        PageIntro.initControls();
-        PageIntro.restorePageIntroStatusFromCookie();
-
-    },
-    initControls: function(){
-        //initialize all javascript controls here
-
-
-        // Accordions
-        if( $('vertical_container') ){
-		    var accordionControl = new accordion('vertical_container');
-            accordionControl.activate($$('#vertical_container .accordion_toggle')[0]);
-        }
-
-    },
-    togglePageIntro: function(event) {
-        var content = $('intro');
-        if(!content){
-            return;
-        }
-        if(event){
-            var element = $(event.target);
-            if(element && element.tagName.toLowerCase() == 'a' && !element.match('a.clickable-link')){
-                event.stop();
-                return;
-            }
-        }
-        content.toggle();
-        if(content.visible()){
-            setCookie('cruise-page-intro-status', 'open', undefined, '/');
-            $(document.body).removeClassName('hide-help-content');
-        } else {
-            setCookie('cruise-page-intro-status', 'closed', undefined, '/');
-            $(document.body).addClassName('hide-help-content');
-        }
-    },
-    restorePageIntroStatusFromCookie: function() {
-        var status = getCookie('cruise-page-intro-status');
-        if(!status){
-            setCookie('cruise-page-intro-status', 'open', undefined, '/');
-            status = 'open';
-        }
-        if('open' == status){
-            PageIntro.togglePageIntro();
-        } else {
-            $(document.body).addClassName('hide-help-content');
-        }
-        PageIntro.bindLisener();
-    },
-    bindLisener: function(){
-        var hide_checkbox = $('page-title-clickable-area');
-        var panel_button = $('page-intro-toggle-button');
-        if(hide_checkbox){
-            hide_checkbox.observe('click', PageIntro.togglePageIntro);
-        }
-        if(panel_button){
-            panel_button.observe('click', PageIntro.togglePageIntro);
-        }
-    }
-};
-
 var CruiseBasicService = {
     nullStringRepresentation : function() {
         return 'not-set';
@@ -370,10 +306,6 @@ Ajax.Responders.register({
         }
     }
 });
-
-
-Event.observe(window, 'load', PageIntro.initPage);
-
 
 
 //iframe resizer + back to top

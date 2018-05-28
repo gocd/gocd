@@ -57,14 +57,6 @@
         #set($current_page="pipeline_history")
       <!-- /breadcrumbs -->
 
-        #parse("shared/_page_intro_top.vm")
-      <p>This view shows you all build activity that has occured in your pipeline over time.
-        Click on a stage in the configuration panel to view activity only within that stage.
-        You can also manually approve stages from this screen to force the next stage to run.
-        <a class="more" target="_blank" title="Learn more from help documentation"
-           href="https://docs.gocd.org/current/navigation/pipeline_activity_page.html">more...</a>
-      </p>
-        #parse("shared/_page_intro_bottom.vm")
       <!-- pipeline start -->
 
       <div id="pipeline-history">

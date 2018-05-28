@@ -34,16 +34,6 @@
       #parse("shared/_job_details_breadcrumbs.vm")
     <!-- /breadcrumbs -->
 
-      #parse("shared/_page_intro_top.vm")
-    <p>This view shows the highest level of detail available in Go for a specific job run.
-      It shows the console output of the job, failure information if relevant, modifications, artifacts, properties, and
-      any custom tabs
-      you've configured from your artifacts.
-      <a href="https://docs.gocd.org/current/navigations/job_details_page.html" target="_blank"
-         title="Learn more from help documentation" class="more">more...</a>
-    </p>
-      #parse("shared/_page_intro_bottom.vm")
-
     <div class="content_wrapper_outer">
       <div class="row">
         <div class="content_wrapper_inner">

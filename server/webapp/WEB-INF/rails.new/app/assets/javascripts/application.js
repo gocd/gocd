@@ -37,7 +37,6 @@
 //= require "lib/angular-1.0.8.js"
 //= require "lib/angular-resource.1.0.8.min.js"
 //= require "lib/effects-1.8.0.js"
-//= require "lib/accordion-2.0.js"
 //= require "lib/controls-1.8.0.js"
 //= require "lib/dragdrop-1.8.0.js"
 //= require "lib/highcharts-2.3.3.min.js"

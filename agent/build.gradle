@@ -155,7 +155,6 @@ task verifyJar(type: VerifyJarTask) {
       "websocket-api-${versions.jetty}.jar",
       "websocket-client-${versions.jetty}.jar",
       "websocket-common-${versions.jetty}.jar",
-      "xml-apis-1.0.b2.jar",
     ]
   ]
 }

@@ -55,10 +55,8 @@ task verifyJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
       "lib": [
-          "serializer-2.7.1.jar",
           "tfs-impl-14-${project.version}-classes.jar",
-          "tfs-sdk-14.0.3.jar",
-          "xalan-2.7.1.jar"
+          "tfs-sdk-14.0.3.jar"
       ]
   ]
 }

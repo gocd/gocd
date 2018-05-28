@@ -465,6 +465,9 @@ subprojects {
     }
   }
 
+  project.configurations*.exclude(group: 'xalan')
+  project.configurations*.exclude(group: 'xml-apis')
+
 }
 
 task allDependencies {

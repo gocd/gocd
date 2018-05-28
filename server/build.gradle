@@ -194,13 +194,9 @@ dependencies {
 
   // needed by jdom2 for some XPATH stuff
   compile(group: 'jaxen', name: 'jaxen', version: '1.1.6') {
-    exclude(module: 'xml-apis')
     exclude(module: 'xom')
-    exclude(module: 'xercesImpl')
     exclude(module: 'jdom')
   }
-  // this is just an override to force a transitive dep to the version we want.
-  compile group: 'xml-apis', name: 'xml-apis', version: '1.3.04'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
@@ -753,7 +749,6 @@ task verifyWar(type: VerifyJarTask) {
         "util-${project.version}.jar",
         "velocity-1.7.jar",
         "velocity-tools-view-${project.versions.velocityToolsView}.jar",
-        "xml-apis-1.3.04.jar",
       ])
   ]
 }

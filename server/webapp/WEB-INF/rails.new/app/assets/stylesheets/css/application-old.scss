@@ -21,27 +21,6 @@ body{
 	font-family:Helvetica,sans-serif;
 }
 
-body.hide-help-content .pipeline-nav {
-    display: none;
-}
-
-#intro {
-    padding: 1em;
-    color: #4B220E;
-    margin: .9em 1em 0.75em 1em;
-    border: 1px solid #ab8555;
-    background-color: #FFF;
-    position: relative;
-    zoom: 1;
-    -moz-border-radius: 9px;
-    -webkit-border-radius: 9px;
-    border-radius: 9px;
-}
-
-#intro p {
-    padding: 0px 10px 0px 4px;
-}
-
 #yui-main .yui-b {
     /*background: transparent image_url('bg_sidebar_seperator.png') repeat-y right top;*/
     zoom: 1;
@@ -76,35 +55,6 @@ body.hide-help-content .pipeline-nav {
     height: 23px;
     margin: 0 0 0 0.8em;
     float: left;
-}
-
-#page-intro-toggle-button {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    background: white image_url('icon_close_page_intro.gif') no-repeat left top;
-    width: 15px;
-    height: 15px;
-    font-size: 0;
-    line-height: 0;
-    display: block;
-    border: none;
-    cursor: pointer;
-    text-indent: -10000px;
-    zoom: 1;
-    overflow: hidden;
-    padding: 0;
-}
-
-#yui-main #intro .page-intro-arrow {
-    background: transparent image_url('bg_page_intro_arrow.gif') no-repeat left top;
-    font-size: 0;
-    line-height: 0;
-    display: block;
-    width: 30px;
-    height: 13px;
-    top: -13px;
-    left: 30px;
 }
 
 /* Forms */

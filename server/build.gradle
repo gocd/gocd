@@ -671,7 +671,7 @@ task verifyWar(type: VerifyJarTask) {
         "jackson-databind-2.9.4.jar",
         "jasypt-1.7.jar",
         "JavaEWAH-1.1.6.jar",
-        "javassist-3.12.0.GA.jar",
+        "javassist-${project.versions.javaAssist}.jar",
         "javasysmon-0.3.6.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",

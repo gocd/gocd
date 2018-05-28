@@ -87,6 +87,11 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    public void shouldSetTrueAsDefaultForUseIframeSandbox() {
+        assertThat(systemEnvironment.useIframeSandbox(), is(true));
+    }
+
+    @Test
     public void shouldHaveBaseUrl() {
         assertThat(systemEnvironment.getBaseUrlForShine(), is("http://localhost:8153/go"));
     }

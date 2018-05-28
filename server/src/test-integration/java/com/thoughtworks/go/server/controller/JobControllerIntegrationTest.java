@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -95,6 +96,9 @@ public class JobControllerIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -112,7 +116,7 @@ public class JobControllerIntegrationTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao);
+                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
     }
 
     @After
@@ -167,7 +171,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao);
+                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");

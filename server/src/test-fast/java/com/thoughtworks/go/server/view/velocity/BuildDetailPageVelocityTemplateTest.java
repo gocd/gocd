@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import static com.thoughtworks.go.helper.PipelineMother.schedule;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BuildDetailPageVelocityTemplateTest {
 
@@ -64,6 +65,54 @@ public class BuildDetailPageVelocityTemplateTest {
     public void shouldEscapeBuildCauseInTrimpathTemplate() throws Exception {
         Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(createJobDetailModel()).render());
         assertThat(actualDoc.select("#build-summary-template").last().html(), containsString("modified by Ernest Hemingway &amp;lt;oldman@sea.com&amp;gt;"));
+    }
+
+    @Test
+    public void shouldRenderIframeSandboxByDefaultForTestsTab() {
+        HashMap<String, Object> data = new HashMap<>();
+        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
+        data.put("presenter", jobDetailPresentationModel);
+        data.put("useIframeSandbox", true);
+        when(jobDetailPresentationModel.hasTests()).thenReturn(true);
+        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
+
+        assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe sandbox=\"allow-scripts\""));
+    }
+
+    @Test
+    public void shouldRenderANormalIframeForTestsTabIfUserHasDisabledSandbox() {
+        HashMap<String, Object> data = new HashMap<>();
+        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
+        data.put("presenter", jobDetailPresentationModel);
+        data.put("useIframeSandbox", false);
+        when(jobDetailPresentationModel.hasTests()).thenReturn(true);
+        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
+
+        assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe src="));
+    }
+
+    @Test
+    public void shouldRenderIframeSandboxByDefaultForFailuresTab() {
+        HashMap<String, Object> data = new HashMap<>();
+        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
+        data.put("presenter", jobDetailPresentationModel);
+        data.put("useIframeSandbox", true);
+        when(jobDetailPresentationModel.hasFailedTests()).thenReturn(true);
+        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
+
+        assertThat(actualDoc.select("#tab-content-of-failures").last().html(), containsString("<iframe sandbox=\"allow-scripts\""));
+    }
+
+    @Test
+    public void shouldRenderANormalIframeForFailuresTabIfUserHasDisabledSandbox() {
+        HashMap<String, Object> data = new HashMap<>();
+        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
+        data.put("presenter", jobDetailPresentationModel);
+        data.put("useIframeSandbox", false);
+        when(jobDetailPresentationModel.hasFailedTests()).thenReturn(true);
+        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
+
+        assertThat(actualDoc.select("#tab-content-of-failures").last().html(), containsString("<iframe src="));
     }
 
     private HashMap<String, Object> createJobDetailModel() {

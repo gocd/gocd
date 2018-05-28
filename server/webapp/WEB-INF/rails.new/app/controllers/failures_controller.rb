@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ class FailuresController < ApplicationController
   include ParamEncoder
 
   layout false
-  decode_params :suite_name, :test_name, :only => 'show'
 
   def show
     job_id = JobIdentifier.new(StageIdentifier.new(params[:pipeline_name], params[:pipeline_counter].to_i, params[:stage_name], params[:stage_counter]), params[:job_name])

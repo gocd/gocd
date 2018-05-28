@@ -156,7 +156,7 @@ rootProject.ext.versions = [
   commonsLang         : '2.6',
   commonsLang3        : '3.7',
   dbunit              : '2.5.4',
-  ehcache             : '2.10.4',
+  ehcache             : '2.10.5',
   felix               : '5.6.10',
   gson                : '2.8.2',
   hamcrest            : '1.3',

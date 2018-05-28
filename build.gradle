@@ -147,7 +147,7 @@ rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.gete
 rootProject.ext.versions = [
   apacheHttpComponents: '4.5.5',
   apacheHttpMime      : '4.5.5',
-  assertJ             : '3.8.0',
+  assertJ             : '3.10.0',
   cloning             : '1.9.10',
   commonsCodec        : '1.10',
   commonsConfiguration: '2.2',

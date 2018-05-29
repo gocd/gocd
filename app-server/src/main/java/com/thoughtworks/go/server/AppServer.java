@@ -44,4 +44,6 @@ public abstract class AppServer {
     abstract void start() throws Exception;
 
     abstract void stop() throws Exception;
+
+    public abstract boolean hasStarted();
 }

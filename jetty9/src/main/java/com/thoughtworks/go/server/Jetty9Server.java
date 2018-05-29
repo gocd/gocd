@@ -39,7 +39,6 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.management.MBeanServer;
 import javax.net.ssl.SSLSocketFactory;
@@ -139,6 +138,11 @@ public class Jetty9Server extends AppServer {
     }
 
     @Override
+    public boolean hasStarted() {
+        return !webAppContext.isFailed() && webAppContext.getUnavailableException() == null;
+    }
+
+    @Override
     public void addExtraJarsToClasspath(String extraClasspath) {
         extraClasspath = new StringBuilder(extraClasspath).append(",").append(systemEnvironment.configDir().getAbsoluteFile()).toString();
         webAppContext.setExtraClasspath(extraClasspath);
@@ -183,7 +187,7 @@ public class Jetty9Server extends AppServer {
         return new MBeanContainer(platformMBeanServer);
     }
 
-    ContextHandler welcomeFileHandler() {
+    private ContextHandler welcomeFileHandler() {
         return new GoServerWelcomeFileHandler(systemEnvironment);
     }
 
@@ -236,7 +240,7 @@ public class Jetty9Server extends AppServer {
         return systemEnvironment.getCruiseWar();
     }
 
-    WebAppContext createWebAppContext() throws IOException, SAXException {
+    private WebAppContext createWebAppContext() {
         webAppContext = new WebAppContext();
         webAppContext.setDefaultsDescriptor(GoWebXmlConfiguration.configuration(getWarFile()));
 

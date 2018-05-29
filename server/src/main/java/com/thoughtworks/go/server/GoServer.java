@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,11 +70,11 @@ public class GoServer {
     protected void startServer() throws Exception {
         server = configureServer();
         server.start();
-        Throwable exceptionAtServerStart = server.getUnavailableException();
-        if (exceptionAtServerStart != null) {
+        if (!server.hasStarted()) {
+            Throwable exceptionAtServerStart = server.getUnavailableException();
             server.stop();
-            LOG.error("ERROR: Failed to start Go server.", exceptionAtServerStart);
-            throw new RuntimeException("Failed to start Go server.", exceptionAtServerStart);
+            LOG.error("ERROR: Failed to start GoCD server.", exceptionAtServerStart);
+            throw new RuntimeException("Failed to start GoCD server.", exceptionAtServerStart);
         }
     }
 

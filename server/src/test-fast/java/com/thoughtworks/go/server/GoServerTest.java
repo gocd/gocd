@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ public class GoServerTest {
 
         assertThat(appServerStub.calls.get("addExtraJarsToClasspath"), is(""));
         assertThat(appServerStub.calls.get("setSessionCookieConfig"), is("something"));
-        assertThat(appServerStub.calls.get("getUnavailableException"), is(true));
+        assertThat(appServerStub.calls.get("hasStarted"), is(true));
         assertThat(appServerStub.calls.get("configure"), is(true));
         assertThat(appServerStub.calls.get("start"), is(true));
         assertThat(appServerStub.calls.get("stop"), is(CoreMatchers.nullValue()));
@@ -128,6 +128,7 @@ public class GoServerTest {
     @Test
     public void shouldStopServerAndThrowExceptionWhenServerFailsToStartWithAnUnhandledException() throws Exception {
         final AppServer server = mock(AppServer.class);
+        when(server.hasStarted()).thenReturn(false);
         when(server.getUnavailableException()).thenReturn(new RuntimeException("Some unhandled server startup exception"));
 
         GoServer goServer = new GoServer(){
@@ -143,7 +144,7 @@ public class GoServerTest {
             goServer.startServer();
             fail("Should have thrown an exception");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Failed to start Go server."));
+            assertThat(e.getMessage(), is("Failed to start GoCD server."));
             assertThat(e.getCause().getMessage(), is("Some unhandled server startup exception"));
         }
 

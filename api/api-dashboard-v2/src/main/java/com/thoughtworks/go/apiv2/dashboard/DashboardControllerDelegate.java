@@ -42,7 +42,6 @@ import static spark.Spark.*;
 public class DashboardControllerDelegate extends ApiController {
 
     private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");
-    private static final String FEATURE_NOT_ENABLED = MessageJson.create("The quicker dashboard feature has not been enabled!");
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
@@ -72,10 +71,6 @@ public class DashboardControllerDelegate extends ApiController {
     }
 
     public Object index(Request request, Response response) throws IOException {
-        if (goDashboardService.isFeatureToggleDisabled()) {
-            response.status(424);
-            return FEATURE_NOT_ENABLED;
-        }
         if (!goDashboardService.hasEverLoadedCurrentState()) {
             response.status(202);
             return BEING_PROCESSED;

@@ -40,20 +40,8 @@ public class SparkOrRailsToggleTest {
     }
 
     @Test
-    public void shouldForwardToRailsIfQuickerDashboardToggleIsDisabled() {
-        SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-        when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(false);
-
-        sparkOrRailsToggle.oldOrNewDashboard(request, null);
-
-        verify(request).setAttribute("newUrl", "/rails/pipelines");
-        verify(request).setAttribute("rails_bound", true);
-    }
-
-    @Test
     public void shouldForwardToRailsIfNewDashboardPageDefaultToggleIsDisabled() {
         SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-        when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(true);
         when(featureToggleService.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)).thenReturn(false);
 
         sparkOrRailsToggle.oldOrNewDashboard(request, null);
@@ -63,9 +51,8 @@ public class SparkOrRailsToggleTest {
     }
 
     @Test
-    public void shouldForwardToSparkIfBothDashboardTogglesAreEnabled() {
+    public void shouldForwardToSparkIfNewDashboardPageDefaultToggleIsEnabled() {
         SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-        when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(true);
         when(featureToggleService.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)).thenReturn(true);
 
         sparkOrRailsToggle.oldOrNewDashboard(request, null);

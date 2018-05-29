@@ -67,7 +67,6 @@ public class GoDashboardServiceTest {
         configMother = new GoConfigMother();
         config = configMother.defaultCruiseConfig();
         Toggles.initializeWith(featureToggleService);
-        when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(true);
         when(cache.allEntries()).thenReturn(this.pipelines);
         service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
     }

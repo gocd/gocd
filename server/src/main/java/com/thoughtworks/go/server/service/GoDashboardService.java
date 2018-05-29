@@ -60,9 +60,6 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
-        if (isFeatureToggleDisabled()) {
-            return;
-        }
         PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
         PipelineConfig pipelineConfig = group.findBy(pipelineName);
 
@@ -70,20 +67,10 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
-        if (isFeatureToggleDisabled()) {
-            return;
-        }
         updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
     }
 
-    public boolean isFeatureToggleDisabled() {
-        return !Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY);
-    }
-
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
-        if (isFeatureToggleDisabled()) {
-            return;
-        }
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
     }
 

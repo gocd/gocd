@@ -24,8 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 public class SparkOrRailsToggle {
 
     public void oldOrNewDashboard(HttpServletRequest request, HttpServletResponse response) {
-
-        if (Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY) && Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)) {
+        if (Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)) {
             request.setAttribute("newUrl", "/spark/dashboard");
         } else {
             request.setAttribute("newUrl", "/rails/pipelines");

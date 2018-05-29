@@ -53,7 +53,6 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     private final GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler;
     private final GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler;
     private final GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler;
-    private final FeatureToggleService featureToggleService;
 
     private final MultiplexingQueueProcessor processor;
 
@@ -66,8 +65,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                                        GoDashboardConfigChangeHandler configChangeHandler,
                                        GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler,
                                        GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler,
-                                       GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler,
-                                       FeatureToggleService featureToggleService) {
+                                       GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
         this.pipelinePauseService = pipelinePauseService;
@@ -78,7 +76,6 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         this.pauseStatusChangeHandler = pauseStatusChangeHandler;
         this.lockStatusChangeHandler = lockStatusChangeHandler;
         this.templateConfigChangeHandler = templateConfigChangeHandler;
-        this.featureToggleService = featureToggleService;
 
         this.processor = new MultiplexingQueueProcessor("Dashboard");
     }
@@ -92,16 +89,6 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
-        featureToggleService.registerListener(Toggles.QUICKER_DASHBOARD_KEY, quickDashboardFeatureToggleListener());
-    }
-
-    private FeatureToggleListener quickDashboardFeatureToggleListener() {
-        return newValue -> {
-            if (newValue) {
-                // pretend like the config changed
-                onConfigChange(goConfigService.currentCruiseConfig());
-            }
-        };
     }
 
     @Override

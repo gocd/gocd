@@ -493,10 +493,6 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def is_quicker_dashboard_toggle_enabled?
-    Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)
-  end
-
   def artifact_stores_enabled?
     Toggles.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)
   end

@@ -136,8 +136,8 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldThrowExceptionInCaseOf404() throws Exception {
         exception.expect(Exception.class);
-        exception.expectMessage("This agent might be incompatible with your Go Server."
-                + " Please fix the version mismatch between Go Server and Go Agent.");
+        exception.expectMessage("This agent might be incompatible with your GoCD Server."
+                + " Please fix the version mismatch between GoCD Server and GoCD Agent.");
 
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/not-found"), null,
                 SslVerificationMode.NONE);

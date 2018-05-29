@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public final class GoLauncher {
             cleanupTempFiles();
             new GoServer().go();
         } catch (Exception e) {
-            System.err.println("ERROR: Failed to start Go server. Please check the logs.");
+            System.err.println("ERROR: Failed to start GoCD server. Please check the logs.");
             e.printStackTrace();
             System.exit(1);
         }

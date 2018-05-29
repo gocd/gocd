@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,13 +127,13 @@ public class ServerBinaryDownloader implements Downloader {
     private void handleInvalidResponse(HttpResponse response, String url) throws IOException {
         StringWriter sw = new StringWriter();
         try (PrintWriter out = new PrintWriter(sw)) {
-            out.print("Problem accessing server at ");
+            out.print("Problem accessing GoCD Server at ");
             out.println(url);
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 LOG.info("Response code: {}", response.getStatusLine().getStatusCode());
-                out.println("Few Possible Causes: ");
-                out.println("1. Your Go Server is down or not accessible.");
-                out.println("2. This agent might be incompatible with your Go Server. Please fix the version mismatch between Go Server and Go Agent.");
+                out.println("Possible causes:");
+                out.println("1. Your GoCD Server is down, not accessible or starting up.");
+                out.println("2. This agent might be incompatible with your GoCD Server. Please fix the version mismatch between GoCD Server and GoCD Agent.");
 
                 throw new ClientProtocolException(sw.toString());
             } else if (response.getFirstHeader(MD5_HEADER) == null || response.getFirstHeader(SSL_PORT_HEADER) == null) {

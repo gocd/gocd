@@ -71,10 +71,10 @@ public class DevelopmentServer {
                 hostName = "localhost";
             }
 
-            System.out.println("Go server dashboard started on http://" + hostName + ":" + systemEnvironment.getServerPort());
+            System.out.println("GoCD server dashboard started on http://" + hostName + ":" + systemEnvironment.getServerPort());
             System.out.println("* credentials: \"admin\" / \"badger\"");
         } catch (Exception e) {
-            System.err.println("Failed to start Go server. Exception:");
+            System.err.println("Failed to start GoCD server. Exception:");
             e.printStackTrace();
         }
     }

@@ -49,7 +49,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jdom2.input.JDOMParseException;

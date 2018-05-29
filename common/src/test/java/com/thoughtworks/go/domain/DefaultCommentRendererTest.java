@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -209,7 +209,7 @@ public class DefaultCommentRendererTest {
 
         String result = trackingTool.render("The story #111 is fixed by 德里克. #122 is also related to this");
         assertThat(result,
-                is("The story " + dynamicLink("111") + " is fixed by " + StringEscapeUtils.escapeHtml("德里克") + ". "
+                is("The story " + dynamicLink("111") + " is fixed by " + StringEscapeUtils.escapeHtml4("德里克") + ". "
                         + dynamicLink("122") + " is also related to this"));
     }
 
@@ -218,7 +218,7 @@ public class DefaultCommentRendererTest {
         trackingTool = new DefaultCommentRenderer("", "");
         String toRender = "some <string>";
         String result = trackingTool.render(toRender);
-        assertThat(result, is(StringEscapeUtils.escapeHtml(toRender)));
+        assertThat(result, is(StringEscapeUtils.escapeHtml4(toRender)));
     }
 
     @Test

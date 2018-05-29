@@ -21,7 +21,7 @@ dependencies {
   compile project(':util')
   compile project(':plugin-infra:go-plugin-activator')
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
-  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+  compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
   compile(group: 'commons-digester', name: 'commons-digester', version: '1.8') {
     exclude(module: 'commons-logging')
   }

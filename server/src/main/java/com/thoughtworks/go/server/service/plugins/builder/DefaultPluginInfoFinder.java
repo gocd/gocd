@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class DefaultPluginInfoFinder {

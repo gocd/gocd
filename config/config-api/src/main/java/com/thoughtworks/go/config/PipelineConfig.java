@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,19 +38,19 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.util.Arrays.asList;
-import static org.apache.commons.collections.CollectionUtils.select;
 
 /**
  * @understands how a cruise pipeline is configured by the user
@@ -224,7 +224,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         Set<String> templateVariables = getTemplateVariables();
         List<String> materialNames = allowedTemplateVariables();
         for (final String templateVariable : templateVariables) {
-            if (!CollectionUtils.exists(materialNames, withNameSameAs(templateVariable))) {
+            if (!IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
                 addError("labelTemplate", String.format(ERR_TEMPLATE, name(), templateVariable));
             }
         }
@@ -952,11 +952,17 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PackageMaterialConfig> packageMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PackageMaterialConfig));
+        return materialConfigs().stream()
+                .filter(materialConfig -> materialConfig instanceof PackageMaterialConfig)
+                .map(x -> (PackageMaterialConfig)x)
+                .collect(Collectors.toList());
     }
 
     public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PluggableSCMMaterialConfig));
+        return materialConfigs().stream()
+                .filter(materialConfig -> materialConfig instanceof PluggableSCMMaterialConfig)
+                .map(x -> (PluggableSCMMaterialConfig)x)
+                .collect(Collectors.toList());
     }
 
     public ConfigOrigin getOrigin() {

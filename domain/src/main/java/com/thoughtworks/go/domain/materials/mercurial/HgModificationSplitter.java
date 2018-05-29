@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.mercurial;
 
@@ -71,8 +71,8 @@ public class HgModificationSplitter {
 
     private Modification parseChangeset(Element changeset) {
         Date modifiedTime = DateUtils.parseRFC822(changeset.getChildText("date"));
-        String author = org.apache.commons.lang.StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
-        String comment = org.apache.commons.lang.StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));
+        String author = org.apache.commons.lang3.StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
+        String comment = org.apache.commons.lang3.StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));
         String revision = changeset.getChildText("node");
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
 
@@ -95,7 +95,7 @@ public class HgModificationSplitter {
         List<File> modifiedFiles = new ArrayList<>();
         for (Iterator iterator = files.iterator(); iterator.hasNext();) {
             Element node = (Element) iterator.next();
-            modifiedFiles.add(new File(org.apache.commons.lang.StringEscapeUtils.unescapeXml(node.getText())));
+            modifiedFiles.add(new File(org.apache.commons.lang3.StringEscapeUtils.unescapeXml(node.getText())));
         }
         return modifiedFiles;
     }

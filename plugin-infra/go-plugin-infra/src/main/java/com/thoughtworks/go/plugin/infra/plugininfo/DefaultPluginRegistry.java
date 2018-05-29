@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -71,10 +70,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
             }
         }
 
-        return (GoPluginDescriptor) CollectionUtils.find(idToDescriptorMap.values(), object -> {
-            GoPluginDescriptor descriptor = (GoPluginDescriptor) object;
-            return descriptor.fileName().equals(fileName);
-        });
+        return IterableUtils.find(idToDescriptorMap.values(), object -> object.fileName().equals(fileName));
     }
 
     public void markPluginInvalid(String pluginId, List<String> messages) {

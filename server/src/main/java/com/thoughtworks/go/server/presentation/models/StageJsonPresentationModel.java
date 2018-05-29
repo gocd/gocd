@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.util.UrlUtil.encodeInUtf8;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 /*
  *  Understands conversion of a Stage and its Builds to view representations.
@@ -71,7 +71,7 @@ public class StageJsonPresentationModel implements JsonAware {
         json.put("pipelineId", pipeline.getId());
         json.put("pipelineName", pipeline.getName());
         json.put("uniqueStageId", uniqueStageId());
-        json.put("buildCause", escapeHtml(pipeline.getBuildCauseMessage()));
+        json.put("buildCause", escapeHtml4(pipeline.getBuildCauseMessage()));
         json.put("materialRevisions", materialRevisionsJson());
         json.put("stageName", stage.getName());
         json.put("stageCounter", stage.getCounter());

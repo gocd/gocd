@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.newsecurity.handlers.renderer;
 
 import com.thoughtworks.go.server.newsecurity.models.ContentTypeAwareResponse;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.http.MediaType;
 
 public class XMLErrorMessageRenderer extends ContentTypeAwareResponse {

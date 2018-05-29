@@ -18,7 +18,7 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

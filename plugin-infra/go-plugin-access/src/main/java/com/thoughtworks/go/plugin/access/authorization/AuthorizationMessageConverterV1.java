@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@ import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -92,7 +91,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     @Override
     public String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
-        final Map<String, String> credentials = new HashedMap();
+        final Map<String, String> credentials = new HashMap<>();
         credentials.put("username", username);
         credentials.put("password", password);
 
@@ -110,7 +109,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         }
 
         for (PluginRoleConfig roleConfig : roleConfigs) {
-            Map<String, Object> config = new HashedMap();
+            Map<String, Object> config = new HashMap<>();
             config.put("name", roleConfig.getName().toString());
             config.put("auth_config_id", roleConfig.getAuthConfigId());
             config.put("configuration", roleConfig.getConfigurationAsMap(true));
@@ -127,7 +126,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         }
 
         for (SecurityAuthConfig securityAuthConfig : authConfigs) {
-            Map<String, Object> authConfig = new HashedMap();
+            Map<String, Object> authConfig = new HashMap<>();
             authConfig.put("id", securityAuthConfig.getId());
             authConfig.put("configuration", securityAuthConfig.getConfigurationAsMap(true));
             configs.add(authConfig);

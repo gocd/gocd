@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ description = 'GoCD Base'
 
 dependencies {
   compile group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: project.versions.apacheHttpComponents) {
     exclude(module: 'commons-codec')

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.io.UnsupportedEncodingException;
 
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class CSVResponse {
     private String tableContent;

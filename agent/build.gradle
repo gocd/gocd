@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ dependencies {
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+  compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
   compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
     exclude module: 'jetty-xml'
   }
@@ -95,16 +95,16 @@ task verifyJar(type: VerifyJarTask) {
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
       "bcprov-jdk15on-1.47.jar",
-      "cloning-1.7.3.jar",
+      "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",
       "commons-beanutils-1.7.0.jar",
       "commons-codec-${project.versions.commonsCodec}.jar",
-      "commons-collections-3.2.2.jar",
-      "commons-configuration-1.10.jar",
+      "commons-collections4-${project.versions.commonsCollections4}.jar",
+      "commons-configuration2-${project.versions.commonsConfiguration}.jar",
       "commons-digester-1.8.jar",
       "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang-${project.versions.commonsLang}.jar",
+      "commons-lang3-${project.versions.commonsLang3}.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
       "dom4j-1.6.1.jar",
@@ -117,24 +117,24 @@ task verifyJar(type: VerifyJarTask) {
       "go-plugin-infra-${project.version}.jar",
       "gson-${project.versions.gson}.jar",
       "httpclient-${project.versions.apacheHttpComponents}.jar",
-      "httpcore-4.4.7.jar",
+      "httpcore-4.4.9.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
-      "jackson-annotations-2.5.0.jar",
-      "jackson-core-2.5.0.jar",
-      "jackson-databind-2.5.0.jar",
+      "jackson-annotations-2.9.0.jar",
+      "jackson-core-2.9.4.jar",
+      "jackson-databind-2.9.4.jar",
       "javasysmon-0.3.6.jar",
       "javax.inject-1.jar",
       "javax.servlet-api-3.1.0.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jcommander-${project.versions.jcommander}.jar",
-      "jdom-2.0.2.jar",
+      "jdom2-${project.versions.jdom}.jar",
       "jetty-io-${versions.jetty}.jar",
       "jetty-util-${versions.jetty}.jar",
       "jetty-client-${versions.jetty}.jar",
       "jetty-http-${versions.jetty}.jar",
       "joda-time-2.3.jar",
-      "jolt-core-0.1.0.jar",
-      "json-utils-0.1.0.jar",
+      "jolt-core-${project.versions.jolt}.jar",
+      "json-utils-${project.versions.jolt}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "nanohttpd-2.3.1.jar",
@@ -155,7 +155,6 @@ task verifyJar(type: VerifyJarTask) {
       "websocket-api-${versions.jetty}.jar",
       "websocket-client-${versions.jetty}.jar",
       "websocket-common-${versions.jetty}.jar",
-      "xml-apis-1.0.b2.jar",
     ]
   ]
 }

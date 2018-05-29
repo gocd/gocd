@@ -34,7 +34,7 @@ import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.config.parser.GoConfigFieldLoader.fieldParser;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GoConfigClassLoader<T> {
     private final ConfigUtil configUtil = new ConfigUtil("magic");

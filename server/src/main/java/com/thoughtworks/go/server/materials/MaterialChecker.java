@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials;
 
@@ -28,7 +28,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,7 +50,7 @@ public class MaterialChecker {
         if (StringUtils.isEmpty(revision)) { throw new RuntimeException(format("Revision was not specified for material [%s]", material)); }
         Modification modification = materialRepository.findModificationWithRevision(material, revision);
         if (modification == null) { throw new RuntimeException(format("Unable to find revision [%s] for material [%s]", revision, material)); }
-        return new MaterialRevision(material, modification); 
+        return new MaterialRevision(material, modification);
     }
 
     public MaterialRevisions findRevisionsSince(MaterialRevisions peggedRevisions, Materials newMaterials, MaterialRevisions previous, MaterialRevisions latestRevisions) {

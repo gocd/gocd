@@ -35,8 +35,7 @@ import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.type.LongType;
@@ -384,8 +383,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     private List<String> pmrModificationsKey(Modification modification, List<PipelineMaterialRevision> pmrs) {
         final long id = modification.getId();
         final MaterialInstance materialInstance = modification.getMaterialInstance();
-        Collection<PipelineMaterialRevision> matchedPmrs = (Collection<PipelineMaterialRevision>) CollectionUtils.select(pmrs, o -> {
-            PipelineMaterialRevision pmr = (PipelineMaterialRevision) o;
+        Collection<PipelineMaterialRevision> matchedPmrs = CollectionUtils.select(pmrs, pmr -> {
             long from = pmr.getFromModification().getId();
             long to = pmr.getToModification().getId();
             MaterialInstance pmi = findMaterialInstance(pmr.getMaterial());

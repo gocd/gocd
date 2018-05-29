@@ -17,7 +17,7 @@
 dependencies {
   compile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
   compile group: 'junit', name: 'junit', version: project.versions.junit
-  compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
   compile group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
   compile group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents

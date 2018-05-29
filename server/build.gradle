@@ -184,7 +184,10 @@ dependencies {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
   }
-  compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
+  compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
+  // this is needed by velocity tools view
+  compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
+  compile group: 'commons-collections', name: 'commons-collections', version: project.versions.commonsCollections
   compile group: 'com.google.guava', name: 'guava', version: '20.0'
   compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
   compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
@@ -192,13 +195,9 @@ dependencies {
 
   // needed by jdom2 for some XPATH stuff
   compile(group: 'jaxen', name: 'jaxen', version: '1.1.6') {
-    exclude(module: 'xml-apis')
     exclude(module: 'xom')
-    exclude(module: 'xercesImpl')
     exclude(module: 'jdom')
   }
-  // this is just an override to force a transitive dep to the version we want.
-  compile group: 'xml-apis', name: 'xml-apis', version: '1.3.04'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
@@ -615,6 +614,7 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
+        "activation-1.1.jar",
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
         "activemq-protobuf-1.1.jar",
@@ -627,18 +627,20 @@ task verifyWar(type: VerifyJarTask) {
         "base-${project.version}.jar",
         "cglib-2.1_3.jar",
         "cglib-nodep-2.2.jar",
-        "cloning-1.7.3.jar",
+        "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
         "commons-beanutils-1.7.0.jar",
         "commons-beanutils-core-1.7.0.jar",
         "commons-codec-${project.versions.commonsCodec}.jar",
         "commons-collections-3.2.2.jar",
+        "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp-1.4.jar",
         "commons-digester-1.8.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang-${project.versions.commonsLang}.jar",
+        "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-net-2.0.jar",
         "commons-pool-1.5.6.jar",
         "config-api-${project.version}.jar",
@@ -665,26 +667,26 @@ task verifyWar(type: VerifyJarTask) {
         "hibernate-ehcache-${project.versions.hibernate}.jar",
         "hibernate-jpa-2.0-api-1.0.1.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
-        "httpcore-4.4.7.jar",
+        "httpcore-4.4.9.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
-        "jackson-annotations-2.5.0.jar",
-        "jackson-core-2.5.0.jar",
-        "jackson-databind-2.5.0.jar",
+        "jackson-annotations-2.9.0.jar",
+        "jackson-core-2.9.4.jar",
+        "jackson-databind-2.9.4.jar",
         "jasypt-1.7.jar",
         "JavaEWAH-1.1.6.jar",
-        "javassist-3.12.0.GA.jar",
+        "javassist-${project.versions.javaAssist}.jar",
         "javasysmon-0.3.6.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
         "jaxen-1.1.6.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
-        "jdom-2.0.2.jar",
+        "jdom2-${project.versions.jdom}.jar",
         "joda-time-2.3.jar",
-        "jolt-core-0.1.0.jar",
+        "jolt-core-${project.versions.jolt}.jar",
         "jruby-complete-1.7.26.jar",
         "jruby-rack-${versions.rack}.jar",
         "jsch-0.1.54.jar",
-        "json-utils-0.1.0.jar",
+        "json-utils-${project.versions.jolt}.jar",
         "jta-1.1.jar",
         "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
@@ -749,8 +751,7 @@ task verifyWar(type: VerifyJarTask) {
         "urlrewritefilter-3.2.0.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",
-        "velocity-tools-view-1.2.jar",
-        "xml-apis-1.3.04.jar",
+        "velocity-tools-view-${project.versions.velocityToolsView}.jar",
       ])
   ]
 }

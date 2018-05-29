@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.service.VersionInfoService
 import com.thoughtworks.go.server.service.WebpackAssetsService
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang3.StringEscapeUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -65,7 +65,7 @@ class VelocityTemplateEngineFactoryTest {
       .render(new ModelAndView(Collections.singletonMap("user-input", userInput), "templates/escape-html-entities.vm"))
     Assertions.assertThat(output)
       .contains("begin parent layout")
-      .contains(StringEscapeUtils.escapeHtml(userInput))
+      .contains(StringEscapeUtils.escapeHtml4(userInput))
       .contains("end parent layout")
   }
 }

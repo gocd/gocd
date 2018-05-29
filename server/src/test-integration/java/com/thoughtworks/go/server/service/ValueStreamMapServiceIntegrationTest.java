@@ -31,7 +31,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsNull;
@@ -50,7 +50,7 @@ import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInst
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
-import static org.apache.commons.collections.CollectionUtils.collect;
+import static org.apache.commons.collections4.CollectionUtils.collect;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -486,13 +486,7 @@ public class ValueStreamMapServiceIntegrationTest {
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, username, result);
         Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
         assertThat(nodeForGit.revisions().size(), is(2));
-        Collection<String> revisionStrings = collect(nodeForGit.revisions(), new Transformer() {
-            @Override
-            public String transform(Object o) {
-                Revision revision = (Revision) o;
-                return revision.getRevisionString();
-            }
-        });
+        Collection<String> revisionStrings = collect(nodeForGit.revisions(), Revision::getRevisionString);
         assertThat(revisionStrings, IsCollectionContaining.hasItems("g1-1", "g1-2"));
     }
 

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.spark;
 
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
 

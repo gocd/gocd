@@ -18,7 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import static java.lang.String.format;
 public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleOutputTransmitter.class);
 
-    private final CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
+    private final CircularFifoQueue buffer = new CircularFifoQueue(10 * 1024); // maximum 10k lines
     private final ConsoleAppender consoleAppender;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final ScheduledThreadPoolExecutor executor;

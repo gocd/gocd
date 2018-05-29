@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ dependencies {
   packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
   packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  packagingInLibDir group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
+  packagingInLibDir group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
 
@@ -258,7 +258,7 @@ task verifyFatJar(type: VerifyJarTask) {
     "lib"         : [
       "bcprov-jdk15on-1.47.jar",
       "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang-${project.versions.commonsLang}.jar",
+      "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
       "javasysmon-0.3.6.jar",
       "javax.servlet-api-3.1.0.jar",

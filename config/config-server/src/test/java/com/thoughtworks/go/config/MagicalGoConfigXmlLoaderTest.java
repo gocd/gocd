@@ -67,8 +67,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
@@ -94,7 +93,6 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -2891,12 +2889,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldRegisterAllGoConfigValidators() {
-        List<String> list = (List<String>) collect(MagicalGoConfigXmlLoader.VALIDATORS, new Transformer() {
-            @Override
-            public Object transform(Object o) {
-                return o.getClass().getCanonicalName();
-            }
-        });
+        List<String> list = (List<String>) CollectionUtils.collect(MagicalGoConfigXmlLoader.VALIDATORS, o -> o.getClass().getCanonicalName());
 
         assertThat(list, hasItem(ArtifactDirValidator.class.getCanonicalName()));
         assertThat(list, hasItem(EnvironmentAgentValidator.class.getCanonicalName()));
@@ -3389,12 +3382,9 @@ public class MagicalGoConfigXmlLoaderTest {
         final Configuration configuration = task.getConfiguration();
         assertThat(configuration.listOfConfigKeys().size(), is(3));
         assertThat(configuration.listOfConfigKeys(), is(asList("url", "username", "password")));
-        Collection values = CollectionUtils.collect(configuration.listOfConfigKeys(), new Transformer() {
-            @Override
-            public Object transform(Object o) {
-                ConfigurationProperty property = configuration.getProperty((String) o);
-                return property.getConfigurationValue().getValue();
-            }
+        Collection<String> values = CollectionUtils.collect(configuration.listOfConfigKeys(), o -> {
+            ConfigurationProperty property = configuration.getProperty(o);
+            return property.getConfigurationValue().getValue();
         });
         assertThat(new ArrayList<>(values), is(asList("http://fake-go-server", "godev", "password")));
     }

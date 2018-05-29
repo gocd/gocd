@@ -24,14 +24,15 @@ import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
-import org.slf4j.Logger;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,6 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 @Component
 public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
@@ -110,7 +110,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
                 return bundle;
             }
-            forAllDo(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
+            IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             return bundle;
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
@@ -249,11 +249,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return matchingServiceReferences.iterator().next();
     }
 
-    private Closure notifyPluginLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
-        return o -> {
-            PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
-            pluginChangeListener.pluginLoaded(pluginDescriptor);
-        };
+    private Closure<PluginChangeListener> notifyPluginLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
+        return o -> o.pluginLoaded(pluginDescriptor);
     }
 
 }

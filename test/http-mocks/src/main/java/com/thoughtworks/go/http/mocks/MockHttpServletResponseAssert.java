@@ -17,9 +17,9 @@
 package com.thoughtworks.go.http.mocks;
 
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.internal.Failures;
 import org.assertj.core.util.Objects;
@@ -30,7 +30,7 @@ import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual;
 import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty;
 

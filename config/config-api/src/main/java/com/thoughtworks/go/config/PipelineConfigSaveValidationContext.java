@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -98,7 +98,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public ConfigReposConfig getConfigRepos() {
-        throw new NotImplementedException();
+        throw new NotImplementedException("Operation not supported");
     }
 
     public JobConfig getJob() {
@@ -114,7 +114,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     public PipelineTemplateConfig getTemplate() {
-        throw new NotImplementedException();
+        throw new NotImplementedException("Operation not supported");
     }
 
     public String getParentDisplayName() {

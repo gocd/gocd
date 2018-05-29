@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.JsonValue;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.io.File;

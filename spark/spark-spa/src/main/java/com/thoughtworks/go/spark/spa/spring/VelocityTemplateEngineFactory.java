@@ -17,7 +17,7 @@
 package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.spark.SparkController;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

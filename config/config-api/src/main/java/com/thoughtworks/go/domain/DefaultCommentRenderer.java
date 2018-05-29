@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,12 +66,12 @@ public class DefaultCommentRenderer implements CommentRenderer {
     }
 
     private String dynamicLink(Matcher matcher) {
-        String linkWithRealId = StringEscapeUtils.escapeHtml(link.replace("${ID}", id(matcher)));
+        String linkWithRealId = StringEscapeUtils.escapeHtml4(link.replace("${ID}", id(matcher)));
         return String.format("<a href=\"%s\" target=\"story_tracker\">%s</a>", linkWithRealId, textOnLink(matcher));
     }
 
     private String textOnLink(Matcher matcher) {
-        return StringEscapeUtils.escapeHtml(matcher.group());
+        return StringEscapeUtils.escapeHtml4(matcher.group());
     }
 
     private String contentsOfFirstGroupThatMatched(Matcher matcher) {
@@ -96,7 +96,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
         }
 
         public void escapeAndAdd(String text) {
-            buffer.append(StringEscapeUtils.escapeHtml(text));
+            buffer.append(StringEscapeUtils.escapeHtml4(text));
         }
 
         public void add(String text) {

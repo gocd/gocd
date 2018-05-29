@@ -40,8 +40,8 @@ import com.thoughtworks.go.util.DFSCycleDetector;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.PipelineDependencyState;
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.*;

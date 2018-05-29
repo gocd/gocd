@@ -37,7 +37,7 @@ import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException
 import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 
@@ -314,7 +314,7 @@ public class FanInGraph {
     }
 
     private void assertAllDirectDependenciesArePresentInInput(MaterialRevisions actualRevisions, CaseInsensitiveString pipelineName) {
-        Collection<String> actualRevFingerprints = CollectionUtils.collect(actualRevisions.iterator(), actualRevision -> ((MaterialRevision) actualRevision).getMaterial().getFingerprint());
+        Collection<String> actualRevFingerprints = CollectionUtils.collect(actualRevisions.iterator(), actualRevision -> actualRevision.getMaterial().getFingerprint());
 
         for (FanInNode child : root.children) {
             //The dependency material that is not in 'passed' state will not be found in actual revisions
@@ -392,7 +392,7 @@ public class FanInGraph {
         return context;
     }
 
-    private Collection getMaterialsFromCurrentPipeline(List<MaterialRevision> finalRevisionsForScmChildren, MaterialRevisions actualRevisions) {
+    private Collection<MaterialRevision> getMaterialsFromCurrentPipeline(List<MaterialRevision> finalRevisionsForScmChildren, MaterialRevisions actualRevisions) {
         List<MaterialRevision> updatedRevisions = new ArrayList<>();
         for (MaterialRevision revisionsForScmChild : finalRevisionsForScmChildren) {
             MaterialRevision originalRevision = actualRevisions.findRevisionUsingMaterialFingerprintFor(revisionsForScmChild.getMaterial());

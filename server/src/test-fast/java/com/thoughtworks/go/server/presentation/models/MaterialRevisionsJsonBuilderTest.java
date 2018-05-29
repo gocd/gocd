@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -119,7 +119,7 @@ public class MaterialRevisionsJsonBuilderTest {
         JSONObject modification = (JSONObject) jsonArray.get(0);
 
         assertAttributeInJson(modification, "user", ModificationsMother.MOD_USER_WITH_HTML_CHAR);
-        assertAttributeInJson(modification, "comment", escapeHtml(ModificationsMother.MOD_COMMENT_3));
+        assertAttributeInJson(modification, "comment", escapeHtml4(ModificationsMother.MOD_COMMENT_3));
     }
 
     @Test

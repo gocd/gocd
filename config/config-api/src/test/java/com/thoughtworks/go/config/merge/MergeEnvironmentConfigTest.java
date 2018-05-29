@@ -19,15 +19,15 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -262,7 +262,7 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         uatLocalPart.addEnvironmentVariable("hello", "world");
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
                 Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "you"))));
 
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));

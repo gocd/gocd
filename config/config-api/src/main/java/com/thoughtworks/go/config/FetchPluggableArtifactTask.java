@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {

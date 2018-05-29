@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 public class ServerHealthState {
     private final HealthStateLevel healthStateLevel;
@@ -82,11 +82,11 @@ public class ServerHealthState {
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml(message), escapeHtml(description));
+        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description));
     }
 
     public static ServerHealthState error(String message, String description, HealthStateType type) {
-        return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml(message), escapeHtml(description));
+        return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description));
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {
@@ -94,7 +94,7 @@ public class ServerHealthState {
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, long milliSeconds) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml(message), escapeHtml(description), milliSeconds);
+        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description), milliSeconds);
     }
 
     public static ServerHealthState warningWithHtml(String message, String description, HealthStateType stateType) {

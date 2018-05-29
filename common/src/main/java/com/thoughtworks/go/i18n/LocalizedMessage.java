@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.List;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * @understands converting the localized message for a given key

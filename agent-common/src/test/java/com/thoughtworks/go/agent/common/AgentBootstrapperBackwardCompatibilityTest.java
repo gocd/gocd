@@ -17,7 +17,7 @@
 package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
 import java.io.File;

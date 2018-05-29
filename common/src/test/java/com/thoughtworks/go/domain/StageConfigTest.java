@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -43,9 +42,9 @@ public class StageConfigTest {
     @Test
     public void shouldSetPrimitiveAttributes() throws Exception{
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(new SingletonMap(StageConfig.NAME, "foo_bar"));
-        config.setConfigAttributes(new SingletonMap(StageConfig.FETCH_MATERIALS, "0"));
-        config.setConfigAttributes(new SingletonMap(StageConfig.CLEAN_WORKING_DIR, "1"));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.NAME, "foo_bar"));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.FETCH_MATERIALS, "0"));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.CLEAN_WORKING_DIR, "1"));
         assertThat(config.name(), is(new CaseInsensitiveString("foo_bar")));
         assertThat(config.isFetchMaterials(), is(false));
         assertThat(config.isCleanWorkingDir(), is(true));
@@ -55,11 +54,11 @@ public class StageConfigTest {
     public void shouldSetArtifactCleanupOptOutAttribute() throws Exception{
         StageConfig config = new StageConfig();
         assertThat(config.isArtifactCleanupProhibited(), is(false));
-        config.setConfigAttributes(new SingletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "1"));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "1"));
         assertThat(config.isArtifactCleanupProhibited(), is(true));
         config.setConfigAttributes(new HashMap());
         assertThat(config.isArtifactCleanupProhibited(), is(true));
-        config.setConfigAttributes(new SingletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "0"));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "0"));
         assertThat(config.isArtifactCleanupProhibited(), is(false));
     }
 
@@ -148,12 +147,12 @@ public class StageConfigTest {
     @Test
     public void shouldSetApprovalFromConfigAttrs() throws Exception{
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(new SingletonMap(StageConfig.APPROVAL, new SingletonMap(Approval.TYPE, Approval.MANUAL)));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.APPROVAL, Collections.singletonMap(Approval.TYPE, Approval.MANUAL)));
         assertThat(config.getApproval().getType(), is(Approval.MANUAL));
         config.setConfigAttributes(new HashMap());
         assertThat(config.getApproval().getType(), is(Approval.MANUAL));
 
-        config.setConfigAttributes(new SingletonMap(StageConfig.APPROVAL, new SingletonMap(Approval.TYPE, Approval.SUCCESS)));
+        config.setConfigAttributes(Collections.singletonMap(StageConfig.APPROVAL, Collections.singletonMap(Approval.TYPE, Approval.SUCCESS)));
         assertThat(config.getApproval().getType(), is(Approval.SUCCESS));
         config.setConfigAttributes(new HashMap());
         assertThat(config.getApproval().getType(), is(Approval.SUCCESS));

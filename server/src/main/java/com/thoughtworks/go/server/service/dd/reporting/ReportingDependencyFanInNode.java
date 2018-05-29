@@ -24,7 +24,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.util.Pair;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -111,11 +112,10 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
 
         final List<ReportingFaninScmMaterial> setOfRevisions = new ArrayList<>();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterials) {
-            ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, obj -> {
-                if (obj == null) {
+            ReportingFaninScmMaterial mat = IterableUtils.find(setOfRevisions, mat1 -> {
+                if (mat1 == null) {
                     return false;
                 }
-                ReportingFaninScmMaterial mat1 = (ReportingFaninScmMaterial) obj;
                 return scmMaterial.fingerprint.equals(mat1.fingerprint)
                         && scmMaterial.revision.equals(mat1.revision);
             });

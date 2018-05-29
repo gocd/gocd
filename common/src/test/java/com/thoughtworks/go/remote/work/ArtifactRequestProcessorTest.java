@@ -19,9 +19,15 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.PasswordArgument;
+import com.thoughtworks.go.util.command.SecretString;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
@@ -33,15 +39,18 @@ public class ArtifactRequestProcessorTest {
     private DefaultGoPublisher goPublisher;
     private ArtifactRequestProcessor artifactRequestProcessorForPublish;
     private ArtifactRequestProcessor artifactRequestProcessorForFetch;
+    private EnvironmentVariableContext environmentVariableContext;
 
     @Before
     public void setUp() throws Exception {
         request = mock(GoApiRequest.class);
         descriptor = mock(GoPluginDescriptor.class);
         goPublisher = mock(DefaultGoPublisher.class);
+        environmentVariableContext = mock(EnvironmentVariableContext.class);
+        when(environmentVariableContext.secrets()).thenReturn(Collections.singletonList(new PasswordArgument("secret.value")));
 
-        artifactRequestProcessorForPublish = ArtifactRequestProcessor.forPublishArtifact(goPublisher);
-        artifactRequestProcessorForFetch = ArtifactRequestProcessor.forFetchArtifact(goPublisher);
+        artifactRequestProcessorForPublish = ArtifactRequestProcessor.forPublishArtifact(goPublisher, environmentVariableContext);
+        artifactRequestProcessorForFetch = ArtifactRequestProcessor.forFetchArtifact(goPublisher, environmentVariableContext);
 
         when(request.apiVersion()).thenReturn("1.0");
         when(descriptor.id()).thenReturn("cd.go.artifact.docker");
@@ -82,5 +91,14 @@ public class ArtifactRequestProcessorTest {
         artifactRequestProcessorForFetch.process(descriptor, request);
 
         verify(goPublisher, times(1)).taggedConsumeLine(OUT, "[cd.go.artifact.docker] Pushing docker image to registry: foo.");
+    }
+
+    @Test
+    public void shouldMaskSecretsFromEnvironmentVariables() {
+        when(request.requestBody()).thenReturn("{\"logLevel\":\"INFO\",\"message\":\"This is a secret: secret.value.\"}");
+
+        artifactRequestProcessorForFetch.process(descriptor, request);
+
+        verify(goPublisher, times(1)).taggedConsumeLine(OUT, "[cd.go.artifact.docker] This is a secret: ******.");
     }
 }

@@ -97,7 +97,7 @@ public class ArtifactsPublisher implements Serializable {
 
     private File publishPluggableArtifacts(List<ArtifactPlan> artifactPlans, EnvironmentVariableContext environmentVariableContext) {
         try {
-            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forPublishArtifact(goPublisher));
+            pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forPublishArtifact(goPublisher, environmentVariableContext));
             final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(artifactPlans);
             final Map<ArtifactPlan, ArtifactStore> artifactPlanToStores = artifactStoresToPlugin(pluggableArtifactPlans);
 

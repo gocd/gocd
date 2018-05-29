@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.remote.work.artifact.ConsoleLogMessage.LogLevel;
-import com.thoughtworks.go.util.command.TaggedStreamConsumer;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.GoPublisher;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import static java.util.Arrays.asList;
 
 public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     private static final List<String> goSupportedVersions = asList("1.0");
-    private final GoPublisher goPublisher;
+    private final SafeOutputStreamConsumer safeOutputStreamConsumer;
     private final ProcessType processType;
 
     private enum ProcessType {
@@ -50,17 +50,20 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
         put(LogLevel.ERROR, TaggedStreamConsumer.PUBLISH_ERR);
     }};
 
-    private ArtifactRequestProcessor(GoPublisher goPublisher, ProcessType processType) {
-        this.goPublisher = goPublisher;
+    private ArtifactRequestProcessor(GoPublisher publisher, ProcessType processType, EnvironmentVariableContext environmentVariableContext) {
+        CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR,  publisher);
+        CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT,  publisher);
+        this.safeOutputStreamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(errorStreamConsumer, outputStreamConsumer));
+        safeOutputStreamConsumer.addSecrets(environmentVariableContext.secrets());
         this.processType = processType;
     }
 
-    public static ArtifactRequestProcessor forFetchArtifact(GoPublisher goPublisher) {
-        return new ArtifactRequestProcessor(goPublisher, ProcessType.FETCH);
+    public static ArtifactRequestProcessor forFetchArtifact(GoPublisher goPublisher, EnvironmentVariableContext environmentVariableContext) {
+        return new ArtifactRequestProcessor(goPublisher, ProcessType.FETCH, environmentVariableContext);
     }
 
-    public static ArtifactRequestProcessor forPublishArtifact(GoPublisher goPublisher) {
-        return new ArtifactRequestProcessor(goPublisher, ProcessType.PUBLISH);
+    public static ArtifactRequestProcessor forPublishArtifact(GoPublisher goPublisher, EnvironmentVariableContext environmentVariableContext) {
+        return new ArtifactRequestProcessor(goPublisher, ProcessType.PUBLISH, environmentVariableContext);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
         final String message = format("[%s] %s", pluginDescriptor.id(), consoleLogMessage.getMessage());
         Optional<String> parsedTag = parseTag(processType, consoleLogMessage.getLogLevel());
         if (parsedTag.isPresent()) {
-            goPublisher.taggedConsumeLine(parsedTag.get(), message);
+            safeOutputStreamConsumer.taggedStdOutput(parsedTag.get(), message);
             return DefaultGoApiResponse.success(null);
         }
         return DefaultGoApiResponse.error(format("Unsupported log level `%s`.", consoleLogMessage.getLogLevel()));

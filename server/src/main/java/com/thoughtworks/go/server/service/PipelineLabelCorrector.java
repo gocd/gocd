@@ -16,33 +16,71 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PipelineLabelCorrector {
     private GoConfigService goConfigService;
     private PipelineSqlMapDao pipelineSqlMapDao;
+    private ServerHealthService serverHealthService;
+    private SystemEnvironment systemEnvironment;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLabelCorrector.class);
 
     @Autowired
-    public PipelineLabelCorrector(GoConfigService goConfigService, PipelineSqlMapDao pipelineSqlMapDao) {
+    public PipelineLabelCorrector(GoConfigService goConfigService, PipelineSqlMapDao pipelineSqlMapDao,
+                                  ServerHealthService serverHealthService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.pipelineSqlMapDao = pipelineSqlMapDao;
+        this.serverHealthService = serverHealthService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public void correctPipelineLabelCountEntries() {
         List<String> pipelinesWithMultipleEntriesForLabelCount = pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount();
         if (pipelinesWithMultipleEntriesForLabelCount.isEmpty()) return;
 
-        List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigs();
+        LOGGER.warn("Duplicate entries in pipelineLabelCounts exist for the following pipelines {}. Will attempt to clean them up.",
+                StringUtils.join(pipelinesWithMultipleEntriesForLabelCount.toArray()));
 
-        pipelinesWithMultipleEntriesForLabelCount.forEach(pipelineWithIssue -> allPipelineConfigs.stream().filter(pipelineConfig -> pipelineConfig.name().toString().equalsIgnoreCase(pipelineWithIssue)).forEach(pipelineConfig -> {
-            String pipelineNameAsSavedInConfig = pipelineConfig.name().toString();
-            pipelineSqlMapDao.deleteOldPipelineLabelCountForPipeline(pipelineNameAsSavedInConfig);
-        }));
+        Map<CaseInsensitiveString, PipelineConfig> pipelineConfigHashMap = goConfigService.cruiseConfig().pipelineConfigsAsMap();
+        pipelinesWithMultipleEntriesForLabelCount.stream().forEach(pipelineWithIssue -> {
+            CaseInsensitiveString key = new CaseInsensitiveString(pipelineWithIssue);
+            if (pipelineConfigHashMap.containsKey(key)) {
+                PipelineConfig pipelineConfig = pipelineConfigHashMap.get(key);
+                String pipelineNameAsSavedInConfig = pipelineConfig.name().toString();
+                LOGGER.warn("Deleting duplicate entries in pipelineLabelCounts for pipeline {} currently in config .", pipelineWithIssue);
+                pipelineSqlMapDao.deleteOldPipelineLabelCountForPipelineInConfig(pipelineNameAsSavedInConfig);
+            } else {
+                LOGGER.warn("Deleting duplicate entries in pipelineLabelCounts for pipeline {} currently not in config .", pipelineWithIssue);
+                pipelineSqlMapDao.deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig(pipelineWithIssue);
+            }
+        });
+
+        List<String> pipelineNamesWithMultipleEntriesForLabelCount = pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount();
+        if (!pipelineNamesWithMultipleEntriesForLabelCount.isEmpty()) {
+            String message = String.format("Duplicate entries in pipelineLabelCounts still exist for the following pipelines %s.",
+                    StringUtils.join(pipelineNamesWithMultipleEntriesForLabelCount.toArray()));
+            LOGGER.error(message);
+            serverHealthService.update(ServerHealthState.error("Data Error: pipeline operations will fail", message,
+                    HealthStateType.general(HealthStateScope.forDuplicatePipelineLabel())));
+            if (systemEnvironment.shouldFailStartupOnDataError()) {
+                throw new RuntimeException(message);
+            }
+        }
     }
 }

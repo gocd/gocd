@@ -613,6 +613,7 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
+        "activation-1.1.jar",
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
         "activemq-protobuf-1.1.jar",

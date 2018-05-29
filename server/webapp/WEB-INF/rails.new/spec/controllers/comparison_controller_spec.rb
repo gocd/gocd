@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,14 +35,6 @@ describe ComparisonController do
 
     it "should resolve route to show action" do
       expect(:get => '/compare/foo.bar/10/with/9').to route_to(:controller => "comparison", :pipeline_name=>"foo.bar", :action => "show", :from_counter => "10", :to_counter => "9")
-    end
-
-    it "should generate the route for page action" do
-      expect(:get => '/compare/foo.bar/page/1').to route_to(:controller => "comparison", :action => "page", :pipeline_name => 'foo.bar', :page => "1")
-    end
-
-    it "should resolve route to page action" do
-      expect(:get => '/compare/foo.bar/page/1').to route_to(:controller => "comparison", :action => "page", :pipeline_name=>"foo.bar", :page => "1")
     end
 
     it "should generate the route for browse pipeline timeline" do

@@ -178,7 +178,6 @@ Go::Application.routes.draw do
 
   scope 'compare' do
     get ':pipeline_name/:from_counter/with/:to_counter' => 'comparison#show', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
-    get ':pipeline_name/page/:page' => 'comparison#page', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_page
     get ':pipeline_name/list/compare_with/:other_pipeline_counter' => 'comparison#list', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, format: 'json', as: :compare_pipelines_list
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
@@ -189,11 +188,6 @@ Go::Application.routes.draw do
 
   scope 'config_view' do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
-  end
-
-  defaults :no_layout => true do
-    get 'materials/:id.xml' => 'application#unresolved', as: :material
-    get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification
   end
 
   scope 'environments' do

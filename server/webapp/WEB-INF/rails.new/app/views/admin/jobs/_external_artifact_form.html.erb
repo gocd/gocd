@@ -1,0 +1,36 @@
+<% external_artifact_config = scope[:external_artifact] %>
+<% form_name_provider_obj = form_name_provider(scope[:var_form]) %>
+<% publish_dom_id = random_dom_id %>
+<% plugged_artifact_angular_controller_element_id = form_name_provider_obj.css_id_for("angular_" + publish_dom_id) %>
+<% plugged_artifact_data_element_id = form_name_provider_obj.css_id_for("data_" + publish_dom_id) %>
+
+<div class="form_content">
+  <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+  <div id="material">
+    <div class="fieldset">
+      <div id="<%= plugged_artifact_angular_controller_element_id %>" name="<%= plugged_artifact_angular_controller_element_id %>" class="plugged_material">
+        <div class="form_item">
+          <div class="plugged_artifact_template required">
+            <%== scope[:artifact_meta_data_store].publishTemplate(external_artifact_config.getPluginId()) %>
+          </div>
+
+          <span id="<%= plugged_artifact_data_element_id %>" class="plugged_material_data" style="display: none">
+            <%= com.google.gson.Gson.new.toJson(external_artifact_config.getConfigAsMap()) %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<%= render :partial => 'shared/convert_tool_tips.html' %>
+
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var form_name_prefix                               = "job[artifactConfigs][]";
+    var plugged_material_angular_controller_element_id = "<%= plugged_artifact_angular_controller_element_id %>";
+    var plugged_material_data_element_id               = "<%= plugged_artifact_data_element_id %>";
+    new TaskPluginView().initialize(plugged_material_angular_controller_element_id, plugged_material_data_element_id, form_name_prefix);
+
+    new TaskPluginView().bootstrapAngular();
+  });
+</script>

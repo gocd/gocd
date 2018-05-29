@@ -51,6 +51,10 @@ ul {
   max-width:    100%;
 }
 
+.column, .columns {
+  box-sizing: border-box;
+}
+
 .container {
   padding-left:  0.9375rem;
   padding-right: 0.9375rem;

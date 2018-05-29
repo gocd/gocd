@@ -18,6 +18,12 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,19 +96,57 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         }
         List<Map> attrList = (List<Map>) attributes;
         for (Map attrMap : attrList) {
-            String source = (String) attrMap.get(BuiltinArtifactConfig.SRC);
-            String destination = (String) attrMap.get(BuiltinArtifactConfig.DEST);
-            if (source.trim().isEmpty() && destination.trim().isEmpty()) {
-                continue;
-            }
             String type = (String) attrMap.get("artifactTypeValue");
+            if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type) || BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME.equals(type)) {
+                String source = (String) attrMap.get(BuiltinArtifactConfig.SRC);
+                String destination = (String) attrMap.get(BuiltinArtifactConfig.DEST);
+                if (source.trim().isEmpty() && destination.trim().isEmpty()) {
+                    continue;
+                }
+                if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type)) {
+                    this.add(new TestArtifactConfig(source, destination));
+                } else {
+                    this.add(new BuildArtifactConfig(source, destination));
+                }
 
-            if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type)) {
-                this.add(new TestArtifactConfig(source, destination));
-            } else {
-                this.add(new BuildArtifactConfig(source, destination));
             }
+            else {
+                String artifactId = (String) attrMap.get(PluggableArtifactConfig.ID);
+                String storeId = (String) attrMap.get(PluggableArtifactConfig.STORE_ID);
+                String pluginId = (String) attrMap.get("pluginId");
+
+                PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
+                // TODO: set artifact store
+                setPluginConfigurationAttributes(attrMap, pluginId, pluggableArtifactConfig);
+                this.add(pluggableArtifactConfig);
+
+            }
+
         }
+    }
+
+    protected void setPluginConfigurationAttributes(Map attributes, String pluginId, PluggableArtifactConfig pluggableArtifactConfig) {
+        ArtifactPluginInfo pluginInfo = getArtifactPluginInfo(pluginId);
+        if (pluginInfo != null && pluginInfo.getArtifactConfigSettings() != null) {
+            for (PluginConfiguration pluginConfiguration : pluginInfo.getArtifactConfigSettings().getConfigurations()) {
+                String key = pluginConfiguration.getKey();
+                if (attributes.containsKey(key)) {
+                    Configuration configuration = pluggableArtifactConfig.getConfiguration();
+                    if (configuration.getProperty(key) == null) {
+                        configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
+                    }
+                    configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                    configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
+                }
+            }
+        } else {
+            throw new RuntimeException("metadata unavailable for plugin: " + pluginId);
+        }
+    }
+
+    private ArtifactPluginInfo getArtifactPluginInfo(String pluginId) {
+        ArtifactMetadataStore artifactMetadataStore = ArtifactMetadataStore.instance();
+        return artifactMetadataStore.getPluginInfo(pluginId);
     }
 
     public List<BuiltinArtifactConfig> getBuiltInArtifactConfigs() {

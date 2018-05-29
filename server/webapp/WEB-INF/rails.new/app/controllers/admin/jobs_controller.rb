@@ -30,13 +30,21 @@ module Admin
 
     def new
       assert_load :task_view_models, task_view_service.getTaskViewModels()
+      assert_load :artifact_meta_data_store, artifact_meta_data_store
+      assert_load :store_id_to_plugin_id, artifact_store_service.storeIdToPluginId().to_hash
+      assert_load :artifact_plugin_to_view, default_plugin_info_finder.pluginIdToViewTemplate().to_hash
       load_resources_and_elastic_profile_ids_for_autocomplete
+      load_store_ids_for_autocomplete
       assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
       render layout: false
     end
 
     def edit
+      assert_load :artifact_meta_data_store, artifact_meta_data_store
+      assert_load :store_id_to_plugin_id, artifact_store_service.storeIdToPluginId().to_hash
+      assert_load :artifact_plugin_to_view, default_plugin_info_finder.pluginIdToViewTemplate().to_hash
       load_resources_and_elastic_profile_ids_for_autocomplete
+      load_store_ids_for_autocomplete
       assert_load :job, @jobs.getJob(CaseInsensitiveString.new(params[:job_name]))
       render with_layout(:action => params[:current_tab]) unless @error_rendered
     end
@@ -66,6 +74,9 @@ module Admin
       end.new(params, current_user.getUsername(), security_service, @job, pluggable_task_service), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
         assert_load :job, @subject
         assert_load :task_view_models, task_view_service.getTaskViewModelsWith(@job.tasks().first()) unless @update_result.isSuccessful()
+        assert_load :artifact_meta_data_store, artifact_meta_data_store
+        assert_load :store_id_to_plugin_id, artifact_store_service.storeIdToPluginId().to_hash
+        assert_load :artifact_plugin_to_view, default_plugin_info_finder.pluginIdToViewTemplate().to_hash
       end
     end
 
@@ -87,6 +98,9 @@ module Admin
         @should_not_render_layout = true
         load_pipeline_and_stage
         assert_load :job, @node
+        assert_load :artifact_meta_data_store, artifact_meta_data_store
+        assert_load :store_id_to_plugin_id, artifact_store_service.storeIdToPluginId().to_hash
+        assert_load :artifact_plugin_to_view, default_plugin_info_finder.pluginIdToViewTemplate().to_hash
       end
     end
 
@@ -106,6 +120,10 @@ module Admin
     end
 
     private
+
+    def artifact_meta_data_store
+      ArtifactMetadataStore.instance()
+    end
 
     def load_jobs
       assert_load :jobs, @stage.getJobs()
@@ -127,11 +145,16 @@ module Admin
       assert_load :elastic_profile_ids, elastic_profile_service.listAll().keys.sort.to_json
     end
 
+    def load_store_ids_for_autocomplete
+      assert_load :artifact_store_ids, artifact_store_service.listAll().keys.sort.to_json
+    end
+
     def failure_handler(render_options)
       proc do |update_result, all_errors_on_other_objects|
         load_pipeline_and_stage
         assert_load :processed_cruise_config, @config_after
         load_resources_and_elastic_profile_ids_for_autocomplete
+        load_store_ids_for_autocomplete
         render_error(update_result, all_errors_on_other_objects, render_options)
       end
     end

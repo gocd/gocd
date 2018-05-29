@@ -19,6 +19,8 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 public class ArtifactMetadataStore extends MetadataStore<ArtifactPluginInfo> {
     private static final ArtifactMetadataStore store = new ArtifactMetadataStore();
 
@@ -27,5 +29,18 @@ public class ArtifactMetadataStore extends MetadataStore<ArtifactPluginInfo> {
 
     public static ArtifactMetadataStore instance() {
         return store;
+    }
+
+    public String publishTemplate(String pluginId) {
+        if (isEmpty(pluginId)) {
+            return null;
+        }
+
+        ArtifactPluginInfo pluginInfo = getPluginInfo(pluginId);
+        if (pluginInfo == null || pluginInfo.getArtifactConfigSettings() == null || pluginInfo.getArtifactConfigSettings().getView() == null) {
+            return null;
+        }
+
+        return pluginInfo.getArtifactConfigSettings().getView().getTemplate();
     }
 }

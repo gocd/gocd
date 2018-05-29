@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.controller;
+package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
-public abstract class JarDetector {
+public abstract class InputStreamSrc {
+    protected final URL jarURL;
 
-    public static BufferedInputStream create(SystemEnvironment env, String file) throws IOException {
-        if (!env.useCompressedJs()) {
-            return new BufferedInputStream(new FileInputStream(file));
-        } else {
-            return new BufferedInputStream(JarDetector.class.getClassLoader().getResourceAsStream("defaultFiles/" +file));
-        }
+    protected InputStreamSrc(URL jarURL) {
+        this.jarURL = jarURL;
     }
 
+    public InputStream invoke() throws IOException {
+        return jarURL.openStream();
+    }
+
+    public URL getJarURL() {
+        return jarURL;
+    }
 }

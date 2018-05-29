@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.config.UpdateConfigCommand;
-import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
+import com.thoughtworks.go.domain.JarDetector;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
@@ -30,12 +30,13 @@ import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -57,6 +58,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
 public class AgentRegistrationControllerTest {
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private final MockHttpServletRequest request = new MockHttpServletRequest();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private AgentService agentService;
@@ -65,6 +70,7 @@ public class AgentRegistrationControllerTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
     private AgentConfigService agentConfigService;
+    private File pluginZipFile;
 
     @Before
     public void setUp() throws Exception {
@@ -72,7 +78,9 @@ public class AgentRegistrationControllerTest {
         agentConfigService = mock(AgentConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
-
+        pluginZipFile = temporaryFolder.newFile("plugins.zip");
+        FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
+        when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
@@ -148,15 +156,15 @@ public class AgentRegistrationControllerTest {
 
         controller.checkAgentStatus(response);
 
-        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+        try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER));
         }
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
         }
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
         }
 
@@ -169,7 +177,7 @@ public class AgentRegistrationControllerTest {
         controller.checkAgentVersion(response);
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
     }
@@ -179,7 +187,7 @@ public class AgentRegistrationControllerTest {
         controller.checkAgentLauncherVersion(response);
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
     }
@@ -190,10 +198,10 @@ public class AgentRegistrationControllerTest {
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("application/octet-stream", response.getContentType());
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
-        try (InputStream is = JarDetector.create(systemEnvironment, "agent.jar")) {
+        try (InputStream is = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
             assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
         }
     }
@@ -204,10 +212,10 @@ public class AgentRegistrationControllerTest {
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("application/octet-stream", response.getContentType());
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
-        try (InputStream is = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+        try (InputStream is = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
         }
     }
@@ -224,10 +232,7 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void shouldReturnAgentPluginsZipWhenRequested() throws Exception {
-        File pluginZipFile = TestFileUtil.createTempFile("plugins.zip");
-        FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(pluginsZip.md5()).thenReturn("md5");
-        when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
 
         controller.downloadPluginsZip(response);
 
@@ -239,7 +244,7 @@ public class AgentRegistrationControllerTest {
     @Test
     public void shouldReturnChecksumOfTfsJar() throws Exception {
         controller.checkTfsImplVersion(response);
-        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+        try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
     }
@@ -249,10 +254,10 @@ public class AgentRegistrationControllerTest {
         controller.downloadTfsImplJar(response);
         assertEquals("application/octet-stream", response.getContentType());
 
-        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+        try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
-        try (InputStream is = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+        try (InputStream is = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
             assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,7 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AllConfigErrors;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
@@ -52,8 +49,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -77,13 +72,22 @@ public class AgentRegistrationController {
     private volatile String tfsSdkChecksum;
     private Mac mac;
 
+    private final InputStreamSrc agentJarSrc;
+    private final InputStreamSrc agentLauncherSrc;
+    private final InputStreamSrc tfsImplSrc;
+    private final InputStreamSrc agentPluginsZipSrc;
+
     @Autowired
-    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) {
+    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) throws IOException {
         this.agentService = agentService;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
         this.agentConfigService = agentConfigService;
+        this.agentJarSrc = JarDetector.create(systemEnvironment, "agent.jar");
+        this.agentLauncherSrc = JarDetector.create(systemEnvironment, "agent-launcher.jar");
+        this.agentPluginsZipSrc = JarDetector.createFromFile(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
+        this.tfsImplSrc = JarDetector.create(systemEnvironment, "tfs-impl-14.jar");
     }
 
     private Mac hmac() {
@@ -129,7 +133,7 @@ public class AgentRegistrationController {
     @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.GET)
     public void downloadTfsImplJar(HttpServletResponse response) throws IOException {
         checkTfsImplVersion(response);
-        sendFile(new TFSImplSrc(), response);
+        sendFile(tfsImplSrc, response);
     }
 
     @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
@@ -141,21 +145,21 @@ public class AgentRegistrationController {
     @PostConstruct
     public void populateLauncherChecksum() throws IOException {
         if (agentLauncherChecksum == null) {
-            agentLauncherChecksum = getChecksumFor(new AgentLauncherSrc());
+            agentLauncherChecksum = getChecksumFor(agentLauncherSrc);
         }
     }
 
     @PostConstruct
     public void populateAgentChecksum() throws IOException {
         if (agentChecksum == null) {
-            agentChecksum = getChecksumFor(new AgentJarSrc());
+            agentChecksum = getChecksumFor(agentJarSrc);
         }
     }
 
     @PostConstruct
     public void populateTFSSDKChecksum() throws IOException {
         if (tfsSdkChecksum == null) {
-            tfsSdkChecksum = getChecksumFor(new TFSImplSrc());
+            tfsSdkChecksum = getChecksumFor(tfsImplSrc);
         }
     }
 
@@ -176,14 +180,14 @@ public class AgentRegistrationController {
     public void downloadAgent(HttpServletResponse response) throws IOException {
         checkAgentVersion(response);
 
-        sendFile(new AgentJarSrc(), response);
+        sendFile(agentJarSrc, response);
     }
 
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.GET)
     public void downloadAgentLauncher(HttpServletResponse response) throws IOException {
         checkAgentLauncherVersion(response);
 
-        sendFile(new AgentLauncherSrc(), response);
+        sendFile(agentLauncherSrc, response);
 
     }
 
@@ -191,7 +195,7 @@ public class AgentRegistrationController {
     public void downloadPluginsZip(HttpServletResponse response) throws IOException {
         checkAgentPluginsZipStatus(response);
 
-        sendFile(new AgentPluginsZipSrc(), response);
+        sendFile(agentPluginsZipSrc, response);
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
@@ -290,7 +294,7 @@ public class AgentRegistrationController {
             return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? OK : ACCEPTED);
         } catch (Exception e) {
             LOG.error("Error occurred during agent registration process. Error: HttpCode=[{}] Message=[{}] UUID=[{}] " +
-                    "Hostname=[{}] ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, getErrorMessage(e), uuid,
+                            "Hostname=[{}] ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, getErrorMessage(e), uuid,
                     hostname, elasticAgentId, elasticPluginId, e);
             return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), UNPROCESSABLE_ENTITY);
         }
@@ -343,32 +347,4 @@ public class AgentRegistrationController {
         return isNotBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
     }
 
-    public interface InputStreamSrc {
-        InputStream invoke() throws IOException;
-    }
-
-    private class AgentJarSrc implements InputStreamSrc {
-        public InputStream invoke() throws IOException {
-            return JarDetector.create(systemEnvironment, "agent.jar");
-        }
-    }
-
-    private class AgentLauncherSrc implements InputStreamSrc {
-        public InputStream invoke() throws IOException {
-            return JarDetector.create(systemEnvironment, "agent-launcher.jar");
-        }
-    }
-
-    private class AgentPluginsZipSrc implements InputStreamSrc {
-        public InputStream invoke() throws FileNotFoundException {
-            return new FileInputStream(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
-        }
-    }
-
-    private class TFSImplSrc implements InputStreamSrc {
-        @Override
-        public InputStream invoke() throws IOException {
-            return TFSJarDetector.create(systemEnvironment).getJarURL().openStream();
-        }
-    }
 }

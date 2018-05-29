@@ -21,11 +21,11 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,12 +44,12 @@ public class ApprovalTest {
     @Test
     public void shouldNotAssignType() throws Exception {
         Approval approval = new Approval();
-        approval.setConfigAttributes(new SingletonMap(Approval.TYPE, Approval.SUCCESS));
+        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.SUCCESS));
         assertThat(approval.getType(), is(Approval.SUCCESS));
         approval.setConfigAttributes(new HashMap());
         assertThat(approval.getType(), is(Approval.SUCCESS));
 
-        approval.setConfigAttributes(new SingletonMap(Approval.TYPE, Approval.MANUAL));
+        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.MANUAL));
         assertThat(approval.getType(), is(Approval.MANUAL));
         approval.setConfigAttributes(new HashMap());
         assertThat(approval.getType(), is(Approval.MANUAL));
@@ -58,7 +58,7 @@ public class ApprovalTest {
     @Test
     public void shouldValidateApprovalType() throws Exception {
         Approval approval = new Approval();
-        approval.setConfigAttributes(new SingletonMap(Approval.TYPE, "not-manual-or-success"));
+        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, "not-manual-or-success"));
         assertThat(approval.getType(), is("not-manual-or-success"));
         approval.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new BasicPipelineConfigs()));
         assertThat(approval.errors().firstError(), is("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'."));

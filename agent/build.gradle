@@ -100,7 +100,7 @@ task verifyJar(type: VerifyJarTask) {
       "common-${project.version}.jar",
       "commons-beanutils-1.7.0.jar",
       "commons-codec-${project.versions.commonsCodec}.jar",
-      "commons-collections-3.2.2.jar",
+      "commons-collections4-${project.versions.commonsCollections4}.jar",
       "commons-configuration2-${project.versions.commonsConfiguration}.jar",
       "commons-digester-1.8.jar",
       "commons-io-${project.versions.commonsIO}.jar",

@@ -27,7 +27,7 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -75,7 +75,7 @@ public class GoArtifactsManipulatorTest {
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
         when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
-        CircularFifoBuffer buffer = (CircularFifoBuffer) ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
+        CircularFifoQueue buffer = (CircularFifoQueue) ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
         synchronized (buffer) {
             try {
                 goArtifactsManipulatorStub.publish(goPublisher, "some_dest", tempFile, jobIdentifier);

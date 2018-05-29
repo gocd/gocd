@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;

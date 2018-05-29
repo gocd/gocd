@@ -20,10 +20,10 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.MqlCriteria;
 import com.thoughtworks.go.config.TrackingTool;
-import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class MingleConfigTest {
         Map configMap = new HashMap();
         configMap.put(MingleConfig.BASE_URL, "http://mingle01.tw.com/mingle");
         configMap.put(MingleConfig.PROJECT_IDENTIFIER, "go");
-        configMap.put(MingleConfig.MQL_GROUPING_CONDITIONS, new SingletonMap(MqlCriteria.MQL, "Some MQL"));
+        configMap.put(MingleConfig.MQL_GROUPING_CONDITIONS, Collections.singletonMap(MqlCriteria.MQL, "Some MQL"));
 
         mingleConfig.setConfigAttributes(configMap);
 

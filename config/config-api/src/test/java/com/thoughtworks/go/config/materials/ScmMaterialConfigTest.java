@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,7 +50,7 @@ public class ScmMaterialConfigTest {
     @Test
     public void shouldSetFilterToNullWhenBlank() {
         material.setFilter(new Filter(new IgnoredFiles("*.*")));
-        material.setConfigAttributes(new SingletonMap(ScmMaterialConfig.FILTER, ""));
+        material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FILTER, ""));
         assertThat(material.filter(), is(new Filter()));
         assertThat(material.getFilterAsString(), is(""));
     }
@@ -74,23 +73,23 @@ public class ScmMaterialConfigTest {
         material.setConfigAttributes(Collections.singletonMap(FOLDER, "foo"));
         assertThat(material.getFolder(), is(not(nullValue())));
 
-        material.setConfigAttributes(new SingletonMap(FOLDER, ""));
+        material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
         assertThat(material.getFolder(), is(nullValue()));
     }
 
     @Test
     public void shouldUpdateAutoUpdateFieldFromConfigAttributes() {
-        material.setConfigAttributes(new SingletonMap(AUTO_UPDATE, "false"));
+        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "false"));
         assertThat(material.isAutoUpdate(), is(false));
-        material.setConfigAttributes(new SingletonMap(AUTO_UPDATE, null));
+        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
         assertThat(material.isAutoUpdate(), is(false));
-        material.setConfigAttributes(new SingletonMap(AUTO_UPDATE, "true"));
+        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "true"));
         assertThat(material.isAutoUpdate(), is(true));
         material.setConfigAttributes(new HashMap());
         assertThat(material.isAutoUpdate(), is(false));
-        material.setConfigAttributes(new SingletonMap(AUTO_UPDATE, null));
+        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
         assertThat(material.isAutoUpdate(), is(false));
-        material.setConfigAttributes(new SingletonMap(AUTO_UPDATE, "random-stuff"));
+        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "random-stuff"));
         assertThat(material.isAutoUpdate(), is(false));
     }
 

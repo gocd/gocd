@@ -39,8 +39,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -252,20 +252,8 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s3"));
         assertThat(buildCause.getBuildCauseMessage(), is("Forced by admin1"));
         assertThat(buildCause.getVariables().size(), is(2));
-        EnvironmentVariable plainTextVariable = (EnvironmentVariable) CollectionUtils.find(buildCause.getVariables(), new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                EnvironmentVariable variable = (EnvironmentVariable) o;
-                return variable.getName().equals("ENV_VAR1");
-            }
-        });
-        EnvironmentVariable secureVariable = (EnvironmentVariable) CollectionUtils.find(buildCause.getVariables(), new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                EnvironmentVariable variable = (EnvironmentVariable) o;
-                return variable.getName().equals("SECURE_VAR1");
-            }
-        });
+        EnvironmentVariable plainTextVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("ENV_VAR1"));
+        EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
         assertThat(plainTextVariable.getValue(), is("overridden_value"));
         assertThat(secureVariable.getValue(), is("overridden_secure_value"));
         assertThat(secureVariable.isSecure(), is(true));
@@ -295,13 +283,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        EnvironmentVariable secureVariable = (EnvironmentVariable) CollectionUtils.find(buildCause.getVariables(), new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                EnvironmentVariable variable = (EnvironmentVariable) o;
-                return variable.getName().equals("SECURE_VAR1");
-            }
-        });
+        EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
         assertThat(secureVariable.getValue(), is("overridden_value"));
         assertThat(secureVariable.isSecure(), is(true));
     }

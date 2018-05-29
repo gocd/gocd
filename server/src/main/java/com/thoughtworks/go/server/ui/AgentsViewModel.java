@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.BaseCollection;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -72,9 +72,8 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
             return;
         }
 
-        CollectionUtils.filter(this, o -> {
+        CollectionUtils.filter(this, agent -> {
             boolean finalResult = false;
-            AgentViewModel agent = (AgentViewModel) o;
             for (Map.Entry<String, String> entry : filters.entrySet()) {
                 AgentFilters filter = AgentFilters.valueOf(entry.getKey().toUpperCase());
                 finalResult = finalResult || filter.matches(agent, entry.getValue());

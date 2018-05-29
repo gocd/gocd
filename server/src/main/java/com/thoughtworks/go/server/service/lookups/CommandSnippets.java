@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.find;
+import static org.apache.commons.collections4.IterableUtils.find;
+
 
 public class CommandSnippets {
     private List<CommandSnippet> snippets;
@@ -69,10 +70,7 @@ public class CommandSnippets {
     }
 
     public CommandSnippet findByRelativePath(final String snippetRelativePath) {
-        return (CommandSnippet) find(snippets, o -> {
-            CommandSnippet commandSnippet = (CommandSnippet) o;
-            return commandSnippet.getRelativePath().equals(snippetRelativePath);
-        });
+        return find(snippets, commandSnippet -> commandSnippet.getRelativePath().equals(snippetRelativePath));
     }
 
     @Override

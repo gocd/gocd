@@ -15,17 +15,19 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.remote.UIConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
-import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
     @Before
@@ -90,7 +92,7 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
 
     @Test
     public void shouldUpdateName() {
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
         assertThat(environmentConfig.name(), is(new CaseInsensitiveString("PROD")));
     }
 

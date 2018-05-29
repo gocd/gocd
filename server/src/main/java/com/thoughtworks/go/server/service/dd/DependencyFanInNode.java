@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.Pair;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -35,6 +35,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
+import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
-import static org.apache.commons.collections.CollectionUtils.forAllDo;
+import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 
 
 /**
@@ -115,7 +116,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                             }
                         }
                     }
-                    forAllDo(jobsToRemove, o -> removeJob((JobPlan) o));
+                    IterableUtils.forEach(jobsToRemove, o -> removeJob(o));
                 }
             }
         };

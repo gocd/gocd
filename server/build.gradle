@@ -187,6 +187,7 @@ dependencies {
   compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
   // this is needed by velocity tools view
   compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
+  compile group: 'commons-collections', name: 'commons-collections', version: project.versions.commonsCollections
   compile group: 'com.google.guava', name: 'guava', version: '20.0'
   compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
   compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
@@ -633,6 +634,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-beanutils-core-1.7.0.jar",
         "commons-codec-${project.versions.commonsCodec}.jar",
         "commons-collections-3.2.2.jar",
+        "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp-1.4.jar",
         "commons-digester-1.8.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",

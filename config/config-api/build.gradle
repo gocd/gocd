@@ -21,7 +21,7 @@ dependencies {
   compile project(':plugin-infra:go-plugin-domain')
   compile project(':db')
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
-  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+  compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
   compile(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {
     transitive = false
   }

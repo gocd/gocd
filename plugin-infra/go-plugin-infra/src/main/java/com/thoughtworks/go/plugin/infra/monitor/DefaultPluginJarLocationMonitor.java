@@ -17,8 +17,9 @@
 package com.thoughtworks.go.plugin.infra.monitor;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +66,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     @Override
     public void removePluginJarChangeListener(final PluginJarChangeListener listener) {
-        Object referenceOfListenerToBeRemoved = CollectionUtils.find(pluginJarChangeListener, object -> {
-            WeakReference<PluginJarChangeListener> listenerWeakReference = (WeakReference<PluginJarChangeListener>) object;
+        WeakReference<PluginJarChangeListener> referenceOfListenerToBeRemoved = IterableUtils.find(pluginJarChangeListener, listenerWeakReference -> {
             PluginJarChangeListener registeredListener = listenerWeakReference.get();
             return registeredListener != null && registeredListener == listener;
         });
@@ -260,20 +260,20 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void pluginJarAdded(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarAdded(pluginFileDetails));
+                doOnAllPluginJarChangeListener(o -> o.pluginJarAdded(pluginFileDetails));
             }
 
             @Override
             public void pluginJarUpdated(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarUpdated(pluginFileDetails));
+                doOnAllPluginJarChangeListener(o -> o.pluginJarUpdated(pluginFileDetails));
             }
 
             @Override
             public void pluginJarRemoved(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarRemoved(pluginFileDetails));
+                doOnAllPluginJarChangeListener(o -> o.pluginJarRemoved(pluginFileDetails));
             }
 
-            private void doOnAllPluginJarChangeListener(Closure closure) {
+            private void doOnAllPluginJarChangeListener(Closure<PluginJarChangeListener> closure) {
                 for (WeakReference<PluginJarChangeListener> listener : listeners) {
                     PluginJarChangeListener changeListener = listener.get();
                     if (changeListener == null) {

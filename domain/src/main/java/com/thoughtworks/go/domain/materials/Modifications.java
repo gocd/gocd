@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,9 +149,7 @@ public class Modifications extends BaseCollection<Modification> {
     private Set<ModifiedFile> getAllFiles(List<Modification> modifications) {
         Set<ModifiedFile> allFiles = new HashSet<>();
         for (Modification modification : modifications) {
-            for (ModifiedFile modifiedFile : modification.getModifiedFiles()) {
-                allFiles.add(modifiedFile);
-            }
+            allFiles.addAll(modification.getModifiedFiles());
         }
         return allFiles;
     }

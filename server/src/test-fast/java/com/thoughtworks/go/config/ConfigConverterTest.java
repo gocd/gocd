@@ -43,7 +43,6 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.apache.commons.collections.map.HashedMap;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
@@ -988,7 +987,7 @@ public class ConfigConverterTest {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename", "group", "label", LOCK_VALUE_LOCK_ON_FAILURE,
                 trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
-        Map<String, List<CRPipeline>> map = new HashedMap();
+        Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("group", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
@@ -1001,7 +1000,7 @@ public class ConfigConverterTest {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename", null, "label", LOCK_VALUE_LOCK_ON_FAILURE,
                 trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
-        Map<String, List<CRPipeline>> map = new HashedMap();
+        Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put(null, pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
@@ -1014,7 +1013,7 @@ public class ConfigConverterTest {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename", "", "label", LOCK_VALUE_LOCK_ON_FAILURE,
                 trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
-        Map<String, List<CRPipeline>> map = new HashedMap();
+        Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);

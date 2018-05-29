@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
@@ -138,14 +134,14 @@ public abstract class EnvironmentConfigTestBase {
     @Test
     public void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(Collections.singletonMap("name", "foo"), Collections.singletonMap("name", "bar"))));
         assertThat(environmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"))));
     }
 
     @Test
     public void shouldUpdateAgents() {
         environmentConfig.addAgent("uuid-1");
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.AGENTS_FIELD, Arrays.asList(new SingletonMap("uuid", "uuid-2"), new SingletonMap("uuid", "uuid-3"))));
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.AGENTS_FIELD, Arrays.asList(Collections.singletonMap("uuid", "uuid-2"), Collections.singletonMap("uuid", "uuid-3"))));
         EnvironmentAgentsConfig expectedAgents = new EnvironmentAgentsConfig();
         expectedAgents.add(new EnvironmentAgentConfig("uuid-2"));
         expectedAgents.add(new EnvironmentAgentConfig("uuid-3"));
@@ -155,7 +151,7 @@ public abstract class EnvironmentConfigTestBase {
     @Test
     public void shouldUpdateEnvironmentVariables() {
         environmentConfig.addEnvironmentVariable("hello", "world");
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
         assertThat(environmentConfig.getVariables().size(), is(2));
@@ -163,7 +159,7 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     public void shouldNotSetEnvironmentVariableFromConfigAttributesIfNameAndValueIsEmpty() {
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
+        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
         assertThat(environmentConfig.errors().isEmpty(), is(true));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("", "anything")));
         assertThat(environmentConfig.getVariables().size(), is(1));

@@ -26,7 +26,7 @@ dependencies {
     transitive = false
   }
   compile group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
-  compile group: 'org.jdom', name: 'jdom', version: '2.0.2'
+  compile group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
   testCompile project(':test:test-utils')

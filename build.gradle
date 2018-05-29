@@ -163,6 +163,7 @@ rootProject.ext.versions = [
   hibernate           : '3.6.10.Final',
   javaAssist          : '3.12.1.GA',
   jcommander          : '1.72',
+  jdom                : '2.0.6',
   jetty               : '9.4.8.v20171121',
   jgit                : '4.9.0.201710071750-r',
   jolt                : '0.1.1',

@@ -127,7 +127,7 @@ task verifyJar(type: VerifyJarTask) {
       "javax.servlet-api-3.1.0.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jcommander-${project.versions.jcommander}.jar",
-      "jdom-2.0.2.jar",
+      "jdom2-${project.versions.jdom}.jar",
       "jetty-io-${versions.jetty}.jar",
       "jetty-util-${versions.jetty}.jar",
       "jetty-client-${versions.jetty}.jar",

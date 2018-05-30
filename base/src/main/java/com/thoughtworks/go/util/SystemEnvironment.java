@@ -102,7 +102,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
-    public static final String CONFIG_CIPHER = "cipher";
+    public static final String DES_CONFIG_CIPHER = "cipher";
     public static final String HOSTNAME_SHINE_USES = "localhost";
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
@@ -464,8 +464,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return new File(properties().getProperty(CRUISE_CONFIG_REPO_DIR, CONFIG_REPO_DEFAULT_PATH));
     }
 
-    public File getCipherFile() {
-        return new File(getConfigDir(), CONFIG_CIPHER);
+    public File getDESCipherFile() {
+        return new File(getConfigDir(), DES_CONFIG_CIPHER);
     }
 
     public File getDbFolder() {

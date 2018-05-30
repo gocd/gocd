@@ -26,7 +26,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.junitext.DatabaseChecker;
 import com.thoughtworks.go.junitext.GoJUnitExtSpringRunner;
-import com.thoughtworks.go.security.CipherProvider;
+import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
@@ -105,7 +105,7 @@ public class BackupServiceH2IntegrationTest {
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         FileUtils.deleteQuietly(backupsDirectory);
-        originalCipher = new CipherProvider(systemEnvironment).getKey();
+        originalCipher = new DESCipherProvider(systemEnvironment).getKey();
 
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
@@ -115,7 +115,7 @@ public class BackupServiceH2IntegrationTest {
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
-        FileUtils.writeByteArrayToFile(systemEnvironment.getCipherFile(), originalCipher);
+        FileUtils.writeByteArrayToFile(systemEnvironment.getDESCipherFile(), originalCipher);
         configHelper.onTearDown();
         FileUtils.deleteQuietly(backupsDirectory);
     }

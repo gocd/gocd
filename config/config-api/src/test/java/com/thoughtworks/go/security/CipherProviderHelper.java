@@ -20,6 +20,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 
 public class CipherProviderHelper {
     public static void clearCachedCipher() throws NoSuchFieldException {
-        ReflectionUtil.setStaticField(CipherProvider.class, "cachedKey", null);
+        ReflectionUtil.setStaticField(DESCipherProvider.class, "cachedKey", null);
     }
 }

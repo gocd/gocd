@@ -27,7 +27,7 @@ import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.security.CipherProvider;
+import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
@@ -116,7 +116,7 @@ public class BackupServiceIntegrationTest {
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         cleanupBackups();
-        originalCipher = new CipherProvider(systemEnvironment).getKey();
+        originalCipher = new DESCipherProvider(systemEnvironment).getKey();
 
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
@@ -127,7 +127,7 @@ public class BackupServiceIntegrationTest {
         dbHelper.onTearDown();
         cleanupBackups();
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
-        FileUtils.writeByteArrayToFile(systemEnvironment.getCipherFile(), originalCipher);
+        FileUtils.writeByteArrayToFile(systemEnvironment.getDESCipherFile(), originalCipher);
         configHelper.onTearDown();
     }
 
@@ -165,7 +165,7 @@ public class BackupServiceIntegrationTest {
             assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cipher")), is("some-cipher"));
 
             assertThat(fileContents(configZip, "cruise-config.xml"), is(goConfigService.xml()));
-            byte[] realCipher = (byte[]) ReflectionUtil.invoke(new CipherProvider(systemEnvironment), "getKey");
+            byte[] realCipher = (byte[]) ReflectionUtil.invoke(new DESCipherProvider(systemEnvironment), "getKey");
             assertThat(fileContents(configZip, "cipher").getBytes(), is(realCipher));
         } finally {
             deleteConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");

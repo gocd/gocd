@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.security.CipherProvider;
+import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -58,7 +58,7 @@ public class ConfigCipherUpdater {
     }
 
     public void migrate() {
-        File cipherFile = systemEnvironment.getCipherFile();
+        File cipherFile = systemEnvironment.getDESCipherFile();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(timeProvider.currentTime());
 
         File backupCipherFile = new File(systemEnvironment.getConfigDir(), "cipher.original." + timestamp);
@@ -75,7 +75,7 @@ public class ConfigCipherUpdater {
             LOGGER.info("Old config was successfully backed up to {}", backupConfigFile.getAbsoluteFile());
 
             byte[] oldCipher = FileUtils.readFileToByteArray(backupCipherFile);
-            new CipherProvider(systemEnvironment).resetCipher();
+            new DESCipherProvider(systemEnvironment).resetCipher();
 
             byte[] newCipher = FileUtils.readFileToByteArray(cipherFile);
 

@@ -396,7 +396,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldEncryptPasswordBeforeWriting() throws Exception {
         CipherProviderHelper.clearCachedCipher();
-        File cipherFile = new SystemEnvironment().getCipherFile();
+        File cipherFile = new SystemEnvironment().getDESCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"

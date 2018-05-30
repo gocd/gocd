@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.security.CipherProvider;
+import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.EmailMessageDrafter;
@@ -149,12 +149,12 @@ public class BackupService implements BackupStatusProvider {
         String configDirectory = systemEnvironment.getConfigDir();
         try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, CONFIG_BACKUP_ZIP))))) {
             File cruiseConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-            File cipherFile = systemEnvironment.getCipherFile();
+            File cipherFile = systemEnvironment.getDESCipherFile();
             new DirectoryStructureWalker(configDirectory, configZip, cruiseConfigFile, cipherFile).walk();
             configZip.putNextEntry(new ZipEntry(cruiseConfigFile.getName()));
             IOUtils.write(goConfigService.xml(), configZip);
             configZip.putNextEntry(new ZipEntry(cipherFile.getName()));
-            IOUtils.write(new CipherProvider(systemEnvironment).getKey(), configZip);
+            IOUtils.write(new DESCipherProvider(systemEnvironment).getKey(), configZip);
         }
     }
 

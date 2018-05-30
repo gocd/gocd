@@ -29,13 +29,13 @@ import java.io.Serializable;
 
 public class GoCipher implements Serializable {
 
-    private CipherProvider cipherProvider;
+    private DESCipherProvider cipherProvider;
 
     public GoCipher() {
-        this(new CipherProvider(new SystemEnvironment()));
+        this(new DESCipherProvider(new SystemEnvironment()));
     }
 
-    public GoCipher(CipherProvider cipherProvider) {
+    public GoCipher(DESCipherProvider cipherProvider) {
         this.cipherProvider = cipherProvider;
     }
 

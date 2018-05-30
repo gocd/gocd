@@ -95,7 +95,7 @@ public class ServerConfigTest {
 
     @Test
     public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws InvalidCipherTextException, IOException {
-        File cipherFile = new SystemEnvironment().getCipherFile();
+        File cipherFile = new SystemEnvironment().getDESCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
         GoCipher goCipher = new GoCipher();

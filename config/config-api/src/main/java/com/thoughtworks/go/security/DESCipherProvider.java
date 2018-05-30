@@ -31,15 +31,15 @@ import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.UUID;
 
-public class CipherProvider implements Serializable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CipherProvider.class);
+public class DESCipherProvider implements Serializable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DESCipherProvider.class);
 
     private SystemEnvironment environment;
     private static volatile byte[] cachedKey;
 
     private final byte[] key;
 
-    public CipherProvider(SystemEnvironment environment) {
+    public DESCipherProvider(SystemEnvironment environment) {
         this.environment = environment;
         primeKeyCache();
         key = cachedKey;
@@ -51,7 +51,7 @@ public class CipherProvider implements Serializable {
 
     private void primeKeyCache() {
         if (cachedKey == null) {
-            File cipherFile = environment.getCipherFile();
+            File cipherFile = environment.getDESCipherFile();
             synchronized (cipherFile.getAbsolutePath().intern()) {
                 if (cachedKey == null) {
                     try {
@@ -82,7 +82,7 @@ public class CipherProvider implements Serializable {
 
     public void resetCipher() {
         cachedKey = null;
-        FileUtils.deleteQuietly(environment.getCipherFile());
+        FileUtils.deleteQuietly(environment.getDESCipherFile());
         primeKeyCache();
     }
 }

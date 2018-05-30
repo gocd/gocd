@@ -44,8 +44,8 @@ public class GoCipherTest {
 
     @Before
     public void setUp() throws IOException {
-        ReflectionUtil.setField(new CipherProvider(new SystemEnvironment()), "cachedKey", null);
-        cipherFile = new SystemEnvironment().getCipherFile();
+        ReflectionUtil.setField(new DESCipherProvider(new SystemEnvironment()), "cachedKey", null);
+        cipherFile = new SystemEnvironment().getDESCipherFile();
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
         goCipher = new GoCipher();
     }
@@ -103,7 +103,7 @@ public class GoCipherTest {
     public void shouldCreateACipherFileWithTheCipherIfNotFound() throws IOException, InvalidCipherTextException {
         FileUtils.deleteQuietly(cipherFile);
         assertThat(cipherFile.exists(), is(false));
-        ReflectionUtil.setField(new CipherProvider(new SystemEnvironment()), "cachedKey", null);
+        ReflectionUtil.setField(new DESCipherProvider(new SystemEnvironment()), "cachedKey", null);
         goCipher = new GoCipher();
         assertThat(cipherFile.exists(), is(true));
         String plainText = goCipher.decrypt(goCipher.encrypt("user-password!"));

@@ -23,13 +23,12 @@ import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.io.Serializable;
 
 public class GoCipher implements Serializable {
 
-    private DESCipherProvider cipherProvider;
+    private final DESCipherProvider cipherProvider;
 
     public GoCipher() {
         this(new DESCipherProvider(new SystemEnvironment()));
@@ -49,7 +48,7 @@ public class GoCipher implements Serializable {
 
     public String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-        KeyParameter keyParameter = new KeyParameter(Hex.decode(key));
+        KeyParameter keyParameter = new KeyParameter(key);
         cipher.init(true, keyParameter);
         byte[] plainTextBytes = plainText.getBytes();
         byte[] cipherTextBytes = new byte[cipher.getOutputSize(plainTextBytes.length)];
@@ -60,14 +59,14 @@ public class GoCipher implements Serializable {
 
     public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-        cipher.init(false, new KeyParameter(Hex.decode(key)));
+        cipher.init(false, new KeyParameter(key));
         byte[] cipherTextBytes = java.util.Base64.getDecoder().decode(cipherText);
 
         byte[] plainTextBytes = new byte[cipher.getOutputSize(cipherTextBytes.length)];
         int outputLength = cipher.processBytes(cipherTextBytes, 0, cipherTextBytes.length, plainTextBytes, 0);
         cipher.doFinal(plainTextBytes, outputLength);
         int paddingStarts = plainTextBytes.length - 1;
-        for (; paddingStarts >= 0 ; paddingStarts--) {
+        for (; paddingStarts >= 0; paddingStarts--) {
             if (plainTextBytes[paddingStarts] != 0) {
                 break;
             }

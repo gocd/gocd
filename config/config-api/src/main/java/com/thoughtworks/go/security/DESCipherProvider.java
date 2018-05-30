@@ -18,18 +18,20 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.generators.DESKeyGenerator;
 import org.bouncycastle.crypto.params.DESParameters;
-import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.codec.binary.Hex.decodeHex;
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 public class DESCipherProvider implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DESCipherProvider.class);
@@ -56,14 +58,14 @@ public class DESCipherProvider implements Serializable {
                 if (cachedKey == null) {
                     try {
                         if (cipherFile.exists()) {
-                            cachedKey = FileUtils.readFileToByteArray(cipherFile);
+                            cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8));
                             return;
                         }
                         byte[] newKey = generateKey();
-                        FileUtils.writeByteArrayToFile(cipherFile, newKey);
-                        LOGGER.info("Cipher not found. Creating a new cipher file");
+                        FileUtils.writeStringToFile(cipherFile, encodeHexString(newKey), UTF_8);
+                        LOGGER.info("DES cipher not found. Creating a new cipher file");
                         cachedKey = newKey;
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -77,7 +79,7 @@ public class DESCipherProvider implements Serializable {
         KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH * 8);
         DESKeyGenerator generator = new DESKeyGenerator();
         generator.init(generationParameters);
-        return Hex.encode(generator.generateKey());
+        return generator.generateKey();
     }
 
     public void resetCipher() {

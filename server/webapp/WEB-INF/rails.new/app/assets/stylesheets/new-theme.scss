@@ -17,6 +17,7 @@
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import '../new_stylesheets/shared/common';
+@import '../new_stylesheets/shared/alert';
 
 @include foundation-grid;
 @include foundation-forms;
@@ -2230,14 +2231,14 @@ a:link.help, a:visited.help {
   padding: 20px 0;
 }
 
-#environments #body_content .content_wrapper_inner{
+#environments #body_content .content_wrapper_inner {
   padding: 10px 0;
 }
 
-.environments{
+.environments {
   margin-top: 20px;
   .icon16.setting {
-    float: none;
+    float:       none;
     margin-left: 10px;
   }
 }
@@ -3998,4 +3999,41 @@ ul.entity_title {
       border-left: #fa2d2d 3px solid;
     }
   }
+}
+
+.add_new_artifact {
+  margin-top: 15px;
+}
+
+.existing-artifact {
+  border-bottom: 1px solid $border-color;
+  padding:       25px 0 5px;
+  .type_label {
+    font-weight: bold;
+  }
+}
+
+.plugin_form_background, .plugin_key_value {
+  background-color: $artifact_plugin_form_background;
+}
+
+.plugin_dropdown_background {
+  background-color: $artifact_plugin_message_background;
+}
+
+.plugin_dropdown_background .columns {
+  padding-top: 20px;
+}
+
+.plugin_form_background .columns {
+  padding-top:      10px;
+}
+
+.add_new_artifact label {
+  display: inline-block;
+}
+
+.add_artifact_button {
+  float:   none;
+  display: inline-block;
 }

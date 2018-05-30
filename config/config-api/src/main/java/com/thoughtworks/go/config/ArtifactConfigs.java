@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,8 +117,12 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                 String pluginId = (String) attrMap.get("pluginId");
 
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
+
                 // TODO: set artifact store
-                setPluginConfigurationAttributes(attrMap, pluginId, pluggableArtifactConfig);
+                if (StringUtils.isNotBlank(pluginId)) {
+                    setPluginConfigurationAttributes(attrMap, pluginId, pluggableArtifactConfig);
+                }
+
                 this.add(pluggableArtifactConfig);
 
             }

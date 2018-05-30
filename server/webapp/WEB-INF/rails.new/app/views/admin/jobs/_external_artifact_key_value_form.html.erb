@@ -1,0 +1,8 @@
+<% scope[:external_artifact].getConfiguration().getConfigurationAsMap(true).to_hash.each do |config_property| %>
+  <div class="plugin-config-read-only show plugin_key_value">
+    <dl class="key-value-pair">
+      <dt><%=config_property[0]%></dt>
+      <dd><%=config_property[1]%></dd>
+    </dl>
+  </div>
+<% end %>

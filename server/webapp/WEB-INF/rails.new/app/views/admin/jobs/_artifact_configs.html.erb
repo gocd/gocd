@@ -5,8 +5,8 @@
         <%= render :partial => 'built_in_artifact_table_headers' %>
         <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
         <div class="row expanded">
-          <div class="name_value_cell columns medium-3 large-3">
-            <label>Build Artifact</label>
+          <div class="name_value_cell columns medium-2 large-2">
+            <label class="type_label">Build Artifact</label>
             <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'Build Artifact' -%>
           </div>
           <%= render :partial => 'builtin_artifact_form', :locals => {:scope => {:var_form => var_form}} %>
@@ -19,8 +19,8 @@
         <%= render :partial => 'built_in_artifact_table_headers' %>
         <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
         <div class="row expanded">
-          <div class="name_value_cell columns medium-3 large-3">
-            <label>Test Artifact</label>
+          <div class="name_value_cell columns medium-2 large-2">
+            <label class="type_label">Test Artifact</label>
             <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'Test Artifact' -%>
           </div>
           <%= render :partial => 'builtin_artifact_form', :locals => {:scope => {:var_form => var_form}} %>
@@ -47,9 +47,9 @@
           <%= render :partial => 'external_artifact_table_headers' %>
           <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
           <div class="row expanded">
-            <div class="name_value_cell columns medium-3 large-3">
-            <label>External Artifact</label>
-            <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'External Artifact' -%>
+            <div class="name_value_cell columns medium-2 large-2">
+            <label class="type_label">External Artifact</label>
+              <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'External Artifact' -%>
             </div>
             <div class="columns medium-3 large-3">
             <%= var_form.text_field "id", :class => "form_input artifact_source", :id => nil -%>
@@ -57,49 +57,46 @@
             <div class="columns medium-3 large-3">
             <%= var_form.text_field "storeId", :class => "form_input artifact_source stores_auto_complete", :id => nil -%>
             </div>
-            <div class="name_value_cell columns medium-3 large-3 end">
+            <div class="name_value_cell columns medium-4 large-4 end">
               <span class="icon_remove delete_parent"></span>
             </div>
           </div>
-          <div class="row expanded">
-            <div id="plugin_input_if_required" class="columns medium-12 large-12 end">
-              <%= var_form.hidden_field "pluginId", :class => 'artifact_plugin_id' -%>
-              <div class="hidden plugin-select-form">
-                <span>Could not determine the plugin from the store. Either the store does not exist or you have defined a parameter. Please choose a plugin to configure the plugin properties.</span>
-                <%= var_form.select('artifactPluginOptions', scope[:artifact_plugin_to_view].keys(), {:include_blank => true }, {:class => 'artifact_plugin_selection'}) %>
-              </div>
+          <div class="row expanded plugin_dropdown_background">
+            <div class="columns medium-8 medium-offset-2 large-8 end">
+              <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
+              <%= var_form.select('pluginId', scope[:artifact_plugin_to_view].keys(), {:include_blank => true}, {:class => 'artifact_plugin_selection'}) %>
             </div>
           </div>
-          <div class="row expanded">
-            <div class="columns medium-12 large-12 end">
-              <div id="plugin_form">
-                <% dom_id_for_publish_view = random_dom_id %>
-                <% form_name_provider_obj = form_name_provider(var_form) %>
-                <% scope[:plugged_artifact_angular_controller_element_id] = form_name_provider_obj.css_id_for("angular_" + dom_id_for_publish_view) %>
-                <% scope[:plugged_artifact_data_element_id] = form_name_provider_obj.css_id_for("data_" + dom_id_for_publish_view) %>
-                <div class="form_content">
-                  <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-                  <div id="material">
-                    <div class="fieldset">
-                      <div id="<%= scope[:plugged_artifact_angular_controller_element_id] %>" name="<%= scope[:plugged_artifact_angular_controller_element_id] %>" class="plugged_material">
-                        <div class="form_item">
+            <div class="row expanded plugin_form_background">
+              <div class="columns medium-8 medium-offset-2 large-8 end">
+                <div id="plugin_form">
+                  <% dom_id_for_publish_view = random_dom_id %>
+                  <% form_name_provider_obj = form_name_provider(var_form) %>
+                  <% scope[:plugged_artifact_angular_controller_element_id] = form_name_provider_obj.css_id_for("angular_" + dom_id_for_publish_view) %>
+                  <% scope[:plugged_artifact_data_element_id] = form_name_provider_obj.css_id_for("data_" + dom_id_for_publish_view) %>
+                  <div class="form_content">
+                    <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+                    <div id="material">
+                      <div class="fieldset">
+                        <div id="<%= scope[:plugged_artifact_angular_controller_element_id] %>" name="<%= scope[:plugged_artifact_angular_controller_element_id] %>" class="plugged_material">
+                          <div class="form_item">
 
-                          <div class="plugged_artifact_template required">
+                            <div class="plugged_artifact_template">
 
+                            </div>
+
+                            <span id="<%= scope[:plugged_artifact_data_element_id] %>" class="plugged_material_data" style="display: none">
+                            </span>
                           </div>
-
-                          <span id="<%= scope[:plugged_artifact_data_element_id] %>" class="plugged_material_data" style="display: none">
-                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <%= render :partial => 'shared/convert_tool_tips.html' %>
                 </div>
-                <%= render :partial => 'shared/convert_tool_tips.html' %>
               </div>
             </div>
-          </div>
-        </div>
+            </div>
         <% end %>
       <% end %>
     </textarea>
@@ -110,8 +107,8 @@
           <div class="existing-artifact">
             <%= render :partial => 'built_in_artifact_table_headers' %>
             <div class="row expanded">
-              <div class="name_value_cell columns medium-3 large-3">
-                <%= var_form.label variable.getArtifactTypeValue() -%>
+              <div class="name_value_cell columns medium-2 large-2">
+                <%= var_form.label variable.getArtifactTypeValue(), {:class => "type_label"} -%>
                 <%= var_form.hidden_field "artifactTypeValue", :class => "form_input artifact_source", :id => nil -%>
               </div>
               <div class="name_value_cell columns medium-3 large-3">
@@ -122,7 +119,7 @@
                 <%= var_form.text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
                 <%= error_message_on(variable, "destination", :css_class => "form_error") %>
               </div>
-              <div class="name_value_cell columns medium-3 large-3">
+              <div class="name_value_cell columns medium-4 large-4 end">
                 <span class="icon_remove delete_artifact"></span>
               </div>
             </div>
@@ -135,8 +132,8 @@
           <div class="existing-artifact">
             <%= render :partial => 'external_artifact_table_headers' %>
             <div class="row expanded">
-              <div class="name_value_cell columns medium-3 large-3">
-                <label>External Artifact</label>
+              <div class="name_value_cell columns medium-2 large-2">
+                <label class="type_label">External Artifact</label>
                 <%= var_form.hidden_field "artifactTypeValue", :class => "form_input artifact_source", :id => nil -%>
               </div>
               <div class="name_value_cell columns medium-3 large-3">
@@ -144,37 +141,46 @@
                 <%= error_message_on(variable, "id", :css_class => "form_error") %>
               </div>
               <div class="name_value_cell columns medium-3 large-3">
-                <%= var_form.text_field "storeId", :class => "form_input artifact_destination", :id => nil -%>
+                <%= var_form.text_field "storeId", :class => "form_input artifact_destination stores_auto_complete", :id => nil -%>
                 <%= error_message_on(variable, "storeId", :css_class => "form_error") %>
               </div>
-              <div class="name_value_cell columns medium-3 large-3 end">
+              <div class="name_value_cell columns medium-4 large-4 end">
                 <span class="icon_remove delete_artifact"></span>
               </div>
             </div>
-            <div class="row expanded">
-              <div class="columns medium-12 large-12 end">
-                <%= var_form.hidden_field "pluginId", :class => "form_input artifact_destination", :id => nil -%>
-                <p>The plugin corresponding to store <%=variable.getStoreId() %> is <%= variable.getPluginId() %></p>
+
+              <div class="row expanded plugin_dropdown_background">
+                <div class="columns medium-8 medium-offset-2 large-8 end">
+                  <div class="plugin-select-form">
+                    <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
+                    <%= var_form.select("pluginId", scope[:artifact_plugin_to_view].keys(), {:include_blank => true}, {:class => 'artifact_plugin_selection'}) %>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="row expanded">
-              <div class="columns medium-12 large-12 end">
-                <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => var_form, :external_artifact => variable, :artifact_meta_data_store => scope[:artifact_meta_data_store]}} %>
+
+              <div class="row expanded plugin_form_background">
+                <div class="columns medium-8 medium-offset-2 large-8 end">
+                  <% if variable.getPluginId().blank? %>
+                    <%= render :partial => 'external_artifact_key_value_form', :locals => {:scope => {:var_form => var_form, :external_artifact => variable, :artifact_meta_data_store => scope[:artifact_meta_data_store]}} %>
+                  <% else %>
+                    <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => var_form, :external_artifact => variable, :artifact_meta_data_store => scope[:artifact_meta_data_store]}} %>
+                  <% end %>
+                </div>
               </div>
-            </div>
           </div>
         <% end %>
       <%- end -%>
     </div>
 
-    <div class="row expanded">
+    <div class="row expanded add_new_artifact">
       <div class="name_value_cell columns medium-12 large-12 end">
+        <label>Select type:</label>
         <select class="small" id="select_artifact_type">
-          <option value="Build Artifact">Build Artifact</option>
-          <option value="Test Artifact">Test Artifact</option>
-          <option value="External Artifact">External Artifact</option>
+          <option value="Build Artifact">Build</option>
+          <option value="Test Artifact">Test</option>
+          <option value="External Artifact">External</option>
         </select>
-        <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
+        <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop add_artifact_button", :id => "add_artifact"}) %>
       </div>
     </div>
   </div>
@@ -183,14 +189,17 @@
 
 <script type="text/javascript">
   Util.on_load(function () {
+    jQuery("input[name='job[artifactConfigs][][storeId]']").keyup(addOnChangeListenerForStoreInput);
+    addOnSelectListenerForPluginDropdown();
 
     function hookupStoresAutoComplete() {
       jQuery(".stores_auto_complete").autocomplete(<%== scope[:artifact_store_ids] %>, {
-        multiple: false,
-        minChars: 0,
+        multiple:      false,
+        minChars:      0,
         matchContains: true,
-        selectFirst: false,
-        width: 248});
+        selectFirst:   false,
+        width:         248
+      });
     }
 
     jQuery('.delete_artifact').click(function (event) {
@@ -205,43 +214,44 @@
     function determineAppropriateFormToShow(artifactTypeValue) {
       switch (artifactTypeValue) {
         case 'Build Artifact':
-          addBuiltInFormRowFor('#artifact_template_build');
+          addFormRowFor('#artifact_template_build');
           break;
         case 'Test Artifact':
-          addBuiltInFormRowFor('#artifact_template_test');
+          addFormRowFor('#artifact_template_test');
           break;
         case 'External Artifact':
-          addBuiltInFormRowFor('#artifact_template_external');
+          addFormRowFor('#artifact_template_external');
           hookupStoresAutoComplete();
-          addOnChangeListenerForStoreInput();
           addOnSelectListenerForPluginDropdown();
+          jQuery("input[name='job[artifactConfigs][][storeId]']").keyup(addOnChangeListenerForStoreInput);
           break;
       }
     }
 
-    function addOnChangeListenerForStoreInput() {
-      jQuery("input[name='job[artifactConfigs][][storeId]']").on('change', function (event) {
-        var inputElement = jQuery(this);
-        var selectedInput = event.currentTarget || event.target;
-        var storeIdToPluginId = <%== scope[:store_id_to_plugin_id].to_json %>;
-        var pluginId = storeIdToPluginId[selectedInput.value];
-        showAppropriatePluginView(pluginId, inputElement)
-      });
+
+    function addOnChangeListenerForStoreInput(event) {
+      var inputElement      = jQuery(this);
+      var selectedInput     = event.currentTarget || event.target;
+      var storeIdToPluginId = <%== scope[:store_id_to_plugin_id].to_json %>;
+      var pluginId          = storeIdToPluginId[selectedInput.value];
+      var pluginDropdown    = inputElement.closest('.existing-artifact').find('.artifact_plugin_selection');
+      pluginDropdown.val(pluginId);
+      pluginDropdown.removeClass("hidden");
+      showAppropriatePluginView(pluginId, inputElement)
     }
 
     function addOnSelectListenerForPluginDropdown() {
-      jQuery('.artifact_plugin_selection').on('change', function (event) {
-        jQuery('.plugin-select-form').addClass('hidden');
-        var inputElement = jQuery(this);
+      jQuery('.artifact_plugin_selection').change(function (event) {
+        var inputElement  = jQuery(this);
         var selectedInput = event.currentTarget || event.target;
         showAppropriatePluginView(selectedInput.value, inputElement);
       })
     }
 
     function showAppropriatePluginView(pluginId, inputElement) {
-      setPluginIdField(pluginId, inputElement);
-      var viewTemplate  = <%== scope[:artifact_plugin_to_view].to_json%>;
-      var pluginView = viewTemplate[pluginId];
+      inputElement.closest('.existing-artifact').find('.artifact_plugin_id').val(pluginId);
+      var viewTemplate = <%== scope[:artifact_plugin_to_view].to_json%>;
+      var pluginView   = viewTemplate[pluginId];
       if (pluginView) {
         inputElement.closest('.existing-artifact').find(".plugged_artifact_template").html(pluginView);
       }
@@ -249,24 +259,15 @@
     }
 
     function initializeAngular() {
-      var form_name_prefix = "job[artifactConfigs][]";
+      var form_name_prefix                               = "job[artifactConfigs][]";
       var plugged_artifact_angular_controller_element_id = "<%= scope[:plugged_artifact_angular_controller_element_id] %>";
-      var plugged_artifact_data_element_id = "<%= scope[:plugged_artifact_data_element_id] %>";
+      var plugged_artifact_data_element_id               = "<%= scope[:plugged_artifact_data_element_id] %>";
       new TaskPluginView().initialize(plugged_artifact_angular_controller_element_id, plugged_artifact_data_element_id, form_name_prefix);
 
       new TaskPluginView().bootstrapAngular();
     }
 
-    function setPluginIdField(pluginId, inputElement) {
-      if (pluginId) {
-        inputElement.closest('.existing-artifact').find('.artifact_plugin_id').val(pluginId);
-      }
-      else {
-        inputElement.closest('.existing-artifact').find('.plugin-select-form').removeClass('hidden');
-      }
-    }
-
-    function addBuiltInFormRowFor(selector) {
+    function addFormRowFor(selector) {
       var rowCreator = new EnvironmentVariables.RowCreator(jQuery(selector), 'div', '.delete_parent');
       var variables  = new EnvironmentVariables(
         jQuery('div.artifact'),

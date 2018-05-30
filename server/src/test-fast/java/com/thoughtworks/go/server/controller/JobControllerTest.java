@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.JsonValue;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -45,6 +46,7 @@ public class JobControllerTest {
     private AgentService agentService;
     private StageService stageService;
     private MockHttpServletResponse response;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
@@ -54,7 +56,8 @@ public class JobControllerTest {
         agentService = mock(AgentService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, null, null, null, null, stageService, null);
+        systemEnvironment = mock(SystemEnvironment.class);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, null, null, null, null, stageService, null, systemEnvironment);
     }
 
     @Test

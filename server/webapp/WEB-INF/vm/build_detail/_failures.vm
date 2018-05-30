@@ -31,7 +31,11 @@
     #if ($presenter.hasFailedTests())
         <h2 class="subtitle collapsible_title title_message_expanded">Failed tests</h2>
         <div class="collapsible_content">
-            <iframe src="$req.getContextPath()/${presenter.indexPageURL}" width="95%" height="200" frameborder="0"></iframe>
+            #if ($useIframeSandbox)
+                <iframe sandbox="allow-scripts" src="$req.getContextPath()/${presenter.indexPageURL}" width="95%" height="200" frameborder="0"></iframe>
+            #else
+                <iframe src="$req.getContextPath()/${presenter.indexPageURL}" width="95%" height="200" frameborder="0"></iframe>
+            #end
         </div>
         <br/>
     #end

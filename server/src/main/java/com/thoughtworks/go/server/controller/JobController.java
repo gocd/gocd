@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,7 @@ public class JobController {
     private StageService stageService;
     @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
+    private SystemEnvironment systemEnvironment;
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
 
@@ -86,7 +88,7 @@ public class JobController {
             JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService,
-            JobAgentMetadataDao jobAgentMetadataDao) {
+            JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
         this.jobInstanceDao = jobInstanceDao;
@@ -97,6 +99,7 @@ public class JobController {
         this.propertiesService = propertiesService;
         this.stageService = stageService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
@@ -123,6 +126,7 @@ public class JobController {
         Map data = new HashMap();
         data.put("presenter", presenter);
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
+        data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
         addElasticAgentInfo(jobDetail, data);

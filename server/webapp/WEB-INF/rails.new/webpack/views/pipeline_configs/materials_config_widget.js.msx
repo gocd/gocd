@@ -192,7 +192,7 @@ const MaterialViews = {
                      selectedIndex={vnode.state.vmState('selectedMaterialIndex', Stream(-1))}>
 
           <div class="material-definition">
-            <f.removeButton onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.material)} class="remove-material"/>
+            <f.button type="remove" onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.material)} class="remove-material"/>
             {children}
           </div>
         </f.accordion>

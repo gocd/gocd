@@ -105,7 +105,7 @@ const EditPluggableSCMMaterialWidget = {
 
     const editButton = ctrl.isPluginMissing() ? (
       <f.alert><b>{scm.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
-      : (<f.editButton class={null} onclick={ctrl.editPluginMetadata.bind(ctrl.modal)}/>);
+      : (<f.button type="edit" class={null} onclick={ctrl.editPluginMetadata.bind(ctrl.modal)}/>);
 
     return (
       <div>

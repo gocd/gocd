@@ -264,7 +264,7 @@ const f = {
   resetAttrButton: {
     view(vnode) {
       const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
-      return <f.resetButton onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
+      return <f.button type="reset" onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
     }
   },
 
@@ -406,43 +406,6 @@ const f = {
     }
   },
 
-  removeButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'remove')}
-                title='Remove' {...args}>{children}</button>
-
-      );
-    }
-  },
-
-  editButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'edit')}
-                title='Edit' {...args}>{children}</button>
-      );
-    }
-  },
-
-  resetButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'reset')}
-                title='Reset' {...args}>{children}</button>
-      );
-    }
-  },
-
   buttonWithTooltip: {
     oncreate (vnode) {
       new window.Foundation.Tooltip($(vnode.dom), {tipText: vnode.attrs.tooltipText});
@@ -472,13 +435,11 @@ const f = {
     view (vnode) {
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
-      let buttonType = deleteKeyAndReturnValue(args, "type");
-      if (!buttonType) {
-        buttonType = 'button';
-      }
+      const buttonType    = deleteKeyAndReturnValue(args, "type") || "button";
+
       if (!_.isEmpty(tooltipText)) {
         return (<f.buttonWithTooltip tooltipText={tooltipText}
-                                     buttonType = {buttonType}
+                                     buttonType={buttonType}
                                      {...args}/>);
       }
       return (

@@ -22,10 +22,12 @@ const fs             = require('fs');
 const fsExtra        = require('fs-extra');
 const _              = require('lodash');
 const path           = require('path');
+const upath          = require('upath');
 const webpack        = require('webpack');
 const StatsPlugin    = require('stats-webpack-plugin');
 const HappyPack      = require('happypack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const licenseChecker = require('license-checker');
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -44,8 +46,9 @@ if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
 }
 
 module.exports = function (env) {
-  const production = (env && env.production === 'true');
-  const outputDir  = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
+  const production        = (env && env.production === 'true');
+  const outputDir         = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
+  const licenseReportFile = (env && env.licenseReportFile) || path.join(__dirname, '..', 'yarn-license-report', `used-packages-${production ? 'prod' : 'dev'}.json`);
 
   console.log(`Generating assets in ${outputDir}`); //eslint-disable-line no-console
 
@@ -106,7 +109,6 @@ module.exports = function (env) {
     plugins.push(new webpack.NoEmitOnErrorsPlugin());
   }
 
-
   const config = {
     cache:     true,
     bail:      true,
@@ -143,6 +145,79 @@ module.exports = function (env) {
       ]
     }
   };
+
+  const LicensePlugin = function (_options) {
+    this.apply = function (compiler) {
+      licenseChecker.init({json: true, production: false, start: process.cwd()}, (err, licenseData) => {
+        if (err) {
+          console.error('Found error');
+          console.error(err);
+          process.exit(1);
+        }
+
+        const filenames = [];
+        compiler.plugin("emit", (compilation, callback) => {
+          compilation.chunks.forEach((chunk) => {
+            chunk.modulesIterable.forEach((chunkModule) => {
+              filenames.push(chunkModule.resource || (chunkModule.rootModule && chunkModule.rootModule.resource));
+              if (Array.isArray(chunkModule.fileDependencies)) {
+                chunkModule.fileDependencies.forEach((e) => {
+                  filenames.push(e);
+                });
+              }
+            });
+          });
+          callback();
+
+          const licenseReport = _.chain(filenames)
+            .uniq()
+            .filter((fileName) => fileName && fileName.indexOf('node_modules') >= 0)
+            .map((fileName) => fileName.replace(upath.join(process.cwd(), '/node_modules/'), '').split('/')[0])
+            .uniq()
+            .sort()
+            .reduce((accumulator, moduleName) => {
+              const moduleNameWithVersion = _(licenseData).findKey((moduleLicenseInfo, moduleNameWithVersion) => {
+                return moduleNameWithVersion.startsWith(`${moduleName}@`);
+              });
+
+              const licenseDataForModule = licenseData[moduleNameWithVersion];
+
+              if (licenseDataForModule) {
+                const moduleVersion = moduleNameWithVersion.split('@')[1];
+
+                if (licenseDataForModule.licenseFile) {
+                  const licenseReportDirForModule = path.join(path.dirname(licenseReportFile), `${moduleName}-${moduleVersion}`);
+                  fsExtra.removeSync(licenseReportDirForModule);
+                  fsExtra.mkdirsSync(licenseReportDirForModule);
+                  fsExtra.copySync(licenseDataForModule.licenseFile, path.join(licenseReportDirForModule, path.basename(licenseDataForModule.licenseFile)));
+                }
+
+                accumulator[moduleName] = {
+                  moduleName:     moduleName,
+                  moduleVersion:  moduleVersion,
+                  moduleUrls:     [licenseDataForModule.repository],
+                  moduleLicenses: [
+                    {
+                      moduleLicense:    licenseDataForModule.licenses,
+                      moduleLicenseUrl: `https://spdx.org/licenses/${licenseDataForModule.licenses}.html`
+                    }
+                  ]
+                };
+              } else {
+                console.error(`Unable to find license data for ${moduleName}`);
+                process.exit(1);
+              }
+              return accumulator;
+            }, {}).value();
+
+          fs.writeFileSync(licenseReportFile, `${JSON.stringify(licenseReport, null, 2)}\n`);
+        });
+
+      });
+    };
+  };
+
+  config.plugins.push(new LicensePlugin());
 
   if (production) {
     fsExtra.removeSync(config.output.path);

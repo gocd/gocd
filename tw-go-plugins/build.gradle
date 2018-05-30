@@ -93,7 +93,7 @@ task verifyPluginZip(type: VerifyJarTask) {
   jarTask = pluginsZip
 
   expectedJars = [
-    '/': dependencies.collect { dep -> "${dep.repo}.jar" }
+    '/': dependencies.collect { dep -> "${dep.repo}.jar".toString() }
   ]
 }
 

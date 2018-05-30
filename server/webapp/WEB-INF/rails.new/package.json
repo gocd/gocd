@@ -51,11 +51,13 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "karma-junit-reporter": "^1.2.0",
     "karma-sourcemap-loader": "^0.3.7",
+    "license-checker": "^20.0.0",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.6",
     "stats-webpack-plugin": "^0.6.0",
     "synchronize": "^2.0.0",
     "uglifyjs-webpack-plugin": "^1.2.2",
+    "upath": "^1.1.0",
     "webpack": "^3.6.0",
     "webpack-dev-server": "^2.4.5"
   }

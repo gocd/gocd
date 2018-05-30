@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.render.JsonReportRenderer
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
@@ -30,12 +33,14 @@ buildscript {
     classpath 'org.owasp:dependency-check-gradle:3.1.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+    classpath 'gradle.plugin.com.github.jk1:gradle-license-report:0.9'
   }
 }
 
 apply plugin: 'jacoco'
 apply plugin: 'base'
 apply plugin: "com.github.hierynomus.license"
+apply plugin: 'com.github.jk1.dependency-license-report'
 
 if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
@@ -224,6 +229,7 @@ subprojects {
   }
   apply plugin: 'base'
   apply plugin: "com.github.hierynomus.license"
+  apply plugin: 'com.github.jk1.dependency-license-report'
 
   license {
     skipExistingHeaders = true
@@ -291,6 +297,14 @@ subprojects {
 
   task cleanApiOut(type: Delete) {
     delete 'out'
+  }
+
+  licenseReport {
+    renderers = [new JsonReportRenderer("index.json", false)]
+    excludeGroups = ["com.thoughtworks.go"]
+    filters = [new LicenseBundleNormalizer()]
+    outputDir = file("${project.buildDir}/reports/dependency-license")
+    configurations = ['compile', 'compileOnly', 'packagingInLibDir']
   }
 
   clean.dependsOn cleanLogs, cleanApiOut

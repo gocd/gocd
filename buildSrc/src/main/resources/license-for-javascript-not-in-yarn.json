@@ -1,0 +1,343 @@
+{
+  "bootstrap": {
+    "moduleName": "bootstrap",
+    "moduleVersion": "2.3.2",
+    "moduleUrls": [
+      "https://github.com/twbs/bootstrap"
+    ],
+    "filenames": [
+      "bootstrap-2.3.2.min.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "Apache-2.0",
+        "moduleLicenseUrl": "https://spdx.org/licenses/Apache-2.0.html"
+      }
+    ]
+  },
+  "component-emitter": {
+    "moduleName": "component-emitter",
+    "moduleVersion": "1.2.1",
+    "moduleUrls": [
+      "https://github.com/component/emitter"
+    ],
+    "filenames": [
+      "component-emitter-1.2.1.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "script.aculo.us": {
+    "moduleName": "script.aculo.us",
+    "moduleVersion": "1.8.0",
+    "moduleUrls": [
+      "https://github.com/madrobby/scriptaculous"
+    ],
+    "filenames": [
+      "controls-1.8.0.js",
+      "effects.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "d3": {
+    "moduleName": "d3",
+    "moduleVersion": "3.1.5",
+    "moduleUrls": [
+      "https://github.com/d3/d3"
+    ],
+    "filenames": [
+      "d3-3.1.4.min.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "BSD 3-Clause",
+        "moduleLicenseUrl": "https://spdx.org/licenses/BSD-3-Clause.html"
+      }
+    ]
+  },
+  "text-encoding": {
+    "moduleName": "text-encoding",
+    "moduleVersion": "0.6.4",
+    "moduleUrls": [
+      "https://github.com/inexorabletash/text-encoding"
+    ],
+    "filenames": [
+      "encoding.js",
+      "encoding-indexes.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "Unlicense",
+        "moduleLicenseUrl": "https://spdx.org/licenses/Unlicense.html"
+      }
+    ]
+  },
+  "es5-shim": {
+    "moduleName": "es5-shim",
+    "moduleVersion": null,
+    "moduleUrls": [
+      "https://github.com/es-shims/es5-shim"
+    ],
+    "filenames": [
+      "es5-shim.min.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-autocomplete": {
+    "moduleName": "jquery-autocomplete",
+    "moduleVersion": "1.1",
+    "moduleUrls": [
+      "https://github.com/agarzola/jQueryAutocompletePlugin"
+    ],
+    "filenames": [
+      "jquery.autocomplete-1.1.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-dirtyform-plugin": {
+    "moduleName": "jquery-dirtyform-plugin",
+    "moduleVersion": "unknown",
+    "moduleUrls": [
+      "https://github.com/acvwilson/dirty_form"
+    ],
+    "filenames": [
+      "jquery.dirtyform.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-highlight-plugin": {
+    "moduleName": "jquery-highlight-plugin",
+    "moduleVersion": "3.0",
+    "moduleUrls": [
+      "https://github.com/bartaz/sandbox.js"
+    ],
+    "filenames": [
+      "jquery.highlight-3.0.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-tiptip": {
+    "moduleName": "jquery-tiptip",
+    "moduleVersion": "1.3",
+    "moduleUrls": [
+      "https://github.com/drewwilson/TipTip"
+    ],
+    "filenames": [
+      "jquery.tipTip-1.3.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-treeview": {
+    "moduleName": "jquery-treeview",
+    "moduleVersion": "1.5pre",
+    "moduleUrls": [
+      "https://github.com/jzaefferer/jquery-treeview"
+    ],
+    "filenames": [
+      "jquery.treeview-1.5pre.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-validation": {
+    "moduleName": "jquery-validation",
+    "moduleVersion": "1.5.5",
+    "moduleUrls": [
+      "https://github.com/jquery-validation/jquery-validation/"
+    ],
+    "filenames": [
+      "jquery.validate-1.5.5.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery with sizzle.js": {
+    "moduleName": "jquery with sizzle.js",
+    "moduleVersion": "1.7.2",
+    "moduleUrls": [
+      "https://github.com/jquery/jquery"
+    ],
+    "filenames": [
+      "jquery-1.7.2.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "jquery-ui": {
+    "moduleName": "jquery-ui",
+    "moduleVersion": "1.7.3",
+    "moduleUrls": [
+      "https://github.com/jquery/jquery-ui"
+    ],
+    "filenames": [
+      "jquery-ui-1.7.3.custom.min.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "lodash": {
+    "moduleName": "lodash",
+    "moduleVersion": "4.2.1",
+    "moduleUrls": [
+      "https://github.com/lodash/lodash"
+    ],
+    "filenames": [
+      "lodash.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "modalbox": {
+    "moduleName": "modalbox",
+    "moduleVersion": "1.6.1",
+    "moduleUrls": [
+      "https://github.com/okonet/modalbox"
+    ],
+    "filenames": [
+      "modalbox-1.6.1.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "unknown"
+      }
+    ]
+  },
+  "momentjs": {
+    "moduleName": "momentjs",
+    "moduleVersion": "2.18.1",
+    "moduleUrls": [
+      "https://github.com/moment/moment"
+    ],
+    "filenames": [
+      "moment-2.18.1.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "moment-duration-format": {
+    "moduleName": "moment-duration-format",
+    "moduleVersion": "1.3.0",
+    "moduleUrls": [
+      "https://github.com/jsmreese/moment-duration-format"
+    ],
+    "filenames": [
+      "moment-duration-format-1.3.0.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "often": {
+    "moduleName": "often",
+    "moduleVersion": "0.3.2",
+    "filenames": [
+      "often-0.3.2.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "pako inflate": {
+    "moduleName": "pako inflate",
+    "moduleVersion": "1.0.5",
+    "filenames": [
+      "pako_inflate-1.0.5.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "prototypejs": {
+    "moduleName": "prototypejs",
+    "moduleVersion": "1.5.0",
+    "filenames": [
+      "prototype-1.6.0.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
+  },
+  "trimpath template": {
+    "moduleName": "trimpath template",
+    "moduleVersion": "1.0.38",
+    "filenames": [
+      "trimpath-template-1.0.38.js"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "Apache-2.0",
+        "moduleLicenseUrl": "https://spdx.org/licenses/Apache-2.0.html"
+      }
+    ]
+  }
+}

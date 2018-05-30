@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
+import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask
+import groovy.json.JsonSlurper
 import org.eclipse.jgit.api.Git
 import org.jruby.CompatVersion
 import org.jruby.Ruby
@@ -64,15 +64,15 @@ configurations {
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
 
 def props = [
-  'go.enforce.server.immutability': 'N',
+  'go.enforce.server.immutability'  : 'N',
   'gocd.environments.show.pipelines': 'Y',
-  'rails.use.compressed.js'       : 'false',
-  'go.database.provider'          : 'com.thoughtworks.go.server.database.H2Database',
-  'db.host'                       : 'localhost',
-  'db.user'                       : 'sa',
-  'db.password'                   : '',
-  'db.name'                       : 'cruise',
-  'db.port'                       : ''
+  'rails.use.compressed.js'         : 'false',
+  'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
+  'db.host'                         : 'localhost',
+  'db.user'                         : 'sa',
+  'db.password'                     : '',
+  'db.name'                         : 'cruise',
+  'db.port'                         : ''
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
@@ -538,6 +538,7 @@ task inlinePartials {
 }
 
 task war(type: Jar) {
+  dependsOn rootProject.generateLicenseReport
   dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
   dependsOn project.configurations.compile
   dependsOn project.configurations.api
@@ -572,7 +573,9 @@ task war(type: Jar) {
     into '/'
   }
 
-  from(project.project(':config:config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
+  from(project.project(':config:config-server').sourceSets.main.resources.srcDirs) {
+    into('/') include('cruise-config.xsd')
+  }
   from("messages/message.properties") { into('/') }
 
   from({ compileAssets }) { into '/WEB-INF/rails.new/public/assets' }
@@ -756,9 +759,205 @@ task verifyWar(type: VerifyJarTask) {
   ]
 }
 
+task licenseReportAggregate {
+  dependsOn rootProject.subprojects.findAll {
+    it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)
+  }.collect { "${it.path}:generateLicenseReport" }
+  dependsOn generateLicenseReport
+
+  def licenseReportAggregateOutputDir = project.file("${project.buildDir}/reports/license-report-aggregate")
+  outputs.dir(licenseReportAggregateOutputDir)
+
+  LinkedHashSet<Map<String, Object>> missingLicenseData = [
+    [
+      moduleName    : 'antlr:antlr',
+      moduleVersion : '2.7.6',
+      moduleUrls    : [
+        "https://www.antlr.org"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'BSD-3-Clause',
+          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'asm:asm',
+      moduleVersion : '1.5.3',
+      moduleUrls    : [
+        "http://asm.objectweb.org/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'BSD-3-Clause',
+          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'net.sf:dbdeploy',
+      moduleVersion : '2.11.1',
+      moduleUrls    : [
+        "https://code.google.com/archive/p/dbdeploy/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'LGPL-3.0-only',
+          moduleLicenseUrl: "https://spdx.org/licenses/LGPL-3.0-only.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'dom4j:dom4j',
+      moduleVersion : '1.6.1',
+      moduleUrls    : [
+        "https://dom4j.github.io/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'dom4j BSD license',
+          moduleLicenseUrl: "https://github.com/dom4j/dom4j/blob/dom4j_1_6_1/LICENSE.txt"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'com.jezhumble:javasysmon',
+      moduleVersion : '0.3.6',
+      moduleUrls    : [
+        "https://github.com/gocd/javasysmon"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'BSD-2-Clause-FreeBSD',
+          moduleLicenseUrl: "https://spdx.org/licenses/BSD-2-Clause-FreeBSD.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'com.bazaarvoice.jolt:jolt-core',
+      moduleVersion : project.versions.jolt,
+      moduleUrls    : [
+        "https://github.com/bazaarvoice/jolt"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'com.bazaarvoice.jolt:json-utils',
+      moduleVersion : project.versions.jolt,
+      moduleUrls    : [
+        "https://github.com/bazaarvoice/jolt"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'com.microsoft:tfs-sdk',
+      moduleVersion : '14.118.0',
+      moduleUrls    : [
+        "https://github.com/Microsoft/team-explorer-everywhere"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'MIT',
+          moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
+        ]
+      ]
+    ]
+  ]
+
+  def goCDJarsWithoutLicenses = ['agent-launcher.jar',
+                                 'agent.jar',
+                                 'go-plugin-activator.jar',
+                                 'tfs-impl-14.jar',
+                                 'gocd-json-config-plugin.jar',
+                                 'gocd-yaml-config-plugin.jar',
+                                 'gocd-filebased-authentication-plugin.jar',
+                                 'gocd-ldap-authentication-plugin.jar',
+                                 'gocd-yum-repository-poller-plugin.jar']
+
+  def getAllJarDependencies = {
+    // get a list of all dependencies from each gradle module
+    def allDependenciesInReport = rootProject.subprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
+      def file = eachProject.file("${eachProject.licenseReport.outputDir}/index.json")
+      if (file.exists()) {
+        Map<String, Object> json = new JsonSlurper().parse(file)
+        if (json.dependencies != null) {
+          result.addAll(json.dependencies)
+        }
+      }
+      result
+    })
+
+    // remove items that we know to have missing license data
+    allDependenciesInReport.removeIf { eachDependency ->
+      !!missingLicenseData.find { dependencyWithMissingLicenseData ->
+        eachDependency.moduleName == dependencyWithMissingLicenseData.moduleName && eachDependency.moduleVersion == dependencyWithMissingLicenseData.moduleVersion
+      }
+    }
+
+    // then add the missing license data
+    allDependenciesInReport.addAll(missingLicenseData)
+
+    allDependenciesInReport
+  }
+
+  def getLicenseDataFor = { Set<String> allJars, allDependenciesInReport ->
+    allJars.inject([:], { Map<String, Map<String, Object>> result, String eachPackagedJar ->
+      Map<String, Object> module = allDependenciesInReport.find { Map<String, Object> eachDependencyInReport ->
+        def (groupId, artifactId) = eachDependencyInReport.moduleName.split(':')
+        def version = eachDependencyInReport.moduleVersion
+        eachPackagedJar == "${artifactId}-${version}.jar"
+      }
+
+      if (module == null) {
+        throw new GradleException("Could not find license details for packaged jar ${eachPackagedJar}")
+      }
+
+      result[module.moduleName] = module
+      result
+    })
+  }
+
+  doFirst {
+    LinkedHashSet<Map<String, Object>> allDependenciesInReport = getAllJarDependencies()
+
+    List<VerifyJarTask> verifyJarTasks = rootProject.allprojects.collect { eachProject ->
+      eachProject.tasks.withType(VerifyJarTask)
+    }.flatten()
+
+    // list of all jars that we package
+    Set<String> allJars = verifyJarTasks.collect { VerifyJarTask eachTask ->
+      eachTask.expectedJars.values().flatten()
+    }.flatten().collect { name -> name.toString() }.sort().unique()
+
+    // remove unwanted stuff, mostly nested zip files and jars with GoCD package version
+    allJars.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${project.version}.jar") || name.contains("-${project.version}-") }
+    allJars.removeAll(goCDJarsWithoutLicenses)
+
+    // get the licenses corresponding to the jars we actually package.
+    Map<String, Map<String, Object>> licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport)
+
+    project.delete(licenseReportAggregateOutputDir)
+    project.mkdir(licenseReportAggregateOutputDir)
+    new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.licenseReportFile).generate()
+  }
+}
+
 apply from: 'rails.gradle'
 apply from: 'jasmine.gradle'
 apply from: 'helpers.gradle'
+
+generateLicenseReport.dependsOn(compileAssetsWebpackProd)
 
 task verifyJar {
   dependsOn verifyWar

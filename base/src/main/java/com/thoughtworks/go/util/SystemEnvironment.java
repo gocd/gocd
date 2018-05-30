@@ -103,6 +103,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String DES_CONFIG_CIPHER = "cipher";
+    public static final String AES_CONFIG_CIPHER = "cipher.aes";
     public static final String HOSTNAME_SHINE_USES = "localhost";
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
@@ -466,6 +467,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public File getDESCipherFile() {
         return new File(getConfigDir(), DES_CONFIG_CIPHER);
+    }
+
+    public File getAESCipherFile() {
+        return new File(getConfigDir(), AES_CONFIG_CIPHER);
     }
 
     public File getDbFolder() {

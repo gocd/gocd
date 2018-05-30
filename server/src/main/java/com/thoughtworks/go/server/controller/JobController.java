@@ -77,7 +77,9 @@ public class JobController {
     private StageService stageService;
     @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
+    @Autowired
     private SystemEnvironment systemEnvironment;
+
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
 

@@ -1,4 +1,4 @@
-/*
+#*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +12,5 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-package com.thoughtworks.go.spark.mocks
-
-import com.google.gson.Gson
-import spark.ModelAndView
-import spark.TemplateEngine
-
-class StubTemplateEngine extends TemplateEngine {
-  private static final Gson GSON = new Gson()
-
-  private static String asJson(Object model) {
-    // reconstruct HashMap because Gson does not serialize anonymous inner classes
-    return GSON.toJson(new HashMap((Map) model))
-  }
-
-  @Override
-  String render(ModelAndView modelAndView) {
-    return "rendered - ${modelAndView.viewName} with locals ${asJson(modelAndView.model)}"
-  }
-}
+ *#
+<div class="analytics-container" data-pipeline-list="${pipelines}" />

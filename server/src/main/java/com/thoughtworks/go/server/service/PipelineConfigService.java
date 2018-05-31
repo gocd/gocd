@@ -110,6 +110,10 @@ public class PipelineConfigService {
         return cruiseConfig.getEnvironments().findEnvironmentNameForPipeline(pipelineName);
     }
 
+    public PipelineConfig pipelineConfigNamed(String pipelineName) {
+        return goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+    }
+
     public PipelineConfig getPipelineConfig(String pipelineName) {
         return goConfigService.getMergedConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
     }

@@ -92,8 +92,7 @@ public abstract class AbstractAuthenticationHelper {
         JsonElement group = new JsonParser().parse(request.body()).getAsJsonObject().get("group");
         if (group == null) {
             throw new UnprocessableEntityException("Pipeline group must be specified for creating a pipeline.");
-        }
-        else {
+        } else {
             String groupName = group.getAsString();
             if (StringUtils.isNotBlank(groupName) && !securityService.isUserAdminOfGroup(currentUsername(), groupName)) {
                 throw renderForbiddenResponse();
@@ -127,7 +126,7 @@ public abstract class AbstractAuthenticationHelper {
             return;
         }
 
-        String pipelineName = request.params("pipeline_name");
+        CaseInsensitiveString pipelineName = getPipelineNameFromRequest(request);
 
         if (!hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(pipelineName, currentUsername())) {
             throw renderForbiddenResponse();
@@ -135,8 +134,8 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     // https://github.com/gocd/gocd/issues/4477
-    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(String pipelineName, Username username) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName, Username username) {
+        if (!goConfigService.hasPipelineNamed(pipelineName)) {
             throw new RecordNotFoundException();
         }
 
@@ -145,7 +144,7 @@ public abstract class AbstractAuthenticationHelper {
         }
 
         // we check if pipeline exists because this method returns true in case the group or pipeline does not exist!
-        return securityService.hasViewPermissionForPipeline(username, pipelineName);
+        return securityService.hasViewPermissionForPipeline(username, pipelineName.toString());
     }
 
     private String findPipelineGroupName(Request request) {

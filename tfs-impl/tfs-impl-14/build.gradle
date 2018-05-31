@@ -20,7 +20,7 @@ description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
   compile project(':common')
-  compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.134.0'
+  compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.0.3'
   // not a compile dependency, but some classloader hell
   compile(group: 'xalan', name: 'xalan', version: '2.7.1')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
@@ -56,7 +56,7 @@ task verifyJar(type: VerifyJarTask) {
   expectedJars = [
       "lib": [
           "tfs-impl-14-${project.version}-classes.jar",
-          "tfs-sdk-14.134.0.jar"
+          "tfs-sdk-14.0.3.jar"
       ]
   ]
 }

@@ -8,7 +8,7 @@ Software License Terms.
 
 ThirdPartyNotices.html
 
-lib/com.microsoft.tfs.sdk-14.134.0.jar
+lib/com.microsoft.tfs.sdk-14.0.3.jar
 
 native/macosx/libnative_misc.jnilib
 native/macosx/libnative_keychain.jnilib

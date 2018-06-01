@@ -21,7 +21,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +93,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws InvalidCipherTextException, IOException {
+    public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws IOException {
         File cipherFile = new SystemEnvironment().getDESCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);

@@ -18,10 +18,9 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.bouncycastle.crypto.DataLengthException;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldEncryptValueWhenConstructedAsSecure() throws InvalidCipherTextException {
+    public void shouldEncryptValueWhenConstructedAsSecure() throws CryptoException {
         GoCipher goCipher = mock(GoCipher.class);
         String encryptedText = "encrypted";
         when(goCipher.encrypt("password")).thenReturn(encryptedText);
@@ -77,7 +76,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowUpWhenTheAttributeMapHasBothNameAndValueAreEmpty() throws InvalidCipherTextException {
+    public void shouldThrowUpWhenTheAttributeMapHasBothNameAndValueAreEmpty() throws CryptoException {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
         HashMap attrs = new HashMap();
         attrs.put(EnvironmentVariableConfig.VALUE, "");
@@ -85,7 +84,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldGetPlainTextValueFromAnEncryptedValue() throws InvalidCipherTextException {
+    public void shouldGetPlainTextValueFromAnEncryptedValue() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         String cipherText = "encrypted";
@@ -102,7 +101,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldGetPlainTextValue() throws InvalidCipherTextException {
+    public void shouldGetPlainTextValue() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
@@ -117,7 +116,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldReturnEncryptedValueForSecureVariables() throws InvalidCipherTextException {
+    public void shouldReturnEncryptedValueForSecureVariables() throws CryptoException {
         when(goCipher.encrypt("bar")).thenReturn("encrypted");
         when(goCipher.decrypt("encrypted")).thenReturn("bar");
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "foo", "bar", true);
@@ -135,7 +134,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldEncryptValueWhenChanged() throws InvalidCipherTextException {
+    public void shouldEncryptValueWhenChanged() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         String cipherText = "encrypted";
@@ -149,7 +148,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldRetainEncryptedVariableWhenNotEdited() throws InvalidCipherTextException {
+    public void shouldRetainEncryptedVariableWhenNotEdited() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         String cipherText = "encrypted";
@@ -183,7 +182,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldAddSecureEnvironmentVariableToContext() throws InvalidCipherTextException {
+    public void shouldAddSecureEnvironmentVariableToContext() throws CryptoException {
         String key = "key";
         String plainText = "plainText";
         String cipherText = "encrypted";
@@ -205,11 +204,11 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldErrorOutOnValidateWhenEncryptedValueIsForceChanged() throws InvalidCipherTextException {
+    public void shouldErrorOutOnValidateWhenEncryptedValueIsForceChanged() throws CryptoException {
         String plainText = "secure_value";
         String cipherText = "cipherText";
         when(goCipher.encrypt(plainText)).thenReturn(cipherText);
-        when(goCipher.decrypt(cipherText)).thenThrow(new DataLengthException("last block incomplete in decryption"));
+        when(goCipher.decrypt(cipherText)).thenThrow(new CryptoException("last block incomplete in decryption"));
 
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "secure_key", plainText, true);
         environmentVariableConfig.validate(null);
@@ -220,7 +219,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldNotErrorOutWhenValidationIsSuccessfulForSecureVariables() throws InvalidCipherTextException {
+    public void shouldNotErrorOutWhenValidationIsSuccessfulForSecureVariables() throws CryptoException {
         String plainText = "secure_value";
         String cipherText = "cipherText";
         when(goCipher.encrypt(plainText)).thenReturn(cipherText);

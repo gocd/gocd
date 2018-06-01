@@ -22,18 +22,19 @@ import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "tfs", label = "TFS")
@@ -128,8 +129,8 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public String getPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+        } catch (CryptoException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
     }

@@ -41,9 +41,9 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,7 +86,7 @@ public class ConfigConverterTest {
     private CRGitMaterial git;
 
     @Before
-    public void setUp() throws InvalidCipherTextException {
+    public void setUp() throws CryptoException {
         environmentVariables = new ArrayList<>();
         tabs = new ArrayList<>();
         resources = new ArrayList<>();

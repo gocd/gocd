@@ -34,6 +34,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
@@ -2146,7 +2147,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertFetchPluggableArtifactToFetchArtifactTagWithType_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldConvertFetchPluggableArtifactToFetchArtifactTagWithType_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, CryptoException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"106\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -2222,7 +2223,7 @@ public class GoConfigMigrationIntegrationTest {
                 +"                         <configuration>"
                 +"                             <property>"
                 +"                                 <key>SomeSecureProperty</key>"
-                +"                                 <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                +"                                 <encryptedValue>" + new GoCipher().encrypt("abcd") + "</encryptedValue>"
                 +"                             </property>"
                 +"                         </configuration>"
                 +"                     </fetchartifact>";

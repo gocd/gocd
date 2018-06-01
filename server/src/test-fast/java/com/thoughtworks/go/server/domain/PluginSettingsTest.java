@@ -29,8 +29,8 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -98,7 +98,7 @@ public class PluginSettingsTest {
     }
 
     @Test
-    public void shouldAddConfigurationsToSettingsMapCorrectly() throws InvalidCipherTextException {
+    public void shouldAddConfigurationsToSettingsMapCorrectly() throws CryptoException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
@@ -118,7 +118,7 @@ public class PluginSettingsTest {
     }
 
     @Test
-    public void shouldEncryptedValuesForSecureProperties() throws InvalidCipherTextException {
+    public void shouldEncryptedValuesForSecureProperties() throws CryptoException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
@@ -154,7 +154,7 @@ public class PluginSettingsTest {
     }
 
     @Test
-    public void shouldPassValidationIfEncryptedVariablesAreEncryptedWithTheCorrectCipher() throws InvalidCipherTextException {
+    public void shouldPassValidationIfEncryptedVariablesAreEncryptedWithTheCorrectCipher() throws CryptoException {
         final PluginInfo pluginInfo = mock(PluginInfo.class);
         String secureKey = "supposedly-secure-key";
         when(pluginInfo.isSecure(secureKey)).thenReturn(true);

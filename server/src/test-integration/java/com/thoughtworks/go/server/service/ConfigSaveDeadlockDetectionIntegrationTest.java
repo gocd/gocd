@@ -27,13 +27,13 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -292,7 +292,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         }, "pipeline-config-save-thread" + counter);
     }
 
-    private Thread configSaveThread(final int counter) throws InvalidCipherTextException, InterruptedException {
+    private Thread configSaveThread(final int counter) throws InterruptedException {
         return createThread(new Runnable() {
             @Override
             public void run() {

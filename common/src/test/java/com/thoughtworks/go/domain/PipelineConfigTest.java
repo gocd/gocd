@@ -32,9 +32,9 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
 import java.util.*;
@@ -93,12 +93,11 @@ public class PipelineConfigTest {
     }
 
     @Test //#6821
-    public void shouldCopyOverAllEnvironmentVariablesWhileCloningAPipeline() throws InvalidCipherTextException {
+    public void shouldCopyOverAllEnvironmentVariablesWhileCloningAPipeline() throws CryptoException {
         PipelineConfig source = PipelineConfigMother.createPipelineConfig("somePipeline", "stage", "job");
         source.addEnvironmentVariable("k1", "v1");
         source.addEnvironmentVariable("k2", "v2");
-        GoCipher goCipher = mock(GoCipher.class);
-        when(goCipher.encrypt("secret")).thenReturn("encrypted");
+        GoCipher goCipher = new GoCipher();
         source.addEnvironmentVariable(new EnvironmentVariableConfig(goCipher, "secret_key", "secret", true));
 
         PipelineConfig cloned = source.duplicate();
@@ -809,7 +808,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetOnlyPlainTextVariables() throws InvalidCipherTextException {
+    public void shouldGetOnlyPlainTextVariables() throws CryptoException {
         PipelineConfig pipelineConfig = new PipelineConfig();
         EnvironmentVariableConfig username = new EnvironmentVariableConfig("username", "ram");
         pipelineConfig.addEnvironmentVariable(username);
@@ -823,7 +822,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetOnlySecureVariables() throws InvalidCipherTextException {
+    public void shouldGetOnlySecureVariables() throws CryptoException {
         PipelineConfig pipelineConfig = new PipelineConfig();
         EnvironmentVariableConfig username = new EnvironmentVariableConfig("username", "ram");
         pipelineConfig.addEnvironmentVariable(username);

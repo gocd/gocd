@@ -17,15 +17,16 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class PasswordDeserializerTest {
     @Before
@@ -50,7 +51,7 @@ public class PasswordDeserializerTest {
     }
 
     @Test
-    public void shouldEncryptClearTextPasswordSentByUser() throws InvalidCipherTextException {
+    public void shouldEncryptClearTextPasswordSentByUser() throws CryptoException {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize("password", null, svnMaterialConfig);
@@ -58,7 +59,7 @@ public class PasswordDeserializerTest {
     }
 
     @Test
-    public void shouldReturnTheEncryptedPasswordSentByUserIfValid() throws InvalidCipherTextException {
+    public void shouldReturnTheEncryptedPasswordSentByUserIfValid() throws CryptoException {
         String encryptedPassword = new GoCipher().encrypt("password");
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();

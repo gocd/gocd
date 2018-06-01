@@ -23,7 +23,7 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.exceptions.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import org.bouncycastle.crypto.InvalidCipherTextException;
+import com.thoughtworks.go.security.CryptoException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +74,7 @@ public class EnvironmentVariableRepresenter {
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
             return environmentVariableConfig;
-        } catch (InvalidCipherTextException e) {
+        } catch (CryptoException e) {
             throw new InvalidGoCipherTextRuntimeException(e.getMessage(), e);
         }
     }

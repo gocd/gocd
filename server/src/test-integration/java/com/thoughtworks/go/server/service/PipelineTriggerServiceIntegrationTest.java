@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -41,7 +42,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -267,7 +267,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleAPipelineWithTheProvidedEncryptedEnvironmentVariable() throws InvalidCipherTextException {
+    public void shouldScheduleAPipelineWithTheProvidedEncryptedEnvironmentVariable() throws CryptoException {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
         pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
@@ -289,7 +289,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleAPipelineWithTheJunkEncryptedEnvironmentVariable() throws InvalidCipherTextException {
+    public void shouldNotScheduleAPipelineWithTheJunkEncryptedEnvironmentVariable() {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
         pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
@@ -396,7 +396,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldErrorOutIfSchedulingAPipelineWithBothValueAndEncryptedValueForAGiveVariable() throws InvalidCipherTextException {
+    public void shouldErrorOutIfSchedulingAPipelineWithBothValueAndEncryptedValueForAGiveVariable() throws CryptoException {
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         EnvironmentVariableConfig config = new EnvironmentVariableConfig(new GoCipher(), "SEC_VAR1", "PLAIN", true);
         config.deserialize("SEC_VAR1", "PLAIN", true, new GoCipher().encrypt("ENCRYPTED"));

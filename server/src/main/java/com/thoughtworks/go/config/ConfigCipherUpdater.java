@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.DESCipherProvider;
-import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.DESEncrypter;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -43,6 +43,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.codec.binary.Hex.decodeHex;
 
 @Component
 public class ConfigCipherUpdater {
@@ -74,12 +75,12 @@ public class ConfigCipherUpdater {
             FileUtils.copyFile(configFile, backupConfigFile);
             LOGGER.info("Old config was successfully backed up to {}", backupConfigFile.getAbsoluteFile());
 
-            byte[] oldCipher = FileUtils.readFileToByteArray(backupCipherFile);
+            String oldCipher = FileUtils.readFileToString(backupCipherFile, UTF_8);
             new DESCipherProvider(systemEnvironment).resetCipher();
 
-            byte[] newCipher = FileUtils.readFileToByteArray(cipherFile);
+            String newCipher = FileUtils.readFileToString(cipherFile, UTF_8);
 
-            if (new String(newCipher).equals(new String(oldCipher))) {
+            if (newCipher.equals(oldCipher)) {
                 LOGGER.warn("Unable to generate a new safe cipher. Your cipher is unsafe.");
                 FileUtils.deleteQuietly(backupCipherFile);
                 FileUtils.deleteQuietly(backupConfigFile);
@@ -94,7 +95,7 @@ public class ConfigCipherUpdater {
                 List<Element> encryptedPasswordElements = xpathExpression.evaluate(document);
                 for (Element element : encryptedPasswordElements) {
                     Attribute encryptedPassword = element.getAttribute(attributeName);
-                    encryptedPassword.setValue(reEncryptUsingNewKey(oldCipher, newCipher, encryptedPassword.getValue()));
+                    encryptedPassword.setValue(reEncryptUsingNewKey(decodeHex(oldCipher), decodeHex(newCipher), encryptedPassword.getValue()));
                     LOGGER.debug("Replaced encrypted value at {}", element.toString());
                 }
             }
@@ -102,7 +103,7 @@ public class ConfigCipherUpdater {
                 XPathExpression<Element> xpathExpression = xPathFactory.compile(String.format("//%s", nodeName), Filters.element());
                 List<Element> encryptedNode = xpathExpression.evaluate(document);
                 for (Element element : encryptedNode) {
-                    element.setText(reEncryptUsingNewKey(oldCipher, newCipher, element.getValue()));
+                    element.setText(reEncryptUsingNewKey(decodeHex(oldCipher), decodeHex(newCipher), element.getValue()));
                     LOGGER.debug("Replaced encrypted value at {}", element.toString());
                 }
             }
@@ -123,10 +124,8 @@ public class ConfigCipherUpdater {
         }
     }
 
-    private String reEncryptUsingNewKey(byte[] oldCipher, byte[] newCipher, String encryptedValue) throws InvalidCipherTextException {
-        GoCipher cipher = new GoCipher();
-        String decryptedValue = cipher.decipher(oldCipher, encryptedValue);
-        return cipher.cipher(newCipher, decryptedValue);
+    private String reEncryptUsingNewKey(byte[] oldCipher, byte[] newCipher, String encryptedValue) throws CryptoException {
+        return DESEncrypter.reEncryptUsingNewKey(oldCipher, newCipher, encryptedValue);
     }
 
 }

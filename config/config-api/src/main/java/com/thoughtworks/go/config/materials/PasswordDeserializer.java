@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.config.materials;
 
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.springframework.stereotype.Component;
 
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.ENCRYPTED_PASSWORD;
@@ -42,7 +42,7 @@ public class PasswordDeserializer {
         if (isNotBlank(password)) {
             try {
                 pass = goCipher.encrypt(password);
-            } catch (InvalidCipherTextException e) {
+            } catch (CryptoException e) {
                 materialConfig.addError(PASSWORD, "Could not encrypt the password. This usually happens when the cipher text is invalid");
             }
         } else if (isNotBlank(encryptedPassword)) {

@@ -29,10 +29,10 @@ import com.thoughtworks.go.api.util.HaltApiMessages;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.isomorphism.util.FixedIntervalRefillStrategy;
 import org.isomorphism.util.TokenBucket;
 import org.isomorphism.util.TokenBuckets;
@@ -86,14 +86,14 @@ public class EncryptionControllerDelegate extends ApiController {
 
             post("", mimeType, this::encrypt);
 
-            exception(InvalidCipherTextException.class, (InvalidCipherTextException exception, Request request, Response response) -> {
+            exception(CryptoException.class, (CryptoException exception, Request request, Response response) -> {
                 response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));
             });
         });
     }
 
-    public String encrypt(Request request, Response response) throws InvalidCipherTextException, IOException {
+    public String encrypt(Request request, Response response) throws CryptoException, IOException {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         String value = jsonReader.getString("value");
 

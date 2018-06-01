@@ -23,8 +23,8 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -59,7 +59,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
     @ConfigSubtag
     private EncryptedConfigurationValue encryptedValue;
 
-    private GoCipher cipher = null;
+    private final GoCipher cipher;
     private ConfigErrors configErrors = new ConfigErrors();
 
     public ConfigurationProperty() {
@@ -80,7 +80,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     //for tests only
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue, EncryptedConfigurationValue encryptedValue, GoCipher cipher) {
-        this.cipher = cipher;
+        this.cipher = cipher == null ? new GoCipher() : cipher;
         this.configurationKey = configurationKey;
         this.configurationValue = configurationValue;
         this.encryptedValue = encryptedValue;
@@ -132,10 +132,9 @@ public class ConfigurationProperty implements Serializable, Validatable {
         if (configurationValue != null ? !configurationValue.equals(that.configurationValue) : that.configurationValue != null) {
             return false;
         }
-        if (encryptedValue != null ? !encryptedValue.equals(that.encryptedValue) : that.encryptedValue != null) {
+        if (!cipher.passwordEquals(encryptedValue, that.encryptedValue)) {
             return false;
         }
-
         return true;
     }
 
@@ -143,7 +142,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
     public int hashCode() {
         int result = configurationKey != null ? configurationKey.hashCode() : 0;
         result = 31 * result + (configurationValue != null ? configurationValue.hashCode() : 0);
-        result = 31 * result + (encryptedValue != null ? encryptedValue.hashCode() : 0);
+        result = 31 * result + cipher.passwordHashcode(encryptedValue);
         return result;
     }
 
@@ -160,7 +159,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
             if (configurationValue != null) {
                 try {
                     encryptedValue = new EncryptedConfigurationValue(isEmpty(configurationValue.getValue()) ? "" : cipher.encrypt(configurationValue.getValue()));
-                } catch (InvalidCipherTextException e) {
+                } catch (CryptoException e) {
                     throw new RuntimeException(e);
                 }
                 configurationValue = null;
@@ -177,7 +176,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
                     return EMPTY;
                 }
                 return cipher.decrypt(encryptedValue.getValue());
-            } catch (InvalidCipherTextException e) {
+            } catch (CryptoException e) {
                 throw new RuntimeException(format("Could not decrypt secure configuration property value for key %s", configurationKey.getName()), e);
             }
         }

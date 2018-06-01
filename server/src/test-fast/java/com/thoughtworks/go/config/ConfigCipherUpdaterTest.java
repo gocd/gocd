@@ -23,13 +23,14 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
+import com.thoughtworks.go.security.AESCipherProvider;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -43,9 +44,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.thoughtworks.go.config.ConfigCipherUpdater.FLAWED_VALUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.apache.commons.io.FileUtils.copyFile;
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class ConfigCipherUpdaterTest {
     @Rule
@@ -77,11 +82,11 @@ public class ConfigCipherUpdaterTest {
         registrar.initialize();
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
         File configFileEncryptedWithFlawedCipher = new ClassPathResource("cruise-config-with-encrypted-with-flawed-cipher.xml").getFile();
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), ConfigCipherUpdater.FLAWED_VALUE, UTF_8);
+        writeStringToFile(systemEnvironment.getDESCipherFile(), FLAWED_VALUE, UTF_8);
         ReflectionUtil.setStaticField(DESCipherProvider.class, "cachedKey", null);
-        String xml = ConfigMigrator.migrate(FileUtils.readFileToString(configFileEncryptedWithFlawedCipher, UTF_8));
+        ReflectionUtil.setStaticField(AESCipherProvider.class, "cachedKey", null);
         originalConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        FileUtils.writeStringToFile(originalConfigFile, xml, UTF_8);
+        writeStringToFile(originalConfigFile, readFileToString(configFileEncryptedWithFlawedCipher, UTF_8), UTF_8);
     }
 
     @After
@@ -92,95 +97,110 @@ public class ConfigCipherUpdaterTest {
     @Test
     public void shouldNotMigrateAnythingIfCipherFileIsNotPresent_FreshInstalls() throws IOException {
         FileUtils.deleteQuietly(systemEnvironment.getDESCipherFile());
+        FileUtils.deleteQuietly(systemEnvironment.getAESCipherFile());
+        ReflectionUtil.setStaticField(DESCipherProvider.class, "cachedKey", null);
+        ReflectionUtil.setStaticField(AESCipherProvider.class, "cachedKey", null);
+
         updater.migrate();
-        File cipherFile = systemEnvironment.getDESCipherFile();
-        assertThat(cipherFile.exists(), is(false));
+        assertThat(systemEnvironment.getDESCipherFile().exists(), is(false));
+        assertThat(systemEnvironment.getAESCipherFile().exists(), is(false));
     }
 
     @Test
     public void shouldMigrateEncryptedPasswordsThatWereEncryptedWithFlawedCipher() throws Exception {
-        String originalConfig = FileUtils.readFileToString(originalConfigFile, UTF_8);
-        assertThat(originalConfig.contains("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""), is(true));
+        String originalConfig = readFileToString(originalConfigFile, UTF_8);
+        String plainText = new GoCipher().decrypt(passwordEncryptedWithFlawedCipher);
+        assertThat(originalConfig, containsString("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""));
 
         updater.migrate();
+        writeStringToFile(new File(systemEnvironment.getCruiseConfigFile()), ConfigMigrator.migrate(readFileToString(new File(systemEnvironment.getCruiseConfigFile()), UTF_8)), UTF_8);
+
         File copyOfOldConfig = new File(systemEnvironment.getConfigDir(), "cipher.original." + timestamp);
         assertThat(copyOfOldConfig.exists(), is(true));
-        assertThat(FileUtils.readFileToString(copyOfOldConfig, UTF_8).equals(ConfigCipherUpdater.FLAWED_VALUE), is(true));
-        String newCipher = FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8);
-        assertThat(newCipher.equals(ConfigCipherUpdater.FLAWED_VALUE), is(false));
+        assertThat(readFileToString(copyOfOldConfig, UTF_8).equals(FLAWED_VALUE), is(true));
+        String newCipher = readFileToString(systemEnvironment.getDESCipherFile(), UTF_8);
+        assertThat(newCipher.equals(FLAWED_VALUE), is(false));
         File editedConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        String editedConfig = FileUtils.readFileToString(editedConfigFile, UTF_8);
+        String editedConfig = readFileToString(editedConfigFile, UTF_8);
         assertThat(editedConfig.contains("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""), is(false));
-        String passwordEncryptedWithNewCipher = new GoCipher().encrypt(password);
         CruiseConfig config = magicalGoConfigXmlLoader.loadConfigHolder(editedConfig).config;
         MaterialConfigs materialConfigs = config.getAllPipelineConfigs().get(0).materialConfigs();
         SvnMaterialConfig svnMaterial = materialConfigs.getSvnMaterial();
         assertThat(svnMaterial.getPassword(), is(password));
-        assertThat(svnMaterial.getEncryptedPassword(), is(passwordEncryptedWithNewCipher));
+        assertThat(svnMaterial.getEncryptedPassword(), startsWith("AES:"));
+        assertThat(new GoCipher().decrypt(svnMaterial.getEncryptedPassword()), is("password"));
         P4MaterialConfig p4Material = materialConfigs.getP4Material();
         assertThat(p4Material.getPassword(), is(password));
-        assertThat(p4Material.getEncryptedPassword(), is(passwordEncryptedWithNewCipher));
+        assertThat(p4Material.getEncryptedPassword(), startsWith("AES:"));
+        assertThat(new GoCipher().decrypt(p4Material.getEncryptedPassword()), is("password"));
         TfsMaterialConfig tfsMaterial = materialConfigs.getTfsMaterial();
         assertThat(tfsMaterial.getPassword(), is(password));
-        assertThat(tfsMaterial.getEncryptedPassword(), is(passwordEncryptedWithNewCipher));
+
+        assertThat(tfsMaterial.getEncryptedPassword(), startsWith("AES:"));
+        assertThat(new GoCipher().decrypt(tfsMaterial.getEncryptedPassword()), is("password"));
     }
 
     @Test
     public void shouldMigrateEncryptedManagerPasswordsEncryptedWithFlawedCipher() throws Exception {
-        String originalConfig = FileUtils.readFileToString(originalConfigFile, UTF_8);
-        assertThat(originalConfig.contains("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""), is(true));
+        String originalConfig = readFileToString(originalConfigFile, UTF_8);
+        String plainText = new GoCipher().decrypt(passwordEncryptedWithFlawedCipher);
+
+        assertThat(originalConfig, containsString("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""));
 
         updater.migrate();
+        writeStringToFile(new File(systemEnvironment.getCruiseConfigFile()), ConfigMigrator.migrate(readFileToString(new File(systemEnvironment.getCruiseConfigFile()), UTF_8)), UTF_8);
         File copyOfOldConfig = new File(systemEnvironment.getConfigDir(), "cipher.original." + timestamp);
         assertThat(copyOfOldConfig.exists(), is(true));
-        assertThat(FileUtils.readFileToString(copyOfOldConfig, UTF_8).equals(ConfigCipherUpdater.FLAWED_VALUE), is(true));
-        assertThat(FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(ConfigCipherUpdater.FLAWED_VALUE), is(false));
+        assertThat(readFileToString(copyOfOldConfig, UTF_8).equals(FLAWED_VALUE), is(true));
+        assertThat(readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(FLAWED_VALUE), is(false));
         File editedConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        String editedConfig = FileUtils.readFileToString(editedConfigFile, UTF_8);
+        String editedConfig = readFileToString(editedConfigFile, UTF_8);
         assertThat(editedConfig.contains("encryptedManagerPassword=\"" + passwordEncryptedWithFlawedCipher + "\""), is(false));
         CruiseConfig config = magicalGoConfigXmlLoader.loadConfigHolder(editedConfig).config;
         SecurityAuthConfig migratedLdapConfig = config.server().security().securityAuthConfigs().get(0);
 
         assertThat(migratedLdapConfig.getProperty("Password").getValue(), is(password));
-        assertThat(migratedLdapConfig.getProperty("Password").getEncryptedValue(), is(new GoCipher().encrypt(password)));
+        assertThat(new GoCipher().decrypt(migratedLdapConfig.getProperty("Password").getEncryptedValue()), is(password));
     }
 
     @Test
     public void shouldMigrateEncryptedValuesEncryptedWithFlawedCipher() throws Exception {
-        String originalConfig = FileUtils.readFileToString(originalConfigFile, UTF_8);
-        assertThat(originalConfig.contains("<encryptedValue>" + passwordEncryptedWithFlawedCipher + "</encryptedValue>"), is(true));
+        String originalConfig = readFileToString(originalConfigFile, UTF_8);
+        assertThat(originalConfig, containsString("<encryptedValue>" + passwordEncryptedWithFlawedCipher + "</encryptedValue>"));
 
         updater.migrate();
+        writeStringToFile(new File(systemEnvironment.getCruiseConfigFile()), ConfigMigrator.migrate(readFileToString(new File(systemEnvironment.getCruiseConfigFile()), UTF_8)), UTF_8);
         File copyOfOldConfig = new File(systemEnvironment.getConfigDir(), "cipher.original." + timestamp);
         assertThat(copyOfOldConfig.exists(), is(true));
-        assertThat(FileUtils.readFileToString(copyOfOldConfig, UTF_8).equals(ConfigCipherUpdater.FLAWED_VALUE), is(true));
-        assertThat(FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(ConfigCipherUpdater.FLAWED_VALUE), is(false));
+        assertThat(readFileToString(copyOfOldConfig, UTF_8).equals(FLAWED_VALUE), is(true));
+        assertThat(readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(FLAWED_VALUE), is(false));
         File editedConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        String editedConfig = FileUtils.readFileToString(editedConfigFile, UTF_8);
+        String editedConfig = readFileToString(editedConfigFile, UTF_8);
         assertThat(editedConfig.contains("<encryptedValue>" + passwordEncryptedWithFlawedCipher + "</encryptedValue>"), is(false));
 
         CruiseConfig config = magicalGoConfigXmlLoader.loadConfigHolder(editedConfig).config;
         EnvironmentVariablesConfig secureVariables = config.getAllPipelineConfigs().get(0).getSecureVariables();
         assertThat(secureVariables.first().getValue(), is(password));
-        assertThat(secureVariables.first().getEncryptedValue(), is(new GoCipher().encrypt(password)));
+        assertThat(new GoCipher().decrypt(secureVariables.first().getEncryptedValue()), is(password));
     }
 
     @Test
-    public void shouldNotTryMigratingOlderConfigsWhichWereNotEncryptedWithFlawedCipher() throws IOException, InvalidCipherTextException {
+    public void shouldNotTryMigratingOlderConfigsWhichWereNotEncryptedWithFlawedCipher() throws IOException, CryptoException {
         String goodCipher = "269298bc31c44620";
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), goodCipher, UTF_8);
+        writeStringToFile(systemEnvironment.getDESCipherFile(), goodCipher, UTF_8);
         File originalConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        FileUtils.copyFile(new ClassPathResource("cruise-config-with-encrypted-with-safe-cipher.xml").getFile(), originalConfigFile);
-        String originalConfig = FileUtils.readFileToString(originalConfigFile, UTF_8);
-        assertThat(originalConfig.contains("encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\""), is(true));
+        copyFile(new ClassPathResource("cruise-config-with-encrypted-with-safe-cipher.xml").getFile(), originalConfigFile);
+        String originalConfig = readFileToString(originalConfigFile, UTF_8);
+        assertThat(originalConfig, containsString("encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\""));
 
         updater.migrate();
+        writeStringToFile(new File(systemEnvironment.getCruiseConfigFile()), ConfigMigrator.migrate(readFileToString(new File(systemEnvironment.getCruiseConfigFile()), UTF_8)), UTF_8);
         File copyOfOldConfig = new File(systemEnvironment.getConfigDir(), "cipher.original." + timestamp);
         assertThat(copyOfOldConfig.exists(), is(false));
-        assertThat(FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(goodCipher), is(true));
+        assertThat(readFileToString(systemEnvironment.getDESCipherFile(), UTF_8).equals(goodCipher), is(true));
         File configFile = new File(systemEnvironment.getCruiseConfigFile());
-        String editedConfig = FileUtils.readFileToString(configFile, UTF_8);
-        assertThat(editedConfig.contains("encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\""), is(true));
+        String editedConfig = readFileToString(configFile, UTF_8);
+        assertThat(editedConfig, containsString("encryptedPassword=\"" + new GoCipher().encrypt("password") + "\""));
     }
 
 }

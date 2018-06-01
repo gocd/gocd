@@ -23,13 +23,13 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -371,10 +371,10 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldErrorOutIfDecryptionFails() throws InvalidCipherTextException {
+    public void shouldErrorOutIfDecryptionFails() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String fakeCipherText = "fake cipher text";
-        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
         SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
         ReflectionUtil.setField(material, "encryptedPassword", fakeCipherText);
         try {
@@ -388,7 +388,7 @@ public class SvnMaterialTest {
     @Test
     public void shouldErrorOutIfEncryptionFails() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
         try {
             new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
             fail("Should have thrown up");

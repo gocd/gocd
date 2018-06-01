@@ -32,14 +32,14 @@ import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 public class AESCipherProvider implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(AESCipherProvider.class);
+    private final File cipherFile;
 
-    private SystemEnvironment environment;
     private static volatile byte[] cachedKey;
 
     private final byte[] key;
 
     public AESCipherProvider(SystemEnvironment environment) {
-        this.environment = environment;
+        this.cipherFile = environment.getAESCipherFile();
         primeKeyCache();
         key = cachedKey;
     }
@@ -50,7 +50,6 @@ public class AESCipherProvider implements Serializable {
 
     private void primeKeyCache() {
         if (cachedKey == null) {
-            File cipherFile = environment.getAESCipherFile();
             synchronized (cipherFile.getAbsolutePath().intern()) {
                 if (cachedKey == null) {
                     try {
@@ -79,7 +78,7 @@ public class AESCipherProvider implements Serializable {
 
     public void resetCipher() {
         cachedKey = null;
-        FileUtils.deleteQuietly(environment.getAESCipherFile());
+        FileUtils.deleteQuietly(cipherFile);
         primeKeyCache();
     }
 }

@@ -83,6 +83,7 @@ task dependencyClassPath {
 task cleanRails(type: Delete) {
   delete "${buildDir}/railsTests"
   delete "${project.railsRoot}/config/cipher"
+  delete "${project.railsRoot}/config/cipher.aes"
   delete "${project.railsRoot}/db/config.git"
   delete "${project.railsRoot}/db/h2db"
   delete "${project.railsRoot}/db/shine"

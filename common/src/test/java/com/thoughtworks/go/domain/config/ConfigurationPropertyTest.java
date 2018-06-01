@@ -16,28 +16,25 @@
 
 package com.thoughtworks.go.domain.config;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
-import org.bouncycastle.crypto.InvalidCipherTextException;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ReflectionUtils;
+
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConfigurationPropertyTest {
 
@@ -73,7 +70,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldGetEncryptValueWhenConstructedAsSecure() throws InvalidCipherTextException {
+    public void shouldGetEncryptValueWhenConstructedAsSecure() throws CryptoException {
         GoCipher goCipher = mock(GoCipher.class);
         String encryptedText = "encryptedValue";
         when(goCipher.encrypt("secureValue")).thenReturn(encryptedText);
@@ -87,7 +84,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldNotEncryptWhenWhenConstructedAsNotSecure() throws InvalidCipherTextException {
+    public void shouldNotEncryptWhenWhenConstructedAsNotSecure() {
         GoCipher goCipher = mock(GoCipher.class);
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("secureKey"), new ConfigurationValue("secureValue"), null, goCipher);
         property.handleSecureValueConfiguration(false);
@@ -98,7 +95,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldNotClearEncryptedValueWhenWhenNewValueNotProvided() throws InvalidCipherTextException {
+    public void shouldNotClearEncryptedValueWhenWhenNewValueNotProvided() {
         GoCipher goCipher = mock(GoCipher.class);
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("secureKey"), null, new EncryptedConfigurationValue("secureValue"), goCipher);
         property.handleSecureValueConfiguration(true);
@@ -128,7 +125,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldPassValidationIfBothNameAndValueAreProvided() throws InvalidCipherTextException {
+    public void shouldPassValidationIfBothNameAndValueAreProvided() {
         GoCipher cipher = mock(GoCipher.class);
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("name"), new ConfigurationValue("value"), null, cipher);
         property.validate(ConfigSaveValidationContext.forChain(property));
@@ -136,7 +133,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldPassValidationIfBothNameAndEncryptedValueAreProvidedForSecureProperty() throws InvalidCipherTextException {
+    public void shouldPassValidationIfBothNameAndEncryptedValueAreProvidedForSecureProperty() throws CryptoException {
         String encrypted = "encrypted";
         String decrypted = "decrypted";
         when(cipher.decrypt(encrypted)).thenReturn(decrypted);
@@ -146,7 +143,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForNonSecureProperty() throws Exception {
+    public void shouldSetConfigAttributesForNonSecureProperty() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         HashMap attributes = new HashMap();
         HashMap keyMap = new HashMap();
@@ -167,7 +164,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldInitializeConfigValueToBlankWhenBothValueAndEncryptedValueIsNull() throws Exception {
+    public void shouldInitializeConfigValueToBlankWhenBothValueAndEncryptedValueIsNull() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("key"), (ConfigurationValue) null);
 
         configurationProperty.initialize();
@@ -208,7 +205,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForSecurePropertyWhenUserDoesNotChangeIt() throws Exception {
+    public void shouldSetConfigAttributesForSecurePropertyWhenUserDoesNotChangeIt() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         HashMap attributes = new HashMap();
         HashMap keyMap = new HashMap();
@@ -235,7 +232,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesWhenMetadataIsNotPassedInMap() throws Exception {
+    public void shouldSetConfigAttributesWhenMetadataIsNotPassedInMap() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         HashMap attributes = new HashMap();
         HashMap keyMap = new HashMap();
@@ -267,19 +264,19 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldGetValueForNonSecureProperty() throws Exception {
+    public void shouldGetValueForNonSecureProperty() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"), null, cipher);
         assertThat(configurationProperty.getValue(), is("value"));
     }
 
     @Test
-    public void shouldGetNullValueForPropertyWhenValueIsNull() throws Exception {
+    public void shouldGetNullValueForPropertyWhenValueIsNull() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("key"), null, null, cipher);
         assertThat(configurationProperty.getValue(), is(nullValue()));
     }
 
     @Test
-    public void shouldCheckIfSecureValueFieldHasNoErrors() throws Exception {
+    public void shouldCheckIfSecureValueFieldHasNoErrors() {
         EncryptedConfigurationValue encryptedValue = new EncryptedConfigurationValue("encrypted-value");
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), null, encryptedValue, cipher).doesNotHaveErrorsAgainstConfigurationValue(), is(true));
         encryptedValue.addError("value", "some-error");
@@ -287,7 +284,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldCheckIfNonSecureValueFieldHasNoErrors() throws Exception {
+    public void shouldCheckIfNonSecureValueFieldHasNoErrors() {
         ConfigurationValue configurationValue = new ConfigurationValue("encrypted-value");
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), configurationValue, null, cipher).doesNotHaveErrorsAgainstConfigurationValue(), is(true));
         configurationValue.addError("value", "some-error");
@@ -308,7 +305,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    public void shouldGetMaskedStringIfConfigurationPropertyIsSecure() throws Exception {
+    public void shouldGetMaskedStringIfConfigurationPropertyIsSecure() {
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new EncryptedConfigurationValue("value")).getDisplayValue(), is("****"));
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")).getDisplayValue(), is("value"));
     }

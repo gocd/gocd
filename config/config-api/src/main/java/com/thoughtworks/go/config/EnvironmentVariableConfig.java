@@ -19,17 +19,19 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.Map;
+
+import static java.lang.String.format;
 
 /**
  * @understands an environment variable value that will be passed to a job when it is run
@@ -52,7 +54,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     private EncryptedVariableValueConfig encryptedValue;
 
     private final ConfigErrors configErrors = new ConfigErrors();
-    private GoCipher goCipher = null;
+    private final GoCipher goCipher;
     private ConfigOrigin origin;
 
     public EnvironmentVariableConfig() {
@@ -84,7 +86,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     private String encrypt(String value) {
         try {
             return goCipher.encrypt(value);
-        } catch (InvalidCipherTextException e) {
+        } catch (CryptoException e) {
             throw new RuntimeException(e);
         }
     }
@@ -113,7 +115,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         if (isSecure != that.isSecure) {
             return false;
         }
-        if (encryptedValue != null ? !encryptedValue.equals(that.encryptedValue) : that.encryptedValue != null) {
+        if (!goCipher.passwordEquals(encryptedValue, that.encryptedValue)) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -131,7 +133,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (isSecure ? 1 : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (encryptedValue != null ? encryptedValue.hashCode() : 0);
+        result = 31 * result + goCipher.passwordHashcode(encryptedValue);
         result = 31 * result + (configErrors != null ? configErrors.hashCode() : 0);
         return result;
     }
@@ -244,8 +246,8 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         if (isSecure) {
             try {
                 return goCipher.decrypt(encryptedValue.getValue());
-            } catch (InvalidCipherTextException e) {
-                throw new RuntimeException(String.format("Could not decrypt secure environment variable value for name %s", getName()), e);
+            } catch (CryptoException e) {
+                throw new RuntimeException(format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {
             return value.getValue();
@@ -285,7 +287,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         }
     }
 
-    public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws InvalidCipherTextException {
+    public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws CryptoException {
         setName(name);
         setIsSecure(isSecure);
 

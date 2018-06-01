@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -73,7 +73,7 @@ public class ConfigurationPropertyBuilder {
     private String encrypt(String data) {
         try {
             return cipher.encrypt(data);
-        } catch (InvalidCipherTextException e) {
+        } catch (CryptoException e) {
             throw new RuntimeException(e.getMessage());
         }
     }

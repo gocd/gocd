@@ -33,16 +33,17 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
+@Deprecated
 public class DESCipherProvider implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DESCipherProvider.class);
 
-    private SystemEnvironment environment;
     private static volatile byte[] cachedKey;
 
     private final byte[] key;
+    private final File cipherFile;
 
     public DESCipherProvider(SystemEnvironment environment) {
-        this.environment = environment;
+        this.cipherFile = environment.getDESCipherFile();
         primeKeyCache();
         key = cachedKey;
     }
@@ -53,7 +54,6 @@ public class DESCipherProvider implements Serializable {
 
     private void primeKeyCache() {
         if (cachedKey == null) {
-            File cipherFile = environment.getDESCipherFile();
             synchronized (cipherFile.getAbsolutePath().intern()) {
                 if (cachedKey == null) {
                     try {
@@ -84,7 +84,7 @@ public class DESCipherProvider implements Serializable {
 
     public void resetCipher() {
         cachedKey = null;
-        FileUtils.deleteQuietly(environment.getDESCipherFile());
+        FileUtils.deleteQuietly(cipherFile);
         primeKeyCache();
     }
 }

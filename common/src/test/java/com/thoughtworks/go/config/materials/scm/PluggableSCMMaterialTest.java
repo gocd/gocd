@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.scm;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -35,6 +36,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -158,9 +160,10 @@ public class PluggableSCMMaterialTest {
     }
 
     @Test
-    public void shouldConvertPluggableSCMMaterialToJsonFormatToBeStoredInDb() {
+    public void shouldConvertPluggableSCMMaterialToJsonFormatToBeStoredInDb() throws CryptoException {
         GoCipher cipher = new GoCipher();
-        ConfigurationProperty secureSCMProperty = new ConfigurationProperty(new ConfigurationKey("secure-key"), null, new EncryptedConfigurationValue("hnfcyX5dAvd82AWUyjfKCQ\u003d\u003d"), cipher);
+        String encryptedPassword = cipher.encrypt("password");
+        ConfigurationProperty secureSCMProperty = new ConfigurationProperty(new ConfigurationKey("secure-key"), null, new EncryptedConfigurationValue(encryptedPassword), cipher);
         ConfigurationProperty scmProperty = new ConfigurationProperty(new ConfigurationKey("non-secure-key"), new ConfigurationValue("value"), null, cipher);
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(secureSCMProperty, scmProperty));
 
@@ -169,7 +172,7 @@ public class PluggableSCMMaterialTest {
 
         String json = JsonHelper.toJsonString(pluggableSCMMaterial);
 
-        String expected = "{\"scm\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":\"hnfcyX5dAvd82AWUyjfKCQ\\u003d\\u003d\"}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}";
+        String expected = "{\"scm\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + new Gson().toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}";
         assertThat(json, is(expected));
         assertThat(JsonHelper.fromJson(expected, PluggableSCMMaterial.class), is(pluggableSCMMaterial));
     }

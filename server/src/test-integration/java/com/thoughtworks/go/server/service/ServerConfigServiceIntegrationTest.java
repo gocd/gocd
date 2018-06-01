@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateServerConfig() throws InvalidCipherTextException {
+    public void shouldUpdateServerConfig() throws CryptoException {
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -104,7 +104,7 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAllowNullValuesForPurgeStartAndPurgeUpTo() throws InvalidCipherTextException {
+    public void shouldAllowNullValuesForPurgeStartAndPurgeUpTo() throws CryptoException {
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -117,7 +117,7 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateWithEmptySecureSiteUrlAndSiteUrl() throws InvalidCipherTextException {
+    public void shouldUpdateWithEmptySecureSiteUrlAndSiteUrl() throws CryptoException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         serverConfigService.updateServerConfig(mailHost, "newArtifactsDir", null, null, "42", true, "", "", "default", result,

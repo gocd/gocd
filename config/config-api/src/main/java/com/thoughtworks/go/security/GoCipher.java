@@ -17,60 +17,137 @@
 
 package com.thoughtworks.go.security;
 
+import com.thoughtworks.go.config.EncryptedVariableValueConfig;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.engines.DESEngine;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
-import org.bouncycastle.crypto.params.KeyParameter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class GoCipher implements Serializable {
 
-    private final DESCipherProvider cipherProvider;
+    final Encrypter aesEncrypter;
+    final Encrypter desEncrypter;
 
     public GoCipher() {
-        this(new DESCipherProvider(new SystemEnvironment()));
+        this(new SystemEnvironment());
     }
 
-    public GoCipher(DESCipherProvider cipherProvider) {
-        this.cipherProvider = cipherProvider;
-    }
+    GoCipher(SystemEnvironment systemEnvironment) {
+        this.aesEncrypter = new AESEncrypter(new AESCipherProvider(systemEnvironment));
 
-    public String encrypt(String plainText) throws InvalidCipherTextException {
-        return cipher(this.cipherProvider.getKey(), plainText);
-    }
-
-    public String decrypt(String cipherText) throws InvalidCipherTextException {//TODO: #5086 kill checked exception
-        return decipher(this.cipherProvider.getKey(), cipherText);
-    }
-
-    public String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
-        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-        KeyParameter keyParameter = new KeyParameter(key);
-        cipher.init(true, keyParameter);
-        byte[] plainTextBytes = plainText.getBytes();
-        byte[] cipherTextBytes = new byte[cipher.getOutputSize(plainTextBytes.length)];
-        int outputLength = cipher.processBytes(plainTextBytes, 0, plainTextBytes.length, cipherTextBytes, 0);
-        cipher.doFinal(cipherTextBytes, outputLength);
-        return java.util.Base64.getEncoder().encodeToString(cipherTextBytes).trim();
-    }
-
-    public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
-        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-        cipher.init(false, new KeyParameter(key));
-        byte[] cipherTextBytes = java.util.Base64.getDecoder().decode(cipherText);
-
-        byte[] plainTextBytes = new byte[cipher.getOutputSize(cipherTextBytes.length)];
-        int outputLength = cipher.processBytes(cipherTextBytes, 0, cipherTextBytes.length, plainTextBytes, 0);
-        cipher.doFinal(plainTextBytes, outputLength);
-        int paddingStarts = plainTextBytes.length - 1;
-        for (; paddingStarts >= 0; paddingStarts--) {
-            if (plainTextBytes[paddingStarts] != 0) {
-                break;
-            }
+        if (desCipherFileExists(systemEnvironment) && systemEnvironment.desEnabled()) {
+            this.desEncrypter = new DESEncrypter(new DESCipherProvider(systemEnvironment));
+        } else {
+            this.desEncrypter = null;
         }
-        return new String(plainTextBytes, 0, paddingStarts + 1);
     }
+
+    private boolean desCipherFileExists(SystemEnvironment systemEnvironment) {
+        return systemEnvironment.getDESCipherFile().exists();
+    }
+
+    public String encrypt(String plainText) throws CryptoException {
+        return aesEncrypter.encrypt(plainText);
+    }
+
+    public String decrypt(String cipherText) throws CryptoException {
+        if (isAES(cipherText)) {
+            return aesEncrypter.decrypt(cipherText);
+        } else if (desEncrypter != null) {
+            return desEncrypter.decrypt(cipherText);
+        } else {
+            throw new CryptoException("Unable to decrypt cipherText");
+        }
+    }
+
+    public boolean isAES(String cipherText) {
+        return aesEncrypter.canDecrypt(cipherText);
+    }
+
+    public boolean passwordEquals(EncryptedConfigurationValue p1, EncryptedConfigurationValue p2) {
+        if (p1 == null && p2 == null) {
+            return true;
+        }
+
+        if (p1 == null || p2 == null) {
+            return false;
+        }
+
+        String password1 = p1.getValue();
+        String password2 = p2.getValue();
+
+        return passwordEquals(password1, password2);
+    }
+
+
+    public boolean passwordEquals(EncryptedVariableValueConfig p1, EncryptedVariableValueConfig p2) {
+        if (p1 == null && p2 == null) {
+            return true;
+        }
+
+        if (p1 == null || p2 == null) {
+            return false;
+        }
+
+        String password1 = p1.getValue();
+        String password2 = p2.getValue();
+
+        return passwordEquals(password1, password2);
+    }
+
+    public int passwordHashcode(EncryptedVariableValueConfig value) {
+        if (value == null) {
+            return 0;
+        }
+
+        return passwordHashcode(value.getValue());
+    }
+
+    public int passwordHashcode(EncryptedConfigurationValue value) {
+        if (value == null) {
+            return 0;
+        }
+
+        return passwordHashcode(value.getValue());
+    }
+
+    public int passwordHashcode(String cipherText) {
+        try {
+            String decrypt = decrypt(cipherText);
+            return decrypt.hashCode();
+        } catch (CryptoException e) {
+            return ("bad-password-" + cipherText).hashCode();
+        }
+    }
+
+    public boolean passwordEquals(String p1, String p2) {
+        if (Objects.equals(p1, p2)) {
+            return true;
+        }
+
+        try {
+            if (StringUtils.startsWith(p1, "AES:") && StringUtils.startsWith(p2, "AES:")) {
+                return decrypt(p1).equals(decrypt(p2));
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
+    // used for XSLT, needs to be static
+    public static String desToAES(String cipherText) throws CryptoException {
+        return new GoCipher()._desToAES(cipherText);
+    }
+
+    private String _desToAES(String cipherText) throws CryptoException {
+        Assert.notNull(desEncrypter, "DES encrypter not set");
+
+        String plainText = desEncrypter.decrypt(cipherText);
+        return encrypt(plainText);
+    }
+
 }

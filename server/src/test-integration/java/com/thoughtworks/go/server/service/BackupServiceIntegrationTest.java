@@ -27,6 +27,7 @@ import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -41,7 +42,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -67,6 +67,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -120,6 +121,7 @@ public class BackupServiceIntegrationTest {
 
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher.aes"), "invalid crapy cipher", UTF_8);
     }
 
     @After
@@ -165,8 +167,11 @@ public class BackupServiceIntegrationTest {
             assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cipher")), is("some-cipher"));
 
             assertThat(fileContents(configZip, "cruise-config.xml"), is(goConfigService.xml()));
-            byte[] realCipher = (byte[]) ReflectionUtil.invoke(new DESCipherProvider(systemEnvironment), "getKey");
-            assertThat(fileContents(configZip, "cipher").getBytes(), is(realCipher));
+
+            byte[] realDesCipher = new DESCipherProvider(systemEnvironment).getKey();
+            byte[] realAESCipher = new AESCipherProvider(systemEnvironment).getKey();
+            assertThat(fileContents(configZip, "cipher"), is(encodeHexString(realDesCipher)));
+            assertThat(fileContents(configZip, "cipher.aes"), is(encodeHexString(realAESCipher)));
         } finally {
             deleteConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");
         }
@@ -209,7 +214,7 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailToAdminAfterTakingBackup() throws InvalidCipherTextException {
+    public void shouldSendEmailToAdminAfterTakingBackup() {
         GoConfigService configService = mock(GoConfigService.class);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);

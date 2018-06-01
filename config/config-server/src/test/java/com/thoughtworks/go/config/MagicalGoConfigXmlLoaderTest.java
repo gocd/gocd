@@ -60,7 +60,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -68,6 +68,7 @@ import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
@@ -3012,12 +3013,12 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(packageMaterialConfig.getPackageDefinition(), is(packageDefinition));
         Configuration repoConfig = packageMaterialConfig.getPackageDefinition().getRepository().getConfiguration();
         assertThat(repoConfig.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(repoConfig.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(repoConfig.get(2).getEncryptedValue(), is(encryptedValue));
+        assertThat(repoConfig.get(1).getEncryptedValue(), startsWith("AES:"));
+        assertThat(repoConfig.get(2).getEncryptedValue(), startsWith("AES:"));
         Configuration packageConfig = packageMaterialConfig.getPackageDefinition().getConfiguration();
         assertThat(packageConfig.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(packageConfig.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(packageConfig.get(2).getEncryptedValue(), is(encryptedValue));
+        assertThat(packageConfig.get(1).getEncryptedValue(), startsWith("AES:"));
+        assertThat(packageConfig.get(2).getEncryptedValue(), startsWith("AES:"));
     }
 
     @Test
@@ -3675,8 +3676,12 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateEncryptedEnvironmentVariablesWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        String plainText = "something";
-        String encryptedValue = new GoCipher().encrypt(plainText);
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String plainText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
@@ -3698,13 +3703,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.allPipelines().get(0).getVariables().get(0).getValue(), is(plainText));
-        assertThat(config.allPipelines().get(0).getVariables().get(0).getEncryptedValue(), is(encryptedValue));
+        assertThat(config.allPipelines().get(0).getVariables().get(0).getEncryptedValue(), startsWith("AES:"));
     }
 
     @Test
     public void shouldMigrateEncryptedPluginPropertyValueWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        String plainText = "something";
-        String encryptedValue = new GoCipher().encrypt(plainText);
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String plainText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
@@ -3725,14 +3734,18 @@ public class MagicalGoConfigXmlLoaderTest {
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getValue(), is(plainText));
-        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getEncryptedValue(), is(encryptedValue));
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getEncryptedValue(), startsWith("AES:"));
         assertThat(config.getSCMs().get(0).getConfiguration().getProperty("plainTextKey").getValue(), is("https://url/some_path"));
     }
 
     @Test
     public void shouldMigrateEncryptedMaterialPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        String plainText = "something";
-        String encryptedValue = new GoCipher().encrypt(plainText);
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String plainText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
@@ -3761,22 +3774,26 @@ public class MagicalGoConfigXmlLoaderTest {
         MaterialConfigs materialConfigs = config.allPipelines().get(0).materialConfigs();
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.get(0);
         assertThat(svnMaterialConfig.getPassword(), is(plainText));
-        assertThat(svnMaterialConfig.getEncryptedPassword(), is(encryptedValue));
+        assertThat(svnMaterialConfig.getEncryptedPassword(), startsWith("AES:"));
         assertThat(svnMaterialConfig.getFilterAsString(), is("**/*"));
         TfsMaterialConfig tfs = (TfsMaterialConfig) materialConfigs.get(1);
         assertThat(tfs.getPassword(), is(plainText));
-        assertThat(tfs.getEncryptedPassword(), is(encryptedValue));
+        assertThat(tfs.getEncryptedPassword(), startsWith("AES:"));
         assertThat(tfs.getUrl(), is("tfsurl"));
         P4MaterialConfig p4 = (P4MaterialConfig) materialConfigs.get(2);
         assertThat(p4.getPassword(), is(plainText));
-        assertThat(p4.getEncryptedPassword(), is(encryptedValue));
+        assertThat(p4.getEncryptedPassword(), startsWith("AES:"));
         assertThat(p4.getServerAndPort(), is("host:9999"));
     }
 
     @Test
     public void shouldMigrateServerMailhostEncryptedPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        String plainText = "something";
-        String encryptedValue = new GoCipher().encrypt(plainText);
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String plainText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
@@ -3787,7 +3804,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.server().mailHost().getPassword(), is(plainText));
-        assertThat(config.server().mailHost().getEncryptedPassword(), is(encryptedValue));
+        assertThat(config.server().mailHost().getEncryptedPassword(), startsWith("AES:"));
         assertThat(config.server().mailHost().getHostName(), is("host"));
     }
 
@@ -4117,6 +4134,137 @@ public class MagicalGoConfigXmlLoaderTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Artifact store with id `s3` does not exist."));
         }
+    }
+
+    @Test
+    public void shouldMigrateDESEncryptedEnvironmentVariables_XslMigrationFrom108To109() throws Exception {
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String clearText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
+
+        String content = configWithPipeline(
+                ""
+                        + "<pipeline name='some_pipeline'>"
+                        + "  <environmentvariables>"
+                        + "    <variable name='var_name' secure='true'>"
+                        + "      <encryptedValue>" + desEncryptedPassword + "</encryptedValue>"
+                        + "    </variable>"
+                        + "   </environmentvariables>"
+                        + "    <materials>"
+                        + "      <svn url='svnurl'/>"
+                        + "    </materials>"
+                        + "  <stage name='some_stage'>"
+                        + "    <jobs>"
+                        + "      <job name='some_job'>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 108);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.allPipelines().get(0).getVariables().get(0).getValue(), is(clearText));
+        String encryptedValue = config.allPipelines().get(0).getVariables().get(0).getEncryptedValue();
+        assertThat(encryptedValue, startsWith("AES:"));
+        assertThat(new AESEncrypter(new AESCipherProvider(systemEnvironment)).decrypt(encryptedValue), is("user-password!"));
+    }
+
+    @Test
+    public void shouldMigrateDESEncryptedPluginPropertyValue_XslMigrationFrom108To109() throws Exception {
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String clearText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
+
+        String content = configWithPluggableScm(
+                "" +
+                        "  <scm id='f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b' name='gocd-private'>" +
+                        "      <pluginConfiguration id='github.pr' version='1' />" +
+                        "      <configuration>" +
+                        "        <property>" +
+                        "          <key>plainTextKey</key>" +
+                        "          <value>https://url/some_path</value>" +
+                        "        </property>" +
+                        "        <property>" +
+                        "          <key>secureKey</key>" +
+                        "          <encryptedValue>" + desEncryptedPassword + "</encryptedValue>" +
+                        "        </property>" +
+                        "      </configuration>" +
+                        "    </scm>", 108);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getValue(), is(clearText));
+        String encryptedValue = config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getEncryptedValue();
+
+        assertThat(encryptedValue, startsWith("AES:"));
+        assertThat(new AESEncrypter(new AESCipherProvider(systemEnvironment)).decrypt(encryptedValue), is("user-password!"));
+
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("plainTextKey").getValue(), is("https://url/some_path"));
+    }
+
+    @Test
+    public void shouldMigrateDESEncryptedMaterialPassword_XslMigrationFrom108To109() throws Exception {
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String clearText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
+
+        String content = configWithPipeline(
+                "<pipeline name='some_pipeline'>"
+                        + "    <materials>"
+                        + "      <svn url='asdsa' username='user' encryptedPassword='" + desEncryptedPassword + "' dest='svn'/>"
+                        + "      <tfs url='tfsurl' username='user' domain='domain' encryptedPassword='" + desEncryptedPassword + "' projectPath='path' dest='tfs' />"
+                        + "      <p4 port='host:9999' username='user' encryptedPassword='" + desEncryptedPassword + "' dest='perforce'>" +
+                        "          <view><![CDATA[view]]></view>" +
+                        "        </p4>"
+                        + "    </materials>"
+                        + "  <stage name='some_stage'>"
+                        + "    <jobs>"
+                        + "      <job name='some_job'>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 108);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        MaterialConfigs materialConfigs = config.allPipelines().get(0).materialConfigs();
+        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.get(0);
+        assertThat(svnMaterialConfig.getPassword(), is(clearText));
+        assertThat(svnMaterialConfig.getEncryptedPassword(), startsWith("AES:"));
+        TfsMaterialConfig tfs = (TfsMaterialConfig) materialConfigs.get(1);
+        assertThat(tfs.getPassword(), is(clearText));
+        assertThat(tfs.getEncryptedPassword(), startsWith("AES:"));
+        assertThat(tfs.getUrl(), is("tfsurl"));
+        P4MaterialConfig p4 = (P4MaterialConfig) materialConfigs.get(2);
+        assertThat(p4.getPassword(), is(clearText));
+        assertThat(p4.getEncryptedPassword(), startsWith("AES:"));
+        assertThat(p4.getServerAndPort(), is("host:9999"));
+    }
+
+    @Test
+    public void shouldMigrateDESServerMailhostEncryptedPassword_XslMigrationFrom108To109() throws Exception {
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+
+        String clearText = "user-password!";
+        // "user-password!" encrypted using the above key
+        String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
+
+        String content = config(
+                "<server artifactsdir='artifacts'>" +
+                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + desEncryptedPassword + "' tls='false' from='user@domain.com' admin='admin@domain.com' />" +
+                        "  </server>", 108);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.server().mailHost().getPassword(), is(clearText));
+        assertThat(config.server().mailHost().getEncryptedPassword(), startsWith("AES:"));
+        assertThat(config.server().mailHost().getHostName(), is("host"));
     }
 
     private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {

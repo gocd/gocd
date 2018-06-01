@@ -26,7 +26,6 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.LabeledOutputStreamConsumer;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.io.File;
 
@@ -66,14 +65,5 @@ public class TfsExecutor implements BuildCommandExecutor {
             return cipherTextWhichIsActuallyPlainText;
         }
 
-        @Override
-        public String cipher(byte[] key, String plainText) {
-            throw new RuntimeException("Unexpected call to cipher");
-        }
-
-        @Override
-        public String decipher(byte[] key, String cipherText) {
-            throw new RuntimeException("Unexpected call to decipher");
-        }
     }
 }

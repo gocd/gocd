@@ -16,20 +16,18 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ScheduleOptionsTest {
 
@@ -37,7 +35,7 @@ public class ScheduleOptionsTest {
 
     @Before
     public void setUp() throws Exception {
-        goCipher = mock(GoCipher.class);
+        goCipher = new GoCipher();
     }
 
     @Test
@@ -51,10 +49,8 @@ public class ScheduleOptionsTest {
     }
 
     @Test
-    public void shouldReturnSecureEnvironmentVariablesConfig() throws InvalidCipherTextException {
+    public void shouldReturnSecureEnvironmentVariablesConfig() throws CryptoException {
         String plainText = "secure_value";
-        String cipherText = "encrypted";
-        when(goCipher.encrypt(plainText)).thenReturn(cipherText);
         HashMap<String, String> secureVariables = new HashMap<>();
         secureVariables.put("secure_name", plainText);
         ScheduleOptions scheduleOptions = new ScheduleOptions(goCipher, new HashMap<>(), new HashMap<>(), secureVariables);

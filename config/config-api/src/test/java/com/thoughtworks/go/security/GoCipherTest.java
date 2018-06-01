@@ -19,104 +19,143 @@ package com.thoughtworks.go.security;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 
-import javax.crypto.spec.DESKeySpec;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
-import static com.thoughtworks.go.util.ReflectionUtil.getField;
-import static com.thoughtworks.go.util.ReflectionUtil.invoke;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class GoCipherTest {
 
-    private GoCipher goCipher;
-    private File cipherFile;
+    @Rule
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+
+    private File desCipherFile;
+    private File aesCipherFile;
+    private SystemEnvironment systemEnvironment;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
+        systemEnvironment = spy(new SystemEnvironment());
+        aesCipherFile = systemEnvironment.getAESCipherFile();
+        desCipherFile = systemEnvironment.getDESCipherFile();
+
+        clearCachedKeys();
+    }
+
+    private void clearCachedKeys() {
         ReflectionUtil.setField(new DESCipherProvider(new SystemEnvironment()), "cachedKey", null);
-        cipherFile = new SystemEnvironment().getDESCipherFile();
-        FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
-        goCipher = new GoCipher();
+        ReflectionUtil.setField(new AESCipherProvider(new SystemEnvironment()), "cachedKey", null);
+        FileUtils.deleteQuietly(new SystemEnvironment().getDESCipherFile());
+        FileUtils.deleteQuietly(new SystemEnvironment().getAESCipherFile());
+    }
+
+    private void setupAESCipherFile() throws IOException {
+        ReflectionUtil.setField(new AESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(aesCipherFile, "fdf500c4ec6e51172477145db6be63c5", UTF_8);
+    }
+
+    private void setupDESCipherFile() throws IOException {
+        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
+        FileUtils.writeStringToFile(desCipherFile, "269298bc31c44620", UTF_8);
     }
 
     @After
     public void tearDown() {
-        FileUtils.deleteQuietly(cipherFile);
+        clearCachedKeys();
     }
 
     @Test
-    public void shouldDecryptUsingTheSameKeyUsedForEncryption() throws InvalidCipherTextException {
-        String input = "user-password!";
-        String cipherText = goCipher.encrypt(input);
-        assertThat(cipherText, is("mvcX9yrQsM4iPgm1tDxN1A=="));
-        String plainText = goCipher.decrypt(cipherText).trim();
-        assertThat(plainText, is(input));
-    }
+    public void shouldCreateAnAESCipherFileWithTheCipherIfNotFound() throws IOException, CryptoException {
+        assertThat(desCipherFile.exists()).isFalse();
+        assertThat(aesCipherFile.exists()).isFalse();
 
-    @Test
-    public void shouldNotKillLeadingAndTrailingSpacesDuringEncryption() throws InvalidCipherTextException {
-        String plainText = "   foo   ";
-        String cipherText = goCipher.encrypt(plainText);
-        assertThat(goCipher.decrypt(cipherText), is(plainText));
-    }
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+        assertThat(desCipherFile.exists()).isFalse();
+        assertThat(aesCipherFile.exists()).isTrue();
 
-    @Test
-    public void shouldGenerateAValidAndSafeDESKey() throws Exception {
-        byte[] key = (byte[]) invoke(getField(goCipher, "cipherProvider"), "generateKey");
-        assertThat(DESKeySpec.isWeak(key, 0), is(false));
-    }
-
-    @Test
-    public void shouldErrorOutWhenCipherTextIsTamperedWith() {
-        try {
-            goCipher.decrypt("some junk that should not decrypt to something sane. I mean, seriously, how could this make sense.");
-            fail("Should have thrown DataLengthException");
-        }
-        catch (Exception e) {
-            assertThat(e.getMessage(), is("Illegal base64 character 20"));
-        }
-    }
-
-    @Test
-    public void shouldErrorOutWhenCipherTextIsTamperedWithEvenIfTextIsBas64Encoded() {
-        try {
-            goCipher.decrypt(Base64.getEncoder().encodeToString("some junk that should not decrypt to something sane. I mean, seriously, how could this make sense.".getBytes(StandardCharsets.UTF_8)));
-            fail("Should have thrown DataLengthException");
-        }
-        catch (Exception e) {
-            assertThat(e.getMessage(), is("last block incomplete in decryption"));
-        }
-    }
-
-    @Test
-    public void shouldCreateACipherFileWithTheCipherIfNotFound() throws IOException, InvalidCipherTextException {
-        FileUtils.deleteQuietly(cipherFile);
-        assertThat(cipherFile.exists(), is(false));
-        ReflectionUtil.setField(new DESCipherProvider(new SystemEnvironment()), "cachedKey", null);
-        goCipher = new GoCipher();
-        assertThat(cipherFile.exists(), is(true));
         String plainText = goCipher.decrypt(goCipher.encrypt("user-password!"));
-        assertThat(plainText, is("user-password!"));
-        assertThat(cipherFile.exists(), is(true));
+        assertThat(plainText).isEqualTo("user-password!");
+        assertThat(desCipherFile.exists()).isFalse();
+        assertThat(aesCipherFile.exists()).isTrue();
     }
 
     @Test
-    public void shouldWorkEvenAfterCipherFileHasBeenDeleted() throws InvalidCipherTextException {//serialization friendliness
-        FileUtils.deleteQuietly(cipherFile);
-        assertThat(cipherFile.exists(), is(false));
+    public void shouldWorkEvenAfterCipherFileHasBeenDeleted() throws CryptoException, IOException {//serialization friendliness
+        setupAESCipherFile();
+        setupDESCipherFile();
+
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+
+        FileUtils.deleteQuietly(desCipherFile);
+        FileUtils.deleteQuietly(aesCipherFile);
+
+        assertThat(desCipherFile.exists()).isFalse();
+        assertThat(aesCipherFile.exists()).isFalse();
+
         String plainText = goCipher.decrypt(goCipher.encrypt("user-password!"));
-        assertThat(plainText, is("user-password!"));
-        assertThat(cipherFile.exists(), is(false));
+        assertThat(plainText).isEqualTo("user-password!");
+
+        assertThat(desCipherFile.exists()).isFalse();
+        assertThat(aesCipherFile.exists()).isFalse();
+    }
+
+    @Test
+    public void shouldNotEnableDesCipherIfCipherFileMissing() {
+        assertThat(desCipherFile).doesNotExist();
+
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+        assertThat(goCipher.aesEncrypter).isNotNull();
+        assertThat(goCipher.desEncrypter).isNull();
+    }
+
+    @Test
+    public void shouldNotEnableDesCipherIfCipherFileIsPresentAndDESIsNotEnabled() throws IOException {
+        setupDESCipherFile();
+        assertThat(desCipherFile).exists();
+        when(systemEnvironment.desEnabled()).thenReturn(false);
+
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+        assertThat(goCipher.aesEncrypter).isNotNull();
+        assertThat(goCipher.desEncrypter).isNull();
+    }
+
+    @Test
+    public void shouldNotEnableDesCipherIfCipherFileIsAbsentAndDESIsEnabled() {
+        assertThat(desCipherFile).doesNotExist();
+        when(systemEnvironment.desEnabled()).thenReturn(true);
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+        assertThat(goCipher.aesEncrypter).isNotNull();
+        assertThat(goCipher.desEncrypter).isNull();
+    }
+
+    @Test
+    public void shouldEnableDesCipherIfCipherFileIsPresentAndDESIsEnabled() throws IOException {
+        setupDESCipherFile();
+        assertThat(desCipherFile).exists();
+
+        when(systemEnvironment.desEnabled()).thenReturn(true);
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+
+        assertThat(goCipher.aesEncrypter).isNotNull();
+        assertThat(goCipher.desEncrypter).isNotNull();
+    }
+
+    @Test
+    public void shouldConvertFromDESEncryptedTextToAES() throws IOException, CryptoException {
+        setupAESCipherFile();
+        setupDESCipherFile();
+
+        GoCipher goCipher = new GoCipher(systemEnvironment);
+        String cipherText = goCipher.desToAES("mvcX9yrQsM4iPgm1tDxN1A==");
+        assertThat(cipherText).startsWith("AES:");
     }
 }

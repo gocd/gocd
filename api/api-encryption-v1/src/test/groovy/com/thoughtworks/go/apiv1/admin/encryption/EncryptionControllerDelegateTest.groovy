@@ -19,11 +19,11 @@ package com.thoughtworks.go.apiv1.admin.encryption
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter
+import com.thoughtworks.go.security.CryptoException
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.spark.AnyAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import org.bouncycastle.crypto.InvalidCipherTextException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -75,7 +75,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
       @Test
       void 'it should handle cipher exception while decryption'() {
-        doThrow(new InvalidCipherTextException("boom!")).when(cipher).encrypt("foo")
+        doThrow(new CryptoException("boom!")).when(cipher).encrypt("foo")
         loginAsAdmin()
         postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
 

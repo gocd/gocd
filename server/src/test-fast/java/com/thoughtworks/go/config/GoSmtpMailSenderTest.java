@@ -17,9 +17,9 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -203,7 +203,7 @@ public class GoSmtpMailSenderTest {
     }
 
     @Test
-    public void shouldUseTheEncryptedPasswordIfThePasswordIsNotChanged() throws InvalidCipherTextException {
+    public void shouldUseTheEncryptedPasswordIfThePasswordIsNotChanged() throws CryptoException {
         String encryptedPassword = new GoCipher().encrypt("encrypted_password");
         MailHost mailHost = new MailHost(hostName, 25, "smtpuser", "password", encryptedPassword, false, true, "cruise@me.com", "jez@me.com");
         GoMailSender sender = GoSmtpMailSender.createSender(mailHost);

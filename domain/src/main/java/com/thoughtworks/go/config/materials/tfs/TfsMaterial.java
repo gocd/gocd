@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -34,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
@@ -46,6 +46,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TfsMaterial.class);
@@ -104,8 +105,8 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     @Override
     public String getPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+        } catch (CryptoException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
     }

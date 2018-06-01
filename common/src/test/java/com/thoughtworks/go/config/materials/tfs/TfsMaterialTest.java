@@ -24,11 +24,11 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -180,10 +180,10 @@ public class TfsMaterialTest {
     }
 
     @Test
-    public void shouldErrorOutIfDecryptionFails() throws InvalidCipherTextException {
+    public void shouldErrorOutIfDecryptionFails() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String fakeCipherText = "fake cipher text";
-        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
         TfsMaterial material = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
         ReflectionUtil.setField(material, "encryptedPassword", fakeCipherText);
         try {
@@ -197,7 +197,7 @@ public class TfsMaterialTest {
     @Test
     public void shouldErrorOutIfEncryptionFails() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
         try {
             new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
             fail("Should have thrown up");

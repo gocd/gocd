@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.config;
 
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.domain.ConfigErrors;
-
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
+import javax.annotation.PostConstruct;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,6 +29,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("mailhost")
 public class MailHost implements Validatable, PasswordEncrypter {
@@ -226,8 +225,8 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     public String getCurrentPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? "" : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+            return isBlank(encryptedPassword) ? "" : this.goCipher.decrypt(encryptedPassword);
+        } catch (CryptoException e) {
             throw new RuntimeException(e);
         }
     }

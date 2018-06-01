@@ -423,9 +423,9 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\" />"));
+                "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" />"));
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
+                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
     }
 
     @Test

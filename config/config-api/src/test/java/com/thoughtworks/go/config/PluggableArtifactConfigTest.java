@@ -29,8 +29,8 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -38,9 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -189,7 +187,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void postConstruct_shouldHandleEncryptionOfConfigProperties() throws InvalidCipherTextException {
+    public void postConstruct_shouldHandleEncryptionOfConfigProperties() throws CryptoException {
         GoCipher goCipher = new GoCipher();
 
         ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);

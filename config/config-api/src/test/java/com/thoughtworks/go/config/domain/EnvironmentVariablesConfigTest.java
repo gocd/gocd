@@ -16,24 +16,20 @@
 
 package com.thoughtworks.go.config.domain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.*;
+
 import static com.thoughtworks.go.util.TestUtils.contains;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -167,7 +163,7 @@ public class EnvironmentVariablesConfigTest {
     }
 
     @Test
-    public void shouldGetSecureVariables() throws InvalidCipherTextException {
+    public void shouldGetSecureVariables() throws CryptoException {
         EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
         GoCipher mockGoCipher = mock(GoCipher.class);
         EnvironmentVariableConfig plainVar1 = new EnvironmentVariableConfig("var1", "var1_value");
@@ -183,7 +179,7 @@ public class EnvironmentVariablesConfigTest {
     }
 
     @Test
-    public void shouldGetOnlyPlainTextVariables() throws InvalidCipherTextException {
+    public void shouldGetOnlyPlainTextVariables() throws CryptoException {
         EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
         EnvironmentVariableConfig plainVar1 = new EnvironmentVariableConfig("var1", "var1_value");
         EnvironmentVariableConfig plainVar2 = new EnvironmentVariableConfig("var2", "var2_value");
@@ -198,7 +194,7 @@ public class EnvironmentVariablesConfigTest {
     }
 
 
-    private EnvironmentVariableConfig secureVariable(final GoCipher goCipher, String key, String plainText, String cipherText) throws InvalidCipherTextException {
+    private EnvironmentVariableConfig secureVariable(final GoCipher goCipher, String key, String plainText, String cipherText) throws CryptoException {
         when(goCipher.encrypt(plainText)).thenReturn(cipherText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, key, plainText, true);
         return environmentVariableConfig;

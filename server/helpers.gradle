@@ -40,11 +40,11 @@ task bumpSchemaVersion {
     }
 
     originalXSDFile.withWriter { out ->
-      out.println(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
+      out.print(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
     }
 
     originalDefaultXMLFile.withWriter { out ->
-      out.println(xmlContents.replaceAll("${currentVersion}", "${nextVersion}"))
+      out.print(xmlContents.replaceAll("${currentVersion}", "${nextVersion}"))
     }
 
     def xslFile = project(':config:config-server').file("src/main/resources/upgrades/${nextVersion}.xsl")

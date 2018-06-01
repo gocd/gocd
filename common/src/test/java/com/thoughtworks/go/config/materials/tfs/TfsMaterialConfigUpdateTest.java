@@ -22,10 +22,10 @@ import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,9 +35,7 @@ import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -199,10 +197,10 @@ public class TfsMaterialConfigUpdateTest {
     }
 
     @Test
-    public void shouldErrorOutIfDecryptionFails() throws InvalidCipherTextException {
+    public void shouldErrorOutIfDecryptionFails() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String fakeCipherText = "fake cipher text";
-        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
         TfsMaterialConfig materialConfig = new TfsMaterialConfig(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
         ReflectionUtil.setField(materialConfig, "encryptedPassword", fakeCipherText);
         try {
@@ -217,7 +215,7 @@ public class TfsMaterialConfigUpdateTest {
     @Test
     public void shouldErrorOutIfEncryptionFails() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenThrow(new InvalidCipherTextException("exception"));
+        when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
         try {
             new TfsMaterialConfig(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
             fail("Should have thrown up");

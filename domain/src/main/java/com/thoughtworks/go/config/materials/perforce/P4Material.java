@@ -25,15 +25,18 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -49,6 +52,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class P4Material extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private String serverAndPort;
@@ -390,8 +394,8 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     public String currentPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+        } catch (CryptoException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
     }

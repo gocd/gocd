@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class MailHostTest {
 
     @Test
-    public void shouldEncryptMailHostPassword() throws InvalidCipherTextException {
+    public void shouldEncryptMailHostPassword() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
 
@@ -40,7 +40,7 @@ public class MailHostTest {
     }
 
     @Test
-    public void shouldDecryptMailHostPassword() throws InvalidCipherTextException {
+    public void shouldDecryptMailHostPassword() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
 

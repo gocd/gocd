@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ArtifactMetadataStore extends MetadataStore<ArtifactPluginInfo> {
     private static final ArtifactMetadataStore store = new ArtifactMetadataStore();

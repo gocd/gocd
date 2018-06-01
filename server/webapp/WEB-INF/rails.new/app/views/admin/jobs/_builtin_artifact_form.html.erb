@@ -1,9 +1,23 @@
-<div class="name_value_cell columns medium-3 large-3">
-  <%= scope[:var_form].text_field "source", :class => "form_input artifact_source", :id => nil -%>
-</div>
-<div class="name_value_cell columns medium-3 large-3">
-  <%= scope[:var_form].text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
-</div>
-<div class="name_value_cell columns medium-4 large-4 end">
-  <span class="icon_remove delete_parent"></span>
+<div class="artifact">
+  <%= scope[:var_form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_CONFIGS, scope[:builtin_artifact], :index => "" do |artifact_form| %>
+    <%= render :partial => 'built_in_artifact_table_headers' %>
+    <div class="row expanded">
+      <div class="name_value_cell columns medium-2 large-2">
+        <%= artifact_form.label scope[:builtin_artifact].getArtifactTypeValue(), {:class => "type_label"} -%>
+        <%= artifact_form.hidden_field "artifactTypeValue", :value => scope[:builtin_artifact].getArtifactTypeValue(), :class => "form_input artifact_source", :id => nil -%>
+      </div>
+
+      <div class="name_value_cell columns medium-3 large-3">
+        <%= artifact_form.text_field "source", :class => "form_input artifact_source", :id => nil -%>
+        <%= error_message_on(scope[:builtin_artifact], "source", :css_class => "form_error") %>
+      </div>
+      <div class="name_value_cell columns medium-3 large-3">
+        <%= artifact_form.text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
+        <%= error_message_on(scope[:builtin_artifact], "destination", :css_class => "form_error") %>
+      </div>
+      <div class="name_value_cell columns medium-4 large-4 end">
+        <span class="icon_remove delete_artifact"></span>
+      </div>
+    </div>
+  <% end %>
 </div>

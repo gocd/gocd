@@ -18,6 +18,7 @@
 describe("StagesConfigWidget", () => {
   const m      = require('mithril');
   const Stream = require('mithril/stream');
+  const $             = require('jquery');
 
   require('jasmine-jquery');
 
@@ -78,8 +79,8 @@ describe("StagesConfigWidget", () => {
     expect(pipeline().stages().countStage()).toBe(1);
     const removeStageButton = $root.find('.remove-stage');
     expect(removeStageButton).toHaveClass("remove-disabled");
-    const tooltipText = removeStageButton.attr("tooltiptext");
-    expect(tooltipText).toBe("Cannot delete the only stage in a pipeline");
+    const tooltipId = $(removeStageButton).attr('data-tooltip-id');
+    expect($(`#${tooltipId}`)).toHaveText("Cannot delete the only stage in a pipeline");
   });
 
   function samplePipelineJSON() {

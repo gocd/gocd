@@ -24,6 +24,10 @@ const Validatable          = require('models/mixins/validatable_mixin');
 
 const Stages = function (data) {
   Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});
+
+  this.isLastStage = () => {
+    return this.countStage() === 1;
+  };
 };
 
 Stages.Stage = function (data) {

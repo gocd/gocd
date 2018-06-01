@@ -264,7 +264,7 @@ const f = {
   resetAttrButton: {
     view(vnode) {
       const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
-      return <f.resetButton onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
+      return <f.button type="reset" onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
     }
   },
 
@@ -406,43 +406,6 @@ const f = {
     }
   },
 
-  removeButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'remove')}
-                title='Remove' {...args}>{children}</button>
-
-      );
-    }
-  },
-
-  editButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'edit')}
-                title='Edit' {...args}>{children}</button>
-      );
-    }
-  },
-
-  resetButton: {
-    view (vnode) {
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'reset')}
-                title='Reset' {...args}>{children}</button>
-      );
-    }
-  },
-
   buttonWithTooltip: {
     oncreate (vnode) {
       new window.Foundation.Tooltip($(vnode.dom), {tipText: vnode.attrs.tooltipText});
@@ -460,7 +423,7 @@ const f = {
     view (vnode) {
       const args = vnode.attrs;
       return (<button type="button"
-                      class={compactClasses(args, 'button')}
+                      class={compactClasses(args, vnode.attrs.buttonType)}
                       {...args}
                       data-hover-delay={100}>
         {vnode.children}
@@ -472,15 +435,16 @@ const f = {
     view (vnode) {
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
+      const buttonType    = deleteKeyAndReturnValue(args, "type") || "button";
 
       if (!_.isEmpty(tooltipText)) {
         return (<f.buttonWithTooltip tooltipText={tooltipText}
-                                     class={compactClasses(args, 'button')}
+                                     buttonType={buttonType}
                                      {...args}/>);
       }
       return (
           <button type="button"
-                  class={compactClasses(args, 'button')}
+                  class={compactClasses(args, buttonType)}
                   {...args}>
             {vnode.children}
           </button>

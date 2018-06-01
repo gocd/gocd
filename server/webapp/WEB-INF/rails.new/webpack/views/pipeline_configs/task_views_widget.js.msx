@@ -105,8 +105,8 @@ const TaskViews = {
                 {!vnode.state.isEditing() ? (
                   <span>{_.isNil(vnode.attrs.task.onCancelTask) ? 'No' : vnode.attrs.task.onCancelTask.type()}</span>) : undefined}
                 <div class='actions'>
-                  <f.removeButton onclick={vnode.attrs.onRemove} class="remove-task"/>
-                  <f.editButton class={vnode.state.isEditing() ? 'done' : null}/>
+                  <f.button type="remove" onclick={vnode.attrs.onRemove} class="remove-task"/>
+                  <f.button type="edit" class={vnode.state.isEditing() ? 'done' : null}/>
                 </div>
               </f.column>
             </f.row>

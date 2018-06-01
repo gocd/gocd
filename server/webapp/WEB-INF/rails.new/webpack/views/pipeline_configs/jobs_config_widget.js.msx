@@ -341,7 +341,7 @@ const JobsConfigWidget = {
           return (
             <f.row class="job-definition" collapse="true" key={job.uuid()}>
               <f.column size={12}>
-                <f.removeButton onclick={vnode.state.removeJob.bind(vnode.state, job)} class="remove-job"/>
+                <f.button type="remove" onclick={vnode.state.removeJob.bind(vnode.state, job)} class="remove-job"/>
                 <f.row>
                   <JobSettingsWidget job={job}
                                      elasticProfiles={vnode.attrs.elasticProfiles}

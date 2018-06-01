@@ -83,7 +83,7 @@ const EnvironmentVariableWidget = {
 
         if (variable.isDirtyValue()) {
           removeChildPreContent = (
-            <f.resetButton class='position-reset-button' onclick={variable.resetToOriginalValue.bind(variable)}/>
+            <f.button type="reset" class='position-reset-button' onclick={variable.resetToOriginalValue.bind(variable)}/>
           );
         }
       } else {
@@ -94,7 +94,7 @@ const EnvironmentVariableWidget = {
         ];
 
         removeChildPreContent = (
-          <f.editButton onclick={variable.editValue.bind(variable)} class="edit-secure-variable"/>
+          <f.button type="edit" onclick={variable.editValue.bind(variable)} class="edit-secure-variable"/>
         );
       }
 

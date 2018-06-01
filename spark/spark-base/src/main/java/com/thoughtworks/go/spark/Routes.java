@@ -218,6 +218,20 @@ public class Routes {
         }
     }
 
+    public static class PipelineTemplateConfig {
+        public static final String BASE = "/api/admin/templates";
+        public static final String NAME = "/:template_name";
+        public static final String DOC = "https://api.gocd.org/#template-config";
+
+        public static String find() {
+            return BASE + NAME;
+        }
+
+        public static String name(String name) {
+            return find().replaceAll(":template_name", name);
+        }
+    }
+
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }

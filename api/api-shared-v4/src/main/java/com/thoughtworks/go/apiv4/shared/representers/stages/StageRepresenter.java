@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv4.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.StageConfig;
 
 import java.util.HashMap;
@@ -30,8 +31,8 @@ import java.util.function.Consumer;
 
 public class StageRepresenter {
 
-  public static void toJSONArray(OutputListWriter stagesWriter, PipelineConfig pipelineConfig) {
-    pipelineConfig.getStages().forEach(stage -> {
+  public static void toJSONArray(OutputListWriter stagesWriter, PipelineTemplateConfig pipelineTemplateConfig) {
+    pipelineTemplateConfig.getStages().forEach(stage -> {
       stagesWriter.addChild(stageWriter -> toJSON(stageWriter, stage));
     });
   }

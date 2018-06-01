@@ -52,17 +52,7 @@ public class ArtifactStoreRepresenter {
         ArtifactStore artifactStore = new ArtifactStore(
                 jsonReader.getString("id"),
                 jsonReader.getString("plugin_id"));
-        artifactStore.addConfigurations(readConfigurationProperties(jsonReader));
+        artifactStore.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
         return artifactStore;
-    }
-
-    private static List<ConfigurationProperty> readConfigurationProperties(JsonReader jsonReader) {
-        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-        jsonReader.readArrayIfPresent("properties", properties -> {
-            properties.forEach(property ->
-                    configurationProperties.add(ConfigurationPropertyRepresenter.fromJSON(
-                            new JsonReader(property.getAsJsonObject()))));
-        });
-        return configurationProperties;
     }
 }

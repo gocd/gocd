@@ -491,6 +491,7 @@ public class GoFileConfigDataSource {
         CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.configForEdit);
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
+        encryptSecurePropertiesInAllPipelines(config);
         String configAsXml = configAsXml(config, false);
         if (deepCloneForEdit.getPartials().size() < partials.size())
             throw new RuntimeException("should never be called");
@@ -513,6 +514,7 @@ public class GoFileConfigDataSource {
         String oldMd5 = noOverwriteCommand.unmodifiedMd5();
         CruiseConfig modifiedConfig = getOldConfigAndMutateWithChanges(noOverwriteCommand, oldMd5);
         modifiedConfig.setPartials(partials);
+        encryptSecurePropertiesInAllPipelines(modifiedConfig);
         String modifiedConfigAsXml = convertMutatedConfigToXml(modifiedConfig, latestMd5);
 
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", getConfigUpdatingUser(noOverwriteCommand).getUserName(),
@@ -521,6 +523,12 @@ public class GoFileConfigDataSource {
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
         LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
         return mergedConfigXml;
+    }
+
+    private void encryptSecurePropertiesInAllPipelines(CruiseConfig modifiedConfig) {
+        for (PipelineConfig pipelineConfig : modifiedConfig.getAllPipelineConfigs()) {
+            pipelineConfig.encryptSecureProperties(modifiedConfig);
+        }
     }
 
     private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) {

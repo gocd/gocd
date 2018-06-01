@@ -39,15 +39,7 @@ public class PluginRoleConfigRepresenter {
             return model;
         }
         jsonReader.readStringIfPresent("auth_config_id", model::setAuthConfigId);
-        jsonReader.readArrayIfPresent("properties", properties -> {
-            List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-            properties.forEach(property -> {
-                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
-                ConfigurationProperty configurationProperty = ConfigurationPropertyRepresenter.fromJSON(configPropertyReader);
-                configurationProperties.add(configurationProperty);
-            });
-            model.addConfigurations(configurationProperties);
-        });
+        model.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
         return model;
     }
 

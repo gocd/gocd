@@ -18,27 +18,22 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AbstractFetchTask;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 public class FetchTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, AbstractFetchTask abstractFetchTask) {
-        BaseTaskRepresenter.toJSON(jsonWriter, abstractFetchTask);
+        jsonWriter.add("origin", abstractFetchTask.getOrigin());
         jsonWriter.add("pipeline", abstractFetchTask.getPipelineName());
         jsonWriter.add("stage", abstractFetchTask.getStage());
         jsonWriter.add("job", abstractFetchTask.getJob());
-        jsonWriter.add("origin", abstractFetchTask.getOrigin());
+        BaseTaskRepresenter.toJSON(jsonWriter, abstractFetchTask);
 
         switch (abstractFetchTask.getOrigin()) {
             case "gocd":
@@ -86,10 +81,13 @@ public class FetchTaskRepresenter {
             return fetchTask;
         }
         setBaseTask(jsonReader, fetchTask, options);
-        Boolean isSourceAFile = jsonReader.optBoolean("is_source_a_file").get();
+
+        Optional<Boolean> isSourceAFileValue = jsonReader.optBoolean("is_source_a_file");
+        Boolean isSourceAFile = isSourceAFileValue.orElse(false);
         if (isSourceAFile) {
             jsonReader.readStringIfPresent("source", fetchTask::setSrcfile);
-        } else {
+        }
+        else {
             jsonReader.readStringIfPresent("source", fetchTask::setSrcdir);
         }
         jsonReader.readStringIfPresent("destination", fetchTask::setDest);
@@ -104,7 +102,7 @@ public class FetchTaskRepresenter {
         }
         setBaseTask(jsonReader, fetchExternalArtifactTask, options);
         jsonReader.readStringIfPresent("artifact_id", fetchExternalArtifactTask::setArtifactId);
-        fetchExternalArtifactTask.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"), options.getCruiseConfig());
+        fetchExternalArtifactTask.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
 
         return fetchExternalArtifactTask;
     }

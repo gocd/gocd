@@ -18,10 +18,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -228,6 +226,57 @@ public class PluggableArtifactConfigTest {
         assertThat(nonSecureProperty.isSecure(), is(false));
         assertThat(nonSecureProperty.getValue(), is("value2"));
 
+    }
+
+    @Test
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsNull() throws InvalidCipherTextException {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "non-existent-store-id");
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
+        configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties, null);
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
+    }
+
+    @Test
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws InvalidCipherTextException {
+        ArtifactMetadataStore.instance().remove("cd.go.s3");
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
+        configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties, new ArtifactStore("storeId", "cd.go.s3"));
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
+    }
+
+    @Test
+    public void addConfigurations_shouldEncryptSecureProperties() throws InvalidCipherTextException {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+
+        pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("secure_property2", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("plain", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
+
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
+
+        ArrayList<ConfigurationProperty> expectedConfigurationProperties = new ArrayList<>();
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new EncryptedConfigurationValue(new GoCipher().encrypt("password"))));
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties, new ArtifactStore("storeId", "cd.go.s3"));
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(expectedConfigurationProperties));
     }
 
     @Test

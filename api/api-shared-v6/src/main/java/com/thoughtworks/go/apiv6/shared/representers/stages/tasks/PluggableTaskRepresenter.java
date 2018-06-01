@@ -43,15 +43,7 @@ public class PluggableTaskRepresenter {
         BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask, options);
         PluginConfiguration pluginConfiguration = PluginConfigurationRepresenter.fromJSON(jsonReader.readJsonObject("plugin_configuration"));
         pluggableTask.setPluginConfiguration(pluginConfiguration);
-        jsonReader.readArrayIfPresent("configuration", properties -> {
-            List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-            properties.forEach(property -> {
-                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
-                ConfigurationProperty configurationProperty = ConfigurationPropertyRepresenter.fromJSON(configPropertyReader);
-                configurationProperties.add(configurationProperty);
-            });
-            pluggableTask.addConfigurations(configurationProperties);
-        });
+        pluggableTask.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
         return pluggableTask;
     }
 }

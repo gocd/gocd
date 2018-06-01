@@ -16,11 +16,15 @@
 
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 
 import java.io.File;
 import java.util.Arrays;
@@ -31,7 +35,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
-public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
+public class FetchPluggableArtifactTask extends AbstractFetchTask {
     public static final String FETCH_EXTERNAL_ARTIFACT = "Fetch External Artifact";
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
@@ -96,14 +100,59 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         configuration.validateUniqueness("Fetch pluggable artifact");
     }
 
-    @Override
-    protected void setFetchTaskAttributes(Map attributeMap) {
-        configuration.setConfigAttributes(attributeMap, this);
+    public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+        if (artifactId != null) {
+            PipelineConfig dependencyMaterial = null;
+            if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath())) {
+                dependencyMaterial = pipelineConfig;
+            } else {
+                try {
+                    dependencyMaterial = cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName());
+                } catch (PipelineNotFoundException e) {
+                    // ignore
+                }
+            }
+            if (dependencyMaterial != null) {
+                StageConfig upstreamStage = dependencyMaterial.getStage(this.stage);
+                if (upstreamStage != null) {
+                    JobConfig jobConfig = upstreamStage.jobConfigByConfigName(this.job);
+                    if (jobConfig != null) {
+                        PluggableArtifactConfig externalArtifact = jobConfig.artifactConfigs().findByArtifactId(this.artifactId);
+                        if (externalArtifact != null && externalArtifact.getArtifactStore() != null) {
+                            ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(externalArtifact.getArtifactStore().getPluginId());
+                            if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
+                                return;
+                            }
+                            Configuration configurationProperties = new Cloner().deepClone(getConfiguration());
+                            getConfiguration().clear();
+                            ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+                            for (ConfigurationProperty configurationProperty : configurationProperties) {
+                                this.getConfiguration().add(builder.create(configurationProperty.getConfigKeyName(),
+                                        configurationProperty.getConfigValue(),
+                                        configurationProperty.getEncryptedValue(),
+                                        isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings())));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
-    public boolean isSecure(String key) {
-        return false;
+    protected void setFetchTaskAttributes(Map attributeMap) {
+        // since encryptSecureProperties will be called after deserialization, this need not be updated.
+
+        configuration.setConfigAttributes(attributeMap, new SecureKeyInfoProvider() {
+            @Override
+            public boolean isSecure(String key) {
+                return false;
+            }
+        });
+    }
+
+    public boolean isSecure(String key, PluggableInstanceSettings fetchArtifactSettings) {
+        return fetchArtifactSettings.getConfiguration(key) != null && fetchArtifactSettings.getConfiguration(key).isSecure();
     }
 
     @Override
@@ -126,7 +175,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getArtifactId(), getPipelineName(), getStage(), getJob());
     }
 
-    public void addConfigurations(List<ConfigurationProperty> configurationProperties, CruiseConfig cruiseConfig) {
+    public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
         //TODO: based on https://github.com/gocd/gocd/pull/4763
 
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();

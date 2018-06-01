@@ -57,6 +57,7 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public void update(CruiseConfig cruiseConfig) {
         cruiseConfig.update(getPipelineGroup(), pipelineConfig.name().toString(), pipelineConfig);
+        pipelineConfig.encryptSecureProperties(cruiseConfig);
     }
 
     @Override

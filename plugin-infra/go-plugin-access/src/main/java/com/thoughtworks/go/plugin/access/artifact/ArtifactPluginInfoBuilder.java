@@ -61,15 +61,7 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
     }
 
     private PluggableInstanceSettings fetchArtifactMetadata(String pluginId) {
-        // fetch does not require secure properties.
-        final List<PluginConfiguration> fetchArtifactMetadata = artifactExtension.getFetchArtifactMetadata(pluginId);
-
-        final List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
-        for (PluginConfiguration metadata : fetchArtifactMetadata) {
-            pluginConfigurations.add(new PluginConfiguration(metadata.getKey(), new Metadata(metadata.getMetadata().isRequired(), false)));
-        }
-
-        return new PluggableInstanceSettings(pluginConfigurations,
+        return new PluggableInstanceSettings(artifactExtension.getFetchArtifactMetadata(pluginId),
                 new PluginView(artifactExtension.getFetchArtifactView(pluginId)));
     }
 

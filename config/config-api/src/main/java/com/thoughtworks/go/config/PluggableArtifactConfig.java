@@ -192,6 +192,10 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         this.artifactStore = artifactStore;
     }
 
+    public ArtifactStore getArtifactStore() {
+        return artifactStore;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -221,12 +225,15 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     }
 
     private boolean isSecure(String configKeyName) {
-        ArtifactPluginInfo pluginInfo = getPluginInfo();
-        return pluginInfo != null
-                && pluginInfo.getArtifactConfigSettings() != null
-                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
-                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName).isSecure();
+        if (artifactStore != null) {
+            ArtifactPluginInfo pluginInfo = getPluginInfo();
+            return pluginInfo != null
+                    && pluginInfo.getArtifactConfigSettings() != null
+                    && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
+                    && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName).isSecure();
 
+        }
+        return false;
     }
 
     private boolean hasPluginInfo() {

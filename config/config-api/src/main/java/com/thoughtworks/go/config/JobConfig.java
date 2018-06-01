@@ -329,6 +329,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return isValid;
     }
 
+    public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+        for (Task task : getTasks()) {
+            if (task instanceof FetchPluggableArtifactTask) {
+                ((FetchPluggableArtifactTask) task).encryptSecureProperties(cruiseConfig, pipelineConfig);
+            }
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
 
         if (isBlank(CaseInsensitiveString.str(jobName))) {

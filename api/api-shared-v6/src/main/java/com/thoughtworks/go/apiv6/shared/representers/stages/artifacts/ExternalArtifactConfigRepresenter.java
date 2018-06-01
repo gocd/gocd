@@ -39,15 +39,7 @@ public class ExternalArtifactConfigRepresenter {
         jsonReader.readStringIfPresent("artifact_id", pluggableArtifactConfig::setId);
         jsonReader.readStringIfPresent("store_id", pluggableArtifactConfig::setStoreId);
         CruiseConfig cruiseConfig = options.getCruiseConfig();
-        jsonReader.readArrayIfPresent("configuration", properties -> {
-            List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-            properties.forEach(property -> {
-                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
-                ConfigurationProperty configurationProperty = ConfigurationPropertyRepresenter.fromJSON(configPropertyReader);
-                configurationProperties.add(configurationProperty);
-            });
-            pluggableArtifactConfig.addConfigurations(configurationProperties, cruiseConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()));
-        });
+        pluggableArtifactConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"), cruiseConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()));
         return pluggableArtifactConfig;
     }
 }

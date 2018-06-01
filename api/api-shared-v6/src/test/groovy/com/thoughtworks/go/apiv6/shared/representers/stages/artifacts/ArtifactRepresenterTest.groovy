@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv6.shared.representers.stages.artifacts
 
-import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.*
@@ -24,18 +23,11 @@ import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.validation.FilePathTypeValidator
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.helper.GoConfigMother
-import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore
-import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo
-import com.thoughtworks.go.plugin.domain.common.Metadata
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
-import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
 
 class ArtifactRepresenterTest {
 
@@ -139,9 +131,10 @@ class ArtifactRepresenterTest {
   @Test
   void 'should deserialize external artifact'() {
     def config = new PluggableArtifactConfig("docker-image-stable", "dockerhub", ConfigurationPropertyMother.create("image", false, "alpine"))
-
     def cruiseConfig = GoConfigMother.defaultCruiseConfig()
-    cruiseConfig.getArtifactStores().add(new ArtifactStore("dockerhub", "cd.go.artifact.docker.plugin"))
+    def artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.plugin")
+    cruiseConfig.getArtifactStores().add(artifactStore)
+    config.setArtifactStore(artifactStore)
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(externalArtifactHash)
     def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(cruiseConfig, mock(PasswordDeserializer.class)))
 

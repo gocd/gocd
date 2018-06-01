@@ -49,6 +49,7 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public void update(CruiseConfig cruiseConfig) {
         cruiseConfig.addPipelineWithoutValidation(groupName, pipelineConfig);
+        pipelineConfig.encryptSecureProperties(cruiseConfig);
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.helper.JobConfigMother
 import com.thoughtworks.go.helper.StageConfigMother
 import org.junit.jupiter.api.Nested
@@ -28,6 +29,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.mockito.Mockito.mock
 
 
 class StageRepresenterTest  {
@@ -74,6 +76,10 @@ class StageRepresenterTest  {
   @Nested
   class Deserialize {
 
+    def getConfigHelperOptions() {
+      return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
+    }
+
     @Test
     void 'should convert basic hash to StageConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
@@ -82,7 +88,7 @@ class StageRepresenterTest  {
         clean_working_directory: false,
         never_cleanup_artifacts: false
       ])
-      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
 
       assertEquals('stage1', stageConfig.name().toString())
       assertTrue(stageConfig.isFetchMaterials())
@@ -103,7 +109,7 @@ class StageRepresenterTest  {
             ]
           ]
       ])
-      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
 
       def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
       new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
@@ -132,7 +138,7 @@ class StageRepresenterTest  {
       ]
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(environmentVariables)
-      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
 
       def listOfEnvVars = stageConfig.getVariables().name
       assertEquals("MULTIPLE_LINES", listOfEnvVars.get(0))
@@ -145,7 +151,7 @@ class StageRepresenterTest  {
         jobs: [jobHash]
       ])
 
-      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
       assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().first())
     }
 

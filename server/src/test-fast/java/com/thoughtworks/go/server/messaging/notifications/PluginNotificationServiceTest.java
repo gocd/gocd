@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.Stage;
@@ -32,6 +33,7 @@ import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -63,12 +65,14 @@ public class PluginNotificationServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private PipelineDao pipelineDao;
+    @Mock
+    private StageDao stageDao;
     private PluginNotificationService pluginNotificationService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao);
+        pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao, stageDao);
     }
 
     @Test
@@ -137,6 +141,95 @@ public class PluginNotificationServiceTest {
         assertThat(data.getStage(), is(stage));
         assertThat(data.getBuildCause(), is(buildCause));
         assertThat(data.getPipelineGroup(), is("group1"));
+    }
+
+    @Test
+    public void populatePreviousStage_ifStageIsTriggeredByChangesAndHasAPreviousStage() {
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        Stage stage = StageMother.custom("Stage");
+        StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
+
+        stage.setApprovedBy("changes");
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
+        when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
+
+        pluginNotificationService.notifyStageStatus(stage);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        StageNotificationData data = (StageNotificationData) message.getData();
+
+        assertThat(data.getStage().getPreviousStage().getPipelineName(), is(stage.getIdentifier().getPipelineName()));
+        assertThat(data.getStage().getPreviousStage().getPipelineCounter(), is(stage.getIdentifier().getPipelineCounter()));
+        assertThat(data.getStage().getPreviousStage().getStageName(), is("previous_stage"));
+        assertThat(data.getStage().getPreviousStage().getStageCounter(), is("1"));
+    }
+
+    @Test
+    public void populatePreviousStage_forStageWithManualApprovalTypeAndHasAPreviousStage() {
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        Stage stage = StageMother.custom("Stage");
+        StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
+
+        stage.setApprovedBy("admins");
+        stage.setApprovalType("manual");
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
+        when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
+
+        pluginNotificationService.notifyStageStatus(stage);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        StageNotificationData data = (StageNotificationData) message.getData();
+
+        assertThat(data.getStage().getPreviousStage().getPipelineName(), is(stage.getIdentifier().getPipelineName()));
+        assertThat(data.getStage().getPreviousStage().getPipelineCounter(), is(stage.getIdentifier().getPipelineCounter()));
+        assertThat(data.getStage().getPreviousStage().getStageName(), is("previous_stage"));
+        assertThat(data.getStage().getPreviousStage().getStageCounter(), is("1"));
+    }
+
+    @Test
+    public void shouldNotPopulatePreviousStage_forManualStageReRuns() {
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        Stage stage = StageMother.custom("Stage");
+
+        stage.setApprovedBy("admins");
+        stage.setApprovalType("manual");
+        stage.setCounter(2);
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+
+        pluginNotificationService.notifyStageStatus(stage);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        StageNotificationData data = (StageNotificationData) message.getData();
+
+        assertNull(data.getStage().getPreviousStage());
+    }
+
+    @Test
+    public void shouldNotPopulatePreviousStage_forStageWithoutAPreviousStage() {
+        ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
+        Stage stage = StageMother.custom("Stage");
+
+        stage.setApprovedBy("admins");
+        stage.setApprovalType("manual");
+
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
+
+        pluginNotificationService.notifyStageStatus(stage);
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+
+        PluginNotificationMessage message = captor.getValue();
+        StageNotificationData data = (StageNotificationData) message.getData();
+
+        assertNull(data.getStage().getPreviousStage());
     }
 
     @Test

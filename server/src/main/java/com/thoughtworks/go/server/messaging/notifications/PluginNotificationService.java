@@ -17,14 +17,17 @@
 package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,17 +43,19 @@ public class PluginNotificationService {
     private final PluginNotificationsQueueHandler pluginNotificationsQueueHandler;
     private final GoConfigService goConfigService;
     private final PipelineDao pipelineSqlMapDao;
+    private StageDao stageDao;
     private final HashMap<String, NotificationDataCreator> map = new HashMap<>();
 
     @Autowired
     public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
                                      PluginNotificationsQueueHandler pluginNotificationsQueueHandler,
                                      GoConfigService goConfigService,
-                                     PipelineDao pipelineSqlMapDao) {
+                                     PipelineDao pipelineSqlMapDao, StageDao stageDao) {
         this.notificationPluginRegistry = notificationPluginRegistry;
         this.pluginNotificationsQueueHandler = pluginNotificationsQueueHandler;
         this.goConfigService = goConfigService;
         this.pipelineSqlMapDao = pipelineSqlMapDao;
+        this.stageDao = stageDao;
         map.put(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, new StageNotificationDataCreator());
         map.put(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, new AgentNotificationDataCreator());
     }
@@ -94,8 +99,39 @@ public class PluginNotificationService {
             String pipelineName = stage.getIdentifier().getPipelineName();
             String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
+
+            if (goConfigService.hasPreviousStage(pipelineName, stage.getName())) {
+                stage.setPreviousStage(previousStage(stage));
+            }
+
             return new StageNotificationData(stage, buildCause, pipelineGroup);
         }
+    }
+
+    private StageIdentifier previousStage(Stage stage) {
+        StageIdentifier previousStageIdentifier = null;
+        StageIdentifier currentStageIdentifier = stage.getIdentifier();
+        String pipelineName = currentStageIdentifier.getPipelineName();
+
+        if (isStageAutomaticallyTriggered(stage) || (isManualStage(stage) && !isStageReRun(stage))) {
+            StageConfig previousStage = goConfigService.previousStage(pipelineName, stage.getName());
+            int latestCounter = stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString());
+            previousStageIdentifier = new StageIdentifier(currentStageIdentifier.pipelineIdentifier(), previousStage.name().toString(), Integer.toString(latestCounter));
+        }
+
+        return previousStageIdentifier;
+    }
+
+    private boolean isStageReRun(Stage stage) {
+        return stage.getCounter() > 1;
+    }
+
+    private boolean isStageAutomaticallyTriggered(Stage stage) {
+        return "changes".equalsIgnoreCase(stage.getApprovedBy());
+    }
+
+    private boolean isManualStage(Stage stage) {
+        return "manual".equalsIgnoreCase(stage.getApprovalType());
     }
 
     private interface NotificationDataCreator<T, V extends Serializable> {

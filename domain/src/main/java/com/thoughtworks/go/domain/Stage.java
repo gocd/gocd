@@ -53,6 +53,7 @@ public class Stage extends PersistentObject {
     private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
     private static final Cloner CLONER = new Cloner();
     private String configVersion = null;
+    private StageIdentifier previousStage;
 
     public Stage() {
     }
@@ -228,6 +229,10 @@ public class Stage extends PersistentObject {
                 this.completedByTransitionId = latestTransitionId;
             }
         }
+    }
+
+    public void setApprovalType(String approvalType) {
+        this.approvalType = approvalType;
     }
 
     public String getApprovalType() {
@@ -512,5 +517,13 @@ public class Stage extends PersistentObject {
 
     public void setCreatedTime(Timestamp timestamp) {
         this.createdTime = timestamp;
+    }
+
+    public void setPreviousStage(StageIdentifier previousStage) {
+        this.previousStage = previousStage;
+    }
+
+    public StageIdentifier getPreviousStage() {
+        return previousStage;
     }
 }

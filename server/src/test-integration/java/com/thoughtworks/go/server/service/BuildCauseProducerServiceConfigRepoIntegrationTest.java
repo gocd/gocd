@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -32,9 +34,12 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
@@ -84,6 +89,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private ScheduleHelper scheduleHelper;
+    @Autowired private PipelineDao pipelineDao;
+    @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
     @Autowired private MaterialRepository materialRepository;
@@ -271,6 +278,45 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
         scheduleHelper.waitForNotScheduled(5, PIPELINE_NAME);
+    }
+
+    @Test
+    public void shouldSchedulePipelineWhenConfigAndUpstreamConfigMatch() throws Exception {
+        BuildCause buildCause = BuildCause.createWithModifications(firstRevisions, "Rick Sanchez");
+        Pipeline x = PipelineMother.schedule(pipelineConfig, buildCause);
+        x = pipelineDao.saveWithStages(x);
+        dbHelper.passStage(x.getStages().first());
+
+        DependencyMaterialConfig upstreamMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(PIPELINE_NAME), new CaseInsensitiveString(x.getStages().first().getName()));
+        String downstreamPipelineName = "pipe2";
+        PipelineConfig downstreamConfig = PipelineConfigMother.createPipelineConfigWithStages(downstreamPipelineName, "build", "blah");
+        downstreamConfig.materialConfigs().clear();
+        downstreamConfig.materialConfigs().add(materialConfig);
+        downstreamConfig.materialConfigs().add(upstreamMaterialConfig);
+
+        configTestRepo.addPipelineToRepositoryAndPush("pipe2.gocd.xml", downstreamConfig);
+        DependencyMaterial dependencyMaterial = (DependencyMaterial) materialConfigConverter.toMaterial(upstreamMaterialConfig);
+
+        materialUpdateService.updateMaterial(material);
+        materialUpdateService.updateMaterial(dependencyMaterial);
+        waitForMaterialNotInProgress();
+        pipelineTimeline.update();
+
+        configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+
+        RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
+        RepoConfigOrigin upstreamOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(downstreamPipelineName)).getOrigin();
+        assertThat(configOrigin ,is(upstreamOrigin));
+
+        scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
+        scheduleHelper.waitForAnyScheduled(5);
+
+        downstreamConfig = goConfigService.pipelineConfigNamed(downstreamConfig.name());
+
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(new CaseInsensitiveString(downstreamPipelineName)));
+        BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(downstreamPipelineName));
+        assertThat(downstreamBuildCause.getMaterialRevisions().getRevisions().size(), is(2));
+        assertThat(buildCause.pipelineConfigAndMaterialRevisionMatch(downstreamConfig), is(false));
     }
 
     @Test

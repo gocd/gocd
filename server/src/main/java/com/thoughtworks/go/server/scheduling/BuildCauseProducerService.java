@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.EnvironmentVariables;
@@ -223,6 +224,18 @@ public class BuildCauseProducerService {
         }
     }
 
+    private boolean isConfigOriginSameAsUpstream(PipelineConfig pipelineConfig, BuildCause buildCause) {
+        if (buildCause.hasDependencyMaterials()) {
+            for(DependencyMaterial material : buildCause.getDependencyMaterials()) {
+                PipelineConfig upstreamConfig = goConfigService.pipelineConfigNamed(material.getPipelineName());
+                if (pipelineConfig.hasSameConfigOrigin(upstreamConfig)) {
+                   return true;
+                }
+            }
+        }
+       return false;
+    }
+
     private boolean isGoodReasonToSchedule(PipelineConfig pipelineConfig, BuildCause buildCause, BuildType buildType,
                                            boolean materialConfigurationChanged) {
         if (buildCause == null)
@@ -235,6 +248,12 @@ public class BuildCauseProducerService {
                 // build is manual - skip scm-config consistency
                 return validCause;
             }
+
+            if (this.isConfigOriginSameAsUpstream(pipelineConfig, buildCause)) {
+                // configuration is up to date - skip scm-config consistency check
+                return validCause;
+            }
+
             // then we need config and material revisions to be consistent
             if (!buildCause.pipelineConfigAndMaterialRevisionMatch(pipelineConfig)) {
                 return false;

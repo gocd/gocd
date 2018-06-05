@@ -29,9 +29,7 @@ import java.util.Collections;
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +42,7 @@ public class GoDashboardPipelineTest {
                 new AllowedUsers(s("admin", "root"), Collections.emptySet()),
                 Everyone.INSTANCE);
 
-        GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), permissions, "group1", mock(TimeStampBasedCounter.class), new FileConfigOrigin());
+        GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin());
 
         assertThat(pipeline.canBeViewedBy("viewer1"), is(true));
         assertThat(pipeline.canBeViewedBy("viewer2"), is(true));
@@ -62,7 +60,7 @@ public class GoDashboardPipelineTest {
                 NoOne.INSTANCE);
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
-                permissions, "group1", mock(TimeStampBasedCounter.class), new FileConfigOrigin());
+                permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin());
 
         assertTrue(pipeline.canBeOperatedBy("operator1"));
         assertFalse(pipeline.canBeOperatedBy("viewer1"));
@@ -77,7 +75,7 @@ public class GoDashboardPipelineTest {
                 NoOne.INSTANCE);
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
-                permissions, "group1", mock(TimeStampBasedCounter.class), new FileConfigOrigin());
+                permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin());
 
         assertTrue(pipeline.canBeAdministeredBy("admin1"));
         assertFalse(pipeline.canBeAdministeredBy("viewer1"));
@@ -92,7 +90,7 @@ public class GoDashboardPipelineTest {
                 new AllowedUsers(s("pipeline_operator"), Collections.emptySet()));
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
-                permissions, "group1", mock(TimeStampBasedCounter.class), new FileConfigOrigin());
+                permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin());
 
         assertTrue(pipeline.isPipelineOperator("pipeline_operator"));
         assertFalse(pipeline.canBeAdministeredBy("viewer1"));
@@ -102,7 +100,7 @@ public class GoDashboardPipelineTest {
     public void shouldSetTheLastUpdateTime() throws Exception {
         TimeStampBasedCounter provider = mock(TimeStampBasedCounter.class);
         when(provider.getNext()).thenReturn(1000L);
-        GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), null, "group1", provider, new FileConfigOrigin());
+        GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), null, "group1", null, provider, new FileConfigOrigin());
 
         assertThat(pipeline.getLastUpdatedTimeStamp(), is(1000L));
     }

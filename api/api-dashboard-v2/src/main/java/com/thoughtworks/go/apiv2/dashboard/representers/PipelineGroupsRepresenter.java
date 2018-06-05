@@ -27,6 +27,8 @@ public class PipelineGroupsRepresenter {
                 .addAbsoluteLink("doc", Routes.Dashboard.DOC))
             .addChild("_embedded", childWriter -> {
                 childWriter
+                    .add("can_administer_environments", dashboardFor.isSuperAdmin())
+
                     .addChildList("pipeline_groups", listWriter -> {
                         dashboardFor.getPipelineGroups().forEach(pipelineGroup -> {
                             listWriter.addChild(childItemWriter -> {

@@ -38,7 +38,7 @@ import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pip
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -51,9 +51,13 @@ public class GoDashboardServiceTest {
     @Mock
     private GoConfigService goConfigService;
     @Mock
+    private SecurityService securityService;
+    @Mock
     private FeatureToggleService featureToggleService;
     @Mock
     private GoDashboardPipelines pipelines;
+    @Mock
+    private EnvironmentsConfig environmentsConfig;
 
     private GoDashboardService service;
 
@@ -65,10 +69,20 @@ public class GoDashboardServiceTest {
         initMocks(this);
 
         configMother = new GoConfigMother();
-        config = configMother.defaultCruiseConfig();
+        config = GoConfigMother.defaultCruiseConfig();
         Toggles.initializeWith(featureToggleService);
         when(cache.allEntries()).thenReturn(this.pipelines);
-        service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
+        when(goConfigService.getEnvironments()).thenReturn(environmentsConfig);
+        service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService, securityService);
+    }
+
+    @Test
+    public void shouldDetectAdminUsersViaSecurityService() throws Exception {
+        when(securityService.isUserAdmin(new Username("admin"))).thenReturn(true);
+        assertTrue(service.isSuperAdmin(new Username("admin")));
+
+        when(securityService.isUserAdmin(new Username("user"))).thenReturn(false);
+        assertFalse(service.isSuperAdmin(new Username("user")));
     }
 
     @Test
@@ -78,7 +92,8 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
         when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
-        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
+        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig, null)).thenReturn(pipeline);
+        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(pipelineConfig);
 
         service.updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
 
@@ -92,7 +107,7 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
         when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
-        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
+        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig, null)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(pipelineConfig);
 

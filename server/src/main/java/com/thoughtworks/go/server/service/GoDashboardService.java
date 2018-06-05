@@ -16,15 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,12 +33,14 @@ public class GoDashboardService {
     private final GoDashboardCache cache;
     private final GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
     private final GoConfigService goConfigService;
+    private SecurityService securityService;
 
     @Autowired
-    public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService) {
+    public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService, SecurityService securityService) {
         this.cache = cache;
         this.dashboardCurrentStateLoader = dashboardCurrentStateLoader;
         this.goConfigService = goConfigService;
+        this.securityService = securityService;
     }
 
     public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username user) {
@@ -60,14 +58,13 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
-        PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-        PipelineConfig pipelineConfig = group.findBy(pipelineName);
-
-        updateCache(group, pipelineConfig);
+        updateCacheForPipeline(goConfigService.pipelineConfigNamed(pipelineName));
     }
 
     public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
-        updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
+        final EnvironmentConfig env = goConfigService.getEnvironments().findEnvironmentForPipeline(pipelineConfig.name());
+        final PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineConfig.name());
+        updateCache(group, pipelineConfig, env);
     }
 
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
@@ -76,6 +73,10 @@ public class GoDashboardService {
 
     public boolean hasEverLoadedCurrentState() {
         return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
+    }
+
+    public boolean isSuperAdmin(Username username) {
+        return securityService.isUserAdmin(username);
     }
 
     private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user, GoDashboardPipelines allPipelines) {
@@ -102,13 +103,13 @@ public class GoDashboardService {
         return null;
     }
 
-    private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {
+    private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig, EnvironmentConfig env) {
         if (group == null) {
             cache.remove(pipelineConfig.name());
             dashboardCurrentStateLoader.clearEntryFor(pipelineConfig.name());
             return;
         }
 
-        cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group));
+        cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group, env));
     }
 }

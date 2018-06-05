@@ -59,6 +59,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardCurrentStateLoaderTest {
+    private static final String COUNTER = "121212";
     @Mock
     private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
@@ -73,11 +74,8 @@ public class GoDashboardCurrentStateLoaderTest {
     private SchedulingCheckerService schedulingCheckerService;
     @Mock
     private GoConfigPipelinePermissionsAuthority permissionsAuthority;
-
     private GoConfigMother goConfigMother;
     private CruiseConfig config;
-    private static final String COUNTER = "121212";
-
     private GoDashboardCurrentStateLoader loader;
 
     @Before
@@ -340,7 +338,7 @@ public class GoDashboardCurrentStateLoaderTest {
         when(pipelineSqlMapDao.loadHistoryForDashboard(Arrays.asList(pipelineNameStr))).thenReturn(pipelineInstanceModels);
         when(permissionsAuthority.permissionsForPipeline(pipelineName)).thenReturn(permissions);
 
-        GoDashboardPipeline pipeline = loader.pipelineFor(p1Config, config.findGroup("group1"));
+        GoDashboardPipeline pipeline = loader.pipelineFor(p1Config, config.findGroup("group1"), null);
 
         assertThat(pipeline.name(), is(pipelineName));
         assertThat(pipeline.permissions(), is(permissions));
@@ -378,7 +376,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineInstanceModel pimForP1 = pim(p1Config);
         when(pipelineSqlMapDao.loadHistoryForDashboard(Arrays.asList(p1Config.getName().toString()))).thenReturn(createPipelineInstanceModels(pimForP1));
 
-        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
+        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"), null);
 
         assertThat(model.getTrackingTool(), is(Optional.of(trackingTool)));
     }
@@ -397,6 +395,19 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
+    public void shouldAddEnvironmentWhenLoadingAPipeline() {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        PipelineInstanceModel pimForP1 = pim(p1Config);
+        when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
+
+        final EnvironmentConfig env = mock(EnvironmentConfig.class);
+        when(env.name()).thenReturn(new CaseInsensitiveString("env1"));
+        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"), env);
+
+        assertThat(model.environmentName(), is("env1"));
+    }
+
+    @Test
     public void shouldAddMingleConfigInfoWhenLoadingAPipeline() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         MingleConfig mingleConfig = new MingleConfig("http://example.com/", "go-project");
@@ -404,7 +415,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineInstanceModel pimForP1 = pim(p1Config);
         when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
 
-        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
+        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"), null);
 
         assertThat(model.getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
     }
@@ -452,7 +463,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldHandlePipelineDeletion(){
+    public void shouldHandlePipelineDeletion() {
         PipelineConfig pipeline1 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig pipeline2 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
         PipelineConfig pipeline3 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline3", "stage1", "job1");

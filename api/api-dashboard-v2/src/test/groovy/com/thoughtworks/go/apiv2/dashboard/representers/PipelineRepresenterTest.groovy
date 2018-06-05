@@ -46,7 +46,7 @@ class PipelineRepresenterTest {
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
-      permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin())
+      permissions, "grp", "env", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin())
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -68,6 +68,7 @@ class PipelineRepresenterTest {
         ]
       ],
       name                  : 'pipeline_name',
+      environment           : 'env',
       locked                : false,
       last_updated_timestamp: 1,
       pause_info            : [
@@ -92,12 +93,33 @@ class PipelineRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
-    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", counter, null)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", null, counter, null)
 
-    def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex()))) })
+    def json = toObject({
+      PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex())))
+    })
 
     assertThatJson(json).node("from_config_repo").isEqualTo(false)
   }
+
+  @Test
+  void 'should include environment name'() {
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+    def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", "env", counter, origin)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
+
+    actualJson.remove("_links")
+    actualJson.remove("_embedded")
+    def expectedJson = pipelines_hash()
+    expectedJson.environment = "env"
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
 
   @Nested
   class Authorization {
@@ -108,7 +130,7 @@ class PipelineRepresenterTest {
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
       def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -126,7 +148,7 @@ class PipelineRepresenterTest {
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE)
       def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -144,7 +166,7 @@ class PipelineRepresenterTest {
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
       def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
-      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, origin)
+      def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
@@ -161,6 +183,7 @@ class PipelineRepresenterTest {
   private static def pipelines_hash() {
     return [
       name                  : 'pipeline_name',
+      environment           : null,
       locked                : false,
       last_updated_timestamp: 1,
       pause_info            : [

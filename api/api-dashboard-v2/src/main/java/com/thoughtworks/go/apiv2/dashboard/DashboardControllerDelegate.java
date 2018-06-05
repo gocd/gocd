@@ -91,6 +91,10 @@ public class DashboardControllerDelegate extends ApiController {
 
         setEtagHeader(response, etag);
 
-        return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName)));
+        return writerForTopLevelObject(request, response, outputWriter -> {
+            final boolean superAdmin = goDashboardService.isSuperAdmin(userName);
+            final DashboardFor dashboardFor = new DashboardFor(pipelineGroups, userName, superAdmin);
+            PipelineGroupsRepresenter.toJSON(outputWriter, dashboardFor);
+        });
     }
 }

@@ -37,6 +37,7 @@ public class PipelineRepresenter {
         jsonOutputWriter
             .addLinks(linksWriter -> addLinks(linksWriter, model))
             .add("name", model.name().toString())
+            .add("environment", model.environmentName())
             .add("last_updated_timestamp", model.getLastUpdatedTimeStamp())
             .add("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked())
             .addChild("pause_info", getPauseInfoNEW(model))

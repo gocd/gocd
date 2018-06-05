@@ -47,7 +47,7 @@ class PipelineGroupsRepresenterTest {
     pipeline_group2.addPipeline(pipeline3_in_group2)
 
     def actualJson = toObject({
-      PipelineGroupsRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], user))
+      PipelineGroupsRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], user, false))
     })
 
     assertThatJson(actualJson._links).isEqualTo([

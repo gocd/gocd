@@ -100,12 +100,15 @@ public class GoDashboardCurrentStateLoader {
 
         final List<GoDashboardPipeline> pipelines = new ArrayList<>(1024);
 
+        final EnvironmentsConfig envs = config.getEnvironments();
+
         LOGGER.debug("Populating dashboard pipelines");
         config.accept((PipelineGroupVisitor) group -> group.accept(pipelineConfig -> {
             long start = System.currentTimeMillis();
             Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
 
-            pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
+            final EnvironmentConfig env = envs.findEnvironmentForPipeline(pipelineConfig.name());
+            pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group, env));
 
             LOGGER.debug("It took {}ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
         }));
@@ -127,12 +130,12 @@ public class GoDashboardCurrentStateLoader {
         }
     }
 
-    public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig) {
+    public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig, EnvironmentConfig envConfig) {
         List<String> pipelineNames = CaseInsensitiveString.toStringList(Collections.singletonList(pipelineConfig.getName()));
         PipelineInstanceModels pipelineHistoryForDashboard = loadHistoryForPipelines(pipelineNames);
         syncHistoryForDashboard(pipelineHistoryForDashboard, pipelineConfig.name());
         Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
-        return createGoDashboardPipeline(pipelineConfig, permissions, pipelineHistoryForDashboard, groupConfig);
+        return createGoDashboardPipeline(pipelineConfig, permissions, pipelineHistoryForDashboard, groupConfig, envConfig);
     }
 
     private void syncHistoryForDashboard(PipelineInstanceModels pipelineHistoryForDashboard, final CaseInsensitiveString pipelineName) {
@@ -141,10 +144,11 @@ public class GoDashboardCurrentStateLoader {
         lastKnownPipelineNames.add(pipelineName);
     }
 
-    private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group) {
+    private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group, EnvironmentConfig env) {
         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, historyForDashboard);
         Optional<TrackingTool> trackingTool = pipelineConfig.getIntegratedTrackingTool();
-        return new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), trackingTool.orElse(null), timeStampBasedCounter, pipelineConfig.getOrigin());
+        final String environmentName = null == env ? null : env.name().toString();
+        return new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), environmentName, trackingTool.orElse(null), timeStampBasedCounter, pipelineConfig.getOrigin());
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels historyForDashboard) {

@@ -24,10 +24,12 @@ import java.util.List;
 public class DashboardFor {
     private final List<GoDashboardPipelineGroup> pipelineGroups;
     private final Username username;
+    private final boolean superAdmin;
 
-    public DashboardFor(List<GoDashboardPipelineGroup> pipelineGroups, Username username) {
+    public DashboardFor(List<GoDashboardPipelineGroup> pipelineGroups, Username username, boolean superAdmin) {
         this.pipelineGroups = pipelineGroups;
         this.username = username;
+        this.superAdmin = superAdmin;
     }
 
     public List<GoDashboardPipelineGroup> getPipelineGroups() {
@@ -36,5 +38,9 @@ public class DashboardFor {
 
     public Username getUsername() {
         return username;
+    }
+
+    public boolean isSuperAdmin() {
+        return superAdmin;
     }
 }

@@ -29,25 +29,31 @@ public class GoDashboardPipeline {
     private final PipelineModel pipelineModel;
     private final Permissions permissions;
     private final String groupName;
+    private final String environmentName;
     private final TrackingTool trackingTool;
     private final long lastUpdatedTimeStamp;
     private ConfigOrigin origin;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, String environmentName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
+        this.environmentName = environmentName;
         this.trackingTool = trackingTool;
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
         this.origin = origin;
     }
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter, ConfigOrigin origin) {
-        this(pipelineModel, permissions, groupName, null, timeStampBasedCounter, origin);
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, String environmentName, Counter timeStampBasedCounter, ConfigOrigin origin) {
+        this(pipelineModel, permissions, groupName, environmentName, null, timeStampBasedCounter, origin);
     }
 
     public String groupName() {
         return groupName;
+    }
+
+    public String environmentName() {
+        return environmentName;
     }
 
     public PipelineModel model() {
@@ -102,6 +108,8 @@ public class GoDashboardPipeline {
         if (pipelineModel != null ? !pipelineModel.equals(that.pipelineModel) : that.pipelineModel != null)
             return false;
         if (permissions != null ? !permissions.equals(that.permissions) : that.permissions != null) return false;
+        if (environmentName != null ? !environmentName.equals(that.environmentName) : that.environmentName != null)
+            return false;
         return groupName != null ? groupName.equals(that.groupName) : that.groupName == null;
     }
 
@@ -109,6 +117,7 @@ public class GoDashboardPipeline {
     public int hashCode() {
         int result = pipelineModel != null ? pipelineModel.hashCode() : 0;
         result = 31 * result + (permissions != null ? permissions.hashCode() : 0);
+        result = 31 * result + (environmentName != null ? environmentName.hashCode() : 0);
         result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
         result = 31 * result + (int) (lastUpdatedTimeStamp ^ (lastUpdatedTimeStamp >>> 32));
         return result;

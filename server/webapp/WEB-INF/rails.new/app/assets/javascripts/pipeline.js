@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,11 +284,9 @@ var PipelinePage = Class.create({
         }
     },
     switchToPage: function(pipelineName, stageName, pageNumber) {
-        var start = (pageNumber - 1) * paginator.perPage;
-        var url = contextPath + "/stageHistory.json?pipelineName="
-                + pipelineName + "&stageName=" + stageName + "&start=" + start;
-        dashboard_periodical_executor.setUrl(url);
-        dashboard_periodical_executor.fireNow();
+      var start = (pageNumber - 1) * paginator.perPage;
+      dashboard_periodical_executor.setUrl("/stageHistory.json?pipelineName=" + pipelineName + "&stageName=" + stageName + "&start=" + start);
+      dashboard_periodical_executor.fireNow();
     },
     fixIEZIndexBugs: function(zindex_seed) {
         if (zindex_seed) {

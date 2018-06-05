@@ -89,11 +89,11 @@ describe("pipeline_history", function () {
     });
 
     it("testShouldSwitchToPage", function () {
-      var pipelinesWithoutAnyBuildingStage = getPipelines()
-      var pipeline1Json = pipelinesWithoutAnyBuildingStage[0]
-      assertEquals(dashboard_periodical_executor.url, "/pipelineHistory.json?pipelineName=up42");
-      page.switchToPage(pipeline1Json.pipelineId, "1");
-      assertEquals(dashboard_periodical_executor.url, "//pipelineHistory.json?pipelineName=11&start=0");
+      assertEquals(dashboard_periodical_executor.url, "pipelineHistory.json?pipelineName=up42");
+      page.switchToPage("up42", "1");
+      assertEquals(dashboard_periodical_executor.url, "/pipelineHistory.json?pipelineName=up42&start=0");
+      page.switchToPage("up42", "2");
+      assertEquals(dashboard_periodical_executor.url, "/pipelineHistory.json?pipelineName=up42&start=10");
     });
 
     function getPipelines() {

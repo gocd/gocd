@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.Handler;
@@ -36,25 +35,21 @@ class GoServerWelcomeFileHandlerTest {
 
     private MockHttpServletResponse response;
     private SystemEnvironment systemEnvironment;
-    private MockHttpServletRequest request;
     private Handler welcomeFileHandler;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         response = new MockHttpServletResponse();
         systemEnvironment = mock(SystemEnvironment.class);
         welcomeFileHandler = new GoServerWelcomeFileHandler(systemEnvironment).getHandler();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/", "/go", "/go/"})
+    @ValueSource(strings = {"/", "/go", "/go/", "/GO"})
     void shouldRedirectToLandingPage(String pathInfo) throws Exception {
-        request = new MockHttpServletRequest();
-        request.setPathInfo(pathInfo);
-
         when(systemEnvironment.landingPage()).thenReturn("/foobar");
 
-        welcomeFileHandler.handle("foo", null, request, response);
+        welcomeFileHandler.handle(pathInfo, null, null, response);
 
         assertThat(response).redirectsTo("/go/foobar");
     }
@@ -62,24 +57,18 @@ class GoServerWelcomeFileHandlerTest {
     @ParameterizedTest
     @ValueSource(strings = {"/foo", "/go/foo", "/foo/bar"})
     void shouldNotRedirectToLandingPage(String pathInfo) throws Exception {
-        request = new MockHttpServletRequest();
-        request.setPathInfo(pathInfo);
-
         when(systemEnvironment.landingPage()).thenReturn("/foobar");
 
-        welcomeFileHandler.handle("foo", null, request, response);
+        welcomeFileHandler.handle(pathInfo, null, null, response);
 
         assertThat(response).isOk();
     }
 
     @Test
     void shouldAddLocationHeaderWhenContextIsNotGo() throws IOException, ServletException {
-        request = new MockHttpServletRequest();
-        request.setPathInfo("/");
-
         when(systemEnvironment.landingPage()).thenReturn("/foobar");
 
-        welcomeFileHandler.handle("foo", null, request, response);
+        welcomeFileHandler.handle("/", null, null, response);
 
         assertThat(response).redirectsTo("/go/foobar");
     }

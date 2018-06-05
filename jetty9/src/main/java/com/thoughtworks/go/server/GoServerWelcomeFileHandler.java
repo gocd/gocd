@@ -38,13 +38,13 @@ class GoServerWelcomeFileHandler extends ContextHandler {
 
     private class Handler extends AbstractHandler {
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-            if (request.getPathInfo().equals("/") || request.getPathInfo().equals("/go") || request.getPathInfo().equals("/go/")) {
+            final String pathInfo = target.toLowerCase();
+            if (pathInfo.equals("/") || pathInfo.equals("/go") || pathInfo.equals("/go/")) {
                 response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
                 return;
             }
 
-            if ("/go".equals(request.getPathInfo()) || request.getPathInfo().startsWith("/go/")) {
+            if ("/go".equals(pathInfo) || pathInfo.startsWith("/go/")) {
                 return;
             }
 

@@ -190,9 +190,8 @@ public class Jetty9ServerTest {
         when(response.getWriter()).thenReturn(mock(PrintWriter.class));
 
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/");
 
-        rootPathHandler.handle("/", mock(Request.class), request, response);
+        rootPathHandler.handle("/foo", mock(Request.class), request, response);
 
         verify(response).setHeader("X-XSS-Protection", "1; mode=block");
         verify(response).setHeader("X-Content-Type-Options", "nosniff");

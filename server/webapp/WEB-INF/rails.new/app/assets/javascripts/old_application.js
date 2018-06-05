@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,12 @@ Object.extend(Ajax.Request.prototype, Ajax.RequestOverriden);
 Object.extend(Ajax.Updater.prototype, Ajax.RequestOverriden);
 
 function context_path(path_info) {
-    return contextPath + "/" + path_info
-};
+  if (path_info && path_info.startsWith(contextPath)) {
+    return path_info;
+  }
+  const pathSeparator = (contextPath.endsWith("/") || path_info.startsWith("/") ? "" : "/");
+  return contextPath + pathSeparator + path_info;
+}
 
 /* Only one popup is available in same time */
 var ExclusivePopup = new (Class.create({

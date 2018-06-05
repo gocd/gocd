@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Material;
@@ -116,6 +117,15 @@ public class BuildCause implements Serializable {
         }
         return true;
     }
+
+    public boolean hasDependencyMaterials() {
+        return this.getMaterialRevisions().hasDependencyMaterials();
+    }
+
+    public List<DependencyMaterial> getDependencyMaterials() {
+       return this.getMaterialRevisions().getDependencyMaterials();
+    }
+
     public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig){
         if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
         {
@@ -151,7 +161,7 @@ public class BuildCause implements Serializable {
             return;
         }
         // then config and code revision must both match
-        if(this.trigger.isForced())
+        if(this.trigger.isForced() || this.hasDependencyMaterials())
         {
             // we should not check when manual trigger because of re-runs
             // and possibility to specify revisions to run with

@@ -367,6 +367,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return this.origin instanceof RepoConfigOrigin;
     }
 
+    public boolean hasSameConfigOrigin(PipelineConfig other) {
+        if (!(isConfigDefinedRemotely()))
+            return false;
+
+        return this.origin.equals(other.getOrigin());
+    }
+
     public boolean isConfigOriginFromRevision(String revision) {
         if (!(isConfigDefinedRemotely()))
             return false;

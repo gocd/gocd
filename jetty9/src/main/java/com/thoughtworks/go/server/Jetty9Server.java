@@ -19,13 +19,13 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -41,12 +41,11 @@ import org.xml.sax.SAXException;
 
 import javax.management.MBeanServer;
 import javax.net.ssl.SSLSocketFactory;
-import javax.servlet.ServletException;
 import javax.servlet.SessionCookieConfig;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -165,7 +164,7 @@ public class Jetty9Server extends AppServer {
     }
 
     ContextHandler welcomeFileHandler() {
-        return new GoServerWelcomeFileHandler();
+        return new GoServerWelcomeFileHandler(systemEnvironment);
     }
 
     private Connector plainConnector() {
@@ -174,36 +173,6 @@ public class Jetty9Server extends AppServer {
 
     private Connector sslConnector() {
         return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
-    }
-
-    class GoServerWelcomeFileHandler extends ContextHandler {
-        public GoServerWelcomeFileHandler() {
-            setContextPath("/");
-            setHandler(new Handler());
-        }
-
-        private class Handler extends AbstractHandler {
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-                if ("/go".equals(request.getPathInfo()) || request.getPathInfo().startsWith("/go/")) {
-                    return;
-                }
-
-                response.setHeader("X-XSS-Protection", "1; mode=block");
-                response.setHeader("X-Content-Type-Options", "nosniff");
-                response.setHeader("X-Frame-Options", "SAMEORIGIN");
-                response.setHeader("X-UA-Compatible", "chrome=1");
-
-                if ("/".equals(target)) {
-                    response.setHeader("Location", GoConstants.GO_URL_CONTEXT + "/home");
-                    response.setStatus(301);
-                    response.setHeader("Content-Type", "text/html");
-                    PrintWriter writer = response.getWriter();
-                    writer.write("redirecting..");
-                    writer.close();
-                }
-            }
-        }
     }
 
 

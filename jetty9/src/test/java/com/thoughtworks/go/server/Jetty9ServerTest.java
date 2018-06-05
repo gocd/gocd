@@ -170,9 +170,9 @@ public class Jetty9ServerTest {
         HandlerCollection handlerCollection = captor.getValue();
         assertThat(handlerCollection.getHandlers().length, is(3));
         Handler handler = handlerCollection.getHandlers()[0];
-        assertThat(handler instanceof Jetty9Server.GoServerWelcomeFileHandler, is(true));
+        assertThat(handler instanceof GoServerWelcomeFileHandler, is(true));
 
-        Jetty9Server.GoServerWelcomeFileHandler welcomeFileHandler = (Jetty9Server.GoServerWelcomeFileHandler) handler;
+        GoServerWelcomeFileHandler welcomeFileHandler = (GoServerWelcomeFileHandler) handler;
         assertThat(welcomeFileHandler.getContextPath(), is("/"));
     }
 
@@ -183,7 +183,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
+        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -207,7 +207,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
+        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -231,7 +231,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
+        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
         Handler rootPathHandler = handler.getHandler();
 
         HttpServletResponse response = mock(HttpServletResponse.class);

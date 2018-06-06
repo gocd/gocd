@@ -31,6 +31,9 @@ Go::Application.routes.draw do
     CONSTANTS = true
   end
 
+  # This is used to generate _url and _path in application_helper#url_for_path
+  get '/', to: redirect('/go/pipelines'), as: :root
+
   mount Oauth2Provider::Engine => '/oauth', :as => :oauth_engine
   
   get "about", controller: :about, action: :show, as: :about

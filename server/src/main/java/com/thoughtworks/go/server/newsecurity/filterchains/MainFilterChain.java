@@ -21,9 +21,11 @@ import com.thoughtworks.go.server.newsecurity.filters.ThreadLocalUserFilter;
 import com.thoughtworks.go.server.newsecurity.handlers.RequestRejectedExceptionHandler;
 import com.thoughtworks.go.server.web.FlashLoadingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -73,7 +75,9 @@ public class MainFilterChain extends FilterChainProxy {
         try {
             super.doFilter(request, response, chain);
         } catch (RequestRejectedException e) {
-            REQUEST_REJECTED_EXCEPTION_HANDLER.handle(request, response, e.getMessage());
+            REQUEST_REJECTED_EXCEPTION_HANDLER.handle(request, response, e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (HttpRequestMethodNotSupportedException e) {
+            REQUEST_REJECTED_EXCEPTION_HANDLER.handle(request, response, e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
         }
     }
 }

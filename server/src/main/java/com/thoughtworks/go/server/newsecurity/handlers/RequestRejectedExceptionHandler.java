@@ -36,7 +36,7 @@ public class RequestRejectedExceptionHandler {
             new AntPathRequestMatcher("/cctray.xml")
     );
 
-    public void handle(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, String message, HttpStatus httpStatus) throws IOException {
         if (API_REQUEST_MATCHER.matches(request)) {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             final ContentTypeAwareResponse contentTypeAwareResponse = CONTENT_TYPE_NEGOTIATION_MESSAGE_HANDLER.getResponse(request);
@@ -44,7 +44,7 @@ public class RequestRejectedExceptionHandler {
             response.setContentType(contentTypeAwareResponse.getContentType().toString());
             response.getOutputStream().print(contentTypeAwareResponse.getFormattedMessage(message));
         } else {
-            response.sendError(HttpStatus.BAD_REQUEST.value(), message);
+            response.sendError(httpStatus.value(), message);
         }
     }
 }

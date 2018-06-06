@@ -22,6 +22,7 @@ import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 
@@ -37,7 +38,7 @@ class RequestRejectedExceptionHandlerTest {
                 .build();
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new RequestRejectedExceptionHandler().handle(request, response, "Something went wrong");
+        new RequestRejectedExceptionHandler().handle(request, response, "Something went wrong", HttpStatus.BAD_REQUEST);
 
         assertThat(response)
                 .isBadRequest()
@@ -53,7 +54,7 @@ class RequestRejectedExceptionHandlerTest {
                 .build();
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new RequestRejectedExceptionHandler().handle(request, response, "Something went wrong");
+        new RequestRejectedExceptionHandler().handle(request, response, "Something went wrong", HttpStatus.BAD_REQUEST);
 
         assertThat(response)
                 .isBadRequest()

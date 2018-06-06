@@ -43,7 +43,7 @@ const PipelineWidget = {
     }
 
     return (
-      <li class="pipeline-group_pipeline">
+      <li class="dashboard-group_pipeline">
         <div class="pipeline">
           <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
                                 doCancelPolling={vnode.attrs.doCancelPolling}

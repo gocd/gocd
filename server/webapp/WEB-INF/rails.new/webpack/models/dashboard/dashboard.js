@@ -23,6 +23,12 @@ const Routes     = require('gen/js-routes');
 const PipelineGroups = require('models/dashboard/pipeline_groups');
 const Pipelines      = require('models/dashboard/pipelines');
 
+function addMulti(hash, key, obj) {
+  const current = _.get(hash, key, []);
+  current.push(obj);
+  _.set(hash, key, current);
+}
+
 const Dashboard = function () {
   const self               = this;
   let pipelineGroups       = PipelineGroups.fromJSON([]), pipelines = Pipelines.fromJSON([]);
@@ -32,12 +38,21 @@ const Dashboard = function () {
   this.message           = Stream();
   this.getPipelineGroups = () => filteredGroups.groups;
   this.getPipelines      = () => pipelines.pipelines;
+
+  this.getPipelinesByEnvironment = () => _.reduce(pipelines.pipelines, (memo, pip) => {
+    addMulti(memo, pip.environment || "*", pip);
+    return memo;
+  }, {});
+
+  this.environmentsAdmin = Stream();
   this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json) => {
     const newPipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
     const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
+
+    this.environmentsAdmin(_.get(json, '_embedded.can_administer_environments', false));
 
     //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
     pipelineGroups = newPipelineGroups;

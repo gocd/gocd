@@ -25,6 +25,13 @@ const VM = () => {
   let dropdownPipelineName, dropdownPipelineCounter;
 
   const viewModel = {
+    groupByEnvironment: {
+      visible() {
+        return /[?&]ui=test(?:&.+)?$/.test(window.location.search);
+      },
+      enabled: Stream(false)
+    },
+
     personalizeView: {
       hide: () => {
         personalizeViewState(false);

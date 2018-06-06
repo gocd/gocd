@@ -27,6 +27,7 @@ const Pipeline = function (info) {
   const self = this;
   this.name  = info.name;
 
+  this.environment   = info.environment;
   this.canAdminister = info.can_administer;
   this.settingsPath  = Routes.pipelineEditPath('pipelines', info.name, 'general');
   this.quickEditPath = Routes.editAdminPipelineConfigPath(info.name);

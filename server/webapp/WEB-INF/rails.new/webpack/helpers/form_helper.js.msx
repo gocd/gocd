@@ -75,6 +75,8 @@ function wrapTextInSpan(thing) {
 function wireUpModel(attrs, property = "value", listener = "onchange") {
   const model = deleteKeyAndReturnValue(attrs, "model");
 
+  listener = deleteKeyAndReturnValue(attrs, "listener", listener);
+
   if (model) {
     let attrName;
     attrs["data-model-type"] = deleteKeyAndReturnValue(attrs, "modelType", (model.constructor ? model.constructor.modelType : null));

@@ -588,11 +588,11 @@ body {
   background:  #efefef;
 }
 
-.pipeline-group {
+.dashboard-group {
   margin-bottom: 50px;
 }
 
-.pipeline-group_title {
+.dashboard-group_title {
   padding:       0;
   position:      relative;
   border-bottom: 1px solid $border-color;
@@ -613,11 +613,11 @@ body {
   }
 }
 
-.pipeline-group_edit-config {
+.dashboard-group_edit-config {
   margin-left: 10px;
 }
 
-.pipeline-group_items {
+.dashboard-group_items {
   display:         flex;
   flex-wrap:       wrap;
   list-style-type: none;
@@ -625,7 +625,7 @@ body {
   padding:         0;
 }
 
-.pipeline-group_pipeline {
+.dashboard-group_pipeline {
   width:         267px;
   padding:       0 0 5px 0;
   border:        1px solid #ddd;

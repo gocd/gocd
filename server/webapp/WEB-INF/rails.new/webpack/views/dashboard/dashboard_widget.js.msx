@@ -24,6 +24,7 @@ const PipelineWidget      = require('views/dashboard/pipeline_widget');
 const PersonalizeWidget   = require('views/dashboard/personalize_widget');
 const PipelineSelectionVM = require('views/dashboard/models/pipeline_selection_view_model');
 const PipelineSelection   = require('models/dashboard/pipeline_selection');
+const Routes              = require('gen/js-routes');
 
 const DashboardWidget = {
   oninit(vnode) {
@@ -92,6 +93,99 @@ const DashboardWidget = {
                                             vm={vnode.state.pipelineSelectionVM}/>);
     }
 
+    let groupByEnvironment;
+
+    if (vm.groupByEnvironment.visible()) {
+      groupByEnvironment = <f.checkbox model={vm.groupByEnvironment} attrName="enabled" listener="onclick" label="Group by Environment?" />;
+    }
+
+    function renderEnvironments(pipelinesByEnvironment) {
+      const envs = Object.keys(pipelinesByEnvironment).sort();
+
+      if (envs.indexOf("*") > -1) {
+        envs.splice(envs.indexOf("*"), 1);
+        envs.push("*");
+      }
+
+      return _.map(envs, (env) => {
+        let name, settingsIcon;
+
+        if ("*" === env) {
+          name = "(no environment)";
+        } else if (args.dashboard.environmentsAdmin()) {
+          name         = <a href={Routes.environmentShowPath(env)}>{env}</a>;
+          settingsIcon = <a href={Routes.environmentShowPath(env)} class="edit_config dashboard-group_edit-config"/>;
+        } else {
+          name         = env;
+          settingsIcon = <f.link class="edit_config dashboard-group_edit-config disabled"
+                                 tooltipText="You do not have permission to edit this environment."/>;
+        }
+
+        return (
+          <div class="dashboard-group" key={name}>
+            <h2 class="dashboard-group_title">
+              <span>environment</span>
+              <strong>{name}</strong>
+              {settingsIcon}
+            </h2>
+            <ul class="dashboard-group_items">
+              {_.map(pipelinesByEnvironment[env], (pipeline) => {
+                return (
+                  <PipelineWidget pipeline={pipeline}
+                                  doCancelPolling={args.doCancelPolling}
+                                  doRefreshImmediately={args.doRefreshImmediately}
+                                  isQuickEditPageEnabled={args.isQuickEditPageEnabled}
+                                  pluginsSupportingAnalytics={args.pluginsSupportingAnalytics}
+                                  shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
+                                  key={pipeline.name}
+                                  vm={vm}/>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      });
+    }
+
+    const pipelines = vm.groupByEnvironment.enabled() ?
+      renderEnvironments(args.dashboard.getPipelinesByEnvironment()) :
+      _.map(args.dashboard.getPipelineGroups(), (pipelineGroup) => {
+        let name, settingsIcon;
+
+        if (pipelineGroup.canAdminister) {
+          name         = (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>);
+          settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config dashboard-group_edit-config"/>);
+        } else {
+          name         = pipelineGroup.name;
+          settingsIcon = (<f.link class="edit_config dashboard-group_edit-config disabled"
+                                             tooltipText={noPermissionText}/>);
+        }
+
+        return (
+          <div class="dashboard-group" key={pipelineGroup.name}>
+            <h2 class="dashboard-group_title">
+              <span>pipeline group</span>
+              <strong>{name}</strong>
+              {settingsIcon}
+            </h2>
+            <ul class="dashboard-group_items">
+              {_.map(pipelineGroup.pipelines, (pipelineName) => {
+                return (
+                  <PipelineWidget pipeline={args.dashboard.findPipeline(pipelineName)}
+                                  doCancelPolling={args.doCancelPolling}
+                                  doRefreshImmediately={args.doRefreshImmediately}
+                                  isQuickEditPageEnabled={args.isQuickEditPageEnabled}
+                                  pluginsSupportingAnalytics={args.pluginsSupportingAnalytics}
+                                  shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
+                                  key={pipelineName}
+                                  vm={vm}/>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      });
+
     return (
       <div class="pipeline_wrapper">
         <div class="page_header" key="page-header">
@@ -108,45 +202,11 @@ const DashboardWidget = {
             </button>
           </div>
           {personalizeView}
+          {groupByEnvironment}
         </div>
         <div class="dashboard" key="dashboard-content">
           {messageView}
-          {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
-            let name, settingsIcon;
-
-            if (pipelineGroup.canAdminister) {
-              name         = (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>);
-              settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>);
-            } else {
-              name         = pipelineGroup.name;
-              settingsIcon = (<f.link class="edit_config pipeline-group_edit-config disabled"
-                                                 tooltipText={noPermissionText}/>);
-            }
-
-            return (
-              <div class="pipeline-group" key={pipelineGroup.name}>
-                <h2 class="pipeline-group_title">
-                  <span>pipeline group</span>
-                  <strong>{name}</strong>
-                  {settingsIcon}
-                </h2>
-                <ul class="pipeline-group_items">
-                  {_.map(pipelineGroup.pipelines, (pipelineName) => {
-                    return (
-                      <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
-                                      doCancelPolling={vnode.attrs.doCancelPolling}
-                                      doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-                                      isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
-                                      pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
-                                      shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
-                                      key={pipelineName}
-                                      vm={vnode.attrs.vm}/>
-                    );
-                  })}
-                </ul>
-              </div>
-            );
-          })}
+          {pipelines}
         </div>
       </div>
     );

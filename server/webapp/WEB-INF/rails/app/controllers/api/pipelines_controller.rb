@@ -92,34 +92,6 @@ class Api::PipelinesController < Api::ApiController
     render content_type: 'application/atom+xml'
   end
 
-  def releaseLock
-    operation_result = HttpOperationResult.new
-    pipeline_unlock_api_service.unlock(params[:pipeline_name], current_user, operation_result)
-    render_operation_result(operation_result)
-  end
-
-  def schedule
-    pipeline_name = params[:pipeline_name]
-    revisions = merge_revisions(pipeline_name, params["materials"]||{}, params["original_fingerprint"]||{}, params['material_fingerprint']||{})
-    pipeline_scheduler.manualProduceBuildCauseAndSave(pipeline_name, @user, ScheduleOptions.new(revisions, params[:variables]||{}, params[:secure_variables]||{}), result = HttpOperationResult.new)
-    render_operation_result(result)
-  end
-
-  def pause
-    result = HttpLocalizedOperationResult.new
-    pipeline_name = params[:pipeline_name]
-    pause_cause = params[:pauseCause]
-    pipeline_pause_service.pause(pipeline_name, pause_cause, current_user, result)
-    render_localized_operation_result result
-  end
-
-  def unpause
-    result = HttpLocalizedOperationResult.new
-    pipeline_name = params[:pipeline_name]
-    pipeline_pause_service.unpause(pipeline_name, current_user, result)
-    render_localized_operation_result result
-  end
-
   private
   def merge_revisions(pipeline_name, new_revisions_using_name, original_fingerprint, new_revisions_with_fingerprint)
     new_revisions_using_name.delete_if { |key, value| value.blank? }.each do |material_name, revision|

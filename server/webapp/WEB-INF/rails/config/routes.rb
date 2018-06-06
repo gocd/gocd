@@ -375,14 +375,6 @@ Rails.application.routes.draw do
         post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
       end
 
-      # pipeline api's
-      constraints pipeline_name: PIPELINE_NAME_FORMAT do
-        post 'pipelines/:pipeline_name/releaseLock' => 'pipelines#releaseLock', constraints: HeaderConstraint.new, as: :api_pipeline_releaseLock
-        post 'pipelines/:pipeline_name/schedule' => 'pipelines#schedule', constraints: HeaderConstraint.new, as: :api_pipeline_schedule
-        post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: HeaderConstraint.new, as: :pause_pipeline
-        post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
-      end
-
       post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify, constraints: HeaderConstraint.new
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new

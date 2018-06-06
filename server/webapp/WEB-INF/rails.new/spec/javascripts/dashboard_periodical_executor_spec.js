@@ -127,9 +127,6 @@ describe("dashboard_periodical_executor", function(){
         assertTrue(invoked);
     });
 
-    it("", function(){
-    });
-
     it("test_should_show_500_error_and_reason_when_response_header_is_500", function(){
         var invoked = false;
         var msg1, msg2;

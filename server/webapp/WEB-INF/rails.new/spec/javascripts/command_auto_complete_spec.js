@@ -159,9 +159,6 @@ describe("command_auto_complete", function () {
         assertTrue("Author info should be hidden", jQuery(".under_test .snippet_details .author").is(':hidden'));
     });
 
-    it("", function () {
-    });
-
     it("testShouldDefaultAuthorNameIfOnlyAuthorInfoIsAvailable", function () {
         var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: "http://author.link", moreinfo: null};
         setupCommandSnippetData(fakeDataFromServer);

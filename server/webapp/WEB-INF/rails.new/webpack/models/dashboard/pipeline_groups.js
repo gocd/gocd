@@ -44,6 +44,7 @@ PipelineGroup.fromJSON = (json) => {
 const PipelineGroups = function (groups) {
   const self  = this;
   this.groups = groups;
+  this.allPipelines = _.reduce(groups, (memo, g) => memo.concat(g.pipelines), []);
 
   this.filterBy = (filterText) => {
     const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));

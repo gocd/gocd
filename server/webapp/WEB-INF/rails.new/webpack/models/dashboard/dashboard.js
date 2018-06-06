@@ -40,7 +40,7 @@ const Dashboard = function () {
   this.getPipelines      = () => pipelines.pipelines;
 
   this.getPipelinesByEnvironment = () => _.reduce(pipelines.pipelines, (memo, pip) => {
-    addMulti(memo, pip.environment || "*", pip);
+    if (filteredGroups.allPipelines.indexOf(pip.name) > -1) { addMulti(memo, pip.environment || "*", pip); }
     return memo;
   }, {});
 

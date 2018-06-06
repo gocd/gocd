@@ -2,7 +2,7 @@ function context_path(path_info) {
   if (path_info && path_info.startsWith(contextPath)) {
     return path_info;
   }
-  const pathSeparator = (contextPath.endsWith("/") || path_info.startsWith("/") ? "" : "/");
+  var pathSeparator = (contextPath.endsWith("/") || path_info.startsWith("/") ? "" : "/");
   return contextPath + pathSeparator + path_info;
 }
 

@@ -35,7 +35,7 @@ Go::Application.routes.draw do
   get '/', to: redirect('/go/pipelines'), as: :root
 
   mount Oauth2Provider::Engine => '/oauth', :as => :oauth_engine
-  
+
   get "about", controller: :about, action: :show, as: :about
 
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet
@@ -297,7 +297,6 @@ Go::Application.routes.draw do
   scope :api, as: :apiv3, format: false do
     api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
@@ -310,7 +309,6 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
 
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end

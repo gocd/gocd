@@ -44,7 +44,7 @@ class GoServerWelcomeFileHandler extends ContextHandler {
                 return;
             }
 
-            if ("/go".equals(pathInfo) || pathInfo.startsWith("/go/")) {
+            if (pathInfo.startsWith("/go/")) {
                 return;
             }
 

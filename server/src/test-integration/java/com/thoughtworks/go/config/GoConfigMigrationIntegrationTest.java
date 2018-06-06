@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -35,7 +36,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
@@ -100,8 +100,6 @@ public class GoConfigMigrationIntegrationTest {
     @Autowired
     private ConfigCache configCache;
     @Autowired
-    private ServerVersion serverVersion;
-    @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private GoConfigService goConfigService;
@@ -126,7 +124,7 @@ public class GoConfigMigrationIntegrationTest {
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
         serverHealthService.removeAllLogs();
-        currentGoServerVersion = serverVersion.version();
+        currentGoServerVersion = CurrentGoCDVersion.getInstance().formatted();
         loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         password = UUID.randomUUID().toString();
         encryptedPassword = new GoCipher().encrypt(password);
@@ -2365,8 +2363,8 @@ public class GoConfigMigrationIntegrationTest {
         }, configRepository, new TimeProvider(), configCache, registry
         );
         SystemEnvironment sysEnv = new SystemEnvironment();
-        FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, serverVersion, new TimeProvider(), configRepository, cachedGoPartials);
-        GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
+        FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, new TimeProvider(), configRepository, cachedGoPartials);
+        GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache,
                 registry, serverHealthService, cachedGoPartials, null, normalFlow);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);

@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.GoVersion;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
-import com.thoughtworks.go.server.util.ServerVersion;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,22 +28,19 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ServerVersionInfoBuilderTest {
-    private ServerVersion serverVersion;
     private VersionInfoDao versionInfoDao;
     private ServerVersionInfoBuilder builder;
 
     @Before
     public void setUp() {
-        serverVersion = mock(ServerVersion.class);
         versionInfoDao = mock(VersionInfoDao.class);
-        builder = new ServerVersionInfoBuilder(versionInfoDao, serverVersion);
+        builder = new ServerVersionInfoBuilder(versionInfoDao);
     }
 
     @Test
     public void shouldGetVersionInfoForGOServerIfExists(){
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
-        when(serverVersion.version()).thenReturn("1.2.3-1");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
@@ -55,7 +51,6 @@ public class ServerVersionInfoBuilderTest {
     @Test
     public void shouldCreateVersionInfoForGOServerIfDoesNotExist(){
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(null);
-        when(serverVersion.version()).thenReturn("1.2.3-1");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
@@ -68,7 +63,6 @@ public class ServerVersionInfoBuilderTest {
     public void shouldUpdateTheVersionInfoIfInstalledVersionHasChanged(){
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
-        when(serverVersion.version()).thenReturn("5.6.7-8");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
@@ -80,7 +74,6 @@ public class ServerVersionInfoBuilderTest {
     @Test
     public void shouldNotCreateAVersionInfoOnDevelopmentServer(){
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(null);
-        when(serverVersion.version()).thenReturn("N/A");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
@@ -92,7 +85,6 @@ public class ServerVersionInfoBuilderTest {
     public void shouldNotUpdateTheVersionInfoIfUnableToParseTheInstalledVersion(){
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
-        when(serverVersion.version()).thenReturn("N/A");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 

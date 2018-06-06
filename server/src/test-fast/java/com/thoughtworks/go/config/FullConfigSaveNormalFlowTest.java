@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.hamcrest.core.Is;
 import org.jdom2.Document;
@@ -48,7 +47,6 @@ public class FullConfigSaveNormalFlowTest {
     private CruiseConfig configForEdit;
     private Document document;
     private GoConfigFileWriter fileWriter;
-    private ServerVersion serverVersion;
     private TimeProvider timeProvider;
     private ConfigRepository configRepository;
     private CachedGoPartials cachedGoPartials;
@@ -62,14 +60,13 @@ public class FullConfigSaveNormalFlowTest {
         writer = mock(MagicalGoConfigXmlWriter.class);
         document = mock(Document.class);
         fileWriter = mock(GoConfigFileWriter.class);
-        serverVersion = mock(ServerVersion.class);
         timeProvider = mock(TimeProvider.class);
         configRepository = mock(ConfigRepository.class);
         cachedGoPartials = mock(CachedGoPartials.class);
         configElementImplementationRegistry = mock(ConfigElementImplementationRegistry.class);
         partials = new ArrayList<>();
 
-        flow = new FullConfigSaveNormalFlow(loader, writer, configElementImplementationRegistry, serverVersion, timeProvider,
+        flow = new FullConfigSaveNormalFlow(loader, writer, configElementImplementationRegistry, timeProvider,
                 configRepository, cachedGoPartials, fileWriter);
     }
 
@@ -128,7 +125,7 @@ public class FullConfigSaveNormalFlowTest {
         when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
         when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
-        when(serverVersion.version()).thenReturn("16.13.0");
+        when(CurrentGoCDVersion.getInstance().formatted()).thenReturn("16.13.0");
         when(timeProvider.currentTime()).thenReturn(currentTime);
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());
 

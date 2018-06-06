@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -83,7 +82,6 @@ public class BackupServiceH2IntegrationTest {
     @Autowired
     ServerBackupRepository backupInfoRepository;
     @Autowired SystemEnvironment systemEnvironment;
-    @Autowired ServerVersion serverVersion;
     @Autowired ConfigRepository configRepository;
     @Autowired Database databaseStrategy;
     @Autowired BackupService backupService;
@@ -132,7 +130,7 @@ public class BackupServiceH2IntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
+        BackupService service = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategy);
         service.startBackup(admin, result);
 

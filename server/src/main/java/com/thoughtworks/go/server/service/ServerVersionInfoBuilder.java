@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.GoVersion;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.domain.exception.VersionFormatException;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
-import com.thoughtworks.go.server.util.ServerVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +30,11 @@ import org.springframework.stereotype.Component;
 public class ServerVersionInfoBuilder {
     private static final String GO_SERVER = "go_server";
     private VersionInfoDao versionInfoDao;
-    private ServerVersion serverVersion;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoBuilder.class.getName());
 
     @Autowired
-    public ServerVersionInfoBuilder(VersionInfoDao versionInfoDao, ServerVersion serverVersion) {
+    public ServerVersionInfoBuilder(VersionInfoDao versionInfoDao) {
         this.versionInfoDao = versionInfoDao;
-        this.serverVersion = serverVersion;
     }
 
     public VersionInfo getServerVersionInfo() {
@@ -94,7 +92,7 @@ public class ServerVersionInfoBuilder {
 
     private GoVersion installedVersion() {
         GoVersion version = null;
-        String installedVersion = serverVersion.version();
+        String installedVersion = CurrentGoCDVersion.getInstance().formatted();
         try {
             version = new GoVersion(installedVersion);
         } catch (VersionFormatException e) {

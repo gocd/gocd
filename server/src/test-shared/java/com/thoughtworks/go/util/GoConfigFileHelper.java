@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import org.apache.commons.io.FileUtils;
@@ -117,9 +116,9 @@ public class GoConfigFileHelper {
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
-            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new ServerVersion(), new TimeProvider(), configRepository, cachedGoPartials);
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
+                    configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
             dataSource.upgradeIfNecessary();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null);
             cachedConfigService.loadConfigIfNull();
@@ -138,9 +137,9 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
-            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new ServerVersion(), new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
+                    new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
                     serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
             dataSource.upgradeIfNecessary();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import com.thoughtworks.go.server.util.ServerVersion;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,12 +25,6 @@ import java.util.Map;
 
 @Component
 public class ServerBasicInfoProvider implements ServerInfoProvider {
-    private ServerVersion serverVersion;
-
-    @Autowired
-    public ServerBasicInfoProvider(ServerVersion serverVersion){
-        this.serverVersion = serverVersion;
-    }
 
     @Override
     public double priority() {
@@ -40,7 +34,7 @@ public class ServerBasicInfoProvider implements ServerInfoProvider {
     @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Version", serverVersion.version());
+        json.put("Version", CurrentGoCDVersion.getInstance().formatted());
         return json;
     }
 

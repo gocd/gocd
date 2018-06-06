@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.security.CipherProvider;
@@ -24,7 +25,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.EmailMessageDrafter;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.server.web.BackupStatusProvider;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -66,7 +65,6 @@ public class BackupService implements BackupStatusProvider {
     private ServerBackupRepository serverBackupRepository;
     private final TimeProvider timeProvider;
     private final SystemEnvironment systemEnvironment;
-    private ServerVersion serverVersion;
     private final ConfigRepository configRepository;
     private final Database databaseStrategy;
 
@@ -80,13 +78,12 @@ public class BackupService implements BackupStatusProvider {
 
     @Autowired
     public BackupService(DataSource dataSource, ArtifactsDirHolder artifactsDirHolder, GoConfigService goConfigService, TimeProvider timeProvider,
-                         ServerBackupRepository serverBackupRepository, SystemEnvironment systemEnvironment, ServerVersion serverVersion, ConfigRepository configRepository, Database databaseStrategy) {
+                         ServerBackupRepository serverBackupRepository, SystemEnvironment systemEnvironment, ConfigRepository configRepository, Database databaseStrategy) {
         this.dataSource = dataSource;
         this.artifactsDirHolder = artifactsDirHolder;
         this.goConfigService = goConfigService;
         this.serverBackupRepository = serverBackupRepository;
         this.systemEnvironment = systemEnvironment;
-        this.serverVersion = serverVersion;
         this.configRepository = configRepository;
         this.databaseStrategy = databaseStrategy;
         this.timeProvider = timeProvider;
@@ -138,7 +135,7 @@ public class BackupService implements BackupStatusProvider {
 
     private void backupVersion(File backupDir) throws IOException {
         File versionFile = new File(backupDir, VERSION_BACKUP_FILE);
-        FileUtils.writeStringToFile(versionFile, serverVersion.version(), UTF_8);
+        FileUtils.writeStringToFile(versionFile, CurrentGoCDVersion.getInstance().formatted(), UTF_8);
     }
 
     private void backupConfigRepository(File backupDir) throws IOException {

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.config.exceptions.ConfigMergePostValidationException;
 import com.thoughtworks.go.config.exceptions.ConfigMergePreValidationException;
@@ -23,7 +24,6 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
@@ -49,7 +49,6 @@ public class FullConfigSaveMergeFlowTest {
     private CruiseConfig configForEdit;
     private Document document;
     private GoConfigFileWriter fileWriter;
-    private ServerVersion serverVersion;
     private TimeProvider timeProvider;
     private ConfigRepository configRepository;
     private CachedGoPartials cachedGoPartials;
@@ -63,14 +62,13 @@ public class FullConfigSaveMergeFlowTest {
         writer = mock(MagicalGoConfigXmlWriter.class);
         document = mock(Document.class);
         fileWriter = mock(GoConfigFileWriter.class);
-        serverVersion = mock(ServerVersion.class);
         timeProvider = mock(TimeProvider.class);
         configRepository = mock(ConfigRepository.class);
         cachedGoPartials = mock(CachedGoPartials.class);
         configElementImplementationRegistry = mock(ConfigElementImplementationRegistry.class);
         partials = new ArrayList<>();
 
-        flow = new FullConfigSaveMergeFlow(loader, writer, configElementImplementationRegistry, serverVersion, timeProvider,
+        flow = new FullConfigSaveMergeFlow(loader, writer, configElementImplementationRegistry, timeProvider,
                 configRepository, cachedGoPartials, fileWriter);
     }
 
@@ -192,7 +190,7 @@ public class FullConfigSaveMergeFlowTest {
         when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
         when(writer.toString(document)).thenReturn("cruise_config");
-        when(serverVersion.version()).thenReturn("16.13.0");
+        when(CurrentGoCDVersion.getInstance().formatted()).thenReturn("16.13.0");
         when(timeProvider.currentTime()).thenReturn(currentTime);
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));

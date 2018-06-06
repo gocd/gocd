@@ -17,12 +17,12 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -37,7 +37,6 @@ import java.util.List;
 public abstract class FullConfigSaveFlow {
     protected final MagicalGoConfigXmlLoader loader;
     protected final MagicalGoConfigXmlWriter writer;
-    protected final ServerVersion serverVersion;
     protected final TimeProvider timeProvider;
     protected final ConfigRepository configRepository;
     protected final CachedGoPartials cachedGoPartials;
@@ -48,13 +47,12 @@ public abstract class FullConfigSaveFlow {
 
     public FullConfigSaveFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
                               ConfigElementImplementationRegistry configElementImplementationRegistry,
-                              ServerVersion serverVersion, TimeProvider timeProvider,
+                              TimeProvider timeProvider,
                               ConfigRepository configRepository, CachedGoPartials cachedGoPartials,
                               GoConfigFileWriter fileWriter) {
         this.loader = loader;
         this.writer = writer;
         this.configElementImplementationRegistry = configElementImplementationRegistry;
-        this.serverVersion = serverVersion;
         this.timeProvider = timeProvider;
         this.configRepository = configRepository;
         this.cachedGoPartials = cachedGoPartials;
@@ -63,9 +61,9 @@ public abstract class FullConfigSaveFlow {
 
     public FullConfigSaveFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
                               ConfigElementImplementationRegistry configElementImplementationRegistry,
-                              SystemEnvironment systemEnvironment, ServerVersion serverVersion,
+                              SystemEnvironment systemEnvironment,
                               TimeProvider timeProvider, ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(loader, writer, configElementImplementationRegistry, serverVersion, timeProvider, configRepository, cachedGoPartials,
+        this(loader, writer, configElementImplementationRegistry, timeProvider, configRepository, cachedGoPartials,
                 new GoConfigFileWriter(systemEnvironment));
     }
 
@@ -89,7 +87,7 @@ public abstract class FullConfigSaveFlow {
 
     protected void checkinToConfigRepo(String currentUser, CruiseConfig updatedConfig, String xmlString) throws Exception {
         LOGGER.debug("[Config Save] Checkin updated config to git: Starting.");
-        configRepository.checkin(new GoConfigRevision(xmlString, updatedConfig.getMd5(), currentUser, serverVersion.version(), timeProvider));
+        configRepository.checkin(new GoConfigRevision(xmlString, updatedConfig.getMd5(), currentUser, CurrentGoCDVersion.getInstance().formatted(), timeProvider));
         LOGGER.debug("[Config Save] Checkin updated config to git: Done.");
     }
 

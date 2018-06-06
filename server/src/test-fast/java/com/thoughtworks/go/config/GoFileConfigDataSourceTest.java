@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
@@ -102,7 +101,6 @@ public class GoFileConfigDataSourceTest {
         fullConfigSaveMergeFlow = mock(FullConfigSaveMergeFlow.class);
         fullConfigSaveNormalFlow = mock(FullConfigSaveNormalFlow.class);
         when(timeProvider.currentTime()).thenReturn(new Date());
-        ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         ServerHealthService serverHealthService = new ServerHealthService();
         cachedGoPartials = new CachedGoPartials(serverHealthService);
@@ -111,7 +109,7 @@ public class GoFileConfigDataSourceTest {
                 throw new RuntimeException(e);
             }
         }, configRepository, new TimeProvider(), configCache, registry),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class),
+                configRepository, systemEnvironment, timeProvider, configCache, registry, mock(ServerHealthService.class),
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         dataSource.upgradeIfNecessary();
@@ -541,7 +539,7 @@ public class GoFileConfigDataSourceTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
         ConfigRepository configRepository = mock(ConfigRepository.class);
-        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, mock(ServerVersion.class), loader, writer, serverHealthService, cachedGoPartials, null, null, null, null);
+        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, loader, writer, serverHealthService, cachedGoPartials, null, null, null, null);
 
         final String pipelineName = UUID.randomUUID().toString();
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
@@ -612,7 +610,7 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> lastKnownPartials = mock(List.class);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
 
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, null, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, null, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
@@ -633,7 +631,7 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> lastKnownPartials = mock(List.class);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
 
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
@@ -657,7 +655,7 @@ public class GoFileConfigDataSourceTest {
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
@@ -682,7 +680,7 @@ public class GoFileConfigDataSourceTest {
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
@@ -703,7 +701,7 @@ public class GoFileConfigDataSourceTest {
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
@@ -723,7 +721,7 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> lastKnownPartials = new ArrayList<>();
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
 
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
@@ -756,7 +754,7 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(goConfigHolder);
 
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, loader, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
 
         GoConfigHolder configHolder = source.load();
@@ -792,7 +790,7 @@ public class GoFileConfigDataSourceTest {
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture()))
                 .thenThrow(new GoConfigInvalidException(null, null)).thenReturn(goConfigHolder);
 
-        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, loader, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
 
         GoConfigHolder configHolder = source.load();

@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -37,19 +36,19 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
     @Autowired
     public FullConfigSaveNormalFlow(ConfigCache configCache, ConfigElementImplementationRegistry configElementImplementationRegistry,
-                                   SystemEnvironment systemEnvironment, ServerVersion serverVersion, TimeProvider timeProvider,
-                                   ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
+                                    SystemEnvironment systemEnvironment, TimeProvider timeProvider,
+                                    ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
         this(new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
                 new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), configElementImplementationRegistry,
-                serverVersion, timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
+                timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
     }
 
     public FullConfigSaveNormalFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
                                     ConfigElementImplementationRegistry configElementImplementationRegistry,
-                                    ServerVersion serverVersion, TimeProvider timeProvider,
+                                    TimeProvider timeProvider,
                                     ConfigRepository configRepository, CachedGoPartials cachedGoPartials,
                                     GoConfigFileWriter fileWriter) {
-        super(loader, writer, configElementImplementationRegistry, serverVersion, timeProvider, configRepository, cachedGoPartials, fileWriter);
+        super(loader, writer, configElementImplementationRegistry, timeProvider, configRepository, cachedGoPartials, fileWriter);
     }
 
     public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception {

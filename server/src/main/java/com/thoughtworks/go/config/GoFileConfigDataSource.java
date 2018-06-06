@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -25,7 +26,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -70,7 +70,6 @@ public class GoFileConfigDataSource {
     private SystemEnvironment systemEnvironment;
     private GoConfigMigration upgrader;
     private final TimeProvider timeProvider;
-    private ServerVersion serverVersion;
     private Cloner cloner = new Cloner();
     public static final String FILESYSTEM = "Filesystem";
     private ServerHealthService serverHealthService;
@@ -83,11 +82,11 @@ public class GoFileConfigDataSource {
     /* Will only upgrade cruise config file on application startup. */
     @Autowired
     public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
-                                  TimeProvider timeProvider, ConfigCache configCache, ServerVersion serverVersion,
+                                  TimeProvider timeProvider, ConfigCache configCache,
                                   ConfigElementImplementationRegistry configElementImplementationRegistry,
                                   ServerHealthService serverHealthService, CachedGoPartials cachedGoPartials,
                                   FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow) {
-        this(upgrader, configRepository, systemEnvironment, timeProvider, serverVersion,
+        this(upgrader, configRepository, systemEnvironment, timeProvider,
                 new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
                 new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), serverHealthService,
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
@@ -96,7 +95,7 @@ public class GoFileConfigDataSource {
     }
 
     GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
-                           TimeProvider timeProvider, ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader,
+                           TimeProvider timeProvider, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader,
                            MagicalGoConfigXmlWriter magicalGoConfigXmlWriter, ServerHealthService serverHealthService,
                            CachedGoPartials cachedGoPartials, FullConfigSaveMergeFlow fullConfigSaveMergeFlow,
                            FullConfigSaveNormalFlow fullConfigSaveNormalFlow, GoConfigFileReader goConfigFileReader,
@@ -105,7 +104,6 @@ public class GoFileConfigDataSource {
         this.systemEnvironment = systemEnvironment;
         this.upgrader = upgrader;
         this.timeProvider = timeProvider;
-        this.serverVersion = serverVersion;
         this.magicalGoConfigXmlLoader = magicalGoConfigXmlLoader;
         this.magicalGoConfigXmlWriter = magicalGoConfigXmlWriter;
         this.serverHealthService = serverHealthService;
@@ -518,7 +516,7 @@ public class GoFileConfigDataSource {
         String modifiedConfigAsXml = convertMutatedConfigToXml(modifiedConfig, latestMd5);
 
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", getConfigUpdatingUser(noOverwriteCommand).getUserName(),
-                serverVersion.version(), timeProvider);
+                CurrentGoCDVersion.getInstance().formatted(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
         LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
@@ -553,7 +551,7 @@ public class GoFileConfigDataSource {
     private void checkinConfigToGitRepo(List<PartialConfig> partials, CruiseConfig config, String configAsXml, String md5, String currentUser) throws Exception {
         reloadStrategy.latestState(config);
         LOGGER.debug("[Config Save] === Checking in the valid XML to config.git");
-        configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser, serverVersion.version(), timeProvider));
+        configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser, CurrentGoCDVersion.getInstance().formatted(), timeProvider));
         LOGGER.debug("[Config Save] === Done checking in to config.git");
         cachedGoPartials.markAsValid(partials);
     }
@@ -567,7 +565,7 @@ public class GoFileConfigDataSource {
     }
 
     public void upgradeIfNecessary() {
-        GoConfigMigrationResult migrationResult = this.upgrader.upgradeIfNecessary(fileLocation(), serverVersion.version());
+        GoConfigMigrationResult migrationResult = this.upgrader.upgradeIfNecessary(fileLocation(), CurrentGoCDVersion.getInstance().formatted());
 
         if (migrationResult.isUpgradeFailure()) {
             String message = migrationResult.message();

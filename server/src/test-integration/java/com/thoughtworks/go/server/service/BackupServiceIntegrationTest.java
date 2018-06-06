@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoMailSender;
@@ -32,7 +33,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -94,7 +94,6 @@ public class BackupServiceIntegrationTest {
     ServerBackupRepository backupInfoRepository;
     @Autowired TimeProvider timeProvider;
     @Autowired SystemEnvironment systemEnvironment;
-    @Autowired ServerVersion serverVersion;
     @Autowired ConfigRepository configRepository;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired Database databaseStrategy;
@@ -201,14 +200,12 @@ public class BackupServiceIntegrationTest {
     @Test
     public void shouldCaptureVersionForEveryBackup() throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ServerVersion serverVersion = mock(ServerVersion.class);
-        when(serverVersion.version()).thenReturn("some-test-version-007");
-        BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository, databaseStrategy);
+        BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy);
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(), is("Backup completed successfully."));
         File version = backedUpFile("version.txt");
-        assertThat(FileUtils.readFileToString(version, UTF_8), is("some-test-version-007"));
+        assertThat(FileUtils.readFileToString(version, UTF_8), is(CurrentGoCDVersion.getInstance().formatted()));
     }
 
     @Test
@@ -223,7 +220,7 @@ public class BackupServiceIntegrationTest {
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
+        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategy);
         service.startBackup(admin, new HttpLocalizedOperationResult());
 
@@ -251,7 +248,7 @@ public class BackupServiceIntegrationTest {
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, serverVersion, configRepository,
+        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategyMock);
         service.startBackup(admin, result);
 
@@ -392,7 +389,7 @@ public class BackupServiceIntegrationTest {
 
 
         final BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvironment,
-                serverVersion, configRepository, databaseStrategyMock);
+                configRepository, databaseStrategyMock);
 
         waitForBackupToBegin.acquire();
         Thread thd = new Thread(new Runnable() {

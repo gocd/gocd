@@ -17,9 +17,9 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
@@ -33,9 +33,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleListener;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -86,6 +83,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         goConfigService.register(pipelineConfigChangedListener());
         goConfigService.register(securityConfigChangeListener());
         goConfigService.register(templateConfigChangedListener());
+        goConfigService.register(environmentConfigChangedListener());
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
@@ -143,6 +141,25 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                     @Override
                     public String description() {
                         return "template config: " + templateConfig;
+                    }
+                });
+            }
+        };
+    }
+
+    protected EntityConfigChangedListener<EnvironmentConfig> environmentConfigChangedListener() {
+        return new EntityConfigChangedListener<EnvironmentConfig>() {
+            @Override
+            public void onEntityConfigChange(final EnvironmentConfig env) {
+                processor.add(new Action() {
+                    @Override
+                    public void call() {
+                        configChangeHandler.call(goConfigService.currentCruiseConfig());
+                    }
+
+                    @Override
+                    public String description() {
+                        return "environment config: " + env;
                     }
                 });
             }

@@ -35,11 +35,11 @@ const MetricsSettings = function (data) {
   settings.consentedBy = Stream(data.consented_by);
 
   settings.toggleConsent = () => {
-    settings.consent(!settings.consent())
+    settings.consent(!settings.consent());
   };
 
   settings.resetConsent = () => {
-    settings.consent(_originalConsent)
+    settings.consent(_originalConsent);
   };
 
   settings.save = () => {
@@ -52,7 +52,7 @@ const MetricsSettings = function (data) {
       settings.consentedBy(data.consented_by);
       _originalConsent = data.consent;
     });
-  }
+  };
 };
 
 MetricsSettings.fromJSON = function (json) {

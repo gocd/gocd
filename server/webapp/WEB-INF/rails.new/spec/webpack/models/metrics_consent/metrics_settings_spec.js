@@ -19,8 +19,8 @@ describe('Metrics Consent', () => {
   const metricsSettingsGetUrl = '/go/api/metrics/settings';
 
   const metricsSettingsJSON = {
-    consent:      true,
-    consented_by: 'Admin'
+    'consent':      true,
+    'consented_by': 'Admin'
   };
 
   it('should deserialize consent from JSON', () => {
@@ -50,7 +50,7 @@ describe('Metrics Consent', () => {
     expect(metricsSettings.consent()).toBe(true);
   });
 
-  it('should fetch metrics settings', function () {
+  it('should fetch metrics settings', () => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(metricsSettingsGetUrl).andReturn({
         responseText:    JSON.stringify(metricsSettingsJSON),
@@ -70,9 +70,9 @@ describe('Metrics Consent', () => {
     });
   });
 
-  it('should patch metrics settings', function () {
+  it('should patch metrics settings', () => {
     jasmine.Ajax.withMock(() => {
-      const updatedMetricsSettings = {consent: false, consented_by: 'Bob'};
+      const updatedMetricsSettings = {'consent': false, 'consented_by': 'Bob'};
 
       jasmine.Ajax.stubRequest(metricsSettingsGetUrl, undefined, 'PATCH').andReturn({
         responseText:    JSON.stringify(updatedMetricsSettings),

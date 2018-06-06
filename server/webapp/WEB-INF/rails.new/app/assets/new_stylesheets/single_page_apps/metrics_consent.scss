@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,14 +30,63 @@
 }
 
 .consent-toggle-wrapper {
-  width: 50%;
+  width: 45%;
+}
+
+.consent-description {
+  width: 55%;
+}
+
+.human-readable-consent {
+  font-size:   18px;
+  font-weight: 600;
+  color:       #919090;
+  margin-top:  5px;
+  margin-left: 10px;
 }
 
 .consent-toggle {
   display: flex;
 
   p {
-    font-size:   20px;
-    font-weight: 600;
+    font-size:    20px;
+    font-weight:  600;
+    margin-right: 13px;
   }
+
+  .switch-paddle {
+    border-radius: 35px;
+    margin-top:    1px;
+  }
+
+  .switch-paddle:after {
+    border-radius: 100% !important;
+  }
+
+  input:checked ~ .switch-paddle {
+    background: #40b76b;
+  }
+}
+
+.button-wrapper * {
+  margin-right: 10px;
+}
+
+.reset-consent {
+  background: #ccc;
+  color:      black;
+
+  &:hover, &:focus {
+    background: #c1c1c1;
+    color:      black;
+  }
+}
+
+.consent-for {
+  &:before {
+    content:      '-';
+    margin-right: 5px;
+  }
+
+  font-size: 17px;
 }

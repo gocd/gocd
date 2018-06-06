@@ -20,16 +20,16 @@ const f = require("helpers/form_helper");
 const HeaderPanel = require('views/shared/header_panel');
 
 const ToggleConsentWidget = {
-  oninit(vnode) {
+  oninit() {
     this.toggleConsent = function (metricsSettings) {
       metricsSettings.toggleConsent();
-    }
+    };
   },
 
   view(vnode) {
     const metricsSettings = vnode.attrs.metricsSettings;
     const consentValue    = metricsSettings.consent();
-    const consentText = consentValue ? 'Yes' : 'No';
+    const consentText     = consentValue ? 'Yes' : 'No';
 
     return <div class="consent-toggle-wrapper">
       <span class="consent-toggle">
@@ -42,7 +42,7 @@ const ToggleConsentWidget = {
                  onclick={metricsSettings.toggleConsent}
                  name="consentSwitch"/>
           <label class="switch-paddle" for="consentSwitch">
-            <span class="show-for-sr"/>
+            <span class="show-for-consent"/>
           </label>
         </div>
         <div class="human-readable-consent">{consentText}</div>
@@ -52,7 +52,7 @@ const ToggleConsentWidget = {
         <div class="consent-for">Number of pipelines</div>
         <div class="consent-for">Number of agents</div>
       </div>
-    </div>
+    </div>;
   }
 };
 
@@ -61,17 +61,17 @@ const ConsentInformation = {
     return <div class="consent-description">
       <p>We, GoCD team, strive to understand our users better and provide the best product experience. You can help us!
         We would like to ask your permission to collect your GoCD usage data.</p>
-      <p>We will never collect your privacy information, and we will always to transparent on what we are collecting. If
+      <p>We will never collect your privacy information, and we will always be transparent on what we are collecting. If
         we add any metrics to the collecting list in future, we will notify you and let you make the decision.</p>
       <p>Choose your settings below. You can change these settings at any time.</p>
-    </div>
+    </div>;
   }
 };
 
 const MetricsConsentWidget = {
-  oninit(vnode) {
+  oninit() {
     this.save = function (metricsSettings) {
-      metricsSettings.save().then(m.redraw)
+      metricsSettings.save().then(m.redraw);
     };
 
     this.reset = function (metricsSettings) {
@@ -82,7 +82,7 @@ const MetricsConsentWidget = {
   view(vnode) {
     const metricsSettings = vnode.attrs.metricsSettings;
 
-    return <div>
+    return (<div>
       <HeaderPanel title="GoCD Metrics Collection"/>
       <div class="main-container">
         <div class="content-container">
@@ -94,7 +94,7 @@ const MetricsConsentWidget = {
           <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, metricsSettings)}>Reset</f.button>
         </div>
       </div>
-    </div>
+    </div>);
   }
 };
 

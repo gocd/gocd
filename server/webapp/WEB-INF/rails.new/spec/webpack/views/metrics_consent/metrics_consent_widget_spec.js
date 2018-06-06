@@ -17,7 +17,6 @@
 describe("Metrics Consent Widget", () => {
   const $             = require("jquery");
   const m             = require("mithril");
-  const Stream        = require("mithril/stream");
   const simulateEvent = require('simulate-event');
 
   const MetricsSettings      = require('models/metrics_consent/metrics_settings');
@@ -29,7 +28,7 @@ describe("Metrics Consent Widget", () => {
   });
   afterEach(window.destroyDomElementForTest);
 
-  const metricsSettingsJSON = {consent: true, consented_by: 'Admin'};
+  const metricsSettingsJSON = {'consent': true, 'consented_by': 'Admin'};
 
   let metricsSettings;
   beforeEach(() => {
@@ -57,7 +56,7 @@ describe("Metrics Consent Widget", () => {
     expect($root.find('.switch')).toBeInDOM();
   });
 
-  it('should show the consent toggle value same as of metrics settings consent value', function () {
+  it('should show the consent toggle value same as of metrics settings consent value', () => {
     expect($root.find('.switch')).toBeInDOM();
 
     expect(metricsSettings.consent()).toBe(true);
@@ -70,7 +69,7 @@ describe("Metrics Consent Widget", () => {
     expect($root.find('.switch input')).not.toBeChecked();
   });
 
-  it('should show human readable consent text', function () {
+  it('should show human readable consent text', () => {
     expect(metricsSettings.consent()).toBe(true);
     expect($root.find('.human-readable-consent')).toContainText('Yes');
 
@@ -92,7 +91,7 @@ describe("Metrics Consent Widget", () => {
   it('should render the consent description', () => {
     const description = [
       'We, GoCD team, strive to understand our users better and provide the best product experience. You can help us! We would like to ask your permission to collect your GoCD usage data.',
-      'We will never collect your privacy information, and we will always to transparent on what we are collecting. If we add any metrics to the collecting list in future, we will notify you and let you make the decision.',
+      'We will never collect your privacy information, and we will always be transparent on what we are collecting. If we add any metrics to the collecting list in future, we will notify you and let you make the decision.',
       'Choose your settings below. You can change these settings at any time.'
     ];
 
@@ -104,16 +103,16 @@ describe("Metrics Consent Widget", () => {
     expect($(consentDescription.get(2))).toContainText(description[2]);
   });
 
-  describe('Buttons', function () {
-    it('should render save button', function () {
+  describe('Buttons', () => {
+    it('should render save button', () => {
       expect($root.find('.update-consent')).toBeInDOM();
     });
 
-    it('should render reset button', function () {
+    it('should render reset button', () => {
       expect($root.find('.reset-consent')).toBeInDOM();
     });
 
-    it('should reset the settings consent value on clicking reset button', function () {
+    it('should reset the settings consent value on clicking reset button', () => {
       expect(metricsSettings.consent()).toBe(true);
       metricsSettings.toggleConsent();
       expect(metricsSettings.consent()).toBe(false);
@@ -124,7 +123,7 @@ describe("Metrics Consent Widget", () => {
       expect(metricsSettings.consent()).toBe(true);
     });
 
-    it('should update the consent consent value on clicking save button', function () {
+    it('should update the consent consent value on clicking save button', () => {
       expect(metricsSettings.consent()).toBe(true);
       metricsSettings.toggleConsent();
       expect(metricsSettings.consent()).toBe(false);
@@ -135,7 +134,7 @@ describe("Metrics Consent Widget", () => {
       expect(metricsSettings.consent()).toBe(true);
 
       jasmine.Ajax.withMock(() => {
-        const updatedMetricsSettings = {consent: false, consented_by: 'Bob'};
+        const updatedMetricsSettings = {'consent': false, 'consented_by': 'Bob'};
         jasmine.Ajax.stubRequest('/go/api/metrics/settings', undefined, 'PATCH').andReturn({
           responseText:    JSON.stringify(updatedMetricsSettings),
           status:          200,

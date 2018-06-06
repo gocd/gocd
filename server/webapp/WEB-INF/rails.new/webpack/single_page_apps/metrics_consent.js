@@ -42,7 +42,8 @@ $(() => {
   };
 
   const onFailure = () => {
-    return onSuccess(new MetricsSettings({consent: true, consented_by: 'Ganeshpl'}));
+    //todo: blame Ganeshpl for this
+    //return onSuccess(new MetricsSettings({consent: true, consented_by: 'Ganeshpl'}));
 
     m.mount(container, {
       view() {
@@ -51,7 +52,6 @@ $(() => {
     });
   };
 
-  //todo: blame Ganeshpl for this
   MetricsSettings.get().then(onSuccess, onFailure);
 });
 

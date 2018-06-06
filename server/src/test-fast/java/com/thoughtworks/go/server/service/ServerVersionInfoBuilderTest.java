@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.GoVersion;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
@@ -34,7 +35,7 @@ public class ServerVersionInfoBuilderTest {
     @Before
     public void setUp() {
         versionInfoDao = mock(VersionInfoDao.class);
-        builder = new ServerVersionInfoBuilder(versionInfoDao);
+        builder = spy(new ServerVersionInfoBuilder(versionInfoDao));
     }
 
     @Test
@@ -56,7 +57,7 @@ public class ServerVersionInfoBuilderTest {
 
         verify(versionInfoDao).saveOrUpdate(isA(VersionInfo.class));
         assertThat(versionInfo.getComponentName(), is("go_server"));
-        assertThat(versionInfo.getInstalledVersion().toString(), is("1.2.3-1"));
+        assertThat(versionInfo.getInstalledVersion().toString(), is(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString()));
     }
 
     @Test
@@ -68,13 +69,13 @@ public class ServerVersionInfoBuilderTest {
 
         verify(versionInfoDao).saveOrUpdate(isA(VersionInfo.class));
         assertThat(versionInfo.getComponentName(), is(goVersionInfo.getComponentName()));
-        assertThat(versionInfo.getInstalledVersion().toString(), is("5.6.7-8"));
+        assertThat(versionInfo.getInstalledVersion().toString(), is(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString()));
     }
 
     @Test
     public void shouldNotCreateAVersionInfoOnDevelopmentServer(){
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(null);
-
+        when(builder.getInstalledVersion()).thenReturn("N/A");
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
         verify(versionInfoDao, never()).saveOrUpdate(isA(VersionInfo.class));
@@ -85,6 +86,7 @@ public class ServerVersionInfoBuilderTest {
     public void shouldNotUpdateTheVersionInfoIfUnableToParseTheInstalledVersion(){
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
+        when(builder.getInstalledVersion()).thenReturn("N/A");
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 

@@ -125,7 +125,6 @@ public class FullConfigSaveNormalFlowTest {
         when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
         when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
-        when(CurrentGoCDVersion.getInstance().formatted()).thenReturn("16.13.0");
         when(timeProvider.currentTime()).thenReturn(currentTime);
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());
 
@@ -136,7 +135,7 @@ public class FullConfigSaveNormalFlowTest {
         assertThat(goConfigRevision.getContent(), is(configAsXml));
         assertThat(goConfigRevision.getUsername(), is("test_user"));
         assertThat(goConfigRevision.getMd5(), is(updateConfigCommand.configForEdit().getMd5()));
-        assertThat(goConfigRevision.getGoVersion(), is("16.13.0"));
+        assertThat(goConfigRevision.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
         assertThat(goConfigRevision.getTime(), is(currentTime));
     }
 

@@ -92,12 +92,16 @@ public class ServerVersionInfoBuilder {
 
     private GoVersion installedVersion() {
         GoVersion version = null;
-        String installedVersion = CurrentGoCDVersion.getInstance().formatted();
+        String installedVersion = getInstalledVersion();
         try {
             version = new GoVersion(installedVersion);
         } catch (VersionFormatException e) {
            LOGGER.error("[Go Update Check] Server Version: {} format is Invalid.", installedVersion);
         }
         return version;
+    }
+
+    String getInstalledVersion() {
+        return CurrentGoCDVersion.getInstance().formatted();
     }
 }

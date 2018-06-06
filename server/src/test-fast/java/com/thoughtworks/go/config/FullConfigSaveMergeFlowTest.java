@@ -190,7 +190,6 @@ public class FullConfigSaveMergeFlowTest {
         when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
         when(writer.toString(document)).thenReturn("cruise_config");
-        when(CurrentGoCDVersion.getInstance().formatted()).thenReturn("16.13.0");
         when(timeProvider.currentTime()).thenReturn(currentTime);
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
@@ -202,7 +201,7 @@ public class FullConfigSaveMergeFlowTest {
         assertThat(goConfigRevision.getContent(), is(mergedConfig));
         assertThat(goConfigRevision.getUsername(), is("test_user"));
         assertThat(goConfigRevision.getMd5(), is(updateConfigCommand.configForEdit().getMd5()));
-        assertThat(goConfigRevision.getGoVersion(), is("16.13.0"));
+        assertThat(goConfigRevision.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
     }
 
     @Test

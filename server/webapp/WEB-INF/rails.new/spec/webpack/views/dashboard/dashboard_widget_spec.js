@@ -343,7 +343,7 @@ describe("Dashboard Widget", () => {
     mount(false);
 
     expect($root.find('.pipeline-group_title a')).toHaveClass('disabled');
-    expect($root.find('.pipeline-group_title a')).toHaveAttr('data-tooltip');
+    expect($root.find('.pipeline-group_title a')).toHaveAttr('data-tooltip-id');
   });
 
   it("should show plain text pipeline group name without link for non admin users", () => {

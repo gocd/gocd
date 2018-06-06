@@ -653,17 +653,39 @@ body {
   word-break:  break-all;
 }
 
-.pipeline_sub_header {
-  width:           240px;
-  display:         flex;
-  justify-content: space-between;
+#dashboard {
+  .tooltip {
+    left:  -100%;
+    top:   90%;
+    width: 10rem;
+    &::before {
+      left: 35%;
+    }
+  }
+  .pipeline-group_title {
+    .tooltip {
+      top: 120%;
+    }
+  }
 
-  .pipeline_actions {
-    display:     flex;
-    position:    relative;
-    top:         -3px;
-    flex-shrink: 0;
-    right:       0;
+  .pipeline_sub_header {
+    width:           240px;
+    display:         flex;
+    justify-content: space-between;
+
+    .pipeline_actions {
+      display:     flex;
+      position:    relative;
+      top:         -3px;
+      flex-shrink: 0;
+      right:       0;
+      .tooltip {
+        transform: translate(-53%, 15%);
+        &::before {
+          left: 75%;
+        }
+      }
+    }
   }
 }
 

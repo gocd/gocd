@@ -21,6 +21,7 @@ const uuid4 = require('uuid/v4');
 const s     = require('string-plus');
 const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
+const Stream            = require('mithril/stream');
 
 function deleteKeyAndReturnValue(object, key, defaultValue) {
   if (_.isNil(object)) {
@@ -408,27 +409,29 @@ const f = {
   },
 
   buttonWithTooltip: {
-    oncreate(vnode) {
-      new window.Foundation.Tooltip($(vnode.dom), {tipText: vnode.attrs.tooltipText});
-    },
-
-    onupdate(vnode) {
-      //an elements data.zfPlugin.template gives the tooltip element
-      $(vnode.dom).data().zfPlugin.template.text(vnode.attrs.tooltipText);
-    },
-
-    onremove(vnode) {
-      $(vnode.dom).foundation('destroy');
+    oninit() {
+      this.tooltipId           = uuid4();
+      this.hasFocus            = Stream(false);
+      this.tooltipDisplayStyle = function () {
+        return this.hasFocus() === true ? 'display:block' : 'display:none';
+      };
     },
 
     view(vnode) {
-      const args = vnode.attrs;
-      return (<button type="button"
-                      class={compactClasses(args, vnode.attrs.buttonType)}
-                      {...args}
-                      data-hover-delay={100}>
-        {vnode.children}
-      </button>);
+      const ctrl        = vnode.state;
+      const args        = vnode.attrs;
+      const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
+      return (
+        <div style="position: relative">
+          <button type="button" onmouseover={ctrl.hasFocus.bind(ctrl, true)}
+                  onmouseout={ctrl.hasFocus.bind(ctrl, false)}
+                  class={compactClasses(args, vnode.attrs.buttonType, 'has-tip')}
+                  {...args}
+                  data-hover-delay={100} data-tooltip-id={this.tooltipId}>
+            {vnode.children}
+          </button>
+          <div id={this.tooltipId} class="tooltip" role="tooltip" style={ctrl.tooltipDisplayStyle()}>{tooltipText}</div>
+        </div>);
     }
   },
 
@@ -454,25 +457,27 @@ const f = {
   },
 
   linkWithTooltip: {
-    oncreate(vnode) {
-      new window.Foundation.Tooltip($(vnode.dom), {tipText: vnode.attrs.tooltipText});
+    oninit() {
+      this.tooltipId           = uuid4();
+      this.hasFocus            = Stream(false);
+      this.tooltipDisplayStyle = function () {
+        return this.hasFocus() === true ? 'display:block' : 'display:none';
+      };
     },
 
-    onupdate(vnode) {
-      //Update tooltip text
-      $(vnode.dom).data().zfPlugin.template.text(vnode.attrs.tooltipText);
-    },
-
-    onremove(vnode) {
-      $(vnode.dom).foundation('destroy');
-    },
-
-    view(vnode) {
-      return (<a href="javascript:void(0)"
-                 class={compactClasses(vnode.attrs)} {...vnode.attrs}
-                 data-hover-delay={100}>
-        {vnode.children}
-      </a>);
+    view (vnode) {
+      const ctrl        = vnode.state;
+      const args        = vnode.attrs;
+      const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
+      return (
+        <div style="position: relative; display: inline">
+          <a href="javascript:void(0)" onmouseover={ctrl.hasFocus.bind(ctrl, true)} onmouseout={ctrl.hasFocus.bind(ctrl, false)}
+             class={compactClasses(vnode.attrs, 'has-tip')} {...vnode.attrs}
+             data-hover-delay={100} data-tooltip-id={this.tooltipId}>
+            {vnode.children}
+          </a>
+          <div id={this.tooltipId} class="tooltip"  role="tooltip" style={ctrl.tooltipDisplayStyle()}>{tooltipText}</div>
+        </div>);
     }
   },
 

@@ -111,7 +111,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       expect(pipeline.canAdminister).toBe(false);
       expect($root.find('.edit_config')).toHaveClass('disabled');
-      expect($root.find('.edit_config')).toHaveAttr('data-tooltip');
+      expect($root.find('.edit_config')).toHaveAttr('data-tooltip-id');
     });
 
     it('should disable pipeline settings for config repo pipelines', () => {
@@ -446,10 +446,10 @@ describe("Dashboard Pipeline Widget", () => {
         unmount();
         mount(false, true, pauseInfo, {}, false);
         const pauseButton = $root.find('.pause');
-        expect(pauseButton).toHaveAttr('title');
-        expect(pauseButton).toHaveAttr('data-tooltip');
+        expect(pauseButton).toHaveAttr('data-tooltip-id');
+        const tooltipId = $(pauseButton).attr('data-tooltip-id');
+        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to pause the pipeline.");
       });
-
     });
 
     describe("Unlock", () => {
@@ -648,8 +648,9 @@ describe("Dashboard Pipeline Widget", () => {
         unmount();
         mount(false, true, {}, {}, true, false);
         const playButton = $root.find('.pipeline_operations .play');
-        expect(playButton).toHaveAttr('title');
-        expect(playButton).toHaveAttr('data-tooltip');
+        expect(playButton).toHaveAttr('data-tooltip-id');
+        const tooltipId = $(playButton).attr('data-tooltip-id');
+        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to trigger the pipeline");
       });
     });
 
@@ -839,8 +840,9 @@ describe("Dashboard Pipeline Widget", () => {
         unmount();
         mount(false, true, {}, {}, true, false);
         const playButton = $root.find('.pipeline_operations .play_with_options');
-        expect(playButton).toHaveAttr('title');
-        expect(playButton).toHaveAttr('data-tooltip');
+        expect(playButton).toHaveAttr('data-tooltip-id');
+        const tooltipId = $(playButton).attr('data-tooltip-id');
+        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to trigger the pipeline");
       });
     });
   });

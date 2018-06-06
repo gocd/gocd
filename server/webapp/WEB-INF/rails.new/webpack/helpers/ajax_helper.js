@@ -60,6 +60,10 @@ module.exports = class AjaxHelper {
   static POST({url, apiVersion, timeout = mrequest.timeout, payload}) {
     return makeRequest({method: 'POST', url, apiVersion, timeout, payload, contentType: 'application/json'});
   }
+
+  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload}) {
+    return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, contentType: 'application/json'});
+  }
 };
 
 

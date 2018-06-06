@@ -19,14 +19,40 @@ const AjaxHelper = require('helpers/ajax_helper');
 const Stream     = require('mithril/stream');
 
 //todo: Blame Ganeshpl for this
-Routes.apiv1ShowMetricsSettingsPath = () => {
+Routes.apiv1ShowMetricsSettingsPath  = () => {
+  return '/go/api/metrics/settings';
+};
+Routes.apiv1PatchMetricsSettingsPath = () => {
   return '/go/api/metrics/settings';
 };
 
+
 const MetricsSettings = function (data) {
-  const settings       = this;
+  const settings = this;
+
+  let _originalConsent = data.consent;
   settings.consent     = Stream(data.consent);
   settings.consentedBy = Stream(data.consented_by);
+
+  settings.toggleConsent = () => {
+    settings.consent(!settings.consent())
+  };
+
+  settings.resetConsent = () => {
+    settings.consent(_originalConsent)
+  };
+
+  settings.save = () => {
+    return AjaxHelper.PATCH({
+      url:        Routes.apiv1PatchMetricsSettingsPath(),
+      apiVersion: MetricsSettings.API_VERSION,
+      payload:    {consent: settings.consent()}
+    }).then((data) => {
+      settings.consent(data.consent);
+      settings.consentedBy(data.consented_by);
+      _originalConsent = data.consent;
+    });
+  }
 };
 
 MetricsSettings.fromJSON = function (json) {

@@ -15,9 +15,10 @@
  */
 
 describe("Metrics Consent Widget", () => {
-  const $      = require("jquery");
-  const m      = require("mithril");
-  const Stream = require("mithril/stream");
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const Stream        = require("mithril/stream");
+  const simulateEvent = require('simulate-event');
 
   const MetricsSettings      = require('models/metrics_consent/metrics_settings');
   const MetricsConsentWidget = require("views/metrics_consent/metrics_consent_widget");
@@ -53,11 +54,31 @@ describe("Metrics Consent Widget", () => {
 
   it('should show the consent toggle button', () => {
     expect($root.find('.consent-toggle p')).toContainText('Allow GoCD to collect following data:');
-    expect($root.find('.consent-toggle button')).toBeInDOM();
+    expect($root.find('.switch')).toBeInDOM();
   });
 
   it('should show the consent toggle value same as of metrics settings consent value', function () {
-    //todo: Ganeshpl will write this test
+    expect($root.find('.switch')).toBeInDOM();
+
+    expect(metricsSettings.consent()).toBe(true);
+    expect($root.find('.switch input')).toBeChecked();
+
+    simulateEvent.simulate($root.find('.switch input').get(0), 'click');
+    m.redraw();
+
+    expect(metricsSettings.consent()).toBe(false);
+    expect($root.find('.switch input')).not.toBeChecked();
+  });
+
+  it('should show human readable consent text', function () {
+    expect(metricsSettings.consent()).toBe(true);
+    expect($root.find('.human-readable-consent')).toContainText('Yes');
+
+    metricsSettings.toggleConsent();
+    m.redraw();
+
+    expect(metricsSettings.consent()).toBe(false);
+    expect($root.find('.human-readable-consent')).toContainText('No');
   });
 
   it('should show the consent for collected metrics list', () => {
@@ -81,5 +102,57 @@ describe("Metrics Consent Widget", () => {
     expect($(consentDescription.get(0))).toContainText(description[0]);
     expect($(consentDescription.get(1))).toContainText(description[1]);
     expect($(consentDescription.get(2))).toContainText(description[2]);
-  })
+  });
+
+  describe('Buttons', function () {
+    it('should render save button', function () {
+      expect($root.find('.update-consent')).toBeInDOM();
+    });
+
+    it('should render reset button', function () {
+      expect($root.find('.reset-consent')).toBeInDOM();
+    });
+
+    it('should reset the settings consent value on clicking reset button', function () {
+      expect(metricsSettings.consent()).toBe(true);
+      metricsSettings.toggleConsent();
+      expect(metricsSettings.consent()).toBe(false);
+
+      simulateEvent.simulate($root.find('.reset-consent').get(0), 'click');
+      m.redraw();
+
+      expect(metricsSettings.consent()).toBe(true);
+    });
+
+    it('should update the consent consent value on clicking save button', function () {
+      expect(metricsSettings.consent()).toBe(true);
+      metricsSettings.toggleConsent();
+      expect(metricsSettings.consent()).toBe(false);
+
+      simulateEvent.simulate($root.find('.reset-consent').get(0), 'click');
+      m.redraw();
+
+      expect(metricsSettings.consent()).toBe(true);
+
+      jasmine.Ajax.withMock(() => {
+        const updatedMetricsSettings = {consent: false, consented_by: 'Bob'};
+        jasmine.Ajax.stubRequest('/go/api/metrics/settings', undefined, 'PATCH').andReturn({
+          responseText:    JSON.stringify(updatedMetricsSettings),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          }
+        });
+
+        expect(metricsSettings.consent()).toBe(true);
+        metricsSettings.toggleConsent();
+        expect(metricsSettings.consent()).toBe(false);
+
+        simulateEvent.simulate($root.find('.update-consent').get(0), 'click');
+        m.redraw();
+
+        expect(metricsSettings.consent()).toBe(false);
+      });
+    });
+  });
 });

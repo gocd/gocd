@@ -30,6 +30,26 @@ describe('Metrics Consent', () => {
     expect(metricsSettings.consentedBy()).toBe(metricsSettingsJSON.consented_by);
   });
 
+  it('should toggle consent value', () => {
+    const metricsSettings = MetricsSettings.fromJSON(metricsSettingsJSON);
+
+    expect(metricsSettings.consent()).toBe(true);
+    metricsSettings.toggleConsent();
+    expect(metricsSettings.consent()).toBe(false);
+  });
+
+  it('should reset consent value', () => {
+    const metricsSettings = MetricsSettings.fromJSON(metricsSettingsJSON);
+
+    expect(metricsSettings.consent()).toBe(true);
+    metricsSettings.toggleConsent();
+    expect(metricsSettings.consent()).toBe(false);
+    metricsSettings.resetConsent();
+    expect(metricsSettings.consent()).toBe(true);
+    metricsSettings.resetConsent();
+    expect(metricsSettings.consent()).toBe(true);
+  });
+
   it('should fetch metrics settings', function () {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(metricsSettingsGetUrl).andReturn({
@@ -46,6 +66,34 @@ describe('Metrics Consent', () => {
       });
 
       MetricsSettings.get().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
+  });
+
+  it('should patch metrics settings', function () {
+    jasmine.Ajax.withMock(() => {
+      const updatedMetricsSettings = {consent: false, consented_by: 'Bob'};
+
+      jasmine.Ajax.stubRequest(metricsSettingsGetUrl, undefined, 'PATCH').andReturn({
+        responseText:    JSON.stringify(updatedMetricsSettings),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        }
+      });
+
+      const metricsSettings = MetricsSettings.fromJSON(metricsSettingsJSON);
+
+      const successCallback = jasmine.createSpy().and.callFake(() => {
+        expect(metricsSettings.consent()).toBe(updatedMetricsSettings.consent);
+        expect(metricsSettings.consentedBy()).toBe(updatedMetricsSettings.consented_by);
+      });
+
+      expect(metricsSettings.consent()).toBe(true);
+      metricsSettings.toggleConsent();
+      expect(metricsSettings.consent()).toBe(false);
+
+      metricsSettings.save().then(successCallback);
       expect(successCallback).toHaveBeenCalled();
     });
   });

@@ -20,11 +20,32 @@ const f = require("helpers/form_helper");
 const HeaderPanel = require('views/shared/header_panel');
 
 const ToggleConsentWidget = {
+  oninit(vnode) {
+    this.toggleConsent = function (metricsSettings) {
+      metricsSettings.toggleConsent();
+    }
+  },
+
   view(vnode) {
+    const metricsSettings = vnode.attrs.metricsSettings;
+    const consentValue    = metricsSettings.consent();
+    const consentText = consentValue ? 'Yes' : 'No';
+
     return <div class="consent-toggle-wrapper">
       <span class="consent-toggle">
         <p>Allow GoCD to collect following data:</p>
-        <button>toggle</button>
+        <div class="switch">
+          <input class="switch-input"
+                 id="consentSwitch"
+                 type="radio"
+                 checked={consentValue}
+                 onclick={metricsSettings.toggleConsent}
+                 name="consentSwitch"/>
+          <label class="switch-paddle" for="consentSwitch">
+            <span class="show-for-sr"/>
+          </label>
+        </div>
+        <div class="human-readable-consent">{consentText}</div>
       </span>
 
       <div class="consent-for-wrapper">
@@ -48,17 +69,29 @@ const ConsentInformation = {
 };
 
 const MetricsConsentWidget = {
+  oninit(vnode) {
+    this.save = function (metricsSettings) {
+      metricsSettings.save().then(m.redraw)
+    };
+
+    this.reset = function (metricsSettings) {
+      metricsSettings.resetConsent();
+    };
+  },
+
   view(vnode) {
+    const metricsSettings = vnode.attrs.metricsSettings;
+
     return <div>
       <HeaderPanel title="GoCD Metrics Collection"/>
       <div class="main-container">
         <div class="content-container">
-          <ToggleConsentWidget metricsSettings={vnode.attrs.metricsSettings}/>
+          <ToggleConsentWidget metricsSettings={metricsSettings}/>
           <ConsentInformation/>
         </div>
         <div class="button-wrapper">
-          <f.button>Save</f.button>
-          <f.button>Reset</f.button>
+          <f.button class="update-consent" onclick={vnode.state.save.bind(this, metricsSettings)}>Save</f.button>
+          <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, metricsSettings)}>Reset</f.button>
         </div>
       </div>
     </div>

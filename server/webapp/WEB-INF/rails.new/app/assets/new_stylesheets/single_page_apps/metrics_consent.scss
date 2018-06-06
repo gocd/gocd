@@ -20,3 +20,24 @@
 @import 'shared/header';
 @import 'shared/alert';
 @import 'shared/action_buttons';
+
+.main-container {
+  padding: 30px 15px 0 15px;
+}
+
+.content-container {
+  display: flex;
+}
+
+.consent-toggle-wrapper {
+  width: 50%;
+}
+
+.consent-toggle {
+  display: flex;
+
+  p {
+    font-size:   20px;
+    font-weight: 600;
+  }
+}

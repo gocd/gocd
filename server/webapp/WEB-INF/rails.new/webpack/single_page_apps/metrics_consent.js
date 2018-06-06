@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-const $              = require('jquery');
-const m              = require('mithril');
-const VersionUpdater = require('models/shared/version_updater');
+const $ = require('jquery');
+const m = require('mithril');
+
+const VersionUpdater  = require('models/shared/version_updater');
+const MetricsSettings = require('models/metrics_consent/metrics_settings');
+
+const PageLoadError        = require('views/shared/page_load_error');
+const MetricsConsentWidget = require('views/metrics_consent/metrics_consent_widget');
 
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
@@ -24,13 +29,30 @@ require('helpers/server_health_messages_helper');
 $(() => {
   new VersionUpdater().update();
 
-  m.mount($("#metrics-consent").get(0), {
-    view() {
-      return (<div class="page-spinner"></div>);
-    }
-  });
+  const container = $("#metrics-consent").get(0);
 
-  $(document).foundation();
+  const onSuccess = (metricsSettings) => {
+    m.mount(container, {
+      view() {
+        return (<MetricsConsentWidget metricsSettings={metricsSettings}/>);
+      }
+    });
+
+    $(document).foundation();
+  };
+
+  const onFailure = () => {
+    return onSuccess(new MetricsSettings({consent: true, consented_by: 'Ganeshpl'}));
+
+    m.mount(container, {
+      view() {
+        return (<PageLoadError message="There was a problem fetching metrics consent information"/>);
+      }
+    });
+  };
+
+  //todo: blame Ganeshpl for this
+  MetricsSettings.get().then(onSuccess, onFailure);
 });
 
 

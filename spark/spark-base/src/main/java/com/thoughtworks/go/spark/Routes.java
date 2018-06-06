@@ -267,4 +267,8 @@ public class Routes {
     public class PluginsSPA {
         public static final String BASE = "/admin/plugins";
     }
+
+    public class MetricsConsentSPA {
+        public static final String BASE = "/admin/metrics/consent";
+    }
 }

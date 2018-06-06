@@ -80,6 +80,12 @@
     </rule>
 
     <rule>
+        <name>Metrics Consent SPA</name>
+        <from>^/admin/metrics/consent(/?)$</from>
+        <to last="true">/spark/admin/metrics/consent</to>
+    </rule>
+
+    <rule>
         <name>Analytics Fetch API</name>
         <from>^/analytics/([^/]+)/([^/]+)/([^/]+)</from>
         <to last="true">/spark/analytics/${escape:$1}/${escape:$2}/${escape:$3}</to>

@@ -45,6 +45,11 @@ function unwrapStream(maybeStream) {
   return maybeStream;
 }
 
+function teardownFoundation(el) {
+  if ($(el).data('zfPlugin')) {
+    $(el).foundation('destroy');
+  }
+}
 // ensures the input is either an array or is wrapped in an array.
 // also removes blank members (empty strings, null, etc) and optionally
 // applies a transform on each item.
@@ -558,7 +563,7 @@ const f = {
     },
 
     onbeforeremove: (vnode) => {
-      $(vnode.dom).foundation('destroy');
+      teardownFoundation(vnode.dom);
     },
 
     view(vnode) {

@@ -17,6 +17,7 @@
 const m     = require('mithril');
 const $     = require('jquery');
 const _     = require('lodash');
+const uuid4 = require('uuid/v4');
 const s     = require('string-plus');
 const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
@@ -70,17 +71,17 @@ function wrapTextInSpan(thing) {
   return thing;
 }
 
-function wireUpModel(attrs, property="value", listener="onchange") {
+function wireUpModel(attrs, property = "value", listener = "onchange") {
   const model = deleteKeyAndReturnValue(attrs, "model");
 
   if (model) {
     let attrName;
     attrs["data-model-type"] = deleteKeyAndReturnValue(attrs, "modelType", (model.constructor ? model.constructor.modelType : null));
     attrs["data-prop-name"]  = attrName = deleteKeyAndReturnValue(attrs, "attrName");
-    attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
+    attrs[property] = deleteKeyAndReturnValue(attrs, property, model[attrName]());
 
-    const chainedCallback    = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
-      onUpdate               = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
+    const chainedCallback = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
+          onUpdate        = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
 
     attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) { onUpdate(e); chainedCallback(e); } : onUpdate;
   }
@@ -92,7 +93,7 @@ function validateModel(model, attrs) {
   if (!model) { return; }
 
   const performValidations = deleteKeyAndReturnValue(attrs, 'validate', false),
-    attrName               = attrs["attrName"] || attrs["data-prop-name"];
+        attrName           = attrs["attrName"] || attrs["data-prop-name"];
 
   let validationErrors;
 
@@ -109,7 +110,7 @@ function validateModel(model, attrs) {
 
 const f = {
   row: {
-    view (vnode) {
+    view(vnode) {
       const args     = vnode.attrs;
       const children = vnode.children;
 
@@ -125,13 +126,13 @@ const f = {
   },
 
   column: {
-    view (vnode) {
+    view(vnode) {
       const args     = vnode.attrs;
       const children = vnode.children;
 
-      const end   = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
-        size      = deleteKeyAndReturnValue(args, 'size', 6),
-        largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+      const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
+            size      = deleteKeyAndReturnValue(args, 'size', 6),
+            largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
       return (
         <div class={compactClasses(args, 'columns', `medium-${size}`, `large-${largeSize}`, end)}
@@ -143,23 +144,23 @@ const f = {
   },
 
   input: {
-    view (vnode) {
+    view(vnode) {
       const defaultAttrs = {
-        autocomplete: "off",
+        autocomplete:   "off",
         autocapitalize: "off",
-        autocorrect: "off",
-        spellcheck: false,
-        type: "text"
+        autocorrect:    "off",
+        spellcheck:     false,
+        type:           "text"
       };
 
-      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
+      const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const model        = wireUpModel(args, "value", "oninput"),
-        validationErrors = validateModel(model, args),
-        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
+      const model            = wireUpModel(args, "value", "oninput"),
+            validationErrors = validateModel(model, args),
+            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
 
       if (validationErrors) {
@@ -169,30 +170,30 @@ const f = {
 
       const element = <input {...args} />;
       return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
-          {label}
-          {element}
-          {contentAfter}
-        </label>;
+        {label}
+        {element}
+        {contentAfter}
+      </label>;
     }
   },
 
   textarea: {
-    view (vnode) {
+    view(vnode) {
       const defaultAttrs = {
-        autocomplete: "off",
+        autocomplete:   "off",
         autocapitalize: "off",
-        autocorrect: "off",
-        spellcheck: "off"
+        autocorrect:    "off",
+        spellcheck:     "off"
       };
 
-      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
+      const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const model        = wireUpModel(args, "value", "oninput"),
-        validationErrors = validateModel(model, args),
-        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
+      const model            = wireUpModel(args, "value", "oninput"),
+            validationErrors = validateModel(model, args),
+            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
 
       if (validationErrors) {
@@ -202,21 +203,21 @@ const f = {
 
       const element = <textarea {...args}></textarea>;
       return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
-          {label}
-          {element}
-          {contentAfter}
-        </label>;
+        {label}
+        {element}
+        {contentAfter}
+      </label>;
     }
   },
 
   checkbox: {
-    view (vnode) {
+    view(vnode) {
       const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
 
       wireUpModel(args, "checked");
 
-      const label    = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-        inputElement = <input type="checkbox" {...args} />;
+      const label        = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+            inputElement = <input type="checkbox" {...args} />;
 
       return _.isEmpty(label) ? inputElement : <label>
         {inputElement}
@@ -226,17 +227,17 @@ const f = {
   },
 
   select: {
-    view (vnode) {
+    view(vnode) {
       const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const model        = wireUpModel(args), // alters args, should be called first
-        validationErrors = validateModel(model, args),
-        items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
-        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
-        selected         = unwrapStream(args.value);
+      const model            = wireUpModel(args), // alters args, should be called first
+            validationErrors = validateModel(model, args),
+            items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
+            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
+            selected         = unwrapStream(args.value);
 
-      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
 
       if (validationErrors) {
@@ -248,7 +249,7 @@ const f = {
         _.map(items, (item) => {
           // item may be a string or an object
           const text = item.text || item;
-          const id = item.id || text;
+          const id   = item.id || text;
           return <option value={id} selected={selected === id}>{text}</option>;
         })
       }</select>;
@@ -264,12 +265,12 @@ const f = {
   resetAttrButton: {
     view(vnode) {
       const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
-      return <f.button type="reset" onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
+      return <f.button type="reset" onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)}/>;
     }
   },
 
   tabs: {
-    oninit (vnode) {
+    oninit(vnode) {
       this.selectedIndex = s.defaultToStream(vnode.attrs.selectedIndex || 0);
 
       this.classNameForTab = function (tabIndex) {
@@ -285,7 +286,7 @@ const f = {
       };
     },
 
-    view (vnode) {
+    view(vnode) {
       const children = vnode.children;
 
       const tabs = (
@@ -361,7 +362,7 @@ const f = {
   },
 
   accordion: {
-    oninit (vnode) {
+    oninit(vnode) {
       this.selectedIndex = Mixin.TogglingGetterSetter(s.defaultToStream(vnode.attrs.selectedIndex || 0));
 
       this.classNameForAccordionIndex = function (tabIndex) {
@@ -373,7 +374,7 @@ const f = {
       };
     },
 
-    view (vnode) {
+    view(vnode) {
       const ctrl     = vnode.state;
       const args     = vnode.attrs;
       const children = vnode.children;
@@ -407,20 +408,20 @@ const f = {
   },
 
   buttonWithTooltip: {
-    oncreate (vnode) {
+    oncreate(vnode) {
       new window.Foundation.Tooltip($(vnode.dom), {tipText: vnode.attrs.tooltipText});
     },
 
-    onupdate (vnode) {
+    onupdate(vnode) {
       //an elements data.zfPlugin.template gives the tooltip element
       $(vnode.dom).data().zfPlugin.template.text(vnode.attrs.tooltipText);
     },
 
-    onremove (vnode) {
+    onremove(vnode) {
       $(vnode.dom).foundation('destroy');
     },
 
-    view (vnode) {
+    view(vnode) {
       const args = vnode.attrs;
       return (<button type="button"
                       class={compactClasses(args, vnode.attrs.buttonType)}
@@ -432,10 +433,10 @@ const f = {
   },
 
   button: {
-    view (vnode) {
+    view(vnode) {
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
-      const buttonType    = deleteKeyAndReturnValue(args, "type") || "button";
+      const buttonType  = deleteKeyAndReturnValue(args, "type") || "button";
 
       if (!_.isEmpty(tooltipText)) {
         return (<f.buttonWithTooltip tooltipText={tooltipText}
@@ -443,11 +444,11 @@ const f = {
                                      {...args}/>);
       }
       return (
-          <button type="button"
-                  class={compactClasses(args, buttonType)}
-                  {...args}>
-            {vnode.children}
-          </button>
+        <button type="button"
+                class={compactClasses(args, buttonType)}
+                {...args}>
+          {vnode.children}
+        </button>
       );
     }
   },
@@ -476,7 +477,7 @@ const f = {
   },
 
   link: {
-    view (vnode) {
+    view(vnode) {
       const tooltipText = vnode.attrs.tooltipText;
 
       if (!_.isEmpty(tooltipText)) {
@@ -497,13 +498,13 @@ const f = {
   },
 
   anchor: {
-    view (vnode) {
+    view(vnode) {
       return (<a href={vnode.attrs.href} class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
     }
   },
 
   tooltip: {
-    view (vnode) {
+    view(vnode) {
       const args     = vnode.attrs;
       const children = vnode.children;
 
@@ -512,17 +513,17 @@ const f = {
       }
 
       const direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
-        size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
-        content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
-        clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
+            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+            clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+            type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
 
       let tooltipId = 'tooltip-';
 
       if (args.model && args.model.uuid) {
         tooltipId += (`${args.model.uuid()}-${args.attrName}`);
       } else {
-        tooltipId += s.uuid();
+        tooltipId += uuid4();
       }
 
       return (
@@ -555,7 +556,7 @@ const f = {
       $(vnode.dom).foundation('destroy');
     },
 
-    view (vnode) {
+    view(vnode) {
       const args     = vnode.attrs;
       const children = vnode.children;
 
@@ -568,7 +569,7 @@ const f = {
   },
 
   callout: {
-    view (vnode) {
+    view(vnode) {
       const children = vnode.children;
       const type     = deleteKeyAndReturnValue(vnode.attrs, 'type');
       return (<div class={`callout ${type}`} {...vnode.attrs}>{children}</div>);
@@ -583,10 +584,10 @@ const f = {
       };
     },
 
-    view (vnode) {
+    view(vnode) {
       const message = vnode.attrs.message;
       let callout;
-      if(message && message().message) {
+      if (message && message().message) {
         callout = (
           <f.row>
             <f.callout type={message().type}>
@@ -604,19 +605,19 @@ const f = {
   },
 
   alert: {
-    view (vnode) {
+    view(vnode) {
       return (<f.callout type="alert" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },
 
   warning: {
-    view (vnode) {
+    view(vnode) {
       return (<f.callout type="warning" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },
 
   info: {
-    view (vnode) {
+    view(vnode) {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },

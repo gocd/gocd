@@ -23,7 +23,7 @@ const MaterialFilterWidget = require('views/pipeline_configs/material_filter_wid
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');
-const s               = require('string-plus');
+const uuid4           = require('uuid/v4');
 const tt              = require('helpers/pipeline_configs/tooltips');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Materials       = require('models/pipeline_configs/materials');
@@ -56,7 +56,7 @@ const PasswordField = {
           </label>
           <input type='password'
                  readonly={true}
-                 value={s.uuid()}/>
+                 value={uuid4()}/>
         </f.column>
       );
     }

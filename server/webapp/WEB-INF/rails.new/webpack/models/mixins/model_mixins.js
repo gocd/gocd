@@ -16,12 +16,13 @@
 
 const _      = require('lodash');
 const s      = require('string-plus');
+const uuid4  = require('uuid/v4');
 const Stream = require('mithril/stream');
 
 const Mixins = {};
 
 Mixins.HasUUID = function () {
-  this.uuid = Mixins.GetterSetter(`${this.constructor.modelType}-${s.uuid()}`);
+  this.uuid = Mixins.GetterSetter(`${this.constructor.modelType}-${uuid4()}`);
 };
 
 Mixins.HasEncryptedAttribute = function (options) {

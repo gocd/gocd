@@ -24,7 +24,8 @@
     "moment": "^2.20.1",
     "moment-duration-format": "^2.2.1",
     "repeat": "^0.0.6",
-    "underscore.string": "^3.3.4"
+    "underscore.string": "^3.3.4",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

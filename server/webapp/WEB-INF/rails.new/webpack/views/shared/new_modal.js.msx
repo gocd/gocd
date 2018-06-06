@@ -17,9 +17,9 @@
 const m = require('mithril');
 const f = require('helpers/form_helper');
 
-const _ = require('lodash');
-const $ = require('jquery');
-const s = require('string-plus');
+const _     = require('lodash');
+const $     = require('jquery');
+const uuid4 = require('uuid/v4');
 // instead of each modal being a top level component of its own (and causing a redraw of everything else on the page)
 // we manage a single component that's always mounted as soon as the page loads up, creating a new modal will create
 // a sub-component in the top level component.
@@ -41,12 +41,12 @@ const defaultOptions = {
 
 const Modal = function (options) {
   const self    = this;
-  const modalId = `modal-${s.uuid()}`;
+  const modalId = `modal-${uuid4()}`;
   options       = _.assign({}, defaultOptions, options);
 
   const $body = $('body');
 
-  const uuid = s.uuid();
+  const uuid = uuid4();
 
   this.modalDialog = {
     oninit(vnode) {
@@ -82,7 +82,7 @@ const Modal = function (options) {
     },
 
     view(vnode) {
-      const buttons = _.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
+      const buttons    = _.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
         return (
           <f.button disabled={button.disabled ? button.disabled() : false}
                     onclick={button.onclick}

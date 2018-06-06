@@ -18,7 +18,7 @@ const m = require('mithril');
 
 const _          = require('lodash');
 const $          = require('jquery');
-const s          = require('string-plus');
+const uuid4      = require('uuid/v4');
 const Foundation = require('foundation-sites');
 
 const init = function (uuid) {
@@ -32,7 +32,7 @@ const init = function (uuid) {
 const Modal = function (options) {
   this.subView = options.subView;
   this.title   = options.title;
-  this.uuid    = s.uuid();
+  this.uuid    = uuid4();
 
   this.view = function () {
     const subViewArgs = _.merge({parentView: this}, this.subView.args);

@@ -29,7 +29,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
@@ -79,7 +78,7 @@ public class RemoteRegistrationRequesterTest {
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
         when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
-        when(httpClient.execute(isA(HttpUriRequest.class))).thenReturn(response);
+        when(httpClient.execute(isA(HttpRequestBase.class))).thenReturn(response);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
@@ -99,7 +98,7 @@ public class RemoteRegistrationRequesterTest {
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
         when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
-        when(httpClient.execute(isA(HttpUriRequest.class))).thenReturn(response);
+        when(httpClient.execute(isA(HttpRequestBase.class))).thenReturn(response);
 
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();

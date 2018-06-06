@@ -31,7 +31,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
@@ -172,14 +171,14 @@ public class SslInfrastructureServiceTest {
         when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.FORBIDDEN.value(), null));
         when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
         when(httpResponseForbidden.getEntity()).thenReturn(new StringEntity("Not a valid token."));
-        when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
+        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
         sslInfrastructureService.createSslInfrastructure();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
 
         assertTrue(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.exists());
         verify(agentRegistry, times(1)).deleteToken();
-        verify(httpClient, times(2)).execute(any(HttpUriRequest.class));
+        verify(httpClient, times(2)).execute(any(HttpRequestBase.class));
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {

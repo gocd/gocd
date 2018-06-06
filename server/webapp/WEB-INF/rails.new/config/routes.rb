@@ -32,9 +32,7 @@ Go::Application.routes.draw do
   end
 
   mount Oauth2Provider::Engine => '/oauth', :as => :oauth_engine
-
-  root 'welcome#index' # put to get root_path. '/' is handled by java.
-
+  
   get "about", controller: :about, action: :show, as: :about
 
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet

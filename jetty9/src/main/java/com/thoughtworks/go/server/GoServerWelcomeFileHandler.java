@@ -44,7 +44,17 @@ class GoServerWelcomeFileHandler extends ContextHandler {
                 response.setHeader("X-Frame-Options", "SAMEORIGIN");
                 response.setHeader("X-UA-Compatible", "chrome=1");
                 response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
+                return;
             }
+
+            if (pathInfo.startsWith("/go/")) {
+                return;
+            }
+
+            response.setHeader("X-XSS-Protection", "1; mode=block");
+            response.setHeader("X-Content-Type-Options", "nosniff");
+            response.setHeader("X-Frame-Options", "SAMEORIGIN");
+            response.setHeader("X-UA-Compatible", "chrome=1");
         }
     }
 }

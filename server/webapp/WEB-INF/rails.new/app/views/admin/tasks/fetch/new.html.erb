@@ -1,9 +1,23 @@
-<%= render :partial => "admin/tasks/fetch/form.html", :locals => {:scope => scope} %>
+<%= render :partial => "admin/tasks/fetch/form.html", :locals => {:scope => {:task => scope[:task],
+                                                                             :artifact_id_to_plugin_id => @artifact_id_to_plugin_id,
+                                                                             :artifact_ids => @artifact_ids,
+                                                                             :artifact_plugin_to_fetch_view => @artifact_plugin_to_fetch_view,
+                                                                             :routeFetch => admin_task_create_path(:type => com.thoughtworks.go.config.FetchTask.new.getTaskType()),
+                                                                             :routeFetchPluggable => admin_task_create_path(:type => com.thoughtworks.go.config.FetchPluggableArtifactTask.new.getTaskType()),
+                                                                             :form => scope[:form]}} %>
 <script type="text/javascript">
-    Util.on_load(function() {
-        new TaskEditor.TypeEditor({container: jQuery('.stage_options'), switch_control: jQuery('.pipeline_selector'), entry_to_be_hidden: '.stages_option'});
-        var helper = new TaskEditor.TypeEditor({container: jQuery('.on_cancel_task'), switch_control: jQuery('.on_cancel_type'), entry_to_be_hidden: '.task_entry'});
-        //memory leak
-        helper.showHideCheckbox(jQuery('.has_cancel_task'));
+  Util.on_load(function () {
+    new TaskEditor.TypeEditor({
+      container:          jQuery('.stage_options'),
+      switch_control:     jQuery('.pipeline_selector'),
+      entry_to_be_hidden: '.stages_option'
     });
+    var helper = new TaskEditor.TypeEditor({
+      container:          jQuery('.on_cancel_task'),
+      switch_control:     jQuery('.on_cancel_type'),
+      entry_to_be_hidden: '.task_entry'
+    });
+    //memory leak
+    helper.showHideCheckbox(jQuery('.has_cancel_task'));
+  });
 </script>

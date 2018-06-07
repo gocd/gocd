@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ module Admin
     end
 
     def edit
+      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:pipeline_name], params[:stage_name]).to_hash
+      assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       @task_view_model = task_view_service.getViewModel(@task, 'edit')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
       assert_load :config_store, config_store
@@ -38,6 +40,8 @@ module Admin
 
     def new
       type = params[:type]
+      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:pipeline_name], params[:stage_name]).to_hash
+      assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       assert_load :task, task_view_service.taskInstanceFor(type)
       assert_load :task_view_model, task_view_service.getViewModel(@task, 'new')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
@@ -67,17 +71,25 @@ module Admin
         end
 
         def subject(job)
+          if @task.is_a?(com.thoughtworks.go.config.AbstractFetchTask)
+            return com.thoughtworks.go.config.FetchTaskAdapter.new(@task)
+          end
           @task
         end
 
         def update(job)
-          job.addTask(@task)
+          if @task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter)
+            job.addTask(@task.getAppropriateTask)
+          else
+            job.addTask(@task)
+          end
           @pluggable_task_service.validate(@task) if @task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           @pluggable_task_service.validate(@task.cancelTask()) if (!@task.cancelTask().nil?) && (@task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
         end
       end.new(params, current_user.getUsername(), security_service, @task, pluggable_task_service), create_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :job, @node
         assert_load :task, @subject
+        assert_load :artifact_ids, ["foo", "bar"].to_json
         load_modify_task_variables
       end
     end
@@ -107,8 +119,8 @@ module Admin
         render :template => "/admin/tasks/plugin/edit", :status => result.httpCode(), :layout => false
       end
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
-        include ::ConfigUpdate::TaskNode
-        include ::ConfigUpdate::NodeAsSubject
+        include ::ConfigUpdate::JobNode
+        include ::ConfigUpdate::JobTaskSubject
 
         def initialize(params, user, security_service, task_view_service, pluggable_task_service)
           super(params, user, security_service)
@@ -116,24 +128,35 @@ module Admin
           @pluggable_task_service = pluggable_task_service
         end
 
-        def update(task)
+        def update(job)
+          task = job.getTasksForView()[task_index]
+          if task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter)
+            if params[:task]['selectedTaskType'] == 'gocd'
+              task = com.thoughtworks.go.config.FetchTask.new
+            elsif params[:task]['selectedTaskType'] == 'external'
+              task = com.thoughtworks.go.config.FetchPluggableArtifactTask.new
+            end
+          end
           task.setConfigAttributes(params[:task], @task_view_service)
           @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+          job.getTasks().replace(task_index, task)
         end
 
       end.new(params, current_user.getUsername(), security_service, task_view_service, pluggable_task_service), update_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
-        assert_load :task, @node
+        assert_load :task, adapt_fetch_task_if_needed(@subject)
         load_modify_task_variables
+        assert_load :artifact_ids, ["foo", "bar"].to_json
+        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate().to_hash
       end
     end
 
     def increment_index
-      change_index { |tasks, task_idx| tasks.incrementIndex(task_idx) }
+      change_index {|tasks, task_idx| tasks.incrementIndex(task_idx)}
     end
 
     def decrement_index
-      change_index { |tasks, task_idx| tasks.decrementIndex(task_idx) }
+      change_index {|tasks, task_idx| tasks.decrementIndex(task_idx)}
     end
 
     private
@@ -183,16 +206,23 @@ module Admin
     end
 
     def load_task
-      assert_load :tasks, @job.getTasks()
+      assert_load :tasks, @job.getTasksForView()
       task_idx = params[:task_index].to_i
       (@tasks.size() > task_idx) ? assert_load(:task, @tasks.get(task_idx)) : render_assertion_failure({:message => 'Task not found.'})
+    end
+
+    def adapt_fetch_task_if_needed(task)
+      if is_fetch_task? task.getTaskType()
+        return com.thoughtworks.go.config.FetchTaskAdapter.new(task)
+      end
+      task
     end
 
     def change_index &action
       save_page(params[:config_md5], admin_tasks_listing_path, with_layout(:action => :index), Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
         include ::ConfigUpdate::JobNode
         include ::ConfigUpdate::JobTaskSubject
-        
+
         def initialize(params, user, security_service, action)
           super(params, user, security_service)
           @action = action

@@ -1,59 +1,59 @@
 <div class="config-container config-tasks">
-<h3>Tasks</h3>
-<table class="list_table reorderable_table tasks_list_table">
+  <h3>Tasks</h3>
+  <table class="list_table reorderable_table tasks_list_table">
     <thead>
     <tr>
-        <th>Order</th>
-        <th>Task Type</th>
-        <th class="run_ifs">Run If Conditions</th>
-        <th>Properties</th>
-        <th>On Cancel</th>
-        <th class="">Remove</th>
+      <th>Order</th>
+      <th>Task Type</th>
+      <th class="run_ifs">Run If Conditions</th>
+      <th>Properties</th>
+      <th>On Cancel</th>
+      <th class="">Remove</th>
     </tr>
     </thead>
     <tbody>
     <% @tasks.each_with_index do |task_for_listing, task_config_index| %>
-        <%- tvm_of_task_listing = task_view_service.getViewModel(task_for_listing, 'list-entry') -%>
-        <%- tvm_of_cancel_task_or_nil = task_for_listing.hasCancelTask() ? task_view_service.getViewModel(task_for_listing.cancelTask(), 'list-entry') : nil -%>
-        <%= render :partial => "/admin/tasks/plugin/task_entry.html", :locals => {:scope => {:tvm => tvm_of_task_listing, :tvm_of_cancel_task => tvm_of_cancel_task_or_nil,
-                                                                                             :task_config_index => task_config_index, :task_config => tvm_of_task_listing.getModel()}} -%>
+      <%- tvm_of_task_listing = task_view_service.getViewModel(task_for_listing, 'list-entry') -%>
+      <%- tvm_of_cancel_task_or_nil = task_for_listing.hasCancelTask() ? task_view_service.getViewModel(task_for_listing.cancelTask(), 'list-entry') : nil -%>
+      <%= render :partial => "/admin/tasks/plugin/task_entry.html", :locals => {:scope => {:tvm => tvm_of_task_listing, :tvm_of_cancel_task => tvm_of_cancel_task_or_nil,
+                                                                                           :task_config_index => task_config_index, :task_config => tvm_of_task_listing.getModel()}} -%>
     <% end %>
     <tr>
-        <td>&nbsp;</td>
-        <td colspan="5">
-            <%= action_icon({:type => "add", :text => 'Add new task', :id => "add_new_task_dropdown_link", :href => "#", :menu_link => true}) %>
-            <div id="new_task_popup" class="hidden enhanced_dropdown">
-                <ul>
-                    <% @task_view_models.each do |tvm_of_task_listing| %>
-                        <% if is_exec_task? tvm_of_task_listing.getTaskType()
-                             @tvm_of_custom_command = tvm_of_task_listing
-                        %>
-                        <% else %>
-                            <li>
-                                <%= link_to tvm_of_task_listing.getTypeForDisplay(), '#',
-                                            :onclick => "Modalbox.show('#{admin_task_new_path(:type => tvm_of_task_listing.getTaskType())}', {overlayClose: false, title: '#{'Add new task'} - #{tvm_of_task_listing.getTypeForDisplay}'})",
-                                            :class => task_css_class(tvm_of_task_listing.getTaskType()) -%>
-                            </li>
-                        <% end %>
-                    <% end %>
-                    <li class="menu_item_last_with_border">
-                        <%= link_to "More...", '#',
-                                    :onclick => "ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('#{admin_task_new_path(:type => @tvm_of_custom_command.getTaskType())}', {overlayClose: false, title: '#{'Add new task'} - #{@tvm_of_custom_command.getTypeForDisplay()}'})",
-                                    :class => task_css_class(@tvm_of_custom_command.getTaskType()) -%>
-                    </li>
+      <td>&nbsp;</td>
+      <td colspan="5">
+        <%= action_icon({:type => "add", :text => 'Add new task', :id => "add_new_task_dropdown_link", :href => "#", :menu_link => true}) %>
+        <div id="new_task_popup" class="hidden enhanced_dropdown">
+          <ul>
+            <% @task_view_models.each do |tvm_of_task_listing| %>
+              <% if is_exec_task? tvm_of_task_listing.getTaskType()
+                   @tvm_of_custom_command = tvm_of_task_listing
+              %>
+              <% elsif tvm_of_task_listing.getTaskType() != "fetch_pluggable_artifact" %>
+                <li>
+                  <%= link_to tvm_of_task_listing.getTypeForDisplay(), '#',
+                              :onclick => "Modalbox.show('#{admin_task_new_path(:type => tvm_of_task_listing.getTaskType())}', {overlayClose: false, title: '#{'Add new task'} - #{tvm_of_task_listing.getTypeForDisplay}'})",
+                              :class => task_css_class(tvm_of_task_listing.getTaskType()) -%>
+                </li>
+              <% end %>
+            <% end %>
+            <li class="menu_item_last_with_border">
+              <%= link_to "More...", '#',
+                          :onclick => "ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('#{admin_task_new_path(:type => @tvm_of_custom_command.getTaskType())}', {overlayClose: false, title: '#{'Add new task'} - #{@tvm_of_custom_command.getTypeForDisplay()}'})",
+                          :class => task_css_class(@tvm_of_custom_command.getTaskType()) -%>
+            </li>
 
-                </ul>
-            </div>
-        </td>
+          </ul>
+        </div>
+      </td>
     </tr>
     </tbody>
-</table>
-  </div>
+  </table>
+</div>
 <script type="text/javascript">
-    AjaxForm.error_box_selector = '#MB_content';
-    Util.on_load(function() {
-        var newTaskPopup = new MicroContentPopup(jQuery('#new_task_popup').get(0), new MicroContentPopup.NoOpHandler());
-        var newTaskPopupShower = new MicroContentPopup.ClickShower(newTaskPopup);
-        newTaskPopupShower.bindShowButton(jQuery('#add_new_task_dropdown_link').get(0));
-    });
+  AjaxForm.error_box_selector = '#MB_content';
+  Util.on_load(function () {
+    var newTaskPopup       = new MicroContentPopup(jQuery('#new_task_popup').get(0), new MicroContentPopup.NoOpHandler());
+    var newTaskPopupShower = new MicroContentPopup.ClickShower(newTaskPopup);
+    newTaskPopupShower.bindShowButton(jQuery('#add_new_task_dropdown_link').get(0));
+  });
 </script>

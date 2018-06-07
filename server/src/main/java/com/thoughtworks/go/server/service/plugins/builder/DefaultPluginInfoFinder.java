@@ -107,6 +107,15 @@ public class DefaultPluginInfoFinder {
         }
         return pluginDisplayNameToId;
     }
+    public List<Map<String, String>> pluginIdToFetchViewTemplate() {
+        return allPluginInfos(ARTIFACT_EXTENSION).stream().map(info -> {
+            Map<String, String> pluginToView = new HashMap<>();
+            pluginToView.put("id", info.getDescriptor().id());
+            pluginToView.put("name", info.getDescriptor().about().name());
+            pluginToView.put("view", ((ArtifactPluginInfo) info.extensionFor(ARTIFACT_EXTENSION)).getFetchArtifactSettings().getView().getTemplate());
+            return pluginToView;
+        }).collect(toList());
+    }
 
     private Function<PluginInfo, String> pluginID() {
         return pluginInfo -> pluginInfo.getDescriptor().id();

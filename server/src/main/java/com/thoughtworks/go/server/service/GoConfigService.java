@@ -72,6 +72,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 public class GoConfigService implements Initializer, CruiseConfigProvider {
@@ -94,9 +95,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
-                           ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials, SystemEnvironment systemEnvironment) {
+    public GoConfigService(GoConfigDao goConfigDao,
+                           PipelineRepository pipelineRepository,
+                           GoConfigMigration upgrader,
+                           GoCache goCache,
+                           ConfigRepository configRepository,
+                           ConfigCache configCache,
+                           ConfigElementImplementationRegistry registry,
+                           InstanceFactory instanceFactory,
+                           CachedGoPartials cachedGoPartials,
+                           SystemEnvironment systemEnvironment) {
         this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
@@ -110,9 +118,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     //for testing
-    public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
-                           ConfigRepository configRepository, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials, SystemEnvironment systemEnvironment) {
+    public GoConfigService(GoConfigDao goConfigDao,
+                           PipelineRepository pipelineRepository,
+                           Clock clock,
+                           GoConfigMigration upgrader,
+                           GoCache goCache,
+                           ConfigRepository configRepository,
+                           ConfigElementImplementationRegistry registry,
+                           InstanceFactory instanceFactory,
+                           CachedGoPartials cachedGoPartials,
+                           SystemEnvironment systemEnvironment) {
         this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials, systemEnvironment);
         this.clock = clock;
     }
@@ -141,7 +156,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     }
 
-    public ConfigForEdit<PipelineConfig> loadForEdit(String pipelineName, Username username, HttpLocalizedOperationResult result) {
+    public ConfigForEdit<PipelineConfig> loadForEdit(String pipelineName,
+                                                     Username username,
+                                                     HttpLocalizedOperationResult result) {
         if (!canEditPipeline(pipelineName, username, result)) {
             return null;
         }
@@ -165,7 +182,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return pipelineConfig != null && pipelineConfig.isLocal() && isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(pipelineConfig.name()));
     }
 
-    public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
+    public boolean canEditPipeline(String pipelineName,
+                                   Username username,
+                                   LocalizedOperationResult result,
+                                   String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
@@ -304,7 +324,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return timeout != null && !"0".equals(timeout);
     }
 
-    public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command, final String md5, Username username, final LocalizedOperationResult result) {
+    public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command,
+                                                   final String md5,
+                                                   Username username,
+                                                   final LocalizedOperationResult result) {
         UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result, cachedGoPartials);
         UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
         try {
@@ -364,11 +387,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    private Validatable subjectFromNode(UpdateConfigFromUI command, NodeSubjectResolver updatedConfigResolver, Validatable node) {
+    private Validatable subjectFromNode(UpdateConfigFromUI command,
+                                        NodeSubjectResolver updatedConfigResolver,
+                                        Validatable node) {
         return node != null ? updatedConfigResolver.getSubject(command, node) : null;
     }
 
-    private ConfigUpdateResponse latestUpdateResponse(UpdateConfigFromUI command, UiBasedConfigUpdateCommand updateCommand, final NodeSubjectResolver nodeSubResolver, final CruiseConfig config,
+    private ConfigUpdateResponse latestUpdateResponse(UpdateConfigFromUI command,
+                                                      UiBasedConfigUpdateCommand updateCommand,
+                                                      final NodeSubjectResolver nodeSubResolver,
+                                                      final CruiseConfig config,
                                                       ConfigSaveState configSaveState) {
         Validatable node = null;
         Validatable subject = null;
@@ -381,9 +409,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new ConfigUpdateResponse(config, node, subject, updateCommand, configSaveState);
     }
 
-    public ConfigSaveState updateServerConfig(final MailHost mailHost, final boolean shouldAllowAutoLogin,
-                                              final String md5, final String artifactsDir, final Double purgeStart, final Double purgeUpto, final String jobTimeout,
-                                              final String siteUrl, final String secureSiteUrl, final String taskRepositoryLocation) {
+    public ConfigSaveState updateServerConfig(final MailHost mailHost,
+                                              final boolean shouldAllowAutoLogin,
+                                              final String md5,
+                                              final String artifactsDir,
+                                              final Double purgeStart,
+                                              final Double purgeUpto,
+                                              final String jobTimeout,
+                                              final String siteUrl,
+                                              final String secureSiteUrl,
+                                              final String taskRepositoryLocation) {
         final List<ConfigSaveState> result = new ArrayList<>();
         result.add(updateConfig(
                 new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
@@ -394,8 +429,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return result.get(0);
     }
 
-    private UpdateConfigCommand serverConfigUpdater(final String artifactsDir, final Double purgeStart, final Double purgeUpto, final String jobTimeout, final String siteUrl,
-                                                    final String secureSiteUrl, final String taskRepositoryLocation) {
+    private UpdateConfigCommand serverConfigUpdater(final String artifactsDir,
+                                                    final Double purgeStart,
+                                                    final Double purgeUpto,
+                                                    final String jobTimeout,
+                                                    final String siteUrl,
+                                                    final String secureSiteUrl,
+                                                    final String taskRepositoryLocation) {
         return cruiseConfig -> {
             ServerConfig server = cruiseConfig.server();
             server.setArtifactsDir(artifactsDir);
@@ -594,7 +634,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString(stageName), context, getCurrentConfig().getMd5(), clock);
     }
 
-    public MaterialConfig findMaterialWithName(final CaseInsensitiveString pipelineName, final CaseInsensitiveString materialName) {
+    public MaterialConfig findMaterialWithName(final CaseInsensitiveString pipelineName,
+                                               final CaseInsensitiveString materialName) {
         MaterialConfigs materialConfigs = materialConfigsFor(pipelineName);
         for (MaterialConfig materialConfig : materialConfigs) {
             if (materialName.equals(materialConfig.getName())) {
@@ -658,7 +699,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().isPipelineUnlockableWhenFinished(pipelineName);
     }
 
-    public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users, List<TriStateSelection> roleSelections) {
+    public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users,
+                                                                 List<TriStateSelection> roleSelections) {
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (String user : users) {
             for (TriStateSelection roleSelection : roleSelections) {
@@ -911,7 +953,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cloner.deepClone(getConfigForEditing());
     }
 
-    public ConfigForEdit<PipelineConfigs> loadGroupForEditing(String groupName, Username username, HttpLocalizedOperationResult result) {
+    public ConfigForEdit<PipelineConfigs> loadGroupForEditing(String groupName,
+                                                              Username username,
+                                                              HttpLocalizedOperationResult result) {
         GoConfigHolder configForEdit = cloner.deepClone(getConfigHolder());
         if (!isValidGroup(groupName, configForEdit.configForEdit, result)) {
             return null;
@@ -1127,7 +1171,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private class XmlPartialFileSaver extends XmlPartialSaver<CruiseConfig> {
         private final boolean shouldUpgrade;
 
-        XmlPartialFileSaver(final boolean shouldUpgrade, final ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
+        XmlPartialFileSaver(final boolean shouldUpgrade,
+                            final ConfigElementImplementationRegistry registry,
+                            SystemEnvironment systemEnvironment) {
             super(registry, systemEnvironment);
             this.shouldUpgrade = shouldUpgrade;
         }
@@ -1191,4 +1237,31 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return registry;
     }
 
+    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String currentPipelineName,
+                                                                          String currentStageName) {
+        final List<PipelineConfig> pipelineConfigs = pipelinesForFetchArtifacts(currentPipelineName);
+        Map<String, Map> allArtifacts = new HashMap<>();
+
+        pipelineConfigs.forEach(pipelineConfig -> {
+            final String pipelineName = pipelineConfig.getName().toString();
+            final HashMap<String, Map> artifactsInPipeline = new HashMap<>();
+            allArtifacts.put(pipelineName, artifactsInPipeline);
+            final boolean isCurrentPipeline = pipelineName.equalsIgnoreCase(currentPipelineName);
+
+            final List<StageConfig> stageConfigs = isCurrentPipeline ? pipelineConfig.allStagesBefore(new CaseInsensitiveString(currentStageName)) : pipelineConfig.getStages();
+
+            stageConfigs.forEach(stageConfig -> {
+                final String stageName = stageConfig.name().toString();
+                artifactsInPipeline.put(stageName, new HashMap<String, Map>());
+                stageConfig.getJobs().forEach(jobConfig -> {
+                    artifactsInPipeline.get(stageName).put(jobConfig.name().toString(), jobConfig.artifactConfigs().getPluggableArtifactConfigs().stream().collect(toMap(PluggableArtifactConfig::getId, c -> {
+                        final ArtifactStore artifactStore = artifactStores().find(c.getStoreId());
+                        return artifactStore == null ? null : artifactStore.getPluginId();
+                    })));
+                });
+            });
+        });
+
+        return allArtifacts;
+    }
 }

@@ -1,50 +1,200 @@
-<%- f = scope[:form] -%>
+<div class="form_item">
+  <% external_fetch_task = (scope[:task].getAppropriateTask().getTaskType() == 'fetch_pluggable_artifact') %>
+  <textarea id="gocd-fetch-artifact_template" class="template">
+    <%= render :partial => 'admin/tasks/fetch/gocd_artifact_config', :locals => {:scope => {:var_form => scope[:form]}} %>
+  </textarea>
 
-<div class="form_item required">
-    <div class="form_item_block">
-        <%= label_tag random_dom_id('pipeline_'), 'Pipeline' -%>
-        <%= f.text_field com.thoughtworks.go.config.FetchTask::PIPELINE_NAME %>
-        <div class="contextual_help has_go_tip_right" title="The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material. Defaults to current pipeline if not specified."></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::PIPELINE_NAME, :css_class => "form_error") %>
-    </div>
-    <div class="form_item_block required">
-        <%= label_tag random_dom_id('pipeline_'), required_label_text('Stage') -%>
-        <%= f.text_field com.thoughtworks.go.config.FetchTask::STAGE %>
-        <div class="contextual_help has_go_tip_right" title="The name of the stage to fetch artifacts from."></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::STAGE, :css_class => "form_error") %>
-    </div>
-    <div class="form_item_block required">
-        <%= label_tag random_dom_id('pipeline_'), required_label_text('Job') -%>
-        <%= f.text_field com.thoughtworks.go.config.FetchTask::JOB %>
-        <div class="contextual_help has_go_tip_right" title="The name of the job to fetch artifacts from."></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
-    </div>
+  <textarea id="external-fetch-artifact_template" class="template">
+    <%= render :partial => 'admin/tasks/fetch/external_artifact_config', :locals => {:scope => {:var_form => scope[:form], :task => scope[:task], :artifact_plugin_to_fetch_view => scope[:artifact_plugin_to_fetch_view]}} %>
+  </textarea>
 
-    <div class="form_item_block required source">
-        <%= label_tag source_dir_name = random_dom_id('source_'), required_label_text('Source') -%>
-        <%= f.text_field com.thoughtworks.go.config.FetchTask::SRC, {:class => "form_input", :id => source_dir_name} -%>
-        <div class="contextual_help has_go_tip_right" title="The path of the artifact directory or file of a specific job, relative to the sandbox directory. If the directory or file does not exist, the job is failed."></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::SRC, :css_class => "form_error") %>
-    </div>
+  <div class="form_item_block">
+    <%= scope[:form].radio_button "selectedTaskType", "gocd", :id => "task_artifact_type_gocd", :title => 'GoCD', :checked => !external_fetch_task, :class => 'fetch_artifact_type' -%>
+    <%= scope[:form].label 'artifact_type_gocd', 'GoCD' %>
+    <%= scope[:form].radio_button "selectedTaskType", "external", :id => "task_artifact_type_external", :title => 'External', :checked => external_fetch_task, :class => 'fetch_artifact_type' -%>
+    <%= scope[:form].label 'artifact_type_external', 'External' %>
+  </div>
 
-    <div class="form_item_block file_or_dir">
-        <%= f.check_box(com.thoughtworks.go.config.FetchTask::IS_SOURCE_A_FILE, :class => "is_source_a_file", :id => "is_source_a_file") -%>
-        <%= label_tag :is_source_a_file, 'Source is a file(Not a directory)', :class => "inline" -%>
+  <div class="form_item_block">
+    <%= label_tag random_dom_id('pipeline_'), 'Pipeline' -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.FetchTask::PIPELINE_NAME %>
+    <div class="contextual_help has_go_tip_right" title="The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material. Defaults to current pipeline if not specified."></div>
+    <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::PIPELINE_NAME, :css_class => "form_error") %>
+  </div>
+  <div class="form_item_block">
+    <%= label_tag random_dom_id('pipeline_'), required_label_text('Stage') -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.FetchTask::STAGE %>
+    <div class="contextual_help has_go_tip_right" title="The name of the stage to fetch artifacts from."></div>
+    <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::STAGE, :css_class => "form_error") %>
+  </div>
+  <div class="form_item_block">
+    <%= label_tag random_dom_id('pipeline_'), required_label_text('Job') -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.FetchTask::JOB %>
+    <div class="contextual_help has_go_tip_right" title="The name of the job to fetch artifacts from."></div>
+    <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
+  </div>
+  <% if scope[:task].getAppropriateTask().getTaskType() == 'fetch_pluggable_artifact' %>
+    <div class="fetch-artifact-config">
+      <%= render :partial => 'admin/tasks/fetch/external_artifact_config', :locals => {:scope => {
+        :var_form => scope[:form], :task => scope[:task], :artifact_plugin_to_fetch_view => scope[:artifact_plugin_to_fetch_view]}} %>
     </div>
-
-    <div class="form_item_block">
-        <%= label_tag destination = random_dom_id('dest_'), 'Destination' -%>
-        <%= f.text_field com.thoughtworks.go.config.FetchTask::DEST, {:class => "form_input", :id => destination} -%>
-        <div class="contextual_help has_go_tip_right" title="The path of the directory where the artifact is fetched to. The directory is overwritten if it already exists. The directory path is relative to the pipeline working directory."></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::DEST, :css_class => "form_error") %>
+  <% else %>
+    <div class="fetch-artifact-config">
+      <%= render :partial => 'admin/tasks/fetch/gocd_artifact_config', :locals => {:scope => {:var_form => scope[:form], :task => scope[:task]}} %>
     </div>
+  <% end %>
 </div>
 
 <script type="text/javascript">
-    Util.on_load(function() {
-        var pipelines = <%== @pipeline_json %>;
-        var currentPipelineName = '<%= @pipeline.name() %>';
-        var fetchTaskEditor = new TaskEditor.FetchTaskEditor();
-        fetchTaskEditor.wireInAutocomplete(jQuery("#task_pipelineName"), jQuery("#task_stage"), jQuery("#task_job"), pipelines, currentPipelineName);
+  var artifactIdToPluginId    = <%== com.google.gson.Gson.new.toJson(scope[:artifact_id_to_plugin_id]) %>;
+  var pluginToFetchView       = <%== com.google.gson.Gson.new.toJson(scope[:artifact_plugin_to_fetch_view]) %>;
+  var routeFetchTask          = "<%== scope[:routeFetch] %>";
+  var routeFetchPluggableTask = "<%== scope[:routeFetchPluggable] %>";
+  var currentPipelineName     = '<%= @pipeline.name() %>';
+
+  Util.on_load(function () {
+    var pipelines       = <%== @pipeline_json %>;
+    var fetchTaskEditor = new TaskEditor.FetchTaskEditor();
+    fetchTaskEditor.wireInAutocomplete(jQuery("#task_pipelineName"), jQuery("#task_stage"), jQuery("#task_job"), pipelines, currentPipelineName);
+    jQuery("#task_job").result(initArtifactIdAutoComplete);
+
+    renderFetchArtifactView();
+    renderPluginViewOptions();
+
+    jQuery('#task_form input[type="radio"]').on('change', renderFetchArtifactView);
+    jQuery('#task_pipelineName, #task_stage, #task_job').result(initArtifactIdAutoComplete);
+  });
+
+  function getSelectedTaskType() {
+    return jQuery('input[name="task[selectedTaskType]"]:checked', '#task_form').val();
+  }
+
+  function renderFetchArtifactView() {
+    switch (getSelectedTaskType()) {
+      case "gocd":
+        renderGoCDFetchArtifactView();
+        break;
+      case "external":
+        renderArtifactIdView();
+        break;
+      default:
+        renderGoCDFetchArtifactView();
+        break;
+    }
+  }
+
+  function renderGoCDFetchArtifactView() {
+    jQuery("#task_form").attr("action", routeFetchTask);
+    jQuery(".fetch-artifact-config").html(getTemplate("gocd-fetch-artifact_template"));
+  }
+
+  function renderArtifactIdView() {
+    jQuery("#task_form").attr("action", routeFetchPluggableTask);
+    jQuery(".fetch-artifact-config").html(getTemplate("external-fetch-artifact_template"));
+    jQuery('#task_pipelineName, #task_stage, #task_job').result(initArtifactIdAutoComplete);
+    jQuery("#task_artifactId").on('input propertychange change paste result', renderPluginViewOptions);
+    initArtifactIdAutoComplete();
+  }
+
+  function initArtifactIdAutoComplete() {
+    if (getSelectedTaskType() === 'gocd') {
+      return;
+    }
+
+    var pipelineName        = jQuery("#task_pipelineName").val() || currentPipelineName;
+    var artifactInJob       = getAllArtifactsFor(pipelineName, jQuery("#task_stage").val(), jQuery("#task_job").val());
+    var allArtifactIdsInJob = [];
+
+    for (var artifactId in artifactInJob) {
+      allArtifactIdsInJob.push(artifactId);
+    }
+
+    jQuery("#task_artifactId").autocomplete(allArtifactIdsInJob, {
+      multiple:      false,
+      minChars:      0,
+      matchContains: true,
+      selectFirst:   false,
+      width:         248
     });
+  }
+
+  function renderPluginViewOptions() {
+    var artifactId = jQuery("#task_artifactId").val();
+    if (!artifactId || artifactId.trim().length === 0) {
+      hidePluginSelectionDropdown();
+      return;
+    }
+
+    if (artifactId && artifactId.startsWith("#{")) {
+      showPluginSelectionDropdown();
+      return;
+    }
+
+    var pluginId = determinePluginId(artifactId);
+    jQuery("#fetch_pluggable_task_view").html("");
+    if (pluginId) {
+      hidePluginSelectionDropdown();
+      renderPluginView(pluginId);
+    } else {
+      showPluginSelectionDropdown();
+    }
+  }
+
+  function determinePluginId(artifactId) {
+    var pipelineName  = jQuery("#task_pipelineName").val() || currentPipelineName;
+    var artifactInJob = getAllArtifactsFor(pipelineName, jQuery("#task_stage").val(), jQuery("#task_job").val());
+    return artifactInJob ? artifactInJob[artifactId] : null;
+  }
+
+  function getAllArtifactsFor(pipelineName, stageName, jobName) {
+    var artifactInPipeline = artifactIdToPluginId[pipelineName];
+    if (!artifactInPipeline) {
+      return null;
+    }
+    var artifactInStage = artifactInPipeline[stageName];
+    if (!artifactInStage) {
+      return null;
+    }
+
+    return artifactInStage[jobName];
+  }
+
+  function renderPluginView(pluginId) {
+    jQuery("#task_pluginId").val(pluginId);
+    var fetchView = getFetchArtifactView(pluginId);
+    if (fetchView) {
+      jQuery("#fetch_pluggable_task_view").html(fetchView);
+      initializeAngular();
+    }
+  }
+
+  function getFetchArtifactView(pluginId) {
+    for (var i in pluginToFetchView) {
+      if (pluginId === pluginToFetchView[i].id) {
+        return pluginToFetchView[i].view;
+      }
+    }
+  }
+
+  function showPluginSelectionDropdown() {
+    jQuery(".artifact_plugin_selection").show();
+    jQuery("#FetchArtifact_pluginId").change(function () {
+      jQuery("#fetch_pluggable_task_view").html("");
+      renderPluginView(jQuery(this).val());
+    });
+  }
+
+  function hidePluginSelectionDropdown() {
+    jQuery(".artifact_plugin_selection").hide();
+  }
+
+  function getTemplate(template_id) {
+    var template = jQuery("#" + template_id).val();
+    return template ? template : "";
+  }
+
+  function initializeAngular() {
+    new TaskPluginView().initialize("fetch_pluggable_task_view", "fetch_pluggable_artifact_data", "task");
+    new TaskPluginView().bootstrapAngular();
+  }
 </script>

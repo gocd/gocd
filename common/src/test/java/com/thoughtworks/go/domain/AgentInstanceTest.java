@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +48,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class AgentInstanceTest {
     private SystemEnvironment systemEnvironment;
@@ -704,6 +703,39 @@ public class AgentInstanceTest {
         AgentInstance disabledInstance = AgentInstanceMother.disabled();
         disabledInstance.lostContact();
         assertThat(disabledInstance.getStatus(), is(AgentStatus.Disabled));
+    }
+
+    @Test
+    public void shouldNotRefreshWhenAgentStatusIsPending() {
+        AgentInstance agentInstance = AgentInstanceMother.pendingInstance();
+        agentInstance.refresh();
+        assertThat(agentInstance.getStatus(), is(AgentStatus.Pending));
+    }
+
+    @Test
+    public void shouldMarkAgentAsMissingWhenLastHeardTimeIsNull() {
+        AgentConfig agentConfig = new AgentConfig("1234", "localhost", "192.168.0.1");
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        agentInstance.refresh();
+        assertThat(agentInstance.getRuntimeStatus(), is(AgentRuntimeStatus.Missing));
+        assertThat(agentInstance.getLastHeardTime(), not(nullValue()));
+    }
+
+    @Test
+    public void shouldNotRefreshAgentStateWhenAgentIsMissingAndLostContactDurationHasNotExceeded() {
+        AgentInstance agentInstance = AgentInstanceMother.missing();
+        agentInstance.refresh();
+        assertThat(agentInstance.getRuntimeStatus(), is(AgentRuntimeStatus.Missing));
+    }
+
+    @Test
+    public void shouldChangeAgentStatusToLostContactWhenLostAgentTimeoutHasExceeded() throws IllegalAccessException {
+        AgentInstance agentInstance = AgentInstanceMother.missing();
+        int agentConnectionTimeoutInMillis = systemEnvironment.getAgentConnectionTimeout() * 1000;
+        Date timeLoggedForMissingStatus = new Date(new Date().getTime() - agentConnectionTimeoutInMillis);
+        FieldUtils.writeField(agentInstance, "lastHeardTime", timeLoggedForMissingStatus, true);
+        agentInstance.refresh();
+        assertThat(agentInstance.getRuntimeStatus(), is(AgentRuntimeStatus.LostContact));
     }
 
     private List<JobPlan> jobPlans(String... resources) {

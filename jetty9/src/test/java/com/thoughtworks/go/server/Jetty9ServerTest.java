@@ -200,30 +200,6 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldSkipDefaultHeadersIfContextPathIsGoRootPath() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
-        jetty9Server.configure();
-
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        GoServerWelcomeFileHandler handler = (GoServerWelcomeFileHandler) handlerCollection.getHandlers()[0];
-        Handler rootPathHandler = handler.getHandler();
-
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        when(response.getWriter()).thenReturn(mock(PrintWriter.class));
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/go");
-
-        rootPathHandler.handle("/go", mock(Request.class), request, response);
-
-        verify(response, never()).setHeader("X-XSS-Protection", "1; mode=block");
-        verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
-        verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
-        verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
-    }
-
-    @Test
     public void shouldSkipDefaultHeadersIfContextPathIsAnyOtherUrlWithinGo() throws Exception {
         ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();

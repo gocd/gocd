@@ -25,7 +25,6 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 class GoServerWelcomeFileHandler extends ContextHandler {
     private final SystemEnvironment systemEnvironment;
@@ -39,27 +38,8 @@ class GoServerWelcomeFileHandler extends ContextHandler {
     private class Handler extends AbstractHandler {
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             final String pathInfo = target.toLowerCase();
-            if (pathInfo.equals("/") || pathInfo.equals("/go") || pathInfo.equals("/go/")) {
+            if (pathInfo.equals("/") || pathInfo.equals("/go") || pathInfo.equals("/go/") || pathInfo.equals("/go/home") || pathInfo.equals("/go/home/")) {
                 response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
-                return;
-            }
-
-            if (pathInfo.startsWith("/go/")) {
-                return;
-            }
-
-            response.setHeader("X-XSS-Protection", "1; mode=block");
-            response.setHeader("X-Content-Type-Options", "nosniff");
-            response.setHeader("X-Frame-Options", "SAMEORIGIN");
-            response.setHeader("X-UA-Compatible", "chrome=1");
-
-            if ("/".equals(target)) {
-                response.setHeader("Location", GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
-                response.setStatus(301);
-                response.setHeader("Content-Type", "text/html");
-                PrintWriter writer = response.getWriter();
-                writer.write("redirecting..");
-                writer.close();
             }
         }
     }

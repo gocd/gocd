@@ -45,7 +45,7 @@ class GoServerWelcomeFileHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/", "/go", "/go/", "/GO"})
+    @ValueSource(strings = {"/", "/go", "/go/", "/GO", "/gO/hOme"})
     void shouldRedirectToLandingPage(String pathInfo) throws Exception {
         when(systemEnvironment.landingPage()).thenReturn("/foobar");
 

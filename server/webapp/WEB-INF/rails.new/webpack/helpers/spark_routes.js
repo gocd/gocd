@@ -60,5 +60,9 @@ module.exports = {
     } else {
       return "/go/api/admin/artifact_stores";
     }
+  },
+
+  metricsSettingsPath: () => {
+    return '/go/api/metrics/settings';
   }
 };

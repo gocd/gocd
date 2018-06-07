@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-const Routes     = require('gen/js-routes');
-const AjaxHelper = require('helpers/ajax_helper');
-const Stream     = require('mithril/stream');
-
-//todo: Blame Ganeshpl for this
-Routes.apiv1ShowMetricsSettingsPath  = () => {
-  return '/go/api/metrics/settings';
-};
-Routes.apiv1PatchMetricsSettingsPath = () => {
-  return '/go/api/metrics/settings';
-};
-
+const Stream      = require('mithril/stream');
+const AjaxHelper  = require('helpers/ajax_helper');
+const SparkRoutes = require("helpers/spark_routes");
 
 const MetricsSettings = function (data) {
   const settings = this;
@@ -44,7 +35,7 @@ const MetricsSettings = function (data) {
 
   settings.save = () => {
     return AjaxHelper.PATCH({
-      url:        Routes.apiv1PatchMetricsSettingsPath(),
+      url:        SparkRoutes.metricsSettingsPath(),
       apiVersion: MetricsSettings.API_VERSION,
       payload:    {consent: settings.consent()}
     }).then((data) => {
@@ -63,7 +54,7 @@ MetricsSettings.API_VERSION = 'v1';
 
 MetricsSettings.get = () => {
   return AjaxHelper.GET({
-    url:        Routes.apiv1ShowMetricsSettingsPath(),
+    url:        SparkRoutes.metricsSettingsPath(),
     apiVersion: MetricsSettings.API_VERSION,
     type:       MetricsSettings
   });

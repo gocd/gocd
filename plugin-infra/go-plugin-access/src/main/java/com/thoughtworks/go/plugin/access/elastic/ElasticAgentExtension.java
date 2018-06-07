@@ -25,8 +25,6 @@ import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPlugin
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionV1;
-import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionV2;
 import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -44,27 +42,19 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
-    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
-            ElasticAgentExtensionV1.VERSION, ElasticAgentExtensionV2.VERSION, ElasticAgentExtensionV3.VERSION
-    );
+    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION);
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
-        elasticAgentExtensionMap.put(ElasticAgentExtensionV1.VERSION, new ElasticAgentExtensionV1(pluginRequestHelper));
-        elasticAgentExtensionMap.put(ElasticAgentExtensionV2.VERSION, new ElasticAgentExtensionV2(pluginRequestHelper));
         elasticAgentExtensionMap.put(ElasticAgentExtensionV3.VERSION, new ElasticAgentExtensionV3(pluginRequestHelper));
 
-        registerHandler(ElasticAgentExtensionV1.VERSION, new PluginSettingsJsonMessageHandler1_0());
-        registerHandler(ElasticAgentExtensionV2.VERSION, new PluginSettingsJsonMessageHandler1_0());
         registerHandler(ElasticAgentExtensionV3.VERSION, new PluginSettingsJsonMessageHandler1_0());
 
         final MessageHandlerForPluginSettingsRequestProcessor1_0 pluginSettingsRequestProcessor = new MessageHandlerForPluginSettingsRequestProcessor1_0();
         final MessageHandlerForServerInfoRequestProcessor1_0 serverInfoRequestProcessor = new MessageHandlerForServerInfoRequestProcessor1_0();
 
-        registerProcessor(ElasticAgentExtensionV1.VERSION, pluginSettingsRequestProcessor, serverInfoRequestProcessor);
-        registerProcessor(ElasticAgentExtensionV2.VERSION, pluginSettingsRequestProcessor, serverInfoRequestProcessor);
         registerProcessor(ElasticAgentExtensionV3.VERSION, pluginSettingsRequestProcessor, serverInfoRequestProcessor);
     }
 

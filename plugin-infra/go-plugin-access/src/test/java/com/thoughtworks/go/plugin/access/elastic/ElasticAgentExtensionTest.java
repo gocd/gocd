@@ -272,12 +272,6 @@ public class ElasticAgentExtensionTest {
     public void shouldHaveMessageHandlerForPluginSettingsRequestProcessorForAllExtensionVersions() {
         final ElasticAgentExtensionExposingHandlers extension = new ElasticAgentExtensionExposingHandlers(pluginManager);
 
-        assertThat(extension.messageHandlerForPluginSettingsRequestProcessor("1.0"),
-                instanceOf(MessageHandlerForPluginSettingsRequestProcessor1_0.class));
-
-        assertThat(extension.messageHandlerForPluginSettingsRequestProcessor("2.0"),
-                instanceOf(MessageHandlerForPluginSettingsRequestProcessor1_0.class));
-
         assertThat(extension.messageHandlerForPluginSettingsRequestProcessor("3.0"),
                 instanceOf(MessageHandlerForPluginSettingsRequestProcessor1_0.class));
     }
@@ -285,12 +279,6 @@ public class ElasticAgentExtensionTest {
     @Test
     public void shouldHaveMessageHandlerForServerInfoRequestProcessorForAllExtensionVersions() {
         final ElasticAgentExtensionExposingHandlers extension = new ElasticAgentExtensionExposingHandlers(pluginManager);
-
-        assertThat(extension.messageHandlerForServerInfoRequestProcessor("1.0"),
-                instanceOf(MessageHandlerForServerInfoRequestProcessor1_0.class));
-
-        assertThat(extension.messageHandlerForServerInfoRequestProcessor("2.0"),
-                instanceOf(MessageHandlerForServerInfoRequestProcessor1_0.class));
 
         assertThat(extension.messageHandlerForServerInfoRequestProcessor("3.0"),
                 instanceOf(MessageHandlerForServerInfoRequestProcessor1_0.class));

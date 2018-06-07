@@ -39,6 +39,10 @@ class GoServerWelcomeFileHandler extends ContextHandler {
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             final String pathInfo = target.toLowerCase();
             if (pathInfo.equals("/") || pathInfo.equals("/go") || pathInfo.equals("/go/") || pathInfo.equals("/go/home") || pathInfo.equals("/go/home/")) {
+                response.setHeader("X-XSS-Protection", "1; mode=block");
+                response.setHeader("X-Content-Type-Options", "nosniff");
+                response.setHeader("X-Frame-Options", "SAMEORIGIN");
+                response.setHeader("X-UA-Compatible", "chrome=1");
                 response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
             }
         }

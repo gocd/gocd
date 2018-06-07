@@ -23,10 +23,7 @@ window["tab-content-of-${customized_name.toLowerCase()}_callback"] = function() 
     if (innerHTML.include("iframe")) {
         return;
     }
-    var iframe = '<iframe sandbox="allow-scripts" src="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)" frameborder="0"></iframe>';
-    #if (!$useIframeSandbox)
-    iframe = '<iframe src="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)" frameborder="0"></iframe>';
-    #end
+    var iframe = '<iframe src="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)" frameborder="0"></iframe>';
   $("tab-content-of-${customized_name.toLowerCase()}").innerHTML = '<div><a href="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)">Download ${customized_name}</a></div>'
             + iframe;
     $("tab-content-of-${customized_name.toLowerCase()}").show();

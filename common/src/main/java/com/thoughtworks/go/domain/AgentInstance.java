@@ -175,9 +175,13 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (agentConfigStatus == AgentConfigStatus.Pending) {
             return;
         }
+
         if (lastHeardTime == null) {
             updateRuntimeStatus(AgentRuntimeStatus.Missing);
-        } else if (isTimeout(lastHeardTime)) {
+            lastHeardTime = new Date();
+        }
+
+        if (isTimeout(lastHeardTime)) {
             updateRuntimeStatus(AgentRuntimeStatus.LostContact);
         }
     }

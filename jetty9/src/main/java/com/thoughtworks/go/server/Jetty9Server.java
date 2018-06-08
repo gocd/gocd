@@ -168,10 +168,10 @@ public class Jetty9Server extends AppServer {
         return webAppContext.getUnavailableException();
     }
 
-    protected void startHandlers() throws IOException {
+    void startHandlers() {
         WebAppProvider webAppProvider = new WebAppProvider();
 
-        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "welcomeHandler", welcomeFileHandler()));
+        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "welcomeHandler", rootHandler()));
 
         if (systemEnvironment.useCompressedJs()) {
             AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
@@ -187,8 +187,8 @@ public class Jetty9Server extends AppServer {
         return new MBeanContainer(platformMBeanServer);
     }
 
-    private ContextHandler welcomeFileHandler() {
-        return new GoServerWelcomeFileHandler(systemEnvironment);
+    private ContextHandler rootHandler() {
+        return new GoServerLoadingIndicationHandler(webAppContext, systemEnvironment);
     }
 
     private Connector plainConnector() {

@@ -21,6 +21,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.deploy.App;
 import org.eclipse.jetty.deploy.DeploymentManager;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -163,12 +164,12 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldAddWelcomeRequestHandler() throws Exception {
+    public void shouldAddRootRequestHandler() throws Exception {
         jetty9Server.configure();
         jetty9Server.startHandlers();
 
-        ContextHandler welcomeFileHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
-        assertThat(welcomeFileHandler.getContextPath(), is("/"));
+        ContextHandler rootRequestHandler = getLoadedHandlers().get(GoServerLoadingIndicationHandler.class);
+        assertThat(rootRequestHandler.getContextPath(), is("/"));
     }
 
     @Test
@@ -183,41 +184,17 @@ public class Jetty9ServerTest {
 
         Request baseRequest = mock(Request.class);
         when(baseRequest.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
+        when(baseRequest.getHttpFields()).thenReturn(mock(HttpFields.class));
 
-        ContextHandler rootPathHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
+        ContextHandler rootPathHandler = getLoadedHandlers().get(GoServerLoadingIndicationHandler.class);
         rootPathHandler.setServer(server);
         rootPathHandler.start();
-        rootPathHandler.handle("/foo", baseRequest, request, response);
+        rootPathHandler.handle("/something", baseRequest, request, response);
 
         verify(response).setHeader("X-XSS-Protection", "1; mode=block");
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
-    }
-
-    @Test
-    public void shouldSkipDefaultHeadersIfContextPathIsAnyOtherUrlWithinGo() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
-
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        when(response.getWriter()).thenReturn(mock(PrintWriter.class));
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getPathInfo()).thenReturn("/go/pipelines");
-
-        Request baseRequest = mock(Request.class);
-        when(baseRequest.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
-
-        ContextHandler rootPathHandler = getLoadedHandlers().get(GoServerWelcomeFileHandler.class);
-        rootPathHandler.setServer(server);
-        rootPathHandler.start();
-        rootPathHandler.handle("/go/pipelines", baseRequest, request, response);
-
-        verify(response, never()).setHeader("X-XSS-Protection", "1; mode=block");
-        verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
-        verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
-        verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
     }
 
     @Test

@@ -24,6 +24,12 @@
 -->
 <urlrewrite>
     <rule>
+        <name>Root page</name>
+        <from>^/(home)?/?$</from>
+        <to type="redirect" last="true">/go/pipelines</to>
+    </rule>
+
+    <rule>
         <name>Spark Artifact Store Index API</name>
         <from>^/api/admin/artifact_stores(/?)$</from>
         <to last="true">/spark/api/admin/artifact_stores</to>

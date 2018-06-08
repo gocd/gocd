@@ -225,6 +225,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Boolean> FAIL_STARTUP_ON_DATA_ERROR = new GoBooleanSystemProperty("gocd.fail.startup.on.data.error", false);
     private static final GoSystemProperty<Boolean> JOB_DETAILS_USE_IFRAME_SANDBOX = new GoBooleanSystemProperty("gocd.job.details.sandbox", true);
     private static final GoSystemProperty<Boolean> DES_CIPHER_ENABLED = new GoBooleanSystemProperty("gocd.des.cipher.enabled", true);
+    public static final GoSystemProperty<String> LOADING_PAGE = new GoStringSystemProperty("loading.page.resource.path", "/loading_pages/default.loading.page.html");
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {

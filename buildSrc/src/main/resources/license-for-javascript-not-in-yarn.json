@@ -339,5 +339,18 @@
         "moduleLicenseUrl": "https://spdx.org/licenses/Apache-2.0.html"
       }
     ]
+  },
+  "nanoajax": {
+    "moduleName": "nanoajax",
+    "moduleVersion": "0.4.3",
+    "moduleUrls": [
+      "https://github.com/yanatan16/nanoajax"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
   }
 }

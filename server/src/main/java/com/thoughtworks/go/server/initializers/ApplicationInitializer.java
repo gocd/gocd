@@ -46,6 +46,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
 public class ApplicationInitializer implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired private CommandRepositoryInitializer commandRepositoryInitializer;
@@ -148,6 +150,15 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();
             dataSharingService.initialize();
+
+            if ("Y".equals(System.getProperty("delay.gocd.startup.wait.for.file", "N"))) {
+                File file = new File("/tmp/webapp");
+                while (!file.exists()) {
+                    System.err.println("Blocking server startup till file /tmp/webapp is found.");
+                    Thread.sleep(2000);
+                }
+                file.delete();
+            }
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

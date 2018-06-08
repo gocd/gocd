@@ -65,7 +65,7 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
                 filterWhenSecurityEnabled(request, response, filterChain, oAuthCredentials);
             } else {
                 LOGGER.debug("Security is disabled.");
-                filterWhenSecurityDisabled(request, response, filterChain, oAuthCredentials);
+                filterChain.doFilter(request, response);
             }
         } catch (AuthenticationException e) {
             onAuthenticationFailure(request, response, e.getMessage());
@@ -95,17 +95,6 @@ public class OauthAuthenticationFilter extends OncePerRequestFilter {
                                  String errorMessage) throws IOException {
         response.setStatus(401);
         response.getOutputStream().print(errorMessage);
-    }
-
-    private void filterWhenSecurityDisabled(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            FilterChain filterChain,
-                                            OAuthCredentials oAuthCredentials) throws IOException, ServletException {
-        if (oAuthCredentials != null) {
-            onAuthenticationFailure(request, response, "OAuth access token is not required, since security has been disabled on this server.");
-        } else {
-            filterChain.doFilter(request, response);
-        }
     }
 
     private OAuthCredentials extractOAuthToken(HttpServletRequest request) {

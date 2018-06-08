@@ -88,7 +88,7 @@ class OauthAuthenticationFilterTest {
         }
 
         @Test
-        void shouldErrorOutWhenCredentialsAreProvided() throws ServletException, IOException {
+        void shouldContinueWhenCredentialsAreProvided() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/")
                     .withOAuth("valid-token")
                     .build();
@@ -97,16 +97,14 @@ class OauthAuthenticationFilterTest {
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
 
             filter.doFilter(request, response, filterChain);
-
-            verifyZeroInteractions(filterChain);
-
+            
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             MockHttpServletRequestAssert.assertThat(request)
                     .hasSameSession(originalSession);
 
             MockHttpServletResponseAssert.assertThat(response)
-                    .isUnauthorized()
-                    .hasBody("OAuth access token is not required, since security has been disabled on this server.");
+                    .isOk()
+                    .hasNoBody();
         }
     }
 

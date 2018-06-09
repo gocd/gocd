@@ -1,8 +1,0 @@
-<%
-   scope[:state] = scope[:stage].getState()
-   scope[:stage_name] = scope[:stage].getName()
-%>
-<div class="stage_bar <%= scope[:state] %>"
-     title="<%= "%s (%s)" % [scope[:stage_name], scope[:state]] %>"
-     style='width: <%= stage_width_em(scope[:pipeline].getStageHistory().size(), false, scope[:total_width]) %>'>
-</div>

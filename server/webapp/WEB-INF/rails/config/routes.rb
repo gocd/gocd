@@ -156,8 +156,6 @@ Rails.application.routes.draw do
 
   scope 'pipelines' do
     defaults :no_layout => true do
-      get 'material_search' => 'pipelines#material_search'
-      post 'show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
       get ':pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
     end
 

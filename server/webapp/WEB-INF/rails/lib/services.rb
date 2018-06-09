@@ -56,7 +56,6 @@ module Services
     :elastic_profile_service,
     :entity_hashing_service,
     :environment_config_service,
-    :environment_service,
     :failure_service,
     :feature_toggle_service,
     :flash_message_service,

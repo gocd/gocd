@@ -31,7 +31,7 @@ class EnvironmentsController < ApplicationController
   prepend_before_action :set_tab_name
 
   def index
-    @environments = environment_service.getEnvironments(current_user)
+    @environments = environment_config_service.environmentNames()
     @show_add_environments = security_service.isUserAdmin(current_user)
   end
 

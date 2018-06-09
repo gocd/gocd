@@ -235,7 +235,6 @@ describe 'stages/stage.html.erb' do
         render
 
         Capybara.string(response.body).find(".sub_tabs_container").tap do |f|
-          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/pipeline']", :text => "Pipeline Dependencies"
           expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/materials']", :text => "Materials"
           expect(f).to have_selector ".current a[href='/pipelines/pipeline_name/10/stage_name/3/jobs']", :text => "Jobs"
           expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/tests']", :text => "Tests"
@@ -346,25 +345,6 @@ describe 'stages/stage.html.erb' do
         end
         Capybara.string(response.body).all(".modified_files").tap do |modified_files|
           expect(modified_files.count()).to eq cnt_modifications
-        end
-      end
-    end
-
-    describe "pipeline tab" do
-      before(:each) do
-        down1 = PipelineHistoryMother.pipelineHistoryItemWithOneStage("down1", "stage", java.util.Date.new())
-        down2 = PipelineHistoryMother.pipelineHistoryItemWithOneStage("down2", "stage", java.util.Date.new())
-        pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
-        assign :graph, PipelineDependencyGraphOld.new(pim, PipelineInstanceModels.createPipelineInstanceModels([down1, down2]))
-        params[:action] = 'pipeline'
-      end
-
-      it "should render PDG" do
-        render
-        Capybara.string(response.body).find("#pipeline_visualization").tap do |f|
-          expect(f).to have_selector ".upstream"
-          expect(f).to have_selector ".current"
-          expect(f).to have_selector ".downstream"
         end
       end
     end

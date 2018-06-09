@@ -315,29 +315,6 @@ describe StagesController do
       end
     end
 
-    describe "pipiline tab" do
-      it "should get the dependency graph for the pipeline" do
-        stub_current_config
-        down1 = PipelineHistoryMother.singlePipeline("down1", StageInstanceModels.new)
-        down2 = PipelineHistoryMother.singlePipeline("down2", StageInstanceModels.new)
-        graph = PipelineDependencyGraphOld.new(@pim, PipelineInstanceModels.createPipelineInstanceModels([down1, down2]))
-        expect(@pipeline_history_service).to receive(:pipelineDependencyGraph).with("pipeline", 99, @user, @status).and_return(graph)
-        get :pipeline, params:{:pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"}
-        expect(assigns(:graph)).to eq graph
-      end
-
-      it "should render op result if graph retrival fails" do
-        stub_current_config
-        allow(controller).to receive(:result_for_graph).and_return(result=double("result"))
-        expect(@pipeline_history_service).to receive(:pipelineDependencyGraph).with("pipeline", 99, @user, result).and_return(:doesnt_matter)
-        expect(result).to receive(:canContinue).and_return(false)
-        allow(result).to receive(:detailedMessage).and_return("no view permission")
-        allow(result).to receive(:httpCode).and_return(403)
-        get :pipeline, params:{:pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"}
-        expect(response.status).to eq 403
-      end
-    end
-
     describe "fbh tab" do
 
       before :each do

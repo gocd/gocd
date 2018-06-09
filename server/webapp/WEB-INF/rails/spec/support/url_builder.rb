@@ -18,7 +18,7 @@ class UrlBuilder
   include Rails.application.routes.url_helpers
 
   def request
-    OpenStruct.new(host: 'test.host', scheme: 'http', port: 80)
+    OpenStruct.new(host: 'test.host', scheme: 'http', port: 80, ssl?: false)
   end
 
   def add_hostname(args)

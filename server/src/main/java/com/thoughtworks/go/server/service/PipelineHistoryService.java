@@ -299,25 +299,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return true;
     }
 
-    public PipelineDependencyGraphOld pipelineDependencyGraph(String pipelineName, int pipelineCounter, final Username username, OperationResult result) {
-        if (!validate(pipelineName, username, result)) {
-            return null;
-        }
-        PipelineDependencyGraphOld graph = pipelineDao.pipelineGraphByNameAndCounter(pipelineName, pipelineCounter);
-        if (graph == null) {
-            String message = String.format("Pipeline [%s] with counter [%s] is not found", pipelineName, pipelineCounter);
-            result.notFound(message, message, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return null;
-        }
-        removePipelinesThatAreNotInConfig(username, graph);
-        addConfiguredPipelinesThatAreNotRunYet(username, graph, goConfigService.downstreamPipelinesOf(pipelineName));
-        populatePipelineState(graph.pipeline(), username);
-        for (PipelineInstanceModel pipelineInstanceModel : graph.dependencies()) {
-            populateDownstreamPipelineState(username, pipelineInstanceModel);
-        }
-        return graph;
-    }
-
     private void populateDownstreamPipelineState(Username username, PipelineInstanceModel pipelineInstanceModel) {
         populatePlaceHolderStages(pipelineInstanceModel);
         populatePipelineCanRunStatus(username, pipelineInstanceModel);

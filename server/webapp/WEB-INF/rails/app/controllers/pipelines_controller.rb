@@ -16,11 +16,9 @@
 
 class PipelinesController < ApplicationController
   include ApplicationHelper
-  layout "application", :except => ["show", "material_search", "show_for_trigger"]
+  layout "application"
 
-  skip_before_action :verify_authenticity_token, only: [:show_for_trigger, :show, :update_comment]
-
-  before_action :set_tab_name
+  skip_before_action :verify_authenticity_token, only: [:update_comment]
 
   def build_cause
     result = HttpOperationResult.new
@@ -31,37 +29,6 @@ class PipelinesController < ApplicationController
     else
       render_operation_result_if_failure(result)
     end
-  end
-
-  def index
-    load_pipeline_related_information
-    if @pipeline_configs.isEmpty() && security_service.canCreatePipelines(current_user)
-      redirect_to url_for_path("/admin/pipeline/new?group=defaultGroup")
-    end
-  end
-
-  def show
-    populate_and_show(false)
-  end
-
-  def show_for_trigger
-    populate_and_show(true)
-  end
-
-  def material_search
-    @matched_revisions = material_service.searchRevisions(params[:pipeline_name], params[:fingerprint], params[:search], current_user, result = HttpLocalizedOperationResult.new)
-    unless result.isSuccessful()
-      render_localized_operation_result(result)
-      return
-    end
-    @material_type = go_config_service.materialForPipelineWithFingerprint(params[:pipeline_name], params[:fingerprint]).getType
-    render layout: false
-  end
-
-  def select_pipelines
-    pipeline_selections_id = pipeline_selections_service.save(cookies[:selected_pipelines], current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
-    cookies[:selected_pipelines] = {:value => pipeline_selections_id, :expires => 1.year.from_now.beginning_of_day} if !mycruise_available?
-    head :ok
   end
 
   def update_comment
@@ -75,21 +42,4 @@ class PipelinesController < ApplicationController
     end
   end
 
-  private
-  def populate_and_show should_show
-    pipeline_name = params[:pipeline_name]
-    @pipeline = pipeline_history_service.latest(pipeline_name, current_user)
-    @variables = go_config_service.variablesFor(pipeline_name)
-    render :partial => "pipeline_material_revisions", :locals => {:scope => {:show_on_pipelines => should_show, :pegged_revisions => params["pegged_revisions"]}}
-  end
-
-  def set_tab_name
-    @current_tab_name = 'pipelines'
-  end
-
-  def load_pipeline_related_information
-    @pipeline_selections = pipeline_selections_service.load(cookies[:selected_pipelines], current_user_entity_id)
-    @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
-    @pipeline_configs = pipeline_config_service.viewableGroupsFor(current_user)
-  end
 end

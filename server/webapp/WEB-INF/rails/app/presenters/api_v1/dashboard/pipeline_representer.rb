@@ -32,19 +32,27 @@ module ApiV1
       end
 
       link :trigger do |opts|
-        opts[:url_builder].api_pipeline_schedule_url(pipeline.getName())
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::Pipeline.schedule(pipeline.getName()))
       end
 
       link :trigger_with_options do |opts|
-        opts[:url_builder].api_pipeline_schedule_url(pipeline.getName())
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::Pipeline.schedule(pipeline.getName()))
       end
 
       link :pause do |opts|
-        opts[:url_builder].pause_pipeline_url(pipeline.getName())
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::Pipeline.pause(pipeline.getName()))
       end
 
       link :unpause do |opts|
-        opts[:url_builder].unpause_pipeline_url(pipeline.getName())
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::Pipeline.unpause(pipeline.getName()))
       end
 
       property :getName, as: :name

@@ -70,11 +70,6 @@ class StagesController < ApplicationController
     @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
   end
 
-  def pipeline
-    @graph = pipeline_history_service.pipelineDependencyGraph(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result = result_for_graph())
-    can_continue(result) && render_stage
-  end
-
   def tests
     stage = @stage.getStage()
     unless fragment_exist?(view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(stage, @response_format))

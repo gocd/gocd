@@ -74,13 +74,6 @@ describe 'stages/stage.json.erb' do
 
     end
 
-    it "should auto refresh pipeline" do
-      params[:action] = 'pipeline'
-      json = render_json
-      expect(json["pipeline_visualization"]["html"]).to eq "pipelines/pipeline_dependencies.html"
-      expect(json["jobs_failed"]).to eq nil
-    end
-
     it "should not autorefresh stage history for stats tab" do
       params[:action] = 'stats'
       json = render_json
@@ -96,7 +89,6 @@ describe 'stages/stage.json.erb' do
     it "should auto refresh materials" do
       params[:action] = 'materials'
       json = render_json
-      expect(json["pipeline_visualization"]).to eq nil
       expect(json["stage_history"]["html"]).to eq "stage_history.html"
     end
 

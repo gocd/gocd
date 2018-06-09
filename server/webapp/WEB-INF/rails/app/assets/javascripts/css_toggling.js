@@ -23,55 +23,6 @@ function make_collapsable(container_id) {
     });
 }
 
-var MaterialDetailsToggler = function () {
-    var material_details = "not set";
-    var material_summaries = "not set";
-    var last_open_details = "not set";
-    var last_open_summary = "not set";
-    var callback;
-
-    function bind(cur_summary, cur_detail) {
-        cur_summary.observe('click', function (evt) {
-            cur_summary.toggleClassName("selected");
-            cur_detail.toggleClassName("hidden");
-
-            last_open_summary.toggleClassName("selected");
-            last_open_details.toggleClassName("hidden");
-
-            last_open_summary = cur_summary;
-            last_open_details = cur_detail;
-            if (callback) callback(cur_summary, cur_detail);
-            Event.stop(evt);
-        });
-    }
-
-    function stop() {
-        material_summaries.each(function(summary) {
-            summary.stopObserving('click')
-        });
-    }
-
-    function start(callback_fn) {
-        if (callback_fn) callback = callback_fn;
-        material_details = $$(".materials .material_details .material_detail");
-        material_summaries = $$(".materials .material_summaries .material_summary");
-        last_open_details = material_details[0];
-        last_open_summary = material_summaries[0];
-        for (var i = 0; i < material_summaries.length; i++) {
-            bind(material_summaries[i], material_details[i]);
-        }
-    }
-
-    return {
-        start_observing: start,
-        stop_observing: stop,
-        reset: function () {
-            stop();
-            start();
-        }
-    };
-
-}();
 
 
 

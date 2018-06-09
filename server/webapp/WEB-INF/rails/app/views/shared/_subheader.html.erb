@@ -1,11 +1,6 @@
 <% if @page_header %>
     <div class="page_header">
         <h1><%== @page_header %></h1>
-        <% if @show_pipeline_selector %>
-            <div class="pipelines_selector">
-              <%= render(:partial => 'pipelines/pipelines_selector', :locals => {:scope => {}}) %>
-            </div>
-        <% end %>
         <% if @show_add_environments %>
             <div class="add_new_environment">
               <% title = 'Add a new environment' %>

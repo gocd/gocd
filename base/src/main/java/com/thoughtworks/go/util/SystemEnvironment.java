@@ -225,7 +225,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL = new GoIntSystemProperty("go.spa.refresh.interval", 10000);
 
     private static GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
-    private static final GoSystemProperty<Boolean> DISPLAY_PIPELINE_INSTANCES_ON_ENVIRONMENTS_PAGE = new GoBooleanSystemProperty("gocd.environments.show.pipelines", false);
     public static final GoSystemProperty<Boolean> FAIL_STARTUP_ON_DATA_ERROR = new GoBooleanSystemProperty("gocd.fail.startup.on.data.error", false);
     private static final GoSystemProperty<Boolean> JOB_DETAILS_USE_IFRAME_SANDBOX = new GoBooleanSystemProperty("gocd.job.details.sandbox", true);
     private static final GoSystemProperty<Boolean> DES_CIPHER_ENABLED = new GoBooleanSystemProperty("gocd.des.cipher.enabled", true);
@@ -892,10 +891,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Integer getNotificationListenerCountForPlugin(String pluginId) {
         return Integer.parseInt(getPropertyImpl("plugin." + pluginId + ".notifications.listener.count", "1"));
-    }
-
-    public boolean displayPipelineInstancesOnEnvironmentsPage() {
-        return get(DISPLAY_PIPELINE_INSTANCES_ON_ENVIRONMENTS_PAGE);
     }
 
     public boolean enableAnalyticsOnlyForAdmins() {

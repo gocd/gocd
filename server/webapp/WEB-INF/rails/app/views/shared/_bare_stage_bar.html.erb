@@ -1,5 +1,0 @@
-<div class="stages">
-    <% scope[:pipeline].getStageHistory().each do |stage| %>
-        <%= render :partial => 'shared/bare_stage_in_pipeline_bar.html', :locals => { :scope => {:pipeline => scope[:pipeline], :stage => stage, :total_width => scope[:total_width]}} %>
-    <% end %>
-</div>

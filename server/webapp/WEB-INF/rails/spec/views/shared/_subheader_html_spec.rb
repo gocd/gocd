@@ -26,17 +26,6 @@ describe "/shared/_subheader.html.erb" do
     expect(response).to have_selector("div.page_header h1.entity_title", :text => 'My Title')
   end
 
-  it 'should display pipeline selector (personalize)' do
-    assign(:page_header, 'My Title')
-    assign(:show_pipeline_selector, true)
-
-    stub_template "pipelines/_pipelines_selector.html.erb" => "PIPELINE SELECTOR"
-
-    render :partial => "shared/subheader"
-
-    assert_template partial: "pipelines/pipelines_selector", locals: {scope: {}}
-  end
-
   it 'should display add environments link' do
     assign(:page_header, 'My Title')
     assign(:show_add_environments, true)

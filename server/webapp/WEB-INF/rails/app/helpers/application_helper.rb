@@ -317,10 +317,6 @@ module ApplicationHelper
     params[:autoRefresh] != "false"
   end
 
-  def pipeline_operations_blocking_form_remote_tag(options = {})
-    pipeline_operations_form_remote_tag(options)
-  end
-
   def pipeline_operations_form_remote_tag(options = {})
     options[:form] = true
     options[:html] ||= {}

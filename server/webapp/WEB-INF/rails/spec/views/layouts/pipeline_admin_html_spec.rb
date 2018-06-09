@@ -43,7 +43,7 @@ describe "/layouts/pipeline_admin" do
   it "should display pause-info section" do
     render :inline => 'body', :layout => @layout_name
     Capybara.string(response.body).find('#pause_info_and_controls').tap do |block|
-      block.find("form[action='/api/pipelines/mingle/unpause']").tap do |form|
+      block.find("form[action='/go/api/pipelines/mingle/unpause']").tap do |form|
         form.find("button[title='Unpause'][value='Unpause']").tap do |button|
           expect(button).to have_selector("span[title='Unpause']")
         end

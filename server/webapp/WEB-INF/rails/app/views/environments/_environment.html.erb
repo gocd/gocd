@@ -3,28 +3,11 @@
     <div class="pipelines">
         <%= content_wrapper_tag %>
         <h2 class="entity_title">
-          <%= scope[:environment].name() %>
+          <%= scope[:environment] %>
           <% if scope[:show_edit_environments] %>
-            <%= link_to "", environment_show_path(:name => scope[:environment].name()), :class => 'icon16 setting' %>
+            <%= link_to "", environment_show_path(:name => scope[:environment]), :class => 'icon16 setting' %>
           <% end %>
         </h2>
-      <%- if display_pipeline_instances_on_environments_page %>
-        <% scope[:pipeline_models] = scope[:environment].getPipelineModels() %>
-        <% if scope[:pipeline_models].empty? %>
-            <span>There are no pipelines configured for this environment.</span>
-        <% else %>
-            <% scope[:pipeline_models].each do |pipeline_model_in_environment| %>
-                <div id="<%= env_pipeline_dom_id(pipeline_model_in_environment) %>" class="pipeline hidereveal_collapsed">
-                    <% unless scope[:omit_pipeline] %>
-                        <% cache(view_cache_key.forEnvironmentPipelineBox(pipeline_model_in_environment), {:subkey => "environment_html", :skip_digest => true}) do %>
-                            <%= render :partial=>'environment_pipeline.html.erb', :locals=>{:scope => {:pipeline_model => pipeline_model_in_environment, :pipeline_model_subkey => 'environment_html'}} %>
-                        <% end %>
-                    <% end %>
-                </div>
-                <div class="divider"></div>
-            <% end %>
-        <% end %>
-      <% end %>
       <%= end_content_wrapper %>
     </div>
 </div>

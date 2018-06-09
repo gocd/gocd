@@ -4,7 +4,6 @@
 <div class="sub_tabs_container">
     <ul>
         <%= link_with_current_tab 'Overview', "overview" %>
-        <%= link_with_current_tab 'Pipeline Dependencies', "pipeline" %>
         <%= link_with_current_tab 'Materials', "materials" %>
         <%= link_with_current_tab 'Jobs', "jobs" %>
         <%= link_with_current_tab 'Tests', "tests" %>
@@ -24,10 +23,6 @@
     <% when 'materials' %>
         <div class="material_tab">
             <%= render :partial => 'shared/build_cause.html', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
-        </div>
-    <% when 'pipeline' %>
-        <div id="pipeline_visualization">
-            <%= render :partial => "pipelines/pipeline_dependencies", :locals => {:scope => {}} %>
         </div>
     <% when 'tests' %>
         <div class="fbh_microcontent_popup dashboard_build_cause_like_microcontent_popups">
@@ -68,7 +63,7 @@
 
       <% if auto_refresh? %>
         <% unless ['stats'].include?(params[:action]) -%>
-            AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, pipeline_visualization: initPipelineVisualization, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
+            AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
        <% end %>
     <% end %>
 

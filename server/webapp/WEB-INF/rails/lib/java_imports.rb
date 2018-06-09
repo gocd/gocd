@@ -119,7 +119,6 @@ module JavaImports
   java_import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel unless defined? EnvironmentPipelineModel
   java_import com.thoughtworks.go.presentation.FlashMessageModel unless defined? FlashMessageModel
   java_import com.thoughtworks.go.presentation.ConfigForEdit unless defined? ConfigForEdit
-  java_import com.thoughtworks.go.presentation.pipelinehistory.Environment unless defined? Environment
   java_import com.thoughtworks.go.presentation.pipelinehistory.JobHistory unless defined? JobHistory
   java_import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem unless defined? NullStageHistoryItem
   java_import com.thoughtworks.go.presentation.pipelinehistory.PipelineGroupModel unless defined? PipelineGroupModel

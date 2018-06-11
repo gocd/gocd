@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv4.templateconfig.representers
+package com.thoughtworks.go.apiv4.admin.templateconfig.representers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineEditabilityInfo

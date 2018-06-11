@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv4.templateconfig.representers
+package com.thoughtworks.go.apiv4.admin.templateconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions

@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark
 
 import org.junit.jupiter.api.Test
 
-trait GroupAdminUserSecurity {
+trait TemplateViewUserSecurity {
 
   @Test
   void 'should allow all with security disabled'() {
@@ -57,20 +57,20 @@ trait GroupAdminUserSecurity {
   }
 
   @Test
-  void 'should allow pipeline group admin users, with security enabled'() {
+  void 'should allow template admin users, with security enabled'() {
     enableSecurity()
-    loginAsGroupAdmin()
+    loginAsTemplateAdmin()
 
     makeHttpCall()
     assertRequestAllowed()
   }
 
   @Test
-  void 'should disallow template admin users, with security enabled'() {
+  void 'should allow template view users, with security enabled'() {
     enableSecurity()
-    loginAsTemplateAdmin()
+    loginAsTemplateViewUser()
 
     makeHttpCall()
-    assertRequestForbidden()
+    assertRequestAllowed()
   }
 }

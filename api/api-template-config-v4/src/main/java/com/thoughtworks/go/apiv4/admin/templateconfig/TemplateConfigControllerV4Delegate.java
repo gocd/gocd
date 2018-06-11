@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv4.templateconfig;
+package com.thoughtworks.go.apiv4.admin.templateconfig;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,8 +26,8 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.apiv4.templateconfig.representers.TemplateConfigRepresenter;
-import com.thoughtworks.go.apiv4.templateconfig.representers.TemplatesConfigRepresenter;
+import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplateConfigRepresenter;
+import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConfigRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -93,7 +93,7 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
 
   @Override
   public String controllerBasePath() {
-    return Routes.PipelineConfig.BASE;
+    return Routes.PipelineTemplateConfig.BASE;
   }
 
   @Override

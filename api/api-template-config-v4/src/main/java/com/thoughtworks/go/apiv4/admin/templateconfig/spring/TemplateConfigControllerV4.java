@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv4.templateconfig.spring;
+package com.thoughtworks.go.apiv4.admin.templateconfig.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv4.templateconfig.TemplateConfigControllerV4Delegate;
+import com.thoughtworks.go.apiv4.admin.templateconfig.TemplateConfigControllerV4Delegate;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.TemplateConfigService;

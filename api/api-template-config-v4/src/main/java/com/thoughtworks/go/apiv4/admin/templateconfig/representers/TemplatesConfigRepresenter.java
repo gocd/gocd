@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv4.templateconfig.representers;
+package com.thoughtworks.go.apiv4.admin.templateconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.TemplateToPipelines;
@@ -26,9 +26,9 @@ public class TemplatesConfigRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, List<TemplateToPipelines> templatesList) {
         jsonWriter.addLinks(
-                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.PipelineTemplateConfig.DOC)
-                        .addLink("find", Routes.PipelineTemplateConfig.find())
-                        .addLink("self", Routes.PipelineTemplateConfig.BASE))
+                outputLinkWriter -> outputLinkWriter.addLink("self", Routes.PipelineTemplateConfig.BASE)
+                        .addAbsoluteLink("doc", Routes.PipelineTemplateConfig.DOC))
+
                 .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("templates", templatesWriter -> templatesList.forEach(templateSummary -> templatesWriter.addChild(templateSummaryWriter -> TemplateSummaryRepresenter.toJSON(templateSummaryWriter, templateSummary)))));
     }
 }

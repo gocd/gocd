@@ -31,4 +31,12 @@ public class SparkOrRailsToggle {
             request.setAttribute("rails_bound", true);
         }
     }
+
+    public void templateConfigApi(HttpServletRequest request, HttpServletResponse response) {
+        if (Toggles.isToggleOn(Toggles.TEMPLATES_APIV4_KEY)) {
+            request.setAttribute("sparkOrRails", "spark");
+        } else {
+            request.setAttribute("sparkOrRails", "rails");
+        }
+    }
 }

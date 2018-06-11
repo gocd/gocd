@@ -24,6 +24,9 @@ const ComponentMixins        = require('helpers/mithril_component_mixins');
 const PluginWidget           = require('views/plugins/plugin_widget');
 const PluginSettingModalBody = require('views/plugins/plugin_setting_modal_body');
 const PluginSetting          = require('models/plugins/plugin_setting');
+const PluginInfos            = require('models/shared/plugin_infos');
+const Spinner                = require('views/shared/spinner');
+const PageLoadError          = require('views/shared/page_load_error');
 
 require('jquery-textcomplete');
 
@@ -50,8 +53,30 @@ function showSuccess(modal, ctrl, message) {
   };
 }
 
-const PluginsWidget = {
-  oninit (vnode) {
+class PluginsWidget {
+
+  constructor() {
+    this.state = {
+      pluginInfos:   Stream({}),
+      errorPage:     null,
+      loading:       true
+    };
+  };
+
+  oninit(vnode) {
+    const onSuccess = (pluginInfos) => {
+      this.state.loading = false;
+      this.state.pluginInfos(pluginInfos);
+      this.state.errorPage = null;
+    };
+
+    const onFailure = (response) => {
+      this.state.loading   = false;
+      this.state.errorPage = <PageLoadError message={response}/>;
+    };
+    $.when(PluginInfos.all(null, {'include_bad': true})).then(onSuccess, onFailure);
+
+
     const ctrl = vnode.state;
     ComponentMixins.ManagesCollection.call(this, {as: 'PluginInfo'});
     ComponentMixins.HasViewModel.call(this);
@@ -119,11 +144,17 @@ const PluginsWidget = {
       modal.render();
       PluginSetting.get(pluginInfo.id()).then(onFulfilled, onFailure).always(m.redraw);
     };
-  },
+  };
 
   view (vnode) {
+    if (this.state.loading) {
+      return <Spinner/>;
+    }
+    if (this.state.errorPage) {
+      return this.state.errorPage;
+    }
 
-    const noPluginsInstalled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+    const noPluginsInstalled = (!this.state.pluginInfos || this.state.pluginInfos().countPluginInfo() === 0);
 
     let noPluginsMessage;
     if (noPluginsInstalled) {
@@ -142,7 +173,7 @@ const PluginsWidget = {
 
           <f.row>
 
-            {vnode.attrs.pluginInfos().sortByPluginInfos((pi) => pi.id()).map((pluginInfo) => {
+            {this.state.pluginInfos().sortByPluginInfos((pi) => pi.id()).map((pluginInfo) => {
               return (
                 <PluginWidget
                   pluginInfo={pluginInfo}
@@ -158,6 +189,6 @@ const PluginsWidget = {
       </div>
     );
   }
-};
+}
 
 module.exports = PluginsWidget;

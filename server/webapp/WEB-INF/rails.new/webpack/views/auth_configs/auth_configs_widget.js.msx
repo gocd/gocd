@@ -24,6 +24,9 @@ const ComponentMixins     = require('helpers/mithril_component_mixins');
 const AuthConfigs         = require('models/auth_configs/auth_configs');
 const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
 const AuthConfigModalBody = require('views/auth_configs/auth_config_modal_body');
+const PluginInfos         = require('models/shared/plugin_infos');
+const PageLoadError       = require('views/shared/page_load_error');
+const Spinner             = require('views/shared/spinner');
 require('jquery-textcomplete');
 
 function showErrors(ctrl, newAuthConfig, callback) {
@@ -67,9 +70,31 @@ function showSuccess(modal, ctrl, message) {
   };
 }
 
-const AuthConfigsWidget = {
+class AuthConfigsWidget {
+
+  constructor() {
+    this.state = {
+      pluginInfos: Stream({}),
+      errorPage:   null,
+      loading:     true,
+    }
+  }
+
   oninit (vnode) {
     const ctrl = vnode.state;
+
+    const onSuccess = (pluginInfos) => {
+      this.state.loading = false;
+      this.state.pluginInfos(pluginInfos);
+      this.state.errorPage = null;
+    };
+
+    const onFailure = (response) => {
+      this.state.loading   = false;
+      this.state.errorPage = <PageLoadError message={response}/>;
+    };
+
+    $.when(PluginInfos.all(null, {type: 'authorization'})).then(onSuccess, onFailure);
     ComponentMixins.ManagesCollection.call(this, {as: 'AuthConfig'});
     ComponentMixins.HasViewModel.call(this);
 
@@ -125,7 +150,7 @@ const AuthConfigsWidget = {
         title:   modalTitle,
         body:    () => (<AuthConfigModalBody authConfig={newAuthConfig}
                                              pluginInfo={pluginInfo}
-                                             pluginInfos={vnode.attrs.pluginInfos}
+                                             pluginInfos={this.state.pluginInfos}
                                              errorMessage={ctrl.modalErrorMessage}/>),
         onclose: () => modal.destroy(),
         buttons: () => {
@@ -146,7 +171,7 @@ const AuthConfigsWidget = {
 
     this.edit = function (authConfig) {
       const newAuthConfig          = Stream(authConfig);
-      const pluginInfo             = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const pluginInfo             = Stream(this.state.pluginInfos().findById(authConfig.pluginId()));
       const checkConnectionClasses = Stream(['verify-connection', 'save', 'primary']);
 
       ctrl.clearMessage();
@@ -174,7 +199,7 @@ const AuthConfigsWidget = {
 
     this.clone = function (authConfig) {
       const newAuthConfig          = Stream(authConfig);
-      const pluginInfo             = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const pluginInfo             = Stream(this.state.pluginInfos().findById(authConfig.pluginId()));
       const checkConnectionClasses = Stream(['verify-connection', 'save', 'primary']);
 
       ctrl.clearMessage();
@@ -262,16 +287,22 @@ const AuthConfigsWidget = {
       });
       modal.render();
     };
-  },
+  }
 
   view (vnode) {
+    if (this.state.loading) {
+      return <Spinner/>;
+    }
+    if (this.state.errorPage) {
+      return this.state.errorPage;
+    }
 
     let noAuthorizationPluginMessage;
-    if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0) {
+    if (!this.state.pluginInfos || this.state.pluginInfos().countPluginInfo() === 0) {
       noAuthorizationPluginMessage = <f.infoRow message="No authorization plugin installed."/>;
     }
 
-    const disabled  = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+    const disabled  = (!this.state.pluginInfos || this.state.pluginInfos().countPluginInfo() === 0);
     const addButton = (
       <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-auth-config"
                 disabled={disabled}>
@@ -288,7 +319,7 @@ const AuthConfigsWidget = {
           <f.row>
 
             {vnode.state.authConfigs().mapAuthConfigs((authConfig) => {
-              const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
+              const pluginInfo = this.state.pluginInfos().findById(authConfig.pluginId());
 
               return (
                 <AuthConfigWidget

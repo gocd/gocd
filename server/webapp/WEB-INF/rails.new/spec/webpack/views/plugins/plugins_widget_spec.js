@@ -23,7 +23,6 @@ describe("PluginsWidget", () => {
   require('jasmine-ajax');
 
   const PluginsWidget = require("views/plugins/plugins_widget");
-  const PluginInfos   = require('models/shared/plugin_infos');
   const Modal         = require('views/shared/new_modal');
 
   let $root, root;
@@ -124,6 +123,7 @@ describe("PluginsWidget", () => {
       }
     ]
   };
+  const pluginInfosUrl             = '/go/api/admin/plugin_info?include_bad=true';
 
   describe('functionality', () => {
     const pluginSettingJSON = {
@@ -251,20 +251,27 @@ describe("PluginsWidget", () => {
       }
     };
 
-    const allPluginInfosJSON = [githubAuthPluginInfoJSON, githubScmPluginInfoJSON, yumPluginInfoJSON, elasticAgentPluginInfoJSON];
-    const pluginInfos        = Stream(PluginInfos.fromJSON([]));
+    const allPluginInfosJSON = {
+      "_embedded": {
+        "plugin_info": [githubAuthPluginInfoJSON, githubScmPluginInfoJSON, yumPluginInfoJSON, elasticAgentPluginInfoJSON]
+      }
+    };
     const isUserAnAdmin      = Stream('true' === 'true');
 
     beforeEach(() => {
       jasmine.Ajax.install();
-      pluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(allPluginInfosJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       m.mount(root, {
         view() {
-          return m(PluginsWidget, {
-            pluginInfos,
-            isUserAnAdmin
-          });
+          return m(PluginsWidget, {isUserAnAdmin});
         }
       });
       m.redraw(true);
@@ -340,20 +347,26 @@ describe("PluginsWidget", () => {
   });
 
   describe('for an admin', () => {
-    const allPluginInfosJSON = [configRepoPluginInfoJSON, elasticAgentPluginInfoJSON];
-    const pluginInfos        = Stream(PluginInfos.fromJSON([]));
+    const allPluginInfosJSON = {
+      "_embedded": {
+        "plugin_info": [configRepoPluginInfoJSON, elasticAgentPluginInfoJSON]
+      }
+    };
     const isUserAnAdmin      = Stream('true' === 'true');
-
-
     beforeEach(() => {
-      pluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(allPluginInfosJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       m.mount(root, {
         view() {
-          return m(PluginsWidget, {
-            pluginInfos,
-            isUserAnAdmin
-          });
+          return m(PluginsWidget, {isUserAnAdmin});
         }
       });
       m.redraw(true);
@@ -377,20 +390,28 @@ describe("PluginsWidget", () => {
   });
 
   describe('for a non-admin', () => {
-    const allPluginInfosJSON = [configRepoPluginInfoJSON];
-    const pluginInfos        = Stream(PluginInfos.fromJSON([]));
+    const allPluginInfosJSON = {
+      "_embedded": {
+        "plugin_info": [configRepoPluginInfoJSON]
+      }
+    };
     const isUserAnAdmin      = Stream('false' === 'true');
 
 
     beforeEach(() => {
-      pluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(allPluginInfosJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       m.mount(root, {
         view() {
-          return m(PluginsWidget, {
-            pluginInfos,
-            isUserAnAdmin
-          });
+          return m(PluginsWidget, {isUserAnAdmin});
         }
       });
       m.redraw(true);

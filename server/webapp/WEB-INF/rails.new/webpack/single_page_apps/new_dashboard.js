@@ -69,7 +69,7 @@ $(() => {
         return;
       }
 
-      if (jqXHR.status === 424) {
+      if (jqXHR.status === 424 || jqXHR.status === 503) {
         const message = {
           type:    'warning',
           content: jqXHR.responseJSON.message,

@@ -17,14 +17,12 @@ describe("ElasticProfilesWidget", () => {
 
   const $             = require("jquery");
   const m             = require("mithril");
-  const Stream        = require("mithril/stream");
   const simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
   require('jasmine-ajax');
 
   const ElasticProfilesWidget = require("views/elastic_profiles/elastic_profiles_widget");
-  const PluginInfos           = require('models/shared/plugin_infos');
   const Modal                 = require('views/shared/new_modal');
 
   let $root, root;
@@ -148,8 +146,19 @@ describe("ElasticProfilesWidget", () => {
     }
   };
 
-  const allPluginInfosJSON = [dockerPluginInfoJSON, ecsPluginInfoJSON];
-  const allPluginInfos     = Stream(PluginInfos.fromJSON([]));
+  const allPluginInfosJSON = {
+    "_embedded": {
+      "plugin_info": [dockerPluginInfoJSON, ecsPluginInfoJSON]
+    }
+  };
+
+  const noPluginInfosJSON = {
+    "_embedded": {
+      "plugin_info": []
+    }
+  };
+
+  const pluginInfosUrl = '/go/api/admin/plugin_info?type=elastic-agent';
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -158,13 +167,15 @@ describe("ElasticProfilesWidget", () => {
       status:       200
     });
 
-    allPluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+    jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+      responseText: JSON.stringify(allPluginInfosJSON),
+      status:       200
+    });
+
 
     m.mount(root, {
       view() {
-        return m(ElasticProfilesWidget, {
-          pluginInfos: allPluginInfos
-        });
+        return m(ElasticProfilesWidget);
       }
     });
     m.redraw(true);
@@ -179,9 +190,52 @@ describe("ElasticProfilesWidget", () => {
     expect($('.new-modal-container .reveal')).not.toExist('Did you forget to close the modal before the test?');
   });
 
+  describe('Loading Data', () => {
+    it('should show spinner while data is loading', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET');
+      m.mount(root, ElasticProfilesWidget);
+      expect($(".page-spinner")).toBeInDOM();
+    });
+
+    it('should show error page with proper error message if server backup message received', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify({"message": "Server is under maintenance mode, please try later."}),
+        status:          503,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      m.mount(root, ElasticProfilesWidget);
+      expect($root.find(".alert.callout")).toBeInDOM();
+      expect($root.find(".header-panel")).not.toBeInDOM();
+    });
+
+    it('should show data after response is received', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(allPluginInfosJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      m.mount(root, ElasticProfilesWidget);
+      expect($(".header-panel")).toBeInDOM();
+    });
+  });
+
   describe("no elastic agent plugin loaded", () => {
     beforeEach(() => {
-      allPluginInfos(PluginInfos.fromJSON([]));
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(noPluginInfosJSON),
+        status:       200
+      });
+      m.mount(root, {
+        view() {
+          return m(ElasticProfilesWidget);
+        }
+      });
       m.redraw(true);
     });
 

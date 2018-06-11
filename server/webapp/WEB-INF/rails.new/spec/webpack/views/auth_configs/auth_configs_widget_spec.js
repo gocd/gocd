@@ -16,6 +16,7 @@
 describe("AuthConfigsWidget", () => {
 
   const authConfigIndexUrl = '/go/api/admin/security/auth_configs';
+  const pluginInfosUrl     = '/go/api/admin/plugin_info?type=authorization';
 
   const $             = require("jquery");
   const m             = require("mithril");
@@ -147,7 +148,11 @@ describe("AuthConfigsWidget", () => {
     "auth_config": authConfigJSON
   });
 
-  const allPluginInfosJSON = [ldapPluginInfoJSON, githubPluginInfoJSON];
+  const allPluginInfosJSON = {
+    "_embedded": {
+      "plugin_info": [ldapPluginInfoJSON, githubPluginInfoJSON]
+    }
+  };
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -157,12 +162,14 @@ describe("AuthConfigsWidget", () => {
       status:       200
     });
 
+    jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+      responseText: JSON.stringify(allPluginInfosJSON),
+      status:       200
+    });
+
     m.mount(root, {
       view () {
-        const fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
-        return m(AuthConfigsWidget, {
-          pluginInfos: Stream(fromJSON)
-        });
+        return m(AuthConfigsWidget);
       }
     });
     m.redraw(true);
@@ -177,11 +184,50 @@ describe("AuthConfigsWidget", () => {
     expect($('.new-modal-container .reveal')).not.toExist('Did you forget to close the modal before the test?');
   });
 
+  describe('Loading Data', () => {
+    it('should show spinner while data is loading', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET');
+      m.mount(root, AuthConfigsWidget);
+      expect($(".page-spinner")).toBeInDOM();
+    });
+
+    it('should show error page with proper error message if server backup message received', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify({"message": "Server is under maintenance mode, please try later."}),
+        status:          503,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      m.mount(root, AuthConfigsWidget);
+      expect($root.find(".alert.callout")).toBeInDOM();
+      expect($root.find(".header-panel")).not.toBeInDOM();
+    });
+
+    it('should show data after response is received', () => {
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(allPluginInfosJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      m.mount(root, AuthConfigsWidget);
+      expect($(".header-panel")).toBeInDOM();
+    });
+  });
+
   describe("no authorization plugin loaded", () => {
     beforeEach(() => {
       m.mount(root, null);
       m.redraw();
 
+      jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({"embedded": {plugin_info: []}}),
+        status:       200
+      });
       jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'GET').andReturn({
         responseText: JSON.stringify(authConfigsJSON),
         status:       200
@@ -189,10 +235,7 @@ describe("AuthConfigsWidget", () => {
 
       m.mount(root, {
         view () {
-          const fromJSON = PluginInfos.fromJSON([]);
-          return m(AuthConfigsWidget, {
-            pluginInfos: Stream(fromJSON)
-          });
+          return m(AuthConfigsWidget);
         }
       });
       m.redraw(true);

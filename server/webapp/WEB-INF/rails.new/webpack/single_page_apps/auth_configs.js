@@ -16,9 +16,8 @@
 
 const $                 = require('jquery');
 const m                 = require('mithril');
-const Stream            = require('mithril/stream');
 const AuthConfigsWidget = require('views/auth_configs/auth_configs_widget');
-const PluginInfos       = require('models/shared/plugin_infos');
+
 const VersionUpdater    = require('models/shared/version_updater');
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
@@ -26,25 +25,5 @@ require('helpers/server_health_messages_helper');
 $(() => {
   $(document).foundation();
   new VersionUpdater().update();
-
-  const onSuccess = function (pluginInfos) {
-    const component = {
-      view () {
-        return m(AuthConfigsWidget, {
-          pluginInfos: Stream(pluginInfos)
-        });
-      }
-    };
-
-    m.mount($("#auth-configs").get(0), component);
-  };
-
-  const onFailure = function () {
-    $("#auth-configs").html($('<div class="alert callout">')
-      .append('<h5>There was a problem fetching the auth configs</h5>')
-      .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')
-    );
-  };
-
-  PluginInfos.all(null, {type: 'authorization'}).then(onSuccess, onFailure);
+  m.mount($("#auth-configs").get(0), AuthConfigsWidget);
 });

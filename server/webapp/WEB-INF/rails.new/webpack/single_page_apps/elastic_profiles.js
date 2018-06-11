@@ -16,36 +16,14 @@
 
 const $                     = require('jquery');
 const m                     = require('mithril');
-const Stream                = require('mithril/stream');
 const ElasticProfilesWidget = require('views/elastic_profiles/elastic_profiles_widget');
-const PluginInfos           = require('models/shared/plugin_infos');
 const VersionUpdater        = require('models/shared/version_updater');
-const PageLoadError         = require('views/shared/page_load_error');
+
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
 $(() => {
   $(document).foundation();
   new VersionUpdater().update();
-
-  const onSuccess = (pluginInfos) => {
-    const component = {
-      view() {
-        return (<ElasticProfilesWidget pluginInfos={Stream(pluginInfos)}/>);
-      }
-    };
-
-    m.mount($("#elastic-profiles").get(0), component);
-  };
-
-  const onFailure = () => {
-    const component = {
-      view() {
-        return (<PageLoadError message="There was a problem fetching the elastic profiles"/>);
-      }
-    };
-    m.mount($("#elastic-profiles").get(0), component);
-  };
-
-  PluginInfos.all(null, {type: 'elastic-agent'}).then(onSuccess, onFailure);
+  m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);
 });

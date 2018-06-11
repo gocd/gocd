@@ -18,9 +18,8 @@ const $              = require('jquery');
 const m              = require('mithril');
 const Stream         = require('mithril/stream');
 const PluginsWidget  = require('views/plugins/plugins_widget');
-const PluginInfos    = require('models/shared/plugin_infos');
 const VersionUpdater = require('models/shared/version_updater');
-const PageLoadError  = require('views/shared/page_load_error');
+
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
@@ -29,25 +28,5 @@ $(() => {
   const pluginElement = $('#plugins');
   const isUserAnAdmin = pluginElement.attr('is-user-an-admin');
   new VersionUpdater().update();
-
-  const onSuccess = (pluginInfos) => {
-    const component = {
-      view() {
-        return (<PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);
-      }
-    };
-
-    m.mount($("#plugins").get(0), component);
-  };
-
-  const onFailure = () => {
-    const component = {
-      view() {
-        return (<PageLoadError message="There was a problem fetching plugins"/>);
-      }
-    };
-    m.mount($("#plugins").get(0), component);
-  };
-
-  PluginInfos.all(null, {'include_bad': true}).then(onSuccess, onFailure);
+  m.mount($("#plugins").get(0), <PluginsWidget isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);
 });

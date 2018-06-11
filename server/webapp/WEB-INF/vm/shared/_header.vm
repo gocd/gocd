@@ -114,7 +114,7 @@
                         <li id="cruise-header-tab-agents" class="#if($current_tab == 'Agents') current #end">
                           <a href="$req.getContextPath()/agents">AGENTS</a>
                         </li>
-                        #if($supportsAnalyticsDashboard)
+                        #if($supportsAnalyticsDashboard && $userHasAdministratorRights)
                           <li id="cruise-header-tab-agents" class="#if($current_tab == 'Analytics') current #end">
                             <a href="$req.getContextPath()/analytics">Analytics</a>
                           </li>

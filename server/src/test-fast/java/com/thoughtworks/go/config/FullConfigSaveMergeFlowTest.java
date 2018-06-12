@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
@@ -70,12 +71,12 @@ public class FullConfigSaveMergeFlowTest {
 
         flow = new FullConfigSaveMergeFlow(loader, writer, configElementImplementationRegistry, timeProvider,
                 configRepository, cachedGoPartials, fileWriter);
+        when(writer.documentFrom(configForEdit)).thenReturn(document);
+        when(writer.toString(document)).thenReturn("cruise_config");
     }
 
     @Test
     public void shouldUpdateGivenConfigWithPartials() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -86,8 +87,6 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldPreprocessAndValidateTheUpdatedConfig() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -97,9 +96,25 @@ public class FullConfigSaveMergeFlowTest {
     }
 
     @Test
+    public void shouldAttemptToEncryptSecurePropertiesInPipelineConfigs() throws Exception {
+        BasicCruiseConfig basicCruiseConfig = GoConfigMother.defaultCruiseConfig();
+        PipelineConfig mockPipelineConfig = mock(PipelineConfig.class);
+        basicCruiseConfig.addPipelineWithoutValidation("group", mockPipelineConfig);
+
+        when(writer.documentFrom(basicCruiseConfig)).thenReturn(document);
+        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+                .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+
+
+        FullConfigUpdateCommand fullConfigUpdateCommand = new FullConfigUpdateCommand(basicCruiseConfig, "md5");
+
+        flow.execute(fullConfigUpdateCommand, partials, null);
+
+        verify(mockPipelineConfig).encryptSecureProperties(basicCruiseConfig);
+    }
+
+    @Test
     public void shouldValidateDomRepresentationOfCruiseConfig() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -110,9 +125,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test(expected = ConfigMergePreValidationException.class)
     public void shouldErrorOutIfPreprocessOrValidateFails() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(loader.preprocessAndValidate(configForEdit)).thenThrow(new Exception());
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -121,8 +134,6 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test(expected = ConfigMergePostValidationException.class)
     public void shouldErrorOutIfSavingConfigPostValidationFails() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenThrow(new Exception());
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenReturn("merged_config");
@@ -132,8 +143,6 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test(expected = ConfigMergeException.class)
     public void shouldErrorOutIfConfigMergeFails() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenThrow(new ConfigMergeException("merge fails"));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -141,8 +150,6 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldMergeConfigWithLatestRevision() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -155,9 +162,7 @@ public class FullConfigSaveMergeFlowTest {
     public void shouldLoadConfigHolderFromTheMergedConfigXML() throws Exception {
         String mergedConfig = "merged_config";
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -170,9 +175,7 @@ public class FullConfigSaveMergeFlowTest {
     public void shouldPersistXmlRepresentationOfMergedCruiseConfig() throws Exception {
         String mergedConfig = "merged_config";
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
@@ -187,9 +190,7 @@ public class FullConfigSaveMergeFlowTest {
         Date currentTime = mock(Date.class);
         ArgumentCaptor<GoConfigRevision> revisionArgumentCaptor = ArgumentCaptor.forClass(GoConfigRevision.class);
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(timeProvider.currentTime()).thenReturn(currentTime);
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
@@ -209,9 +210,7 @@ public class FullConfigSaveMergeFlowTest {
         String mergedConfig = "merged_config";
         ArrayList<PartialConfig> partials = new ArrayList<>();
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         InOrder inOrder = inOrder(configRepository, fileWriter, cachedGoPartials);

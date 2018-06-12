@@ -1034,6 +1034,21 @@ public class GoConfigFileHelper {
         };
     }
 
+    public NoOverwriteUpdateConfigCommand addPipelineCommand(final String oldMd5, final PipelineConfig pipelineConfig) {
+        return new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public String unmodifiedMd5() {
+                return oldMd5;
+            }
+
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addPipeline("g1", pipelineConfig);
+                return cruiseConfig;
+            }
+        };
+    }
+
     public UpdateConfigCommand changeJobNameCommand(final String md5, final String pipelineName, final String stageName, final String oldJobName, final String newJobName) {
         return new NoOverwriteUpdateConfigCommand() {
             @Override

@@ -995,6 +995,29 @@ public class PipelineConfigTest {
         assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
     }
 
+    @Test
+    public void shouldNotEncryptSecurePropertiesInStagesIfPipelineHasATemplate() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
+        StageConfig mockStageConfig = mock(StageConfig.class);
+        pipelineConfig.addStageWithoutValidityAssertion(mockStageConfig);
+
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig());
+
+        verify(mockStageConfig, never()).encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+    }
+
+    @Test
+    public void shouldNotEncryptSecurePropertiesInStagesIfPipelineHasStagesDefined() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        StageConfig mockStageConfig = mock(StageConfig.class);
+        pipelineConfig.add(mockStageConfig);
+
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig());
+
+        verify(mockStageConfig).encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+    }
+
     private StageConfig completedStage() {
         JobConfigs plans = new JobConfigs();
         plans.add(new JobConfig("completed"));

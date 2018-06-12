@@ -760,10 +760,14 @@ task verifyWar(type: VerifyJarTask) {
 }
 
 task licenseReportAggregate {
-  dependsOn rootProject.subprojects.findAll {
-    it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)
-  }.collect { "${it.path}:generateLicenseReport" }
-  dependsOn generateLicenseReport
+  if (!project.hasProperty('fastBuild')) {
+    dependsOn rootProject.subprojects.findAll {
+      it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)
+    }.collect { "${it.path}:generateLicenseReport" }
+    dependsOn generateLicenseReport
+  }
+
+  onlyIf { !project.hasProperty('fastBuild') }
 
   def licenseReportAggregateOutputDir = project.file("${project.buildDir}/reports/license-report-aggregate")
   outputs.dir(licenseReportAggregateOutputDir)

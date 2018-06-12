@@ -172,7 +172,7 @@ module.exports = function (env) {
           const licenseReport = _.chain(filenames)
             .uniq()
             .filter((fileName) => fileName && fileName.indexOf('node_modules') >= 0)
-            .map((fileName) => fileName.replace(upath.join(process.cwd(), '/node_modules/'), '').split('/')[0])
+            .map((fileName) => upath.normalize(fileName).replace(upath.join(process.cwd(), '/node_modules/'), '').split('/')[0])
             .uniq()
             .sort()
             .reduce((accumulator, moduleName) => {

@@ -69,15 +69,6 @@ $(() => {
         return;
       }
 
-      if (jqXHR.status === 424) {
-        const message = {
-          type:    'warning',
-          content: jqXHR.responseJSON.message,
-        };
-        onResponse({}, message);
-        return;
-      }
-
       const message = {
         type:    'warning',
         content: 'There was an unknown error ',

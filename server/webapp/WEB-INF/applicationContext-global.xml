@@ -46,6 +46,9 @@
     <context:component-scan base-package="com.thoughtworks.go.apiv1.buildcause.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactstoreconfig.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv6.admin.pipelineconfig.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.settings.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.reporting.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.usagedata.spring"/>
 
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>

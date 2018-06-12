@@ -190,6 +190,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("stageArtifactCleanupProhibited"));
         dataSet.addTable(new DefaultTable("serverBackups"));
         dataSet.addTable(new DefaultTable("jobAgentMetadata"));
+        dataSet.addTable(new DefaultTable("DataSharingSettings"));
+        dataSet.addTable(new DefaultTable("UsageDataReporting"));
 
         databaseTester.setDataSet(dataSet);
     }

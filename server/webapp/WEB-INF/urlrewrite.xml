@@ -166,6 +166,18 @@
     </rule>
 
     <rule>
+        <name>Data Sharing APIs</name>
+        <from>^/api/data_sharing/(.*)(/?)$</from>
+        <to last="true">/spark/api/data_sharing/$1</to>
+    </rule>
+
+    <rule>
+        <name>Data Sharing Internal APIs</name>
+        <from>^/api/internal/data_sharing/(.*)(/?)$</from>
+        <to last="true">/spark/api/internal/data_sharing/$1</to>
+    </rule>
+
+    <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
         <set name="rails_bound">false</set>

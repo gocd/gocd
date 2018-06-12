@@ -44,6 +44,17 @@ public class JsonReader {
             .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
     }
 
+    public Optional<Long> optLong(String property) {
+        if (hasJsonObject(property)) {
+            try {
+                return Optional.ofNullable(jsonObject.get(property).getAsLong());
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonString(property);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<String> optString(String property) {
         if (hasJsonObject(property)) {
             try {

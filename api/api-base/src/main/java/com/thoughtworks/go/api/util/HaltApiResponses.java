@@ -45,6 +45,9 @@ public abstract class HaltApiResponses {
     public static HaltException haltBecauseEtagDoesNotMatch(String entityType, String name) {
         return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
+    public static HaltException haltBecauseEtagDoesNotMatch() {
+        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create("Someone has modified the entity. Please update your copy with the changes and try again."));
+    }
 
     public static HaltException haltBecauseRateLimitExceeded() {
         return halt(HttpStatus.TOO_MANY_REQUESTS.value(), MessageJson.create(rateLimitExceeded()));

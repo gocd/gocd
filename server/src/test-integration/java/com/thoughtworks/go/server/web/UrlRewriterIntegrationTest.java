@@ -235,6 +235,15 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion USERS_SHOW_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/users/some.one", "http://127.1.1.1:" + HTTP + "/go/rails/api/users/some.one", METHOD.GET);
 
+    @DataPoint
+    public static ResponseAssertion DATA_SHARING_SETTINGS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/data_sharing/settings", "http://127.1.1.1:" + HTTP + "/go/spark/api/data_sharing/settings", true);
+
+    @DataPoint
+    public static ResponseAssertion DATA_SHARING_USAGE_DATA = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/internal/data_sharing/usagedata", "http://127.1.1.1:" + HTTP + "/go/spark/api/internal/data_sharing/usagedata", true);
+
+    @DataPoint
+    public static ResponseAssertion DATA_SHARING_REPORTING = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/internal/data_sharing/reporting", "http://127.1.1.1:" + HTTP + "/go/spark/api/internal/data_sharing/reporting", true);
+
     @Theory
     public void shouldRewrite(final ResponseAssertion assertion) throws Exception {
         useConfiguredUrls = assertion.useConfiguredUrls;

@@ -552,6 +552,22 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return new JobInstances(list);
     }
 
+    public JobStateTransition oldestBuild() {
+        String cacheKeyForOldestBuild = (JobInstanceSqlMapDao.class.getName() + "_oldestBuild").intern();
+        JobStateTransition oldestBuild = (JobStateTransition) goCache.get(cacheKeyForOldestBuild);
+        if(oldestBuild == null){
+            synchronized (cacheKeyForOldestBuild){
+                oldestBuild = (JobStateTransition) goCache.get(cacheKeyForOldestBuild);
+                if(oldestBuild == null) {
+                    oldestBuild = (JobStateTransition) getSqlMapClientTemplate().queryForObject("oldestBuild", new Object());
+                    goCache.put(cacheKeyForOldestBuild, oldestBuild);
+                }
+                return oldestBuild;
+            }
+        }
+        return oldestBuild;
+    }
+
     private void saveTransitions(JobInstance jobInstance) {
         for (JobStateTransition transition : jobInstance.getTransitions()) {
             if (!transition.hasId()) {

@@ -135,6 +135,8 @@ public class ApplicationInitializerTest {
     private ResourceMonitoring resourceMonitoring;
     @Mock
     private PipelineLabelCorrector pipelineLabelCorrector;
+    @Mock
+    private DataSharingService dataSharingService;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 
@@ -166,6 +168,11 @@ public class ApplicationInitializerTest {
         inOrder.verify(cachedGoConfig).upgradeConfig();
         inOrder.verify(cachedGoConfig).loadConfigIfNull();
         inOrder.verify(goConfigService).initialize();
+    }
+
+    @Test
+    public void shouldInitializeServerStatsToBeCollected() throws Exception {
+        verify(dataSharingService, times(1)).initialize();
     }
 
     private void verifyOrder(Initializer... initializers) {

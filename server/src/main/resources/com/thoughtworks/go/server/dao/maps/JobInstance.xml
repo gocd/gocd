@@ -36,7 +36,7 @@
     </resultMap>
 
     <resultMap id="select-build-with-identifier-transitions" type="com.thoughtworks.go.domain.JobInstance" extends="select-build-with-identifier">
-        <collection property="transitions" resultMap="BuildStateTransition.build-transition"/>
+        <collection property="transitions" resultMap="BuildStateTransition.referenced-build-transition"/>
     </resultMap>
 
     <resultMap id="jobIdentifier" type="com.thoughtworks.go.domain.JobIdentifier">
@@ -51,11 +51,11 @@
     </resultMap>
 
     <resultMap id="join-build-map" type="com.thoughtworks.go.domain.JobInstance" extends="select-build-map">
-        <collection property="transitions" resultMap="BuildStateTransition.build-transition"/>
+        <collection property="transitions" resultMap="BuildStateTransition.referenced-build-transition"/>
     </resultMap>
 
     <resultMap id="join-build-map-with-identifier" type="com.thoughtworks.go.domain.JobInstance" extends="select-build-with-identifier">
-        <collection property="transitions" resultMap="BuildStateTransition.build-transition"/>
+        <collection property="transitions" resultMap="BuildStateTransition.referenced-build-transition"/>
     </resultMap>
 
     <parameterMap id="insert-build-param" type="com.thoughtworks.go.domain.JobInstance">

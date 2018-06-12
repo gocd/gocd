@@ -15,8 +15,16 @@
   -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="BuildStateTransition">
-    <resultMap id="build-transition" type="com.thoughtworks.go.domain.JobStateTransition">
+    <resultMap id="referenced-build-transition" type="com.thoughtworks.go.domain.JobStateTransition">
         <result property="id" column="stateId" jdbcType="BIGINT"/>
+        <result property="jobId" column="buildId" jdbcType="BIGINT"/>
+        <result property="stageId" column="stageId" jdbcType="BIGINT"/>
+        <result property="currentState" column="currentState"/>
+        <result property="stateChangeTime" column="stateChangeTime" javaType="date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="build-transition" type="com.thoughtworks.go.domain.JobStateTransition">
+        <result property="id" column="id" jdbcType="BIGINT"/>
         <result property="jobId" column="buildId" jdbcType="BIGINT"/>
         <result property="stageId" column="stageId" jdbcType="BIGINT"/>
         <result property="currentState" column="currentState"/>
@@ -38,4 +46,9 @@
         </selectKey>
     </insert>
 
+
+    <select id="oldestBuild" resultMap="build-transition">
+      SELECT * FROM BUILDSTATETRANSITIONS
+      ORDER BY ID ASC LIMIT 1;
+    </select>
 </mapper>

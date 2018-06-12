@@ -335,6 +335,12 @@ public class JobInstanceSqlMapDaoTest {
         assertThat(after.toArray(), hasItemInArray(hasProperty("name", is(instance2.getName()))));
     }
 
+    @Test
+    public void shouldLoadOldestBuild(){
+        JobStateTransition jobStateTransition = jobInstanceDao.oldestBuild();
+        assertThat(jobStateTransition.getId(), is(stageDao.stageById(stageId).getJobInstances().first().getTransitions().first().getId()));
+    }
+
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
         return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {

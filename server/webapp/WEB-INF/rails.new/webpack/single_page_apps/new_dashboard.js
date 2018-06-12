@@ -58,7 +58,7 @@ $(() => {
       }
       onResponse(data);
     };
-    const onerror   = (jqXHR, textStatus, errorThrown) => {
+    const onerror   = (_jqXHR, textStatus, errorThrown) => {
       if (textStatus === 'parsererror') {
         const message = {
           type:    "alert",

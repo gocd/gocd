@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa.spring
 
+import com.thoughtworks.go.CurrentGoCDVersion
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.RailsAssetsService
@@ -23,14 +24,17 @@ import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.server.service.VersionInfoService
 import com.thoughtworks.go.server.service.WebpackAssetsService
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate
 import org.apache.commons.lang3.StringEscapeUtils
-import org.assertj.core.api.Assertions
+import org.jsoup.Jsoup
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.DefaultResourceLoader
 import spark.ModelAndView
 
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -42,6 +46,7 @@ class VelocityTemplateEngineFactoryTest {
   @BeforeEach
   void setUp() {
     initMocks(this)
+    Toggles.initializeWith(mock(FeatureToggleService.class))
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder))
     engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
@@ -52,7 +57,7 @@ class VelocityTemplateEngineFactoryTest {
   void 'it should render a basic template'() {
     def output = engine.create(RolesControllerDelegate.class, "layouts/test-layout.vm")
       .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
-    Assertions.assertThat(output)
+    assertThat(output)
       .contains("begin parent layout")
       .contains("this is the actual template content")
       .contains("end parent layout")
@@ -63,9 +68,32 @@ class VelocityTemplateEngineFactoryTest {
     def userInput = "<script>alert('i can has hax')</script>"
     def output = engine.create(RolesControllerDelegate.class, "layouts/test-layout.vm")
       .render(new ModelAndView(Collections.singletonMap("user-input", userInput), "templates/escape-html-entities.vm"))
-    Assertions.assertThat(output)
+    assertThat(output)
       .contains("begin parent layout")
       .contains(StringEscapeUtils.escapeHtml4(userInput))
       .contains("end parent layout")
+  }
+
+  @Test
+  void 'it should render footer links'() {
+    def output = engine.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")
+      .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
+
+    def document = Jsoup.parse(output)
+    def footer = document.selectFirst(".app-footer")
+    assertThat(footer.text()).contains("Copyright © ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.")
+    assertThat(footer.select("a").eachAttr('href')).isEqualTo([
+      "https://www.thoughtworks.com/products",
+      "https://www.apache.org/licenses/LICENSE-2.0",
+      "/go/assets/dependency-license-report-${CurrentGoCDVersion.getInstance().fullVersion()}",
+      "https://twitter.com/goforcd",
+      "https://github.com/gocd/gocd",
+      "https://groups.google.com/d/forum/go-cd",
+      "https://docs.gocd.org/${CurrentGoCDVersion.getInstance().goVersion()}",
+      "https://www.gocd.org/plugins/",
+      "https://api.gocd.org/${CurrentGoCDVersion.getInstance().goVersion()}",
+      "/go/about",
+      "/go/cctray.xml"
+    ].collect { it.toString() })
   }
 }

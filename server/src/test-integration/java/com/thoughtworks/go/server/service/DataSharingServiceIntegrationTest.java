@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,10 +126,10 @@ public class DataSharingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateUsageStatistisReporting() throws Exception {
+    public void shouldUpdateUsageStatisticsReporting() throws Exception {
         UsageStatisticsReporting existing = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(existing);
-        assertThat(existing.lastReportedAt(), is(new Timestamp(0)));
+        assertNotNull(existing.lastReportedAt());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
@@ -139,20 +139,23 @@ public class DataSharingServiceIntegrationTest {
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         assertThat(loaded.lastReportedAt().toInstant(), is(lastReportedAt.toInstant()));
+        assertThat(loaded.lastReportedAt().toInstant(), is(not(existing.lastReportedAt())));
 
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
-    public void shouldThrowErrorOccuredWhileUpdatingUsageStatisticsReportingWithIncorrectTime() throws Exception {
+    public void shouldThrowErrorOccurredWhileUpdatingUsageStatisticsReportingWithIncorrectTime() throws Exception {
         UsageStatisticsReporting existing = usageStatisticsReportingSqlMapDao.load();
-        assertThat(existing.lastReportedAt(), is(new Timestamp(0)));
+        assertNotNull(existing);
+        assertNotNull(existing.lastReportedAt());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         dataSharingService.updateUsageStatisticsReporting(new UsageStatisticsReporting(), result);
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
-        assertThat(loaded.lastReportedAt(), is(new Timestamp(0)));
+        assertNotNull(loaded);
+        assertThat(existing, is(loaded));
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Validations failed. Please correct and resubmit."));
@@ -192,7 +195,9 @@ public class DataSharingServiceIntegrationTest {
         String originalMd5 = entityHashingService.md5ForEntity(usageStatisticsReportingSqlMapDao.load());
         assertThat(originalMd5, is(not(nullValue())));
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
-        reporting.setLastReportedAt(new Date());
+        Date lastReportedAt = new Date();
+        lastReportedAt.setTime(lastReportedAt.getTime() + 10000);
+        reporting.setLastReportedAt(lastReportedAt);
         dataSharingService.updateUsageStatisticsReporting(reporting, new HttpLocalizedOperationResult());
 
         String md5AfterUpdate = entityHashingService.md5ForEntity(usageStatisticsReportingSqlMapDao.load());

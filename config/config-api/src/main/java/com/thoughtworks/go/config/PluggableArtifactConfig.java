@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;

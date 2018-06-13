@@ -349,6 +349,13 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     @PostConstruct
     public void ensureEncrypted() {
         setPasswordIfNotBlank(password);
+        if (encryptedPassword != null) {
+            goCipher.maybeReEncrypt(encryptedPassword, this::setEncryptedPassword);
+        }
+    }
+
+    private void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
     }
 
     public String getPassword() {

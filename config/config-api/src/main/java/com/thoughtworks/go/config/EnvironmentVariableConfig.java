@@ -285,6 +285,11 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             encryptedValue = new EncryptedVariableValueConfig(encrypt(value.getValue()));
             value = null;
         }
+
+        if (isSecure && encryptedValue != null) {
+            String encryptedValue = this.encryptedValue.getValue();
+            goCipher.maybeReEncrypt(encryptedValue, this::setEncryptedValue);
+        }
     }
 
     public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws CryptoException {

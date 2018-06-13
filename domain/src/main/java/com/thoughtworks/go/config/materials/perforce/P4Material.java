@@ -390,6 +390,13 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     @PostConstruct
     public void ensureEncrypted() {
         setPasswordIfNotBlank(password);
+        if (encryptedPassword != null) {
+            goCipher.maybeReEncrypt(encryptedPassword, this::setEncryptedPassword);
+        }
+    }
+
+    private void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
     }
 
     public String currentPassword() {

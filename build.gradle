@@ -27,13 +27,15 @@ buildscript {
     maven {
       url "https://plugins.gradle.org/m2/"
     }
+
+    maven { url 'https://jitpack.io' }
   }
 
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:3.1.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
-    classpath 'gradle.plugin.com.github.jk1:gradle-license-report:1.0'
+    classpath 'com.github.guenhter:Gradle-License-Report:fix-multi-project-dependency-resolution-problem-SNAPSHOT'
   }
 }
 

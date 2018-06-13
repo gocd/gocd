@@ -25,11 +25,11 @@ import org.junit.jupiter.api.Nested
 
 import static org.mockito.MockitoAnnotations.initMocks
 
-class MetricsConsentDelegateTest implements ControllerTrait<MetricsConsentDelegate>, SecurityServiceTrait {
+class DataSharingSettingsDelegateTest implements ControllerTrait<DataSharingSettingsDelegate>, SecurityServiceTrait {
 
   @Override
-  MetricsConsentDelegate createControllerInstance() {
-    return new MetricsConsentDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  DataSharingSettingsDelegate createControllerInstance() {
+    return new DataSharingSettingsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

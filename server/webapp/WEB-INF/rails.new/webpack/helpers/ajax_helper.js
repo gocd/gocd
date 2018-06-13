@@ -15,11 +15,11 @@
  */
 
 
-const m         = require('mithril');
-const $         = require('jquery');
-const mrequest  = require('helpers/mrequest');
+const m        = require('mithril');
+const $        = require('jquery');
+const mrequest = require('helpers/mrequest');
 
-function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, contentType = false} = {}) {
+function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, etag, contentType = false} = {}) {
   return $.Deferred(function () {
     const deferred = this;
 
@@ -28,15 +28,18 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
       url,
       data:       JSON.stringify(payload),
       timeout,
-      beforeSend: mrequest.xhrConfig.forVersion(apiVersion),
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader('If-Match', etag);
+        mrequest.xhrConfig.forVersion(apiVersion)(xhr);
+      },
       contentType
     });
 
-    const didFulfill = (data, _textStatus, _jqXHR) => {
+    const didFulfill = (data, _textStatus, jqXHR) => {
       if (type) {
-        deferred.resolve(type.fromJSON(data));
+        deferred.resolve(type.fromJSON(data, jqXHR));
       } else {
-        deferred.resolve(data, _textStatus, _jqXHR);
+        deferred.resolve(data, _textStatus, jqXHR);
       }
     };
 
@@ -61,8 +64,8 @@ module.exports = class AjaxHelper {
     return makeRequest({method: 'POST', url, apiVersion, timeout, payload, contentType: 'application/json'});
   }
 
-  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload}) {
-    return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, contentType: 'application/json'});
+  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag}) {
+    return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, type, etag, contentType: 'application/json'});
   }
 };
 

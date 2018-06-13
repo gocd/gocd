@@ -62,7 +62,7 @@ module.exports = {
     }
   },
 
-  metricsSettingsPath: () => {
-    return '/go/api/metrics/settings';
+  metricsDataSharingSettingsPath: () => {
+    return '/go/api/data_sharing/settings';
   }
 };

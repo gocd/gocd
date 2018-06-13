@@ -81,8 +81,8 @@
 
     <rule>
         <name>Metrics Consent SPA</name>
-        <from>^/admin/metrics/consent(/?)$</from>
-        <to last="true">/spark/admin/metrics/consent</to>
+        <from>^/admin/data_sharing/settings(/?)$</from>
+        <to last="true">/spark/admin/data_sharing/settings</to>
     </rule>
 
     <rule>

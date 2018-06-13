@@ -1,0 +1,169 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m      = require('mithril');
+const f      = require("helpers/form_helper");
+const Stream = require('mithril/stream');
+
+const HeaderPanel = require('views/shared/header_panel');
+
+const ConsentUpdatedByWidget = {
+  view() {
+    return <div class="updated-by">
+      Ganesh changed the data sharing permission on 18 July 2018.
+    </div>;
+  }
+};
+
+const ToggleConsentWidget = {
+  oninit() {
+    this.toggleConsent = function (settings) {
+      settings.toggleConsent();
+    };
+  },
+
+  view(vnode) {
+    const settings                   = vnode.attrs.settings;
+    const isAllowed                  = settings.allowed();
+    const isAllowedHumanReadableText = isAllowed ? 'Yes' : 'No';
+
+    return <div class="consent-toggle-wrapper">
+      <ConsentUpdatedByWidget/>
+      <span class="consent-toggle">
+        <p>Allow GoCD to collect following data:</p>
+        <div class="switch">
+          <input class="switch-input"
+                 id="consentSwitch"
+                 type="radio"
+                 checked={isAllowed}
+                 onclick={settings.toggleConsent}
+                 name="consentSwitch"/>
+          <label class="switch-paddle" for="consentSwitch">
+            <span class="show-for-consent"/>
+          </label>
+        </div>
+        <div class="human-readable-consent">{isAllowedHumanReadableText}</div>
+      </span>
+
+      <div class="consent-for-wrapper">
+        <div class="consent-for">
+          <span class="key">Number of pipelines:</span>
+          This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number
+          of pipelines helps us optimize the GoCD experience.
+        </div>
+        <div class="consent-for">
+          <span class="key">Number of agents:</span>
+          This allows the calculation of the average number of agents a GoCD instance has. This
+          will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.
+        </div>
+      </div>
+    </div>;
+  }
+};
+
+
+const DataBeingSharedWidget = {
+  view() {
+    const data = {
+      "pipelines_count": 1,
+      "agents_count":    199,
+      "server_id":       "some-random-uuid"
+    };
+
+    return <div>
+      <p class="data-share-message">Data that will be sent</p>
+      <div class="shared-data">{JSON.stringify(data, null, 4)}</div>
+    </div>;
+  }
+};
+
+const ConsentInformationWidget = {
+  view() {
+    return <div class="consent-description">
+      <p>We strive to understand our users better and provide the best product experience. You can help us! Please give
+        us permission to collect your GoCD usage data. We will never collect any private or personal information, and we
+        will always be transparent about what is being shared.</p>
+      <p>Choose your settings below. You can change these settings at any time.</p>
+    </div>;
+  }
+};
+
+const FlashMessage = {
+  view(vnode) {
+    const message = vnode.attrs.message();
+    if (!message) {
+      return null;
+    }
+
+    return (<div class={`callout radius ${vnode.attrs.messageType()}`}>
+      {message}
+    </div>);
+  }
+};
+
+const DataSharingSettingsWidget = {
+  oninit(vnode) {
+    this.flashMessage     = Stream();
+    this.flashMessageType = Stream();
+
+    const clearFlashMessage = function () {
+      vnode.state.flashMessage(undefined);
+      vnode.state.flashMessageType(undefined);
+      m.redraw();
+    };
+
+    this.save = function (settings) {
+      settings.save()
+        .then(() => {
+          const msg = `Data Sharing Settings updated Successfully!`;
+          vnode.state.flashMessageType('success');
+          vnode.state.flashMessage(msg);
+        }, (jqXhr) => {
+          const msg = jqXhr.responseJSON.message;
+          vnode.state.flashMessageType('alert');
+          vnode.state.flashMessage(msg);
+        })
+        .always(() => {
+          m.redraw();
+          setTimeout(clearFlashMessage, 5000);
+        });
+    };
+
+    this.reset = function (settings) {
+      settings.resetConsent();
+    };
+  },
+
+  view(vnode) {
+    const settings = vnode.attrs.settings;
+
+    return (<div>
+      <HeaderPanel title="Help improve GoCD by sharing technical data"/>
+      <div class="main-container">
+        <FlashMessage message={vnode.state.flashMessage} messageType={vnode.state.flashMessageType}/>
+        <ConsentInformationWidget/>
+        <ToggleConsentWidget settings={settings}/>
+        <DataBeingSharedWidget/>
+        <div class="button-wrapper">
+          <f.button class="update-consent" onclick={vnode.state.save.bind(this, settings)}>Save</f.button>
+          <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, settings)}>Reset</f.button>
+        </div>
+      </div>
+    </div>);
+  }
+};
+
+module.exports = DataSharingSettingsWidget;

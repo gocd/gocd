@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div id="metrics-consent">
+<div id="data-sharing-settings-container">
   <span class="page-spinner"></span>
 </div>

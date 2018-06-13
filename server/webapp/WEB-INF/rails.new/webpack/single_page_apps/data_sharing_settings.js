@@ -17,24 +17,23 @@
 const $ = require('jquery');
 const m = require('mithril');
 
-const VersionUpdater  = require('models/shared/version_updater');
-const MetricsSettings = require('models/metrics_consent/metrics_settings');
+const VersionUpdater      = require('models/shared/version_updater');
+const DataSharingSettings = require('models/data_sharing_settings/data_sharing_settings');
 
-const PageLoadError        = require('views/shared/page_load_error');
-const MetricsConsentWidget = require('views/metrics_consent/metrics_consent_widget');
+const PageLoadError             = require('views/shared/page_load_error');
+const DataSharingSettingsWidget = require('views/data_sharing_settings/data_sharing_settings_widget');
 
 require('foundation-sites');
 require('helpers/server_health_messages_helper');
 
 $(() => {
   new VersionUpdater().update();
+  const container = $("#data-sharing-settings-container").get(0);
 
-  const container = $("#metrics-consent").get(0);
-
-  const onSuccess = (metricsSettings) => {
+  const onSuccess = (settings) => {
     m.mount(container, {
       view() {
-        return (<MetricsConsentWidget metricsSettings={metricsSettings}/>);
+        return (<DataSharingSettingsWidget settings={settings}/>);
       }
     });
 
@@ -42,17 +41,14 @@ $(() => {
   };
 
   const onFailure = () => {
-    //todo: blame Ganeshpl for this
-    //return onSuccess(new MetricsSettings({consent: true, consented_by: 'Ganeshpl'}));
-
     m.mount(container, {
       view() {
-        return (<PageLoadError message="There was a problem fetching metrics consent information"/>);
+        return (<PageLoadError message="There was a problem fetching data sharing settings information"/>);
       }
     });
   };
 
-  MetricsSettings.get().then(onSuccess, onFailure);
+  DataSharingSettings.get().then(onSuccess, onFailure);
 });
 
 

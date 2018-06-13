@@ -28,18 +28,18 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class MetricsConsentDelegate implements SparkController {
+public class DataSharingSettingsDelegate implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine templateEngine;
 
-    public MetricsConsentDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
+    public DataSharingSettingsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
         this.authenticationHelper = authenticationHelper;
         this.templateEngine = templateEngine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.MetricsConsentSPA.BASE;
+        return Routes.DataSharingSettingsSPA.BASE;
     }
 
     @Override
@@ -52,9 +52,9 @@ public class MetricsConsentDelegate implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Metrics Consent");
+            put("viewTitle", "Data Sharing");
         }};
 
-        return new ModelAndView(object, "metrics_consent/index.vm");
+        return new ModelAndView(object, "data_sharing_settings/index.vm");
     }
 }

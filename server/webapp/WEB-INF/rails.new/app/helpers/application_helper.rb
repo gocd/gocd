@@ -285,7 +285,7 @@ module ApplicationHelper
   end
 
   def full_version
-    @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
+    @@full_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
   end
 
   def unformatted_version

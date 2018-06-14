@@ -32,6 +32,9 @@
     <a href="$req.getContextPath()/admin/config_xml">Config XML</a>
 </li>
 <li role="presentation">
+    <a href="$req.getContextPath()/admin/data_sharing/settings">Data Sharing</a>
+</li>
+<li role="presentation">
     <a href="$req.getContextPath()/admin/config/server">Server Configuration</a>
 </li>
 <li role="presentation">

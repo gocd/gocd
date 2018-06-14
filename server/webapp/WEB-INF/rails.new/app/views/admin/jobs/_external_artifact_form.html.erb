@@ -40,8 +40,8 @@
       <div class="columns medium-8 medium-offset-2 large-8 end">
         <div class="plugin-select-form">
           <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
-          <label>Plugin ID</label>
-          <%= artifact_form.select("pluginId", scope[:artifact_plugin_to_view].keys(), {:include_blank => true}, {:class => 'artifact_plugin_selection'}) %>
+          <label>Plugin</label>
+          <%= artifact_form.select("pluginId", scope[:plugin_name_to_id].keys, {:include_blank => true}, {:class => 'artifact_plugin_selection'}) %>
         </div>
       </div>
     </div>

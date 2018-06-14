@@ -99,6 +99,15 @@ public class DefaultPluginInfoFinder {
         return pluginToView;
     }
 
+    public Map<String, String> pluginDisplayNameToPluginId(String extensionType) {
+        Map<String, String> pluginDisplayNameToId = new HashMap<>();
+        Collection<CombinedPluginInfo> combinedPluginInfos = allPluginInfos(extensionType);
+        for (CombinedPluginInfo combinedPluginInfo : combinedPluginInfos) {
+            pluginDisplayNameToId.put(combinedPluginInfo.getDescriptor().about().name(), combinedPluginInfo.getDescriptor().id());
+        }
+        return pluginDisplayNameToId;
+    }
+
     private Function<PluginInfo, String> pluginID() {
         return pluginInfo -> pluginInfo.getDescriptor().id();
     }

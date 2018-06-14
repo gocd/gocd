@@ -8,7 +8,7 @@
   </textarea>
 
   <textarea id="artifact_template_external" class="template">
-    <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => com.thoughtworks.go.config.PluggableArtifactConfig.new, :artifact_meta_data_store => scope[:artifact_meta_data_store], :artifact_plugin_to_view => scope[:artifact_plugin_to_view]}} %>
+    <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => com.thoughtworks.go.config.PluggableArtifactConfig.new, :artifact_meta_data_store => scope[:artifact_meta_data_store], :artifact_plugin_to_view => scope[:artifact_plugin_to_view], :plugin_name_to_id => scope[:plugin_name_to_id]}} %>
   </textarea>
 
   <div class="artifact-container">
@@ -20,7 +20,7 @@
       <% if external_artifact.getPluginId().blank? %>
           <%= render :partial => 'external_artifact_key_value_form', :locals => {:scope => {:external_artifact => external_artifact}} %>
       <% else %>
-        <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => external_artifact, :artifact_meta_data_store => scope[:artifact_meta_data_store], :artifact_plugin_to_view => scope[:artifact_plugin_to_view]}} %>
+        <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => external_artifact, :artifact_meta_data_store => scope[:artifact_meta_data_store], :artifact_plugin_to_view => scope[:artifact_plugin_to_view], :plugin_name_to_id => scope[:plugin_name_to_id]}} %>
       <%end%>
       <%- end -%>
   </div>
@@ -70,7 +70,8 @@
     jQuery('.artifact_plugin_selection').change(function (event) {
       var inputElement  = jQuery(this);
       var selectedInput = event.currentTarget || event.target;
-      showAppropriatePluginView(selectedInput.value, inputElement);
+      var pluginNameToId = <%== scope[:plugin_name_to_id].to_json %>;
+      showAppropriatePluginView(pluginNameToId[selectedInput.value], inputElement);
     })
   }
 
@@ -132,6 +133,7 @@
 
   Util.on_load(function () {
     jQuery("input[name='job[artifactConfigs][][storeId]']").keyup(addOnChangeListenerForStoreInput);
+    addOnSelectListenerForPluginDropdown();
     jQuery('#add_artifact').click(determineAppropriateFormToShow);
     jQuery('.delete_artifact').click(function (event) {
       jQuery(this).closest('.artifact').remove();

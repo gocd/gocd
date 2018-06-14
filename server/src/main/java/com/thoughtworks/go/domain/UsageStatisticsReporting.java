@@ -22,9 +22,10 @@ import com.thoughtworks.go.config.ValidationContext;
 import java.sql.Timestamp;
 import java.util.Date;
 
-public class UsageStatisticsReporting extends PersistentObject implements Validatable{
+public class UsageStatisticsReporting extends PersistentObject implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
     private String serverId;
+    private String dataSharingServerUrl = null;
     private Timestamp lastReportedAt = new Timestamp(0);
 
     public UsageStatisticsReporting() {
@@ -33,6 +34,14 @@ public class UsageStatisticsReporting extends PersistentObject implements Valida
     public UsageStatisticsReporting(String serverId, Date lastReportedAt) {
         this.serverId = serverId;
         setLastReportedAt(lastReportedAt);
+    }
+
+    public String getDataSharingServerUrl() {
+        return dataSharingServerUrl;
+    }
+
+    public void setDataSharingServerUrl(String dataSharingServerUrl) {
+        this.dataSharingServerUrl = dataSharingServerUrl;
     }
 
     public String getServerId() {

@@ -25,12 +25,13 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class UsageStatisticsReportingRepresenterTest {
-
+    def dataSharingServerUrl = 'https://datasharing.gocd.org'
     @Test
     void "should represent usage statistics reporting"() {
-        def metricsReporting = new UsageStatisticsReporting("server-id", new java.util.Date())
+        def metricsReporting = new UsageStatisticsReporting("server-id", new Date())
         def statsSharedAt = new Date()
         metricsReporting.setLastReportedAt(statsSharedAt)
+        metricsReporting.setDataSharingServerUrl(dataSharingServerUrl)
 
         def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, metricsReporting) })
 
@@ -39,8 +40,9 @@ class UsageStatisticsReportingRepresenterTest {
                     self: [href: 'http://test.host/go/api/internal/data_sharing/reporting']
                 ],
                 "_embedded": [
-                        server_id      : metricsReporting.getServerId(),
-                        last_reported_at: metricsReporting.lastReportedAt().getTime()
+                  server_id                : metricsReporting.getServerId(),
+                  data_sharing_server_url  : dataSharingServerUrl,
+                  last_reported_at         : metricsReporting.lastReportedAt().getTime()
                 ]
         ]
 
@@ -48,7 +50,8 @@ class UsageStatisticsReportingRepresenterTest {
     }
     @Test
     void "should map errors"() {
-        def reporting = new UsageStatisticsReporting("server-id", new java.util.Date(0l))
+        def reporting = new UsageStatisticsReporting("server-id", new Date(0l))
+        reporting.setDataSharingServerUrl(dataSharingServerUrl)
         reporting.validate(null)
 
         def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, reporting) })
@@ -58,9 +61,10 @@ class UsageStatisticsReportingRepresenterTest {
           self: [href: 'http://test.host/go/api/internal/data_sharing/reporting']
         ],
         "_embedded": [
-          server_id       : reporting.getServerId(),
-          last_reported_at: reporting.lastReportedAt().getTime(),
-          errors          : [last_reported_at: ["Invalid time"]]
+          server_id                : reporting.getServerId(),
+          data_sharing_server_url  : dataSharingServerUrl,
+          last_reported_at         : reporting.lastReportedAt().getTime(),
+          errors                   : [last_reported_at: ["Invalid time"]]
         ]
       ]
 
@@ -69,7 +73,8 @@ class UsageStatisticsReportingRepresenterTest {
 
     @Test
     void "should represent usage statistics reporting when last_reported_at is unset"() {
-        def metricsReporting = new UsageStatisticsReporting("server-id", new java.util.Date(0l))
+        def metricsReporting = new UsageStatisticsReporting("server-id", new Date(0l))
+        metricsReporting.setDataSharingServerUrl(dataSharingServerUrl)
 
         def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, metricsReporting) })
 
@@ -78,8 +83,9 @@ class UsageStatisticsReportingRepresenterTest {
                   self: [href: 'http://test.host/go/api/internal/data_sharing/reporting']
                 ],
                 "_embedded": [
-                        server_id      : metricsReporting.getServerId(),
-                        last_reported_at: 0
+                  server_id                : metricsReporting.getServerId(),
+                  data_sharing_server_url  : dataSharingServerUrl,
+                  last_reported_at         : 0
                 ]
         ]
 

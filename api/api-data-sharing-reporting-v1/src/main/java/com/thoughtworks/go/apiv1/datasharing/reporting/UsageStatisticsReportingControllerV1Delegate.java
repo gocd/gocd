@@ -30,7 +30,6 @@ import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.Duplicat
 import com.thoughtworks.go.server.service.DataSharingService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import spark.Request;
 import spark.Response;
@@ -48,6 +47,7 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
     private final DataSharingService dataSharingService;
     private final EntityHashingService entityHashingService;
     private final String SERVER_ID_KEY = "server_id";
+    private final String DATA_SHARING_SERVER_URL_KEY = "data_sharing_server_url";
 
     public UsageStatisticsReportingControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
@@ -88,6 +88,9 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         if (bodyAsJSON.get(SERVER_ID_KEY) != null) {
             throw haltBecauseRenameOfEntityIsNotSupported(SERVER_ID_KEY);
+        }
+        if (bodyAsJSON.get(DATA_SHARING_SERVER_URL_KEY) != null) {
+            throw haltBecauseRenameOfEntityIsNotSupported(DATA_SHARING_SERVER_URL_KEY);
         }
         if (!isPutRequestFresh(request, dataSharingService.getUsageStatisticsReporting())) {
             throw haltBecauseEtagDoesNotMatch();

@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.datasharing.reporting
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter
 import com.thoughtworks.go.domain.UsageStatisticsReporting
 import com.thoughtworks.go.server.service.DataSharingService
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
-import com.thoughtworks.go.apiv1.datasharing.reporting.representers.*;
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
@@ -79,7 +79,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Test
             void 'get usage statistics reporting'() {
-                def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new java.util.Date())
+                def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
 
                 when(dataSharingService.getUsageStatisticsReporting()).thenReturn(usageStatisticsReporting)
                 def etag = "md5"
@@ -127,7 +127,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                   last_reported_at: reportsSharedAt.getTime(),
                 ]
 
-                UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new java.util.Date())
+                UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new Date())
                 metricsReporting.setLastReportedAt(reportsSharedAt)
 
                 doNothing().when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
@@ -171,15 +171,36 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             }
 
             @Test
-            void 'should return error occured validation fails'() {
+            void 'should reject if data_sharing_server_url is being updated in request'() {
+                def reportsSharedAt = new Date()
+                def data = [
+                  last_reported_at       : reportsSharedAt.getTime(),
+                  data_sharing_server_url: "something-new"
+                ]
+                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
+                def headers = [
+                  'accept'      : controller.mimeType,
+                  'If-Match'    : 'cached-md5',
+                  'content-type': 'application/json'
+                ]
+                patchWithApiHeader(controller.controllerBasePath(), headers, data)
+
+                assertThatResponse()
+                  .isUnprocessableEntity()
+                  .hasContentType(controller.mimeType)
+                  .hasJsonMessage("Renaming of data_sharing_server_url is not supported by this API.")
+            }
+
+            @Test
+            void 'should return error occurred validation fails'() {
                 def errorMsg = "Please provide last_reported_at time."
                 def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer;
+                UsageStatisticsReporting usageStatisticsReportingReturnedByServer
                 doAnswer({ InvocationOnMock invocation ->
                     UsageStatisticsReporting reporting = invocation.arguments.first()
                     reporting.addError("lastReportedAt", "error message")
                     HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg);
+                    result.unprocessableEntity(errorMsg)
                     usageStatisticsReportingReturnedByServer = reporting
                 }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
@@ -200,15 +221,15 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             }
 
             @Test
-            void 'should reject if etag doesnot match'() {
+            void 'should reject if etag does not match'() {
                 def errorMsg = "Please provide last_reported_at time."
                 def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer;
+                UsageStatisticsReporting usageStatisticsReportingReturnedByServer
                 doAnswer({ InvocationOnMock invocation ->
                     UsageStatisticsReporting reporting = invocation.arguments.first()
                     reporting.addError("lastReportedAt", "error message")
                     HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg);
+                    result.unprocessableEntity(errorMsg)
                     usageStatisticsReportingReturnedByServer = reporting
                 }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")

@@ -85,7 +85,10 @@ public class DataSharingService {
     }
 
     public UsageStatisticsReporting getUsageStatisticsReporting() {
-        return usageStatisticsReportingSqlMapDao.load();
+        UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
+        loaded.setDataSharingServerUrl(SystemEnvironment.getGoDataSharingServerUrl());
+
+        return loaded;
     }
 
     public DataSharingSettings getDataSharingSettings() {

@@ -32,7 +32,8 @@ public class UsageStatisticsReportingRepresenter {
                 .addChild("_embedded", childWriter -> {
                     childWriter
                             .add("server_id", usageStatisticsReporting.getServerId())
-                            .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime());
+                            .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime())
+                            .add("data_sharing_server_url", usageStatisticsReporting.getDataSharingServerUrl());
                     if (!usageStatisticsReporting.errors().isEmpty()) {
                         outputWriter.addChild("errors", errorWriter -> {
                             HashMap<String, String> errorMapping = new HashMap<>();

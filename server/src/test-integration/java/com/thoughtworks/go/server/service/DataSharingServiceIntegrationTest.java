@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.thoughtworks.go.server.dao.*;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -123,6 +123,21 @@ public class DataSharingServiceIntegrationTest {
         DataSharingSettings loaded = dataSharingSettingsSqlMapDao.load();
 
         assertThat(loaded, is(saved));
+    }
+
+    @Test
+    public void shouldFetchUsageReportingContainingDataSharingServerUrl() throws Exception {
+        String serverId = "server-id";
+        Date lastReportedAt = new Date();
+        UsageStatisticsReporting statisticsReporting = new UsageStatisticsReporting(serverId, lastReportedAt);
+        usageStatisticsReportingSqlMapDao.saveOrUpdate(statisticsReporting);
+
+        UsageStatisticsReporting loaded = dataSharingService.getUsageStatisticsReporting();
+
+        assertThat(loaded.getServerId(), is(statisticsReporting.getServerId()));
+        assertThat(loaded.lastReportedAt().toInstant(), is(statisticsReporting.lastReportedAt().toInstant()));
+        assertNull(statisticsReporting.getDataSharingServerUrl());
+        assertThat(loaded.getDataSharingServerUrl(), is(SystemEnvironment.getGoDataSharingServerUrl()));
     }
 
     @Test

@@ -182,6 +182,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
     public static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
 
+    public static GoSystemProperty<String> GO_DATA_SHARING_SERVER_URL = new GoStringSystemProperty("go.datasharing.server.url", "https://datasharing.gocd.org/v1");
+
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS = new GoIntSystemProperty("go.elasticplugin.createagent.threads", 5);
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_SERVER_PING_THREADS = new GoIntSystemProperty("go.elasticplugin.serverping.threads", 1);
     public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
@@ -779,6 +781,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_UPDATE_SERVER_URL.getValue();
     }
 
+    public static String getGoDataSharingServerUrl() {
+        return GO_DATA_SHARING_SERVER_URL.getValue();
+    }
+
     public boolean isWebsocketsForAgentsEnabled() {
         return WEBSOCKET_ENABLED.getValue();
     }
@@ -880,7 +886,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Integer.parseInt(getPropertyImpl("plugin." + pluginId + ".notifications.listener.count", "1"));
     }
 
-    public boolean displayPipelineInstancesOnEnvironmentsPage(){
+    public boolean displayPipelineInstancesOnEnvironmentsPage() {
         return get(DISPLAY_PIPELINE_INSTANCES_ON_ENVIRONMENTS_PAGE);
     }
 

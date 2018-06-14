@@ -290,8 +290,7 @@
     <rule>
         <name>Default dashboard, based on toggle</name>
         <from>^/pipelines(/?)$</from>
-        <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="oldOrNewDashboard"/>
-        <to last="true">%{attribute:newUrl}</to>
+        <to last="true">/spark/dashboard</to>
     </rule>
 
     <rule>

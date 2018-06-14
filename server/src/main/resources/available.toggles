@@ -17,11 +17,6 @@
          "value": false
       },
       {
-         "key": "new_dashboard_page_default",
-         "description": "Enables the new dashboard page to be the default page. Default: disabled.",
-         "value": true
-      },
-      {
          "key": "browser_console_log_ws_key",
          "description": "Enables rendering console logs via websockets. Default: disabled.",
          "value": false

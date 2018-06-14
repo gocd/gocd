@@ -20,7 +20,6 @@ public class Toggles {
     public static String PIPELINE_CONFIG_SINGLE_PAGE_APP = "pipeline_config_single_page_app_key";
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
-    public static String NEW_DASHBOARD_PAGE_DEFAULT = "new_dashboard_page_default";
     public static String COMPONENTS = "components";
 
     private static FeatureToggleService service;

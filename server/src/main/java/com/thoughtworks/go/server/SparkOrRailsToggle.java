@@ -23,12 +23,4 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
 
-    public void oldOrNewDashboard(HttpServletRequest request, HttpServletResponse response) {
-        if (Toggles.isToggleOn(Toggles.NEW_DASHBOARD_PAGE_DEFAULT)) {
-            request.setAttribute("newUrl", "/spark/dashboard");
-        } else {
-            request.setAttribute("newUrl", "/rails/pipelines");
-            request.setAttribute("rails_bound", true);
-        }
-    }
 }

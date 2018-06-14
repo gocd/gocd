@@ -256,7 +256,7 @@ class TemplateConfigControllerV4DelegateTest implements SecurityServiceTrait, Co
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath())
+        postWithApiHeader(controller.controllerPath(), [])
       }
     }
 
@@ -325,17 +325,10 @@ class TemplateConfigControllerV4DelegateTest implements SecurityServiceTrait, Co
 
       private HttpLocalizedOperationResult result;
 
-      def headers = [
-        'accept'      : controller.mimeType,
-        'If-Match'    : 'md5',
-        'content-type': 'application/json'
-      ]
-
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsAdmin()
-        when(securityService.isAuthorizedToEditTemplate(any(CaseInsensitiveString.class) as CaseInsensitiveString, any(Username.class) as Username)).thenReturn(true)
         result = new HttpLocalizedOperationResult()
       }
 
@@ -346,55 +339,91 @@ class TemplateConfigControllerV4DelegateTest implements SecurityServiceTrait, Co
 
         doNothing().when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result), eq("md5"))
 
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
+
         putWithApiHeader(controller.controllerPath("/some-template"), headers, templateHash)
 
         assertThatResponse()
-        .isOk()
-        .hasBodyWithJsonObject(template, TemplateConfigRepresenter)
+          .isOk()
+          .hasBodyWithJsonObject(template, TemplateConfigRepresenter)
       }
 
       @Test
       void 'should not allow rename of template name'() {
-        when(templateConfigService.loadForView('foo', result)).thenReturn(template)
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("md5")
+        when(templateConfigService.loadForView('some-template', result)).thenReturn(template)
 
-        putWithApiHeader(controller.controllerPath("/foo"), headers, templateHash)
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
+
+
+        putWithApiHeader(controller.controllerPath("/some-template"), headers, [
+          name: 'some-other-template',
+          stages: [
+            [
+              name: 'stage',
+              jobs: [
+                [
+                  name: 'job'
+                ]
+              ]
+            ]
+          ]
+        ])
 
         assertThatResponse()
-        .isUnprocessableEntity()
-        .hasJsonMessage("Renaming of Templates is not supported by this API.")
+          .isUnprocessableEntity()
+          .hasJsonMessage("Renaming of templates is not supported by this API.")
       }
 
 
       @Test
       void 'should fail update if etag does not match' () {
-        when(templateConfigService.loadForView("template", result)).thenReturn(template)
+        when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class))).thenReturn("another-etag")
+        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("another-etag")
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
 
         putWithApiHeader(controller.controllerPath("/some-template"), headers, templateHash)
 
         assertThatResponse()
-        .isPreconditionFailed()
-        .hasJsonMessage("Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes and try again.")
+          .isPreconditionFailed()
+          .hasJsonMessage("Someone has modified the configuration for template 'some-template'. Please update your copy of the config with the changes and try again.")
       }
 
       @Test
       void 'should not update existing material if validations fail' () {
-        when(templateConfigService.loadForView("template", result)).thenReturn(template)
+        when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class))).thenReturn("md5")
+        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("md5")
 
         doAnswer({ InvocationOnMock invocation ->
-          result = invocation.arguments.last()
+          result = invocation.arguments[2]
           result.unprocessableEntity("some error")
         }).when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, eq(template), eq(result), eq("md5"))
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
 
         putWithApiHeader(controller.controllerPath("/some-template"), headers, templateHash)
 
         assertThatResponse()
-        .isUnprocessableEntity()
-        .hasJsonMessage("some error")
+          .isUnprocessableEntity()
+          .hasJsonMessage("some error")
       }
     }
   }

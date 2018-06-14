@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv4.admin.templateconfig;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
@@ -39,6 +40,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
+import spark.Filter;
 import spark.Request;
 import spark.Response;
 
@@ -103,8 +105,10 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
       before("/*", mimeType, this::setContentType);
       before("", this::verifyContentType);
       before("/*", this::verifyContentType);
-      before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-      before(Routes.PipelineTemplateConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+      before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "POST"));
+      before("", mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
+      before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
+      before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, "PUT", "PATCH", "DELETE"));
 
       get("", mimeType, this::index);
       post("", mimeType, this::create);
@@ -115,6 +119,14 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
 
       exception(RecordNotFoundException.class, this::notFound);
     });
+  }
+
+  public static Filter onlyOn(Filter filter, String... allowedMethods) {
+    return (request, response) -> {
+      if (Sets.newHashSet(allowedMethods).contains(request.requestMethod())) {
+        filter.handle(request, response);
+      }
+    };
   }
 
   public String index(Request req, Response res) throws IOException {
@@ -152,9 +164,10 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
 
   public String create(Request req, Response res) throws IOException {
     PipelineTemplateConfig templateConfigFromRequest = getEntityFromRequestBody(req);
-    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-    haltIfEntityBySameNameInRequestExists(req, templateConfigFromRequest, result);
+    haltIfEntityBySameNameInRequestExists(req, templateConfigFromRequest, new HttpLocalizedOperationResult());
+
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
     Username userName = SessionUtils.currentUsername();
     templateConfigService.createTemplateConfig(userName, templateConfigFromRequest, result);

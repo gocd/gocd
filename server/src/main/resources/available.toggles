@@ -34,7 +34,7 @@
       {
         "key": "templates_apiv4_key",
         "description": "This toggle determines whether a template api request is forwarded to rails or spark",
-        "value": false
+        "value": true
       }
   ]
 }

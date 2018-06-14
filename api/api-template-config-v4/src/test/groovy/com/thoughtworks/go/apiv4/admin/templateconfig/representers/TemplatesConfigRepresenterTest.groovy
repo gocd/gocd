@@ -43,9 +43,6 @@ class TemplatesConfigRepresenterTest {
         ],
         doc: [
           href: 'https://api.gocd.org/#template-config'
-        ],
-        find: [
-          href: 'http://test.host/go/api/admin/templates/:template_name'
         ]
       ],
       _embedded: [

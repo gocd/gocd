@@ -288,13 +288,6 @@
     </rule>
 
     <rule>
-        <name>Dashboard UI</name>
-        <from>^/old_dashboard(/?)$</from>
-        <to last="true">/rails/pipelines</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
         <name>Default dashboard, based on toggle</name>
         <from>^/pipelines(/?)$</from>
         <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="oldOrNewDashboard"/>

@@ -4,13 +4,13 @@
 
 <ul class="sub-tab-navigation">
   <li class="current"><a>Notifications</a></li>
-  <li><%= link_to "OAuth Access Token", oauth_engine.user_tokens_index_path %></li>
+  <li><%= link_to "OAuth Access Tokens", oauth_engine.user_tokens_index_path %></li>
 </ul>
 <div class="sub-tab-content">
 
   <% unless go_config_service.isSmtpEnabled %>
     <div class="callout warning">
-      SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Server Configuration", config_view_path %>.
+      SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Server Configuration", edit_server_config_path %>.
     </div>
   <% end %>
 

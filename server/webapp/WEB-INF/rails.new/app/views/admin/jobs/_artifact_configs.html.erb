@@ -99,7 +99,19 @@
       var pluginTemplate = externalArtifactForm.find(".plugged_artifact_template");
       pluginTemplate.html(pluginView);
       pluginTemplate.removeClass('hidden');
-      initializeAngular();
+      var pluggedArtifactAngularControllerElement = pluginTemplate.closest('.plugged_artifact');
+      var pluggedArtifactAngularDataElement = pluggedArtifactAngularControllerElement.find('span.plugged_artifact_data');
+      initializeAngular(pluggedArtifactAngularControllerElement.attr('id'), pluggedArtifactAngularDataElement.attr('id'));
+    }
+  }
+
+  function initializeAngular(pluggedArtifactAngularControllerElementId, pluggedArtifactDataElementId) {
+    var form_name_prefix                               = "job[artifactConfigs][]";
+    var angular_html = jQuery("#" + pluggedArtifactAngularControllerElementId).html();
+    if (angular_html) {
+      var taskPluginView = new TaskPluginView();
+      taskPluginView.initialize(pluggedArtifactAngularControllerElementId, pluggedArtifactDataElementId, form_name_prefix);
+      taskPluginView.bootstrapAngular();
     }
   }
 

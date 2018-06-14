@@ -17,8 +17,9 @@
 const $ = require('jquery');
 const m = require('mithril');
 
-const VersionUpdater      = require('models/shared/version_updater');
-const DataSharingSettings = require('models/data_sharing_settings/data_sharing_settings');
+const VersionUpdater       = require('models/shared/version_updater');
+const DataSharingSettings  = require('models/data_sharing_settings/data_sharing_settings');
+const DataSharingUsageData = require('models/data_sharing_settings/usage_data');
 
 const PageLoadError             = require('views/shared/page_load_error');
 const DataSharingSettingsWidget = require('views/data_sharing_settings/data_sharing_settings_widget');
@@ -30,10 +31,13 @@ $(() => {
   new VersionUpdater().update();
   const container = $("#data-sharing-settings-container").get(0);
 
-  const onSuccess = (settings) => {
+  const onSuccess = (args) => {
+    const settings  = args[0];
+    const usageData = args[1];
+
     m.mount(container, {
       view() {
-        return (<DataSharingSettingsWidget settings={settings}/>);
+        return (<DataSharingSettingsWidget settings={settings} usageData={usageData}/>);
       }
     });
 
@@ -48,7 +52,7 @@ $(() => {
     });
   };
 
-  DataSharingSettings.get().then(onSuccess, onFailure);
+  Promise.all([DataSharingSettings.get(), DataSharingUsageData.get()]).then(onSuccess, onFailure);
 });
 
 

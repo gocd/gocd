@@ -1,0 +1,66 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require('mithril');
+
+const ToggleConsentWidget = {
+  view(vnode) {
+    const settings                   = vnode.attrs.settings;
+    const isAllowed                  = settings.allowed();
+    const isAllowedHumanReadableText = isAllowed ? 'Yes' : 'No';
+
+    let consentUpdatedBy;
+    if (settings.hasEverChangedByAdmin()) {
+      consentUpdatedBy = (<div class="updated-by">
+        {settings.updatedBy()} changed the data sharing permission on {settings.updatedOn()}.
+      </div>);
+    }
+
+    return <div class="consent-toggle-wrapper">
+      {consentUpdatedBy}
+      <span class="consent-toggle">
+        <p>Allow GoCD to collect following data:</p>
+        <div class="switch">
+          <input class="switch-input"
+                 id="consentSwitch"
+                 type="radio"
+                 checked={isAllowed}
+                 onclick={settings.toggleConsent}
+                 name="consentSwitch"/>
+          <label class="switch-paddle" for="consentSwitch">
+            <span class="show-for-consent"/>
+          </label>
+        </div>
+        <div class="human-readable-consent">{isAllowedHumanReadableText}</div>
+      </span>
+
+      <div class="consent-for-wrapper">
+        <div class="consent-for">
+          <span class="key">Number of pipelines:</span>
+          This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number
+          of pipelines helps us optimize the GoCD experience.
+        </div>
+        <div class="consent-for">
+          <span class="key">Number of agents:</span>
+          This allows the calculation of the average number of agents a GoCD instance has. This
+          will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.
+        </div>
+      </div>
+    </div>;
+  }
+};
+
+module.exports = ToggleConsentWidget;

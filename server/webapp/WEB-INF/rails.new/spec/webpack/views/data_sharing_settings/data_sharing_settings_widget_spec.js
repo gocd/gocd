@@ -19,6 +19,7 @@ describe("Data Sharing Settings Widget", () => {
   const m             = require("mithril");
   const simulateEvent = require('simulate-event');
 
+  const UsageData                 = require('models/data_sharing_settings/usage_data');
   const DataSharingSettings       = require('models/data_sharing_settings/data_sharing_settings');
   const DataSharingSettingsWidget = require("views/data_sharing_settings/data_sharing_settings_widget");
 
@@ -31,16 +32,26 @@ describe("Data Sharing Settings Widget", () => {
   const metricsSettingsJSON = {
     "_embedded": {
       "allow":      true,
-      "updated_by": "Admin"
+      "updated_by": "Default",
+      "updated_on": "2018-06-14T04:42:26Z"
     }
   };
 
-  let settings;
+  const usageDataJSON = {
+    "_embedded": {
+      "pipeline_count":                 1,
+      "agent_count":                    0,
+      "oldest_pipeline_execution_time": 1528949998195
+    }
+  };
+
+  let settings, usageData;
   beforeEach(() => {
-    settings = DataSharingSettings.fromJSON(metricsSettingsJSON, {getResponseHeader: () => 'ETag'});
+    usageData = UsageData.fromJSON(usageDataJSON);
+    settings  = DataSharingSettings.fromJSON(metricsSettingsJSON, {getResponseHeader: () => 'ETag'});
     m.mount(root, {
       view() {
-        return m(DataSharingSettingsWidget, {settings});
+        return m(DataSharingSettingsWidget, {settings, usageData});
       }
     });
 
@@ -53,7 +64,34 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it("should show metrics collection title", () => {
-    expect($root.find('.page-header')).toContainText('GoCD Metrics Collection');
+    expect($root.find('.page-header')).toContainText('Help improve GoCD by sharing technical data');
+  });
+
+  it('should render the consent description', () => {
+    const description = [
+      'We strive to understand our users better and provide the best product experience. You can help us! Please give us permission to collect your GoCD usage data. We will never collect any private or personal information, and we will always be transparent about what is being shared.',
+      'Choose your settings below. You can change these settings at any time.'
+    ];
+
+    const consentDescription = $root.find('.consent-description p');
+
+    expect(consentDescription).toHaveLength(description.length);
+    expect($(consentDescription.get(0))).toContainText(description[0]);
+    expect($(consentDescription.get(1))).toContainText(description[1]);
+  });
+
+  it('should not show the last updated by when settings hasn\'t been changed by any admin', () => {
+    expect($root.find('.updated-by')).not.toBeInDOM();
+  });
+
+  it('should not show the last updated by time and username', () => {
+    settings.updatedBy('Bob');
+    m.redraw();
+
+    const updatedByMessage = `${settings.updatedBy()} changed the data sharing permission on ${settings.updatedOn()}.`;
+
+    expect($root.find('.updated-by')).toBeInDOM();
+    expect($root.find('.updated-by')).toContainText(updatedByMessage);
   });
 
   it('should show the consent toggle button', () => {
@@ -89,23 +127,35 @@ describe("Data Sharing Settings Widget", () => {
     expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(2);
     const consentFor = $root.find('.consent-for-wrapper .consent-for');
 
-    expect($(consentFor.get(0))).toContainText('Number of pipelines');
-    expect($(consentFor.get(1))).toContainText('Number of agents');
+    const pipelineConsentKey         = 'Number of pipelines';
+    const pipelineConsentDescription = 'This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number of pipelines helps us optimize the GoCD experience.';
+
+    const agentConsentKey          = 'Number of agents';
+    const agentsConsentDescription = 'This allows the calculation of the average number of agents a GoCD instance has. This will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.';
+
+    expect($(consentFor.get(0))).toContainText(pipelineConsentKey);
+    expect($(consentFor.get(0))).toContainText(pipelineConsentDescription);
+
+    expect($(consentFor.get(1))).toContainText(agentConsentKey);
+    expect($(consentFor.get(1))).toContainText(agentsConsentDescription);
   });
 
-  it('should render the consent description', () => {
-    const description = [
-      'We, GoCD team, strive to understand our users better and provide the best product experience. You can help us! We would like to ask your permission to collect your GoCD usage data.',
-      'We will never collect your privacy information, and we will always be transparent on what we are collecting. If we add any metrics to the collecting list in future, we will notify you and let you make the decision.',
-      'Choose your settings below. You can change these settings at any time.'
-    ];
+  it('should show what data will be sent when GoCD data sharing is allowed', () => {
+    expect(settings.allowed()).toBe(true);
 
-    const consentDescription = $root.find('.consent-description p');
+    expect($root.find('.data-share-message')).toContainText('Data that will be sent:');
+    expect($root.find('.shared-data')).toContainText(usageData.represent());
+  });
 
-    expect(consentDescription).toHaveLength(3);
-    expect($(consentDescription.get(0))).toContainText(description[0]);
-    expect($(consentDescription.get(1))).toContainText(description[1]);
-    expect($(consentDescription.get(2))).toContainText(description[2]);
+  it('should show what data would have been sent when GoCD data sharing is not allowed', () => {
+    settings.allowed(false);
+
+    m.redraw();
+
+    expect(settings.allowed()).toBe(false);
+
+    expect($root.find('.data-share-message')).toContainText('Data that would have been sent, if allowed:');
+    expect($root.find('.shared-data')).toContainText(usageData.represent());
   });
 
   describe('Buttons', () => {
@@ -253,5 +303,4 @@ describe("Data Sharing Settings Widget", () => {
       });
     });
   });
-
 });

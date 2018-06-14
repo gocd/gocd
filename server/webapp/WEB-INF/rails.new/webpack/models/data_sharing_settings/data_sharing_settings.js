@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-const Stream      = require('mithril/stream');
-const AjaxHelper  = require('helpers/ajax_helper');
-const SparkRoutes = require("helpers/spark_routes");
+const Stream        = require('mithril/stream');
+const AjaxHelper    = require('helpers/ajax_helper');
+const SparkRoutes   = require("helpers/spark_routes");
+const TimeFormatter = require('helpers/time_formatter');
 
 const DataSharingSettings = function (data, etag) {
   const settings = this;
 
   let _etag              = etag;
   let _originallyAllowed = data._embedded.allow;
+
   settings.allowed       = Stream(data._embedded.allow);
   settings.updatedBy     = Stream(data._embedded.updated_by);
+  settings.updatedOn     = Stream(TimeFormatter.formatInDate(data._embedded.updated_on));
+
+  settings.hasEverChangedByAdmin = () => {
+    return settings.updatedBy() !== 'Default';
+  };
 
   settings.toggleConsent = () => {
     settings.allowed(!settings.allowed());
@@ -36,7 +43,7 @@ const DataSharingSettings = function (data, etag) {
 
   settings.save = () => {
     return AjaxHelper.PATCH({
-      url:        SparkRoutes.metricsDataSharingSettingsPath(),
+      url:        SparkRoutes.DataSharingSettingsPath(),
       apiVersion: DataSharingSettings.API_VERSION,
       payload:    {allow: settings.allowed()},
       etag:       _etag
@@ -58,7 +65,7 @@ DataSharingSettings.API_VERSION = 'v1';
 
 DataSharingSettings.get = () => {
   return AjaxHelper.GET({
-    url:        SparkRoutes.metricsDataSharingSettingsPath(),
+    url:        SparkRoutes.DataSharingSettingsPath(),
     apiVersion: DataSharingSettings.API_VERSION,
     type:       DataSharingSettings
   });

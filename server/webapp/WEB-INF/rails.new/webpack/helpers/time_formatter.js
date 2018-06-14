@@ -27,6 +27,7 @@ require("moment-duration-format");
 
 const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;
 const CACHE_SIZE         = 10000;
+const DATE_FORMAT        = 'DD MMM YYYY';
 const LOCAL_TIME_FORMAT  = 'DD MMM, YYYY [at] HH:mm:ss [Local Time]';
 const SERVER_TIME_FORMAT = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
 // the default timestamp format rendered by the server
@@ -42,7 +43,12 @@ const formatInServerTime = _.memoize((time) => {
 });
 formatInServerTime.cache = new LRUMap(CACHE_SIZE);
 
+const formatInDate = (time) => {
+  return moment(time, defaultFormat).format(DATE_FORMAT);
+};
+
 module.exports = {
   format,
+  formatInDate,
   formatInServerTime
 };

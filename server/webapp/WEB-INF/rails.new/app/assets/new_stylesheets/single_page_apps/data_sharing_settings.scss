@@ -25,22 +25,14 @@
   padding: 30px 15px 0 15px;
 }
 
-.main-container > * {
-  margin-bottom: 15px;
+.updated-by {
+  font-size:     12px;
+  display:       inline-block;
+  border-radius: 5px 5px 0 0;
+  font-style:    italic;
+  color:         #777;
 }
 
-.updated-by {
-  /* background-color: #CCc; */
-  /* padding: 5px 10px; */
-  font-size: 12px;
-  display: inline-block;
-  border-radius: 5px 5px 0 0;
-  /* margin: 0px 0 0px; */
-  /* width: 750px; */
-  /* border: 1px solid #ccc; */
-  font-style: italic;
-  color: #777777;
-}
 .human-readable-consent {
   font-size:   18px;
   font-weight: 600;
@@ -50,11 +42,11 @@
 }
 
 .consent-toggle-wrapper {
-  margin: 30px 0;
-  border: 1px solid #ccc;
-  width: 750px;
+  margin:        30px 0;
+  border:        1px solid #ccc;
+  width:         750px;
   border-radius: 3px;
-  padding: 10px 20px;
+  padding:       10px 20px;
 }
 
 .consent-toggle {
@@ -72,35 +64,11 @@
   }
 
   .switch-paddle:after {
-    border-radius: 100% !important;
+    border-radius: 100% !important; //scss-lint:disable ImportantRule
   }
 
   input:checked ~ .switch-paddle {
     background: #40b76b;
-  }
-}
-
-.shared-data {
-  white-space:      pre;
-  background-color: #383838;
-  font-size:        13px;
-  color:            white;
-  font-weight:      400;
-  padding:          10px 0 10px 25px;
-  font-family:      monaco, serif;
-}
-
-.button-wrapper * {
-  margin-right: 10px;
-}
-
-.reset-consent {
-  background: #ccc;
-  color:      black;
-
-  &:hover, &:focus {
-    background: #c1c1c1;
-    color:      black;
   }
 }
 
@@ -109,6 +77,7 @@
 }
 
 .consent-for {
+  margin-bottom: 15px;
   .key:before {
     content:      '-';
     margin-right: 5px;
@@ -118,10 +87,34 @@
     font-weight:   600;
     padding-right: 10px;
   }
+}
 
-  margin-bottom: 15px;
+.shared-data {
+  white-space:      pre;
+  background-color: #383838;
+  font-size:        13px;
+  color:            #fff;
+  font-weight:      400;
+  padding:          10px 0 10px 25px;
+  font-family:      monaco, serif;
+  margin-bottom:    15px;
 }
 
 .button-wrapper {
   padding: 10px 0 0 0;
+
+  .update-consent {
+    margin: 0 10px 0 0;
+  }
+
+  .reset-consent {
+    background: #ccc;
+    color:      #000;
+    margin:     0;
+
+    &:hover, &:focus {
+      background: #c1c1c1;
+      color:      #000;
+    }
+  }
 }

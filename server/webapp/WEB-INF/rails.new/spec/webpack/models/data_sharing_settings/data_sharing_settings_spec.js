@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-describe('Data Sharing Settings', () => {
+describe('Data Sharing Settings Model', () => {
+  const TimeFormatter          = require('helpers/time_formatter');
   const DataSharingSettings    = require('models/data_sharing_settings/data_sharing_settings');
   const dataSharingSettingsURL = '/go/api/data_sharing/settings';
 
   const dataSharingSettingsJSON = {
     "_embedded": {
       "allow":      true,
-      "updated_by": "Admin"
+      "updated_by": "Admin",
+      "updated_on": "2018-06-14T05:45:30Z"
     }
   };
 
@@ -30,6 +32,22 @@ describe('Data Sharing Settings', () => {
 
     expect(settings.allowed()).toBe(dataSharingSettingsJSON._embedded.allow);
     expect(settings.updatedBy()).toBe(dataSharingSettingsJSON._embedded.updated_by);
+  });
+
+  it('should deserialize updated on time into date format', () => {
+    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => 'ETag'});
+
+    expect(settings.updatedOn()).toBe(TimeFormatter.formatInDate(dataSharingSettingsJSON._embedded.updated_on));
+  });
+
+  it('should tell whether data sharing settings has ever been changed by admin', () => {
+    let settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => 'ETag'});
+    expect(settings.hasEverChangedByAdmin()).toBe(true);
+
+    dataSharingSettingsJSON['_embedded']['updated_by'] = 'Default';
+
+    settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => 'ETag'});
+    expect(settings.hasEverChangedByAdmin()).toBe(false);
   });
 
   it('should toggle consent value', () => {

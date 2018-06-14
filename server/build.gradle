@@ -188,7 +188,7 @@ dependencies {
   // this is needed by velocity tools view
   compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
   compile group: 'commons-collections', name: 'commons-collections', version: project.versions.commonsCollections
-  compile group: 'com.google.guava', name: 'guava', version: '20.0'
+  compile group: 'com.google.guava', name: 'guava', version: project.versions.guava
   compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
   compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
@@ -663,7 +663,7 @@ task verifyWar(type: VerifyJarTask) {
         "go-plugin-domain-${project.version}.jar",
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
-        "guava-20.0.jar",
+        "guava-${project.versions.guava}.jar",
         "h2-1.3.168.jar",
         "hibernate-commons-annotations-3.2.0.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",

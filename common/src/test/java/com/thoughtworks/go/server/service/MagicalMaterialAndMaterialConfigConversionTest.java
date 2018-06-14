@@ -44,13 +44,17 @@ import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.runner.RunWith;
-import org.reflections.Reflections;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
@@ -125,15 +129,18 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
 
     @Test
     public void failIfNewTypeOfMaterialIsNotAddedInTheAboveTest() throws Exception {
-        Reflections reflections = new Reflections("com.thoughtworks");
-        List<Class> reflectionsSubTypesOf = new ArrayList<>(reflections.getSubTypesOf(MaterialConfig.class));
-
-        Iterator<Class> iterator = reflectionsSubTypesOf.iterator();
-        while (iterator.hasNext()) {
-            if (isNotAConcrete_NonTest_MaterialConfigImplementation(iterator.next())) {
-                iterator.remove();
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(MaterialConfig.class));
+        Set<BeanDefinition> candidateComponents = provider.findCandidateComponents("com/thoughtworks");
+        List<Class> reflectionsSubTypesOf = candidateComponents.stream().map(beanDefinition -> beanDefinition.getBeanClassName()).map(s -> {
+            try {
+                return Class.forName(s);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
-        }
+        }).collect(Collectors.toList());
+
+        reflectionsSubTypesOf.removeIf(this::isNotAConcrete_NonTest_MaterialConfigImplementation);
 
         List<Class> allExpectedMaterialConfigImplementations = allMaterialConfigsWhichAreDataPointsInThisTest();
 
@@ -150,7 +157,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     private List<Class> allMaterialConfigsWhichAreDataPointsInThisTest() throws Exception {
-        Set<Field> fields = Reflections.getAllFields(getClass(), Reflections.withAnnotation(DataPoint.class));
+        List<Field> fields = AnnotationUtils.findAnnotatedFields(getClass(), DataPoint.class, field -> true);
 
         ArrayList<Class> allDataPointMaterialConfigClasses = new ArrayList<>();
         for (Field field : fields) {

@@ -17,10 +17,14 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
+import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.NantTask
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.Mockito.mock
 
 class NantTaskRepresenterTest implements TaskRepresenterTest {
   def existingTask() {
@@ -82,7 +86,7 @@ class NantTaskRepresenterTest implements TaskRepresenterTest {
   @Test
   void 'should convert json with no attributes to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHashWithNoAttributes)
-    def task = TaskRepresenter.fromJSON(jsonReader)
+    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
 
     def expectedTask = defaultNewTask()
     assertThatJson(task).isEqualTo(expectedTask)

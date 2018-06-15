@@ -100,7 +100,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
         if (artifactId != null) {
-            PluggableArtifactConfig externalArtifact = getSpecificExternalArtifact(cruiseConfig, pipelineConfig);
+            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(cruiseConfig, pipelineConfig);
 
             if (externalArtifact != null && externalArtifact.getArtifactStore() != null) {
                 ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(externalArtifact.getArtifactStore().getPluginId());
@@ -114,7 +114,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         }
     }
 
-    public PluggableArtifactConfig getSpecificExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+    public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
         PipelineConfig dependencyMaterial = null;
         PluggableArtifactConfig externalArtifact = null;
         if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath()) || pipelineName.getPath().equals(pipelineConfig.name())) {

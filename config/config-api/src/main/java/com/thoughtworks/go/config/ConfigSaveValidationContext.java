@@ -76,7 +76,8 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return new ConfigSaveValidationContext(current, this);
     }
 
-    private CruiseConfig getCruiseConfig() {
+    @Override
+    public CruiseConfig getCruiseConfig() {
         return loadFirstOfType(CruiseConfig.class);
     }
 

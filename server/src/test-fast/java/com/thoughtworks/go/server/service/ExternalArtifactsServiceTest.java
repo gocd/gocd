@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.JobConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -35,12 +34,15 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 
 public class ExternalArtifactsServiceTest {
     private PluggableArtifactConfig pluggableArtifactConfig;
+    private FetchPluggableArtifactTask fetchPluggableArtifactTask;
+    private PipelineConfig pipelineConfig;
     private ExternalArtifactsService externalArtifactsService;
     private ArtifactExtension artifactExtension;
     private BasicCruiseConfig cruiseConfig;
@@ -57,8 +59,12 @@ public class ExternalArtifactsServiceTest {
         ArtifactMetadataStore.instance().setPluginInfo(pluginInfo);
 
         pluggableArtifactConfig = new PluggableArtifactConfig("foo", "bar");
+        pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
+        pipelineConfig.getStage("s1").jobConfigByConfigName("j1").artifactConfigs().add(pluggableArtifactConfig);
+        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1"), new CaseInsensitiveString("j1"), "foo");
 
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
         cruiseConfig.getArtifactStores().add(new ArtifactStore("bar", pluginId));
 
     }
@@ -70,22 +76,44 @@ public class ExternalArtifactsServiceTest {
         pluggableArtifactConfig.setConfiguration(configuration);
 
         when(artifactExtension.validatePluggableArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
-        externalArtifactsService.validate(pluggableArtifactConfig, mock(ArtifactStore.class), validationContext);
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), validationContext);
 
         assertFalse(pluggableArtifactConfig.hasErrors());
+    }
+
+    @Test
+    public void shouldValidateFetchArtifactTaskConfig() {
+        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("Dest", false, "foo"));
+
+        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("bar", pluginId));
+        fetchPluggableArtifactTask.setConfiguration(configuration);
+        when(artifactExtension.validateFetchArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
+
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig );
+        assertTrue(fetchPluggableArtifactTask.errors().isEmpty());
     }
 
     @Test
     public void shouldSkipValidationAgainstPluginIfExternalArtifactIsInvalid() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validate(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
 
         verifyZeroInteractions(artifactExtension);
     }
 
     @Test
-    public void shouldMapPluginValidationErrorsToExternalArtifactConfigrations() {
+    public void shouldSkipValidationAgainstPluginIfFetchExternalArtifactIsInvalid() {
+        cruiseConfig.getArtifactStores().clear();
+
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig), pipelineConfig);
+
+        verifyZeroInteractions(artifactExtension);
+    }
+
+    @Test
+    public void shouldMapPluginValidationErrorsToConfigrationProperties() {
         Configuration configuration = new Configuration();
         configuration.add(ConfigurationPropertyMother.create("Image", false, "alpine"));
         configuration.add(ConfigurationPropertyMother.create("Tag", false, "fml"));
@@ -100,7 +128,7 @@ public class ExternalArtifactsServiceTest {
 
         when(artifactExtension.validatePluggableArtifactConfig(any(String.class), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validate(pluggableArtifactConfig, artifactStore, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
 
         assertThat(configuration.getProperty("Image").errors().get("Image").get(0), is("invalid"));
         assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0), is("invalid"));
@@ -116,7 +144,7 @@ public class ExternalArtifactsServiceTest {
 
         when(artifactExtension.validatePluggableArtifactConfig(any(), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validate(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
 
         assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0), is("Either Image or BuildFile is required"));
     }

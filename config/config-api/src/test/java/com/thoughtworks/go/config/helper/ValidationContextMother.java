@@ -147,5 +147,10 @@ public class ValidationContextMother {
         public ArtifactStores artifactStores() {
             return artifactStores;
         }
+
+        @Override
+        public CruiseConfig getCruiseConfig() {
+            return null;
+        }
     }
 }

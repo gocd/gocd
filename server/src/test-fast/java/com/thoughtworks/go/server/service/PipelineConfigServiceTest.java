@@ -184,8 +184,28 @@ public class PipelineConfigServiceTest {
 
         pipelineConfigService.updatePipelineConfig(null, pipeline, null, null);
 
-        verify(externalArtifactsService).validate(eq(s3), any(), any());
-        verify(externalArtifactsService).validate(eq(docker), any(), any());
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(s3), any(), any());
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(docker), any(), any());
+    }
+
+    @Test
+    public void updatePipelineConfigShouldValidateAllFetchExternalArtifactTasks() {
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
+        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+
+        job1.addTask(fetchS3Task);
+        job2.addTask(fetchDockerTask);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.updatePipelineConfig(null, pipeline, null, null);
+
+
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any());
     }
 
     @Test
@@ -225,8 +245,28 @@ public class PipelineConfigServiceTest {
 
         pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
 
-        verify(externalArtifactsService).validate(eq(s3), any(), any());
-        verify(externalArtifactsService).validate(eq(docker), any(), any());
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(s3), any(), any());
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(docker), any(), any());
+    }
+
+    @Test
+    public void createPipelineConfigShouldValidateAllFetchExternalArtifactTasks() {
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
+        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+
+        job1.addTask(fetchS3Task);
+        job2.addTask(fetchDockerTask);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
+
+
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any());
     }
 
     @Test

@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.PluggableArtifactConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
@@ -40,11 +39,11 @@ public class ExternalArtifactsService {
         this.artifactExtension = artifactExtension;
     }
 
-    public void validate(PluggableArtifactConfig pluggableArtifactConfig, ArtifactStore artifactStore, ValidationContext validationContext) {
+    public void validateExternalArtifactConfig(PluggableArtifactConfig pluggableArtifactConfig, ArtifactStore artifactStore, ValidationContext validationContext) {
         if (pluggableArtifactConfig.hasValidPluginAndStore(validationContext)) {
             try {
                 ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(artifactStore.getPluginId(), pluggableArtifactConfig.getConfiguration().getConfigurationAsMap(true));
-                mapErrorsToConfiguration(validationResult, pluggableArtifactConfig);
+                mapErrorsToConfiguration(validationResult, pluggableArtifactConfig.getConfiguration(), pluggableArtifactConfig);
 
             } catch (PluginNotFoundException e) {
                 pluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
@@ -52,12 +51,25 @@ public class ExternalArtifactsService {
         }
     }
 
-    private void mapErrorsToConfiguration(ValidationResult result, PluggableArtifactConfig externalArtifactConfig) {
+    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask fetchPluggableArtifactTask, ValidationContext validationContext, PipelineConfig pipelineConfig) {
+        PluggableArtifactConfig specifiedExternalArtifact = fetchPluggableArtifactTask.getSpecifiedExternalArtifact(validationContext.getCruiseConfig(), pipelineConfig);
+        if (specifiedExternalArtifact.hasValidPluginAndStore(validationContext)) {
+            try {
+                ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(specifiedExternalArtifact.getArtifactStore().getPluginId(), fetchPluggableArtifactTask.getConfiguration().getConfigurationAsMap(true));
+                mapErrorsToConfiguration(validationResult, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask);
+
+            } catch (PluginNotFoundException e) {
+                fetchPluggableArtifactTask.addError("pluginId", String.format("Plugin with id `%s` is not found.", specifiedExternalArtifact.getArtifactStore().getPluginId()));
+            }
+        }
+    }
+
+    private void mapErrorsToConfiguration(ValidationResult result, Configuration configuration, Validatable validatableConfig) {
         for (ValidationError validationError : result.getErrors()) {
-            ConfigurationProperty property = externalArtifactConfig.getConfiguration().getProperty(validationError.getKey());
+            ConfigurationProperty property = configuration.getProperty(validationError.getKey());
 
             if (property == null) {
-                externalArtifactConfig.addError(validationError.getKey(), validationError.getMessage());
+                validatableConfig.addError(validationError.getKey(), validationError.getMessage());
             } else {
                 property.addError(validationError.getKey(), validationError.getMessage());
             }

@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.RakeTask
+import org.junit.jupiter.api.Test
+
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class RakeTaskRepresenterTest implements TaskRepresenterTest {
   def existingTask() {
@@ -25,6 +29,10 @@ class RakeTaskRepresenterTest implements TaskRepresenterTest {
     task.setTarget("package")
     task.setWorkingDirectory("f/m/l")
     return task
+  }
+
+  def defaultNewTask() {
+    return new RakeTask()
   }
 
   def expectedTaskHash =
@@ -49,6 +57,11 @@ class RakeTaskRepresenterTest implements TaskRepresenterTest {
       ]
     ]
 
+  def expectedTaskHashWithNoAttributes =
+    [
+      type      : 'rake'
+    ]
+
   def expectedTaskHashWithOnCancelConfig =
     [
       type      : 'rake',
@@ -66,4 +79,12 @@ class RakeTaskRepresenterTest implements TaskRepresenterTest {
       ]
     ]
 
+  @Test
+  void 'should convert json with no attributes to Task'() {
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHashWithNoAttributes)
+    def task = TaskRepresenter.fromJSON(jsonReader)
+
+    def expectedTask = defaultNewTask()
+    assertThatJson(task).isEqualTo(expectedTask)
+  }
 }

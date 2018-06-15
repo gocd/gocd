@@ -34,6 +34,9 @@ public class NantTaskRepresenter extends BaseTaskRepresenter {
 
     public static NantTask fromJSON(JsonReader jsonReader) {
         NantTask nantTask = new NantTask();
+        if (jsonReader == null) {
+            return nantTask;
+        }
         BaseTaskRepresenter.fromJSON(jsonReader, nantTask);
         jsonReader.readStringIfPresent("working_directory", nantTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", nantTask::setBuildFile);

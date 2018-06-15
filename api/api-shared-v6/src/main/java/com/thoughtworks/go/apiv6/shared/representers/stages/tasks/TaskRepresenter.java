@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.Task;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class TaskRepresenter {
 
@@ -86,8 +87,12 @@ public class TaskRepresenter {
     }
 
     public static Task fromJSON(JsonReader jsonReader) {
+        JsonReader attributes = null;
         String type = jsonReader.getString("type");
-        JsonReader attributes = jsonReader.readJsonObject("attributes");
+        Optional<JsonReader> attributesObject = jsonReader.optJsonObject("attributes");
+        if (attributesObject.isPresent()) {
+            attributes = attributesObject.get();
+        }
         switch (type) {
             case AntTask.TYPE:
                 return AntTaskRepresenter.fromJSON(attributes);

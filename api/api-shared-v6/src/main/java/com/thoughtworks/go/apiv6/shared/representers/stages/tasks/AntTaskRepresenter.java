@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.AntTask;
 import java.util.HashMap;
 
 public class AntTaskRepresenter {
+
     public static void toJSON(OutputWriter jsonWriter, AntTask antTask) {
         BaseTaskRepresenter.toJSON(jsonWriter, antTask);
         jsonWriter.add("working_directory", antTask.workingDirectory());
@@ -33,6 +34,9 @@ public class AntTaskRepresenter {
 
     public static AntTask fromJSON(JsonReader jsonReader) {
         AntTask antTask = new AntTask();
+        if (jsonReader == null) {
+            return antTask;
+        }
         BaseTaskRepresenter.fromJSON(jsonReader, antTask);
         jsonReader.readStringIfPresent("working_directory", antTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", antTask::setBuildFile);

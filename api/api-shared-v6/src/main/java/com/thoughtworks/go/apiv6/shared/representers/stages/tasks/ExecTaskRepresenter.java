@@ -43,6 +43,9 @@ public class ExecTaskRepresenter {
 
     public static ExecTask fromJSON(JsonReader jsonReader) {
         ExecTask execTask = new ExecTask();
+        if (jsonReader == null) {
+            return execTask;
+        }
         BaseTaskRepresenter.fromJSON(jsonReader, execTask);
         jsonReader.readStringIfPresent("command", execTask::setCommand);
         jsonReader.readArrayIfPresent("arguments", arguments -> {

@@ -20,15 +20,29 @@ describe "admin/jobs/artifacts.html.erb" do
   include GoUtil
   include FormUI
 
+  PLUGIN_ID = 'my.artifact.plugin'
+  ARTIFACT_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
+
   before(:each) do
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))
     stage = pipeline.get(0)
     @job = stage.getJobs().get(0)
+    build_artifact_config = BuildArtifactConfig.new("build-source", "build-dest")
+    test_artifact_config = TestArtifactConfig.new("test-source", "test-dest")
+    external_artifact_config = PluggableArtifactConfig.new("artifact_id", "store_id", ConfigurationPropertyMother.create('KEY1', false, 'value1'), ConfigurationPropertyMother.create('key2', false, 'value2'))
+    external_artifact_config.setArtifactStore(ArtifactStore.new("store_id", PLUGIN_ID))
+    @job.artifactConfigs().add(build_artifact_config)
+    @job.artifactConfigs().add(test_artifact_config)
+    @job.artifactConfigs().add(external_artifact_config)
     assign(:pipeline, pipeline)
     assign(:stage, stage)
     assign(:job, @job)
 
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
+    @artifact_metadata_store = double('artifact_metadata_store')
+    allow(@artifact_metadata_store).to receive(:publishTemplate).and_return(ARTIFACT_PLUGIN_TEMPLATE)
+    assign(:plugin_name_to_id, {"Foo Plugin" => "foo"})
+    assign(:artifact_meta_data_store, @artifact_metadata_store)
     @cruise_config.addPipeline("group-1", pipeline)
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")
@@ -47,15 +61,57 @@ describe "admin/jobs/artifacts.html.erb" do
     expect(response.body).to have_selector("span.has_go_tip_right[title='Publish build artifacts to the artifact repository']")
   end
 
-  it "should have a headings for source and destination with a title tooltip" do
+  it 'should have a dropdown for choosing artifact type' do
     render
 
-    expect(response.body).to have_selector("h4.src", :text => "Source")
-    expect(Capybara.string(response.body).all("th span.has_go_tip_right")[0]['title']).to eq("The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).")
-    expect(response.body).to have_selector("h4.dest", :text => "Destination")
-    expect(Capybara.string(response.body).all("th span.has_go_tip_right")[1]['title']).to eq("The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory")
-    expect(response.body).to have_selector("h4.type", :text => "Type")
-    expect(Capybara.string(response.body).all("th span.has_go_tip_right")[2]['title']).to eq("When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs.")
+    expect(response).to have_selector("a[id='add_artifact']", :text => 'Add')
+
+    expect(response).to have_selector("select[id='select_artifact_type']")
+    expect(response).to have_selector("select[id='select_artifact_type'] option[value='Build Artifact']", :text => 'Build')
+    expect(response).to have_selector("select[id='select_artifact_type'] option[value='Test Artifact']", :text => 'Test')
+    expect(response).to have_selector("select[id='select_artifact_type'] option[value='External Artifact']", :text => 'External')
+  end
+
+  it "should render plugin template and data for a external artifact" do
+    render
+
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='artifact_id']")
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='store_id']")
+
+    Capybara.string(response.body).find('div.plugged_artifact').tap do |div|
+      template_text = text_without_whitespace(div.find('div.plugged_artifact_template'))
+      expect(template_text).to eq(ARTIFACT_PLUGIN_TEMPLATE)
+
+      data_for_template = JSON.parse(div.find('span.plugged_artifact_data', :visible => false).text)
+      expect(data_for_template.keys.sort).to eq(['KEY1', 'key2'])
+      expect(data_for_template['KEY1']).to eq({'value' => 'value1'})
+      expect(data_for_template['key2']).to eq({'value' => 'value2'})
+    end
+  end
+
+  it "should render inputs for built in artifacts" do
+    render
+
+    expect(Capybara.string(response.body).all('div.artifact .row .columns span.has_go_tip_right')[0]['title']).to eq("There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.")
+    expect(Capybara.string(response.body).all('div.artifact .row .columns span.has_go_tip_right')[1]['title']).to eq("The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).")
+    expect(Capybara.string(response.body).all('div.artifact .row .columns span.has_go_tip_right')[2]['title']).to eq("The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory")
+
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='build-source']")
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='test-source']")
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='build-dest']")
+    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='test-dest']")
+
+  end
+
+  it "should show the delete button for each artifact" do
+    render
+
+    expect(Capybara.string(response.body).all('div.artifact .row .columns .delete_artifact').size).to eq(3)
+  end
+
+
+  def text_without_whitespace element
+    element.native.inner_html.gsub(/^[\n ]*/, '').gsub(/[\n ]*$/, '')
   end
 
 end

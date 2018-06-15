@@ -4014,11 +4014,11 @@ ul.entity_title {
 }
 
 .plugin_form_background, .plugin_key_value {
-  background-color: $artifact_plugin_form_background;
+  background-color: $artifact-plugin-form-background;
 }
 
 .plugin_dropdown_background {
-  background-color: $artifact_plugin_message_background;
+  background-color: $artifact-plugin-message-background;
 }
 
 .plugin_dropdown_background .columns {
@@ -4026,7 +4026,7 @@ ul.entity_title {
 }
 
 .plugin_form_background .columns {
-  padding-top:      10px;
+  padding-top: 10px;
 }
 
 .plugin-select-form span {

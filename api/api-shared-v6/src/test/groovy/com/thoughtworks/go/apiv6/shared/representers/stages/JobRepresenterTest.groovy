@@ -352,7 +352,7 @@ class JobRepresenterTest {
       ])
 
       def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions()) })
-      assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test.", exception.getMessage())
+      assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test,external.", exception.getMessage())
     }
 
     @Test

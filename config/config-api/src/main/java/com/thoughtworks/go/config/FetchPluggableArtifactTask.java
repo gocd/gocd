@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -102,42 +100,44 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
         if (artifactId != null) {
-            PipelineConfig dependencyMaterial = null;
-            if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath())) {
-                dependencyMaterial = pipelineConfig;
-            } else {
-                try {
-                    dependencyMaterial = cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName());
-                } catch (PipelineNotFoundException e) {
-                    // ignore
+            PluggableArtifactConfig externalArtifact = getSpecificExternalArtifact(cruiseConfig, pipelineConfig);
+
+            if (externalArtifact != null && externalArtifact.getArtifactStore() != null) {
+                ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(externalArtifact.getArtifactStore().getPluginId());
+                if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
+                    return;
                 }
-            }
-            if (dependencyMaterial != null) {
-                StageConfig upstreamStage = dependencyMaterial.getStage(this.stage);
-                if (upstreamStage != null) {
-                    JobConfig jobConfig = upstreamStage.jobConfigByConfigName(this.job);
-                    if (jobConfig != null) {
-                        PluggableArtifactConfig externalArtifact = jobConfig.artifactConfigs().findByArtifactId(this.artifactId);
-                        if (externalArtifact != null && externalArtifact.getArtifactStore() != null) {
-                            ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(externalArtifact.getArtifactStore().getPluginId());
-                            if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
-                                return;
-                            }
-                            Configuration configurationProperties = new Cloner().deepClone(getConfiguration());
-                            getConfiguration().clear();
-                            ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-                            for (ConfigurationProperty configurationProperty : configurationProperties) {
-                                this.getConfiguration().add(builder.create(configurationProperty.getConfigKeyName(),
-                                        configurationProperty.getConfigValue(),
-                                        configurationProperty.getEncryptedValue(),
-                                        isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings())));
-                            }
-                        }
-                    }
+                for (ConfigurationProperty configurationProperty : getConfiguration()) {
+                    configurationProperty.handleSecureValueConfiguration(isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings()));
                 }
             }
         }
     }
+
+    public PluggableArtifactConfig getSpecificExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+        PipelineConfig dependencyMaterial = null;
+        PluggableArtifactConfig externalArtifact = null;
+        if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath()) || pipelineName.getPath().equals(pipelineConfig.name())) {
+            dependencyMaterial = pipelineConfig;
+        } else {
+            try {
+                dependencyMaterial = cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName());
+            } catch (PipelineNotFoundException e) {
+                // ignore
+            }
+        }
+        if (dependencyMaterial != null) {
+            StageConfig upstreamStage = dependencyMaterial.getStage(this.stage);
+            if (upstreamStage != null) {
+                JobConfig jobConfig = upstreamStage.jobConfigByConfigName(this.job);
+                if (jobConfig != null) {
+                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(this.artifactId);
+                }
+            }
+        }
+        return externalArtifact;
+    }
+
 
     @Override
     protected void setFetchTaskAttributes(Map attributeMap) {
@@ -176,14 +176,8 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
-        //TODO: based on https://github.com/gocd/gocd/pull/4763
-
-        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-        for (ConfigurationProperty property : configurationProperties) {
-            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
-                    property.getConfigValue(),
-                    property.getEncryptedValue(),
-                    false));
-        }
+        // encrypting of properties will be taken care of later (see encryptSecureProperties) when we have information about which properties to encrypt
+        // For now, we can set the properties as is.
+        this.getConfiguration().addAll(configurationProperties);
     }
 }

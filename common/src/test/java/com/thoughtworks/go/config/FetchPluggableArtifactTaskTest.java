@@ -481,7 +481,7 @@ public class FetchPluggableArtifactTaskTest {
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, null);
+        task.encryptSecureProperties(cruiseConfig, PipelineConfigMother.pipelineConfig("p1"));
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }

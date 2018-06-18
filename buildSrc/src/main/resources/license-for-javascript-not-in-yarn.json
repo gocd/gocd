@@ -83,7 +83,7 @@
   },
   "es5-shim": {
     "moduleName": "es5-shim",
-    "moduleVersion": null,
+    "moduleVersion": "unknown",
     "moduleUrls": [
       "https://github.com/es-shims/es5-shim"
     ],
@@ -252,7 +252,7 @@
     ],
     "moduleLicenses": [
       {
-        "moduleLicense": "unknown"
+        "moduleLicense": "MIT"
       }
     ]
   },

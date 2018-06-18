@@ -788,6 +788,20 @@ task licenseReportAggregate {
       ]
     ],
     [
+      moduleName    : 'net.sf.ehcache:ehcache',
+      moduleVersion : '2.10.5',
+      moduleUrls    : [
+        "http://ehcache.org",
+        'http://www.terracotta.org'
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache License, Version 2.0',
+          moduleLicenseUrl: "http://www.apache.org/licenses/LICENSE-2.0"
+        ]
+      ]
+    ],
+    [
       moduleName    : 'asm:asm',
       moduleVersion : '1.5.3',
       moduleUrls    : [
@@ -875,6 +889,32 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'MIT',
           moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api',
+      moduleVersion : '1.0.1.Final',
+      moduleUrls    : [
+        "http://hibernate.org"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Eclipse Distribution License - v1.0',
+          moduleLicenseUrl: "http://www.eclipse.org/org/documents/edl-v10.php"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'jaxen:jaxen',
+      moduleVersion : '1.1.6',
+      moduleUrls    : [
+        "http://jaxen.codehaus.org/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'BSD-3-Clause',
+          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
         ]
       ]
     ]

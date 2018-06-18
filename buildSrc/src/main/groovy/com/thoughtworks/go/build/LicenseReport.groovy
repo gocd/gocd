@@ -23,7 +23,40 @@ import org.gradle.api.Project
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import static com.thoughtworks.go.build.NonSpdxLicense.EDL_1_0
+import static com.thoughtworks.go.build.SpdxLicense.*
+
 class LicenseReport {
+
+  private static Set<String> LICENSE_EXCEPTIONS = [
+    'Apple License',
+    'Bouncy Castle Licence',
+    'BSD',
+    'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
+    'dom4j BSD license',
+    'Public Domain',
+    'Similar to Apache License but with the acknowledgment clause removed',
+    'The H2 License, Version 1.0',
+    'The OpenSymphony Software License 1.1',
+  ]
+
+  private static Set<String> ALLOWED_LICENSES = LICENSE_EXCEPTIONS + [
+    APACHE_1_1,
+    APACHE_2_0,
+    BSD_2_CLAUSE_FREEBSD,
+    BSD_3_CLAUSE,
+    CDDL_1_0,
+    CDDL_1_1,
+    EDL_1_0,
+    EPL_1_0,
+    LGPL_2_1,
+    LGPL_3_0,
+    LGPL_3_0_ONLY,
+    MIT,
+    MPL_1_1,
+    UNLICENSE,
+  ].collect { it.id }
+
   private final Project project
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
   private final AtomicInteger counter
@@ -103,7 +136,7 @@ class LicenseReport {
         strong("${counter}. ")
         strong("Name:")
         span(moduleName)
-        strong(" Version:")
+        strong("Version:")
         span(moduleLicenseData.moduleVersion)
       }
 
@@ -119,10 +152,13 @@ class LicenseReport {
           }
 
           if (moduleLicenseData.moduleLicenses != null && !moduleLicenseData.moduleLicenses.moduleLicenses.isEmpty()) {
+
+            checkIfLicensesAreAllowed(moduleLicenseData.moduleLicenses, moduleName, moduleLicenseData.moduleVersion)
+
             p {
               strong("Manifest license URL(s):")
               moduleLicenseData.moduleLicenses.each { license ->
-                a(href: license.moduleLicenseUrl, license.moduleLicense)
+                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense, moduleName))
               }
             }
           } else {
@@ -147,5 +183,20 @@ class LicenseReport {
     }
   }
 
+  private String normalizeLicense(String license, String moduleName) {
+    return SpdxLicense.normalizedLicense(license) ?: NonSpdxLicense.normalizedLicense(license) ?: license
+  }
+
+  private checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
+    Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
+    Set<String> normalizedLicenseNames = licenseNames.collect { normalizeLicense(it, moduleName) }
+
+    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames)
+    if (intersect.isEmpty()) {
+      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved!")
+    } else {
+      project.getLogger().debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
+    }
+  }
 
 }

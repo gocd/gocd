@@ -21,6 +21,7 @@ dependencies {
   compile project(':common')
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit) {
     exclude(group: 'org.apache.httpcomponents')
+    exclude(module: 'jsch')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'cglib', name: 'cglib', version: '2.1_3'

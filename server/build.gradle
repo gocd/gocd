@@ -199,7 +199,9 @@ dependencies {
     exclude(module: 'jdom')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit
+  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
+    exclude(module: 'jsch')
+  }
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
@@ -688,7 +690,6 @@ task verifyWar(type: VerifyJarTask) {
         "jolt-core-${project.versions.jolt}.jar",
         "jruby-complete-1.7.26.jar",
         "jruby-rack-${versions.rack}.jar",
-        "jsch-0.1.54.jar",
         "json-utils-${project.versions.jolt}.jar",
         "jta-1.1.jar",
         "kahadb-5.5.0.jar",

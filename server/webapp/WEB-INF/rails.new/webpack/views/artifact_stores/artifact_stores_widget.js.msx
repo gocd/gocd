@@ -68,7 +68,7 @@ class ArtifactStoresWidget {
         </f.button>
       );
       const noPluginsMessage = this.state.noPlugins() ?
-        <f.infoRow message="No artifact store plugins installed."/> : undefined;
+        <f.infoRow message="No artifact plugins installed."/> : undefined;
       return (
         <div>
           <HeaderPanel title="Artifact Stores" button={addButton}/>

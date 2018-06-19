@@ -36,7 +36,7 @@ public class GoCipher implements Serializable {
         this(new SystemEnvironment());
     }
 
-    GoCipher(SystemEnvironment systemEnvironment) {
+    public GoCipher(SystemEnvironment systemEnvironment) {
         this.aesEncrypter = new AESEncrypter(new AESCipherProvider(systemEnvironment));
 
         if (desCipherFileExists(systemEnvironment) && systemEnvironment.desEnabled()) {

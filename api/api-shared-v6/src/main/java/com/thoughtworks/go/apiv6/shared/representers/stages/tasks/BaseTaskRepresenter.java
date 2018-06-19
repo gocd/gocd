@@ -36,7 +36,7 @@ public class BaseTaskRepresenter {
         }
     }
 
-    public static AbstractTask fromJSON(JsonReader jsonReader, AbstractTask task, ConfigHelperOptions options) {
+    public static AbstractTask fromJSON(JsonReader jsonReader, AbstractTask task) {
         RunIfConfigs runIfConfigs = new RunIfConfigs();
         jsonReader.readArrayIfPresent("run_if", configs -> {
             configs.forEach(runIfConfig -> {
@@ -45,7 +45,7 @@ public class BaseTaskRepresenter {
         });
         task.setConditions(runIfConfigs);
         jsonReader.optJsonObject("on_cancel").ifPresent(onCancelReader -> {
-            OnCancelConfig onCancelConfig = OnCancelRepresenter.fromJSON(jsonReader.readJsonObject("on_cancel"), options);
+            OnCancelConfig onCancelConfig = OnCancelRepresenter.fromJSON(jsonReader.readJsonObject("on_cancel"));
             task.setOnCancelConfig(onCancelConfig);
         });
         return task;

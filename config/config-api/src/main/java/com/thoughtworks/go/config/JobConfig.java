@@ -335,6 +335,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 ((FetchPluggableArtifactTask) task).encryptSecureProperties(cruiseConfig, pipelineConfig);
             }
         }
+
+        for (PluggableArtifactConfig pluggableArtifactConfig : artifactConfigs().getPluggableArtifactConfigs()) {
+            pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pipelineConfig.getParams());
+        }
     }
 
     public void validate(ValidationContext validationContext) {

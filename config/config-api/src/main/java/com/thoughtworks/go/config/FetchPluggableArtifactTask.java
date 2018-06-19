@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.helper.ParamFinder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -117,27 +118,37 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
         PipelineConfig dependencyMaterial = null;
         PluggableArtifactConfig externalArtifact = null;
-        if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath()) || pipelineName.getPath().equals(pipelineConfig.name())) {
+        ParamFinder paramFinder = new ParamFinder();
+        ParamsConfig params = pipelineConfig.getParams();
+
+        if (pipelineName == null || CaseInsensitiveString.isBlank(getPipelineAncestorName(paramFinder, params)) || getPipelineAncestorName(paramFinder, params).equals(pipelineConfig.name())) {
             dependencyMaterial = pipelineConfig;
         } else {
             try {
-                dependencyMaterial = cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName());
+                dependencyMaterial = cruiseConfig.pipelineConfigByName(getPipelineAncestorName(paramFinder, params));
             } catch (PipelineNotFoundException e) {
                 // ignore
             }
         }
         if (dependencyMaterial != null) {
-            StageConfig upstreamStage = dependencyMaterial.getStage(this.stage);
+            CaseInsensitiveString stageName = this.stage != null && paramFinder.isAttributeAParam(this.stage) ? new CaseInsensitiveString(paramFinder.getParamValue(params, this.stage)) : this.stage;
+            StageConfig upstreamStage = dependencyMaterial.getStage(stageName);
             if (upstreamStage != null) {
-                JobConfig jobConfig = upstreamStage.jobConfigByConfigName(this.job);
+                CaseInsensitiveString jobName = this.job != null && paramFinder.isAttributeAParam(this.job) ? new CaseInsensitiveString(paramFinder.getParamValue(params, this.job)) : this.job;
+                JobConfig jobConfig = upstreamStage.jobConfigByConfigName(jobName);
                 if (jobConfig != null) {
-                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(this.artifactId);
+                    String artifactRef = this.artifactId != null && paramFinder.isAttributeAParam(this.artifactId) ? paramFinder.getParamValue(params, this.artifactId) : this.artifactId;
+                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(artifactRef);
                 }
             }
         }
         return externalArtifact;
     }
 
+    private CaseInsensitiveString getPipelineAncestorName(ParamFinder paramFinder, ParamsConfig paramConfigs) {
+        CaseInsensitiveString pipelineAncestorName = pipelineName.getAncestorName();
+        return paramFinder.isAttributeAParam(pipelineAncestorName) ? new CaseInsensitiveString(paramFinder.getParamValue(paramConfigs, pipelineAncestorName)) : pipelineAncestorName;
+    }
 
     @Override
     protected void setFetchTaskAttributes(Map attributeMap) {
@@ -176,8 +187,6 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
-        // encrypting of properties will be taken care of later (see encryptSecureProperties) when we have information about which properties to encrypt
-        // For now, we can set the properties as is.
         this.getConfiguration().addAll(configurationProperties);
     }
 }

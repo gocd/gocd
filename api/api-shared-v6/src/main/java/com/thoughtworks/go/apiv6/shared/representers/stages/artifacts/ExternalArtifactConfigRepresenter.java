@@ -22,10 +22,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExternalArtifactConfigRepresenter {
 
@@ -35,11 +31,10 @@ public class ExternalArtifactConfigRepresenter {
         jsonWriter.addChildList("configuration", configurationWriter -> ConfigurationPropertyRepresenter.toJSON(configurationWriter, pluggableArtifactConfig.getConfiguration()));
     }
 
-    public static PluggableArtifactConfig fromJSON(JsonReader jsonReader, PluggableArtifactConfig pluggableArtifactConfig, ConfigHelperOptions options) {
+    public static PluggableArtifactConfig fromJSON(JsonReader jsonReader, PluggableArtifactConfig pluggableArtifactConfig) {
         jsonReader.readStringIfPresent("artifact_id", pluggableArtifactConfig::setId);
         jsonReader.readStringIfPresent("store_id", pluggableArtifactConfig::setStoreId);
-        CruiseConfig cruiseConfig = options.getCruiseConfig();
-        pluggableArtifactConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"), cruiseConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()));
+        pluggableArtifactConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
         return pluggableArtifactConfig;
     }
 }

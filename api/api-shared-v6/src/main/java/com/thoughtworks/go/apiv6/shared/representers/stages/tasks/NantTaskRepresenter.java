@@ -33,12 +33,12 @@ public class NantTaskRepresenter extends BaseTaskRepresenter {
         jsonWriter.addIfNotNull("nant_path", nantTask.getNantPath());
     }
 
-    public static NantTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static NantTask fromJSON(JsonReader jsonReader) {
         NantTask nantTask = new NantTask();
         if (jsonReader == null) {
             return nantTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, nantTask, options);
+        BaseTaskRepresenter.fromJSON(jsonReader, nantTask);
         jsonReader.readStringIfPresent("working_directory", nantTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", nantTask::setBuildFile);
         jsonReader.readStringIfPresent("target", nantTask::setTarget);

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
+import com.thoughtworks.go.config.helper.ParamFinder;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -26,10 +27,11 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -45,8 +47,9 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     private Configuration configuration = new Configuration();
 
     @IgnoreTraversal
-    @ConfigReferenceElement(referenceAttribute = "storeId", referenceCollection = "artifactStores")
     private ArtifactStore artifactStore;
+
+    private static final String PARAM_PATTERN = "#\\{(.*?)\\}";
 
     public PluggableArtifactConfig() {
     }
@@ -95,6 +98,16 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         return !hasErrors();
+    }
+
+    public void encryptSecureProperties(CruiseConfig cruiseConfig, ParamsConfig paramConfigs) {
+        if (storeId != null) {
+            ParamFinder paramFinder = new ParamFinder();
+            String artifactStoreId = paramFinder.isAttributeAParam(storeId) ?  paramFinder.getParamValue(paramConfigs, storeId) : storeId;
+            ArtifactStore artifactStore = cruiseConfig.getArtifactStores().find(artifactStoreId);
+            setArtifactStore(artifactStore);
+            encryptSecureConfigurations();
+        }
     }
 
     @Override
@@ -179,8 +192,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         errors.add(fieldName, message);
     }
 
-    @PostConstruct
-    public void encryptSecureConfigurations() {
+    private void encryptSecureConfigurations() {
         if (artifactStore != null && hasPluginInfo()) {
             for (ConfigurationProperty configuration : getConfiguration()) {
                 configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName()));
@@ -225,15 +237,12 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     }
 
     private boolean isSecure(String configKeyName) {
-        if (artifactStore != null) {
-            ArtifactPluginInfo pluginInfo = getPluginInfo();
-            return pluginInfo != null
-                    && pluginInfo.getArtifactConfigSettings() != null
-                    && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
-                    && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName).isSecure();
+        ArtifactPluginInfo pluginInfo = getPluginInfo();
+        return pluginInfo != null
+                && pluginInfo.getArtifactConfigSettings() != null
+                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
+                && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName).isSecure();
 
-        }
-        return false;
     }
 
     private boolean hasPluginInfo() {
@@ -244,15 +253,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         return ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
     }
 
-    public void addConfigurations(List<ConfigurationProperty> configurationProperties, ArtifactStore artifactStore) {
-        setArtifactStore(artifactStore);
-        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-        for (ConfigurationProperty property : configurationProperties) {
-            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
-                    property.getConfigValue(),
-                    property.getEncryptedValue(),
-                    isSecure(property.getConfigKeyName())));
-        }
+    public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
+        this.getConfiguration().addAll(configurationProperties);
     }
-
 }

@@ -35,12 +35,12 @@ public class PluggableTaskRepresenter {
         jsonWriter.addChildList("configuration", configurationWriter -> ConfigurationPropertyRepresenter.toJSON(configurationWriter, pluggableTask.getConfiguration()));
     }
 
-    public static PluggableTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static PluggableTask fromJSON(JsonReader jsonReader) {
         PluggableTask pluggableTask = new PluggableTask();
         if (jsonReader == null) {
             return pluggableTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask, options);
+        BaseTaskRepresenter.fromJSON(jsonReader, pluggableTask);
         PluginConfiguration pluginConfiguration = PluginConfigurationRepresenter.fromJSON(jsonReader.readJsonObject("plugin_configuration"));
         pluggableTask.setPluginConfiguration(pluginConfiguration);
         pluggableTask.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));

@@ -26,10 +26,7 @@ import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigRepoOrig
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigXmlOriginRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -114,7 +111,7 @@ public class PipelineConfigRepresenter {
         pipelineConfig.setParams(ParamRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setMaterialConfigs(MaterialRepresenter.fromJSONArray(jsonReader, options));
-        setStages(jsonReader, pipelineConfig, options);
+        setStages(jsonReader, pipelineConfig);
         setTrackingTool(jsonReader, pipelineConfig);
         jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> {
             pipelineConfig.setTimer(TimerRepresenter.fromJSON(timerJsonReader));
@@ -133,11 +130,11 @@ public class PipelineConfigRepresenter {
         }
     }
 
-    private static void setStages(JsonReader jsonReader, PipelineConfig pipelineConfig, ConfigHelperOptions options) {
+    private static void setStages(JsonReader jsonReader, PipelineConfig pipelineConfig) {
         pipelineConfig.getStages().clear();
         jsonReader.readArrayIfPresent("stages", stages -> {
             stages.forEach(stage -> {
-                pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject()), options));
+                pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
             });
         });
     }

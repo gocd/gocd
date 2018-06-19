@@ -33,12 +33,12 @@ public class AntTaskRepresenter {
         jsonWriter.add("target", antTask.getTarget());
     }
 
-    public static AntTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static AntTask fromJSON(JsonReader jsonReader) {
         AntTask antTask = new AntTask();
         if (jsonReader == null) {
             return antTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, antTask, options);
+        BaseTaskRepresenter.fromJSON(jsonReader, antTask);
         jsonReader.readStringIfPresent("working_directory", antTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", antTask::setBuildFile);
         jsonReader.readStringIfPresent("target", antTask::setTarget);

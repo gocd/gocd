@@ -42,12 +42,12 @@ public class ExecTaskRepresenter {
         jsonWriter.addIfNotNull("working_directory", execTask.workingDirectory());
     }
 
-    public static ExecTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static ExecTask fromJSON(JsonReader jsonReader) {
         ExecTask execTask = new ExecTask();
         if (jsonReader == null) {
             return execTask;
         }
-        BaseTaskRepresenter.fromJSON(jsonReader, execTask, options);
+        BaseTaskRepresenter.fromJSON(jsonReader, execTask);
         jsonReader.readStringIfPresent("command", execTask::setCommand);
         jsonReader.readArrayIfPresent("arguments", arguments -> {
             ArrayList<String> argList = new ArrayList<>();

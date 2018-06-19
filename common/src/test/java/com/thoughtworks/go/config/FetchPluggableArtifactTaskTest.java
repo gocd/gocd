@@ -24,10 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -616,6 +613,47 @@ public class FetchPluggableArtifactTaskTest {
 
         task.addConfigurations(configurationProperties);
         task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+
+        assertThat(task.getConfiguration().size(), is(3));
+        assertThat(task.getConfiguration(), is(expectedConfigurationProperties));
+    }
+
+    @Test
+    public void encryptSecureProperties_shouldEncryptSecurePropertiesIfTheConfigIdentifersAreParams() throws InvalidCipherTextException {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+
+        pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("secure_property2", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("plain", new Metadata(true, false)));
+        when(artifactPluginInfo.getFetchArtifactSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("s3", "aws");
+        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("aws", "cd.go.s3"));
+        pipelineConfig.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(pluggableArtifactConfig);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
+
+
+        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
+
+        ArrayList<ConfigurationProperty> expectedConfigurationProperties = new ArrayList<>();
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new EncryptedConfigurationValue(new GoCipher().encrypt("password"))));
+        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
+
+
+        task.addConfigurations(configurationProperties);
+        PipelineConfig pipelineWhichHasTheFetchTask = PipelineConfigMother.createPipelineConfigWithStage("p2", "anotherStage");
+        pipelineWhichHasTheFetchTask.first().getJobs().first().addTask(task);
+        pipelineWhichHasTheFetchTask.setParams(new ParamsConfig(new ParamConfig("pipeline", "pipeline"), new ParamConfig("stage", "stage"), new ParamConfig("job", "job"), new ParamConfig("artifactId", "s3")));
+        task.encryptSecureProperties(cruiseConfig, pipelineWhichHasTheFetchTask);
 
         assertThat(task.getConfiguration().size(), is(3));
         assertThat(task.getConfiguration(), is(expectedConfigurationProperties));

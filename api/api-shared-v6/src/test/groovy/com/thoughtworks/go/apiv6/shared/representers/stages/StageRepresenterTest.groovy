@@ -88,7 +88,7 @@ class StageRepresenterTest  {
         clean_working_directory: false,
         never_cleanup_artifacts: false
       ])
-      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
       assertEquals('stage1', stageConfig.name().toString())
       assertTrue(stageConfig.isFetchMaterials())
@@ -109,7 +109,7 @@ class StageRepresenterTest  {
             ]
           ]
       ])
-      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
       def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
       new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
@@ -138,7 +138,7 @@ class StageRepresenterTest  {
       ]
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(environmentVariables)
-      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
       def listOfEnvVars = stageConfig.getVariables().name
       assertEquals("MULTIPLE_LINES", listOfEnvVars.get(0))
@@ -151,7 +151,7 @@ class StageRepresenterTest  {
         jobs: [jobHash]
       ])
 
-      def stageConfig = StageRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
       assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().first())
     }
 

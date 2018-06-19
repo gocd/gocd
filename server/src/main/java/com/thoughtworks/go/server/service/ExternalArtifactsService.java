@@ -49,6 +49,9 @@ public class ExternalArtifactsService {
                 pluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
             }
         }
+        else {
+            pluggableArtifactConfig.addError("storeId", String.format("Could not find the artifact store `%s` to do plugin validations", pluggableArtifactConfig.getStoreId()));;
+        }
     }
 
     public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask fetchPluggableArtifactTask, ValidationContext validationContext, PipelineConfig pipelineConfig) {

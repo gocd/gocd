@@ -148,7 +148,7 @@ class JobRepresenterTest {
         name   : 'some-job',
         timeout: '100'
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
 
       assertEquals('some-job', actualJobConfig.name().toString())
       assertEquals('100', actualJobConfig.getTimeout())
@@ -159,7 +159,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         run_instance_count: 'all'
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
 
       assertTrue(actualJobConfig.isRunOnAllAgents())
       assertNull(actualJobConfig.getRunInstanceCount())
@@ -170,7 +170,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         run_instance_count: null
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
 
       assertFalse(actualJobConfig.isRunOnAllAgents())
       assertNull(actualJobConfig.getRunInstanceCount())
@@ -181,7 +181,7 @@ class JobRepresenterTest {
       def jsonReader1 = GsonTransformer.instance.jsonReaderFrom([
         run_instance_count: 10
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader1, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader1)
 
       assertFalse(actualJobConfig.isRunOnAllAgents())
       assertEquals('10', actualJobConfig.getRunInstanceCount())
@@ -189,7 +189,7 @@ class JobRepresenterTest {
       def jsonReader2 = GsonTransformer.instance.jsonReaderFrom([
         run_instance_count: '10'
       ])
-      def jobConfig = JobRepresenter.fromJSON(jsonReader2, getConfigHelperOptions())
+      def jobConfig = JobRepresenter.fromJSON(jsonReader2)
       assertFalse(jobConfig.isRunOnAllAgents())
       assertEquals('10', jobConfig.getRunInstanceCount())
     }
@@ -199,7 +199,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         timeout: 'never'
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals(actualJobConfig.getTimeout(), '0')
     }
 
@@ -208,7 +208,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         timeout: null
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertNull(actualJobConfig.getTimeout())
     }
 
@@ -217,13 +217,13 @@ class JobRepresenterTest {
       def jsonReader1 = GsonTransformer.instance.jsonReaderFrom([
         timeout: '10'
       ])
-      def actualJobConfig1 = JobRepresenter.fromJSON(jsonReader1, getConfigHelperOptions())
+      def actualJobConfig1 = JobRepresenter.fromJSON(jsonReader1)
       assertEquals('10', actualJobConfig1.getTimeout())
 
       def jsonReader2 = GsonTransformer.instance.jsonReaderFrom([
         timeout: 20
       ])
-      def actualJobConfig2 = JobRepresenter.fromJSON(jsonReader2, getConfigHelperOptions())
+      def actualJobConfig2 = JobRepresenter.fromJSON(jsonReader2)
       assertEquals('20', actualJobConfig2.getTimeout())
     }
 
@@ -245,7 +245,7 @@ class JobRepresenterTest {
         environment_variables: environmentVariables
       ])
 
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals('USERNAME', actualJobConfig.getVariables().get(0).name)
       assertEquals('API_KEY', actualJobConfig.getVariables().get(1).name)
     }
@@ -256,7 +256,7 @@ class JobRepresenterTest {
         resources: ['Java', 'Linux']
       ])
 
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def listOfResourceNames = actualJobConfig.resourceConfigs().name
       assertEquals('Java', listOfResourceNames.get(0))
       assertEquals('Linux', listOfResourceNames.get(1))
@@ -278,7 +278,7 @@ class JobRepresenterTest {
         tasks: [taskHash]
       ])
 
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals(actualJobConfig.tasks().size(), 1)
       def task = actualJobConfig.tasks().first()
       assertEquals(task.getTaskType(), 'ant')
@@ -290,7 +290,7 @@ class JobRepresenterTest {
         tasks: [[type: 'invalid', attributes: [command: 'dont-care']]]
       ])
 
-      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions()) })
+      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader) })
       assertEquals("Invalid task type invalid. It has to be one of 'exec,ant,nant,rake,fetch,pluggable_task'.", exception.getMessage())
     }
 
@@ -310,7 +310,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         tabs: tabHash
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def listOfTabNames = actualJobConfig.getTabs().name
       assertEquals(listOfTabNames.get(0), 'coverage')
       assertEquals(listOfTabNames.get(1), 'something')
@@ -334,7 +334,7 @@ class JobRepresenterTest {
         artifacts: artifacts
       ])
 
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def destinations = actualJobConfig.artifactConfigs().collect { eachItem -> ((BuiltinArtifactConfig) eachItem).getDestination() }
       assertEquals(destinations.get(0), 'pkg')
       assertEquals(destinations.get(1), 'testoutput')
@@ -351,7 +351,7 @@ class JobRepresenterTest {
         artifacts: [[type: 'invalid']]
       ])
 
-      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions()) })
+      def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader) })
       assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test,external.", exception.getMessage())
     }
 
@@ -368,7 +368,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         properties: properties
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def listOfPropertyNames = actualJobConfig.getProperties().stream().collect { eachItem -> eachItem.getName() }
       assertEquals(listOfPropertyNames, ['coverage.class'])
     }
@@ -378,7 +378,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         elastic_profile_id: 'docker.unit-test'
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals(actualJobConfig.getElasticProfileId(), 'docker.unit-test')
     }
 
@@ -387,7 +387,7 @@ class JobRepresenterTest {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         elastic_profile_id: null
       ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader, getConfigHelperOptions())
+      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertNull(actualJobConfig.getElasticProfileId())
     }
   }

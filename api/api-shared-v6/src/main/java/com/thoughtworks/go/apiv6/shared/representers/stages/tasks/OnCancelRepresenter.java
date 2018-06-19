@@ -29,8 +29,8 @@ public class OnCancelRepresenter {
         }
     }
 
-    public static OnCancelConfig fromJSON(JsonReader reader, ConfigHelperOptions options) {
-        Task task = TaskRepresenter.fromJSON(reader, options);
+    public static OnCancelConfig fromJSON(JsonReader reader) {
+        Task task = TaskRepresenter.fromJSON(reader);
         return new OnCancelConfig(task);
     }
 }

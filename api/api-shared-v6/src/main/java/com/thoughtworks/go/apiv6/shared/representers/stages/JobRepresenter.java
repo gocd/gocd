@@ -91,19 +91,19 @@ public class JobRepresenter {
         }
     }
 
-    public static JobConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static JobConfig fromJSON(JsonReader jsonReader) {
         JobRepresenter.jsonReader = jsonReader;
         JobConfig jobConfig = new JobConfig();
         jsonReader.readCaseInsensitiveStringIfPresent("name", jobConfig::setName);
         setRunInstanceCount(jobConfig);
         setTimeout(jobConfig);
         jsonReader.readStringIfPresent("elastic_profile_id", jobConfig::setElasticProfileId);
-        setArtifacts(jobConfig, options);
+        setArtifacts(jobConfig);
         jobConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setResources(jobConfig);
         jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
         jobConfig.setProperties(PropertyConfigRepresenter.fromJSONArray(jsonReader));
-        jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader, options));
+        jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader));
 
         return jobConfig;
     }
@@ -119,11 +119,11 @@ public class JobRepresenter {
         jobConfig.setResourceConfigs(resourceConfigs);
     }
 
-    private static void setArtifacts(JobConfig jobConfig, ConfigHelperOptions options) {
+    private static void setArtifacts(JobConfig jobConfig) {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         jsonReader.readArrayIfPresent("artifacts", artifacts -> {
             artifacts.forEach(artifact -> {
-                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject()), options));
+                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
             });
         });
         jobConfig.setArtifactConfigs(artifactConfigs);

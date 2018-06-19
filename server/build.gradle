@@ -762,9 +762,12 @@ task verifyWar(type: VerifyJarTask) {
 
 task licenseReportAggregate {
   if (!project.hasProperty('fastBuild')) {
-    dependsOn rootProject.subprojects.findAll {
-      it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)
-    }.collect { "${it.path}:generateLicenseReport" }
+    rootProject.subprojects.each {
+      if (it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)) {
+        licenseReportAggregate.dependsOn "${it.path}:generateLicenseReport"
+        licenseReportAggregate.inputs.dir(it.licenseReport.outputDir)
+      }
+    }
     dependsOn generateLicenseReport
   }
 

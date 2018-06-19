@@ -15,6 +15,7 @@
  */
 
 
+import com.github.jk1.license.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import groovy.io.FileType
@@ -310,6 +311,15 @@ subprojects {
 
   clean.dependsOn cleanLogs, cleanApiOut
   check.dependsOn 'license'
+
+  tasks.withType(ReportTask) { ReportTask reportTask ->
+    reportTask.outputs.cacheIf { true }
+    project.configurations.each { config ->
+      if (config.name in project.licenseReport.configurations) {
+        reportTask.inputs.files(config)
+      }
+    }
+  }
 
   tasks.withType(Jar) { jarTask ->
     manifest {

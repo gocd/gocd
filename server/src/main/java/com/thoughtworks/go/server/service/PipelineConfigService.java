@@ -138,9 +138,7 @@ public class PipelineConfigService {
 
     public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final String md5, final LocalizedOperationResult result) {
         validatePluggableTasks(pipelineConfig);
-        validateExternalArtifacts(pipelineConfig, PipelineConfigSaveValidationContext.forChain(false, goConfigService.findGroupNameByPipeline(pipelineConfig.name()), goConfigService.getCurrentConfig(), pipelineConfig));
-        validateFetchExternalArtifactTasks(pipelineConfig, PipelineConfigSaveValidationContext.forChain(false, goConfigService.findGroupNameByPipeline(pipelineConfig.name()), goConfigService.getCurrentConfig(), pipelineConfig));
-        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, currentUser, md5, result);
+        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, currentUser, md5, result, externalArtifactsService);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
@@ -166,9 +164,7 @@ public class PipelineConfigService {
 
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         validatePluggableTasks(pipelineConfig);
-        validateExternalArtifacts(pipelineConfig, PipelineConfigSaveValidationContext.forChain(true, groupName, goConfigService.getCurrentConfig(), pipelineConfig));
-        validateFetchExternalArtifactTasks(pipelineConfig, PipelineConfigSaveValidationContext.forChain(true, groupName, goConfigService.getCurrentConfig(), pipelineConfig));
-        CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
+        CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName, externalArtifactsService);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
     }
 
@@ -189,42 +185,6 @@ public class PipelineConfigService {
         for (PluggableTask task : pluggableTask(config)) {
             pluggableTaskService.isValid(task);
         }
-    }
-
-    private void validateExternalArtifacts(PipelineConfig pipelineConfig, ValidationContext validationContext) {
-        for (PluggableArtifactConfig pluggableArtifactConfig : getExternalArtifactConfigs(pipelineConfig)) {
-            externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), validationContext);
-        }
-    }
-
-    private void validateFetchExternalArtifactTasks(PipelineConfig pipelineConfig, ValidationContext validationContext) {
-        for (FetchPluggableArtifactTask fetchPluggableArtifactTask : getAllFetchPluggableArtifactTasks(pipelineConfig)) {
-            externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig);
-        }
-    }
-
-    private List<FetchPluggableArtifactTask> getAllFetchPluggableArtifactTasks(PipelineConfig pipelineConfig) {
-        ArrayList<FetchPluggableArtifactTask> fetchExternalArtifactTasks = new ArrayList<>();
-        for (StageConfig stageConfig : pipelineConfig.getStages()) {
-            for (JobConfig jobConfig : stageConfig.getJobs()) {
-                for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof FetchPluggableArtifactTask) {
-                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
-                    }
-                }
-            }
-        }
-        return fetchExternalArtifactTasks;
-    }
-
-    private List<PluggableArtifactConfig> getExternalArtifactConfigs(PipelineConfig pipelineConfig) {
-        List<PluggableArtifactConfig> externalArtifactConfigs = new ArrayList<>();
-        for (StageConfig stageConfig : pipelineConfig.getStages()) {
-            for (JobConfig jobConfig : stageConfig.getJobs()) {
-                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
-            }
-        }
-        return externalArtifactConfigs;
     }
 
     private List<PluggableTask> pluggableTask(PipelineConfig config) {

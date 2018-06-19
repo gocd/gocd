@@ -16,31 +16,29 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
-public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
-    private final GoConfigService goConfigService;
-    private final PipelineConfig pipelineConfig;
+public class CreatePipelineConfigCommand extends PipelineConfigCommand {
     private final Username currentUser;
     private final LocalizedOperationResult result;
     private final String groupName;
     public String group;
-    private PipelineConfig preprocessedPipelineConfig;
 
-    public CreatePipelineConfigCommand(GoConfigService goConfigService, PipelineConfig pipelineConfig, Username currentUser, LocalizedOperationResult result, final String groupName) {
-        this.goConfigService = goConfigService;
-        this.pipelineConfig = pipelineConfig;
+    public CreatePipelineConfigCommand(GoConfigService goConfigService, PipelineConfig pipelineConfig, Username currentUser, LocalizedOperationResult result, final String groupName, ExternalArtifactsService externalArtifactsService) {
+        super(pipelineConfig, goConfigService, externalArtifactsService);
         this.currentUser = currentUser;
         this.result = result;
         this.groupName = groupName;
@@ -55,23 +53,16 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
-        boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig))
+        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig);
+        validateExternalArtifacts(preprocessedPipelineConfig, validationContext);
+        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext);
+        boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                 && preprocessedPipelineConfig.getAllErrors().isEmpty();
 
         if (!isValid) {
             copyErrors(preprocessedPipelineConfig, pipelineConfig);
         }
         return isValid;
-    }
-
-    @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(pipelineConfig);
-    }
-
-    @Override
-    public PipelineConfig getPreprocessedEntityConfig() {
-        return preprocessedPipelineConfig;
     }
 
     @Override

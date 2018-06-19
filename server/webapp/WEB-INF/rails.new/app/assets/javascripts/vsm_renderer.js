@@ -122,7 +122,7 @@ Graph_Renderer = function (container) {
             }
 
             gui += '<div class="actions">';
-            gui += '<button class="pin" title="Keep dependencies highlighted">pin</button>';
+            gui += '<button class="pin" title="Keep dependencies highlighted" />';
             gui += '</div>';
 
             return gui;
@@ -283,7 +283,7 @@ Graph_Renderer = function (container) {
                 gui += '">' + (node.instances.length - 1) + ' more...</a></div>';
             }
         }
-        gui += '<div class="actions"><button class="pin" title="Keep dependencies highlighted">pin</button></div>';
+        gui += '<div class="actions"><button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
     }
 
@@ -293,7 +293,7 @@ Graph_Renderer = function (container) {
         if (node.message) {
             gui += '<div class="message restricted"><span>' + node.message + '</span></div>';
         }
-        gui += '<div class="actions restricted"><button class="pin" title="Keep dependencies highlighted">pin</button></div>';
+        gui += '<div class="actions restricted"><button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
     }
 
@@ -311,7 +311,7 @@ Graph_Renderer = function (container) {
         if (node.message) {
             gui += '<div class="message deleted"><span>' + node.message + '</span></div>';
         }
-        gui += '<div class="actions deleted"><button class="pin" title="Keep dependencies highlighted">pin</button></div>';
+        gui += '<div class="actions deleted"><button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
     }
 
@@ -338,14 +338,14 @@ Graph_Renderer = function (container) {
                 gui += '<li class="stage_bar ';
                 gui += ((instance.stages[i].status != undefined) ? instance.stages[i].status : 'Unknown');
                 if (instance.stages[i].status == 'Unknown') {
-                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span>' + instance.stages[i].name + '</span></li>'
+                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"></li>'
                 }
                 else {
                   var stageTitle = instance.stages[i].name;
                   if(_.toInteger(instance.stages[i].duration) > 0){
                     stageTitle += ' (took ' + moment.duration(instance.stages[i].duration, 's').humanizeForGoCD() + ')';
                   }
-                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
+                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"></a></li>'
                 }
             }
             gui += '</ul>';

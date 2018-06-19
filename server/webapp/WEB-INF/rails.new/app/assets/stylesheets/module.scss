@@ -2645,7 +2645,6 @@ li.task_property {
     background: image_url('andare/ico-16x16.png') no-repeat scroll 0px -20px transparent;
     display: inline-block;
     padding: 0 0 5px 18px;
-    text-indent: -6000px;
 }
 
 .vsm-entity .show-more {
@@ -2775,7 +2774,6 @@ li.task_property {
 .vsm-entity.pipeline .stages {
     white-space: normal;
     margin-right: -4px;
-    text-indent: -6000px;
     float: none;
 }
 .vsm-entity.pipeline .stages li {
@@ -2906,12 +2904,6 @@ li.task_property {
     overflow: hidden;
     box-sizing: border-box;
     z-index: 1;
-}
-
-.vsm-entity.material .icon {
-    width: 16px;
-    height: 16px;
-    text-indent: -6000px;
 }
 
 .vsm-entity.material .actions {
@@ -3070,7 +3062,6 @@ li.task_property {
     height: 16px;
     float: right;
     background: image_url('andare/ico-16x16.png') no-repeat scroll 0px -140px transparent;
-    text-indent: -6000px;
     margin: 8px 5px 5px 0px;
 }
 

@@ -42,6 +42,7 @@ public class DataSharingService {
     private final UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
     private final DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
     private final EntityHashingService entityHashingService;
+    private final SystemEnvironment systemEnvironment;
     private Object mutexForDataSharingSettings = new Object();
     private Object mutexForUsageStatisticsReporting = new Object();
 
@@ -49,12 +50,14 @@ public class DataSharingService {
     public DataSharingService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao,
                               UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao,
                               DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao,
-                              EntityHashingService entityHashingService) {
+                              EntityHashingService entityHashingService,
+                              SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
         this.usageStatisticsReportingSqlMapDao = usageStatisticsReportingSqlMapDao;
         this.dataSharingSettingsSqlMapDao = dataSharingSettingsSqlMapDao;
         this.entityHashingService = entityHashingService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public UsageStatistics getUsageStatistics() {
@@ -86,7 +89,7 @@ public class DataSharingService {
 
     public UsageStatisticsReporting getUsageStatisticsReporting() {
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
-        loaded.setDataSharingServerUrl(SystemEnvironment.getGoDataSharingServerUrl());
+        loaded.setDataSharingServerUrl(systemEnvironment.getGoDataSharingServerUrl());
 
         return loaded;
     }

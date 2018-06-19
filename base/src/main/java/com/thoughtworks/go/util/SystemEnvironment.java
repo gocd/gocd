@@ -781,7 +781,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_UPDATE_SERVER_URL.getValue();
     }
 
-    public static String getGoDataSharingServerUrl() {
+    public String getGoDataSharingServerUrl() {
         return GO_DATA_SHARING_SERVER_URL.getValue();
     }
 

@@ -120,7 +120,7 @@ public class DataSharingServiceIntegrationTest {
         DataSharingSettings saved = new DataSharingSettings(true, "Bob", new Date());
         dataSharingSettingsSqlMapDao.saveOrUpdate(saved);
 
-        DataSharingSettings loaded = dataSharingSettingsSqlMapDao.load();
+        DataSharingSettings loaded = dataSharingService.getDataSharingSettings();
 
         assertThat(loaded, is(saved));
     }
@@ -137,7 +137,7 @@ public class DataSharingServiceIntegrationTest {
         assertThat(loaded.getServerId(), is(statisticsReporting.getServerId()));
         assertThat(loaded.lastReportedAt().toInstant(), is(statisticsReporting.lastReportedAt().toInstant()));
         assertNull(statisticsReporting.getDataSharingServerUrl());
-        assertThat(loaded.getDataSharingServerUrl(), is(SystemEnvironment.getGoDataSharingServerUrl()));
+        assertThat(loaded.getDataSharingServerUrl(), is(new SystemEnvironment().getGoDataSharingServerUrl()));
     }
 
     @Test

@@ -15,7 +15,7 @@
  */
 
 describe('Data Sharing Usage Data', () => {
-  const UsageData               = require('models/data_sharing_settings/usage_data');
+  const UsageData               = require('models/shared/data_sharing/usage_data');
   const dataSharingUsageDataURL = '/go/api/internal/data_sharing/usagedata';
 
   const dataSharingUsageJSON = {

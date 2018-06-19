@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,6 +56,8 @@ public class DataSharingServiceTest {
     private DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
     @Mock
     private EntityHashingService entityHashingService;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     private BasicCruiseConfig goConfig;
     private JobStateTransition oldestBuild;
@@ -62,7 +65,7 @@ public class DataSharingServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingService(goConfigService, jobInstanceSqlMapDao, usageStatisticsReportingSqlMapDao, dataSharingSettingsSqlMapDao, entityHashingService);
+        service = new DataSharingService(goConfigService, jobInstanceSqlMapDao, usageStatisticsReportingSqlMapDao, dataSharingSettingsSqlMapDao, entityHashingService, systemEnvironment);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.cruiseConfig()).thenReturn(goConfig);

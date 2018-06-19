@@ -21,23 +21,14 @@ const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
 const PluginInfos     = require('models/shared/plugin_infos');
-
-const VersionUpdater = require('models/shared/version_updater');
-const AjaxPoller     = require('helpers/ajax_poller');
-
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
+const AjaxPoller      = require('helpers/ajax_poller');
 
 $(() => {
-  new VersionUpdater().update();
   const dashboardElem              = $('#dashboard');
-
   const dashboardVM                = new DashboardVM();
   const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
   const pluginsSupportingAnalytics = {};
-
-  $(document).foundation();
 
   const dashboard = new Dashboard();
 
@@ -84,8 +75,8 @@ $(() => {
       }));
   }
 
-  const repeater          = Stream(createRepeater());
-  const showSpinner       = Stream(true);
+  const repeater    = Stream(createRepeater());
+  const showSpinner = Stream(true);
 
   const renderView = () => {
     const component = {
@@ -119,7 +110,7 @@ $(() => {
   const onPluginInfosResponse = (pluginInfos) => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
       const supportedPipelineAnalytics = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics();
-      if(supportedPipelineAnalytics.length > 0) {
+      if (supportedPipelineAnalytics.length > 0) {
         pluginsSupportingAnalytics[pluginInfo.id()] = supportedPipelineAnalytics[0].id;
       }
     });

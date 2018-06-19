@@ -68,5 +68,9 @@ module.exports = {
 
   DataSharingUsageDataPath: () => {
     return '/go/api/internal/data_sharing/usagedata';
-  }
+  },
+
+	DataReportingPath: () => {
+		return '/go/api/internal/data_sharing/reporting';
+	}
 };

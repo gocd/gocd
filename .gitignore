@@ -99,6 +99,12 @@ api/api-current-user-v1/target/
 api/api-dashboard-v2/logs/
 api/api-dashboard-v2/out/
 api/api-dashboard-v2/target/
+api/api-data-sharing-reporting-v1/out/
+api/api-data-sharing-reporting-v1/target/
+api/api-data-sharing-settings-v1/out/
+api/api-data-sharing-settings-v1/target/
+api/api-data-sharing-usage-data-v1/out/
+api/api-data-sharing-usage-data-v1/target/
 api/api-encryption-v1/config/
 api/api-encryption-v1/logs/
 api/api-encryption-v1/out/

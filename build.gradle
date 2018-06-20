@@ -574,6 +574,43 @@ task sparkTestJacocoReport(type: JacocoReport, group: 'Coverage reports') { Jaco
   }
 }
 
+private void forAllTask(Closure<Task> closure) {
+  allprojects.each { Project subPrj ->
+
+    // afterEvaluate, because the testsset plugin defines tasks much later
+    subPrj.afterEvaluate {
+      subPrj.tasks.withType(Test).each { eachTestTask ->
+        if (!(eachTestTask.path in [':server:integrationTest'])) {
+          closure.call(eachTestTask)
+        }
+      }
+    }
+  }
+}
+
+task allTests { thisTask ->
+  group LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Run all tests"
+
+  forAllTask { Test eachTestTask ->
+    thisTask.dependsOn eachTestTask
+  }
+
+  finalizedBy 'allTestsJunitHtmlReport'
+}
+
+task allTestsJunitHtmlReport(type: TestReport) { thisTask ->
+  dependsOn allTests
+  group LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Run all api tests"
+
+  forAllTask { Test eachTestTask ->
+    thisTask.reportOn eachTestTask
+  }
+  def htmlOutputDir = file("${project.buildDir}/reports/tests/allTests")
+  destinationDir = htmlOutputDir
+}
+
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 

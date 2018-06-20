@@ -34,6 +34,7 @@ public class ArtifactRepresenter {
                 errorMapping.put("dest", "destination");
                 errorMapping.put("id", "artifact_id");
                 errorMapping.put("storeId", "store_id");
+                errorMapping.put("pluginId", "plugin_id");
 
                 new ErrorGetter(errorMapping).toJSON(errorWriter, artifactConfig);
             });

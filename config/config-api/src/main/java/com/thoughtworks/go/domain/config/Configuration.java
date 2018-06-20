@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.domain.config;
 
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -27,10 +27,11 @@ import static java.lang.String.format;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class Configuration extends BaseCollection<ConfigurationProperty> {
+public class Configuration extends BaseCollection<ConfigurationProperty> implements Validatable {
 
     public static final String CONFIGURATION = "configuration";
     public static final String METADATA = "metadata";
+    private ConfigErrors errors = new ConfigErrors();
 
     public Configuration() {
     }
@@ -123,6 +124,15 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
         }
     }
 
+    //TODO: Move the validateUniquenessCheck from the parents to this method. Parents include SCM, PluginProfile, PluggableArtifactConfig, PackageRepository, PackageDefinition, FetchPluggableTask
+    @Override
+    public void validate(ValidationContext validationContext) {}
+
+    @Override
+    public ConfigErrors errors() {
+        return errors;
+    }
+
     public boolean hasErrors() {
         for (ConfigurationProperty property : this) {
             if (property.hasErrors()) {
@@ -131,6 +141,12 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
         }
 
         return false;
+    }
+
+
+    @Override
+    public void addError(String fieldName, String message) {
+        addErrorFor(fieldName, message);
     }
 
     public Map<String, String> getConfigurationAsMap(boolean addSecureFields) {

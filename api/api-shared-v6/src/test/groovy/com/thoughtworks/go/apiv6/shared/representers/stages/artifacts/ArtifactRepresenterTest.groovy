@@ -123,7 +123,7 @@ class ArtifactRepresenterTest {
     expected.setDestination('reports')
 
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(testArtifactHash)
-    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader)
 
     assertThatJson(actualArtifactConfig).isEqualTo(expected)
   }
@@ -131,12 +131,8 @@ class ArtifactRepresenterTest {
   @Test
   void 'should deserialize external artifact'() {
     def config = new PluggableArtifactConfig("docker-image-stable", "dockerhub", ConfigurationPropertyMother.create("image", false, "alpine"))
-    def cruiseConfig = GoConfigMother.defaultCruiseConfig()
-    def artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.plugin")
-    cruiseConfig.getArtifactStores().add(artifactStore)
-    config.setArtifactStore(artifactStore)
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(externalArtifactHash)
-    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(cruiseConfig, mock(PasswordDeserializer.class)))
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader)
 
     assertThatJson(actualArtifactConfig).isEqualTo(config)
 

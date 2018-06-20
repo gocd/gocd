@@ -39,31 +39,34 @@ public class ExternalArtifactsService {
         this.artifactExtension = artifactExtension;
     }
 
-    public void validateExternalArtifactConfig(PluggableArtifactConfig pluggableArtifactConfig, ArtifactStore artifactStore, ValidationContext validationContext) {
-        if (pluggableArtifactConfig.hasValidPluginAndStore(validationContext)) {
+    public void validateExternalArtifactConfig(PluggableArtifactConfig preprocessedPluggableArtifactConfig, ArtifactStore artifactStore, ValidationContext validationContext) {
+        if (preprocessedPluggableArtifactConfig.hasValidPluginAndStore(validationContext)) {
             try {
-                ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(artifactStore.getPluginId(), pluggableArtifactConfig.getConfiguration().getConfigurationAsMap(true));
-                mapErrorsToConfiguration(validationResult, pluggableArtifactConfig.getConfiguration(), pluggableArtifactConfig);
+                ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(artifactStore.getPluginId(), preprocessedPluggableArtifactConfig.getConfiguration().getConfigurationAsMap(true));
+                mapErrorsToConfiguration(validationResult, preprocessedPluggableArtifactConfig.getConfiguration(), preprocessedPluggableArtifactConfig);
 
             } catch (PluginNotFoundException e) {
-                pluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
+                preprocessedPluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
             }
         }
         else {
-            pluggableArtifactConfig.addError("storeId", String.format("Could not find the artifact store `%s` to do plugin validations", pluggableArtifactConfig.getStoreId()));;
+            preprocessedPluggableArtifactConfig.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Usually this happens when the plugin is not installed.");;
         }
     }
 
-    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask fetchPluggableArtifactTask, ValidationContext validationContext, PipelineConfig pipelineConfig) {
-        PluggableArtifactConfig specifiedExternalArtifact = fetchPluggableArtifactTask.getSpecifiedExternalArtifact(validationContext.getCruiseConfig(), pipelineConfig);
+    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, ValidationContext validationContext, PipelineConfig pipelineConfig) {
+        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(validationContext.getCruiseConfig(), pipelineConfig);
         if (specifiedExternalArtifact.hasValidPluginAndStore(validationContext)) {
             try {
-                ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(specifiedExternalArtifact.getArtifactStore().getPluginId(), fetchPluggableArtifactTask.getConfiguration().getConfigurationAsMap(true));
-                mapErrorsToConfiguration(validationResult, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask);
+                ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(specifiedExternalArtifact.getArtifactStore().getPluginId(), preprocessedFetchPluggableArtifactTask.getConfiguration().getConfigurationAsMap(true));
+                mapErrorsToConfiguration(validationResult, preprocessedFetchPluggableArtifactTask.getConfiguration(), preprocessedFetchPluggableArtifactTask);
 
             } catch (PluginNotFoundException e) {
-                fetchPluggableArtifactTask.addError("pluginId", String.format("Plugin with id `%s` is not found.", specifiedExternalArtifact.getArtifactStore().getPluginId()));
+                preprocessedFetchPluggableArtifactTask.addError("pluginId", String.format("Plugin with id `%s` is not found.", specifiedExternalArtifact.getArtifactStore().getPluginId()));
             }
+        }
+        else {
+            preprocessedFetchPluggableArtifactTask.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Usually this happens when the plugin is not installed.");
         }
     }
 

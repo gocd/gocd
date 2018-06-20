@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.Task;
 
+import java.util.List;
+
 public class PipelineConfigErrorCopier {
     private static void copy(Validatable from, Validatable to) {
         if (from == null || to == null) return;
@@ -67,6 +69,13 @@ public class PipelineConfigErrorCopier {
                     if (toTask instanceof ExecTask) {
                         copyCollectionErrors(((ExecTask) fromTask).getArgList(), ((ExecTask) toTask).getArgList());
                     }
+                }
+                List<PluggableArtifactConfig> toPluggableArtifactConfigs = toJob.artifactConfigs().getPluggableArtifactConfigs();
+                List<PluggableArtifactConfig> fromPluggableArtifactConfigs = fromJob.artifactConfigs().getPluggableArtifactConfigs();
+                for(int i = 0; i< toPluggableArtifactConfigs.size(); i++) {
+                    PluggableArtifactConfig fromPluggableArtifactConfig = fromPluggableArtifactConfigs.get(i);
+                    PluggableArtifactConfig toPluggableArtifactConfig = toPluggableArtifactConfigs.get(i);
+                    copyCollectionErrors(fromPluggableArtifactConfig.getConfiguration(), toPluggableArtifactConfig.getConfiguration());
                 }
             }
         }

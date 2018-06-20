@@ -76,10 +76,6 @@ class StageRepresenterTest  {
   @Nested
   class Deserialize {
 
-    def getConfigHelperOptions() {
-      return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-    }
-
     @Test
     void 'should convert basic hash to StageConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([

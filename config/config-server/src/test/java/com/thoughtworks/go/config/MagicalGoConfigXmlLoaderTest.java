@@ -4091,7 +4091,7 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(configXml);
             fail("An exception was expected");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Expected attribute `storeId` to be present for artifact."));
+            assertThat(e.getMessage(), containsString("\"Store id\" is required for PluggableArtifact"));
         }
     }
 

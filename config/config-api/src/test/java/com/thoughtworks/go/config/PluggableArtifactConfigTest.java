@@ -395,7 +395,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void addConfigurations_shouldEncryptSecureProperties() throws InvalidCipherTextException {
+    public void addConfigurations_shouldSetUserSpecifiedConfigurationAsIs() throws InvalidCipherTextException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
@@ -410,17 +410,12 @@ public class PluggableArtifactConfigTest {
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
 
-        ArrayList<ConfigurationProperty> expectedConfigurationProperties = new ArrayList<>();
-        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
-        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new EncryptedConfigurationValue(new GoCipher().encrypt("password"))));
-        expectedConfigurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
-
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("storeId", "cd.go.s3"));
 
         pluggableArtifactConfig.addConfigurations(configurationProperties);
 
-        assertThat(pluggableArtifactConfig.getConfiguration(), is(expectedConfigurationProperties));
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
     }
 
     @Test

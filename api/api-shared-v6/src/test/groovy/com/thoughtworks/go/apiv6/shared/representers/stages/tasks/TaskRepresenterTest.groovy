@@ -60,7 +60,7 @@ trait TaskRepresenterTest {
   @Test
     void 'should convert json to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHash)
-    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
+    def task = TaskRepresenter.fromJSON(jsonReader)
 
     assertThatJson(task).isEqualTo(existingTask())
   }
@@ -68,7 +68,7 @@ trait TaskRepresenterTest {
   @Test
   void 'should convert json with run if config to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHashWithRunIf)
-    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
+    def task = TaskRepresenter.fromJSON(jsonReader)
 
     def taskWithRunIf = existingTask()
     taskWithRunIf.setConditions(new RunIfConfigs(RunIfConfig.PASSED, RunIfConfig.FAILED, RunIfConfig.ANY))

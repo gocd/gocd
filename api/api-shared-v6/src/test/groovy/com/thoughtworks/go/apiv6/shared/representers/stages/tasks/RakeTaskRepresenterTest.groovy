@@ -86,7 +86,7 @@ class RakeTaskRepresenterTest implements TaskRepresenterTest {
   @Test
   void 'should convert json with no attributes to Task'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedTaskHashWithNoAttributes)
-    def task = TaskRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
+    def task = TaskRepresenter.fromJSON(jsonReader)
 
     def expectedTask = defaultNewTask()
     assertThatJson(task).isEqualTo(expectedTask)

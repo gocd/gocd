@@ -138,10 +138,6 @@ class JobRepresenterTest {
   @Nested
   class Deserialize {
 
-    def getConfigHelperOptions() {
-      return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-    }
-
     @Test
     void 'should convert basic hash to Job'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([

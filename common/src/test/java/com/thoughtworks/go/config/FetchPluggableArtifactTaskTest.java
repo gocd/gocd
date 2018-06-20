@@ -31,8 +31,8 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
@@ -455,7 +455,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIs() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIs() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -469,7 +469,7 @@ public class FetchPluggableArtifactTaskTest {
 
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfPipelineIsNotInConfig() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfPipelineIsNotInConfig() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -484,7 +484,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfStageDoesNotExist() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfStageDoesNotExist() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -502,7 +502,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfJobDoesNotExist() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfJobDoesNotExist() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -520,7 +520,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfArtifactDoesNotExist() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfArtifactDoesNotExist() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -538,7 +538,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsMissing() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsMissing() throws CryptoException {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -558,7 +558,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws CryptoException {
         ArtifactMetadataStore.instance().remove("cd.go.s3");
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
@@ -581,7 +581,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldEncryptSecureProperties() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldEncryptSecureProperties() throws CryptoException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
@@ -619,7 +619,7 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void encryptSecureProperties_shouldEncryptSecurePropertiesIfTheConfigIdentifersAreParams() throws InvalidCipherTextException {
+    public void encryptSecureProperties_shouldEncryptSecurePropertiesIfTheConfigIdentifersAreParams() throws CryptoException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));

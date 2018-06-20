@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,7 +204,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void shouldHandleEncryptionOfConfigProperties() throws InvalidCipherTextException {
+    public void shouldHandleEncryptionOfConfigProperties() throws CryptoException {
         GoCipher goCipher = new GoCipher();
 
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
@@ -232,7 +231,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void shouldHandleEncryptionOfConfigPropertiesIfStoreIdIsAValidParam() throws InvalidCipherTextException {
+    public void shouldHandleEncryptionOfConfigPropertiesIfStoreIdIsAValidParam() throws Exception {
         GoCipher goCipher = new GoCipher();
 
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
@@ -367,7 +366,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsNull() throws InvalidCipherTextException {
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsNull() throws CryptoException {
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "non-existent-store-id");
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
@@ -379,7 +378,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws InvalidCipherTextException {
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws CryptoException {
         ArtifactMetadataStore.instance().remove("cd.go.s3");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
@@ -395,7 +394,7 @@ public class PluggableArtifactConfigTest {
     }
 
     @Test
-    public void addConfigurations_shouldSetUserSpecifiedConfigurationAsIs() throws InvalidCipherTextException {
+    public void addConfigurations_shouldSetUserSpecifiedConfigurationAsIs() throws CryptoException {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));

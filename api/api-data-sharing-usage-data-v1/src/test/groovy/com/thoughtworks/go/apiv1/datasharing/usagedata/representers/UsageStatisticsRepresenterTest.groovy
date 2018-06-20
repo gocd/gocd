@@ -26,7 +26,7 @@ class UsageStatisticsRepresenterTest {
 
   @Test
   void  "should represent usage statistics"() {
-    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, 1527244129553)) })
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, 1527244129553), true) })
     def expectedJson = [
       _links        : [
         self: [href: 'http://test.host/go/api/internal/data_sharing/usagedata']
@@ -42,7 +42,7 @@ class UsageStatisticsRepresenterTest {
 
   @Test
   void  "should handle null oldest_pipeline_execution_time"() {
-    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, null)) })
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, null), true) })
     def expectedJson = [
       _links        : [
         self: [href: 'http://test.host/go/api/internal/data_sharing/usagedata']
@@ -51,6 +51,19 @@ class UsageStatisticsRepresenterTest {
         pipeline_count:         100,
         agent_count:       10,
         oldest_pipeline_execution_time: 0
+      ]
+    ]
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void  "should exclude links if required"() {
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, 1527244129553), false) })
+    def expectedJson = [
+      "_embedded": [
+        pipeline_count:         100,
+        agent_count:       10,
+        oldest_pipeline_execution_time: 1527244129553
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJson)

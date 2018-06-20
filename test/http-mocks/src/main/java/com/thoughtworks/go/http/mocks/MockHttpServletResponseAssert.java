@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.http.mocks;
 
+import com.thoughtworks.go.util.RSAEncryptionHelper;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -27,6 +28,7 @@ import org.assertj.core.util.Objects;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.http.Cookie;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
@@ -113,6 +115,12 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
             this.as("body");
             throw Failures.instance().failure(info, shouldBeEqual(actual.getContentAsByteArray(), expected, info.representation()));
         }
+        return myself;
+    }
+
+    public SELF hasEncryptedBody(String expected, File privateKeyFile) throws Exception {
+        String decrypted = RSAEncryptionHelper.decrypt(actual.getContentAsString(), privateKeyFile.getAbsolutePath());
+        JsonFluentAssert.assertThatJson(decrypted).isEqualTo(expected);
         return myself;
     }
 

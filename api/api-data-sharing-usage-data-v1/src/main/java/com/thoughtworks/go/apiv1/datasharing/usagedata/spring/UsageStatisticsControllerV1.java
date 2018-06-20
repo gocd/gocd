@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.usagedata.*;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +28,9 @@ import org.springframework.stereotype.Component;
 public class UsageStatisticsControllerV1 implements SparkSpringController {
     private UsageStatisticsControllerV1Delegate delegate;
 
-
     @Autowired
-    public UsageStatisticsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService) {
-        this.delegate = new UsageStatisticsControllerV1Delegate(apiAuthenticationHelper, dataSharingService);
+    public UsageStatisticsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService, SystemEnvironment systemEnvironment) {
+        this.delegate = new UsageStatisticsControllerV1Delegate(apiAuthenticationHelper, dataSharingService, systemEnvironment);
     }
 
     @Override

@@ -36,7 +36,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
 
     protected final ApiVersion apiVersion;
-    protected final String mimeType;
+    protected String mimeType;
 
     protected ApiController(ApiVersion apiVersion) {
         this.apiVersion = apiVersion;
@@ -46,6 +46,10 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     protected void setContentType(Request req, Response res) {
         res.raw().setCharacterEncoding("utf-8");
         res.type(mimeType);
+    }
+
+    protected void setEncryptedContentType(Request req, Response res) {
+        res.type("application/octet-stream");
     }
 
     protected String messageJson(Exception ex) {

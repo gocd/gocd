@@ -22,10 +22,13 @@ import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 class UserEnabledCheckFilterWithRedirectToLoginPageTest {
@@ -43,7 +46,16 @@ class UserEnabledCheckFilterWithRedirectToLoginPageTest {
 
     @Test
     void shouldRedirectToLoginPageWithAnErrorMessageInTheSession() throws IOException {
+        SavedRequest savedRequest = mock(SavedRequest.class);
+        SessionUtils.saveRequest(request, savedRequest);
+        HttpSession originalSession = request.getSession(true);
+
         filter.handleFailure(request, response, "something bad happened!");
+
+        assertThat(SessionUtils.getAuthenticationError(request)).isEqualTo("something bad happened!");
+        assertThat(request.getSession(false)).isNotSameAs(originalSession);
+        assertThat(SessionUtils.savedRequest(request)).isSameAs(savedRequest);
+        assertThat(SessionUtils.hasAuthenticationToken(request)).isFalse();
 
         MockHttpServletResponseAssert.assertThat(response).redirectsTo("/go/auth/login");
         assertThat(SessionUtils.getAuthenticationError(request)).isEqualTo("something bad happened!");

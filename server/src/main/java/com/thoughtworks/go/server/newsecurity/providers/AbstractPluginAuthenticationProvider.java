@@ -92,8 +92,6 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
 
     protected abstract List<SecurityAuthConfig> getSecurityAuthConfigsToAuthenticateWith(String pluginId);
 
-//    protected abstract AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig);
-
     protected abstract boolean doesPluginSupportAuthentication(String pluginId);
 
     protected abstract AuthenticationResponse authenticateWithExtension(String pluginId,

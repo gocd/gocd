@@ -36,7 +36,6 @@ public class UserEnabledCheckFilterWithRedirectToLoginPage extends AbstractUserE
 
     @Override
     void handleFailure(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException {
-        SessionUtils.setAuthenticationError(errorMessage, request);
-        response.sendRedirect("/go/auth/login");
+        SessionUtils.redirectToLoginPage(request, response, errorMessage);
     }
 }

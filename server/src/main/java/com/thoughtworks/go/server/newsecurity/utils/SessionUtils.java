@@ -30,6 +30,9 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
@@ -85,6 +88,15 @@ public class SessionUtils {
         LOGGER.debug("Creating new session.");
         request.getSession().invalidate();
         request.getSession();
+    }
+
+    public static void redirectToLoginPage(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException {
+        SavedRequest savedRequest = SessionUtils.savedRequest(request);
+        SessionUtils.recreateSessionWithoutCopyingOverSessionState(request);
+        
+        SessionUtils.saveRequest(request, savedRequest);
+        SessionUtils.setAuthenticationError(errorMessage, request);
+        response.sendRedirect("/go/auth/login");
     }
 
     public static void setAuthenticationError(String message, HttpServletRequest request) {

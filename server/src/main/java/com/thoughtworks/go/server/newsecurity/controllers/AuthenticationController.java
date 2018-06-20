@@ -26,6 +26,8 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.web.GoVelocityView;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +57,22 @@ public class AuthenticationController {
     private static final String UNKNOWN_ERROR_WHILE_AUTHENTICATION = "There was an unknown error authenticating you. Please try again after some time, and contact the administrator if the problem persists.";
     private final SecurityService securityService;
     private final SecurityAuthConfigService securityAuthConfigService;
+    private final SystemEnvironment systemEnvironment;
+    private final Clock clock;
     private final PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider;
     private final WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider;
 
     @Autowired
     public AuthenticationController(SecurityService securityService,
                                     SecurityAuthConfigService securityAuthConfigService,
+                                    SystemEnvironment systemEnvironment,
+                                    Clock clock,
                                     PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider,
                                     WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider) {
         this.securityService = securityService;
         this.securityAuthConfigService = securityAuthConfigService;
+        this.systemEnvironment = systemEnvironment;
+        this.clock = clock;
         this.passwordBasedPluginAuthenticationProvider = passwordBasedPluginAuthenticationProvider;
         this.webBasedPluginAuthenticationProvider = webBasedPluginAuthenticationProvider;
     }
@@ -168,7 +176,7 @@ public class AuthenticationController {
     }
 
     private boolean securityIsDisabledOrAlreadyLoggedIn(HttpServletRequest request) {
-        return !securityService.isSecurityEnabled() || !isAnonymousAuthenticationToken(request);
+        return !securityService.isSecurityEnabled() || (!isAnonymousAuthenticationToken(request) && SessionUtils.isAuthenticated(request, clock, systemEnvironment));
     }
 
     private RedirectView badAuthentication(HttpServletRequest request, String message) {

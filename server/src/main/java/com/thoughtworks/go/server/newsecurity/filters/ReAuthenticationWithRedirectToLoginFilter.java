@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +47,6 @@ public class ReAuthenticationWithRedirectToLoginFilter extends AbstractReAuthent
     protected void onAuthenticationFailure(HttpServletRequest request,
                                            HttpServletResponse response,
                                            String errorMessage) throws IOException {
-        SessionUtils.setAuthenticationError(errorMessage, request);
-        response.sendRedirect("/go/auth/login");
+        SessionUtils.redirectToLoginPage(request, response, errorMessage);
     }
 }

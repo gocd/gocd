@@ -38,7 +38,6 @@ public class BasicAuthenticationWithRedirectToLoginFilter extends AbstractBasicA
     protected void onAuthenticationFailure(HttpServletRequest request,
                                            HttpServletResponse response,
                                            String errorMessage) throws IOException {
-        SessionUtils.setAuthenticationError(errorMessage, request);
-        response.sendRedirect("/go/auth/login");
+        SessionUtils.redirectToLoginPage(request, response, errorMessage);
     }
 }
